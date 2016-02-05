@@ -72,6 +72,7 @@ namespace MimeKit {
 		readonly Dictionary<string, InternetAddressList> addresses;
 		MessageImportance importance = MessageImportance.Normal;
 		MessagePriority priority = MessagePriority.Normal;
+		readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		MailboxAddress resentSender;
 		DateTimeOffset resentDate;
@@ -82,10 +83,13 @@ namespace MimeKit {
 		string inreplyto;
 		Version version;
 
+		// Note: this .ctor is used only by the MimeParser
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
 		{
 			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
+
+			compliance = RfcComplianceMode.Loose;
 
 			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
@@ -113,6 +117,8 @@ namespace MimeKit {
 		{
 			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
+
+			compliance = RfcComplianceMode.Strict;
 
 			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
@@ -1021,7 +1027,7 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
+			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
 				MimeVersion = new Version (1, 0);
 
 			if (Body != null) {
