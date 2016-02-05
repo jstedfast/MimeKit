@@ -1056,10 +1056,12 @@ namespace MimeKit {
 				}
 
 				try {
+					Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
 					Body.Headers.Suppress = true;
 					Body.WriteTo (options, stream, cancellationToken);
 				} finally {
 					Body.Headers.Suppress = false;
+					Body.EnsureNewLine = false;
 				}
 			} else {
 				Headers.WriteTo (options, stream, cancellationToken);
@@ -1337,10 +1339,12 @@ namespace MimeKit {
 
 					if (Body != null) {
 						try {
+							Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
 							Body.Headers.Suppress = true;
 							Body.WriteTo (options, filtered, CancellationToken.None);
 						} finally {
 							Body.Headers.Suppress = false;
+							Body.EnsureNewLine = false;
 						}
 					}
 

@@ -595,7 +595,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
-					filtered.Add (options.CreateNewLineFilter (Headers.Suppress));
+					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
 					ContentObject.WriteTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
