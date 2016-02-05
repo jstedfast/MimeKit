@@ -1021,7 +1021,7 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (version == null && Body != null && Body.Headers.Count > 0)
+			if (Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
 				MimeVersion = new Version (1, 0);
 
 			if (Body != null) {
