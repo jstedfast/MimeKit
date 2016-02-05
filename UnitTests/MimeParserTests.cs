@@ -256,7 +256,7 @@ namespace UnitTests {
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				var parser = new MimeParser (stream, MimeFormat.Mbox, true);
 
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
