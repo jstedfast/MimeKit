@@ -273,7 +273,7 @@ namespace UnitTests {
 
 					// Force the various MimePart objects to write their content streams.
 					// The idea is that by forcing the MimeParts to seek in their content,
-					// we will test to make sure that parser correctly deals with it.
+					// we will test to make sure that the parser correctly deals with it.
 					message.WriteTo (Stream.Null);
 				}
 			}

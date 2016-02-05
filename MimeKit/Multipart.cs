@@ -436,12 +436,18 @@ namespace MimeKit {
 
 			if (cancellable != null) {
 				for (int i = 0; i < children.Count; i++) {
+					var msg = children[i] as MessagePart;
 					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
 					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
+
+					if (msg != null && msg.Message != null && msg.Message.Body != null) {
+						multi = msg.Message.Body as Multipart;
+						part = msg.Message.Body as MimePart;
+					}
 
 					if ((part != null && part.ContentObject == null) ||
 						(multi != null && !multi.WriteEndBoundary))
@@ -459,6 +465,7 @@ namespace MimeKit {
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
 				for (int i = 0; i < children.Count; i++) {
+					var msg = children[i] as MessagePart;
 					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
@@ -466,6 +473,11 @@ namespace MimeKit {
 					stream.Write (boundary, 0, boundary.Length - 2);
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					children[i].WriteTo (options, stream, false, cancellationToken);
+
+					if (msg != null && msg.Message != null && msg.Message.Body != null) {
+						multi = msg.Message.Body as Multipart;
+						part = msg.Message.Body as MimePart;
+					}
 
 					if ((part != null && part.ContentObject == null) ||
 						(multi != null && !multi.WriteEndBoundary))
