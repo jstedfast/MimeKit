@@ -30,7 +30,9 @@ using System.Text;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.IO;
 using MimeKit.Utils;
+using MimeKit.IO.Filters;
 
 namespace UnitTests {
 	[TestFixture]
@@ -219,10 +221,19 @@ namespace UnitTests {
 		public void TestJwzMbox ()
 		{
 			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
+			var options = FormatOptions.Default.Clone ();
+			var original = new MemoryBlockStream ();
+			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
+			var expected = new byte[4096];
+			var buffer = new byte[4096];
+			int nx, n;
+
+			options.NewLineFormat = NewLineFormat.Unix;
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				int count = 0;
 
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
@@ -236,6 +247,11 @@ namespace UnitTests {
 					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
 					DumpMimeTree (builder, message);
 					builder.Append ('\n');
+
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
+					output.Write (marker, 0, marker.Length);
+					message.WriteTo (options, output);
+					count++;
 				}
 			}
 
@@ -247,6 +263,39 @@ namespace UnitTests {
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
 			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+				using (var filtered = new FilteredStream (original)) {
+					filtered.Add (new Dos2UnixFilter ());
+					stream.CopyTo (filtered);
+					filtered.Flush ();
+				}
+			}
+
+			original.Position = 0;
+			output.Position = 0;
+
+			Assert.AreEqual (original.Length, output.Length, "The length of the mbox did not match.");
+
+			do {
+				var position = original.Position;
+
+				nx = original.Read (expected, 0, expected.Length);
+				n = output.Read (buffer, 0, buffer.Length);
+
+				if (nx == 0)
+					break;
+
+				for (int i = 0; i < nx; i++) {
+					if (buffer[i] == expected[i])
+						continue;
+
+					var strExpected = CharsetUtils.Latin1.GetString (expected, 0, nx);
+					var strActual = CharsetUtils.Latin1.GetString (buffer, 0, n);
+
+					Assert.AreEqual (strExpected, strActual, "The mbox differs at position {0}", position + i);
+				}
+			} while (true);
 		}
 
 		[Test]
