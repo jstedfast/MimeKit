@@ -60,7 +60,7 @@ namespace UnitTests {
 		{
 			var outpath = Path.ChangeExtension (path, ".out.html");
 			var tokens = Path.ChangeExtension (path, ".tokens");
-			var expectedOutput = File.Exists (outpath) ? File.ReadAllText (outpath).Replace ("\r\n", "\n") : string.Empty;
+			var expectedOutput = File.Exists (outpath) ? File.ReadAllText (outpath) : string.Empty;
 			var expected = File.Exists (tokens) ? File.ReadAllText (tokens).Replace ("\r\n", "\n") : string.Empty;
 			var output = new StringBuilder ();
 			var actual = new StringBuilder ();
@@ -72,7 +72,7 @@ namespace UnitTests {
 				Assert.AreEqual (HtmlTokenizerState.Data, tokenizer.TokenizerState);
 
 				while (tokenizer.ReadNextToken (out token)) {
-					output.Append (token.ToString ());
+					output.Append (token);
 
 					actual.AppendFormat ("{0}: ", token.Kind);
 
