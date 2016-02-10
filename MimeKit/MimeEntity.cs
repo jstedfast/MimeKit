@@ -51,6 +51,7 @@ namespace MimeKit {
 	/// </remarks>
 	public abstract class MimeEntity
 	{
+		internal bool EnsureNewLine;
 		ContentDisposition disposition;
 		string contentId;
 		Uri location;
