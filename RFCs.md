@@ -11,6 +11,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [1847](http://www.ietf.org/rfc/rfc1847.txt): Security Multiparts for MIME: Multipart/Signed and Multipart/Encrypted
 * [1864](http://www.ietf.org/rfc/rfc1864.txt): The Content-MD5 Header Field (Obsoletes rfc1544)
 * [1872](http://www.ietf.org/rfc/rfc1872.txt): The MIME Multipart/Related Content-type
+* [1892](http://www.ietf.org/rfc/rfc1892.txt): The Multipart/Report Content Type for the Reporting of  Mail System Administrative Messages
 * [2015](http://www.ietf.org/rfc/rfc2015.txt): MIME Security with Pretty Good Privacy (PGP)
 * [2045](http://www.ietf.org/rfc/rfc2045.txt): Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies
 * [2046](http://www.ietf.org/rfc/rfc2046.txt): Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types
@@ -36,6 +37,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [2634](http://www.ietf.org/rfc/rfc2634.txt): Enhanced Security Services for S/MIME
 * [2822](http://www.ietf.org/rfc/rfc2822.txt): Internet Message Format (Obsoletes rfc0822)
 * [3156](http://www.ietf.org/rfc/rfc3156.txt): MIME Security with OpenPGP (Updates rfc2015)
+* [3462](http://www.ietf.org/rfc/rfc3462.txt): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages (Obsoletes rfc1892)
 * [3464](http://www.ietf.org/rfc/rfc3464.txt): An Extensible Message Format for Delivery Status Notifications
 * [3798](http://www.ietf.org/rfc/rfc3798.txt): Message Disposition Notification (Obsoletes rfc2298)
 * [3850](http://www.ietf.org/rfc/rfc3850.txt): S/MIME Version 3.1 Certificate Handling (Obsoletes rfc2632)
@@ -47,6 +49,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [5750](http://www.ietf.org/rfc/rfc5750.txt): S/MIME Version 3.2 Certificate Handling (Obsoletes rfc3850)
 * [5751](http://www.ietf.org/rfc/rfc5751.txt): S/MIME Version 3.2 Message Specification (Obsoletes rfc3851)
 * [6376](http://www.ietf.org/rfc/rfc6376.txt): DomainKeys Identified Mail (DKIM) Signatures (Obsoletes rfc4871)
+* [6522](http://www.ietf.org/rfc/rfc6522.txt): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages (Obsoletes rfc3462)
 * [6532](http://www.ietf.org/rfc/rfc6532.txt): Internationalized Email Headers
 
 #### Other RFCs of interest:
@@ -54,6 +57,4 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [1523](http://www.ietf.org/rfc/rfc1523.txt): The text/enriched MIME Content-type
 * [1927](http://www.ietf.org/rfc/rfc1927.txt): Suggested Additional MIME Types for Associating Documents
 * [2388](http://www.ietf.org/rfc/rfc2388.txt): Returning Values from Forms: multipart/form-data
-* [3462](http://www.ietf.org/rfc/rfc3462.txt): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages
-* [6522](http://www.ietf.org/rfc/rfc6522.txt): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages (Obsoletes rfc3462)
 * [7103](http://www.ietf.org/rfc/rfc7103.txt): Advice for Safe Handling of Malformed Messages
