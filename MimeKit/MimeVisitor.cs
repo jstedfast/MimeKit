@@ -308,6 +308,21 @@ namespace MimeKit {
 			VisitMultipart (related);
 		}
 
+		/// <summary>
+		/// Visit the multipart/report MIME entity.
+		/// </summary>
+		/// <remarks>
+		/// Visits the multipart/report MIME entity.
+		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
+		/// <param name="report">The multipart/report MIME entity.</param>
+		protected internal virtual void VisitMultipartReport (MultipartReport report)
+		{
+			VisitMultipart (report);
+		}
+
 #if ENABLE_CRYPTO
 		/// <summary>
 		/// Visit the multipart/signed MIME entity.
