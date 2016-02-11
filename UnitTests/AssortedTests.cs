@@ -38,44 +38,6 @@ namespace UnitTests {
 	public class AssortedTests
 	{
 		[Test]
-		public void TestMultiLinePreamble ()
-		{
-			var multipart = new Multipart ("alternative");
-			var multiline = "This is a part in a (multipart) message generated with the MimeKit library.\n\n" + 
-			                "All of the parts of this message are identical, however they've been encoded " +
-			                "for transport using different methods.\n";
-			var expected = "This is a part in a (multipart) message generated with the MimeKit library.\n\n" +
-			               "All of the parts of this message are identical, however they've been encoded\n" +
-			               "for transport using different methods.\n";
-
-			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
-				expected = expected.Replace ("\n", "\r\n");
-
-			multipart.Preamble = multiline;
-
-			Assert.AreEqual (expected, multipart.Preamble);
-		}
-
-		[Test]
-		public void TestLongPreamble ()
-		{
-			var multipart = new Multipart ("alternative");
-			var multiline = "This is a part in a (multipart) message generated with the MimeKit library. " + 
-			                "All of the parts of this message are identical, however they've been encoded " +
-			                "for transport using different methods.";
-			var expected = "This is a part in a (multipart) message generated with the MimeKit library.\n" +
-			               "All of the parts of this message are identical, however they've been encoded\n" +
-			               "for transport using different methods.\n";
-
-			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
-				expected = expected.Replace ("\n", "\r\n");
-
-			multipart.Preamble = multiline;
-
-			Assert.AreEqual (expected, multipart.Preamble);
-		}
-
-		[Test]
 		public void TestParsingObsoleteInReplyToSyntax ()
 		{
 			var obsolete = "Joe Sixpack's message sent on Mon, 17 Jan 1994 11:14:55 -0500 <some.message.id.1@some.domain>";
@@ -229,34 +191,6 @@ namespace UnitTests {
 			var msgid = MimeUtils.EnumerateReferences ("<local-part>").FirstOrDefault ();
 
 			Assert.AreEqual ("local-part", msgid);
-		}
-
-		[Test]
-		public void TestMultipartPreambleFolding ()
-		{
-			const string text = "This is a multipart MIME message. If you are reading this text, then it means that your mail client does not support MIME.\n";
-			const string expected = "This is a multipart MIME message. If you are reading this text, then it means\nthat your mail client does not support MIME.\n";
-			var options = FormatOptions.Default.Clone ();
-
-			options.NewLineFormat = NewLineFormat.Unix;
-
-			var actual = Multipart.FoldPreambleOrEpilogue (options, text, false);
-
-			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
-		}
-
-		[Test]
-		public void TestMultipartEpilogueFolding ()
-		{
-			const string text = "This is a multipart epilogue.";
-			const string expected = "\nThis is a multipart epilogue.\n";
-			var options = FormatOptions.Default.Clone ();
-
-			options.NewLineFormat = NewLineFormat.Unix;
-
-			var actual = Multipart.FoldPreambleOrEpilogue (options, text, true);
-
-			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
 		}
 	}
 }

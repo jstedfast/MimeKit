@@ -36,6 +36,16 @@ namespace UnitTests {
 	public class MultipartRelatedTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var related = new MultipartRelated ();
+
+			Assert.Throws<ArgumentNullException> (() => new MultipartRelated ((MimeEntityConstructorArgs) null));
+			Assert.Throws<ArgumentNullException> (() => related.Open (null));
+			Assert.Throws<ArgumentNullException> (() => related.Accept (null));
+		}
+
+		[Test]
 		public void TestReferenceByContentId ()
 		{
 			var builder = new BodyBuilder ();

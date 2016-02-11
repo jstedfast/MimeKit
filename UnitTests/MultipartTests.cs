@@ -40,6 +40,7 @@ namespace UnitTests {
 		{
 			var multipart = new Multipart ();
 
+			Assert.Throws<ArgumentNullException> (() => new Multipart ((MimeEntityConstructorArgs) null));
 			Assert.Throws<ArgumentNullException> (() => new Multipart ((string) null));
 			Assert.Throws<ArgumentNullException> (() => new Multipart ("mixed", null));
 			Assert.Throws<ArgumentException> (() => new Multipart ("mixed", 5));
@@ -62,6 +63,8 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => multipart.CopyTo (new MimeEntity[0], -1));
 			Assert.Throws<ArgumentNullException> (() => multipart.CopyTo (null, 0));
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => multipart.Prepare (EncodingConstraint.SevenBit, 1));
 		}
 
 		[Test]
@@ -108,6 +111,126 @@ namespace UnitTests {
 			multipart.Clear ();
 
 			Assert.AreEqual (0, multipart.Count, "Count");
+		}
+
+		[Test]
+		public void TestMultiLinePreamble ()
+		{
+			var multipart = new Multipart ("alternative");
+			const string multiline = "This is a part in a (multipart) message generated with the MimeKit library.\n\n" + 
+				"All of the parts of this message are identical, however they've been encoded " +
+				"for transport using different methods.\n";
+			var expected = "This is a part in a (multipart) message generated with the MimeKit library.\n\n" +
+				"All of the parts of this message are identical, however they've been encoded\n" +
+				"for transport using different methods.\n";
+
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			multipart.Preamble = multiline;
+
+			Assert.AreEqual (expected, multipart.Preamble);
+
+			multipart.Preamble = null;
+
+			Assert.IsNull (multipart.Preamble);
+		}
+
+		[Test]
+		public void TestLongPreamble ()
+		{
+			var multipart = new Multipart ("alternative");
+			const string multiline = "This is a part in a (multipart) message generated with the MimeKit library. " + 
+				"All of the parts of this message are identical, however they've been encoded " +
+				"for transport using different methods.";
+			var expected = "This is a part in a (multipart) message generated with the MimeKit library.\n" +
+				"All of the parts of this message are identical, however they've been encoded\n" +
+				"for transport using different methods.\n";
+
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			multipart.Preamble = multiline;
+
+			Assert.AreEqual (expected, multipart.Preamble);
+
+			multipart.Preamble = null;
+
+			Assert.IsNull (multipart.Preamble);
+		}
+
+		[Test]
+		public void TestMultiLineEpilogue ()
+		{
+			var multipart = new Multipart ("alternative");
+			const string multiline = "This is a part in a (multipart) message generated with the MimeKit library.\n\n" + 
+				"All of the parts of this message are identical, however they've been encoded " +
+				"for transport using different methods.\n";
+			var expected = "This is a part in a (multipart) message generated with the MimeKit library.\n\n" +
+				"All of the parts of this message are identical, however they've been encoded\n" +
+				"for transport using different methods.\n";
+
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			multipart.Epilogue = multiline;
+
+			Assert.AreEqual (expected, multipart.Epilogue);
+
+			multipart.Epilogue = null;
+
+			Assert.IsNull (multipart.Epilogue);
+		}
+
+		[Test]
+		public void TestLongEpilogue ()
+		{
+			var multipart = new Multipart ("alternative");
+			const string multiline = "This is a part in a (multipart) message generated with the MimeKit library. " + 
+				"All of the parts of this message are identical, however they've been encoded " +
+				"for transport using different methods.";
+			var expected = "This is a part in a (multipart) message generated with the MimeKit library.\n" +
+				"All of the parts of this message are identical, however they've been encoded\n" +
+				"for transport using different methods.\n";
+
+			if (FormatOptions.Default.NewLineFormat != NewLineFormat.Unix)
+				expected = expected.Replace ("\n", "\r\n");
+
+			multipart.Epilogue = multiline;
+
+			Assert.AreEqual (expected, multipart.Epilogue);
+
+			multipart.Epilogue = null;
+
+			Assert.IsNull (multipart.Epilogue);
+		}
+
+		[Test]
+		public void TestPreambleFolding ()
+		{
+			const string text = "This is a multipart MIME message. If you are reading this text, then it means that your mail client does not support MIME.\n";
+			const string expected = "This is a multipart MIME message. If you are reading this text, then it means\nthat your mail client does not support MIME.\n";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var actual = Multipart.FoldPreambleOrEpilogue (options, text, false);
+
+			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
+		}
+
+		[Test]
+		public void TestEpilogueFolding ()
+		{
+			const string text = "This is a multipart epilogue.";
+			const string expected = "\nThis is a multipart epilogue.\n";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var actual = Multipart.FoldPreambleOrEpilogue (options, text, true);
+
+			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
 		}
 	}
 }

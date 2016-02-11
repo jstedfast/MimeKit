@@ -39,11 +39,14 @@ namespace UnitTests {
 		{
 			var report = new MultipartReport ("disposition-notification");
 
+			Assert.Throws<ArgumentNullException> (() => new MultipartReport ((MimeEntityConstructorArgs) null));
 			Assert.Throws<ArgumentNullException> (() => new MultipartReport ((string) null));
 			Assert.Throws<ArgumentNullException> (() => new MultipartReport (null, new object[0]));
 			Assert.Throws<ArgumentNullException> (() => new MultipartReport ("disposition-notification", null));
 
 			Assert.Throws<ArgumentNullException> (() => report.ReportType = null);
+
+			Assert.Throws<ArgumentNullException> (() => report.Accept (null));
 		}
 	}
 }
