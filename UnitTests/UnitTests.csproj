@@ -103,6 +103,7 @@
     <Compile Include="MimeVisitorTests.cs" />
     <Compile Include="MultipartRelatedTests.cs" />
     <Compile Include="MultipartReportTests.cs" />
+    <Compile Include="MultipartTests.cs" />
     <Compile Include="ParseUtilsTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
     <Compile Include="RtfCompressedToRtfTests.cs" />
