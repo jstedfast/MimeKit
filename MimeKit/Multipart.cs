@@ -180,6 +180,7 @@ namespace MimeKit {
 					return;
 
 				ContentType.Boundary = value.Trim ();
+				WriteEndBoundary = true;
 			}
 		}
 
@@ -217,6 +218,8 @@ namespace MimeKit {
 					RawPreamble = null;
 					preamble = null;
 				}
+
+				WriteEndBoundary = true;
 			}
 		}
 
@@ -257,12 +260,13 @@ namespace MimeKit {
 				if (value != null) {
 					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value, true);
 					RawEpilogue = Encoding.UTF8.GetBytes (folded);
-					WriteEndBoundary = true;
 					epilogue = null;
 				} else {
 					RawEpilogue = null;
 					epilogue = null;
 				}
+
+				WriteEndBoundary = true;
 			}
 		}
 
@@ -541,6 +545,7 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
+			WriteEndBoundary = true;
 			children.Add (part);
 		}
 
@@ -552,6 +557,7 @@ namespace MimeKit {
 		/// </remarks>
 		public void Clear ()
 		{
+			WriteEndBoundary = true;
 			children.Clear ();
 		}
 
@@ -611,7 +617,12 @@ namespace MimeKit {
 			if (part == null)
 				throw new ArgumentNullException ("part");
 
-			return children.Remove (part);
+			if (!children.Remove (part))
+				return false;
+
+			WriteEndBoundary = true;
+
+			return true;
 		}
 
 		#endregion
@@ -660,6 +671,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("part");
 
 			children.Insert (index, part);
+			WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -675,6 +687,7 @@ namespace MimeKit {
 		public void RemoveAt (int index)
 		{
 			children.RemoveAt (index);
+			WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -697,6 +710,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException ("value");
 
+				WriteEndBoundary = true;
 				children[index] = value;
 			}
 		}
