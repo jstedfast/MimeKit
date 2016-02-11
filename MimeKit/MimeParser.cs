@@ -1335,6 +1335,8 @@ namespace MimeKit {
 				PopBoundary ();
 
 				return MultipartScanEpilogue (multipart, inbuf);
+			} else {
+				multipart.WriteEndBoundary = false;
 			}
 
 			// We either found the end of the stream or we found a parent's boundary
