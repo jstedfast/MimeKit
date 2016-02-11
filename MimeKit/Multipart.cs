@@ -180,7 +180,6 @@ namespace MimeKit {
 					return;
 
 				ContentType.Boundary = value.Trim ();
-				WriteEndBoundary = true;
 			}
 		}
 

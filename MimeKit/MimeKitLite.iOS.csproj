@@ -180,6 +180,7 @@
     <Compile Include="Multipart.cs" />
     <Compile Include="MultipartAlternative.cs" />
     <Compile Include="MultipartRelated.cs" />
+    <Compile Include="MultipartReport.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterEncodingMethod.cs" />
     <Compile Include="ParameterList.cs" />

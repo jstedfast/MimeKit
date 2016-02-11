@@ -316,6 +316,8 @@ namespace MimeKit {
 					return new MultipartAlternative (args);
 				case "related":
 					return new MultipartRelated (args);
+				case "report":
+					return new MultipartReport (args);
 #if ENABLE_CRYPTO
 				case "encrypted":
 					return new MultipartEncrypted (args);
