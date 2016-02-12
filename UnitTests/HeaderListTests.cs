@@ -25,7 +25,9 @@
 //
 
 using System;
+using System.IO;
 using System.Text;
+
 using NUnit.Framework;
 
 using MimeKit;
@@ -34,6 +36,95 @@ namespace UnitTests {
 	[TestFixture]
 	public class HeaderListTests
 	{
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var list = new HeaderList ();
+
+			// Add
+			Assert.Throws<ArgumentNullException> (() => list.Add (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Add (HeaderId.Unknown, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Add (HeaderId.AdHoc, null));
+			Assert.Throws<ArgumentNullException> (() => list.Add (null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Add ("field", null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Add (HeaderId.Unknown, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Add (HeaderId.AdHoc, null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Add (HeaderId.AdHoc, Encoding.UTF8, null));
+			Assert.Throws<ArgumentNullException> (() => list.Add (null, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Add ("field", null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Add ("field", Encoding.UTF8, null));
+
+			// Contains
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Contains (HeaderId.Unknown));
+			Assert.Throws<ArgumentNullException> (() => list.Contains ((Header) null));
+			Assert.Throws<ArgumentNullException> (() => list.Contains ((string) null));
+
+			// CopyTo
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (new Header[0], -1));
+			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
+
+			// IndexOf
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.IndexOf (HeaderId.Unknown));
+			Assert.Throws<ArgumentNullException> (() => list.IndexOf ((Header) null));
+			Assert.Throws<ArgumentNullException> (() => list.IndexOf ((string) null));
+
+			// Insert
+			list.Add ("field", "value");
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, new Header (HeaderId.AdHoc, "value")));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, HeaderId.AdHoc, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "field", Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, HeaderId.AdHoc, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "field", "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (0, HeaderId.Unknown, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (0, HeaderId.Unknown, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, HeaderId.AdHoc, Encoding.UTF8, null));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, HeaderId.AdHoc, null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, HeaderId.AdHoc, null));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, "field", null));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
+
+			// LastIndexOf
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.LastIndexOf (HeaderId.Unknown));
+			Assert.Throws<ArgumentNullException> (() => list.LastIndexOf ((string) null));
+
+			// Remove
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Remove (HeaderId.Unknown));
+			Assert.Throws<ArgumentNullException> (() => list.Remove ((Header) null));
+			Assert.Throws<ArgumentNullException> (() => list.Remove ((string) null));
+
+			// RemoveAll
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAll (HeaderId.Unknown));
+			Assert.Throws<ArgumentNullException> (() => list.RemoveAll ((string) null));
+
+			// RemoveAt
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAt (-1));
+
+			// Replace
+			Assert.Throws<ArgumentNullException> (() => list.Replace (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Replace (HeaderId.Unknown, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Replace (HeaderId.AdHoc, null));
+			Assert.Throws<ArgumentNullException> (() => list.Replace (null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Replace ("field", null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Replace (HeaderId.Unknown, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Replace (HeaderId.AdHoc, null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Replace (HeaderId.AdHoc, Encoding.UTF8, null));
+			Assert.Throws<ArgumentNullException> (() => list.Replace (null, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Replace ("field", null, "value"));
+			Assert.Throws<ArgumentNullException> (() => list.Replace ("field", Encoding.UTF8, null));
+
+			// WriteTo
+			using (var stream = new MemoryStream ()) {
+				Assert.Throws<ArgumentNullException> (() => list.WriteTo (FormatOptions.Default, null));
+				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null, stream));
+				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null));
+			}
+
+			// Indexer
+			Assert.Throws<ArgumentOutOfRangeException> (() => list[-1] = new Header (HeaderId.AdHoc, "value"));
+			Assert.Throws<ArgumentNullException> (() => list[0] = null);
+		}
+
 		[Test]
 		public void TestReplacingHeaders ()
 		{

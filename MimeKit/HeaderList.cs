@@ -409,7 +409,7 @@ namespace MimeKit {
 		public bool Remove (HeaderId id)
 		{
 			if (id == HeaderId.Unknown)
-				throw new ArgumentNullException ("id");
+				throw new ArgumentOutOfRangeException ("id");
 
 			Header header;
 			if (!table.TryGetValue (id.ToHeaderName (), out header))
