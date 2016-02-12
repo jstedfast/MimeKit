@@ -40,6 +40,8 @@ namespace UnitTests {
 		public void TestArgumentExceptions ()
 		{
 			var list = new HeaderList ();
+			Header header;
+			string value;
 
 			// Add
 			Assert.Throws<ArgumentNullException> (() => list.Add (null));
@@ -120,8 +122,13 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null));
 			}
 
-			// Indexer
+			// Indexers
 			Assert.Throws<ArgumentOutOfRangeException> (() => list[-1] = new Header (HeaderId.AdHoc, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list[HeaderId.Unknown] = "value");
+			Assert.Throws<ArgumentOutOfRangeException> (() => value = list[HeaderId.Unknown]);
+			Assert.Throws<ArgumentOutOfRangeException> (() => header = list[-1]);
+			Assert.Throws<ArgumentNullException> (() => value = list[null]);
+			Assert.Throws<ArgumentNullException> (() => list[null] = "value");
 			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 		}
 
