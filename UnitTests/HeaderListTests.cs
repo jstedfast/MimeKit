@@ -115,8 +115,15 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.Replace ("field", null, "value"));
 			Assert.Throws<ArgumentNullException> (() => list.Replace ("field", Encoding.UTF8, null));
 
-			// WriteTo
 			using (var stream = new MemoryStream ()) {
+				// Load
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (ParserOptions.Default, (Stream) null));
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (ParserOptions.Default, (string) null));
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (null, stream));
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load ((Stream) null));
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load ((string) null));
+
+				// WriteTo
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (FormatOptions.Default, null));
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null, stream));
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null));
@@ -127,8 +134,10 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => list[HeaderId.Unknown] = "value");
 			Assert.Throws<ArgumentOutOfRangeException> (() => value = list[HeaderId.Unknown]);
 			Assert.Throws<ArgumentOutOfRangeException> (() => header = list[-1]);
+			Assert.Throws<ArgumentNullException> (() => list[HeaderId.AdHoc] = null);
 			Assert.Throws<ArgumentNullException> (() => value = list[null]);
 			Assert.Throws<ArgumentNullException> (() => list[null] = "value");
+			Assert.Throws<ArgumentNullException> (() => list["field"] = null);
 			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 		}
 
