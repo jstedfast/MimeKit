@@ -114,9 +114,6 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="charset"/> cannot be empty.
-		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="charset"/> is not supported.
 		/// </exception>
@@ -124,9 +121,6 @@ namespace MimeKit {
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
-
-			if (charset.Length == 0)
-				throw new ArgumentException ("The charset name cannot be empty.", "charset");
 
 			if (id == HeaderId.Unknown)
 				throw new ArgumentOutOfRangeException ("id");
@@ -231,9 +225,7 @@ namespace MimeKit {
 		/// <para><paramref name="value"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="charset"/> cannot be empty.</para>
-		/// <para>-or-</para>
-		/// <para>The <paramref name="field"/> contains illegal characters.</para>
+		/// The <paramref name="field"/> contains illegal characters.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="charset"/> is not supported.
@@ -242,9 +234,6 @@ namespace MimeKit {
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
-
-			if (charset.Length == 0)
-				throw new ArgumentException ("The charset name cannot be empty.", "charset");
 
 			if (field == null)
 				throw new ArgumentNullException ("field");
