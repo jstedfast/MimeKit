@@ -145,9 +145,7 @@ namespace MimeKit {
 		/// <para><paramref name="value"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="charset"/> cannot be empty.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="name"/> contains illegal characters.</para>
+		/// <paramref name="name"/> contains illegal characters.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="charset"/> is not supported.
@@ -156,9 +154,6 @@ namespace MimeKit {
 		{
 			if (charset == null)
 				throw new ArgumentNullException ("charset");
-
-			if (charset.Length == 0)
-				throw new ArgumentException ("The charset name cannot be empty.", "charset");
 
 			if (name == null)
 				throw new ArgumentNullException ("name");
