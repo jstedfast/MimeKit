@@ -66,6 +66,48 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestArgumentExceptions  ()
+		{
+			var header = new Header ("utf-8", HeaderId.Subject, "This is a subject...");
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => new Header (HeaderId.Unknown, "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header (HeaderId.Subject, null));
+			Assert.Throws<ArgumentNullException> (() => new Header (null, "value"));
+			Assert.Throws<ArgumentException> (() => new Header (string.Empty, "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header ("field", null));
+			Assert.Throws<ArgumentNullException> (() => new Header ((Encoding) null, HeaderId.Subject, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new Header (Encoding.UTF8, HeaderId.Unknown, "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header (Encoding.UTF8, HeaderId.Subject, null));
+			Assert.Throws<ArgumentNullException> (() => new Header ((string) null, "field", "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header ("utf-8", null, "value"));
+			Assert.Throws<ArgumentException> (() => new Header ("utf-8", string.Empty, "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header ("utf-8", "field", null));
+			Assert.Throws<ArgumentNullException> (() => new Header ((Encoding) null, "field", "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header (Encoding.UTF8, null, "value"));
+			Assert.Throws<ArgumentException> (() => new Header (Encoding.UTF8, string.Empty, "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header (Encoding.UTF8, "field", null));
+			Assert.Throws<ArgumentNullException> (() => new Header ((string) null, HeaderId.Subject, "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new Header ("utf-8", HeaderId.Unknown, "value"));
+			Assert.Throws<ArgumentNullException> (() => new Header ("utf-8", HeaderId.Subject, null));
+
+			// GetValue
+			Assert.Throws<ArgumentNullException> (() => header.GetValue ((Encoding) null));
+			Assert.Throws<ArgumentNullException> (() => header.GetValue ((string) null));
+
+			// SetValue
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (null, Encoding.UTF8, "value"));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (FormatOptions.Default, (Encoding) null, "value"));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (FormatOptions.Default, Encoding.UTF8, null));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (null, "utf-8", "value"));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (FormatOptions.Default, (string) null, "value"));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (FormatOptions.Default, "utf-8", null));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue ((Encoding) null, "value"));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue (Encoding.UTF8, null));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue ((string) null, "value"));
+			Assert.Throws<ArgumentNullException> (() => header.SetValue ("utf-8", null));
+		}
+
+		[Test]
 		public void TestCloning ()
 		{
 			var header = new Header (HeaderId.Comments, "These are some comments.");
