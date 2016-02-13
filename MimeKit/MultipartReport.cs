@@ -80,6 +80,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new <see cref="MultipartReport"/> part.
 		/// </remarks>
+		/// <param name="reportType">The type of the report.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="reportType"/> is <c>null</c>.
 		/// </exception>
