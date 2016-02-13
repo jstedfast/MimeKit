@@ -142,6 +142,31 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestRemovingHeaders ()
+		{
+			var headers = new HeaderList ();
+
+			headers.Add ("From", "sender@localhost");
+			headers.Add ("To", "first@localhost");
+			headers.Add ("To", "second@localhost");
+			headers.Add ("To", "third@localhost");
+			headers.Add ("Cc", "carbon.copy@localhost");
+
+			Assert.IsTrue (headers.Remove ("Cc"));
+
+			// try removing a header that no longer exists
+			Assert.IsFalse (headers.Remove (HeaderId.Cc));
+			Assert.IsFalse (headers.Remove ("Cc"));
+
+			// removing this will change the result of headers[HeaderId.To]
+			Assert.AreEqual ("first@localhost", headers[HeaderId.To]);
+			Assert.IsTrue (headers.Remove (HeaderId.To));
+			Assert.AreEqual ("second@localhost", headers[HeaderId.To]);
+			Assert.IsTrue (headers.Remove ("To"));
+			Assert.AreEqual ("third@localhost", headers[HeaderId.To]);
+		}
+
+		[Test]
 		public void TestReplacingHeaders ()
 		{
 			const string ReplacedContentType = "text/plain; charset=iso-8859-1; name=body.txt";
