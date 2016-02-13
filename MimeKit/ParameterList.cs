@@ -174,7 +174,7 @@ namespace MimeKit {
 				throw new ArgumentNullException ("name");
 
 			for (int i = 0; i < parameters.Count; i++) {
-				if (parameters[i].Name == name)
+				if (name.Equals (parameters[i].Name, StringComparison.OrdinalIgnoreCase))
 					return i;
 			}
 
