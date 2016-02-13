@@ -163,11 +163,6 @@ namespace MimeKit.Encodings {
 				throw new ArgumentException ("The output buffer is not large enough to contain the decoded input.", "output");
 		}
 
-		static byte Decode (int c)
-		{
-			return (byte) ((c - 0x20) & 0x3F);
-		}
-
 		unsafe byte* ScanBeginMarker (byte* inptr, byte* inend)
 		{
 			while (inptr < inend) {

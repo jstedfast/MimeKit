@@ -500,6 +500,14 @@ namespace UnitTests {
 				var emptyPubkeys = new PgpPublicKey[0];
 				var stream = new MemoryStream ();
 
+				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpEncrypted ((MimeEntityConstructorArgs) null));
+				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpSignature ((MimeEntityConstructorArgs) null));
+				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpSignature ((Stream) null));
+
+				// Accept
+				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpEncrypted ().Accept (null));
+				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpSignature (stream).Accept (null));
+
 				// Decrypt
 				Assert.Throws<ArgumentNullException> (() => ctx.Decrypt (null), "Decrypt");
 

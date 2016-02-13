@@ -74,6 +74,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var stream = new MemoryStream ();
+
+			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Signature ((MimeEntityConstructorArgs) null));
+			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Mime ((MimeEntityConstructorArgs) null));
+			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Signature ((Stream) null));
+
+			// Accept
+			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Mime (SecureMimeType.SignedData, stream).Accept (null));
+			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Signature (stream).Accept (null));
+		}
+
+		[Test]
 		public void TestSecureMimeCompression ()
 		{
 			var original = new TextPart ("plain");

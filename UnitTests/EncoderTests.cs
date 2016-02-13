@@ -300,7 +300,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestPassThroughEncode ()
+		public void TestPassThroughEncoder ()
 		{
 			var encoder = new PassThroughEncoder (ContentEncoding.Default);
 			var output = new byte[4096];
@@ -308,6 +308,8 @@ namespace UnitTests {
 
 			for (int i = 0; i < input.Length; i++)
 				input[i] = (byte) (i & 0xff);
+
+			AssertArgumentExceptions (encoder);
 
 			int n = encoder.Encode (input, 0, input.Length, output);
 
@@ -323,11 +325,11 @@ namespace UnitTests {
 			for (int i = 0; i < n; i++)
 				Assert.AreEqual (input[i], output[i]);
 
-			encoder.Reset ();
+			encoder.Clone ().Reset ();
 		}
 
 		[Test]
-		public void TestPassThroughDecode ()
+		public void TestPassThroughDecoder ()
 		{
 			var decoder = new PassThroughDecoder (ContentEncoding.Default);
 			var output = new byte[4096];
@@ -336,6 +338,8 @@ namespace UnitTests {
 			for (int i = 0; i < input.Length; i++)
 				input[i] = (byte) (i & 0xff);
 
+			AssertArgumentExceptions (decoder);
+
 			int n = decoder.Decode (input, 0, input.Length, output);
 
 			Assert.AreEqual (input.Length, n);
@@ -343,7 +347,7 @@ namespace UnitTests {
 			for (int i = 0; i < n; i++)
 				Assert.AreEqual (input[i], output[i]);
 
-			decoder.Reset ();
+			decoder.Clone ().Reset ();
 		}
 
 		static void AssertIsEncoderFilter (ContentEncoding encoding, ContentEncoding expected)
@@ -371,6 +375,9 @@ namespace UnitTests {
 		[Test]
 		public void TestCreateEncoders ()
 		{
+			Assert.Throws<ArgumentNullException> (() => EncoderFilter.Create (null));
+			Assert.Throws<ArgumentNullException> (() => DecoderFilter.Create (null));
+
 			AssertIsEncoderFilter (ContentEncoding.Base64, ContentEncoding.Base64);
 			AssertIsEncoderFilter ("base64", ContentEncoding.Base64);
 
@@ -476,6 +483,34 @@ namespace UnitTests {
 			}
 		}
 
+		static void AssertArgumentExceptions (IMimeEncoder encoder)
+		{
+			var output = new byte[0];
+
+			Assert.Throws<ArgumentNullException> (() => encoder.Encode (null, 0, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (new byte[0], -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (new byte[1], 0, 10, output));
+			Assert.Throws<ArgumentNullException> (() => encoder.Encode (new byte[1], 0, 1, null));
+			Assert.Throws<ArgumentException> (() => encoder.Encode (new byte[1], 0, 1, output));
+
+			Assert.Throws<ArgumentNullException> (() => encoder.Flush (null, 0, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Flush (new byte[0], -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Flush (new byte[1], 0, 10, output));
+			Assert.Throws<ArgumentNullException> (() => encoder.Flush (new byte[1], 0, 1, null));
+			Assert.Throws<ArgumentException> (() => encoder.Flush (new byte[1], 0, 1, output));
+		}
+
+		static void AssertArgumentExceptions (IMimeDecoder decoder)
+		{
+			var output = new byte[0];
+
+			Assert.Throws<ArgumentNullException> (() => decoder.Decode (null, 0, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Decode (new byte[0], -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Decode (new byte[1], 0, 10, output));
+			Assert.Throws<ArgumentNullException> (() => decoder.Decode (new byte[1], 0, 1, null));
+			Assert.Throws<ArgumentException> (() => decoder.Decode (new byte[1], 0, 1, output));
+		}
+
 		static void AssertState (object encoder, object clone)
 		{
 			foreach (var field in encoder.GetType ().GetFields (BindingFlags.NonPublic | BindingFlags.Instance)) {
@@ -501,6 +536,8 @@ namespace UnitTests {
 			var clone = encoder.Clone ();
 
 			AssertState (encoder, clone);
+
+			AssertArgumentExceptions (encoder);
 		}
 
 		static void CloneAndAssert (IMimeDecoder decoder)
@@ -511,6 +548,8 @@ namespace UnitTests {
 			var clone = decoder.Clone ();
 
 			AssertState (decoder, clone);
+
+			AssertArgumentExceptions (decoder);
 		}
 
 		[Test]
@@ -524,7 +563,7 @@ namespace UnitTests {
 			CloneAndAssert (new QuotedPrintableEncoder ());
 			CloneAndAssert (new UUEncoder ());
 			CloneAndAssert (new YEncoder (76));
-
+			
 			CloneAndAssert (new Base64Decoder ());
 			CloneAndAssert (new HexDecoder ());
 			CloneAndAssert (new QuotedPrintableDecoder (true));
@@ -574,7 +613,7 @@ namespace UnitTests {
 			ResetAndAssert (new QuotedPrintableEncoder ());
 			ResetAndAssert (new UUEncoder ());
 			ResetAndAssert (new YEncoder (76));
-
+			
 			ResetAndAssert (new Base64Decoder ());
 			ResetAndAssert (new HexDecoder ());
 			ResetAndAssert (new QuotedPrintableDecoder (true));
