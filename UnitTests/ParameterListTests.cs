@@ -92,6 +92,89 @@ namespace UnitTests {
 			// TryGetValue
 			Assert.Throws<ArgumentNullException> (() => list.TryGetValue (null, out param));
 			Assert.Throws<ArgumentNullException> (() => list.TryGetValue (null, out value));
+
+			// Indexers
+			Assert.Throws<ArgumentOutOfRangeException> (() => list[-1] = new Parameter ("name", "value"));
+			Assert.Throws<ArgumentOutOfRangeException> (() => param = list[-1]);
+			Assert.Throws<ArgumentNullException> (() => list[0] = null);
+			Assert.Throws<ArgumentNullException> (() => list[null] = "value");
+			Assert.Throws<ArgumentNullException> (() => value = list[null]);
+			Assert.Throws<ArgumentNullException> (() => list["name"] = null);
+		}
+
+		[Test]
+		public void TestBasicFunctionality ()
+		{
+			var list = new ParameterList ();
+			Parameter parameter;
+			string value;
+			int index;
+
+			Assert.IsFalse (list.IsReadOnly, "IsReadOnly");
+			Assert.AreEqual (0, list.Count);
+
+			list.Add (new Parameter ("abc", "0"));
+			list.Add (Encoding.UTF8, "def", "1");
+			list.Add ("ghi", "2");
+
+			Assert.AreEqual (3, list.Count, "Count");
+			Assert.IsTrue (list.Contains (list[0]));
+			Assert.IsTrue (list.Contains ("aBc"));
+			Assert.IsTrue (list.Contains ("DEf"));
+			Assert.IsTrue (list.Contains ("gHI"));
+			Assert.AreEqual (0, list.IndexOf ("aBc"));
+			Assert.AreEqual (1, list.IndexOf ("dEF"));
+			Assert.AreEqual (2, list.IndexOf ("Ghi"));
+			Assert.AreEqual ("abc", list[0].Name);
+			Assert.AreEqual ("def", list[1].Name);
+			Assert.AreEqual ("ghi", list[2].Name);
+			Assert.AreEqual ("0", list["AbC"]);
+			Assert.AreEqual ("1", list["dEf"]);
+			Assert.AreEqual ("2", list["GHi"]);
+
+			Assert.IsTrue (list.TryGetValue ("Abc", out parameter));
+			Assert.AreEqual ("abc", parameter.Name);
+			Assert.IsTrue (list.TryGetValue ("Abc", out value));
+			Assert.AreEqual ("0", value);
+
+			Assert.IsFalse (list.Remove ("xyz"), "Remove");
+			list.Insert (0, new Parameter ("xyz", "3"));
+			Assert.IsTrue (list.Remove ("xyz"), "Remove");
+
+			var array = new Parameter[list.Count];
+			list.CopyTo (array, 0);
+			Assert.AreEqual ("abc", array[0].Name);
+			Assert.AreEqual ("def", array[1].Name);
+			Assert.AreEqual ("ghi", array[2].Name);
+
+			index = 0;
+			foreach (var param in list) {
+				Assert.AreEqual (array[index], param);
+				index++;
+			}
+
+			list.Clear ();
+			Assert.AreEqual (0, list.Count, "Clear");
+
+			list.Add ("xyz", "3");
+			list.Insert (0, array[2]);
+			list.Insert (0, array[1].Name, array[1].Value);
+			list.Insert (0, array[0]);
+
+			Assert.AreEqual (4, list.Count);
+			Assert.AreEqual ("abc", list[0].Name);
+			Assert.AreEqual ("def", list[1].Name);
+			Assert.AreEqual ("ghi", list[2].Name);
+			Assert.AreEqual ("xyz", list[3].Name);
+			Assert.AreEqual ("0", list["AbC"]);
+			Assert.AreEqual ("1", list["dEf"]);
+			Assert.AreEqual ("2", list["GHi"]);
+			Assert.AreEqual ("3", list["XYZ"]);
+
+			list.RemoveAt (3);
+			Assert.AreEqual (3, list.Count);
+
+			Assert.AreEqual ("; abc=\"0\"; def=\"1\"; ghi=\"2\"", list.ToString ());
 		}
 	}
 }
