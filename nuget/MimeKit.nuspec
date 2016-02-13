@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>MimeKit</id>
-		<version>1.3.0-beta6</version>
+		<version>1.2.21</version>
 		<title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,21 +22,15 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-		<releaseNotes>* Fixed serialization of mime parts with empty content. (issue #221)
-* Fixed a bug in the TnefPropertyReader that would break when not all properties were read by the consumer of the API.
-* Fixed the InternetAddress parser to throw a more informative error when parsing broken routes in mailboxes.
-* Added HeaderList.Add(*, Encoding, string) and .Insert(*, Encoding, string) methods.
-* Added more OpenPgpContext.Encrypt() overloads (and equivalent MultipartEncrypted overloads).
-* Added OpenPgpContext.Import(PgpSecretKeyRing) and OpenPgpContext.Import(PgpSecretKeyRingBundle).
-* Fixed HtmlUtils.HtmlAttributeEncode() to properly encode non-ascii characters as entities.
-* Fixed HtmlUtils.HtmlEncode() to properly encode non-ascii characters as entities.
-* Fixed MimeParser to track whether or not each multipart had an end boundary so that when they get reserialized, they match the original. (issue #218)
-* Implemented an optimized OrdinalIgnoreCase string comparer which improves the performance of the MimeParser slightly.
-* Fixed QuotedPrintableDecoder to properly handle "==" sequences.
-* Added a ContentDisposition.TryParse(ParserOptions,string) method.
-* Added a ContentType.TryParse(ParserOptions,string) method.
-* Fixed MimeParser to trim the CR from the mbox From marker.
-* Fixed SqlCertificateDatabase to properly chain Dispose.
+		<releaseNotes>* Added a MultipartReport class for multipart/report.
+* Fixed serialization for embedded message/* parts. (issue #228)
+* Fixed MimeMessage.WriteTo() to only make sure that the stream ends with a newline if it wasn't parsed. (issue #227)
+* Fixed MimeMessage to only set a MIME-Version if the message was not produced by the parser.
+* Ignore timezones outside the range of -1200 to +1400.
+* Added InternetAddress.Clone() to allow addresses to be cloned.
+* Properly serialize message/rfc822 parts that contain an mbox marker.
+* Fixed MimeMessage.DkimSign() to not enforce 7bit encoding of the body. (issue #224)
+* Fixed ParameterList.IndexOf(string) to be case insensitive.
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

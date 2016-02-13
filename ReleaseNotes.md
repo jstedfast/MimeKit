@@ -4,6 +4,19 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.21
+
+* Added a MultipartReport class for multipart/report.
+* Fixed serialization for embedded message/* parts. (issue #228)
+* Fixed MimeMessage.WriteTo() to only make sure that the stream ends with a newline if it
+  wasn't parsed. (issue #227)
+* Fixed MimeMessage to only set a MIME-Version if the message was not produced by the parser.
+* Ignore timezones outside the range of -1200 to +1400.
+* Added InternetAddress.Clone() to allow addresses to be cloned.
+* Properly serialize message/rfc822 parts that contain an mbox marker.
+* Fixed MimeMessage.DkimSign() to not enforce 7bit encoding of the body. (issue #224)
+* Fixed ParameterList.IndexOf(string) to be case insensitive.
+
 ### MimeKit 1.2.20
 
 * Fixed serialization of mime parts with empty content. (issue #221)
