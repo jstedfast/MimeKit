@@ -45,15 +45,34 @@ using Decoder = Portable.Text.Decoder;
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
-		// Note: Encoding.UTF8.GetString() replaces invalid bytes with a unicode '?' character,
-		// so we use our own UTF8 instance when using GetString() if we do not want it to do that.
-		public static readonly Encoding Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
-		public static readonly Encoding UTF8 = Encoding.GetEncoding (65001, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
-		static readonly Dictionary<string, int> aliases = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
+		static readonly Dictionary<string, int> aliases;
+		public static readonly Encoding Latin1;
+		public static readonly Encoding UTF8;
 
 		static CharsetUtils ()
 		{
 			int gb2312;
+
+			try {
+				Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+			} catch (NotSupportedException) {
+				// Note: Some ASP.NET web hosts such as GoDaddy's Windows environment do not have
+				// iso-8859-1 support, they only have the built-in text encodings, so we need to
+				// hack around it by using an alternative encoding.
+				try {
+					// Try to use Windows-1252 if it is available...
+					Latin1 = Encoding.GetEncoding (1252, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+				} catch (NotSupportedException) {
+					// ...and finally, fall back to US-ASCII
+					Latin1 = Encoding.GetEncoding (20127, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+				}
+			}
+
+			// Note: Encoding.UTF8.GetString() replaces invalid bytes with a unicode '?' character,
+			// so we use our own UTF8 instance when using GetString() if we do not want it to do that.
+			UTF8 = Encoding.GetEncoding (65001, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+
+			aliases = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 
 			AddAliases (aliases, 65001, -1, "utf-8", "utf8");
 
