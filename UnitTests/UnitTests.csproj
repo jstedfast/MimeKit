@@ -69,6 +69,7 @@
     <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="AssortedTests.cs" />
     <Compile Include="ChainedStreamTests.cs" />
+    <Compile Include="CharsetUtilsTests.cs" />
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="ContentDispositionTests.cs" />
     <Compile Include="ContentTypeTests.cs" />

@@ -185,7 +185,7 @@ namespace MimeKit.Utils {
 
 		static int ParseIsoCodePage (string charset)
 		{
-			if (charset.Length < 6)
+			if (charset.Length < 5)
 				return -1;
 
 			int dash = charset.IndexOfAny (new [] { '-', '_' });
@@ -217,14 +217,9 @@ namespace MimeKit.Utils {
 				break;
 			case 2022:
 				switch (suffix.ToLowerInvariant ()) {
-				case "jp":
-					codepage = 50220;
-					break;
-				case "kr":
-					codepage = 50225;
-					break;
-				default:
-					return -1;
+				case "jp": codepage = 50220; break;
+				case "kr": codepage = 50225; break;
+				default: return -1;
 				}
 				break;
 			default:
@@ -234,7 +229,7 @@ namespace MimeKit.Utils {
 			return codepage;
 		}
 
-		static int ParseCodePage (string charset)
+		internal static int ParseCodePage (string charset)
 		{
 			int codepage;
 			int i;
@@ -290,7 +285,7 @@ namespace MimeKit.Utils {
 
 				if (int.TryParse (charset.Substring (i), out codepage))
 					return codepage;
-			} else if (charset == "latin1") {
+			} else if (charset.Equals ("latin1", StringComparison.OrdinalIgnoreCase)) {
 				return 28591;
 			}
 
@@ -349,7 +344,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException ("fallback");
 
 			if ((codepage = GetCodePage (charset)) == -1)
-				throw new NotSupportedException ();
+				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
 
 			var encoderFallback = new EncoderReplacementFallback (fallback);
 			var decoderFallback = new DecoderReplacementFallback (fallback);
@@ -359,9 +354,9 @@ namespace MimeKit.Utils {
 
 		public static Encoding GetEncoding (string charset)
 		{
-			int codepage = GetCodePage (charset);
+			int codepage;
 
-			if (codepage == -1)
+			if ((codepage = GetCodePage (charset)) == -1)
 				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
 
 			try {
