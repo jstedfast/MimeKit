@@ -3,7 +3,7 @@
 	<metadata>
 		<id>MimeKitLite</id>
 		<version>1.2.21</version>
-		<title>MimeKit Lite: A complete MIME library</title>
+		<title>MimeKit Lite</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
 		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
