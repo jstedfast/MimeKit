@@ -3,7 +3,7 @@
 	<metadata>
 		<id>MimeKit</id>
 		<version>1.2.21</version>
-		<title>MimeKit: A complete MIME library with support for S/MIME and PGP</title>
+		<title>MimeKit</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
 		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
