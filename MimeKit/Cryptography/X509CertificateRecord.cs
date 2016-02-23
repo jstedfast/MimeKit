@@ -142,18 +142,18 @@ namespace MimeKit.Cryptography {
 		/// Gets the starting date and time where the certificate is valid.
 		/// </summary>
 		/// <remarks>
-		/// Gets the starting date and time (UTC) where the certificate is valid.
+		/// Gets the starting date and time where the certificate is valid.
 		/// </remarks>
-		/// <value>The date and time.</value>
+		/// <value>The date and time in coordinated universal time (UTC).</value>
 		public DateTime NotBefore { get { return Certificate.NotBefore.ToUniversalTime (); } }
 
 		/// <summary>
 		/// Gets the end date and time where the certificate is valid.
 		/// </summary>
 		/// <remarks>
-		/// Gets the end date and time (UTC) where the certificate is valid.
+		/// Gets the end date and time where the certificate is valid.
 		/// </remarks>
-		/// <value>The date and time.</value>
+		/// <value>The date and time in coordinated universal time (UTC).</value>
 		public DateTime NotAfter { get { return Certificate.NotAfter.ToUniversalTime (); } }
 
 		/// <summary>

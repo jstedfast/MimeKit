@@ -139,7 +139,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the creation date of the digital signature.
 		/// </remarks>
-		/// <value>The creation date.</value>
+		/// <value>The creation date in coordinated universal time (UTC).</value>
 		public DateTime CreationDate {
 			get; internal set;
 		}

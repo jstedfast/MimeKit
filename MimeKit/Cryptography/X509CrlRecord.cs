@@ -159,10 +159,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("crl");
 
 			if (crl.NextUpdate != null)
-				NextUpdate = crl.NextUpdate.Value;
+				NextUpdate = crl.NextUpdate.Value.ToUniversalTime ();
 
 			IssuerName = crl.IssuerDN.ToString ();
-			ThisUpdate = crl.ThisUpdate;
+			ThisUpdate = crl.ThisUpdate.ToUniversalTime ();
 			IsDelta = crl.IsDelta ();
 			Crl = crl;
 		}

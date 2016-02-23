@@ -381,7 +381,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
-		/// <param name="timestamp">The timestamp.</param>
+		/// <param name="timestamp">The timestamp in coordinated universal time (UTC).</param>
 		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
 			X509CertificateRecord record;

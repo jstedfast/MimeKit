@@ -288,7 +288,7 @@ namespace MimeKit.Cryptography {
 					record.Algorithms = DecodeEncryptionAlgorithms (reader, i);
 					break;
 				case "ALGORITHMSUPDATED":
-					record.AlgorithmsUpdated = reader.GetDateTime (i);
+					record.AlgorithmsUpdated = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
 				case "TRUSTED":
 					record.IsTrusted = reader.GetBoolean (i);
@@ -312,10 +312,10 @@ namespace MimeKit.Cryptography {
 					record.Crl = DecodeX509Crl (reader, parser, i, ref buffer);
 					break;
 				case "THISUPDATE":
-					record.ThisUpdate = reader.GetDateTime (i);
+					record.ThisUpdate = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
 				case "NEXTUPDATE":
-					record.NextUpdate = reader.GetDateTime (i);
+					record.NextUpdate = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
 				case "DELTA":
 					record.IsDelta = reader.GetBoolean (i);
