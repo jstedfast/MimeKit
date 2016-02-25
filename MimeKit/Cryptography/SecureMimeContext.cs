@@ -891,7 +891,18 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
+		/// <summary>
+		/// Gets the list of digital signatures.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the list of digital signatures.</para>
+		/// <para>This method is useful to call from within any custom
+		/// <a href="Overload_MimeKit_Cryptography_SecureMimeContext_Verify.htm">Verify</a>
+		/// method that you may implement in your own class.</para>
+		/// </remarks>
+		/// <returns>The digital signatures.</returns>
+		/// <param name="parser">The CMS signed data parser.</param>
+		protected DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
 		{
 			var certificates = parser.GetCertificates ("Collection");
 			var signatures = new List<IDigitalSignature> ();
@@ -956,10 +967,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verifies the specified content using the detached signatureData.
+		/// Verify the specified content using the detached signature data.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the specified content using the detached signatureData.
+		/// Verifies the specified content using the detached signature data.
 		/// </remarks>
 		/// <returns>A list of the digital signatures.</returns>
 		/// <param name="content">The content.</param>
@@ -981,23 +992,27 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("signatureData");
 
 			var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData);
+			var signed = parser.GetSignedContent ();
 
-			parser.GetSignedContent ().Drain ();
+			signed.Drain ();
 
 			return GetDigitalSignatures (parser);
 		}
 
 		/// <summary>
-		/// Verifies the digital signatures of the specified signedData and extract the original content.
+		/// Verify the digital signatures of the specified signed data and extract the original content.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the digital signatures of the specified signedData and extract the original content.
+		/// Verifies the digital signatures of the specified signed data and extracts the original content.
 		/// </remarks>
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="signedData">The signed data.</param>
-		/// <param name="entity">The unencapsulated entity.</param>
+		/// <param name="entity">The extracted MIME entity.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The extracted content could not be parsed as a MIME entity.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
@@ -1011,8 +1026,42 @@ namespace MimeKit.Cryptography {
 			var signed = parser.GetSignedContent ();
 
 			entity = MimeEntity.Load (signed.ContentStream);
+			signed.Drain ();
 
 			return GetDigitalSignatures (parser);
+		}
+
+		/// <summary>
+		/// Verify the digital signatures of the specified signed data and extract the original content.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signatures of the specified signed data and extracts the original content.
+		/// </remarks>
+		/// <returns>The extracted content stream.</returns>
+		/// <param name="signedData">The signed data.</param>
+		/// <param name="signatures">The digital signatures.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public Stream Verify (Stream signedData, out DigitalSignatureCollection signatures)
+		{
+			if (signedData == null)
+				throw new ArgumentNullException ("signedData");
+
+			var parser = new CmsSignedDataParser (signedData);
+			var signed = parser.GetSignedContent ();
+			var content = new MemoryBlockStream ();
+
+			signed.ContentStream.CopyTo (content, 4096);
+			content.Position = 0;
+			signed.Drain ();
+
+			signatures = GetDigitalSignatures (parser);
+
+			return content;
 		}
 
 		class VoteComparer : IComparer<int>

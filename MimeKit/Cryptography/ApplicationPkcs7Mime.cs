@@ -314,6 +314,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The extracted content could not be parsed as a MIME entity.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
