@@ -10,6 +10,7 @@
 * [Why doesn't the MimeMessage class implement ISerializable so that I can serialize a message to disk and read it back later?](#Serialize)
 * [Why do attachments with unicode filenames appear as "ATT0####.dat" in Outlook?](#UntitledAttachments)
 * [How do I decrypt PGP messages that are embedded in the main message text?](#DecryptInlinePGP)
+* [How do I reply to a message using MimeKit?](#Reply)
 * [How would I parse multipart/form-data from an HTTP web request?](#ParseWebRequestFormData)
 
 ### <a name="CompletelyFree">Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?</a>
@@ -597,6 +598,334 @@ static Stream DecryptEmbeddedPgp (TextPart text)
 
 What you do with that decrypted stream is up to you. It's up to you to figure out what the decrypted content is
 (is it text? a jpeg image? a video?) and how to display it to the user.
+
+### <a name="Reply">How do I reply to a message using MimeKit?</a>
+
+Replying to a message is fairly simple. For the most part, you'd just create the reply message
+the same way you'd create any other message. There are only a few slight differences:
+
+1. In the reply message, you'll want to prefix the `Subject` header with `"Re: "` if the prefix
+   doesn't already exist in the message you are replying to (in other words, if you are replying
+   to a message with a `Subject` of `"Re: party tomorrow night!"`, you would not prefix it with
+   another "Re: ").
+2. You will want to set the reply message's `In-Reply-To` header to the value of the
+   `Message-Id` header in the original message.
+3. You will want to copy the original message's `References` header into the reply message's
+   `References` header and then append the original message's `Message-Id` header.
+4. You will probably want to "quote" the original message's text in the reply.
+
+If this logic were to be expressed in code, it might look something like this:
+
+```csharp
+public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool replyToAll)
+{
+	var reply = new MimeMessage ();
+
+	reply.From.Add (from);
+
+	// reply to the sender of the message
+	if (message.ReplyTo.Count > 0) {
+		reply.To.AddRange (message.ReplyTo);
+	} else if (message.From.Count > 0) {
+		reply.To.AddRange (message.From);
+	} else if (message.Sender != null) {
+		reply.To.Add (message.Sender);
+	}
+
+	if (replyToAll) {
+		// include all of the other original recipients - TODO: remove ourselves from these lists
+		reply.To.AddRange (message.To);
+		reply.Cc.AddRange (message.Cc);
+	}
+
+	// set the reply subject
+	if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
+		reply.Subject = "Re:" + message.Subject;
+	else
+		reply.Subject = message.Subject;
+
+	// construct the In-Reply-To and References headers
+	if (!string.IsNullOrEmpty (message.MessageId)) {
+		reply.InReplyTo = message.MessageId;
+		foreach (var id in message.References)
+			reply.References.Add (id);
+		reply.References.Add (message.MessageId);
+	}
+
+	// quote the original message text
+	using (var quoted = new StringWriter ()) {
+		var sender = message.Sender ?? message.From.Mailboxes.FirstOrDefault ();
+
+		quoted.WriteLine ("On {0}, {1} wrote:", message.Date.ToString ("f"), !string.IsNullOrEmpty (sender.Name) ? sender.Name : sender.Address);
+		using (var reader = new StringReader (message.TextBody)) {
+			string line;
+
+			while ((line = reader.ReadLine ()) != null) {
+				quoted.Write ("> ");
+				quoted.WriteLine (line);
+			}
+		}
+
+		reply.Body = new TextPart ("plain") {
+			Text = quoted.ToString ()
+		};
+	}
+
+	return reply;
+}
+```
+
+But what if you wanted to reply to a message and quote the HTML formatting of the original message
+body (assuming it has an HTML body) while still including the embedded images?
+
+This gets a bit more complicated, but it's still doable...
+
+The first thing we'd need to do is implement our own
+[MimeVisitor](http://www.mimekit.net/docs/html/T_MimeKit_MimeVisitor.htm) to handle this:
+
+```csharp
+public class ReplyVisitor : MimeVisitor
+{
+	readonly Stack<Multipart> stack = new Stack<Multipart> ();
+	MimeMessage original, reply;
+	MailboxAddress from;
+	bool replyToAll;
+
+	/// <summary>
+	/// Creates a new ReplyVisitor.
+	/// </summary>
+	public ReplyVisitor (MailboxAddress from, bool replyToAll)
+	{
+		this.replyToAll = replyToAll;
+		this.from = from;
+	}
+
+	/// <summary>
+	/// Gets the reply.
+	/// </summary>
+	/// <value>The reply.</value>
+	public MimeMessage Reply {
+		get { return reply; }
+	}
+
+	void Push (MimeEntity entity)
+	{
+		var multipart = entity as Multipart;
+
+		if (reply.Body == null) {
+			reply.Body = entity;
+		} else {
+			var parent = stack.Peek ();
+			parent.Add (entity);
+		}
+
+		if (multipart != null)
+			stack.Push (multipart);
+	}
+
+	void Pop ()
+	{
+		stack.Pop ();
+	}
+
+	static string GetOnDateSenderWrote (MimeMessage message)
+	{
+		var sender = message.Sender != null ? message.Sender : message.From.Mailboxes.FirstOrDefault ();
+		var name = sender != null ? (!string.IsNullOrEmpty (sender.Name) ? sender.Name : sender.Address) : "an unknown sender";
+
+		return string.Format ("On {0}, {1} wrote:", message.Date.ToString ("f"), name);
+	}
+
+	/// <summary>
+	/// Visit the specified message.
+	/// </summary>
+	/// <param name="message">The message.</param>
+	public override void Visit (MimeMessage message)
+	{
+		reply = new MimeMessage ();
+		original = message;
+
+		stack.Clear ();
+
+		reply.From.Add (from.Clone ());
+
+		// reply to the sender of the message
+		if (message.ReplyTo.Count > 0) {
+			reply.To.AddRange (message.ReplyTo);
+		} else if (message.From.Count > 0) {
+			reply.To.AddRange (message.From);
+		} else if (message.Sender != null) {
+			reply.To.Add (message.Sender);
+		}
+
+		if (replyToAll) {
+			// include all of the other original recipients - TODO: remove ourselves from these lists
+			reply.To.AddRange (message.To);
+			reply.Cc.AddRange (message.Cc);
+		}
+
+		// set the reply subject
+		if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
+			reply.Subject = "Re: " + message.Subject;
+		else
+			reply.Subject = message.Subject;
+
+		// construct the In-Reply-To and References headers
+		if (!string.IsNullOrEmpty (message.MessageId)) {
+			reply.InReplyTo = message.MessageId;
+			foreach (var id in message.References)
+				reply.References.Add (id);
+			reply.References.Add (message.MessageId);
+		}
+
+		base.Visit (message);
+	}
+
+	/// <summary>
+	/// Visit the specified entity.
+	/// </summary>
+	/// <param name="entity">The MIME entity.</param>
+	/// <exception cref="System.NotSupportedException">
+	/// Only Visit(MimeMessage) is supported.
+	/// </exception>
+	public override void Visit (MimeEntity entity)
+	{
+		throw new NotSupportedException ();
+	}
+
+	protected override void VisitMultipartAlternative (MultipartAlternative alternative)
+	{
+		var multipart = new MultipartAlternative ();
+
+		Push (multipart);
+
+		for (int i = 0; i < alternative.Count; i++)
+			alternative[i].Accept (this);
+
+		Pop ();
+	}
+
+	protected override void VisitMultipartRelated (MultipartRelated related)
+	{
+		var multipart = new MultipartRelated ();
+		var root = related.Root;
+
+		Push (multipart);
+
+		root.Accept (this);
+
+		for (int i = 0; i < related.Count; i++) {
+			if (related[i] != root)
+				related[i].Accept (this);
+		}
+
+		Pop ();
+	}
+
+	protected override void VisitMultipart (Multipart multipart)
+	{
+		foreach (var part in multipart) {
+			if (part is MultipartAlternative)
+				part.Accept (this);
+			else if (part is MultipartRelated)
+				part.Accept (this);
+			else if (part is TextPart)
+				part.Accept (this);
+		}
+	}
+
+	void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+	{
+		if (ctx.TagId == HtmlTagId.Body && !ctx.IsEmptyElementTag) {
+			if (ctx.IsEndTag) {
+				// end our opening <blockquote>
+				htmlWriter.WriteEndTag (HtmlTagId.BlockQuote);
+
+				// pass the </body> tag through to the output
+				ctx.WriteTag (htmlWriter, true);
+			} else {
+				// pass the <body> tag through to the output
+				ctx.WriteTag (htmlWriter, true);
+
+				// prepend the HTML reply with "On {DATE}, {SENDER} wrote:"
+				htmlWriter.WriteStartTag (HtmlTagId.P);
+				htmlWriter.WriteText (GetOnDateSenderWrote (original));
+				htmlWriter.WriteEndTag (HtmlTagId.P);
+
+				// Wrap the original content in a <blockquote>
+				htmlWriter.WriteStartTag (HtmlTagId.BlockQuote);
+				htmlWriter.WriteAttribute (HtmlAttributeId.Style, "border-left: 1px #ccc solid; margin: 0 0 0 .8ex; padding-left: 1ex;");
+
+				ctx.InvokeCallbackForEndTag = true;
+			}
+		} else {
+			// pass the tag through to the output
+			ctx.WriteTag (htmlWriter, true);
+		}
+	}
+
+	string QuoteText (string text)
+	{
+		using (var quoted = new StringWriter ()) {
+			quoted.WriteLine (GetOnDateSenderWrote (original));
+
+			using (var reader = new StringReader (text)) {
+				string line;
+
+				while ((line = reader.ReadLine ()) != null) {
+					quoted.Write ("> ");
+					quoted.WriteLine (line);
+				}
+			}
+
+			return quoted.ToString ();
+		}
+	}
+
+	protected override void VisitTextPart (TextPart entity)
+	{
+		string text;
+
+		if (entity.IsHtml) {
+			var converter = new HtmlToHtml {
+				HtmlTagCallback = HtmlTagCallback
+			};
+
+			text = converter.Convert (entity.Text);
+		} else if (entity.IsFlowed) {
+			var converter = new FlowedToText ();
+
+			text = converter.Convert (entity.Text);
+			text = QuoteText (text);
+		} else {
+			// quote the original message text
+			text = QuoteText (entity.Text);
+		}
+
+		var part = new TextPart (entity.ContentType.MediaSubtype.ToLowerInvariant ()) {
+			Text = text
+		};
+
+		Push (part);
+	}
+
+	protected override void VisitMessagePart (MessagePart entity)
+	{
+		// don't descend into message/rfc822 parts
+	}
+}
+```
+
+```csharp
+public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool replyToAll)
+{
+	var visitor = new ReplyVisitor (from, replyToAll);
+
+	visitor.Visit (message);
+
+	return visitor.Reply;
+}
+```
 
 ### <a name="ParseWebRequestFormData">How would I parse multipart/form-data from an HTTP web request?</a>
 
