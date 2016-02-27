@@ -191,7 +191,8 @@ namespace UnitTests {
 
 					try {
 						value = prop.ReadValue ();
-					} catch {
+					} catch (Exception ex) {
+						Console.WriteLine ("Error in prop.ReadValue(): {0}", ex);
 						value = null;
 					}
 
