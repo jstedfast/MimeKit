@@ -607,7 +607,7 @@ the same way you'd create any other message. There are only a few slight differe
 1. In the reply message, you'll want to prefix the `Subject` header with `"Re: "` if the prefix
    doesn't already exist in the message you are replying to (in other words, if you are replying
    to a message with a `Subject` of `"Re: party tomorrow night!"`, you would not prefix it with
-   another "Re: ").
+   another `"Re: "`).
 2. You will want to set the reply message's `In-Reply-To` header to the value of the
    `Message-Id` header in the original message.
 3. You will want to copy the original message's `References` header into the reply message's
@@ -640,7 +640,7 @@ public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool 
 
 	// set the reply subject
 	if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
-		reply.Subject = "Re:" + message.Subject;
+		reply.Subject = "Re: " + message.Subject;
 	else
 		reply.Subject = message.Subject;
 
