@@ -2,12 +2,102 @@
 
 ## Question Index
 
-* [How do I get the message body text?](#MessageBody)
+* [Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?](#CompletelyFree)
+* [How do I create a message with attachments?](#CreateAttachments)
+* [How do I get the main body of a message?](#MessageBody)
+* [How do I tell if a message has attachments?](HasAttachments)
 * [How do I get the email addresses in the From, To, and Cc headers?](#AddressHeaders)
+* [Why doesn't the MimeMessage class implement ISerializable so that I can serialize a message to disk and read it back later?](#Serialize)
+* [Why do attachments with unicode filenames appear as "ATT0####.dat" in Outlook?](#UntitledAttachments)
 * [How do I decrypt PGP messages that are embedded in the main message text?](#DecryptInlinePGP)
 * [How would I parse multipart/form-data from an HTTP web request?](#ParseWebRequestFormData)
 
-### <a name="MessageBody">How do I get the message body text?</a>
+### <a name="CompletelyFree">Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?</a>
+
+Yes. MimeKit and MailKit are both completely free and open source. They are both covered under the
+[MIT](https://opensource.org/licenses/MIT) license.
+
+### <a name="CreateAttachments">How do I create a message with attachments?</a>
+
+To construct a message with attachments, the first thing you'll need to do is create a `multipart/mixed`
+container which you'll then want to add the message body to first. Once you've added the body, you can
+then add MIME parts to it that contain the content of the files you'd like to attach, being sure to set
+the `Content-Disposition` header value to attachment. You'll probably also want to set the `filename`
+parameter on the `Content-Disposition` header as well as the `name` parameter on the `Content-Type`
+header. The most convenient way to do this is to simply use the
+[MimePart.FileName](http://www.mimekit.net/docs/html/P_MimeKit_MimePart_FileName.htm) property which
+will set both parameters for you as well as setting the `Content-Disposition` header value to `attachment`
+if it has not already been set to something else.
+
+```csharp
+var message = new MimeMessage ();
+message.From.Add (new MailboxAddress ("Joey", "joey@friends.com"));
+message.To.Add (new MailboxAddress ("Alice", "alice@wonderland.com"));
+message.Subject = "How you doin?";
+
+// create our message text, just like before (except don't set it as the message.Body)
+var body = new TextPart ("plain") {
+    Text = @"Hey Alice,
+
+What are you up to this weekend? Monica is throwing one of her parties on
+Saturday and I was hoping you could make it.
+
+Will you be my +1?
+
+-- Joey
+"
+};
+
+// create an image attachment for the file located at path
+var attachment = new MimePart ("image", "gif") {
+    ContentObject = new ContentObject (File.OpenRead (path), ContentEncoding.Default),
+    ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
+    ContentTransferEncoding = ContentEncoding.Base64,
+    FileName = Path.GetFileName (path)
+};
+
+// now create the multipart/mixed container to hold the message text and the
+// image attachment
+var multipart = new Multipart ("mixed");
+multipart.Add (body);
+multipart.Add (attachment);
+
+// now set the multipart/mixed as the message body
+message.Body = multipart;
+```
+
+A simpler way to construct messages with attachments is to take advantage of the
+[BodyBuilder](http://www.mimekit.net/docs/html/T_MimeKit_BodyBuilder.htm) class.
+
+```csharp
+var message = new MimeMessage ();
+message.From.Add (new MailboxAddress ("Joey", "joey@friends.com"));
+message.To.Add (new MailboxAddress ("Alice", "alice@wonderland.com"));
+message.Subject = "How you doin?";
+
+var builder = new BodyBuilder ();
+
+// Set the plain-text version of the message text
+builder.TextBody = @"Hey Alice,
+
+What are you up to this weekend? Monica is throwing one of her parties on
+Saturday and I was hoping you could make it.
+
+Will you be my +1?
+
+-- Joey
+";
+
+// We may also want to attach a calendar event for Monica's party...
+builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
+
+// Now we just need to set the message body and we're done
+message.Body = builder.ToMessageBody ();
+```
+
+For more information, see [Creating Messages](http://www.mimekit.net/docs/html/CreatingMessages.htm).
+
+### <a name="MessageBody">How do I get the main body of a message?</a>
 
 (Note: for the TL;DR version, skip to [the end](#MessageBodyTLDR))
 
@@ -80,6 +170,251 @@ the first `text/plain` or `text/html` part you can find, that's easy.
 appropriate body part with a `Content-Type` of `text/html` that can be interpreted as the message body.
 Likewise, the `TextBody` property can be used to get the `text/plain` version of the message body.
 
+For more information, see [Working with Messages](http://www.mimekit.net/docs/html/WorkingWithMessages.htm).
+
+### <a name="HasAttachments">How do I tell if a message has attachments?</a>
+
+In most cases, a message with a body that has a MIME-type of `multipart/mixed` containing more than a
+single part probably has attachments. As illustrated above, the first part of a `multipart/mixed` is
+typically the textual body of the message, but it is not always quite that simple.
+
+In general, MIME attachments will have a `Content-Disposition` header with a value of `attachment`.
+To get the list of body parts matching this criteria, you can use the
+[MimeMessage.Attachments](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_Attachments.htm) property.
+
+Unfortunately, not all mail clients follow this convention and so you may need to write your own custom logic.
+For example, you may wish to treat all body parts having a `name` or `filename` parameter set on them:
+
+```csharp
+var attachments = message.BodyParts.OfType<MimePart> ().Where (part => !string.IsNullOrEmpty (part.FileName));
+```
+
+A more sophisticated approach is to treat body parts not referenced by the main textual body part of the
+message as attachments. In other words, treat any body part not used for rendering the message as an
+attachment. For an example on how to do this, consider the following code snippets:
+
+```csharp
+/// <summary>
+/// Visits a MimeMessage and generates HTML suitable to be rendered by a browser control.
+/// </summary>
+class HtmlPreviewVisitor : MimeVisitor
+{
+    List<MultipartRelated> stack = new List<MultipartRelated> ();
+    List<MimeEntity> attachments = new List<MimeEntity> ();
+    readonly string tempDir;
+    string body;
+
+    /// <summary>
+    /// Creates a new HtmlPreviewVisitor.
+    /// </summary>
+    /// <param name="tempDirectory">A temporary directory used for storing image files.</param>
+    public HtmlPreviewVisitor (string tempDirectory)
+    {
+        tempDir = tempDirectory;
+    }
+
+    /// <summary>
+    /// The list of attachments that were in the MimeMessage.
+    /// </summary>
+    public IList<MimeEntity> Attachments {
+        get { return attachments; }
+    }
+
+    /// <summary>
+    /// The HTML string that can be set on the BrowserControl.
+    /// </summary>
+    public string HtmlBody {
+        get { return body ?? string.Empty; }
+    }
+
+    protected override void VisitMultipartAlternative (MultipartAlternative alternative)
+    {
+        // walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
+        for (int i = alternative.Count - 1; i >= 0 && body == null; i--)
+            alternative[i].Accept (this);
+    }
+
+    protected override void VisitMultipartRelated (MultipartRelated related)
+    {
+        var root = related.Root;
+
+        // push this multipart/related onto our stack
+        stack.Add (related);
+
+        // visit the root document
+        root.Accept (this);
+
+        // pop this multipart/related off our stack
+        stack.RemoveAt (stack.Count - 1);
+    }
+
+    // look up the image based on the img src url within our multipart/related stack
+    bool TryGetImage (string url, out MimePart image)
+    {
+        UriKind kind;
+        int index;
+        Uri uri;
+
+        if (Uri.IsWellFormedUriString (url, UriKind.Absolute))
+            kind = UriKind.Absolute;
+        else if (Uri.IsWellFormedUriString (url, UriKind.Relative))
+            kind = UriKind.Relative;
+        else
+            kind = UriKind.RelativeOrAbsolute;
+
+        try {
+            uri = new Uri (url, kind);
+        } catch {
+            image = null;
+            return false;
+        }
+
+        for (int i = stack.Count - 1; i >= 0; i--) {
+            if ((index = stack[i].IndexOf (uri)) == -1)
+                continue;
+
+            image = stack[i][index] as MimePart;
+            return image != null;
+        }
+
+        image = null;
+
+        return false;
+    }
+
+    // Save the image to our temp directory and return a "file://" url suitable for
+    // the browser control to load.
+    // Note: if you'd rather embed the image data into the HTML, you can construct a
+    // "data:" url instead.
+    string SaveImage (MimePart image, string url)
+    {
+        string fileName = url.Replace (':', '_').Replace ('\\', '_').Replace ('/', '_');
+
+        string path = Path.Combine (tempDir, fileName);
+
+        if (!File.Exists (path)) {
+            using (var output = File.Create (path))
+                image.ContentObject.DecodeTo (output);
+        }
+
+        return "file://" + path.Replace ('\\', '/');
+    }
+
+    // Replaces <img src=...> urls that refer to images embedded within the message with
+    // "file://" urls that the browser control will actually be able to load.
+    void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+    {
+        if (ctx.TagId == HtmlTagId.Image && !ctx.IsEndTag && stack.Count > 0) {
+            ctx.WriteTag (htmlWriter, false);
+
+            // replace the src attribute with a file:// URL
+            foreach (var attribute in ctx.Attributes) {
+                if (attribute.Id == HtmlAttributeId.Src) {
+                    MimePart image;
+                    string url;
+
+                    if (!TryGetImage (attribute.Value, out image)) {
+                        htmlWriter.WriteAttribute (attribute);
+                        continue;
+                    }
+
+                    url = SaveImage (image, attribute.Value);
+
+                    htmlWriter.WriteAttributeName (attribute.Name);
+                    htmlWriter.WriteAttributeValue (url);
+                } else {
+                    htmlWriter.WriteAttribute (attribute);
+                }
+            }
+        } else if (ctx.TagId == HtmlTagId.Body && !ctx.IsEndTag) {
+            ctx.WriteTag (htmlWriter, false);
+
+            // add and/or replace oncontextmenu="return false;"
+            foreach (var attribute in ctx.Attributes) {
+                if (attribute.Name.ToLowerInvariant () == "oncontextmenu")
+                    continue;
+
+                htmlWriter.WriteAttribute (attribute);
+            }
+
+            htmlWriter.WriteAttribute ("oncontextmenu", "return false;");
+        } else {
+            // pass the tag through to the output
+            ctx.WriteTag (htmlWriter, true);
+        }
+    }
+
+    protected override void VisitTextPart (TextPart entity)
+    {
+        TextConverter converter;
+
+        if (body != null) {
+            // since we've already found the body, treat this as an attachment
+            attachments.Add (entity);
+            return;
+        }
+
+        if (entity.IsHtml) {
+            converter = new HtmlToHtml {
+                HtmlTagCallback = HtmlTagCallback
+            };
+        } else if (entity.IsFlowed) {
+            var flowed = new FlowedToHtml ();
+            string delsp;
+
+            if (entity.ContentType.Parameters.TryGetValue ("delsp", out delsp))
+                flowed.DeleteSpace = delsp.ToLowerInvariant () == "yes";
+
+            converter = flowed;
+        } else {
+            converter = new TextToHtml ();
+        }
+
+        body = converter.Convert (entity.Text);
+    }
+
+    protected override void VisitTnefPart (TnefPart entity)
+    {
+        // extract any attachments in the MS-TNEF part
+        attachments.AddRange (entity.ExtractAttachments ());
+    }
+
+    protected override void VisitMessagePart (MessagePart entity)
+    {
+        // treat message/rfc822 parts as attachments
+        attachments.Add (entity);
+    }
+
+    protected override void VisitMimePart (MimePart entity)
+    {
+        // realistically, if we've gotten this far, then we can treat this as an attachment
+        // even if the IsAttachment property is false.
+        attachments.Add (entity);
+    }
+}
+```
+
+And the way you'd use this visitor might look something like this:
+
+```csharp
+void Render (MimeMessage message)
+{
+    var tmpDir = Path.Combine (Path.GetTempPath (), message.MessageId);
+    var visitor = new HtmlPreviewVisitor (tmpDir);
+
+    Directory.CreateDirectory (tmpDir);
+
+    message.Accept (visitor);
+
+    DisplayHtml (visitor.HtmlBody);
+    DisplayAttachments (visitor.Attachments);
+}
+```
+
+Once you've rendered the message using the above technique, you'll have a list of attachments that
+were not used, even if they did not match the simplistic criteria used by the `MimeMessage.Attachments`
+property.
+
 ### <a name="AddressHeaders">How do I get the email addresses in the From, To, and Cc headers?</a>
 
 The `From`, `To`, and `Cc` properties of a `MimeMessage` are all of type `InternetAddressList`. An
@@ -126,6 +461,51 @@ header, you can simply do something like this:
 ```csharp
 foreach (var mailbox in message.To.Mailboxes)
     Console.WriteLine ("{0}'s email address is {1}", mailbox.Name, mailbox.Address);
+```
+
+### <a name="Serialize">Why doesn't the MimeMessage class implement ISerializable so that I can serialize a message to disk and read it back later?</a>
+
+The MimeKit API was designed to use the existing MIME format for serialization. In light of this, the ability
+to use the .NET serialization API and format did not make much sense to support.
+
+You can easily serialize a MimeMessage to a stream using the
+[WriteTo](http://www.mimekit.net/docs/html/Overload_MimeKit_MimeMessage_WriteTo.htm) methods.
+
+### <a name="UntitledAttachments">Why do attachments with unicode filenames appear as "ATT0####.dat" in Outlook?</a>
+
+An attachment filename is stored as a MIME parameter on the `Content-Disposition` header. Unfortunately,
+the original MIME specifications did not specify a method for encoding non-ASCII filenames. In 1997,
+[rfc2184](https://tools.ietf.org/html/rfc2184) (later updated by [rfc2231](https://tools.ietf.org/html/rfc2231))
+was published which specified an encoding mechanism to use for encoding them. Since there was a window in
+time where the MIME specifications did not define a way to encode them, some mail client developers decided
+to use the mechanism described by [rfc2047](https://tools.ietf.org/html/rfc2047) which was meant for
+encoding non-ASCII text in headers. While this may at first seem logical, the problem with this approach
+was that rfc2047 `encoded-word` tokens are not allowed to be in quotes (as well as some other issues) and
+so another, more appropriate, encoding mechanism was needed.
+
+Outlook is one of those mail clients which decided to encode filenames using the mechanism described in
+rfc2047 and until Outlook 2007, did not support filenames encoded using the mechanism defined in rfc2231.
+
+As of MimeKit v1.2.18, it is possible to configure MimeKit to use the rfc2047 encoding mechanism for
+filenames in the following two ways:
+
+The first way is to set the encoding method on each individual
+[Parameter](http://www.mimekit.net/docs/html/T_MimeKit_Parameter.htm):
+
+```csharp
+Parameter param;
+
+if (attachment.ContentDisposition.Parameters.TryGetValue ("filename", out param))
+    param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+```
+
+The other way is to use a [FormatOptions](http://www.mimekit.net/docs/html/T_MimeKit_FormatOptions.htm):
+
+```csharp
+var options = FormatOptions.Default.Clone ();
+options.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047;
+
+message.WriteTo (options, stream);
 ```
 
 ### <a name="DecryptInlinePGP">How do I decrypt PGP messages that are embedded in the main message text?</a>
