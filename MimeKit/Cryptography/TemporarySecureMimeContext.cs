@@ -275,7 +275,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </remarks>
-		/// <param name="stream">The raw certificate and key data.</param>
+		/// <param name="stream">The raw certificate and key data in pkcs12 format.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>

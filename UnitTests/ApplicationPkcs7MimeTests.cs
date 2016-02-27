@@ -27,9 +27,10 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
 using NUnit.Framework;
+
+using Org.BouncyCastle.X509;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -44,12 +45,11 @@ namespace UnitTests {
 			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
 			var entity = new TextPart ("plain") { Text = "This is some text..." };
 			var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var certificate = new X509Certificate2 (path, "no.secret");
 			var recipients = new CmsRecipientCollection ();
-			var signer = new CmsSigner (certificate);
+			var signer = new CmsSigner (path, "no.secret");
 			var mailboxes = new [] { mailbox };
 
-			recipients.Add (new CmsRecipient (certificate));
+			recipients.Add (new CmsRecipient (signer.Certificate));
 
 			using (var ctx = new TemporarySecureMimeContext ()) {
 				using (var file = File.OpenRead (path))

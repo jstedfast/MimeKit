@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 #if !PORTABLE && !COREFX
@@ -160,6 +161,123 @@ namespace MimeKit.Cryptography {
 			CertificateChain.Add (certificate);
 			Certificate = certificate;
 			PrivateKey = key;
+		}
+
+		void LoadPkcs12 (Stream stream, string password)
+		{
+			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
+
+			foreach (string alias in pkcs12.Aliases) {
+				if (!pkcs12.IsKeyEntry (alias))
+					continue;
+
+				var chain = pkcs12.GetCertificateChain (alias);
+				var key = pkcs12.GetKey (alias);
+
+				if (!key.Key.IsPrivate || chain.Length == 0)
+					continue;
+
+				var flags = chain[0].Certificate.GetKeyUsageFlags ();
+
+				if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+					continue;
+
+				CheckCertificateCanBeUsedForSigning (chain[0].Certificate);
+
+				CertificateChain = new X509CertificateChain ();
+				Certificate = chain[0].Certificate;
+				PrivateKey = key.Key;
+
+				foreach (var entry in chain)
+					CertificateChain.Add (entry.Certificate);
+
+				break;
+			}
+
+			if (PrivateKey == null)
+				throw new ArgumentException ("The stream did not contain a private key.", "stream");
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="CmsSigner"/>, loading the X.509 certificate and private key
+		/// from the specified stream.</para>
+		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
+		/// initialized to empty tables.</para>
+		/// </remarks>
+		/// <param name="stream">The raw certificate and key data in pkcs12 format.</param>
+		/// <param name="password">The password to unlock the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="stream"/> does not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public CmsSigner (Stream stream, string password) : this ()
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			if (password == null)
+				throw new ArgumentNullException ("password");
+
+			LoadPkcs12 (stream, password);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="CmsSigner"/>, loading the X.509 certificate and private key
+		/// from the specified file.</para>
+		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
+		/// initialized to empty tables.</para>
+		/// </remarks>
+		/// <param name="fileName">The raw certificate and key data in pkcs12 format.</param>
+		/// <param name="password">The password to unlock the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public CmsSigner (string fileName, string password) : this ()
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			if (password == null)
+				throw new ArgumentNullException ("password");
+
+			using (var stream = File.OpenRead (fileName))
+				LoadPkcs12 (stream, password);
 		}
 
 #if !PORTABLE && !COREFX
