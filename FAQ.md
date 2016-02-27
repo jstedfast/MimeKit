@@ -164,7 +164,9 @@ There are a few common message structures:
 <a name="MessageBodyTLDR"></a>Now, if you don't care about any of that and just want to get the text of
 the first `text/plain` or `text/html` part you can find, that's easy.
 
-`MimeMessage` has two convenience properties for this: `TextBody` and `HtmlBody`.
+[MimeMessage](http://www.mimekit.net/docs/html/T_MimeKit_MimeMessage.htm) has two convenience properties
+for this: [TextBody](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_TextBody.htm) and
+[HtmlBody](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_HtmlBody.htm).
 
 `MimeMessage.HtmlBody`, as the name implies, will traverse the MIME structure for you and find the most
 appropriate body part with a `Content-Type` of `text/html` that can be interpreted as the message body.
@@ -417,19 +419,27 @@ property.
 
 ### <a name="AddressHeaders">How do I get the email addresses in the From, To, and Cc headers?</a>
 
-The `From`, `To`, and `Cc` properties of a `MimeMessage` are all of type `InternetAddressList`. An
-`InternetAddressList` is a list of `InternetAddress` items. This is where most people start to get
-lost because an `InternetAddress` is an abstract class that only really has a `Name` property.
+The [From](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_From.htm), 
+[To](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_To.htm), and 
+[Cc](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_Cc.htm) properties of a
+[MimeMessage](http://www.mimekit.net/docs/html/T_MimeKit_MimeMessage.htm) are all of type
+[InternetAddressList](http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm). An
+`InternetAddressList` is a list of
+[InternetAddress](http://www.mimekit.net/docs/html/T_MimeKit_InternetAddress.htm) items. This is
+where most people start to get lost because an `InternetAddress` is an abstract class that only
+really has a [Name](http://www.mimekit.net/docs/html/P_MimeKit_InternetAddress_Name.htm) property.
 
 As you've probably already discovered, the `Name` property contains the name of the person
 (if available), but what you want is his or her email address, not their name.
 
 To get the email address, you'll need to figure out what subclass of address each `InternetAddress`
-really is. There are 2 subclasses of `InternetAddress`: `GroupAddress` and `MailboxAddress`.
+really is. There are 2 subclasses of `InternetAddress`:
+[GroupAddress](http://www.mimekit.net/docs/html/T_MimeKit_GroupAddress.htm) and
+[MailboxAddress](http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm).
 
 A `GroupAddress` is a named group of more `InternetAddress` items that are contained within the
-`Members` property. To get an idea of what a group address represents, consider the following
-examples:
+[Members](http://www.mimekit.net/docs/html/P_MimeKit_GroupAddress_Members.htm) property. To get
+an idea of what a group address represents, consider the following examples:
 
 ```
 To: My Friends: Joey <joey@friends.com>, Monica <monica@friends.com>, "Mrs. Chanandler Bong"
@@ -448,8 +458,10 @@ To: undisclosed-recipients:;
 ```
 
 Most of the time, the `From`, `To`, and `Cc` headers will only contain mailbox addresses. As you will
-notice, a `MailboxAddress` has an `Address` property which will contain the email address of the
-mailbox. In the following example, the `Address` property will contain the value `john@smith.com`:
+notice, a `MailboxAddress` has an
+[Address](http://www.mimekit.net/docs/html/P_MimeKit_MailboxAddress_Address.htm) property which will
+contain the email address of the mailbox. In the following example, the `Address` property will
+contain the value `john@smith.com`:
 
 ```
 To: John Smith <john@smith.com>
