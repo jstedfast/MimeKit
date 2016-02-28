@@ -112,6 +112,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMailToWithSimpleQuotedLocalpartAddrspec ()
+		{
+			TestUrlScanner ("This is some text with a mailto:\"quoted local part\"@example.com in the text...", "mailto:\"quoted local part\"@example.com");
+		}
+
+		[Test]
+		public void TestMailToWithComplexQuotedLocalpartAddrspec ()
+		{
+			TestUrlScanner ("This is some text with a mailto:\"quoted \\\"local\\\" part\"@example.com in the text...", "mailto:\"quoted \\\"local\\\" part\"@example.com");
+		}
+
+		[Test]
 		public void TestMailToUrlWithoutAddrspec ()
 		{
 			TestUrlScanner ("This is some text with a mailto:?subject=Shake%20it%20off,%20shake%20it%20off in the text...", "mailto:?subject=Shake%20it%20off,%20shake%20it%20off");
