@@ -60,6 +60,9 @@ namespace MimeKit.Cryptography {
 		/// Creates a new X.509 certificate chain based on the specified collection of certificates.
 		/// </remarks>
 		/// <param name="collection">A collection of certificates.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="collection"/> is <c>null</c>.
+		/// </exception>
 		public X509CertificateChain (IEnumerable<X509Certificate> collection)
 		{
 			certificates = new List<X509Certificate> (collection);
