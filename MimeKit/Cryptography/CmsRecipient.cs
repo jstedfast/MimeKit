@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 
 #if !PORTABLE && !COREFX
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
@@ -94,6 +95,82 @@ namespace MimeKit.Cryptography {
 			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
 			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			Certificate = certificate;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="CmsRecipient"/>, loading the certificate from the specified stream.</para>
+		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
+		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
+		/// S/MIME v3.x client implementations.</para>
+		/// <para>The <see cref="RecipientIdentifierType"/> will be initialized to
+		/// <see cref="SubjectIdentifierType.IssuerAndSerialNumber"/>.</para>
+		/// </remarks>
+		/// <param name="stream">The stream containing the recipient's certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public CmsRecipient (Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException ("stream");
+
+			var parser = new X509CertificateParser ();
+
+			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
+			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+			Certificate = parser.ReadCertificate (stream);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="CmsRecipient"/>, loading the certificate from the specified file.</para>
+		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
+		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
+		/// S/MIME v3.x client implementations.</para>
+		/// <para>The <see cref="RecipientIdentifierType"/> will be initialized to
+		/// <see cref="SubjectIdentifierType.IssuerAndSerialNumber"/>.</para>
+		/// </remarks>
+		/// <param name="fileName">The file containing the recipient's certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public CmsRecipient (string fileName)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException ("fileName");
+
+			var parser = new X509CertificateParser ();
+
+			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
+			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+
+			using (var stream = File.OpenRead (fileName))
+				Certificate = parser.ReadCertificate (stream);
 		}
 
 #if !PORTABLE && !COREFX
