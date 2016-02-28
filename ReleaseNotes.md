@@ -4,6 +4,20 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.22
+
+* Added a new SecureMimeContext.Verify() overload that returns the extracted content stream.
+* Exposed the SecureMimeContext.GetDigitalSignatures() method as protected, allowing custom
+  subclasses to implement their own Verify() methods.
+* Fixed X509CertificateDatabase to store the X509Certificate NotBefore and NotAfter DateTimes
+  in UTC rather than LocalTime.
+* Added a work-around for GoDaddy's ASP.NET web host which does not support the iso-8859-1
+  System.Text.Encoding (used as a fallback encoding within MimeKit) by falling back to
+  Windows-1252 instead.
+* Added new convenience .ctors for CmsSigner and CmsRecipient for loading certificates from a
+  file or stream.
+* Fixed UrlScanner to properly deal with IPv6 literals in email addresses.
+
 ### MimeKit 1.2.21
 
 * Added a MultipartReport class for multipart/report.

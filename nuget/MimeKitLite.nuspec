@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>MimeKitLite</id>
-		<version>1.2.21</version>
+		<version>1.2.22</version>
 		<title>MimeKit Lite</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,14 +22,8 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME messages.</summary>
-		<releaseNotes>* Added a MultipartReport class for multipart/report.
-* Fixed serialization for embedded message/* parts. (issue #228)
-* Fixed MimeMessage.WriteTo() to only make sure that the stream ends with a newline if it wasn't parsed. (issue #227)
-* Fixed MimeMessage to only set a MIME-Version if the message was not produced by the parser.
-* Ignore timezones outside the range of -1200 to +1400.
-* Added InternetAddress.Clone() to allow addresses to be cloned.
-* Properly serialize message/rfc822 parts that contain an mbox marker.
-* Fixed ParameterList.IndexOf(string) to be case insensitive.
+		<releaseNotes>* Added a work-around for GoDaddy's ASP.NET web host which does not support the iso-8859-1 System.Text.Encoding (used as a fallback encoding within MimeKit) by falling back to Windows-1252 instead.
+* Fixed UrlScanner to properly deal with IPv6 literals in email addresses.
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>
