@@ -63,7 +63,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import (Stream.Null, null));
-			Assert.Throws<ArgumentNullException> (() => store.Import ("fileName", null));
+			Assert.Throws<ArgumentNullException> (() => store.Import (GetTestDataPath ("smime.p12"), null));
 			Assert.Throws<ArgumentNullException> (() => store.Import (new byte[0], null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null));
