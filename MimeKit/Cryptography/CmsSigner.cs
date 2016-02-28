@@ -106,20 +106,18 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException ("key");
 
 			CertificateChain = new X509CertificateChain ();
-			foreach (var entry in chain) {
+			foreach (var entry in chain)
 				CertificateChain.Add (entry.Certificate);
-				if (Certificate == null)
-					Certificate = entry.Certificate;
-			}
 
 			if (CertificateChain.Count == 0)
 				throw new ArgumentException ("The certificate chain was empty.", "chain");
 
-			CheckCertificateCanBeUsedForSigning (Certificate);
+			CheckCertificateCanBeUsedForSigning (CertificateChain[0]);
 
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", "key");
 
+			Certificate = CertificateChain[0];
 			PrivateKey = key;
 		}
 
