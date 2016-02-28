@@ -48,5 +48,36 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((string) null));
 		}
+
+		static void AssertDefaultValues (CmsRecipient recipient, X509Certificate certificate)
+		{
+			Assert.AreEqual (certificate, recipient.Certificate);
+			Assert.AreEqual (1, recipient.EncryptionAlgorithms.Length);
+			Assert.AreEqual (EncryptionAlgorithm.TripleDes, recipient.EncryptionAlgorithms[0]);
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, recipient.RecipientIdentifierType);
+		}
+
+		[Test]
+		public void TestDefaultValues ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "smime", "certificate-authority.crt");
+			var recipient = new CmsRecipient (path);
+			var certificate = recipient.Certificate;
+
+			AssertDefaultValues (recipient, certificate);
+
+			using (var stream = File.OpenRead (path))
+				recipient = new CmsRecipient (stream);
+
+			AssertDefaultValues (recipient, certificate);
+
+			recipient = new CmsRecipient (certificate);
+
+			AssertDefaultValues (recipient, certificate);
+
+			recipient = new CmsRecipient (new X509Certificate2 (path));
+
+			AssertDefaultValues (recipient, certificate);
+		}
 	}
 }

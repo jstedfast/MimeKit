@@ -48,6 +48,7 @@ namespace UnitTests {
 			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((IEnumerable<X509Certificate>) null, signer.PrivateKey));
+			Assert.Throws<ArgumentException> (() => new CmsSigner (new X509Certificate[0], signer.PrivateKey));
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner (signer.CertificateChain, null));
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((X509Certificate) null, signer.PrivateKey));
