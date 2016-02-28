@@ -37,6 +37,32 @@ namespace UnitTests {
 	{
 		static FormatOptions UnixFormatOptions;
 
+		public InternetAddressListTests ()
+		{
+			UnixFormatOptions = FormatOptions.Default.Clone ();
+			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
+		}
+
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var mailbox = new MailboxAddress ("MimeKit Unit Tests", "mimekit@example.com");
+			var list = new InternetAddressList ();
+
+			Assert.Throws<ArgumentNullException> (() => new InternetAddressList (null));
+			Assert.Throws<ArgumentNullException> (() => list.Add (null));
+			Assert.Throws<ArgumentNullException> (() => list.AddRange (null));
+			Assert.Throws<ArgumentNullException> (() => list.CompareTo (null));
+			Assert.Throws<ArgumentNullException> (() => list.Contains (null));
+			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (new InternetAddress[0], -1));
+			Assert.Throws<ArgumentNullException> (() => list.IndexOf (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, mailbox));
+			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
+			Assert.Throws<ArgumentNullException> (() => list.Remove (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAt (-1));
+		}
+
 		static void AssertInternetAddressListsEqual (string text, InternetAddressList expected, InternetAddressList result)
 		{
 			Assert.AreEqual (expected.Count, result.Count, "Unexpected number of addresses: {0}", text);
@@ -50,13 +76,6 @@ namespace UnitTests {
 			var encoded = result.ToString (true).Replace ("\r\n", "\n");
 
 			Assert.AreEqual (text, encoded, "Encoded strings differ for {0}", text);
-		}
-
-		[SetUp]
-		public void Setup ()
-		{
-			UnixFormatOptions = FormatOptions.Default.Clone ();
-			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
 		}
 
 		static void AssertTryParse (string text, string encoded, InternetAddressList expected)
