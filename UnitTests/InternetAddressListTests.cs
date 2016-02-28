@@ -49,6 +49,8 @@ namespace UnitTests {
 			var mailbox = new MailboxAddress ("MimeKit Unit Tests", "mimekit@example.com");
 			var list = new InternetAddressList ();
 
+			list.Add (new MailboxAddress ("Example User", "user@example.com"));
+
 			Assert.Throws<ArgumentNullException> (() => new InternetAddressList (null));
 			Assert.Throws<ArgumentNullException> (() => list.Add (null));
 			Assert.Throws<ArgumentNullException> (() => list.AddRange (null));
@@ -61,6 +63,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
 			Assert.Throws<ArgumentNullException> (() => list.Remove (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.RemoveAt (-1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list[-1] = mailbox);
+			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 		}
 
 		static void AssertInternetAddressListsEqual (string text, InternetAddressList expected, InternetAddressList result)
