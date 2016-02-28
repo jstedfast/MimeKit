@@ -124,6 +124,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMailToIPv4Addrspec ()
+		{
+			TestUrlScanner ("This is some text with a mailto:ipv4@[127.0.0.1] in the text...", "mailto:ipv4@[127.0.0.1]");
+		}
+
+		[Test]
+		public void TestMailToIPv6Addrspec ()
+		{
+			TestUrlScanner ("This is some text with a mailto:ipv6@[IPv6:::1] in the text...", "mailto:ipv6@[IPv6:::1]");
+		}
+
+		[Test]
 		public void TestMailToUrlWithoutAddrspec ()
 		{
 			TestUrlScanner ("This is some text with a mailto:?subject=Shake%20it%20off,%20shake%20it%20off in the text...", "mailto:?subject=Shake%20it%20off,%20shake%20it%20off");
