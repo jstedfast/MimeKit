@@ -411,9 +411,9 @@ namespace MimeKit.Text {
 				return false;
 
 			if (compact)
-				return colons < 6;
+				return colons <= 6;
 
-			return colons < 7;
+			return colons == 7;
 		}
 
 		static bool GetAddrspecStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
