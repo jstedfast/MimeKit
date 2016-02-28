@@ -97,7 +97,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is not a private key.</para>
 		/// </exception>
-		public CmsSigner (IEnumerable<X509CertificateEntry> chain, AsymmetricKeyParameter key) : this ()
+		public CmsSigner (IEnumerable<X509Certificate> chain, AsymmetricKeyParameter key) : this ()
 		{
 			if (chain == null)
 				throw new ArgumentNullException ("chain");
@@ -105,9 +105,7 @@ namespace MimeKit.Cryptography {
 			if (key == null)
 				throw new ArgumentNullException ("key");
 
-			CertificateChain = new X509CertificateChain ();
-			foreach (var entry in chain)
-				CertificateChain.Add (entry.Certificate);
+			CertificateChain = new X509CertificateChain (chain);
 
 			if (CertificateChain.Count == 0)
 				throw new ArgumentException ("The certificate chain was empty.", "chain");

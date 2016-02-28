@@ -71,6 +71,8 @@
     <Compile Include="AssortedTests.cs" />
     <Compile Include="ChainedStreamTests.cs" />
     <Compile Include="CharsetUtilsTests.cs" />
+    <Compile Include="CmsRecipientTests.cs" />
+    <Compile Include="CmsSignerTests.cs" />
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="ContentDispositionTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
