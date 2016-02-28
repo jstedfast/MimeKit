@@ -378,7 +378,7 @@ namespace MimeKit.Text {
 					if (!SkipIPv4Literal (text, endIndex, ref index))
 						return false;
 
-					break;
+					return compact ? colons < 6 : colons == 6;
 				}
 
 				int count = index - startIndex;
@@ -410,10 +410,7 @@ namespace MimeKit.Text {
 			if (colons < 2)
 				return false;
 
-			if (compact)
-				return colons <= 6;
-
-			return colons == 7;
+			return compact ? colons < 7 : colons == 7;
 		}
 
 		static bool GetAddrspecStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
