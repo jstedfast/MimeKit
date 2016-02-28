@@ -46,6 +46,35 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var store = new X509CertificateStore ();
+
+			Assert.Throws<ArgumentNullException> (() => store.Add (null));
+			Assert.Throws<ArgumentNullException> (() => store.AddRange (null));
+			Assert.Throws<ArgumentNullException> (() => store.Contains (null));
+			Assert.Throws<ArgumentNullException> (() => store.Export ((Stream) null, "password"));
+			Assert.Throws<ArgumentNullException> (() => store.Export ((string) null, "password"));
+			Assert.Throws<ArgumentNullException> (() => store.Export (Stream.Null, null));
+			Assert.Throws<ArgumentNullException> (() => store.Export ("fileName", null));
+			Assert.Throws<ArgumentNullException> (() => store.Export ((Stream) null));
+			Assert.Throws<ArgumentNullException> (() => store.Export ((string) null));
+			Assert.Throws<ArgumentNullException> (() => store.GetPrivateKey (null));
+			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null, "password"));
+			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null, "password"));
+			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null, "password"));
+			Assert.Throws<ArgumentNullException> (() => store.Import (Stream.Null, null));
+			Assert.Throws<ArgumentNullException> (() => store.Import ("fileName", null));
+			Assert.Throws<ArgumentNullException> (() => store.Import (new byte[0], null));
+			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null));
+			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null));
+			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null));
+			Assert.Throws<ArgumentNullException> (() => store[0] = null);
+			Assert.Throws<ArgumentNullException> (() => store.Remove (null));
+			Assert.Throws<ArgumentNullException> (() => store.RemoveRange (null));
+		}
+
+		[Test]
 		public void TestImportSingleCertificate ()
 		{
 			var store = new X509CertificateStore ();
