@@ -304,7 +304,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
 		/// The specified file could not be found.
@@ -319,9 +321,6 @@ namespace MimeKit.Cryptography {
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
-
-			if (string.IsNullOrEmpty (fileName))
-				throw new ArgumentException ("The specified path is empty.", "fileName");
 
 			using (var stream = File.OpenRead (fileName))
 				Import (stream, password);
@@ -386,7 +385,9 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="fileName"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
 		/// </exception>
 		/// <exception cref="System.IO.PathTooLongException">
 		/// The specified path exceeds the maximum allowed path length of the system.
@@ -404,9 +405,6 @@ namespace MimeKit.Cryptography {
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
-
-			if (string.IsNullOrEmpty (fileName))
-				throw new ArgumentException ("The specified path is empty.", "fileName");
 
 			using (var file = File.Create (fileName))
 				Export (file);
@@ -485,7 +483,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// The specified file path is empty.
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
 		/// </exception>
 		/// <exception cref="System.IO.PathTooLongException">
 		/// The specified path exceeds the maximum allowed path length of the system.
@@ -503,9 +503,6 @@ namespace MimeKit.Cryptography {
 		{
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
-
-			if (string.IsNullOrEmpty (fileName))
-				throw new ArgumentException ("The specified path is empty.", "fileName");
 
 			if (password == null)
 				throw new ArgumentNullException ("password");
