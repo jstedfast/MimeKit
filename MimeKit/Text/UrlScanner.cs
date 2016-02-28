@@ -339,7 +339,7 @@ namespace MimeKit.Text {
 
 			index++;
 
-			return text[index] != '6' || text[index + 1] != ':';
+			return text[index] == '6' || text[index + 1] == ':';
 		}
 
 		// This needs to handle the following forms:
