@@ -107,6 +107,7 @@ namespace MimeKit.Cryptography {
 			Certificate = parser.ReadCertificate (stream);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
@@ -156,6 +157,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				Certificate = parser.ReadCertificate (stream);
 		}
+#endif
 
 #if !PORTABLE && !COREFX
 		/// <summary>

@@ -229,6 +229,7 @@ namespace MimeKit.Cryptography {
 			LoadPkcs12 (stream, password);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
@@ -275,6 +276,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				LoadPkcs12 (stream, password);
 		}
+#endif
 
 #if !PORTABLE && !COREFX
 		/// <summary>
