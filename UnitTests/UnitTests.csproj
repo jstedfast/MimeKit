@@ -116,6 +116,7 @@
     <Compile Include="TnefTests.cs" />
     <Compile Include="TrieTests.cs" />
     <Compile Include="UrlScannerTests.cs" />
+    <Compile Include="X509CertificateChainTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
