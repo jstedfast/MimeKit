@@ -106,6 +106,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestIPv6v4Addrspec ()
+		{
+			TestUrlScanner ("This is some text with a ipv6@[IPv6:::ffff:10.0.0.1] in the text...", "ipv6@[IPv6:::ffff:10.0.0.1]");
+		}
+
+		[Test]
 		public void TestIPv6Addrspec ()
 		{
 			TestUrlScanner ("This is some text with a ipv6@[IPv6:FE80:0000:0000:0000:0202:B3FF:FE1E:8329] in the text...", "ipv6@[IPv6:FE80:0000:0000:0000:0202:B3FF:FE1E:8329]");
