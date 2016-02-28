@@ -52,7 +52,6 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => store.Add (null));
 			Assert.Throws<ArgumentNullException> (() => store.AddRange (null));
-			Assert.Throws<ArgumentNullException> (() => store.Contains (null));
 			Assert.Throws<ArgumentNullException> (() => store.Export ((Stream) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Export ((string) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Export (Stream.Null, null));
@@ -69,7 +68,6 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null));
-			Assert.Throws<ArgumentNullException> (() => store[0] = null);
 			Assert.Throws<ArgumentNullException> (() => store.Remove (null));
 			Assert.Throws<ArgumentNullException> (() => store.RemoveRange (null));
 		}
