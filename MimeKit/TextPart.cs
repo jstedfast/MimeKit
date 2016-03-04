@@ -132,6 +132,10 @@ namespace MimeKit {
 			}
 		}
 
+		internal TextPart (ContentType contentType) : base (contentType)
+		{
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
 		/// class with the specified text subtype.

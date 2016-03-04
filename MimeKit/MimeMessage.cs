@@ -2681,8 +2681,14 @@ namespace MimeKit {
 		static MimePart GetMimePart (AttachmentBase item)
 		{
 			var mimeType = item.ContentType.ToString ();
-			var part = new MimePart (ContentType.Parse (mimeType));
+			var contentType = ContentType.Parse (mimeType);
 			var attachment = item as Attachment;
+			MimePart part;
+
+			if (contentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase))
+				part = new TextPart (contentType);
+			else
+				part = new MimePart (contentType);
 
 			if (attachment != null) {
 				var disposition = attachment.ContentDisposition.ToString ();
@@ -2790,7 +2796,7 @@ namespace MimeKit {
 			}
 
 			if (message.AlternateViews.Count > 0) {
-				var alternative = new Multipart ("alternative");
+				var alternative = new MultipartAlternative ();
 
 				if (body != null)
 					alternative.Add (body);
@@ -2803,7 +2809,7 @@ namespace MimeKit {
 
 					if (view.LinkedResources.Count > 0) {
 						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
-						var related = new Multipart ("related");
+						var related = new MultipartRelated ();
 
 						related.ContentType.Parameters.Add ("type", type);
 
