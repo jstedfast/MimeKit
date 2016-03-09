@@ -26,13 +26,6 @@
 
 using System;
 using System.IO;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Drawing;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using MimeKit;
@@ -137,22 +130,22 @@ namespace MessageReader
 		void RenderMultipartRelated (MultipartRelated related)
 		{
 			var root = related.Root;
-			var multipart = root as Multipart;
+			var alternative = root as MultipartAlternative;
 			var text = root as TextPart;
 
-			if (multipart != null) {
+			if (alternative != null) {
 				// Note: the root document can sometimes be a multipart/alternative.
 				// A multipart/alternative is just a collection of alternate views.
 				// The last part is the format that most closely matches what the
 				// user saw in his or her email client's WYSIWYG editor.
-				for (int i = multipart.Count; i > 0; i--) {
-					var body = multipart[i - 1] as TextPart;
+				for (int i = alternative.Count; i > 0; i--) {
+					var body = alternative[i - 1] as TextPart;
 
 					if (body == null)
 						continue;
 
 					// our preferred mime-type is text/html
-					if (body.ContentType.Matches ("text", "html")) {
+					if (body.ContentType.IsMimeType ("text", "html")) {
 						text = body;
 						break;
 					}
@@ -164,7 +157,7 @@ namespace MessageReader
 
 			// check if we have a text/html document
 			if (text != null) {
-				if (text.ContentType.Matches ("text", "html")) {
+				if (text.ContentType.IsMimeType ("text", "html")) {
 					// replace image src urls that refer to related MIME parts with "data:" urls
 					// Note: we could also save the related MIME part content to disk and use
 					// file:// urls instead.
@@ -222,7 +215,7 @@ namespace MessageReader
 
 			// check if the entity is a multipart
 			if (multipart != null) {
-				if (multipart.ContentType.Matches ("multipart", "alternative")) {
+				if (multipart.ContentType.IsMimeType ("multipart", "alternative")) {
 					// A multipart/alternative is just a collection of alternate views.
 					// The last part is the format that most closely matches what the
 					// user saw in his or her email client's WYSIWYG editor.
@@ -234,7 +227,7 @@ namespace MessageReader
 						if (related != null) {
 							var root = related.Root;
 
-							if (root != null && root.ContentType.Matches ("text", "html")) {
+							if (root != null && root.ContentType.IsMimeType ("text", "html")) {
 								RenderMultipartRelated (related);
 								return;
 							}

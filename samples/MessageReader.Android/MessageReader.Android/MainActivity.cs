@@ -25,14 +25,9 @@
 //
 
 using System;
-using System.Text;
 
 using Android.App;
-using Android.Content;
-using Android.Runtime;
-using Android.Views;
 using Android.Webkit;
-using Android.Widget;
 using Android.OS;
 
 using MimeKit;
@@ -127,7 +122,7 @@ namespace MessageReader.Android {
 
 			// check if the entity is a multipart
 			if (multipart != null) {
-				if (multipart.ContentType.Matches ("multipart", "alternative")) {
+				if (multipart.ContentType.IsMimeType ("multipart", "alternative")) {
 					// A multipart/alternative is just a collection of alternate views.
 					// The last part is the format that most closely matches what the
 					// user saw in his or her email client's WYSIWYG editor.
@@ -139,7 +134,7 @@ namespace MessageReader.Android {
 						if (related != null) {
 							var root = related.Root;
 
-							if (root != null && root.ContentType.Matches ("text", "html")) {
+							if (root != null && root.ContentType.IsMimeType ("text", "html")) {
 								RenderMultipartRelated (related);
 								return;
 							}

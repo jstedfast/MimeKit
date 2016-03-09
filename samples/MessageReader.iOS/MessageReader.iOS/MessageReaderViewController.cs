@@ -25,7 +25,6 @@
 //
 
 using System;
-using System.Text;
 
 using Foundation;
 using UIKit;
@@ -150,7 +149,7 @@ namespace MessageReader.iOS {
 
 			// check if the entity is a multipart
 			if (multipart != null) {
-				if (multipart.ContentType.Matches ("multipart", "alternative")) {
+				if (multipart.ContentType.IsMimeType ("multipart", "alternative")) {
 					// A multipart/alternative is just a collection of alternate views.
 					// The last part is the format that most closely matches what the
 					// user saw in his or her email client's WYSIWYG editor.
@@ -162,7 +161,7 @@ namespace MessageReader.iOS {
 						if (related != null) {
 							var root = related.Root;
 
-							if (root != null && root.ContentType.Matches ("text", "html")) {
+							if (root != null && root.ContentType.IsMimeType ("text", "html")) {
 								RenderMultipartRelated (related);
 								return;
 							}
