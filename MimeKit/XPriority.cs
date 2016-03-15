@@ -1,5 +1,5 @@
 ﻿//
-// MessagePriority.cs
+// XPriority.cs
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
@@ -26,25 +26,36 @@
 
 namespace MimeKit {
 	/// <summary>
-	/// An enumeration of message priority values.
+	/// An enumeration of X-Priority header values.
 	/// </summary>
 	/// <remarks>
 	/// Indicates the priority of a message.
 	/// </remarks>
-	public enum MessagePriority {
+	public enum XPriority {
 		/// <summary>
-		/// The message has non-urgent priority.
+		/// The message is of the highest priority.
 		/// </summary>
-		NonUrgent,
+		Highest = 1,
 
 		/// <summary>
-		/// The message has normal priority.
+		/// The message is high priority.
 		/// </summary>
-		Normal,
+		High    = 2,
 
 		/// <summary>
-		/// The message has urgent priority.
+		/// The message is of normal priority.
 		/// </summary>
-		Urgent
+		Normal  = 3,
+
+		/// <summary>
+		/// The message is of low priority.
+		/// </summary>
+		Low     = 4,
+
+		/// <summary>
+		/// The message is of lowest priority.
+		/// </summary>
+		Lowest  = 5
 	}
 }
+

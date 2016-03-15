@@ -247,6 +247,7 @@
     <Compile Include="ParserOptions.cs" />
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="XPriority.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Encodings\" />

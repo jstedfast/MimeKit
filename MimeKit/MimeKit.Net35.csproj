@@ -249,6 +249,7 @@
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="XPriority.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />

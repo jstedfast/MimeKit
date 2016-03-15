@@ -72,6 +72,7 @@ namespace MimeKit {
 		readonly Dictionary<string, InternetAddressList> addresses;
 		MessageImportance importance = MessageImportance.Normal;
 		MessagePriority priority = MessagePriority.Normal;
+		XPriority xpriority = XPriority.Normal;
 		readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		MailboxAddress resentSender;
@@ -338,6 +339,50 @@ namespace MimeKit {
 				SetHeader ("Priority", rawValue);
 
 				priority = value;
+			}
+		}
+
+		/// <summary>
+		/// Get or set the value of the X-Priority header.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of the X-Priority header.
+		/// </remarks>
+		/// <value>The priority.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid <see cref="MessagePriority"/>.
+		/// </exception>
+		public XPriority XPriority {
+			get { return xpriority; }
+			set {
+				if (value == xpriority)
+					return;
+
+				string rawValue;
+
+				switch (value) {
+				case XPriority.Highest:
+					rawValue = "1 (Highest)";
+					break;
+				case XPriority.High:
+					rawValue = "2 (High)";
+					break;
+				case XPriority.Normal:
+					rawValue = "3 (Normal)";
+					break;
+				case XPriority.Low:
+					rawValue = "4 (Low)";
+					break;
+				case XPriority.Lowest:
+					rawValue = "5 (Lowest)";
+					break;
+				default:
+					throw new ArgumentOutOfRangeException ("value");
+				}
+
+				SetHeader ("X-Priority", rawValue);
+
+				xpriority = value;
 			}
 		}
 
@@ -2280,6 +2325,9 @@ namespace MimeKit {
 			case HeaderId.Priority:
 				priority = MessagePriority.Normal;
 				break;
+			case HeaderId.XPriority:
+				xpriority = XPriority.Normal;
+				break;
 			case HeaderId.Date:
 				date = DateTimeOffset.MinValue;
 				break;
@@ -2290,7 +2338,7 @@ namespace MimeKit {
 					continue;
 
 				var rawValue = header.RawValue;
-				int index = 0;
+				int number, index = 0;
 
 				switch (id) {
 				case HeaderId.MimeVersion:
@@ -2344,6 +2392,16 @@ namespace MimeKit {
 					default: priority = MessagePriority.Normal; break;
 					}
 					break;
+				case HeaderId.XPriority:
+					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
+						if (number >= 1 && number <= 5)
+							xpriority = (XPriority) number;
+						else
+							xpriority = XPriority.Normal;
+					} else {
+						xpriority = XPriority.Normal;
+					}
+					break;
 				case HeaderId.Date:
 					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out date))
 						return;
@@ -2357,6 +2415,7 @@ namespace MimeKit {
 			InternetAddressList list;
 			byte[] rawValue;
 			int index = 0;
+			int number;
 
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
@@ -2409,6 +2468,16 @@ namespace MimeKit {
 					default: priority = MessagePriority.Normal; break;
 					}
 					break;
+				case HeaderId.XPriority:
+					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
+						if (number >= 1 && number <= 5)
+							xpriority = (XPriority) number;
+						else
+							xpriority = XPriority.Normal;
+					} else {
+						xpriority = XPriority.Normal;
+					}
+					break;
 				case HeaderId.Date:
 					DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
 					break;
@@ -2437,6 +2506,7 @@ namespace MimeKit {
 				resentDate = date = DateTimeOffset.MinValue;
 				importance = MessageImportance.Normal;
 				priority = MessagePriority.Normal;
+				xpriority = XPriority.Normal;
 				resentMessageId = null;
 				resentSender = null;
 				inreplyto = null;
@@ -2780,12 +2850,12 @@ namespace MimeKit {
 			case MailPriority.High:
 				msg.Headers.Replace (HeaderId.Priority, "urgent");
 				msg.Headers.Replace (HeaderId.Importance, "high");
-				msg.Headers.Replace ("X-Priority", "1");
+				msg.Headers.Replace (HeaderId.XPriority, "2 (High)");
 				break;
 			case MailPriority.Low:
 				msg.Headers.Replace (HeaderId.Priority, "non-urgent");
 				msg.Headers.Replace (HeaderId.Importance, "low");
-				msg.Headers.Replace ("X-Priority", "5");
+				msg.Headers.Replace (HeaderId.XPriority, "4 (Low)");
 				break;
 			}
 

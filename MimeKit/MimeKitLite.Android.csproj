@@ -193,6 +193,7 @@
     <Compile Include="ParserOptions.cs" />
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="XPriority.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
