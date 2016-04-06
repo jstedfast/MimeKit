@@ -817,6 +817,27 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Write text to the output stream, escaping special characters.
+		/// </summary>
+		/// <remarks>
+		/// Writes text to the output stream, escaping special characters.
+		/// </remarks>
+		/// <param name="format">A composit format string.</param>
+		/// <param name="args">An object array that contains zero or more objects to format.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="format"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="HtmlWriter"/> has been disposed.
+		/// </exception>
+		public void WriteText (string format, params object[] args)
+		{
+			WriteText (string.Format (format, args));
+		}
+
+		/// <summary>
 		/// Write a token to the output stream.
 		/// </summary>
 		/// <remarks>
