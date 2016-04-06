@@ -1258,7 +1258,7 @@ namespace MimeKit {
 				bool empty;
 
 				var found = ScanContent (inbuf, memory, true, out empty);
-				multipart.RawEpilogue = memory.ToArray ();
+				multipart.RawEpilogue = empty ? null : memory.ToArray ();
 				return found;
 			}
 		}
