@@ -51,12 +51,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Security" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.csproj">
-      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
-      <Name>BouncyCastle</Name>
-    </ProjectReference>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
@@ -260,6 +257,9 @@
     <Folder Include="Tnef\" />
     <Folder Include="Utils\" />
     <Folder Include="Text\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.MimeKit.Net45.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
