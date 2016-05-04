@@ -259,7 +259,7 @@
     <Folder Include="Text\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.MimeKit.Net45.config" />
+    <None Include="packages.MimeKit.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
