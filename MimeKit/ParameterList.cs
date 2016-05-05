@@ -1029,6 +1029,17 @@ namespace MimeKit {
 					}
 					hex.Reset ();
 				} else if (param.Encoded) {
+					// Note: param value is not supposed to be quoted, but issue #239 illustrates
+					// that this can happen in the wild. Hopefully we will not need to worry
+					// about quoted-pairs.
+					if (length >= 2 && buffer[startIndex] == (byte) '"') {
+						if (buffer[startIndex + length - 1] == (byte) '"')
+							length--;
+
+						startIndex++;
+						length--;
+					}
+
 					value = DecodeRfc2231 (out encoding, ref decoder, hex, buffer, startIndex, length, true);
 					method = ParameterEncodingMethod.Rfc2231;
 					hex.Reset ();

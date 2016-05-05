@@ -149,6 +149,17 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestIssue239 ()
+		{
+			const string text = " attachment; size=1049971;\n\tfilename*=\"utf-8''SBD%20%C5%A0kodov%C3%A1k%2Ejpg\"";
+			const string expected = "SBD Škodovák.jpg";
+			ContentDisposition disposition;
+
+			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
+			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+		}
+
+		[Test]
 		public void TestFormData ()
 		{
 			const string text = "form-data; filename=\"form.txt\"";
