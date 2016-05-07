@@ -273,7 +273,7 @@
     <Compile Include="ParserOptions.cs" />
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
-    <Compile Include="XPriority.cs" />
+    <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />

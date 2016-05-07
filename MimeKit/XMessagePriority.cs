@@ -31,7 +31,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Indicates the priority of a message.
 	/// </remarks>
-	public enum XPriority {
+	public enum XMessagePriority {
 		/// <summary>
 		/// The message is of the highest priority.
 		/// </summary>

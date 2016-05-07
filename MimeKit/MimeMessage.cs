@@ -71,8 +71,8 @@ namespace MimeKit {
 
 		readonly Dictionary<string, InternetAddressList> addresses;
 		MessageImportance importance = MessageImportance.Normal;
+		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
-		XPriority xpriority = XPriority.Normal;
 		readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		MailboxAddress resentSender;
@@ -352,7 +352,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is not a valid <see cref="MessagePriority"/>.
 		/// </exception>
-		public XPriority XPriority {
+		public XMessagePriority XPriority {
 			get { return xpriority; }
 			set {
 				if (value == xpriority)
@@ -361,19 +361,19 @@ namespace MimeKit {
 				string rawValue;
 
 				switch (value) {
-				case XPriority.Highest:
+				case XMessagePriority.Highest:
 					rawValue = "1 (Highest)";
 					break;
-				case XPriority.High:
+				case XMessagePriority.High:
 					rawValue = "2 (High)";
 					break;
-				case XPriority.Normal:
+				case XMessagePriority.Normal:
 					rawValue = "3 (Normal)";
 					break;
-				case XPriority.Low:
+				case XMessagePriority.Low:
 					rawValue = "4 (Low)";
 					break;
-				case XPriority.Lowest:
+				case XMessagePriority.Lowest:
 					rawValue = "5 (Lowest)";
 					break;
 				default:
@@ -2322,11 +2322,11 @@ namespace MimeKit {
 			case HeaderId.Importance:
 				importance = MessageImportance.Normal;
 				break;
+			case HeaderId.XPriority:
+				xpriority = XMessagePriority.Normal;
+				break;
 			case HeaderId.Priority:
 				priority = MessagePriority.Normal;
-				break;
-			case HeaderId.XPriority:
-				xpriority = XPriority.Normal;
 				break;
 			case HeaderId.Date:
 				date = DateTimeOffset.MinValue;
@@ -2394,12 +2394,9 @@ namespace MimeKit {
 					break;
 				case HeaderId.XPriority:
 					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
-						if (number >= 1 && number <= 5)
-							xpriority = (XPriority) number;
-						else
-							xpriority = XPriority.Normal;
+						xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
 					} else {
-						xpriority = XPriority.Normal;
+						xpriority = XMessagePriority.Normal;
 					}
 					break;
 				case HeaderId.Date:
@@ -2470,12 +2467,9 @@ namespace MimeKit {
 					break;
 				case HeaderId.XPriority:
 					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
-						if (number >= 1 && number <= 5)
-							xpriority = (XPriority) number;
-						else
-							xpriority = XPriority.Normal;
+						xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
 					} else {
-						xpriority = XPriority.Normal;
+						xpriority = XMessagePriority.Normal;
 					}
 					break;
 				case HeaderId.Date:
@@ -2505,8 +2499,8 @@ namespace MimeKit {
 
 				resentDate = date = DateTimeOffset.MinValue;
 				importance = MessageImportance.Normal;
+				xpriority = XMessagePriority.Normal;
 				priority = MessagePriority.Normal;
-				xpriority = XPriority.Normal;
 				resentMessageId = null;
 				resentSender = null;
 				inreplyto = null;
