@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>MimeKit</id>
-		<version>1.2.22</version>
+		<version>1.2.23</version>
 		<title>MimeKit</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,12 +22,12 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-		<releaseNotes>* Added a new SecureMimeContext.Verify() overload that returns the extracted content stream.
-* Exposed the SecureMimeContext.GetDigitalSignatures() method as protected, allowing custom subclasses to implement their own Verify() methods.
-* Fixed X509CertificateDatabase to store the X509Certificate NotBefore and NotAfter DateTimes in UTC rather than LocalTime.
-* Added a work-around for GoDaddy's ASP.NET web host which does not support the iso-8859-1 System.Text.Encoding (used as a fallback encoding within MimeKit) by falling back to Windows-1252 instead.
-* Added new convenience .ctors for CmsSigner and CmsRecipient for loading certificates from a file or stream.
-* Fixed UrlScanner to properly deal with IPv6 literals in email addresses.
+		<releaseNotes>* Modified ParamaterList.TryParse() to handle quoted rfc2231-encoded param values. (issue #239)
+* Updated to reference BouncyCastle via NuGet packages rather than bundling the assemblies.
+* Fixed MimeParser to set a multipart's raw epilogue to null instead of an empty byte array. Fixes some issues with digital signature verification (as well as DKIM verification).
+* Added an HtmlWriter.WriteText() override with Console.WriteLine() style params.
+* Added convenience MimeMessage property for the X-Priority header.
+* Fixed MimeMessage.ConvertFromMailMessage() to use appropriate MimeEntity subclasses. (issue #232)
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

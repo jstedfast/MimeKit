@@ -4,6 +4,16 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.23
+
+* Modified ParamaterList.TryParse() to handle quoted rfc2231-encoded param values. (issue #239)
+* Updated to reference BouncyCastle via NuGet packages rather than bundling the assemblies.
+* Fixed MimeParser to set a multipart's raw epilogue to null instead of an empty byte array.
+  Fixes some issues with digital signature verification (as well as DKIM verification).
+* Added an HtmlWriter.WriteText() override with Console.WriteLine() style params.
+* Added convenience MimeMessage property for the X-Priority header.
+* Fixed MimeMessage.ConvertFromMailMessage() to use appropriate MimeEntity subclasses. (issue #232)
+
 ### MimeKit 1.2.22
 
 * Added a new SecureMimeContext.Verify() overload that returns the extracted content stream.

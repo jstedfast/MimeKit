@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata>
 		<id>MimeKitLite</id>
-		<version>1.2.22</version>
+		<version>1.2.23</version>
 		<title>MimeKit Lite</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,11 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME messages.</summary>
-		<releaseNotes>* Added a work-around for GoDaddy's ASP.NET web host which does not support the iso-8859-1 System.Text.Encoding (used as a fallback encoding within MimeKit) by falling back to Windows-1252 instead.
-* Fixed UrlScanner to properly deal with IPv6 literals in email addresses.
+		<releaseNotes>* Modified ParamaterList.TryParse() to handle quoted rfc2231-encoded param values. (issue #239)
+* Fixed MimeParser to set a multipart's raw epilogue to null instead of an empty byte array. Fixes some issues with digital signature verification (as well as DKIM verification).
+* Added an HtmlWriter.WriteText() override with Console.WriteLine() style params.
+* Added convenience MimeMessage property for the X-Priority header.
+* Fixed MimeMessage.ConvertFromMailMessage() to use appropriate MimeEntity subclasses. (issue #232)
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>
