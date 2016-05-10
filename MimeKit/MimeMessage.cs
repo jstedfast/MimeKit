@@ -202,8 +202,6 @@ namespace MimeKit {
 
 			if (!Headers.Contains (HeaderId.From))
 				Headers[HeaderId.From] = string.Empty;
-			if (!Headers.Contains (HeaderId.To))
-				Headers[HeaderId.To] = string.Empty;
 			if (date == default (DateTimeOffset))
 				Date = DateTimeOffset.Now;
 			if (!Headers.Contains (HeaderId.Subject))
@@ -239,7 +237,6 @@ namespace MimeKit {
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
 			Headers[HeaderId.From] = string.Empty;
-			Headers[HeaderId.To] = string.Empty;
 			Date = DateTimeOffset.Now;
 			Subject = string.Empty;
 			MessageId = MimeUtils.GenerateMessageId ();
