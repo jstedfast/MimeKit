@@ -2194,6 +2194,11 @@ namespace MimeKit {
 
 		void SerializeAddressList (string field, InternetAddressList list)
 		{
+			if (list.Count == 0) {
+				RemoveHeader (field.ToHeaderId ());
+				return;
+			}
+
 			var builder = new StringBuilder (" ");
 			var options = FormatOptions.Default;
 			int lineLength = field.Length + 2;
