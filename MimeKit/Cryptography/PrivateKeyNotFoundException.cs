@@ -27,6 +27,7 @@
 using System;
 
 #if SERIALIZABLE
+using System.Security;
 using System.Runtime.Serialization;
 #endif
 
@@ -125,6 +126,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="info"/> is <c>null</c>.
 		/// </exception>
+		[SecurityCritical]
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
 		{
 			if (info == null)
