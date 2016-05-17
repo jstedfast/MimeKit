@@ -380,14 +380,18 @@ namespace MimeKit.Tnef {
 			return reader.ReadDouble ();
 		}
 
-		DateTime ReadDateTime ()
+		DateTime ReadAppTime ()
 		{
-			var date = new DateTime (1601, 1, 1);
+			double appTime = ReadDouble ();
+
+			return DateTime.FromOADate (appTime);
+		}
+
+		DateTime ReadSysTime ()
+		{
 			long fileTime = ReadInt64 ();
 
-			date = date.AddMilliseconds (fileTime /= 10000);
-
-			return date;
+			return DateTime.FromFileTime (fileTime);
 		}
 
 		static int GetPaddedLength (int length)
@@ -860,8 +864,10 @@ namespace MimeKit.Tnef {
 				value = ReadSingle ();
 				break;
 			case TnefPropertyType.AppTime:
+				value = ReadAppTime ();
+				break;
 			case TnefPropertyType.SysTime:
-				value = ReadDateTime ();
+				value = ReadSysTime ();
 				break;
 			case TnefPropertyType.Unicode:
 				value = ReadUnicodeString ();
@@ -1057,11 +1063,16 @@ namespace MimeKit.Tnef {
 			DateTime value;
 
 			if (propertyCount > 0) {
-				if (propertyTag.ValueTnefType != TnefPropertyType.AppTime &&
-					propertyTag.ValueTnefType != TnefPropertyType.SysTime)
+				switch (propertyTag.ValueTnefType) {
+				case TnefPropertyType.AppTime:
+					value = ReadAppTime ();
+					break;
+				case TnefPropertyType.SysTime:
+					value = ReadSysTime ();
+					break;
+				default:
 					throw new InvalidOperationException ();
-
-				value = ReadDateTime ();
+				}
 			} else if (reader.AttributeType == TnefAttributeType.Date) {
 				value = ReadAttrDateTime ();
 			} else {
