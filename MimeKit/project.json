@@ -52,7 +52,8 @@
       "exclude:": [
         "MimeKit.*.project.json",
         "packages.*.config"
-      ] 
-    }
+      ]
+    },
+    "xmlDoc": true
   }
 }
