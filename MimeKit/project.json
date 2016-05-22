@@ -3,46 +3,55 @@
   "title": "MimeKit",
   "description": "An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.",
   "authors": [ "Jeffrey Stedfast" ],
-  "tags": [ "mime", "encryption", "dkim", "security", "smime", "s/mime", "openpgp", "pgp", "mbox", "email", "parser", "tnef", "net35", "net40", "net45", "dnxcore50", "xamarin", "android", "ios", "monodroid", "monotouch", "win8", "wp81" ],
-  "projectUrl": "https://github.com/jstedfast/MimeKit",
-  "licenseUrl": "https://github.com/jstedfast/MimeKit/blob/master/License.md",
+  "packOptions": {
+    "tags": [ "mime", "encryption", "dkim", "security", "smime", "s/mime", "openpgp", "pgp", "mbox", "email", "parser", "tnef", "net35", "net40", "net45", "dnxcore50", "xamarin", "android", "ios", "monodroid", "monotouch", "win8", "wp81" ],
+    "projectUrl": "https://github.com/jstedfast/MimeKit",
+    "licenseUrl": "https://github.com/jstedfast/MimeKit/blob/master/License.md"
+  },
   "language": "en-US",
   "frameworks": {
-    "dotnet54": {
-      "compilationOptions": {
+    "netstandard1.4": {
+      "imports": [ "dnxcore50" ],
+      "buildOptions": {
         "define": [ "COREFX", "ENABLE_CRYPTO" ],
-        "allowUnsafe": true
+        "allowUnsafe": true,
+        "compile": {
+          "exclude": [
+            "Cryptography/MacSecureMimeContext.cs",
+            "Cryptography/NpgsqlCertificateDatabase.cs",
+            "Cryptography/WindowsSecureMimeContext.cs",
+            "MacInterop/*.cs",
+            "CancellationToken.cs"
+          ]
+        }
       },
       "dependencies": {
-        "System.Security.Cryptography.Algorithms": "4.0.0-beta-23516",
-        "System.Security.Cryptography.Primitives": "4.0.0-beta-23516",
-        "System.Runtime.Serialization.Primitives": "4.1.0-beta-23516",
-        "System.Text.Encoding.Extensions": "4.0.11-beta-23516",
-        "System.Text.Encoding.CodePages": "4.0.1-beta-23516",
-        "System.Text.Encoding": "4.0.11-beta-23516",
-        "System.Net.NameResolution": "4.0.0-beta-23516",
-        "System.Net.NetworkInformation": "4.1.0-beta-23516",
-        "System.Net.Primitives": "4.0.11-beta-23516",
-        "System.Collections": "4.0.11-beta-23516",
-        "System.Data.Common": "4.0.1-beta-23516",
-        "System.Reflection": "4.1.0-beta-23516",
-        "System.Threading": "4.0.11-beta-23516",
-        "System.Runtime": "4.0.21-beta-23516",
-        "System.Linq": "4.0.1-beta-23516",
-        "Microsoft.CSharp": "4.0.1-beta-23516"
+        "System.Security.Cryptography.Algorithms": "4.1.0-rc2-24027",
+        "System.Security.Cryptography.Primitives": "4.0.0-rc2-24027",
+        "System.Runtime.Serialization.Primitives": "4.1.1-rc2-24027",
+        "System.Text.Encoding.Extensions": "4.0.11-rc2-24027",
+        "System.Text.Encoding.CodePages": "4.0.1-rc2-24027",
+        "System.Text.Encoding": "4.0.11-rc2-24027",
+        "System.Net.NameResolution": "4.0.0-rc2-24027",
+        "System.Net.NetworkInformation": "4.1.0-rc2-24027",
+        "System.Net.Primitives": "4.0.11-rc2-24027",
+        "System.Collections": "4.0.11-rc2-24027",
+        "System.Data.Common": "4.0.1-rc2-24027",
+        "System.Reflection": "4.1.0-rc2-24027",
+        "System.Threading": "4.0.11-rc2-24027",
+        "System.Runtime": "4.1.0-rc2-24027",
+        "System.Linq": "4.1.0-rc2-24027",
+        "Microsoft.CSharp": "4.0.1-rc2-24027",
+        "Portable.BouncyCastle": "1.8.1"
       }
     }
   },
-  "compileExclude": [
-    "Cryptography/MacSecureMimeContext.cs",
-    "Cryptography/NpgsqlCertificateDatabase.cs",
-    "Cryptography/WindowsSecureMimeContext.cs",
-    "MacInterop/*.cs",
-    "CancellationToken.cs",
-    "MimeKit.*.project.json",
-    "packages.*.config"
-  ],
-  "dependencies": {
-    "Portable.BouncyCastle": "1.8.1"
+  "buildOptions": {
+    "compile": {
+      "exclude:": [
+        "MimeKit.*.project.json",
+        "packages.*.config"
+      ] 
+    }
   }
 }
