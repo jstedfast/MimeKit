@@ -4,6 +4,14 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.24
+
+* Modified MimeMessage .ctor to not add an empty To: header by default. (issue #241)
+* Modified MimeMessage to remove address headers when all addresses in that field are removed.
+* Properly apply SecurityCriticalAttribute to GetObjectData() on custom Exceptions.
+* Fixed TnefPropertyReader to convert APPTIME values into DateTimes from the OLE Automation
+  Date format. (issue #245)
+
 ### MimeKit 1.2.23
 
 * Modified ParamaterList.TryParse() to handle quoted rfc2231-encoded param values. (issue #239)
