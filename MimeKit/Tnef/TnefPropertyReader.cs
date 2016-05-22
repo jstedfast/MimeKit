@@ -433,7 +433,7 @@ namespace MimeKit.Tnef {
 			var appTime = ReadDouble ();
 
 			// Note: equivalent to DateTime.FromOADate(). Unfortunately, FromOADate() is
-			// not available in ASP.NET Core 1.0.
+			// not available in some PCL profiles.
 			return new DateTime (DoubleDateToTicks (appTime), DateTimeKind.Unspecified);
 		}
 
