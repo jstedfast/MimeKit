@@ -69,6 +69,8 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 			<dependency id="System.Security.Cryptography.Algorithms" version="4.1.0-rc2-24027" />
 			<dependency id="System.Security.Cryptography.Primitives" version="4.0.0-rc2-24027" />
 			<dependency id="System.Runtime.Serialization.Primitives" version="4.1.1-rc2-24027" />
+      <dependency id="System.Runtime.InteropServices" version="4.1.0-rc2-24027" />
+      <dependency id="System.Reflection.TypeExtensions" version="4.1.0-rc2-24027" />
 			<dependency id="System.Text.Encoding.Extensions" version="4.0.11-rc2-24027" />
 			<dependency id="System.Text.Encoding.CodePages" version="4.0.1-rc2-24027" />
 			<dependency id="System.Text.Encoding" version="4.0.11-rc2-24027" />

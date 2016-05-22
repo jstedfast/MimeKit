@@ -44,7 +44,7 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible (true)]
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid ("2fe79b66-d107-45da-9493-175f59c4a53c")]
 [assembly: InternalsVisibleTo ("UnitTests, PublicKey=002400000480000094000000060200" +
