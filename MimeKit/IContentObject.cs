@@ -69,10 +69,11 @@ namespace MimeKit {
 		/// <summary>
 		/// Decodes the content stream into another stream.
 		/// </summary>
-        /// <remarks>
-        /// If the content stream is encoded, this method will decode it into the
-        /// output stream using a suitable decoder.
-        /// </remarks>
+		/// <remarks>
+		/// If the content stream is encoded, this method will decode it into the output stream
+		/// using a suitable decoder based on the <see cref="Encoding"/> property, otherwise the
+		/// stream will be copied into the output stream as-is.
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -89,9 +90,12 @@ namespace MimeKit {
 		/// <summary>
 		/// Copies the content stream to the specified output stream.
 		/// </summary>
-        /// <remarks>
-        /// Copies the data from <see cref="Stream"/> into <paramref name="stream"/>.
-        /// </remarks>
+		/// <remarks>
+		/// <para>This is equivalent to simply using <see cref="System.IO.Stream.CopyTo(System.IO.Stream)"/>
+		/// to copy the content stream to the output stream except that this method is cancellable.</para>
+		/// <note type="note">If you want the decoded content, use
+		/// <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/> instead.</note>
+		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
