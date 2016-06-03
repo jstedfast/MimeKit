@@ -68,10 +68,10 @@ namespace MimeKit.Cryptography {
 		static DbConnection CreateConnection (string connectionString)
 		{
 			if (connectionString == null)
-				throw new ArgumentNullException ("connectionString");
+				throw new ArgumentNullException (nameof (connectionString));
 
 			if (connectionString.Length == 0)
-				throw new ArgumentException ("The connection string cannot be empty.", "connectionString");
+				throw new ArgumentException ("The connection string cannot be empty.", nameof (connectionString));
 
 			return (DbConnection) Activator.CreateInstance (npgsqlConnectionClass, new [] { connectionString });
 		}

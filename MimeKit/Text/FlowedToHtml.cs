@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MimeKit.Text {
@@ -355,10 +354,10 @@ namespace MimeKit.Text {
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
 			if (reader == null)
-				throw new ArgumentNullException ("reader");
+				throw new ArgumentNullException (nameof (reader));
 
 			if (writer == null)
-				throw new ArgumentNullException ("writer");
+				throw new ArgumentNullException (nameof (writer));
 
 			if (!string.IsNullOrEmpty (Header)) {
 				if (HeaderFormat == HeaderFooterFormat.Text) {

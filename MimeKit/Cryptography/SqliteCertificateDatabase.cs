@@ -122,10 +122,10 @@ namespace MimeKit.Cryptography {
 		static DbConnection CreateConnection (string fileName)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
-				throw new ArgumentException ("The file name cannot be empty.", "fileName");
+				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
 
 #if !__MOBILE__
 			var dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");

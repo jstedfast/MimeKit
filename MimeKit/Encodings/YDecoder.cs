@@ -155,19 +155,19 @@ namespace MimeKit.Encodings {
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
 		{
 			if (input == null)
-				throw new ArgumentNullException ("input");
+				throw new ArgumentNullException (nameof (input));
 
 			if (startIndex < 0 || startIndex > input.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (length < 0 || length > (input.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+				throw new ArgumentOutOfRangeException (nameof (length));
 
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			if (output.Length < EstimateOutputLength (length))
-				throw new ArgumentException ("The output buffer is not large enough to contain the decoded input.", "output");
+				throw new ArgumentException ("The output buffer is not large enough to contain the decoded input.", nameof (output));
 		}
 
 		unsafe byte* ScanYBeginMarker (byte* inptr, byte* inend)

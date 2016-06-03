@@ -92,7 +92,7 @@ namespace MimeKit.IO
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("MemoryBlockStream");
+				throw new ObjectDisposedException (nameof (MemoryBlockStream));
 		}
 
 		#region implemented abstract members of Stream
@@ -183,13 +183,13 @@ namespace MimeKit.IO
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>
@@ -344,7 +344,7 @@ namespace MimeKit.IO
 				real = length + offset;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("origin", "Invalid SeekOrigin specified");
+				throw new ArgumentOutOfRangeException (nameof (origin), "Invalid SeekOrigin specified");
 			}
 
 			// sanity check the resultant offset
@@ -401,7 +401,7 @@ namespace MimeKit.IO
 			CheckDisposed ();
 
 			if (value < 0 || value > MaxCapacity)
-				throw new ArgumentOutOfRangeException ("value");
+				throw new ArgumentOutOfRangeException (nameof (value));
 
 			long capacity = blocks.Count * BlockSize;
 

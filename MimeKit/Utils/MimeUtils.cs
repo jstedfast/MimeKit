@@ -87,10 +87,10 @@ namespace MimeKit.Utils {
 		public static string GenerateMessageId (string domain)
 		{
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			if (domain.Length == 0)
-				throw new ArgumentException ("The domain is invalid.", "domain");
+				throw new ArgumentException ("The domain is invalid.", nameof (domain));
 
 			ulong value = (ulong) DateTime.Now.Ticks;
 			var id = new StringBuilder ();
@@ -266,7 +266,7 @@ namespace MimeKit.Utils {
 		public static IEnumerable<string> EnumerateReferences (string text)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
@@ -381,7 +381,7 @@ namespace MimeKit.Utils {
 		public static string ParseMessageId (string text)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
@@ -462,7 +462,7 @@ namespace MimeKit.Utils {
 		public static bool TryParse (string text, out Version version)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
@@ -527,7 +527,7 @@ namespace MimeKit.Utils {
 		public static bool TryParse (string text, out ContentEncoding encoding)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var value = new char[text.Length];
 			int i = 0, n = 0;
@@ -574,7 +574,7 @@ namespace MimeKit.Utils {
 		public static string Quote (string text)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var quoted = new StringBuilder (text.Length + 2, (text.Length * 2) + 2);
 
@@ -603,7 +603,7 @@ namespace MimeKit.Utils {
 		public static string Unquote (string text)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			int index = text.IndexOfAny (new [] { '\r', '\n', '\t', '\\', '"' });
 

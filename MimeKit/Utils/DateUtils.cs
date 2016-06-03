@@ -551,13 +551,13 @@ namespace MimeKit.Utils {
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+				throw new ArgumentOutOfRangeException (nameof (length));
 
 			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
 
@@ -616,10 +616,10 @@ namespace MimeKit.Utils {
 		public static bool TryParse (byte[] buffer, int startIndex, out DateTimeOffset date)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			int length = buffer.Length - startIndex;
 			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
@@ -672,7 +672,7 @@ namespace MimeKit.Utils {
 		public static bool TryParse (byte[] buffer, out DateTimeOffset date)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			var tokens = new List<DateToken> (TokenizeDate (buffer, 0, buffer.Length));
 
@@ -720,7 +720,7 @@ namespace MimeKit.Utils {
 		public static bool TryParse (string text, out DateTimeOffset date)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			var tokens = new List<DateToken> (TokenizeDate (buffer, 0, buffer.Length));

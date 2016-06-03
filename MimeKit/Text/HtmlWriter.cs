@@ -65,10 +65,10 @@ namespace MimeKit.Text {
 		public HtmlWriter (Stream stream, Encoding encoding)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			html = new StreamWriter (stream, encoding, 4096);
 		}
@@ -86,7 +86,7 @@ namespace MimeKit.Text {
 		public HtmlWriter (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			html = output;
 		}
@@ -124,37 +124,37 @@ namespace MimeKit.Text {
 		static void ValidateArguments (char[] buffer, int index, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (index < 0 || index > buffer.Length)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			if (count < 0 || count > (buffer.Length - index))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		static void ValidateAttributeName (string name)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
-				throw new ArgumentException ("The attribute name cannot be empty.", "name");
+				throw new ArgumentException ("The attribute name cannot be empty.", nameof (name));
 
 			if (!HtmlUtils.IsValidTokenName (name))
-				throw new ArgumentException ("Invalid attribute name.", "name");
+				throw new ArgumentException ("Invalid attribute name.", nameof (name));
 		}
 
 		static void ValidateTagName (string name)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
-				throw new ArgumentException ("The tag name cannot be empty.", "name");
+				throw new ArgumentException ("The tag name cannot be empty.", nameof (name));
 
 			if (!HtmlUtils.IsValidTokenName (name))
-				throw new ArgumentException ("Invalid tag name.", "name");
+				throw new ArgumentException ("Invalid tag name.", nameof (name));
 		}
 
 		void EncodeAttributeName (string name)
@@ -231,7 +231,7 @@ namespace MimeKit.Text {
 		public void WriteAttribute (HtmlAttributeId id, char[] buffer, int index, int count)
 		{
 			if (id == HtmlAttributeId.Unknown)
-				throw new ArgumentException ("Invalid attribute.", "id");
+				throw new ArgumentException ("Invalid attribute.", nameof (id));
 
 			ValidateArguments (buffer, index, count);
 
@@ -303,10 +303,10 @@ namespace MimeKit.Text {
 		public void WriteAttribute (HtmlAttributeId id, string value)
 		{
 			if (id == HtmlAttributeId.Unknown)
-				throw new ArgumentException ("Invalid attribute.", "id");
+				throw new ArgumentException ("Invalid attribute.", nameof (id));
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
 
@@ -343,7 +343,7 @@ namespace MimeKit.Text {
 			ValidateAttributeName (name);
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
 
@@ -372,7 +372,7 @@ namespace MimeKit.Text {
 		public void WriteAttribute (HtmlAttribute attribute)
 		{
 			if (attribute == null)
-				throw new ArgumentNullException ("attribute");
+				throw new ArgumentNullException (nameof (attribute));
 
 			EncodeAttributeName (attribute.Name);
 
@@ -399,7 +399,7 @@ namespace MimeKit.Text {
 		public void WriteAttributeName (HtmlAttributeId id)
 		{
 			if (id == HtmlAttributeId.Unknown)
-				throw new ArgumentException ("Invalid attribute.", "id");
+				throw new ArgumentException ("Invalid attribute.", nameof (id));
 
 			if (WriterState == HtmlWriterState.Default)
 				throw new InvalidOperationException ("Cannot write attributes in the Default state.");
@@ -498,7 +498,7 @@ namespace MimeKit.Text {
 		public void WriteAttributeValue (string value)
 		{
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
 
@@ -521,7 +521,7 @@ namespace MimeKit.Text {
 		public void WriteEmptyElementTag (HtmlTagId id)
 		{
 			if (id == HtmlTagId.Unknown)
-				throw new ArgumentException ("Invalid tag.", "id");
+				throw new ArgumentException ("Invalid tag.", nameof (id));
 
 			CheckDisposed ();
 
@@ -582,7 +582,7 @@ namespace MimeKit.Text {
 		public void WriteEndTag (HtmlTagId id)
 		{
 			if (id == HtmlTagId.Unknown)
-				throw new ArgumentException ("Invalid tag.", "id");
+				throw new ArgumentException ("Invalid tag.", nameof (id));
 
 			CheckDisposed ();
 
@@ -677,7 +677,7 @@ namespace MimeKit.Text {
 		public void WriteMarkupText (string value)
 		{
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
 
@@ -706,7 +706,7 @@ namespace MimeKit.Text {
 		public void WriteStartTag (HtmlTagId id)
 		{
 			if (id == HtmlTagId.Unknown)
-				throw new ArgumentException ("Invalid tag.", "id");
+				throw new ArgumentException ("Invalid tag.", nameof (id));
 
 			CheckDisposed ();
 
@@ -802,7 +802,7 @@ namespace MimeKit.Text {
 		public void WriteText (string value)
 		{
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
 
@@ -854,7 +854,7 @@ namespace MimeKit.Text {
 		public void WriteToken (HtmlToken token)
 		{
 			if (token == null)
-				throw new ArgumentNullException ("token");
+				throw new ArgumentNullException (nameof (token));
 
 			CheckDisposed ();
 

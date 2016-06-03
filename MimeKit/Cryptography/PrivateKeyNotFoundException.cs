@@ -72,7 +72,7 @@ namespace MimeKit.Cryptography {
 		public PrivateKeyNotFoundException (MailboxAddress mailbox, string message) : base (message)
 		{
 			if (mailbox == null)
-				throw new ArgumentNullException ("mailbox");
+				throw new ArgumentNullException (nameof (mailbox));
 
 			KeyId = mailbox.Address;
 		}
@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 		public PrivateKeyNotFoundException (string keyid, string message) : base (message)
 		{
 			if (keyid == null)
-				throw new ArgumentNullException ("keyid");
+				throw new ArgumentNullException (nameof (keyid));
 
 			KeyId = keyid;
 		}
@@ -130,7 +130,7 @@ namespace MimeKit.Cryptography {
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
 		{
 			if (info == null)
-				throw new ArgumentNullException ("info");
+				throw new ArgumentNullException (nameof (info));
 
 			info.AddValue ("KeyId", KeyId);
 

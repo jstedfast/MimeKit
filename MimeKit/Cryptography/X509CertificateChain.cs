@@ -84,7 +84,7 @@ namespace MimeKit.Cryptography {
 		public int IndexOf (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			return certificates.IndexOf (certificate);
 		}
@@ -106,7 +106,7 @@ namespace MimeKit.Cryptography {
 		public void Insert (int index, X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			certificates.Insert (index, certificate);
 		}
@@ -124,7 +124,7 @@ namespace MimeKit.Cryptography {
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index >= certificates.Count)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			certificates.RemoveAt (index);
 		}
@@ -147,7 +147,7 @@ namespace MimeKit.Cryptography {
 			get { return certificates[index]; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				certificates[index] = value;
 			}
@@ -191,7 +191,7 @@ namespace MimeKit.Cryptography {
 		public void Add (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			certificates.Add (certificate);
 		}
@@ -209,7 +209,7 @@ namespace MimeKit.Cryptography {
 		public void AddRange (IEnumerable<X509Certificate> certificates)
 		{
 			if (certificates == null)
-				throw new ArgumentNullException ("certificates");
+				throw new ArgumentNullException (nameof (certificates));
 
 			foreach (var certificate in certificates)
 				Add (certificate);
@@ -241,7 +241,7 @@ namespace MimeKit.Cryptography {
 		public bool Contains (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			return certificates.Contains (certificate);
 		}
@@ -280,7 +280,7 @@ namespace MimeKit.Cryptography {
 		public bool Remove (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			return certificates.Remove (certificate);
 		}
@@ -298,7 +298,7 @@ namespace MimeKit.Cryptography {
 		public void RemoveRange (IEnumerable<X509Certificate> certificates)
 		{
 			if (certificates == null)
-				throw new ArgumentNullException ("certificates");
+				throw new ArgumentNullException (nameof (certificates));
 
 			foreach (var certificate in certificates)
 				Remove (certificate);

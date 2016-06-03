@@ -56,7 +56,7 @@ namespace MimeKit.Cryptography {
 		public static string GetIssuerNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			// FIXME: GetValueList() should be fixed to return IList<string>
 			var list = certificate.IssuerDN.GetValueList (identifier);
@@ -81,7 +81,7 @@ namespace MimeKit.Cryptography {
 		public static string GetSubjectNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			// FIXME: GetValueList() should be fixed to return IList<string>
 			var list = certificate.SubjectDN.GetValueList (identifier);
@@ -156,7 +156,7 @@ namespace MimeKit.Cryptography {
 		public static string GetFingerprint (this X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			var encoded = certificate.GetEncoded ();
 			var fingerprint = new StringBuilder ();
@@ -215,7 +215,7 @@ namespace MimeKit.Cryptography {
 		public static X509KeyUsageFlags GetKeyUsageFlags (this X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			return GetKeyUsageFlags (certificate.GetKeyUsage ());
 		}

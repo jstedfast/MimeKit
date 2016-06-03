@@ -103,7 +103,7 @@ namespace MimeKit.Cryptography {
 		public void Add (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			if (unique.Add (certificate))
 				certs.Add (certificate);
@@ -122,7 +122,7 @@ namespace MimeKit.Cryptography {
 		public void AddRange (IEnumerable<X509Certificate> certificates)
 		{
 			if (certificates == null)
-				throw new ArgumentNullException ("certificates");
+				throw new ArgumentNullException (nameof (certificates));
 
 			foreach (var certificate in certificates) {
 				if (unique.Add (certificate))
@@ -143,7 +143,7 @@ namespace MimeKit.Cryptography {
 		public void Remove (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			if (unique.Remove (certificate))
 				certs.Remove (certificate);
@@ -162,7 +162,7 @@ namespace MimeKit.Cryptography {
 		public void RemoveRange (IEnumerable<X509Certificate> certificates)
 		{
 			if (certificates == null)
-				throw new ArgumentNullException ("certificates");
+				throw new ArgumentNullException (nameof (certificates));
 
 			foreach (var certificate in certificates) {
 				if (unique.Remove (certificate))
@@ -186,7 +186,7 @@ namespace MimeKit.Cryptography {
 		public void Import (Stream stream)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new X509CertificateParser ();
 
@@ -216,7 +216,7 @@ namespace MimeKit.Cryptography {
 		public void Import (string fileName)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
 				Import (stream);
@@ -236,7 +236,7 @@ namespace MimeKit.Cryptography {
 		public void Import (byte[] rawData)
 		{
 			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+				throw new ArgumentNullException (nameof (rawData));
 
 			using (var stream = new MemoryStream (rawData, false))
 				Import (stream);
@@ -261,10 +261,10 @@ namespace MimeKit.Cryptography {
 		public void Import (Stream stream, string password)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 
@@ -320,7 +320,7 @@ namespace MimeKit.Cryptography {
 		public void Import (string fileName, string password)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
 				Import (stream, password);
@@ -343,7 +343,7 @@ namespace MimeKit.Cryptography {
 		public void Import (byte[] rawData, string password)
 		{
 			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+				throw new ArgumentNullException (nameof (rawData));
 
 			using (var stream = new MemoryStream (rawData, false))
 				Import (stream, password);
@@ -365,7 +365,7 @@ namespace MimeKit.Cryptography {
 		public void Export (Stream stream)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			foreach (var certificate in certs) {
 				var encoded = certificate.GetEncoded ();
@@ -404,7 +404,7 @@ namespace MimeKit.Cryptography {
 		public void Export (string fileName)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var file = File.Create (fileName))
 				Export (file);
@@ -430,10 +430,10 @@ namespace MimeKit.Cryptography {
 		public void Export (Stream stream, string password)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			var store = new Pkcs12Store ();
 			foreach (var certificate in certs) {
@@ -502,10 +502,10 @@ namespace MimeKit.Cryptography {
 		public void Export (string fileName, string password)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			using (var file = File.Create (fileName))
 				Export (file, password);

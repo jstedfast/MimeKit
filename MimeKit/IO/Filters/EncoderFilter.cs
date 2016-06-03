@@ -106,7 +106,7 @@ namespace MimeKit.IO.Filters {
 			ContentEncoding encoding;
 
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (!MimeUtils.TryParse (name, out encoding))
 				encoding = ContentEncoding.Default;

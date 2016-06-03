@@ -67,13 +67,13 @@ namespace MimeKit.IO {
 		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
 		{
 			if (baseStream == null)
-				throw new ArgumentNullException ("baseStream");
+				throw new ArgumentNullException (nameof (baseStream));
 
 			if (startBoundary < 0)
-				throw new ArgumentOutOfRangeException ("startBoundary");
+				throw new ArgumentOutOfRangeException (nameof (startBoundary));
 
 			if (endBoundary >= 0 && endBoundary < startBoundary)
-				throw new ArgumentOutOfRangeException ("endBoundary");
+				throw new ArgumentOutOfRangeException (nameof (endBoundary));
 
 			EndBoundary = endBoundary < 0 ? -1 : endBoundary;
 			StartBoundary = startBoundary;
@@ -136,7 +136,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("BoundStream");
+				throw new ObjectDisposedException (nameof (BoundStream));
 		}
 
 		void CheckCanSeek ()
@@ -286,13 +286,13 @@ namespace MimeKit.IO {
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>
@@ -457,7 +457,7 @@ namespace MimeKit.IO {
 				
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("origin", "Invalid SeekOrigin specified");
+				throw new ArgumentOutOfRangeException (nameof (origin), "Invalid SeekOrigin specified");
 			}
 			
 			// sanity check the resultant offset

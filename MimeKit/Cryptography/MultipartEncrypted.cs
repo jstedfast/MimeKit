@@ -83,7 +83,7 @@ namespace MimeKit.Cryptography {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMultipartEncrypted (this);
 		}
@@ -593,16 +593,16 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -662,16 +662,16 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -740,13 +740,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity);
@@ -791,13 +791,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
@@ -852,16 +852,16 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -928,16 +928,16 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -1006,13 +1006,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity);
@@ -1063,13 +1063,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
@@ -1105,13 +1105,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -1161,13 +1161,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -1220,10 +1220,10 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return Encrypt (ctx, algorithm, recipients, entity);
@@ -1255,10 +1255,10 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return Encrypt (ctx, recipients, entity);
@@ -1294,13 +1294,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -1350,13 +1350,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
@@ -1409,10 +1409,10 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return Encrypt (ctx, algorithm, recipients, entity);
@@ -1444,10 +1444,10 @@ namespace MimeKit.Cryptography {
 		public static MultipartEncrypted Encrypt (IEnumerable<PgpPublicKey> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted")) {
 				return Encrypt (ctx, recipients, entity);
@@ -1487,7 +1487,7 @@ namespace MimeKit.Cryptography {
 		public MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

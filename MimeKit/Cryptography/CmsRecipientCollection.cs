@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography {
 		public void Add (CmsRecipient recipient)
 		{
 			if (recipient == null)
-				throw new ArgumentNullException ("recipient");
+				throw new ArgumentNullException (nameof (recipient));
 
 			recipients.Add (recipient);
 		}
@@ -121,7 +121,7 @@ namespace MimeKit.Cryptography {
 		public bool Contains (CmsRecipient recipient)
 		{
 			if (recipient == null)
-				throw new ArgumentNullException ("recipient");
+				throw new ArgumentNullException (nameof (recipient));
 
 			return recipients.Contains (recipient);
 		}
@@ -144,10 +144,10 @@ namespace MimeKit.Cryptography {
 		public void CopyTo (CmsRecipient[] array, int arrayIndex)
 		{
 			if (array == null)
-				throw new ArgumentNullException ("array");
+				throw new ArgumentNullException (nameof (array));
 
 			if (arrayIndex < 0 || arrayIndex + Count > array.Length)
-				throw new ArgumentOutOfRangeException ("arrayIndex");
+				throw new ArgumentOutOfRangeException (nameof (arrayIndex));
 
 			recipients.CopyTo (array, arrayIndex);
 		}
@@ -166,7 +166,7 @@ namespace MimeKit.Cryptography {
 		public bool Remove (CmsRecipient recipient)
 		{
 			if (recipient == null)
-				throw new ArgumentNullException ("recipient");
+				throw new ArgumentNullException (nameof (recipient));
 
 			return recipients.Remove (recipient);
 		}

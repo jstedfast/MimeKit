@@ -121,10 +121,10 @@ namespace MimeKit.Text {
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
 			if (reader == null)
-				throw new ArgumentNullException ("reader");
+				throw new ArgumentNullException (nameof (reader));
 
 			if (writer == null)
-				throw new ArgumentNullException ("writer");
+				throw new ArgumentNullException (nameof (writer));
 
 			if (!string.IsNullOrEmpty (Header))
 				writer.Write (Header);

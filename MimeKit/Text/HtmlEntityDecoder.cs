@@ -116,7 +116,7 @@ namespace MimeKit.Text {
 		{
 			if (index == 0) {
 				if (c != '&')
-					throw new ArgumentOutOfRangeException ("c", "The first character that is pushed MUST be the '&' character.");
+					throw new ArgumentOutOfRangeException (nameof (c), "The first character that is pushed MUST be the '&' character.");
 
 				pushed[index++] = '&';
 				return true;

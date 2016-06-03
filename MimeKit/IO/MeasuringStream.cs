@@ -56,7 +56,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("MeasuringStream");
+				throw new ObjectDisposedException (nameof (MeasuringStream));
 		}
 
 		#region implemented abstract members of Stream
@@ -150,13 +150,13 @@ namespace MimeKit.IO {
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>
@@ -258,7 +258,7 @@ namespace MimeKit.IO {
 				real = length + offset;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("origin", "Invalid SeekOrigin specified");
+				throw new ArgumentOutOfRangeException (nameof (origin), "Invalid SeekOrigin specified");
 			}
 
 			// sanity check the resultant offset
@@ -315,7 +315,7 @@ namespace MimeKit.IO {
 			CheckDisposed ();
 
 			if (value < 0)
-				throw new ArgumentOutOfRangeException ("value");
+				throw new ArgumentOutOfRangeException (nameof (value));
 
 			position = Math.Min (position, value);
 			length = value;

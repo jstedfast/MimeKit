@@ -247,10 +247,10 @@ namespace MimeKit.Tnef {
 		public TnefReader (Stream inputStream, int defaultMessageCodepage, TnefComplianceMode complianceMode)
 		{
 			if (inputStream == null)
-				throw new ArgumentNullException ("inputStream");
+				throw new ArgumentNullException (nameof (inputStream));
 
 			if (defaultMessageCodepage < 0)
-				throw new ArgumentOutOfRangeException ("defaultMessageCodepage");
+				throw new ArgumentOutOfRangeException (nameof (defaultMessageCodepage));
 
 			if (defaultMessageCodepage != 0) {
 				// make sure that this codepage is valid...
@@ -697,13 +697,13 @@ namespace MimeKit.Tnef {
 		public int ReadAttributeRawValue (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset >= buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 
 			int dataEndOffset = AttributeRawValueStreamOffset + AttributeRawValueLength;
 			int dataLeft = dataEndOffset - StreamOffset;

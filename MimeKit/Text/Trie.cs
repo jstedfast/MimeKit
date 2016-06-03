@@ -92,13 +92,13 @@ namespace MimeKit.Text {
 		static void ValidateArguments (char[] text, int startIndex, int count)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			if (startIndex < 0 || startIndex > text.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (count < 0 || count > (text.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		static TrieMatch FindMatch (TrieState state, char value)
@@ -166,10 +166,10 @@ namespace MimeKit.Text {
 			char c;
 
 			if (pattern == null)
-				throw new ArgumentNullException ("pattern");
+				throw new ArgumentNullException (nameof (pattern));
 
 			if (pattern.Length == 0)
-				throw new ArgumentException ("The pattern cannot be empty.", "pattern");
+				throw new ArgumentException ("The pattern cannot be empty.", nameof (pattern));
 
 			// Step 1: Add the pattern to the trie
 			for (int i = 0; i < pattern.Length; i++) {
@@ -345,4 +345,3 @@ namespace MimeKit.Text {
 		}
 	}
 }
-

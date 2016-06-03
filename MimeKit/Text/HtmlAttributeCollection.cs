@@ -78,7 +78,7 @@ namespace MimeKit.Text {
 		internal void Add (HtmlAttribute attribute)
 		{
 			if (attribute == null)
-				throw new ArgumentNullException ("attribute");
+				throw new ArgumentNullException (nameof (attribute));
 
 			attributes.Add (attribute);
 		}

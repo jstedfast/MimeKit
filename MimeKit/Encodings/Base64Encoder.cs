@@ -65,7 +65,7 @@ namespace MimeKit.Encodings {
 		internal Base64Encoder (bool rfc2047, int maxLineLength = 72)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
-				throw new ArgumentOutOfRangeException ("maxLineLength");
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			quartetsPerLine = maxLineLength / 4;
 			this.rfc2047 = rfc2047;
@@ -137,19 +137,19 @@ namespace MimeKit.Encodings {
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
 		{
 			if (input == null)
-				throw new ArgumentNullException ("input");
+				throw new ArgumentNullException (nameof (input));
 
 			if (startIndex < 0 || startIndex > input.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (length < 0 || length > (input.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+				throw new ArgumentOutOfRangeException (nameof (length));
 
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			if (output.Length < EstimateOutputLength (length))
-				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", "output");
+				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", nameof (output));
 		}
 
 		unsafe int Encode (byte* input, int length, byte* output)

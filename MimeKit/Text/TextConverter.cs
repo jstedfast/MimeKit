@@ -116,7 +116,7 @@ namespace MimeKit.Text {
 			get { return inputEncoding; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				inputEncoding = value;
 			}
@@ -147,7 +147,7 @@ namespace MimeKit.Text {
 			get { return outputEncoding; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				outputEncoding = value;
 			}
@@ -178,7 +178,7 @@ namespace MimeKit.Text {
 			get { return inputStreamBufferSize; }
 			set {
 				if (value <= 0)
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 
 				inputStreamBufferSize = value;
 			}
@@ -198,7 +198,7 @@ namespace MimeKit.Text {
 			get { return outputStreamBufferSize; }
 			set {
 				if (value <= 0)
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 
 				outputStreamBufferSize = value;
 			}
@@ -232,10 +232,10 @@ namespace MimeKit.Text {
 		public virtual void Convert (Stream source, Stream destination)
 		{
 			if (source == null)
-				throw new ArgumentNullException ("source");
+				throw new ArgumentNullException (nameof (source));
 
 			if (destination == null)
-				throw new ArgumentNullException ("destination");
+				throw new ArgumentNullException (nameof (destination));
 
 			Convert (CreateReader (source), CreateWriter (destination));
 		}
@@ -258,10 +258,10 @@ namespace MimeKit.Text {
 		public virtual void Convert (Stream source, TextWriter writer)
 		{
 			if (source == null)
-				throw new ArgumentNullException ("source");
+				throw new ArgumentNullException (nameof (source));
 
 			if (writer == null)
-				throw new ArgumentNullException ("writer");
+				throw new ArgumentNullException (nameof (writer));
 
 			Convert (CreateReader (source), writer);
 		}
@@ -284,10 +284,10 @@ namespace MimeKit.Text {
 		public virtual void Convert (TextReader reader, Stream destination)
 		{
 			if (reader == null)
-				throw new ArgumentNullException ("reader");
+				throw new ArgumentNullException (nameof (reader));
 
 			if (destination == null)
-				throw new ArgumentNullException ("destination");
+				throw new ArgumentNullException (nameof (destination));
 
 			Convert (reader, CreateWriter (destination));
 		}
@@ -326,7 +326,7 @@ namespace MimeKit.Text {
 		public virtual string Convert (string text)
 		{
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			using (var reader = new StringReader (text)) {
 				var output = new StringBuilder ();

@@ -300,7 +300,7 @@ namespace MimeKit.Cryptography {
 		public static CryptographyContext Create (string protocol)
 		{
 			if (protocol == null)
-				throw new ArgumentNullException ("protocol");
+				throw new ArgumentNullException (nameof (protocol));
 
 			protocol = protocol.ToLowerInvariant ();
 
@@ -382,7 +382,7 @@ namespace MimeKit.Cryptography {
 		public static void Register (Type type)
 		{
 			if (type == null)
-				throw new ArgumentNullException ("type");
+				throw new ArgumentNullException (nameof (type));
 
 #if PORTABLE || COREFX
 			var info = type.GetTypeInfo ();
@@ -396,7 +396,7 @@ namespace MimeKit.Cryptography {
 			var ctor = type.GetConstructor (new Type[0]);
 #endif
 			if (ctor == null)
-				throw new ArgumentException ("The specified type must have a parameterless constructor.", "type");
+				throw new ArgumentException ("The specified type must have a parameterless constructor.", nameof (type));
 
 			if (info.IsSubclassOf (typeof (SecureMimeContext))) {
 				lock (mutex) {
@@ -407,7 +407,7 @@ namespace MimeKit.Cryptography {
 					OpenPgpContextConstructor = ctor;
 				}
 			} else {
-				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", "type");
+				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", nameof (type));
 			}
 		}
 	}

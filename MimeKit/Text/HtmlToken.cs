@@ -111,7 +111,7 @@ namespace MimeKit.Text {
 		public HtmlCommentToken (string comment, bool bogus = false) : base (HtmlTokenKind.Comment)
 		{
 			if (comment == null)
-				throw new ArgumentNullException ("comment");
+				throw new ArgumentNullException (nameof (comment));
 
 			IsBogusComment = bogus;
 			Comment = comment;
@@ -152,7 +152,7 @@ namespace MimeKit.Text {
 		public override void WriteTo (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			if (!IsBogusComment) {
 				output.Write ("<!--");
@@ -191,7 +191,7 @@ namespace MimeKit.Text {
 		protected HtmlDataToken (HtmlTokenKind kind, string data) : base (kind)
 		{
 			switch (kind) {
-			default: throw new ArgumentOutOfRangeException ("kind");
+			default: throw new ArgumentOutOfRangeException (nameof (kind));
 			case HtmlTokenKind.ScriptData:
 			case HtmlTokenKind.CData:
 			case HtmlTokenKind.Data:
@@ -199,7 +199,7 @@ namespace MimeKit.Text {
 			}
 
 			if (data == null)
-				throw new ArgumentNullException ("data");
+				throw new ArgumentNullException (nameof (data));
 
 			Data = data;
 		}
@@ -217,7 +217,7 @@ namespace MimeKit.Text {
 		public HtmlDataToken (string data) : base (HtmlTokenKind.Data)
 		{
 			if (data == null)
-				throw new ArgumentNullException ("data");
+				throw new ArgumentNullException (nameof (data));
 
 			Data = data;
 		}
@@ -251,7 +251,7 @@ namespace MimeKit.Text {
 		public override void WriteTo (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			if (!EncodeEntities) {
 				output.Write (Data);
@@ -298,7 +298,7 @@ namespace MimeKit.Text {
 		public override void WriteTo (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			output.Write ("<![CDATA[");
 			output.Write (Data);
@@ -342,7 +342,7 @@ namespace MimeKit.Text {
 		public override void WriteTo (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			output.Write (Data);
 		}
@@ -373,10 +373,10 @@ namespace MimeKit.Text {
 		public HtmlTagToken (string name, IEnumerable<HtmlAttribute> attributes, bool isEmptyElement) : base (HtmlTokenKind.Tag)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (attributes == null)
-				throw new ArgumentNullException ("attributes");
+				throw new ArgumentNullException (nameof (attributes));
 
 			Attributes = new HtmlAttributeCollection (attributes);
 			IsEmptyElement = isEmptyElement;
@@ -398,7 +398,7 @@ namespace MimeKit.Text {
 		public HtmlTagToken (string name, bool isEndTag) : base (HtmlTokenKind.Tag)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			Attributes = new HtmlAttributeCollection ();
 			Id = name.ToHtmlTagId ();
@@ -474,7 +474,7 @@ namespace MimeKit.Text {
 		public override void WriteTo (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			output.Write ('<');
 			if (IsEndTag)
@@ -618,7 +618,7 @@ namespace MimeKit.Text {
 		public override void WriteTo (TextWriter output)
 		{
 			if (output == null)
-				throw new ArgumentNullException ("output");
+				throw new ArgumentNullException (nameof (output));
 
 			output.Write ("<!");
 			output.Write (RawTagName);

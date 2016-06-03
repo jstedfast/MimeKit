@@ -107,7 +107,7 @@ namespace MimeKit.Cryptography {
 				ContentType.Name = "smime.p7c";
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("type");
+				throw new ArgumentOutOfRangeException (nameof (type));
 			}
 		}
 
@@ -153,7 +153,7 @@ namespace MimeKit.Cryptography {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitApplicationPkcs7Mime (this);
 		}
@@ -178,7 +178,7 @@ namespace MimeKit.Cryptography {
 		public MimeEntity Decompress (SecureMimeContext ctx)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
@@ -234,7 +234,7 @@ namespace MimeKit.Cryptography {
 		public MimeEntity Decrypt (SecureMimeContext ctx)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (SecureMimeType != SecureMimeType.EnvelopedData)
 				throw new InvalidOperationException ();
@@ -286,7 +286,7 @@ namespace MimeKit.Cryptography {
 		public void Import (SecureMimeContext ctx)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (SecureMimeType != SecureMimeType.CertsOnly)
 				throw new InvalidOperationException ();
@@ -323,7 +323,7 @@ namespace MimeKit.Cryptography {
 		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (SecureMimeType != SecureMimeType.SignedData)
 				throw new InvalidOperationException ();
@@ -379,10 +379,10 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Compress (SecureMimeContext ctx, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -414,7 +414,7 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Compress (MimeEntity entity)
 		{
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return Compress (ctx, entity);
@@ -444,13 +444,13 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -483,10 +483,10 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, MimeEntity entity)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return Encrypt (ctx, recipients, entity);
@@ -522,13 +522,13 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -567,10 +567,10 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return Encrypt (ctx, recipients, entity);
@@ -604,13 +604,13 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Sign (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -647,10 +647,10 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Sign (CmsSigner signer, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return Sign (ctx, signer, entity);
@@ -688,13 +688,13 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Sign (SecureMimeContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
 				var options = FormatOptions.CloneDefault ();
@@ -735,10 +735,10 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return Sign (ctx, signer, digestAlgo, entity);
@@ -772,16 +772,16 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			return Encrypt (ctx, recipients, MultipartSigned.Create (ctx, signer, entity));
 		}
@@ -810,13 +810,13 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime SignAndEncrypt (CmsSigner signer, CmsRecipientCollection recipients, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return SignAndEncrypt (ctx, signer, recipients, entity);
@@ -856,16 +856,16 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime SignAndEncrypt (SecureMimeContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			return Encrypt (ctx, recipients, MultipartSigned.Create (ctx, signer, digestAlgo, entity));
 		}
@@ -900,13 +900,13 @@ namespace MimeKit.Cryptography {
 		public static ApplicationPkcs7Mime SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
 				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);

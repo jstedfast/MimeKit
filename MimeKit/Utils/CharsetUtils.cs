@@ -157,7 +157,7 @@ namespace MimeKit.Utils {
 		public static string GetMimeCharset (Encoding encoding)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			switch (encoding.CodePage) {
 			case 932:   return "iso-2022-jp"; // shift_jis
@@ -291,7 +291,7 @@ namespace MimeKit.Utils {
 		public static int GetCodePage (string charset)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			int codepage;
 
@@ -334,10 +334,10 @@ namespace MimeKit.Utils {
 			int codepage;
 
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (fallback == null)
-				throw new ArgumentNullException ("fallback");
+				throw new ArgumentNullException (nameof (fallback));
 
 			if ((codepage = GetCodePage (charset)) == -1)
 				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
@@ -365,7 +365,7 @@ namespace MimeKit.Utils {
 		public static Encoding GetEncoding (int codepage, string fallback)
 		{
 			if (fallback == null)
-				throw new ArgumentNullException ("fallback");
+				throw new ArgumentNullException (nameof (fallback));
 
 			var encoderFallback = new EncoderReplacementFallback (fallback);
 			var decoderFallback = new DecoderReplacementFallback (fallback);
@@ -462,7 +462,7 @@ namespace MimeKit.Utils {
 		{
 			var invalid = new InvalidByteCountFallback ();
 			var userCharset = options.CharsetEncoding;
-			int min = Int32.MaxValue;
+			int min = int.MaxValue;
 			int bestCharCount = 0;
 			char[] output = null;
 			Encoding encoding;
@@ -495,7 +495,7 @@ namespace MimeKit.Utils {
 				invalid.Reset ();
 			}
 
-			encoding = CharsetUtils.GetEncoding (best, "?");
+			encoding = GetEncoding (best, "?");
 			decoder = (Decoder) encoding.GetDecoder ();
 			output = new char[bestCharCount];
 
@@ -507,16 +507,16 @@ namespace MimeKit.Utils {
 		public static string ConvertToUnicode (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+				throw new ArgumentOutOfRangeException (nameof (length));
 
 			int count;
 
@@ -540,7 +540,7 @@ namespace MimeKit.Utils {
 
 			if (codepage != -1) {
 				try {
-					encoding = CharsetUtils.GetEncoding (codepage);
+					encoding = GetEncoding (codepage);
 				} catch (NotSupportedException) {
 				} catch (ArgumentException) {
 				}
@@ -555,16 +555,16 @@ namespace MimeKit.Utils {
 		public static string ConvertToUnicode (Encoding encoding, byte[] buffer, int startIndex, int length)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException ("length");
+				throw new ArgumentOutOfRangeException (nameof (length));
 
 			int count;
 

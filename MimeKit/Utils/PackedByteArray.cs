@@ -94,10 +94,10 @@ namespace MimeKit.Utils {
 		public void CopyTo (byte[] array, int arrayIndex)
 		{
 			if (array == null)
-				throw new ArgumentNullException ("array");
+				throw new ArgumentNullException (nameof (array));
 
 			if (arrayIndex < 0 || arrayIndex + length > array.Length)
-				throw new ArgumentOutOfRangeException ("arrayIndex");
+				throw new ArgumentOutOfRangeException (nameof (arrayIndex));
 
 			int index = arrayIndex;
 			int count;
@@ -172,7 +172,7 @@ namespace MimeKit.Utils {
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index > length)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			int offset = 0;
 			int count = 0;
@@ -207,7 +207,7 @@ namespace MimeKit.Utils {
 		public byte this [int index] {
 			get {
 				if (index < 0 || index > length)
-					throw new ArgumentOutOfRangeException ("index");
+					throw new ArgumentOutOfRangeException (nameof (index));
 
 				int offset = 0;
 				int count, i;

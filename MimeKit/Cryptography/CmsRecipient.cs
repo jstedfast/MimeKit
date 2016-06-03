@@ -62,7 +62,7 @@ namespace MimeKit.Cryptography {
 		public CmsRecipient (X509Certificate certificate, SubjectIdentifierType recipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
@@ -93,7 +93,7 @@ namespace MimeKit.Cryptography {
 		public CmsRecipient (Stream stream, SubjectIdentifierType recipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
@@ -142,7 +142,7 @@ namespace MimeKit.Cryptography {
 		public CmsRecipient (string fileName, SubjectIdentifierType recipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			var parser = new X509CertificateParser ();
 
@@ -176,7 +176,7 @@ namespace MimeKit.Cryptography {
 		public CmsRecipient (X509Certificate2 certificate, SubjectIdentifierType recipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;

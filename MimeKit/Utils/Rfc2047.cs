@@ -572,16 +572,16 @@ namespace MimeKit.Utils {
 		public static string DecodePhrase (ParserOptions options, byte[] phrase, int startIndex, int count)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (phrase == null)
-				throw new ArgumentNullException ("phrase");
+				throw new ArgumentNullException (nameof (phrase));
 
 			if (startIndex < 0 || startIndex > phrase.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (count < 0 || startIndex + count > phrase.Length)
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 
 			if (count == 0)
 				return string.Empty;
@@ -715,16 +715,16 @@ namespace MimeKit.Utils {
 		public static string DecodeText (ParserOptions options, byte[] text, int startIndex, int count)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			if (startIndex < 0 || startIndex > text.Length)
-				throw new ArgumentOutOfRangeException ("startIndex");
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
 			if (count < 0 || startIndex + count > text.Length)
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 
 			if (count == 0)
 				return string.Empty;
@@ -1449,13 +1449,13 @@ namespace MimeKit.Utils {
 		public static byte[] EncodePhrase (FormatOptions options, Encoding charset, string phrase)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (phrase == null)
-				throw new ArgumentNullException ("phrase");
+				throw new ArgumentNullException (nameof (phrase));
 
 			return Encode (options, charset, phrase, true);
 		}
@@ -1501,13 +1501,13 @@ namespace MimeKit.Utils {
 		public static byte[] EncodeText (FormatOptions options, Encoding charset, string text)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			return Encode (options, charset, text, false);
 		}

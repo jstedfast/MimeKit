@@ -100,20 +100,20 @@ namespace MimeKit.Cryptography {
 		public CmsSigner (IEnumerable<X509Certificate> chain, AsymmetricKeyParameter key) : this ()
 		{
 			if (chain == null)
-				throw new ArgumentNullException ("chain");
+				throw new ArgumentNullException (nameof (chain));
 
 			if (key == null)
-				throw new ArgumentNullException ("key");
+				throw new ArgumentNullException (nameof (key));
 
 			CertificateChain = new X509CertificateChain (chain);
 
 			if (CertificateChain.Count == 0)
-				throw new ArgumentException ("The certificate chain was empty.", "chain");
+				throw new ArgumentException ("The certificate chain was empty.", nameof (chain));
 
 			CheckCertificateCanBeUsedForSigning (CertificateChain[0]);
 
 			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", "key");
+				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			Certificate = CertificateChain[0];
 			PrivateKey = key;
@@ -143,15 +143,15 @@ namespace MimeKit.Cryptography {
 		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key) : this ()
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			CheckCertificateCanBeUsedForSigning (certificate);
 
 			if (key == null)
-				throw new ArgumentNullException ("key");
+				throw new ArgumentNullException (nameof (key));
 
 			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", "key");
+				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			CertificateChain = new X509CertificateChain ();
 			CertificateChain.Add (certificate);
@@ -191,7 +191,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (PrivateKey == null)
-				throw new ArgumentException ("The stream did not contain a private key.", "stream");
+				throw new ArgumentException ("The stream did not contain a private key.", nameof (stream));
 		}
 
 		/// <summary>
@@ -221,10 +221,10 @@ namespace MimeKit.Cryptography {
 		public CmsSigner (Stream stream, string password) : this ()
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			LoadPkcs12 (stream, password);
 		}
@@ -268,10 +268,10 @@ namespace MimeKit.Cryptography {
 		public CmsSigner (string fileName, string password) : this ()
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			using (var stream = File.OpenRead (fileName))
 				LoadPkcs12 (stream, password);
@@ -298,10 +298,10 @@ namespace MimeKit.Cryptography {
 		public CmsSigner (X509Certificate2 certificate) : this ()
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			if (!certificate.HasPrivateKey)
-				throw new ArgumentException ("The certificate does not contain a private key.", "certificate");
+				throw new ArgumentException ("The certificate does not contain a private key.", nameof (certificate));
 
 			var cert = DotNetUtilities.FromX509Certificate (certificate);
 			var key = DotNetUtilities.GetKeyPair (certificate.PrivateKey);

@@ -70,7 +70,7 @@ namespace MimeKit.Cryptography {
 		protected SqlCertificateDatabase (DbConnection connection, string password) : base (password)
 		{
 			if (connection == null)
-				throw new ArgumentNullException ("connection");
+				throw new ArgumentNullException (nameof (connection));
 
 			this.connection = connection;
 

@@ -69,7 +69,7 @@ namespace MimeKit.IO {
 		public FilteredStream (Stream source)
 		{
 			if (source == null)
-				throw new ArgumentNullException ("source");
+				throw new ArgumentNullException (nameof (source));
 
 			Source = source;
 		}
@@ -103,7 +103,7 @@ namespace MimeKit.IO {
 		public void Add (IMimeFilter filter)
 		{
 			if (filter == null)
-				throw new ArgumentNullException ("filter");
+				throw new ArgumentNullException (nameof (filter));
 
 			filters.Add (filter);
 		}
@@ -123,7 +123,7 @@ namespace MimeKit.IO {
 		public bool Contains (IMimeFilter filter)
 		{
 			if (filter == null)
-				throw new ArgumentNullException ("filter");
+				throw new ArgumentNullException (nameof (filter));
 
 			return filters.Contains (filter);
 		}
@@ -142,7 +142,7 @@ namespace MimeKit.IO {
 		public bool Remove (IMimeFilter filter)
 		{
 			if (filter == null)
-				throw new ArgumentNullException ("filter");
+				throw new ArgumentNullException (nameof (filter));
 
 			return filters.Remove (filter);
 		}
@@ -150,7 +150,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("FilteredStream");
+				throw new ObjectDisposedException (nameof (FilteredStream));
 		}
 
 		void CheckCanRead ()
@@ -272,13 +272,13 @@ namespace MimeKit.IO {
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>

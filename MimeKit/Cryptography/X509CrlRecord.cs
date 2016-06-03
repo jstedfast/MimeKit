@@ -156,7 +156,7 @@ namespace MimeKit.Cryptography {
 		public X509CrlRecord (X509Crl crl)
 		{
 			if (crl == null)
-				throw new ArgumentNullException ("crl");
+				throw new ArgumentNullException (nameof (crl));
 
 			if (crl.NextUpdate != null)
 				NextUpdate = crl.NextUpdate.Value.ToUniversalTime ();

@@ -125,10 +125,10 @@ namespace MimeKit.Cryptography {
 		protected OpenPgpContext (string pubring, string secring) : this ()
 		{
 			if (pubring == null)
-				throw new ArgumentNullException ("pubring");
+				throw new ArgumentNullException (nameof (pubring));
 
 			if (secring == null)
-				throw new ArgumentNullException ("secring");
+				throw new ArgumentNullException (nameof (secring));
 
 			PublicKeyRingPath = pubring;
 			SecretKeyRingPath = secring;
@@ -289,7 +289,7 @@ namespace MimeKit.Cryptography {
 		public override bool Supports (string protocol)
 		{
 			if (protocol == null)
-				throw new ArgumentNullException ("protocol");
+				throw new ArgumentNullException (nameof (protocol));
 
 			var type = protocol.ToLowerInvariant ().Split ('/');
 			if (type.Length != 2 || type[0] != "application")
@@ -341,7 +341,7 @@ namespace MimeKit.Cryptography {
 			case DigestAlgorithm.Sha512:     return "pgp-sha512";
 			case DigestAlgorithm.Sha224:     return "pgp-sha224";
 			case DigestAlgorithm.MD4:        return "pgp-md4";
-			default: throw new ArgumentOutOfRangeException ("micalg");
+			default: throw new ArgumentOutOfRangeException (nameof (micalg));
 			}
 		}
 
@@ -359,7 +359,7 @@ namespace MimeKit.Cryptography {
 		public override DigestAlgorithm GetDigestAlgorithm (string micalg)
 		{
 			if (micalg == null)
-				throw new ArgumentNullException ("micalg");
+				throw new ArgumentNullException (nameof (micalg));
 
 			switch (micalg.ToLowerInvariant ()) {
 			case "pgp-md5":         return DigestAlgorithm.MD5;
@@ -433,7 +433,7 @@ namespace MimeKit.Cryptography {
 		protected virtual PgpPublicKey GetPublicKey (MailboxAddress mailbox)
 		{
 			if (mailbox == null)
-				throw new ArgumentNullException ("mailbox");
+				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
@@ -474,7 +474,7 @@ namespace MimeKit.Cryptography {
 		internal protected virtual IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
-				throw new ArgumentNullException ("mailboxes");
+				throw new ArgumentNullException (nameof (mailboxes));
 
 			var recipients = new List<PgpPublicKey> ();
 
@@ -530,7 +530,7 @@ namespace MimeKit.Cryptography {
 		internal protected virtual PgpSecretKey GetSigningKey (MailboxAddress mailbox)
 		{
 			if (mailbox == null)
-				throw new ArgumentNullException ("mailbox");
+				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
@@ -594,7 +594,7 @@ namespace MimeKit.Cryptography {
 			string password;
 
 			if (key == null)
-				throw new ArgumentNullException ("key");
+				throw new ArgumentNullException (nameof (key));
 
 			do {
 				if ((password = GetPasswordForKey (key)) == null)
@@ -686,7 +686,7 @@ namespace MimeKit.Cryptography {
 			case DigestAlgorithm.Sha512:    return HashAlgorithmTag.Sha512;
 			case DigestAlgorithm.Sha224:    return HashAlgorithmTag.Sha224;
 			case DigestAlgorithm.MD4:       throw new NotSupportedException ("The MD4 digest algorithm is not supported.");
-			default: throw new ArgumentOutOfRangeException ("digestAlgo");
+			default: throw new ArgumentOutOfRangeException (nameof (digestAlgo));
 			}
 		}
 
@@ -724,10 +724,10 @@ namespace MimeKit.Cryptography {
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var key = GetSigningKey (signer);
 
@@ -768,13 +768,13 @@ namespace MimeKit.Cryptography {
 		public ApplicationPgpSignature Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (!signer.IsSigningKey)
-				throw new ArgumentException ("The specified secret key cannot be used for signing.", "signer");
+				throw new ArgumentException ("The specified secret key cannot be used for signing.", nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var memory = new MemoryBlockStream ();
@@ -835,7 +835,7 @@ namespace MimeKit.Cryptography {
 			case HashAlgorithmTag.Sha384:        return DigestAlgorithm.Sha384;
 			case HashAlgorithmTag.Sha512:        return DigestAlgorithm.Sha512;
 			case HashAlgorithmTag.Sha224:        return DigestAlgorithm.Sha224;
-			default: throw new ArgumentOutOfRangeException ("hashAlgorithm");
+			default: throw new ArgumentOutOfRangeException (nameof (hashAlgorithm));
 			}
 		}
 
@@ -867,7 +867,7 @@ namespace MimeKit.Cryptography {
 			case PublicKeyAlgorithmTag.ECDsa:          return PublicKeyAlgorithm.EllipticCurveDsa;
 			case PublicKeyAlgorithmTag.ElGamalGeneral: return PublicKeyAlgorithm.ElGamalGeneral;
 			case PublicKeyAlgorithmTag.DiffieHellman:  return PublicKeyAlgorithm.DiffieHellman;
-			default: throw new ArgumentOutOfRangeException ("algorithm");
+			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
 			}
 		}
 
@@ -920,10 +920,10 @@ namespace MimeKit.Cryptography {
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			if (signatureData == null)
-				throw new ArgumentNullException ("signatureData");
+				throw new ArgumentNullException (nameof (signatureData));
 
 			using (var armored = new ArmoredInputStream (signatureData)) {
 				var factory = new PgpObjectFactory (armored);
@@ -1028,10 +1028,10 @@ namespace MimeKit.Cryptography {
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return Encrypt (GetPublicKeys (recipients), content);
@@ -1067,10 +1067,10 @@ namespace MimeKit.Cryptography {
 		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return Encrypt (algorithm, GetPublicKeys (recipients), content);
@@ -1103,10 +1103,10 @@ namespace MimeKit.Cryptography {
 		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (algorithm), true);
 			var unique = new HashSet<long> ();
@@ -1114,7 +1114,7 @@ namespace MimeKit.Cryptography {
 
 			foreach (var recipient in recipients) {
 				if (!recipient.IsEncryptionKey)
-					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
+					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", nameof (recipients));
 
 				if (unique.Add (recipient.KeyId)) {
 					encrypter.AddMethod (recipient);
@@ -1123,7 +1123,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
 			var encrypted = Encrypt (encrypter, content);
 
@@ -1203,13 +1203,13 @@ namespace MimeKit.Cryptography {
 		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var key = GetSigningKey (signer);
 
@@ -1255,13 +1255,13 @@ namespace MimeKit.Cryptography {
 		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var key = GetSigningKey (signer);
 
@@ -1307,16 +1307,16 @@ namespace MimeKit.Cryptography {
 		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (!signer.IsSigningKey)
-				throw new ArgumentException ("The specified secret key cannot be used for signing.", "signer");
+				throw new ArgumentException ("The specified secret key cannot be used for signing.", nameof (signer));
 
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (cipherAlgo), true);
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
@@ -1325,7 +1325,7 @@ namespace MimeKit.Cryptography {
 
 			foreach (var recipient in recipients) {
 				if (!recipient.IsEncryptionKey)
-					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", "recipients");
+					throw new ArgumentException ("One or more of the recipient keys cannot be used for encrypting.", nameof (recipients));
 
 				if (unique.Add (recipient.KeyId)) {
 					encrypter.AddMethod (recipient);
@@ -1334,7 +1334,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 
@@ -1458,7 +1458,7 @@ namespace MimeKit.Cryptography {
 		public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
+				throw new ArgumentNullException (nameof (encryptedData));
 
 			using (var armored = new ArmoredInputStream (encryptedData)) {
 				var factory = new PgpObjectFactory (armored);
@@ -1621,7 +1621,7 @@ namespace MimeKit.Cryptography {
 			DigitalSignatureCollection signatures;
 
 			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
+				throw new ArgumentNullException (nameof (encryptedData));
 
 			return GetDecryptedStream (encryptedData, out signatures);
 		}
@@ -1653,7 +1653,7 @@ namespace MimeKit.Cryptography {
 		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
 			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
+				throw new ArgumentNullException (nameof (encryptedData));
 
 			var decrypted = GetDecryptedStream (encryptedData, out signatures);
 
@@ -1688,7 +1688,7 @@ namespace MimeKit.Cryptography {
 			DigitalSignatureCollection signatures;
 
 			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
+				throw new ArgumentNullException (nameof (encryptedData));
 
 			return Decrypt (encryptedData, out signatures);
 		}
@@ -1794,7 +1794,7 @@ namespace MimeKit.Cryptography {
 		public void Import (PgpPublicKeyRing keyring)
 		{
 			if (keyring == null)
-				throw new ArgumentNullException ("keyring");
+				throw new ArgumentNullException (nameof (keyring));
 
 			if (PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId))
 				return;
@@ -1816,7 +1816,7 @@ namespace MimeKit.Cryptography {
 		public void Import (PgpPublicKeyRingBundle bundle)
 		{
 			if (bundle == null)
-				throw new ArgumentNullException ("bundle");
+				throw new ArgumentNullException (nameof (bundle));
 
 			int publicKeysAdded = 0;
 
@@ -1849,7 +1849,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			using (var armored = new ArmoredInputStream (stream))
 				Import (new PgpPublicKeyRingBundle (armored));
@@ -1868,7 +1868,7 @@ namespace MimeKit.Cryptography {
 		public void Import (PgpSecretKeyRing keyring)
 		{
 			if (keyring == null)
-				throw new ArgumentNullException ("keyring");
+				throw new ArgumentNullException (nameof (keyring));
 
 			if (SecretKeyRingBundle.Contains (keyring.GetSecretKey ().KeyId))
 				return;
@@ -1890,7 +1890,7 @@ namespace MimeKit.Cryptography {
 		public void Import (PgpSecretKeyRingBundle bundle)
 		{
 			if (bundle == null)
-				throw new ArgumentNullException ("bundle");
+				throw new ArgumentNullException (nameof (bundle));
 
 			int secretKeysAdded = 0;
 
@@ -1926,7 +1926,7 @@ namespace MimeKit.Cryptography {
 		public virtual void ImportSecretKeys (Stream rawData)
 		{
 			if (rawData == null)
-				throw new ArgumentNullException ("rawData");
+				throw new ArgumentNullException (nameof (rawData));
 
 			using (var armored = new ArmoredInputStream (rawData))
 				Import (new PgpSecretKeyRingBundle (armored));
@@ -1949,7 +1949,7 @@ namespace MimeKit.Cryptography {
 		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
-				throw new ArgumentNullException ("mailboxes");
+				throw new ArgumentNullException (nameof (mailboxes));
 
 			return Export (GetPublicKeys (mailboxes));
 		}
@@ -1968,7 +1968,7 @@ namespace MimeKit.Cryptography {
 		public MimePart Export (IEnumerable<PgpPublicKey> keys)
 		{
 			if (keys == null)
-				throw new ArgumentNullException ("keys");
+				throw new ArgumentNullException (nameof (keys));
 
 			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
 			var bundle = new PgpPublicKeyRingBundle (keyrings);
@@ -1990,7 +1990,7 @@ namespace MimeKit.Cryptography {
 		public MimePart Export (PgpPublicKeyRingBundle keys)
 		{
 			if (keys == null)
-				throw new ArgumentNullException ("keys");
+				throw new ArgumentNullException (nameof (keys));
 
 			var content = new MemoryBlockStream ();
 

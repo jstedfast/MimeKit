@@ -119,10 +119,10 @@ namespace MimeKit.Cryptography {
 		public DefaultSecureMimeContext (string fileName, string password)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			var dir = Path.GetDirectoryName (fileName);
 			var exists = File.Exists (fileName);
@@ -194,7 +194,7 @@ namespace MimeKit.Cryptography {
 		public DefaultSecureMimeContext (IX509CertificateDatabase database)
 		{
 			if (database == null)
-				throw new ArgumentNullException ("database");
+				throw new ArgumentNullException (nameof (database));
 
 			dbase = database;
 		}
@@ -413,7 +413,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			if (dbase.Find (certificate, X509CertificateRecordFields.Id) == null)
 				dbase.Add (new X509CertificateRecord (certificate));
@@ -432,7 +432,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (X509Crl crl)
 		{
 			if (crl == null)
-				throw new ArgumentNullException ("crl");
+				throw new ArgumentNullException (nameof (crl));
 
 			// check for an exact match...
 			if (dbase.Find (crl, X509CrlRecordFields.Id) != null)
@@ -480,10 +480,10 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream, string password)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 			var enabledAlgorithms = EnabledEncryptionAlgorithms;
@@ -543,7 +543,7 @@ namespace MimeKit.Cryptography {
 		public void Import (Stream stream, bool trusted)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new X509CertificateParser ();
 

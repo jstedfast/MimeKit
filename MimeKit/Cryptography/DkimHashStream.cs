@@ -85,7 +85,7 @@ namespace MimeKit.Cryptography {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("DkimHashStream");
+				throw new ObjectDisposedException (nameof (DkimHashStream));
 		}
 
 		/// <summary>
@@ -177,13 +177,13 @@ namespace MimeKit.Cryptography {
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>

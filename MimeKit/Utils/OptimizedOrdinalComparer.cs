@@ -107,7 +107,7 @@ namespace MimeKit.Utils {
 		public int GetHashCode (string obj)
 		{
 			if (obj == null)
-				throw new ArgumentNullException ("obj");
+				throw new ArgumentNullException (nameof (obj));
 
 			unsafe {
 				unchecked {

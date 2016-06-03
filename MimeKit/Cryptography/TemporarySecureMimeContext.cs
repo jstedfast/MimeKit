@@ -34,8 +34,6 @@ using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.X509;
 
-using MimeKit;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME context that does not persist certificates, private keys or CRLs.
@@ -285,10 +283,10 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream, string password)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 
@@ -321,7 +319,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			certificates.Add (certificate);
 		}
@@ -339,7 +337,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (X509Crl crl)
 		{
 			if (crl == null)
-				throw new ArgumentNullException ("crl");
+				throw new ArgumentNullException (nameof (crl));
 
 			crls.Add (crl);
 		}

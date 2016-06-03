@@ -162,7 +162,7 @@ namespace MimeKit.Cryptography {
 		public override bool Supports (string protocol)
 		{
 			if (protocol == null)
-				throw new ArgumentNullException ("protocol");
+				throw new ArgumentNullException (nameof (protocol));
 
 			var type = protocol.ToLowerInvariant ().Split (new [] { '/' });
 			if (type.Length != 2 || type[0] != "application")
@@ -210,7 +210,7 @@ namespace MimeKit.Cryptography {
 			case DigestAlgorithm.Sha512:     return "sha-512";
 			case DigestAlgorithm.Sha224:     return "sha-224";
 			case DigestAlgorithm.MD4:        return "md4";
-			default: throw new ArgumentOutOfRangeException ("micalg");
+			default: throw new ArgumentOutOfRangeException (nameof (micalg));
 			}
 		}
 
@@ -228,7 +228,7 @@ namespace MimeKit.Cryptography {
 		public override DigestAlgorithm GetDigestAlgorithm (string micalg)
 		{
 			if (micalg == null)
-				throw new ArgumentNullException ("micalg");
+				throw new ArgumentNullException (nameof (micalg));
 
 			switch (micalg.ToLowerInvariant ()) {
 			case "md5":         return DigestAlgorithm.MD5;
@@ -400,7 +400,7 @@ namespace MimeKit.Cryptography {
 		protected CmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
-				throw new ArgumentNullException ("mailboxes");
+				throw new ArgumentNullException (nameof (mailboxes));
 
 			var recipients = new CmsRecipientCollection ();
 
@@ -492,7 +492,7 @@ namespace MimeKit.Cryptography {
 		public ApplicationPkcs7Mime Compress (Stream stream)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var compresser = new CmsCompressedDataGenerator ();
 			var processable = new CmsProcessableInputStream (stream);
@@ -519,7 +519,7 @@ namespace MimeKit.Cryptography {
 		public MimeEntity Decompress (Stream stream)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new CmsCompressedDataParser (stream);
 			var content = parser.GetContent ();
@@ -627,16 +627,16 @@ namespace MimeKit.Cryptography {
 		public ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (signer.Certificate == null)
-				throw new ArgumentException ("No signer certificate specified.", "signer");
+				throw new ArgumentException ("No signer certificate specified.", nameof (signer));
 
 			if (signer.PrivateKey == null)
-				throw new ArgumentException ("No private key specified.", "signer");
+				throw new ArgumentException ("No private key specified.", nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (signer, content, true));
 		}
@@ -672,10 +672,10 @@ namespace MimeKit.Cryptography {
 		public virtual ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
@@ -703,16 +703,16 @@ namespace MimeKit.Cryptography {
 		public ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (signer.Certificate == null)
-				throw new ArgumentException ("No signer certificate specified.", "signer");
+				throw new ArgumentException ("No signer certificate specified.", nameof (signer));
 
 			if (signer.PrivateKey == null)
-				throw new ArgumentException ("No private key specified.", "signer");
+				throw new ArgumentException ("No private key specified.", nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			return new ApplicationPkcs7Signature (Sign (signer, content, false));
 		}
@@ -748,10 +748,10 @@ namespace MimeKit.Cryptography {
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
@@ -814,7 +814,7 @@ namespace MimeKit.Cryptography {
 		protected static bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
 		{
 			if (identifier == null)
-				throw new ArgumentNullException ("identifier");
+				throw new ArgumentNullException (nameof (identifier));
 
 			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.Aes256Cbc) {
 				algorithm = EncryptionAlgorithm.Aes256;
@@ -986,10 +986,10 @@ namespace MimeKit.Cryptography {
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			if (signatureData == null)
-				throw new ArgumentNullException ("signatureData");
+				throw new ArgumentNullException (nameof (signatureData));
 
 			var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData);
 			var signed = parser.GetSignedContent ();
@@ -1020,7 +1020,7 @@ namespace MimeKit.Cryptography {
 		public DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
 		{
 			if (signedData == null)
-				throw new ArgumentNullException ("signedData");
+				throw new ArgumentNullException (nameof (signedData));
 
 			var parser = new CmsSignedDataParser (signedData);
 			var signed = parser.GetSignedContent ();
@@ -1049,7 +1049,7 @@ namespace MimeKit.Cryptography {
 		public Stream Verify (Stream signedData, out DigitalSignatureCollection signatures)
 		{
 			if (signedData == null)
-				throw new ArgumentNullException ("signedData");
+				throw new ArgumentNullException (nameof (signedData));
 
 			var parser = new CmsSignedDataParser (signedData);
 			var signed = parser.GetSignedContent ();
@@ -1141,7 +1141,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", "recipients");
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
 			var input = new CmsProcessableInputStream (content);
 			CmsEnvelopedData envelopedData;
@@ -1209,10 +1209,10 @@ namespace MimeKit.Cryptography {
 		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (recipients, content));
 		}
@@ -1244,10 +1244,10 @@ namespace MimeKit.Cryptography {
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
 		{
 			if (recipients == null)
-				throw new ArgumentNullException ("recipients");
+				throw new ArgumentNullException (nameof (recipients));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			return Encrypt (GetCmsRecipients (recipients), content);
 		}
@@ -1269,7 +1269,7 @@ namespace MimeKit.Cryptography {
 		public override MimeEntity Decrypt (Stream encryptedData)
 		{
 			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
+				throw new ArgumentNullException (nameof (encryptedData));
 
 			var parser = new CmsEnvelopedDataParser (encryptedData);
 			var recipients = parser.GetRecipientInfos ();
@@ -1331,7 +1331,7 @@ namespace MimeKit.Cryptography {
 		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
 		{
 			if (mailboxes == null)
-				throw new ArgumentNullException ("mailboxes");
+				throw new ArgumentNullException (nameof (mailboxes));
 
 			var certificates = new X509CertificateStore ();
 			int count = 0;
@@ -1343,7 +1343,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (count == 0)
-				throw new ArgumentException ("No mailboxes specified.", "mailboxes");
+				throw new ArgumentException ("No mailboxes specified.", nameof (mailboxes));
 
 			var cms = new CmsSignedDataStreamGenerator ();
 			var memory = new MemoryBlockStream ();
@@ -1397,7 +1397,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new CmsSignedDataParser (stream);
 			var certificates = parser.GetCertificates ("Collection");

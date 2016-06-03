@@ -61,16 +61,16 @@ namespace MimeKit.Cryptography {
 		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector)
 		{
 			if (key == null)
-				throw new ArgumentNullException ("key");
+				throw new ArgumentNullException (nameof (key));
 
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			if (selector == null)
-				throw new ArgumentNullException ("selector");
+				throw new ArgumentNullException (nameof (selector));
 
 			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", "key");
+				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
 			Selector = selector;
@@ -118,16 +118,16 @@ namespace MimeKit.Cryptography {
 		public DkimSigner (string fileName, string domain, string selector)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
-				throw new ArgumentException ("The file name cannot be empty.", "fileName");
+				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
 
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			if (selector == null)
-				throw new ArgumentNullException ("selector");
+				throw new ArgumentNullException (nameof (selector));
 
 			AsymmetricKeyParameter key = null;
 

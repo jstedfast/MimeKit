@@ -82,7 +82,7 @@ namespace MimeKit.Cryptography {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMultipartSigned (this);
 		}
@@ -125,10 +125,10 @@ namespace MimeKit.Cryptography {
 		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
@@ -208,13 +208,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
@@ -322,13 +322,13 @@ namespace MimeKit.Cryptography {
 		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (entity == null)
-				throw new ArgumentNullException ("entity");
+				throw new ArgumentNullException (nameof (entity));
 
 			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
@@ -418,7 +418,7 @@ namespace MimeKit.Cryptography {
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
-				throw new ArgumentOutOfRangeException ("maxLineLength");
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			// Note: we do not iterate over our children because they are already signed
 			// and changing them would break the signature. They should already be
@@ -448,7 +448,7 @@ namespace MimeKit.Cryptography {
 		public DigitalSignatureCollection Verify (CryptographyContext ctx)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))

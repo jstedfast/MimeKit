@@ -73,7 +73,7 @@ namespace MimeKit.IO.Filters {
 		public DecoderFilter (IMimeDecoder decoder)
 		{
 			if (decoder == null)
-				throw new ArgumentNullException ("decoder");
+				throw new ArgumentNullException (nameof (decoder));
 
 			Decoder = decoder;
 		}
@@ -112,7 +112,7 @@ namespace MimeKit.IO.Filters {
 			ContentEncoding encoding;
 
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (!MimeUtils.TryParse (name, out encoding))
 				encoding = ContentEncoding.Default;

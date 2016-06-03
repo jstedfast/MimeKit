@@ -54,7 +54,7 @@ namespace MimeKit.Cryptography {
 		public DkimSignatureStream (ISigner signer)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			Signer = signer;
 		}
@@ -96,7 +96,7 @@ namespace MimeKit.Cryptography {
 		public bool VerifySignature (string signature)
 		{
 			if (signature == null)
-				throw new ArgumentNullException ("signature");
+				throw new ArgumentNullException (nameof (signature));
 
 			var rawSignature = Convert.FromBase64String (signature);
 
@@ -106,7 +106,7 @@ namespace MimeKit.Cryptography {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("DkimSignatureStream");
+				throw new ObjectDisposedException (nameof (DkimSignatureStream));
 		}
 
 		/// <summary>
@@ -198,13 +198,13 @@ namespace MimeKit.Cryptography {
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>

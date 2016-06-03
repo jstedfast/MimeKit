@@ -72,7 +72,7 @@ namespace MimeKit.Cryptography {
 		protected X509CertificateDatabase (string password)
 		{
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			EncryptionAlgorithm = DefaultEncryptionAlgorithm;
 			MinIterations = DefaultMinIterations;
@@ -509,7 +509,7 @@ namespace MimeKit.Cryptography {
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
 			case "CERTIFICATE": return record.Certificate.GetEncoded ();
 			case "PRIVATEKEY": return EncodePrivateKey (record.PrivateKey);
-			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), "columnName");
+			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), nameof (columnName));
 			}
 		}
 
@@ -534,7 +534,7 @@ namespace MimeKit.Cryptography {
 			case "THISUPDATE": return record.ThisUpdate;
 			case "NEXTUPDATE": return record.NextUpdate;
 			case "CRL": return record.Crl.GetEncoded ();
-			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), "columnName");
+			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), nameof (columnName));
 			}
 		}
 
@@ -595,7 +595,7 @@ namespace MimeKit.Cryptography {
 		public X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			using (var command = GetSelectCommand (certificate, fields)) {
 				var reader = command.ExecuteReader ();
@@ -709,7 +709,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			if (mailbox == null)
-				throw new ArgumentNullException ("mailbox");
+				throw new ArgumentNullException (nameof (mailbox));
 
 			using (var command = GetSelectCommand (mailbox, now, requirePrivateKey, fields)) {
 				var reader = command.ExecuteReader ();
@@ -784,7 +784,7 @@ namespace MimeKit.Cryptography {
 		public void Add (X509CertificateRecord record)
 		{
 			if (record == null)
-				throw new ArgumentNullException ("record");
+				throw new ArgumentNullException (nameof (record));
 
 			using (var command = GetInsertCommand (record)) {
 				command.ExecuteNonQuery ();
@@ -804,7 +804,7 @@ namespace MimeKit.Cryptography {
 		public void Remove (X509CertificateRecord record)
 		{
 			if (record == null)
-				throw new ArgumentNullException ("record");
+				throw new ArgumentNullException (nameof (record));
 
 			using (var command = GetDeleteCommand (record)) {
 				command.ExecuteNonQuery ();
@@ -825,7 +825,7 @@ namespace MimeKit.Cryptography {
 		public void Update (X509CertificateRecord record, X509CertificateRecordFields fields)
 		{
 			if (record == null)
-				throw new ArgumentNullException ("record");
+				throw new ArgumentNullException (nameof (record));
 
 			using (var command = GetUpdateCommand (record, fields)) {
 				command.ExecuteNonQuery ();
@@ -848,7 +848,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<X509CrlRecord> Find (X509Name issuer, X509CrlRecordFields fields)
 		{
 			if (issuer == null)
-				throw new ArgumentNullException ("issuer");
+				throw new ArgumentNullException (nameof (issuer));
 
 			using (var command = GetSelectCommand (issuer, fields)) {
 				var reader = command.ExecuteReader ();
@@ -888,7 +888,7 @@ namespace MimeKit.Cryptography {
 		public X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields)
 		{
 			if (crl == null)
-				throw new ArgumentNullException ("crl");
+				throw new ArgumentNullException (nameof (crl));
 
 			using (var command = GetSelectCommand (crl, fields)) {
 				var reader = command.ExecuteReader ();
@@ -925,7 +925,7 @@ namespace MimeKit.Cryptography {
 		public void Add (X509CrlRecord record)
 		{
 			if (record == null)
-				throw new ArgumentNullException ("record");
+				throw new ArgumentNullException (nameof (record));
 
 			using (var command = GetInsertCommand (record)) {
 				command.ExecuteNonQuery ();
@@ -945,7 +945,7 @@ namespace MimeKit.Cryptography {
 		public void Remove (X509CrlRecord record)
 		{
 			if (record == null)
-				throw new ArgumentNullException ("record");
+				throw new ArgumentNullException (nameof (record));
 
 			using (var command = GetDeleteCommand (record)) {
 				command.ExecuteNonQuery ();
@@ -965,7 +965,7 @@ namespace MimeKit.Cryptography {
 		public void Update (X509CrlRecord record)
 		{
 			if (record == null)
-				throw new ArgumentNullException ("record");
+				throw new ArgumentNullException (nameof (record));
 
 			using (var command = GetUpdateCommand (record)) {
 				command.ExecuteNonQuery ();

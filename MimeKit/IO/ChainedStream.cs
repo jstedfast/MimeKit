@@ -74,7 +74,7 @@ namespace MimeKit.IO {
 		public void Add (Stream stream, bool leaveOpen = false)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			this.leaveOpen.Add (leaveOpen);
 			streams.Add (stream);
@@ -84,7 +84,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException ("ChainedStream");
+				throw new ObjectDisposedException (nameof (ChainedStream));
 		}
 
 		void CheckCanSeek ()
@@ -226,13 +226,13 @@ namespace MimeKit.IO {
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
 			if (buffer == null)
-				throw new ArgumentNullException ("buffer");
+				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException ("offset");
+				throw new ArgumentOutOfRangeException (nameof (offset));
 
 			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException ("count");
+				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
 		/// <summary>
@@ -404,7 +404,7 @@ namespace MimeKit.IO {
 				real = length + offset;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("origin", "Invalid SeekOrigin specified");
+				throw new ArgumentOutOfRangeException (nameof (origin), "Invalid SeekOrigin specified");
 			}
 
 			// sanity check the resultant offset

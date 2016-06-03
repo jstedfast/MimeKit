@@ -123,10 +123,10 @@ namespace MimeKit.IO.Filters {
 		public CharsetFilter (Encoding sourceEncoding, Encoding targetEncoding)
 		{
 			if (sourceEncoding == null)
-				throw new ArgumentNullException ("sourceEncoding");
+				throw new ArgumentNullException (nameof (sourceEncoding));
 
 			if (targetEncoding == null)
-				throw new ArgumentNullException ("targetEncoding");
+				throw new ArgumentNullException (nameof (targetEncoding));
 
 			SourceEncoding = sourceEncoding;
 			TargetEncoding = targetEncoding;

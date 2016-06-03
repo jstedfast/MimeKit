@@ -146,11 +146,11 @@ namespace MimeKit.Cryptography {
 		static void ValidateFingerprint (string fingerprint)
 		{
 			if (fingerprint == null)
-				throw new ArgumentNullException ("fingerprint");
+				throw new ArgumentNullException (nameof (fingerprint));
 
 			for (int i = 0; i < fingerprint.Length; i++) {
 				if (fingerprint[i] > 128 || !((byte) fingerprint[i]).IsXDigit ())
-					throw new ArgumentException ("The fingerprint should be a hex-encoded string.", "fingerprint");
+					throw new ArgumentException ("The fingerprint should be a hex-encoded string.", nameof (fingerprint));
 			}
 		}
 

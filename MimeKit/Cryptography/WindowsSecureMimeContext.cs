@@ -470,10 +470,10 @@ namespace MimeKit.Cryptography {
 		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
@@ -515,10 +515,10 @@ namespace MimeKit.Cryptography {
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
 		{
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
@@ -546,7 +546,7 @@ namespace MimeKit.Cryptography {
 		public override MimeEntity Decrypt (Stream encryptedData)
 		{
 			if (encryptedData == null)
-				throw new ArgumentNullException ("encryptedData");
+				throw new ArgumentNullException (nameof (encryptedData));
 
 			var enveloped = new EnvelopedCms ();
 
@@ -573,7 +573,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (Org.BouncyCastle.X509.X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException ("certificate");
+				throw new ArgumentNullException (nameof (certificate));
 
 			var store = new X509Store (StoreName.AddressBook, StoreLocation);
 
@@ -595,7 +595,7 @@ namespace MimeKit.Cryptography {
 		public override void Import (X509Crl crl)
 		{
 			if (crl == null)
-				throw new ArgumentNullException ("crl");
+				throw new ArgumentNullException (nameof (crl));
 
 			// TODO: figure out where to store the CRLs...
 		}
@@ -619,10 +619,10 @@ namespace MimeKit.Cryptography {
 		public override void Import (Stream stream, string password)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
-				throw new ArgumentNullException ("password");
+				throw new ArgumentNullException (nameof (password));
 
 			var rawData = ReadAllBytes (stream);
 			var store = new X509Store (StoreName.My, StoreLocation);
