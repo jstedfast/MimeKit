@@ -214,10 +214,10 @@ namespace MimeKit {
 		public void RegisterMimeType (string mimeType, Type type)
 		{
 			if (mimeType == null)
-				throw new ArgumentNullException ("mimeType");
+				throw new ArgumentNullException (nameof (mimeType));
 
 			if (type == null)
-				throw new ArgumentNullException ("type");
+				throw new ArgumentNullException (nameof (type));
 
 			mimeType = mimeType.ToLowerInvariant ();
 
@@ -230,7 +230,7 @@ namespace MimeKit {
 			if (!info.IsSubclassOf (typeof (MessagePart)) &&
 				!info.IsSubclassOf (typeof (Multipart)) &&
 				!info.IsSubclassOf (typeof (MimePart)))
-				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", "type");
+				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", nameof (type));
 
 #if PORTABLE
 			var ctor = GetConstructor (info, ConstructorArgTypes);
@@ -239,7 +239,7 @@ namespace MimeKit {
 #endif
 
 			if (ctor == null)
-				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", "type");
+				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", nameof (type));
 
 			mimeTypes[mimeType] = ctor;
 		}

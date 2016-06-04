@@ -62,13 +62,13 @@ namespace MimeKit {
 		public ContentObject (Stream stream, ContentEncoding encoding = ContentEncoding.Default)
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (!stream.CanRead)
-				throw new ArgumentException ("The stream does not support reading.", "stream");
+				throw new ArgumentException ("The stream does not support reading.", nameof (stream));
 
 			if (!stream.CanSeek)
-				throw new ArgumentException ("The stream does not support seeking.", "stream");
+				throw new ArgumentException ("The stream does not support seeking.", nameof (stream));
 
 			Encoding = encoding;
 			Stream = stream;
@@ -141,7 +141,7 @@ namespace MimeKit {
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var readable = Stream as ICancellableStream;
 			var writable = stream as ICancellableStream;
@@ -203,7 +203,7 @@ namespace MimeKit {
 		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (DecoderFilter.Create (Encoding));

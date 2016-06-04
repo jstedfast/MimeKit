@@ -318,10 +318,10 @@ namespace MimeKit {
 		public void SetStream (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			this.persistent = persistent && stream.CanSeek;
 			this.options = options.Clone ();

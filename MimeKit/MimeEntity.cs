@@ -72,7 +72,7 @@ namespace MimeKit {
 		protected MimeEntity (MimeEntityConstructorArgs args)
 		{
 			if (args == null)
-				throw new ArgumentNullException ("args");
+				throw new ArgumentNullException (nameof (args));
 
 			Headers = new HeaderList (args.ParserOptions);
 			ContentType = args.ContentType;
@@ -118,7 +118,7 @@ namespace MimeKit {
 		protected MimeEntity (ContentType contentType)
 		{
 			if (contentType == null)
-				throw new ArgumentNullException ("contentType");
+				throw new ArgumentNullException (nameof (contentType));
 
 			Headers = new HeaderList ();
 			ContentType = contentType;
@@ -229,7 +229,7 @@ namespace MimeKit {
 					return;
 
 				if (value != null && !value.IsAbsoluteUri)
-					throw new ArgumentException ("The Content-Base URI may only be set to an absolute URI.", "value");
+					throw new ArgumentException ("The Content-Base URI may only be set to an absolute URI.", nameof (value));
 
 				baseUri = value;
 
@@ -369,7 +369,7 @@ namespace MimeKit {
 		public virtual void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMimeEntity (this);
 		}
@@ -414,10 +414,10 @@ namespace MimeKit {
 		public virtual void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (!contentOnly)
 				Headers.WriteTo (options, stream, cancellationToken);
@@ -533,10 +533,10 @@ namespace MimeKit {
 		public void WriteTo (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (options, stream, contentOnly, cancellationToken);
@@ -579,10 +579,10 @@ namespace MimeKit {
 		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (options, stream, false, cancellationToken);
@@ -623,7 +623,7 @@ namespace MimeKit {
 		public void WriteTo (string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
@@ -663,7 +663,7 @@ namespace MimeKit {
 		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (FormatOptions.Default, stream, false, cancellationToken);
@@ -841,7 +841,7 @@ namespace MimeKit {
 				baseUri = null;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("action");
+				throw new ArgumentOutOfRangeException (nameof (action));
 			}
 		}
 
@@ -884,10 +884,10 @@ namespace MimeKit {
 		public static MimeEntity Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
 
@@ -1027,10 +1027,10 @@ namespace MimeKit {
 		public static MimeEntity Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
 				return Load (options, stream, cancellationToken);
@@ -1109,13 +1109,13 @@ namespace MimeKit {
 		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (contentType == null)
-				throw new ArgumentNullException ("contentType");
+				throw new ArgumentNullException (nameof (contentType));
 
 			if (content == null)
-				throw new ArgumentNullException ("content");
+				throw new ArgumentNullException (nameof (content));
 
 			var format = FormatOptions.CloneDefault ();
 			format.NewLineFormat = NewLineFormat.Dos;

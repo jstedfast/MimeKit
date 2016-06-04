@@ -611,7 +611,7 @@ namespace MimeKit {
 		public static string GetMimeType (string fileName)
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			int dot = fileName.LastIndexOf ('.');
 			string mimeType = null;

@@ -124,14 +124,14 @@ namespace MimeKit {
 			get { return disposition; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (value.Length == 0)
-					throw new ArgumentException ("The disposition is not allowed to be empty.", "value");
+					throw new ArgumentException ("The disposition is not allowed to be empty.", nameof (value));
 
 				for (int i = 0; i < value.Length; i++) {
 					if (value[i] >= 127 || !IsAsciiAtom ((byte) value[i]))
-						throw new ArgumentException ("Illegal characters in disposition value.", "value");
+						throw new ArgumentException ("Illegal characters in disposition value.", nameof (value));
 				}
 
 				if (disposition == value)
@@ -362,10 +362,10 @@ namespace MimeKit {
 		public string ToString (FormatOptions options, Encoding charset, bool encode)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			var value = new StringBuilder ("Content-Disposition: ");
 			value.Append (disposition);

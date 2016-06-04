@@ -78,13 +78,13 @@ namespace MimeKit {
 		public Header (Encoding encoding, HeaderId id, string value)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (id == HeaderId.Unknown)
-				throw new ArgumentOutOfRangeException ("id");
+				throw new ArgumentOutOfRangeException (nameof (id));
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			Options = ParserOptions.Default.Clone ();
 			Field = id.ToHeaderName ();
@@ -120,13 +120,13 @@ namespace MimeKit {
 		public Header (string charset, HeaderId id, string value)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (id == HeaderId.Unknown)
-				throw new ArgumentOutOfRangeException ("id");
+				throw new ArgumentOutOfRangeException (nameof (id));
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
 			Options = ParserOptions.Default.Clone ();
@@ -181,21 +181,21 @@ namespace MimeKit {
 		public Header (Encoding encoding, string field, string value)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (field == null)
-				throw new ArgumentNullException ("field");
+				throw new ArgumentNullException (nameof (field));
 
 			if (field.Length == 0)
-				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
+				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
 
 			for (int i = 0; i < field.Length; i++) {
 				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
-					throw new ArgumentException ("Illegal characters in header field name.", "field");
+					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
 			}
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			Options = ParserOptions.Default.Clone ();
 			Id = field.ToHeaderId ();
@@ -233,21 +233,21 @@ namespace MimeKit {
 		public Header (string charset, string field, string value)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (field == null)
-				throw new ArgumentNullException ("field");
+				throw new ArgumentNullException (nameof (field));
 
 			if (field.Length == 0)
-				throw new ArgumentException ("Header field names are not allowed to be empty.", "field");
+				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
 
 			for (int i = 0; i < field.Length; i++) {
 				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
-					throw new ArgumentException ("Illegal characters in header field name.", "field");
+					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
 			}
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
 			Options = ParserOptions.Default.Clone ();
@@ -427,7 +427,7 @@ namespace MimeKit {
 		public string GetValue (Encoding encoding)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			var options = Options.Clone ();
 			options.CharsetEncoding = encoding;
@@ -451,7 +451,7 @@ namespace MimeKit {
 		public string GetValue (string charset)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
 
@@ -1028,13 +1028,13 @@ namespace MimeKit {
 		public void SetValue (FormatOptions format, Encoding encoding, string value)
 		{
 			if (format == null)
-				throw new ArgumentNullException ("format");
+				throw new ArgumentNullException (nameof (format));
 
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			textValue = Unfold (value.Trim ());
 
@@ -1093,10 +1093,10 @@ namespace MimeKit {
 		public void SetValue (FormatOptions format, string charset, string value)
 		{
 			if (format == null)
-				throw new ArgumentNullException ("format");
+				throw new ArgumentNullException (nameof (format));
 
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
 
@@ -1124,7 +1124,7 @@ namespace MimeKit {
 		public void SetValue (string charset, string value)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
 

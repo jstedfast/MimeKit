@@ -232,7 +232,7 @@ namespace MimeKit {
 					parameterEncodingMethod = value;
 					break;
 				default:
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 			}
 		}

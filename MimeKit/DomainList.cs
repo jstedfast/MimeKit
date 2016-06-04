@@ -56,7 +56,7 @@ namespace MimeKit {
 		public DomainList (IEnumerable<string> domains)
 		{
 			if (domains == null)
-				throw new ArgumentNullException ("domains");
+				throw new ArgumentNullException (nameof (domains));
 
 			this.domains = new List<string> (domains);
 		}
@@ -88,7 +88,7 @@ namespace MimeKit {
 		public int IndexOf (string domain)
 		{
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			return domains.IndexOf (domain);
 		}
@@ -110,7 +110,7 @@ namespace MimeKit {
 		public void Insert (int index, string domain)
 		{
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			domains.Insert (index, domain);
 			OnChanged ();
@@ -150,7 +150,7 @@ namespace MimeKit {
 			get { return domains[index]; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (domains[index] == value)
 					return;
@@ -177,7 +177,7 @@ namespace MimeKit {
 		public void Add (string domain)
 		{
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			domains.Add (domain);
 			OnChanged ();
@@ -210,7 +210,7 @@ namespace MimeKit {
 		public bool Contains (string domain)
 		{
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			return domains.Contains (domain);
 		}
@@ -249,7 +249,7 @@ namespace MimeKit {
 		public bool Remove (string domain)
 		{
 			if (domain == null)
-				throw new ArgumentNullException ("domain");
+				throw new ArgumentNullException (nameof (domain));
 
 			if (domains.Remove (domain)) {
 				OnChanged ();
@@ -443,7 +443,7 @@ namespace MimeKit {
 			int index = 0;
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 

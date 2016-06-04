@@ -79,7 +79,7 @@ namespace MimeKit {
 		protected InternetAddress (Encoding encoding, string name)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			Encoding = encoding;
 			Name = name;
@@ -100,7 +100,7 @@ namespace MimeKit {
 			get { return encoding; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (value == encoding)
 					return;
@@ -156,7 +156,7 @@ namespace MimeKit {
 			int rv;
 
 			if (other == null)
-				throw new ArgumentNullException ("other");
+				throw new ArgumentNullException (nameof (other));
 
 			if ((rv = string.Compare (Name, other.Name, StringComparison.OrdinalIgnoreCase)) != 0)
 				return rv;

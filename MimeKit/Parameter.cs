@@ -68,18 +68,18 @@ namespace MimeKit {
 		public Parameter (string name, string value)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.", "name");
+				throw new ArgumentException ("Parameter names are not allowed to be empty.", nameof (name));
 
 			for (int i = 0; i < name.Length; i++) {
 				if (name[i] > 127 || !IsAttr ((byte) name[i]))
-					throw new ArgumentException ("Illegal characters in parameter name.", "name");
+					throw new ArgumentException ("Illegal characters in parameter name.", nameof (name));
 			}
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			Value = value;
 			Name = name;
@@ -107,21 +107,21 @@ namespace MimeKit {
 		public Parameter (Encoding encoding, string name, string value)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.", "name");
+				throw new ArgumentException ("Parameter names are not allowed to be empty.", nameof (name));
 
 			for (int i = 0; i < name.Length; i++) {
 				if (name[i] > 127 || !IsAttr ((byte) name[i]))
-					throw new ArgumentException ("Illegal characters in parameter name.", "name");
+					throw new ArgumentException ("Illegal characters in parameter name.", nameof (name));
 			}
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			Encoding = encoding;
 			Value = value;
@@ -153,21 +153,21 @@ namespace MimeKit {
 		public Parameter (string charset, string name, string value)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
-				throw new ArgumentException ("Parameter names are not allowed to be empty.", "name");
+				throw new ArgumentException ("Parameter names are not allowed to be empty.", nameof (name));
 
 			for (int i = 0; i < name.Length; i++) {
 				if (name[i] > 127 || !IsAttr ((byte) name[i]))
-					throw new ArgumentException ("Illegal characters in parameter name.", "name");
+					throw new ArgumentException ("Illegal characters in parameter name.", nameof (name));
 			}
 
 			if (value == null)
-				throw new ArgumentNullException ("value");
+				throw new ArgumentNullException (nameof (value));
 
 			Encoding = CharsetUtils.GetEncoding (charset);
 			Value = value;
@@ -233,7 +233,7 @@ namespace MimeKit {
 					encodingMethod = value;
 					break;
 				default:
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 
 				OnChanged ();
@@ -254,7 +254,7 @@ namespace MimeKit {
 			get { return text; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (text == value)
 					return;

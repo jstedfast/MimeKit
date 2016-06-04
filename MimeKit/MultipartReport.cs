@@ -69,7 +69,7 @@ namespace MimeKit {
 		public MultipartReport (string reportType, params object[] args) : base ("report", args)
 		{
 			if (reportType == null)
-				throw new ArgumentNullException ("reportType");
+				throw new ArgumentNullException (nameof (reportType));
 
 			ReportType = reportType;
 		}
@@ -87,7 +87,7 @@ namespace MimeKit {
 		public MultipartReport (string reportType) : base ("report")
 		{
 			if (reportType == null)
-				throw new ArgumentNullException ("reportType");
+				throw new ArgumentNullException (nameof (reportType));
 
 			ReportType = reportType;
 		}
@@ -108,7 +108,7 @@ namespace MimeKit {
 			get { return ContentType.Parameters["report-type"]; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (ReportType == value)
 					return;
@@ -135,7 +135,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMultipartReport (this);
 		}

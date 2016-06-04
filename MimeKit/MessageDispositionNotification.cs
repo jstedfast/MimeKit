@@ -120,7 +120,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMessageDispositionNotification (this);
 		}

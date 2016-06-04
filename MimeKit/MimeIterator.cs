@@ -69,7 +69,7 @@ namespace MimeKit {
 		public MimeIterator (MimeMessage message)
 		{
 			if (message == null)
-				throw new ArgumentNullException ("message");
+				throw new ArgumentNullException (nameof (message));
 
 			Message = message;
 		}
@@ -358,10 +358,10 @@ namespace MimeKit {
 		public bool MoveTo (string pathSpecifier)
 		{
 			if (pathSpecifier == null)
-				throw new ArgumentNullException ("pathSpecifier");
+				throw new ArgumentNullException (nameof (pathSpecifier));
 
 			if (pathSpecifier.Length == 0)
-				throw new ArgumentException ("The path specifier cannot be empty.", "pathSpecifier");
+				throw new ArgumentException ("The path specifier cannot be empty.", nameof (pathSpecifier));
 
 			var indexes = Parse (pathSpecifier);
 			int i;

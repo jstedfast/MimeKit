@@ -91,16 +91,16 @@ namespace MimeKit {
 		public HeaderList this [int index] {
 			get {
 				if (index < 0 || index > Count)
-					throw new ArgumentOutOfRangeException ("index");
+					throw new ArgumentOutOfRangeException (nameof (index));
 
 				return groups[index];
 			}
 			set {
 				if (index < 0 || index > Count)
-					throw new ArgumentOutOfRangeException ("index");
+					throw new ArgumentOutOfRangeException (nameof (index));
 
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (groups[index] == value)
 					return;
@@ -124,7 +124,7 @@ namespace MimeKit {
 		public void Add (HeaderList group)
 		{
 			if (group == null)
-				throw new ArgumentNullException ("group");
+				throw new ArgumentNullException (nameof (@group));
 
 			group.Changed += OnGroupChanged;
 			groups.Add (group);
@@ -161,7 +161,7 @@ namespace MimeKit {
 		public bool Contains (HeaderList group)
 		{
 			if (group == null)
-				throw new ArgumentNullException ("group");
+				throw new ArgumentNullException (nameof (@group));
 
 			return groups.Contains (group);
 		}
@@ -201,7 +201,7 @@ namespace MimeKit {
 		public bool Remove (HeaderList group)
 		{
 			if (group == null)
-				throw new ArgumentNullException ("group");
+				throw new ArgumentNullException (nameof (@group));
 
 			if (!groups.Remove (group))
 				return false;

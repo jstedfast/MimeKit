@@ -103,7 +103,7 @@ namespace MimeKit {
 		public Multipart (string subtype, params object[] args) : this (subtype)
 		{
 			if (args == null)
-				throw new ArgumentNullException ("args");
+				throw new ArgumentNullException (nameof (args));
 
 			foreach (object obj in args) {
 				if (obj == null || TryInit (obj))
@@ -174,7 +174,7 @@ namespace MimeKit {
 			get { return ContentType.Boundary; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (Boundary == value)
 					return;
@@ -298,7 +298,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMultipart (this);
 		}
@@ -387,7 +387,7 @@ namespace MimeKit {
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
-				throw new ArgumentOutOfRangeException ("maxLineLength");
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			for (int i = 0; i < children.Count; i++)
 				children[i].Prepare (constraint, maxLineLength);
@@ -542,7 +542,7 @@ namespace MimeKit {
 		public void Add (MimeEntity part)
 		{
 			if (part == null)
-				throw new ArgumentNullException ("part");
+				throw new ArgumentNullException (nameof (part));
 
 			WriteEndBoundary = true;
 			children.Add (part);
@@ -575,7 +575,7 @@ namespace MimeKit {
 		public bool Contains (MimeEntity part)
 		{
 			if (part == null)
-				throw new ArgumentNullException ("part");
+				throw new ArgumentNullException (nameof (part));
 
 			return children.Contains (part);
 		}
@@ -614,7 +614,7 @@ namespace MimeKit {
 		public bool Remove (MimeEntity part)
 		{
 			if (part == null)
-				throw new ArgumentNullException ("part");
+				throw new ArgumentNullException (nameof (part));
 
 			if (!children.Remove (part))
 				return false;
@@ -642,7 +642,7 @@ namespace MimeKit {
 		public int IndexOf (MimeEntity part)
 		{
 			if (part == null)
-				throw new ArgumentNullException ("part");
+				throw new ArgumentNullException (nameof (part));
 
 			return children.IndexOf (part);
 		}
@@ -664,10 +664,10 @@ namespace MimeKit {
 		public void Insert (int index, MimeEntity part)
 		{
 			if (index < 0 || index > children.Count)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			if (part == null)
-				throw new ArgumentNullException ("part");
+				throw new ArgumentNullException (nameof (part));
 
 			children.Insert (index, part);
 			WriteEndBoundary = true;
@@ -707,7 +707,7 @@ namespace MimeKit {
 			get { return children[index]; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				WriteEndBoundary = true;
 				children[index] = value;

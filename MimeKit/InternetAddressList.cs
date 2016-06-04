@@ -67,7 +67,7 @@ namespace MimeKit {
 		public InternetAddressList (IEnumerable<InternetAddress> addresses)
 		{
 			if (addresses == null)
-				throw new ArgumentNullException ("addresses");
+				throw new ArgumentNullException (nameof (addresses));
 
 			foreach (var address in addresses) {
 				address.Changed += AddressChanged;
@@ -126,7 +126,7 @@ namespace MimeKit {
 		public int IndexOf (InternetAddress address)
 		{
 			if (address == null)
-				throw new ArgumentNullException ("address");
+				throw new ArgumentNullException (nameof (address));
 
 			return list.IndexOf (address);
 		}
@@ -148,7 +148,7 @@ namespace MimeKit {
 		public void Insert (int index, InternetAddress address)
 		{
 			if (address == null)
-				throw new ArgumentNullException ("address");
+				throw new ArgumentNullException (nameof (address));
 
 			address.Changed += AddressChanged;
 			list.Insert (index, address);
@@ -168,7 +168,7 @@ namespace MimeKit {
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index >= list.Count)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			list[index].Changed -= AddressChanged;
 			list.RemoveAt (index);
@@ -193,7 +193,7 @@ namespace MimeKit {
 			get { return list[index]; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (list[index] == value)
 					return;
@@ -242,7 +242,7 @@ namespace MimeKit {
 		public void Add (InternetAddress address)
 		{
 			if (address == null)
-				throw new ArgumentNullException ("address");
+				throw new ArgumentNullException (nameof (address));
 
 			address.Changed += AddressChanged;
 			list.Add (address);
@@ -262,7 +262,7 @@ namespace MimeKit {
 		public void AddRange (IEnumerable<InternetAddress> addresses)
 		{
 			if (addresses == null)
-				throw new ArgumentNullException ("addresses");
+				throw new ArgumentNullException (nameof (addresses));
 
 			bool changed = false;
 
@@ -309,7 +309,7 @@ namespace MimeKit {
 		public bool Contains (InternetAddress address)
 		{
 			if (address == null)
-				throw new ArgumentNullException ("address");
+				throw new ArgumentNullException (nameof (address));
 
 			return list.Contains (address);
 		}
@@ -348,7 +348,7 @@ namespace MimeKit {
 		public bool Remove (InternetAddress address)
 		{
 			if (address == null)
-				throw new ArgumentNullException ("address");
+				throw new ArgumentNullException (nameof (address));
 
 			if (list.Remove (address)) {
 				address.Changed -= AddressChanged;
@@ -446,7 +446,7 @@ namespace MimeKit {
 			int rv;
 
 			if (other == null)
-				throw new ArgumentNullException ("other");
+				throw new ArgumentNullException (nameof (other));
 
 			for (int i = 0; i < Math.Min (Count, other.Count); i++) {
 				if ((rv = this[i].CompareTo (other[i])) != 0)

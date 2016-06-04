@@ -63,10 +63,10 @@ namespace MimeKit {
 		public ContentType (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
-				throw new ArgumentNullException ("mediaType");
+				throw new ArgumentNullException (nameof (mediaType));
 
 			if (mediaSubtype == null)
-				throw new ArgumentNullException ("mediaSubtype");
+				throw new ArgumentNullException (nameof (mediaSubtype));
 
 			Parameters = new ParameterList ();
 			subtype = mediaSubtype;
@@ -99,7 +99,7 @@ namespace MimeKit {
 			get { return type; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (type == value)
 					return;
@@ -126,7 +126,7 @@ namespace MimeKit {
 			get { return subtype; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (subtype == value)
 					return;
@@ -285,10 +285,10 @@ namespace MimeKit {
 		public bool IsMimeType (string mediaType, string mediaSubtype)
 		{
 			if (mediaType == null)
-				throw new ArgumentNullException ("mediaType");
+				throw new ArgumentNullException (nameof (mediaType));
 
 			if (mediaSubtype == null)
-				throw new ArgumentNullException ("mediaSubtype");
+				throw new ArgumentNullException (nameof (mediaSubtype));
 
 			if (mediaType == "*" || mediaType.Equals (type, StringComparison.OrdinalIgnoreCase))
 				return mediaSubtype == "*" || mediaSubtype.Equals (subtype, StringComparison.OrdinalIgnoreCase);
@@ -333,10 +333,10 @@ namespace MimeKit {
 		public string ToString (FormatOptions options, Encoding charset, bool encode)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			var value = new StringBuilder ("Content-Type: ");
 			value.Append (MediaType);

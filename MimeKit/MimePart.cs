@@ -98,7 +98,7 @@ namespace MimeKit {
 		public MimePart (string mediaType, string mediaSubtype, params object[] args) : this (mediaType, mediaSubtype)
 		{
 			if (args == null)
-				throw new ArgumentNullException ("args");
+				throw new ArgumentNullException (nameof (args));
 
 			IContentObject content = null;
 
@@ -212,7 +212,7 @@ namespace MimeKit {
 					return;
 
 				if (value.HasValue && value.Value < 0)
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 
 				if (value.HasValue)
 					SetHeader ("Content-Duration", value.Value.ToString ());
@@ -339,7 +339,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMimePart (this);
 		}
@@ -499,7 +499,7 @@ namespace MimeKit {
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
-				throw new ArgumentOutOfRangeException ("maxLineLength");
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			switch (ContentTransferEncoding) {
 			case ContentEncoding.QuotedPrintable:
@@ -656,7 +656,7 @@ namespace MimeKit {
 				md5sum = null;
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("action");
+				throw new ArgumentOutOfRangeException (nameof (action));
 			}
 		}
 	}

@@ -71,7 +71,7 @@ namespace MimeKit {
 		public MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
 			if (address == null)
-				throw new ArgumentNullException ("address");
+				throw new ArgumentNullException (nameof (address));
 
 			Route = new DomainList (route);
 			Route.Changed += RouteChanged;
@@ -172,7 +172,7 @@ namespace MimeKit {
 			get { return address; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (value == address)
 					return;
@@ -216,10 +216,10 @@ namespace MimeKit {
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			if (builder == null)
-				throw new ArgumentNullException ("builder");
+				throw new ArgumentNullException (nameof (builder));
 
 			if (lineLength < 0)
-				throw new ArgumentOutOfRangeException ("lineLength");
+				throw new ArgumentOutOfRangeException (nameof (lineLength));
 
 			string route = Route.ToString ();
 			if (!string.IsNullOrEmpty (route))
@@ -317,7 +317,7 @@ namespace MimeKit {
 		public override string ToString (FormatOptions options, bool encode)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (encode) {
 				var builder = new StringBuilder ();
@@ -580,10 +580,10 @@ namespace MimeKit {
 		public static bool TryParse (ParserOptions options, string text, out MailboxAddress mailbox)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
@@ -830,10 +830,10 @@ namespace MimeKit {
 		public static new MailboxAddress Parse (ParserOptions options, string text)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;

@@ -74,7 +74,7 @@ namespace MimeKit {
 		public MessagePart (string subtype, params object[] args) : this (subtype)
 		{
 			if (args == null)
-				throw new ArgumentNullException ("args");
+				throw new ArgumentNullException (nameof (args));
 
 			MimeMessage message = null;
 
@@ -151,7 +151,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMessagePart (this);
 		}
@@ -172,7 +172,7 @@ namespace MimeKit {
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
-				throw new ArgumentOutOfRangeException ("maxLineLength");
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			if (Message != null)
 				Message.Prepare (constraint, maxLineLength);

@@ -124,7 +124,7 @@ namespace MimeKit {
 			}
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				int index;
 
@@ -172,7 +172,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMultipartRelated (this);
 		}
@@ -213,7 +213,7 @@ namespace MimeKit {
 		public int IndexOf (Uri uri)
 		{
 			if (uri == null)
-				throw new ArgumentNullException ("uri");
+				throw new ArgumentNullException (nameof (uri));
 
 			bool cid = uri.IsAbsoluteUri && uri.Scheme.ToLowerInvariant () == "cid";
 
@@ -269,7 +269,7 @@ namespace MimeKit {
 		public Stream Open (Uri uri, out string mimeType, out string charset)
 		{
 			if (uri == null)
-				throw new ArgumentNullException ("uri");
+				throw new ArgumentNullException (nameof (uri));
 
 			int index = IndexOf (uri);
 
@@ -304,7 +304,7 @@ namespace MimeKit {
 		public Stream Open (Uri uri)
 		{
 			if (uri == null)
-				throw new ArgumentNullException ("uri");
+				throw new ArgumentNullException (nameof (uri));
 
 			int index = IndexOf (uri);
 

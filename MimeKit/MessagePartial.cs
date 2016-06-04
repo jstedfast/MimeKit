@@ -83,13 +83,13 @@ namespace MimeKit {
 		public MessagePartial (string id, int number, int total) : base ("message", "partial")
 		{
 			if (id == null)
-				throw new ArgumentNullException ("id");
+				throw new ArgumentNullException (nameof (id));
 
 			if (number < 1)
-				throw new ArgumentOutOfRangeException ("number");
+				throw new ArgumentOutOfRangeException (nameof (number));
 
 			if (total < number)
-				throw new ArgumentOutOfRangeException ("total");
+				throw new ArgumentOutOfRangeException (nameof (total));
 
 			ContentType.Parameters.Add (new Parameter ("id", id));
 			ContentType.Parameters.Add (new Parameter ("number", number.ToString ()));
@@ -163,7 +163,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMessagePartial (this);
 		}
@@ -198,10 +198,10 @@ namespace MimeKit {
 		public static IEnumerable<MimeMessage> Split (MimeMessage message, int maxSize)
 		{
 			if (message == null)
-				throw new ArgumentNullException ("message");
+				throw new ArgumentNullException (nameof (message));
 
 			if (maxSize < 1)
-				throw new ArgumentOutOfRangeException ("maxSize");
+				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
 			using (var memory = new MemoryStream ()) {
 				message.WriteTo (memory);
@@ -290,10 +290,10 @@ namespace MimeKit {
 		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (partials == null)
-				throw new ArgumentNullException ("partials");
+				throw new ArgumentNullException (nameof (partials));
 
 			var parts = partials.ToList ();
 
@@ -303,11 +303,11 @@ namespace MimeKit {
 			parts.Sort (PartialCompare);
 
 			if (!parts[parts.Count - 1].Total.HasValue)
-				throw new ArgumentException ("The last partial does not have a Total.", "partials");
+				throw new ArgumentException ("The last partial does not have a Total.", nameof (partials));
 
 			int total = parts[parts.Count - 1].Total.Value;
 			if (parts.Count != total)
-				throw new ArgumentException ("The number of partials provided does not match the expected count.", "partials");
+				throw new ArgumentException ("The number of partials provided does not match the expected count.", nameof (partials));
 
 			string id = parts[0].Id;
 
@@ -317,7 +317,7 @@ namespace MimeKit {
 					int number = parts[i].Number.Value;
 
 					if (number != i + 1)
-						throw new ArgumentException ("One or more partials is missing.", "partials");
+						throw new ArgumentException ("One or more partials is missing.", nameof (partials));
 
 					var content = parts[i].ContentObject;
 

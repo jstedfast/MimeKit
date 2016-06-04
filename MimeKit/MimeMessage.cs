@@ -153,7 +153,7 @@ namespace MimeKit {
 		public MimeMessage (params object[] args) : this (ParserOptions.Default.Clone ())
 		{
 			if (args == null)
-				throw new ArgumentNullException ("args");
+				throw new ArgumentNullException (nameof (args));
 
 			MimeEntity body = null;
 
@@ -296,7 +296,7 @@ namespace MimeKit {
 					importance = value;
 					break;
 				default:
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 			}
 		}
@@ -330,7 +330,7 @@ namespace MimeKit {
 					rawValue = "urgent";
 					break;
 				default:
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 
 				SetHeader ("Priority", rawValue);
@@ -374,7 +374,7 @@ namespace MimeKit {
 					rawValue = "5 (Lowest)";
 					break;
 				default:
-					throw new ArgumentOutOfRangeException ("value");
+					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 
 				SetHeader ("X-Priority", rawValue);
@@ -605,7 +605,7 @@ namespace MimeKit {
 			get { return Headers["Subject"]; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				SetHeader ("Subject", value);
 			}
@@ -689,7 +689,7 @@ namespace MimeKit {
 				int index = 0;
 
 				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
-					throw new ArgumentException ("Invalid Message-Id format.", "value");
+					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				inreplyto = mailbox.Address;
 
@@ -717,7 +717,7 @@ namespace MimeKit {
 			get { return messageId; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (messageId == value)
 					return;
@@ -727,7 +727,7 @@ namespace MimeKit {
 				int index = 0;
 
 				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
-					throw new ArgumentException ("Invalid Message-Id format.", "value");
+					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				messageId = mailbox.Address;
 
@@ -755,7 +755,7 @@ namespace MimeKit {
 			get { return resentMessageId; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (resentMessageId == value)
 					return;
@@ -765,7 +765,7 @@ namespace MimeKit {
 				int index = 0;
 
 				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
-					throw new ArgumentException ("Invalid Resent-Message-Id format.", "value");
+					throw new ArgumentException ("Invalid Resent-Message-Id format.", nameof (value));
 
 				resentMessageId = mailbox.Address;
 
@@ -788,7 +788,7 @@ namespace MimeKit {
 			get { return version; }
 			set {
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				if (version != null && version.CompareTo (value) == 0)
 					return;
@@ -1014,7 +1014,7 @@ namespace MimeKit {
 		public virtual void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMimeMessage (this);
 		}
@@ -1035,7 +1035,7 @@ namespace MimeKit {
 		public virtual void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
-				throw new ArgumentOutOfRangeException ("maxLineLength");
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			if (Body != null)
 				Body.Prepare (constraint, maxLineLength);
@@ -1064,10 +1064,10 @@ namespace MimeKit {
 		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
 				MimeVersion = new Version (1, 0);
@@ -1170,10 +1170,10 @@ namespace MimeKit {
 		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (options, stream, cancellationToken);
@@ -1213,7 +1213,7 @@ namespace MimeKit {
 		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (FormatOptions.Default, stream, cancellationToken);
@@ -1473,13 +1473,13 @@ namespace MimeKit {
 		void Sign (FormatOptions options, DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (signer == null)
-				throw new ArgumentNullException ("signer");
+				throw new ArgumentNullException (nameof (signer));
 
 			if (headers == null)
-				throw new ArgumentNullException ("headers");
+				throw new ArgumentNullException (nameof (headers));
 
 			if (!headers.Contains (HeaderId.From))
 				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.");
@@ -1803,16 +1803,16 @@ namespace MimeKit {
 		public bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (dkimSignature == null)
-				throw new ArgumentNullException ("dkimSignature");
+				throw new ArgumentNullException (nameof (dkimSignature));
 
 			if (dkimSignature.Id != HeaderId.DkimSignature)
-				throw new ArgumentException ("The dkimSignature parameter MUST be a DKIM-Signature header.", "dkimSignature");
+				throw new ArgumentException ("The dkimSignature parameter MUST be a DKIM-Signature header.", nameof (dkimSignature));
 
 			if (publicKeyLocator == null)
-				throw new ArgumentNullException ("publicKeyLocator");
+				throw new ArgumentNullException (nameof (publicKeyLocator));
 
 			var parameters = ParseDkimSignature (dkimSignature.Value);
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
@@ -1925,7 +1925,7 @@ namespace MimeKit {
 		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (Body == null)
 				throw new InvalidOperationException ("No message body has been set.");
@@ -1998,7 +1998,7 @@ namespace MimeKit {
 		public void Encrypt (CryptographyContext ctx)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (Body == null)
 				throw new InvalidOperationException ("No message body has been set.");
@@ -2012,7 +2012,7 @@ namespace MimeKit {
 			} else if (ctx is OpenPgpContext) {
 				Body = MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body);
 			} else {
-				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
+				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
 		}
 
@@ -2064,7 +2064,7 @@ namespace MimeKit {
 		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo)
 		{
 			if (ctx == null)
-				throw new ArgumentNullException ("ctx");
+				throw new ArgumentNullException (nameof (ctx));
 
 			if (Body == null)
 				throw new InvalidOperationException ("No message body has been set.");
@@ -2082,7 +2082,7 @@ namespace MimeKit {
 			} else if (ctx is OpenPgpContext) {
 				Body = MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
 			} else {
-				throw new ArgumentException ("Unknown type of cryptography context.", "ctx");
+				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
 		}
 
@@ -2549,10 +2549,10 @@ namespace MimeKit {
 		public static MimeMessage Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (stream == null)
-				throw new ArgumentNullException ("stream");
+				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
 
@@ -2692,10 +2692,10 @@ namespace MimeKit {
 		public static MimeMessage Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (fileName == null)
-				throw new ArgumentNullException ("fileName");
+				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
 				return Load (options, stream, cancellationToken);
@@ -2802,7 +2802,7 @@ namespace MimeKit {
 		public static MimeMessage CreateFromMailMessage (MailMessage message)
 		{
 			if (message == null)
-				throw new ArgumentNullException ("message");
+				throw new ArgumentNullException (nameof (message));
 
 			var headers = new List<Header> ();
 			foreach (var field in message.Headers.AllKeys) {

@@ -95,7 +95,7 @@ namespace MimeKit {
 		public TextPart (string subtype, params object[] args) : this (subtype)
 		{
 			if (args == null)
-				throw new ArgumentNullException ("args");
+				throw new ArgumentNullException (nameof (args));
 
 			// Default to UTF8 if not given.
 			Encoding encoding = null;
@@ -297,7 +297,7 @@ namespace MimeKit {
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
-				throw new ArgumentNullException ("visitor");
+				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitTextPart (this);
 		}
@@ -339,7 +339,7 @@ namespace MimeKit {
 		public string GetText (Encoding encoding)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (ContentObject == null)
 				return string.Empty;
@@ -377,7 +377,7 @@ namespace MimeKit {
 		public string GetText (string charset)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			return GetText (CharsetUtils.GetEncoding (charset));
 		}
@@ -400,10 +400,10 @@ namespace MimeKit {
 		public void SetText (Encoding encoding, string text)
 		{
 			if (encoding == null)
-				throw new ArgumentNullException ("encoding");
+				throw new ArgumentNullException (nameof (encoding));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
 			var content = new MemoryStream (encoding.GetBytes (text));
@@ -431,10 +431,10 @@ namespace MimeKit {
 		public void SetText (string charset, string text)
 		{
 			if (charset == null)
-				throw new ArgumentNullException ("charset");
+				throw new ArgumentNullException (nameof (charset));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			SetText (CharsetUtils.GetEncoding (charset), text);
 		}

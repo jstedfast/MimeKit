@@ -133,10 +133,10 @@ namespace MimeKit {
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			if (builder == null)
-				throw new ArgumentNullException ("builder");
+				throw new ArgumentNullException (nameof (builder));
 
 			if (lineLength < 0)
-				throw new ArgumentOutOfRangeException ("lineLength");
+				throw new ArgumentOutOfRangeException (nameof (lineLength));
 
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;
@@ -198,7 +198,7 @@ namespace MimeKit {
 		public override string ToString (FormatOptions options, bool encode)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			var builder = new StringBuilder ();
 
@@ -463,10 +463,10 @@ namespace MimeKit {
 		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
@@ -713,10 +713,10 @@ namespace MimeKit {
 		public static new GroupAddress Parse (ParserOptions options, string text)
 		{
 			if (options == null)
-				throw new ArgumentNullException ("options");
+				throw new ArgumentNullException (nameof (options));
 
 			if (text == null)
-				throw new ArgumentNullException ("text");
+				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;

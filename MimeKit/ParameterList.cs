@@ -152,7 +152,7 @@ namespace MimeKit {
 		public bool Contains (string name)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			return table.ContainsKey (name);
 		}
@@ -171,7 +171,7 @@ namespace MimeKit {
 		public int IndexOf (string name)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			for (int i = 0; i < parameters.Count; i++) {
 				if (name.Equals (parameters[i].Name, StringComparison.OrdinalIgnoreCase))
@@ -204,7 +204,7 @@ namespace MimeKit {
 		public void Insert (int index, string name, string value)
 		{
 			if (index < 0 || index > Count)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			Insert (index, new Parameter (name, value));
 		}
@@ -224,7 +224,7 @@ namespace MimeKit {
 		public bool Remove (string name)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			Parameter param;
 			if (!table.TryGetValue (name, out param))
@@ -252,7 +252,7 @@ namespace MimeKit {
 		public string this [string name] {
 			get {
 				if (name == null)
-					throw new ArgumentNullException ("name");
+					throw new ArgumentNullException (nameof (name));
 
 				Parameter param;
 				if (table.TryGetValue (name, out param))
@@ -262,10 +262,10 @@ namespace MimeKit {
 			}
 			set {
 				if (name == null)
-					throw new ArgumentNullException ("name");
+					throw new ArgumentNullException (nameof (name));
 
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				Parameter param;
 				if (table.TryGetValue (name, out param)) {
@@ -291,7 +291,7 @@ namespace MimeKit {
 		public bool TryGetValue (string name, out Parameter param)
 		{
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			return table.TryGetValue (name, out param);
 		}
@@ -313,7 +313,7 @@ namespace MimeKit {
 			Parameter param;
 
 			if (name == null)
-				throw new ArgumentNullException ("name");
+				throw new ArgumentNullException (nameof (name));
 
 			if (!table.TryGetValue (name, out param)) {
 				value = null;
@@ -366,7 +366,7 @@ namespace MimeKit {
 		public void Add (Parameter param)
 		{
 			if (param == null)
-				throw new ArgumentNullException ("param");
+				throw new ArgumentNullException (nameof (param));
 
 			if (table.ContainsKey (param.Name))
 				throw new ArgumentException ("A parameter of that name already exists.");
@@ -410,7 +410,7 @@ namespace MimeKit {
 		public bool Contains (Parameter param)
 		{
 			if (param == null)
-				throw new ArgumentNullException ("param");
+				throw new ArgumentNullException (nameof (param));
 
 			return parameters.Contains (param);
 		}
@@ -444,7 +444,7 @@ namespace MimeKit {
 		public bool Remove (Parameter param)
 		{
 			if (param == null)
-				throw new ArgumentNullException ("param");
+				throw new ArgumentNullException (nameof (param));
 
 			if (!parameters.Remove (param))
 				return false;
@@ -475,7 +475,7 @@ namespace MimeKit {
 		public int IndexOf (Parameter param)
 		{
 			if (param == null)
-				throw new ArgumentNullException ("param");
+				throw new ArgumentNullException (nameof (param));
 
 			return parameters.IndexOf (param);
 		}
@@ -501,10 +501,10 @@ namespace MimeKit {
 		public void Insert (int index, Parameter param)
 		{
 			if (index < 0 || index > Count)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			if (param == null)
-				throw new ArgumentNullException ("param");
+				throw new ArgumentNullException (nameof (param));
 
 			if (table.ContainsKey (param.Name))
 				throw new ArgumentException ("A parameter of that name already exists.");
@@ -529,7 +529,7 @@ namespace MimeKit {
 		public void RemoveAt (int index)
 		{
 			if (index < 0 || index > Count)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof (index));
 
 			var param = parameters[index];
 
@@ -564,10 +564,10 @@ namespace MimeKit {
 			}
 			set {
 				if (index < 0 || index > Count)
-					throw new ArgumentOutOfRangeException ("index");
+					throw new ArgumentOutOfRangeException (nameof (index));
 
 				if (value == null)
-					throw new ArgumentNullException ("value");
+					throw new ArgumentNullException (nameof (value));
 
 				var param = parameters[index];
 
