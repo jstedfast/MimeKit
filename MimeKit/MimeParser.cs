@@ -140,6 +140,7 @@ namespace MimeKit {
 
 		MimeParserState state;
 		MimeFormat format;
+		bool headersOnly;
 		bool persistent;
 		bool eos;
 
@@ -714,12 +715,13 @@ namespace MimeKit {
 						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
 						state = MimeParserState.Content;
 					} else {
-						// the last header we encountered was truncated - probably best
-						// to error out in this case
 						if (left > 0)
 							AppendRawHeaderData (inputIndex, left);
 
-						state = MimeParserState.Error;
+						// the last header we encountered was truncated - probably best to
+						// error out in this case *unless* we're parsing headers only...
+						if (!headersOnly)
+							state = MimeParserState.Error;
 					}
 
 					ParseAndAppendHeader ();
@@ -1353,10 +1355,15 @@ namespace MimeKit {
 
 		unsafe HeaderList ParseHeaders (byte* inbuf)
 		{
-			state = MimeParserState.Headers;
-			while (state < MimeParserState.Content) {
-				if (Step (inbuf) == MimeParserState.Error)
-					throw new FormatException ("Failed to parse headers.");
+			try {
+				headersOnly = true;
+				state = MimeParserState.Headers;
+				while (state < MimeParserState.Content) {
+					if (Step (inbuf) == MimeParserState.Error)
+						throw new FormatException ("Failed to parse headers.");
+				}
+			} finally {
+				headersOnly = false;
 			}
 
 			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
