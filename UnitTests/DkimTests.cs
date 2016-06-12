@@ -107,6 +107,8 @@ namespace UnitTests
 
 			message.Body = new TextPart ("plain") { Text = "" };
 
+			message.Body.Prepare (EncodingConstraint.SevenBit);
+
 			message.Sign (signer, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
@@ -138,6 +140,62 @@ namespace UnitTests
 		public void TestEmptyRelaxedBodySha256 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=");
+		}
+
+		static void TestUnicode (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
+		{
+			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
+			var signer = CreateSigner (signatureAlgorithm);
+			var message = new MimeMessage ();
+
+			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
+			message.To.Add (new MailboxAddress ("", "mimekit@example.com"));
+			message.Subject = "This is a unicode message";
+			message.Date = DateTimeOffset.Now;
+
+			var builder = new BodyBuilder ();
+			builder.TextBody = " تست  ";
+			builder.HtmlBody = "  <div> تست </div> ";
+			message.Body = builder.ToMessageBody ();
+
+			((Multipart) message.Body).Boundary = "=-MultipartAlternativeBoundary";
+			((Multipart) message.Body)[1].ContentId = null;
+
+			message.Body.Prepare (EncodingConstraint.EightBit);
+
+			message.Sign (signer, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
+
+			var dkim = message.Headers[0];
+
+			Console.WriteLine ("{0}", dkim.Value);
+
+			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
+
+			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
+		}
+
+		[Test]
+		public void TestUnicodeSimpleBodySha1 ()
+		{
+			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "QtfAlGaDrgrUDxpRGQoj6OvIDik=");
+		}
+
+		[Test]
+		public void TestUnicodeSimpleBodySha256 ()
+		{
+			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, "LB6Vpw5lMY1e6iyGUeufZ3a3ZY+7dfnQT2PKxvzGrV8=");
+		}
+
+		[Test]
+		public void TestUnicodeRelaxedBodySha1 ()
+		{
+			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Relaxed, "Z36j2jLSTG9LsPvYIYauY3gqzDo=");
+		}
+
+		[Test]
+		public void TestUnicodeRelaxedBodySha256 ()
+		{
+			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "eXkiJZjbgQ/jzd4niERo0I+eenSPw+qmCQMDlrd9khI=");
 		}
 
 		[Test]
