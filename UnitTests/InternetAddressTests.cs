@@ -253,6 +253,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithOpenAngleSpace ()
+		{
+			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseMailboxWithCloseAngleSpace ()
+		{
+			const string text = "Jeffrey Stedfast <jeff@xamarin.com >";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseMailboxWithIncompleteRoute ()
 		{
 			const string text = "Skye <@";

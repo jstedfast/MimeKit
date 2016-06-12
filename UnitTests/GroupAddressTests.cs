@@ -257,6 +257,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithOpenAngleSpace ()
+		{
+			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";
+			const int tokenIndex = 0;
+			int errorIndex = text.IndexOf ('<');
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithCloseAngleSpace ()
+		{
+			const string text = "Jeffrey Stedfast <jeff@xamarin.com >";
+			const int tokenIndex = 0;
+			int errorIndex = text.IndexOf ('<');
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseMailboxWithIncompleteRoute ()
 		{
 			const string text = "Skye <@";

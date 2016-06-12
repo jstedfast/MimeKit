@@ -410,6 +410,9 @@ namespace MimeKit {
 				return false;
 			}
 
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
 			if (text[index] == (byte) '@') {
 				// Note: we always pass 'false' as the throwOnError argument here so that we can throw a more informative exception on error
 				if (!DomainList.TryParse (text, ref index, endIndex, false, out route)) {
@@ -427,6 +430,9 @@ namespace MimeKit {
 				}
 
 				index++;
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
 			}
 
 			string addrspec;
