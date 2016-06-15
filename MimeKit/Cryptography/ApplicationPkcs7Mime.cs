@@ -340,7 +340,8 @@ namespace MimeKit.Cryptography {
 		/// Verifies the signed-data and returns the unencapsulated <see cref="MimeKit.MimeEntity"/>.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the signed-data and returns the unencapsulated <see cref="MimeKit.MimeEntity"/>.
+		/// Verifies the signed-data using the default <see cref="SecureMimeContext"/> and returns the
+		/// unencapsulated <see cref="MimeKit.MimeEntity"/>.
 		/// </remarks>
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="entity">The unencapsulated entity.</param>
@@ -627,7 +628,7 @@ namespace MimeKit.Cryptography {
 		/// Cryptographically signs the specified entity.
 		/// </summary>
 		/// <remarks>
-		/// <para>Signs the entity using the supplied signer.</para>
+		/// <para>Signs the entity using the supplied signer and the default <see cref="SecureMimeContext"/>.</para>
 		/// <para>For better interoperability with other mail clients, you should use
 		/// <see cref="MultipartSigned.Create(SecureMimeContext, CmsSigner, MimeEntity)"/>
 		/// instead as the multipart/signed format is supported among a much larger
@@ -711,7 +712,8 @@ namespace MimeKit.Cryptography {
 		/// Cryptographically signs the specified entity.
 		/// </summary>
 		/// <remarks>
-		/// <para>Signs the entity using the supplied signer and digest algorithm.</para>
+		/// <para>Signs the entity using the supplied signer, digest algorithm and the default
+		/// <see cref="SecureMimeContext"/>.</para>
 		/// <para>For better interoperability with other mail clients, you should use
 		/// <see cref="MultipartSigned.Create(SecureMimeContext, CmsSigner, MimeEntity)"/>
 		/// instead as the multipart/signed format is supported among a much larger
@@ -790,8 +792,8 @@ namespace MimeKit.Cryptography {
 		/// Cryptographically signs and encrypts the specified entity.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs entity using the supplied signer and then
-		/// encrypts the result to the specified recipients.
+		/// Cryptographically signs entity using the supplied signer and the default <see cref="SecureMimeContext"/>
+		/// and then encrypts the result to the specified recipients.
 		/// </remarks>
 		/// <returns>The signed and encrypted entity.</returns>
 		/// <param name="signer">The signer.</param>
@@ -874,8 +876,8 @@ namespace MimeKit.Cryptography {
 		/// Cryptographically signs and encrypts the specified entity.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs entity using the supplied signer and then
-		/// encrypts the result to the specified recipients.
+		/// Cryptographically signs entity using the supplied signer and the default <see cref="SecureMimeContext"/>
+		/// and then encrypts the result to the specified recipients.
 		/// </remarks>
 		/// <returns>The signed and encrypted entity.</returns>
 		/// <param name="signer">The signer.</param>
