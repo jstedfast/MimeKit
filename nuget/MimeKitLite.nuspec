@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata minClientVersion="2.8.6">
 		<id>MimeKitLite</id>
-		<version>1.2.24</version>
+		<version>1.2.25</version>
 		<title>MimeKit Lite</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,10 +22,9 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME messages.</summary>
-		<releaseNotes>* Modified MimeMessage .ctor to not add an empty To: header by default. (issue #241)
-* Modified MimeMessage to remove address headers when all addresses in that field are removed.
-* Properly apply SecurityCriticalAttribute to GetObjectData() on custom Exceptions.
-* Fixed TnefPropertyReader to convert APPTIME values into DateTimes from the OLE Automation Date format. (issue #245)
+		<releaseNotes>* Fixed parsing bugs in MessageSeliveryStatus.StatusGroups. (issue #253)
+* Fixed MimeParser.ParseHeaders() to handle header blocks that do not end with a blank line. (issue #250)
+* Fixed the MailboxAddress parser to handle whitespace between '<' and the addr-spec.
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

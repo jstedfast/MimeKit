@@ -4,6 +4,13 @@
 
 * Added support for dnxcore50
 
+### MimeKit 1.2.25
+
+* Fixed parsing bugs in MessageSeliveryStatus.StatusGroups. (issue #253)
+* Fixed MimeParser.ParseHeaders() to handle header blocks that do not end with a blank line. (issue #250)
+* Fixed the MailboxAddress parser to handle whitespace between '<' and the addr-spec.
+* Fixed TemporarySecureMimeContext to handle certificates with null email addresses. (issue #252)
+
 ### MimeKit 1.2.24
 
 * Modified MimeMessage .ctor to not add an empty To: header by default. (issue #241)
