@@ -1358,10 +1358,8 @@ namespace MimeKit {
 			try {
 				headersOnly = true;
 				state = MimeParserState.Headers;
-				while (state < MimeParserState.Content) {
-					if (Step (inbuf) == MimeParserState.Error)
-						throw new FormatException ("Failed to parse headers.");
-				}
+				if (Step (inbuf) == MimeParserState.Error)
+					throw new FormatException ("Failed to parse headers.");
 			} finally {
 				headersOnly = false;
 			}
@@ -1412,10 +1410,8 @@ namespace MimeKit {
 				stream.Seek (offset, SeekOrigin.Begin);
 
 			state = MimeParserState.Headers;
-			while (state < MimeParserState.Content) {
-				if (Step (inbuf) == MimeParserState.Error)
-					throw new FormatException ("Failed to parse entity headers.");
-			}
+			if (Step (inbuf) == MimeParserState.Error)
+				throw new FormatException ("Failed to parse entity headers.");
 
 			var type = GetContentType (null);
 			BoundaryType found;
@@ -1487,10 +1483,8 @@ namespace MimeKit {
 			}
 
 			// parse the headers
-			while (state < MimeParserState.Content) {
-				if (Step (inbuf) == MimeParserState.Error)
-					throw new FormatException ("Failed to parse message headers.");
-			}
+			if (state < MimeParserState.Content && Step (inbuf) == MimeParserState.Error)
+				throw new FormatException ("Failed to parse message headers.");
 
 			var message = new MimeMessage (options, headers);
 
