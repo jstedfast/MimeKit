@@ -447,17 +447,21 @@ Will you be my +1?
 -- Joey
 ";
 
+// generate a Content-Id for the image we'll be referencing
+var contentId = MimeUtils.GenerateMessageId ();
+
 // Set the html version of the message text
-builder.HtmlBody = @"<p>Hey Alice,<br>
+builder.HtmlBody = string.Format (@"<p>Hey Alice,<br>
 <p>What are you up to this weekend? Monica is throwing one of her parties on
 Saturday and I was hoping you could make it.<br>
 <p>Will you be my +1?<br>
 <p>-- Joey<br>
-<center><img src=""sexy-pose.jpg""></center>";
+<center><img src=""cid:{0}"" alt=""selfie.jpg""></center>", contentId);
 
-// Since sexy-pose.jpg is referenced from the html text, we'll need to add it
-// to builder.LinkedResources
-builder.LinkedResources.Add (@"C:\Users\Joey\Documents\Selfies\sexy-pose.jpg");
+// Since selfie.jpg is referenced from the html text, we'll need to add it
+// to builder.LinkedResources and then set the Content-Id header value
+builder.LinkedResources.Add (@"C:\Users\Joey\Documents\Selfies\selfie.jpg");
+builder.LinkedResources[0].ContentId = contentId;
 
 // We may also want to attach a calendar event for Monica's party...
 builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
