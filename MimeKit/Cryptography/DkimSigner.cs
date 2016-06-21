@@ -161,6 +161,67 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DkimSigner"/>.
+		/// </remarks>
+		/// <param name="stream">The stream containing the private key.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The file did not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public DkimSigner (Stream stream, string domain, string selector)
+		{
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (domain == null)
+				throw new ArgumentNullException (nameof (domain));
+
+			if (selector == null)
+				throw new ArgumentNullException (nameof (selector));
+
+			AsymmetricKeyParameter key = null;
+
+			using (var reader = new StreamReader (stream)) {
+				var pem = new PemReader (reader);
+
+				var keyObject = pem.ReadObject ();
+
+				if (keyObject != null) {
+					key = keyObject as AsymmetricKeyParameter;
+
+					if (key == null) {
+						var pair = keyObject as AsymmetricCipherKeyPair;
+
+						if (pair != null)
+							key = pair.Private;
+					}
+				}
+			}
+
+			if (key == null || !key.IsPrivate)
+				throw new FormatException ("Private key not found.");
+
+			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
+			PrivateKey = key;
+			Selector = selector;
+			Domain = domain;
+		}
+
+		/// <summary>
 		/// Gets the private key.
 		/// </summary>
 		/// <remarks>
