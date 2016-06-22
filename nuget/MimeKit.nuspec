@@ -65,7 +65,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 		</group>
 		<group targetFramework="MonoAndroid10" />
 		<group targetFramework="Xamarin.iOS10" />
-		<group targetFramework=".NETStandard1.4">
+		<group targetFramework=".NETStandard1.3">
 			<dependency id="System.Security.Cryptography.Algorithms" version="4.1.0-rc2-24027" />
 			<dependency id="System.Security.Cryptography.Primitives" version="4.0.0-rc2-24027" />
 			<dependency id="System.Runtime.Serialization.Primitives" version="4.1.1-rc2-24027" />
@@ -95,8 +95,8 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 	</dependencies>
 	</metadata>
 	<files>
-		<file src="..\MimeKit\bin\Release\netstandard1.4\MimeKit.dll" target="lib\netstandard1.4\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\netstandard1.4\MimeKit.xml" target="lib\netstandard1.4\MimeKit.xml" />
+		<file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.dll" target="lib\netstandard1.3\MimeKit.dll" />
+		<file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.xml" target="lib\netstandard1.3\MimeKit.xml" />
 		<file src="..\MimeKit\bin\Release\lib\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid10\BouncyCastle.dll" />
 		<file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid10\MimeKit.dll" />
 		<file src="..\MimeKit\bin\Release\lib\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid10\MimeKit.xml" />
