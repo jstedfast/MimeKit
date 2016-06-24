@@ -254,7 +254,7 @@ namespace MimeKit {
 			HiddenHeaders = new HashSet<HeaderId> ();
 			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
 			//maxLineLength = DefaultMaxLineLength;
-			allowMixedHeaderCharsets = true;
+			allowMixedHeaderCharsets = false;
 			international = false;
 
 			if (Environment.NewLine.Length == 1)
