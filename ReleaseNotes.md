@@ -1,8 +1,10 @@
 # Release Notes
 
-### MimeKit 1.3.0
+### MimeKit 1.4.0
 
-* Added support for dnxcore50
+* Added support for .NET Core 1.0
+* Changed the default value of FormatOptions.AllowMixedHeaderCharsets to false.
+* Added a new DkimSigner .ctor that takes a stream of key data. (issue #255)
 
 ### MimeKit 1.2.25
 
