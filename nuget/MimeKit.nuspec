@@ -86,10 +86,10 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 			<dependency id="Portable.BouncyCastle" version="1.8.1.1" />
 		</group>
 		<group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10">
-			<dependency id="Portable.BouncyCastle" version="1.8.1" />
+			<dependency id="Portable.BouncyCastle" version="1.8.1.1" />
 		</group>
 		<group targetFramework="wpa81">
-			<dependency id="Portable.BouncyCastle" version="1.8.1" />
+			<dependency id="Portable.BouncyCastle" version="1.8.1.1" />
 		</group>
 	</dependencies>
 	</metadata>
