@@ -54,7 +54,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The input format.</value>
 		public override TextFormat InputFormat {
-			get { return TextFormat.Text; }
+			get { return TextFormat.Plain; }
 		}
 
 		/// <summary>
@@ -65,7 +65,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The output format.</value>
 		public override TextFormat OutputFormat {
-			get { return TextFormat.Text; }
+			get { return TextFormat.Plain; }
 		}
 
 		/// <summary>

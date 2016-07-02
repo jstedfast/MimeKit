@@ -887,7 +887,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
 		public string TextBody {
-			get { return GetTextBody (TextFormat.Text); }
+			get { return GetTextBody (TextFormat.Plain); }
 		}
 
 		/// <summary>

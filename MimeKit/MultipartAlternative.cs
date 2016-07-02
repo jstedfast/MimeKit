@@ -90,7 +90,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The text if a text/plain alternative exists; otherwise, <c>null</c>.</value>
 		public string TextBody {
-			get { return GetTextBody (TextFormat.Text); }
+			get { return GetTextBody (TextFormat.Plain); }
 		}
 
 		/// <summary>
