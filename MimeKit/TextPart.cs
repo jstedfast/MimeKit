@@ -76,7 +76,13 @@ namespace MimeKit {
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="TextPart"/> with the specified subtype.
+		/// <para>Creates a new <see cref="TextPart"/> with the specified subtype.</para>
+		/// <note type="note"><para>Typically the <paramref name="subtype"/> should either be
+		/// <c>"plain"</c> for plain text content or <c>"html"</c> for HTML content.</para>
+		/// <para>For more options, check the MIME-type registry at
+		/// <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
+		/// http://www.iana.org/assignments/media-types/media-types.xhtml#text
+		/// </a></para></note>
 		/// </remarks>
 		/// <param name="subtype">The media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers, charset encoding and text.</param>
@@ -141,7 +147,13 @@ namespace MimeKit {
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="TextPart"/> with the specified subtype.
+		/// <para>Creates a new <see cref="TextPart"/> with the specified subtype.</para>
+		/// <note type="note"><para>Typically the <paramref name="subtype"/> should either be
+		/// <c>"plain"</c> for plain text content or <c>"html"</c> for HTML content.</para>
+		/// <para>For more options, check the MIME-type registry at
+		/// <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
+		/// http://www.iana.org/assignments/media-types/media-types.xhtml#text
+		/// </a></para></note>
 		/// </remarks>
 		/// <param name="subtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -151,12 +163,47 @@ namespace MimeKit {
 		{
 		}
 
+		static string GetMediaSubtype (TextFormat format)
+		{
+			switch (format) {
+			case TextFormat.CompressedRichText:
+			case TextFormat.RichText:
+				return "rtf";
+			case TextFormat.Enriched:
+				return "enriched";
+			case TextFormat.Flowed:
+			case TextFormat.Text:
+				return "plain";
+			case TextFormat.Html:
+				return "html";
+			default:
+				throw new ArgumentOutOfRangeException (nameof (format));
+			}
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
+		/// class with the specified text format.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TextPart"/> with the specified text format.
+		/// </remarks>
+		/// <param name="format">The text format.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="format"/> is out of range.
+		/// </exception>
+		public TextPart (TextFormat format) : base ("text", GetMediaSubtype (format))
+		{
+			if (format == TextFormat.Flowed)
+				ContentType.Format = "flowed";
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
 		/// class with a Content-Type of text/plain.
 		/// </summary>
 		/// <remarks>
-		/// Creates a default <see cref="TextPart"/> with a mime-type of text/plain.
+		/// Creates a default <see cref="TextPart"/> with a mime-type of <c>text/plain</c>.
 		/// </remarks>
 		public TextPart () : base ("text", "plain")
 		{
