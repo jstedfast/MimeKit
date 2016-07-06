@@ -1385,7 +1385,7 @@ namespace MimeKit.Utils {
 
 					if (words[i].Encoding > maxEncoding) {
 						maxEncoding = words[i].Encoding;
-						for (int j = 0; j <= i; j++) {
+						for (int j = 0; j < i; j++) {
 							if (words[j].Type != WordType.EncodedWord)
 								continue;
 
