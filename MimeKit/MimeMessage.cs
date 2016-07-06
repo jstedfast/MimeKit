@@ -1080,9 +1080,11 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
+						var rawValue = header.GetRawValue (options);
+
 						filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
 						filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
-						filtered.Write (header.RawValue, 0, header.RawValue.Length, cancellationToken);
+						filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
 					}
 
 					filtered.Flush (cancellationToken);
