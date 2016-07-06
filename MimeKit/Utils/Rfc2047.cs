@@ -1028,7 +1028,7 @@ namespace MimeKit.Utils {
 			public WordType Type;
 			public int StartIndex;
 			public int CharCount;
-			public int Encoding;
+			public int Encoding;  // 0 => ASCII, 1 => iso-8859-1, 2 => custom
 			public int ByteCount;
 			public int EncodeCount;
 			public int QuotedPairs;
@@ -1138,7 +1138,7 @@ namespace MimeKit.Utils {
 
 					if (c < 127) {
 						if (IsCtrl (c)) {
-							word.Encoding = options.AllowMixedHeaderCharsets ? Math.Max (word.Encoding, 1) : 2;
+							word.Encoding = Math.Max (word.Encoding, 1);
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount++;
 						} else if (phrase && !IsAtom (c)) {
@@ -1155,7 +1155,7 @@ namespace MimeKit.Utils {
 						nchars = 1;
 					} else if (c < 256) {
 						// iso-8859-1
-						word.Encoding = options.AllowMixedHeaderCharsets ? Math.Max (word.Encoding, 1) : 2;
+						word.Encoding = Math.Max (word.Encoding, 1);
 						word.Type = WordType.EncodedWord;
 						word.EncodeCount++;
 						word.ByteCount++;
@@ -1375,6 +1375,27 @@ namespace MimeKit.Utils {
 			int start, length;
 			Word prev = null;
 			byte[] encoded;
+
+			if (!options.AllowMixedHeaderCharsets) {
+				int maxEncoding = 0;
+
+				for (int i = 0; i < words.Count; i++) {
+					if (words[i].Encoding == maxEncoding)
+						continue;
+
+					if (words[i].Encoding > maxEncoding) {
+						maxEncoding = words[i].Encoding;
+						for (int j = 0; j <= i; j++) {
+							if (words[j].Encoding == 0)
+								continue;
+
+							words[j].Encoding = maxEncoding;
+						}
+					} else if (words[i].Encoding > 0) {
+						words[i].Encoding = maxEncoding;
+					}
+				}
+			}
 
 			foreach (var word in words) {
 				// append the correct number of spaces between words...
