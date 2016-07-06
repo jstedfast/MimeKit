@@ -1380,18 +1380,18 @@ namespace MimeKit.Utils {
 				int maxEncoding = 0;
 
 				for (int i = 0; i < words.Count; i++) {
-					if (words[i].Encoding == maxEncoding)
+					if (words[i].Type != WordType.EncodedWord || words[i].Encoding == maxEncoding)
 						continue;
 
 					if (words[i].Encoding > maxEncoding) {
 						maxEncoding = words[i].Encoding;
 						for (int j = 0; j <= i; j++) {
-							if (words[j].Encoding == 0)
+							if (words[j].Type != WordType.EncodedWord)
 								continue;
 
 							words[j].Encoding = maxEncoding;
 						}
-					} else if (words[i].Encoding > 0) {
+					} else {
 						words[i].Encoding = maxEncoding;
 					}
 				}
