@@ -42,6 +42,7 @@ namespace MimeKit.Encodings {
 		enum QpDecoderState : byte {
 			PassThrough,
 			EqualSign,
+			SoftBreak,
 			DecodeByte
 		}
 
@@ -178,18 +179,26 @@ namespace MimeKit.Encodings {
 					} else if (c == '=') {
 						// invalid encoded sequence - pass it through undecoded
 						*outptr++ = (byte) '=';
-					} else {
+					} else if (c == '\r') {
+						state = QpDecoderState.SoftBreak;
+					} else if (c == '\n') {
 						state = QpDecoderState.PassThrough;
+					} else {
+						// invalid encoded sequence - pass it through undecoded
+						state = QpDecoderState.PassThrough;
+						*outptr++ = (byte) '=';
+						*outptr++ = c;
+					}
+					break;
+				case QpDecoderState.SoftBreak:
+					state = QpDecoderState.PassThrough;
+					c = *inptr++;
 
-						// check for soft line break ("=\n" or "=\r\n")
-						if (c == '\r' && inptr < inend && *inptr == '\n')
-							c = *inptr++;
-
-						if (c != '\r' && c != '\n') {
-							// invalid encoded sequence - pass it through undecoded
-							*outptr++ = (byte) '=';
-							*outptr++ = c;
-						}
+					if (c != '\n') {
+						// invalid encoded sequence - pass it through undecoded
+						*outptr++ = (byte) '=';
+						*outptr++ = (byte) '\r';
+						*outptr++ = c;
 					}
 					break;
 				case QpDecoderState.DecodeByte:
