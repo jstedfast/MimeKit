@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata minClientVersion="2.8.6">
 		<id>MimeKitLite</id>
-		<version>1.4.0</version>
+		<version>1.4.1</version>
 		<title>MimeKit Lite</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,7 +22,10 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME messages.</summary>
-		<releaseNotes>* Changed the default value of FormatOptions.AllowMixedHeaderCharsets to false.
+		<releaseNotes>* Fixed QuotedPrintableDecoder to handle soft breaks that fall on a buffer boundary.
+* Fixed MimeMessage.WriteTo() to properly respect the FormatOptions when writing the message headers.
+* Updated TextFormat to contain a Plain value (Text is now an alias) to hopefully make its mapping to text/plain more obvious.
+* Added new TextPart .ctor that takes a TextFormat argument so that developers that don't understand mime-types can more easily intuit what that argument should be.
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

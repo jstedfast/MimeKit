@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 1.4.1
+
+* Fixed QuotedPrintableDecoder to handle soft breaks that fall on a buffer boundary.
+* Fixed MimeMessage.WriteTo() to properly respect the FormatOptions when writing the
+  message headers.
+* Updated TextFormat to contain a Plain value (Text is now an alias) to hopefully make
+  its mapping to text/plain more obvious.
+* Added new TextPart .ctor that takes a TextFormat argument so that developers that
+  don't understand mime-types can more easily intuit what that argument should be.
+
 ### MimeKit 1.4.0
 
 * Added support for .NET Core 1.0
