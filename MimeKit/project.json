@@ -21,7 +21,8 @@
             "MacInterop/*.cs",
             "CancellationToken.cs"
           ]
-        }
+        },
+        "keyFile": "mimekit.snk"
       },
       "dependencies": {
         "System.Security.Cryptography.Algorithms": "4.2.0",
