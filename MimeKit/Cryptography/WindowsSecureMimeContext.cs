@@ -259,7 +259,7 @@ namespace MimeKit.Cryptography {
 					} else {
 						var address = certificate.GetNameInfo (X509NameType.EmailName, false);
 
-						if (address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
+						if (!address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
 							continue;
 					}
 
@@ -367,7 +367,7 @@ namespace MimeKit.Cryptography {
 					} else {
 						var address = certificate.GetNameInfo (X509NameType.EmailName, false);
 
-						if (address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
+						if (!address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
 							continue;
 					}
 
