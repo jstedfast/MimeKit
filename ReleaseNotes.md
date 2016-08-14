@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.4.2
+
+* Strong-name the .NET Core assemblies.
+* Fixed logic for selecting certificates from the Windows X.509 Store. (issue #262)
+
 ### MimeKit 1.4.1
 
 * Fixed QuotedPrintableDecoder to handle soft breaks that fall on a buffer boundary.
