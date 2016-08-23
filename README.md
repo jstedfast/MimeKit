@@ -120,9 +120,9 @@ In the top-level MimeKit source directory, there are several solution files:
 
 If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net45.sln instead of MimeKit.sln.
 
-Once you've opened the appropriate MimeKit solution file in either Xamarin Studio or Visual Studio 2015
-(the Community Edition of either will work), you can simply choose the Debug or Release build configuration
-and then build.
+Once you've opened the appropriate MimeKit solution file in either [Xamarin Studio](https://www.xamarin.com/download)
+or [Visual Studio 2015](https://beta.visualstudio.com/vs/community/), you can simply choose the Debug or Release build 
+configuration and then build.
 
 Note: The Release build will generate the xml API documentation, but the Debug build will not.
 
