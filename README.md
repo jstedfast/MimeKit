@@ -112,8 +112,8 @@ First, you'll need to clone MimeKit from my GitHub repository:
 
 In the top-level MimeKit source directory, there are several solution files:
 
-* MimeKit.sln includes projects for .NET 3.5, .NET 4.0, .NET 4.5, PCL (Profile7 and Profile111), Xamarin.Android,
-  and Xamarin.iOS as well as the unit tests.
+* MimeKit.sln includes projects for .NET 3.5, .NET 4.0, .NET 4.5, PCL (Profile7 and Profile111), .NET Core,
+  Xamarin.Android, and Xamarin.iOS as well as the unit tests.
 * MimeKit.Mobile.sln just includes the Xamarin.Android and Xamarin.iOS projects.
 * MimeKit.Net40.sln just includes the .NET 4.0 project.
 * MimeKit.Net45.sln includes the .NET 4.5 project and the unit tests.
