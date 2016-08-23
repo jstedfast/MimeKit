@@ -777,6 +777,45 @@ if (entity is ApplicationPkcs7Mime) {
 }
 ```
 
+### Signing Messages with DKIM
+
+In addition to OpenPGP and S/MIME, MimeKit also supports DKIM signatures. To sign a message using DKIM,
+you'll first need a private key. In the following example, assume that the private key is saved in a
+file called **privatekey.pem**:
+
+```csharp
+var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
+var headerAlgorithm = DkimCanonicalizationAlgorithm.Simple;
+var bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
+var signer = new DkimSigner ("privatekey.pem") {
+	SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha1,
+	AgentOrUserIdentifier = "@eng.example.com",
+	QueryMethod = "dns/txt",
+};
+
+message.Sign (signer, headers, headerAlgorithm, bodyAlgorithm);
+```
+
+As you can see, it's fairly straight forward.
+
+### Verifying DKIM Signatures
+
+Verifying DKIM signatures is slightly more involved than creating them because you'll need to write a custom
+implementation of the `IDkimPublicKeyLocator` interface. Typically, this custom class will need to download
+the DKIM public keys as they are requested by MimeKit during verification of DKIM signature headers.
+
+Once you've implemented a custom `IDkimPublicKeyLocator`, verifying signatures is fairly trivial:
+
+```csharp
+var dkim = message.Headers[HeaderId.DkimSignature];
+
+if (message.Verify (dkim, locator)) {
+    // the DKIM-Signature header is valid!
+} else {
+    // the DKIM-Signature is invalid
+}
+```
+
 ## Contributing
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. Once you do that,
