@@ -1,5 +1,5 @@
 {
-  "version": "1.4.2",
+  "version": "1.6.0",
   "title": "MimeKit",
   "description": "An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.",
   "authors": [ "Jeffrey Stedfast" ],

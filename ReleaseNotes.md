@@ -1,5 +1,10 @@
 # Release Notes
 
+### MimeKit 1.6.0
+
+* Use RandomNumberGenerator.Create() for .NET Core instead of System.Random when generating
+  multipart boundaries.
+
 ### MimeKit 1.4.2
 
 * Strong-name the .NET Core assemblies.
