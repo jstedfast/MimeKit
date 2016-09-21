@@ -204,13 +204,14 @@ namespace MimeKit.Utils {
 				index++;
 			}
 
-			if (index >= endIndex || text[index] != (byte) '"') {
+			if (index >= endIndex) {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Incomplete quoted-string token at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
 
+			// skip over the closing '"'
 			index++;
 
 			return true;

@@ -667,7 +667,7 @@ namespace UnitTests {
 		// TODO: test both Strict and Loose RfcCompliance modes
 
 		[Test]
-		public void TestParseExcessiveAngleBrackets ()
+		public void TestParseMailboxWithExcessiveAngleBrackets ()
 		{
 			const string text = "<<<user2@example.org>>>";
 			const string encoded = "user2@example.org";
@@ -711,6 +711,31 @@ namespace UnitTests {
 
 			expected.Add (new MailboxAddress ("", "third@example.net"));
 			expected.Add (new MailboxAddress ("", "fourth@example.net"));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithUnbalancedQuotes ()
+		{
+			const string text = "\"Joe <joe@example.com>";
+			const string encoded = "Joe <joe@example.com>";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("Joe", "joe@example.com"));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithUnbalancedQuotes2 ()
+		{
+			const string text = "\"Joe <joe@example.com>, Bob <bob@example.com>";
+			const string encoded = "Joe <joe@example.com>, Bob <bob@example.com>";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("Joe", "joe@example.com"));
+			expected.Add (new MailboxAddress ("Bob", "bob@example.com"));
 
 			AssertParseAndTryParse (text, encoded, expected);
 		}

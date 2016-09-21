@@ -550,6 +550,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, AddressParserFlags flags, out InternetAddress address)
 		{
+			bool strict = options.AddressParserComplianceMode == RfcComplianceMode.Strict;
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
 
 			address = null;
@@ -565,10 +566,39 @@ namespace MimeKit {
 			}
 
 			// keep track of the start & length of the phrase
+			bool trimLeadingQuote = false;
 			int startIndex = index;
 			int length = 0;
 
-			while (index < endIndex && ParseUtils.SkipWord (text, ref index, endIndex, throwOnError)) {
+			while (index < endIndex) {
+				if (strict) {
+					if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
+						break;
+				} else if (text[index] == (byte) '"') {
+					int qstringIndex = index;
+
+					if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false)) {
+						index = qstringIndex + 1;
+
+						ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+
+						if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Incomplete quoted-string token at offset {0}", qstringIndex), qstringIndex, endIndex);
+
+							break;
+						}
+
+						if (startIndex == qstringIndex)
+							trimLeadingQuote = true;
+					}
+				} else if (text[index].IsAtom ()) {
+					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
+						break;
+				} else {
+					break;
+				}
+
 				length = index - startIndex;
 
 				do {
@@ -622,7 +652,7 @@ namespace MimeKit {
 				}
 
 				if (index < endIndex && text[index] == (byte) '>') {
-					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+					if (strict) {
 						if (throwOnError)
 							throw new ParseException (string.Format ("Unexpected '>' token at offset {0}", index), startIndex, index);
 
@@ -639,6 +669,7 @@ namespace MimeKit {
 
 			if (text[index] == (byte) ':') {
 				// rfc2822 group address
+				int nameIndex = startIndex;
 				int codepage = -1;
 				string name;
 
@@ -649,8 +680,13 @@ namespace MimeKit {
 					return false;
 				}
 
+				if (trimLeadingQuote) {
+					nameIndex++;
+					length--;
+				}
+
 				if (length > 0) {
-					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+					name = Rfc2047.DecodePhrase (options, text, nameIndex, length, out codepage);
 				} else {
 					name = string.Empty;
 				}
@@ -670,11 +706,17 @@ namespace MimeKit {
 
 			if (text[index] == (byte) '<') {
 				// rfc2822 angle-addr token
+				int nameIndex = startIndex;
 				int codepage = -1;
 				string name;
 
+				if (trimLeadingQuote) {
+					nameIndex++;
+					length--;
+				}
+
 				if (length > 0) {
-					name = Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+					name = Rfc2047.DecodePhrase (options, text, nameIndex, length, out codepage);
 				} else {
 					name = string.Empty;
 				}
@@ -720,7 +762,7 @@ namespace MimeKit {
 				// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
 				// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
 				if (index < endIndex && text[index] == (byte) '>') {
-					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+					if (strict) {
 						if (throwOnError)
 							throw new ParseException (string.Format ("Unexpected '>' token at offset {0}", index), startIndex, index);
 

@@ -342,7 +342,7 @@ namespace UnitTests {
 		// TODO: test both Strict and Loose RfcCompliance modes
 
 		[Test]
-		public void TestParseExcessiveAngleBrackets ()
+		public void TestParseMailboxWithExcessiveAngleBrackets ()
 		{
 			const string text = "<<<user2@example.org>>>";
 
@@ -361,6 +361,14 @@ namespace UnitTests {
 		public void TestParseMailboxWithMissingLessThan ()
 		{
 			const string text = "second@example.org>";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseMailboxWithUnbalancedQuotes ()
+		{
+			const string text = "\"Joe <joe@example.com>";
 
 			AssertParse (text);
 		}
