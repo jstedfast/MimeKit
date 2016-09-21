@@ -247,7 +247,7 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool IsSentinel (byte c, byte[] sentinels)
+		public static bool IsSentinel (byte c, byte[] sentinels)
 		{
 			for (int i = 0; i < sentinels.Length; i++) {
 				if (c == sentinels[i])

@@ -288,17 +288,6 @@ namespace UnitTests {
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
-		// FIXME: need to test Strict vs Loose ParserOptions
-		//[Test]
-		//public void TestParseMailboxWithMissingGreaterThan ()
-		//{
-		//	const string text = "Skye <skye@shield.gov";
-		//	const int tokenIndex = 0;
-		//	int errorIndex = text.Length;
-		//
-		//	AssertParseFailure (text, true, tokenIndex, errorIndex);
-		//}
-
 		[Test]
 		public void TestParseMultipleMailboxes ()
 		{
@@ -377,5 +366,35 @@ namespace UnitTests {
 
 			AssertParse (expected);
 		}
+
+		#region Rfc7103
+
+		// TODO: test both Strict and Loose RfcCompliance modes
+
+		[Test]
+		public void TestParseExcessiveAngleBrackets ()
+		{
+			const string text = "<<<user2@example.org>>>";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseMailboxWithMissingGreaterThan ()
+		{
+			const string text = "<another@example.net";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseMailboxWithMissingLessThan ()
+		{
+			const string text = "second@example.org>";
+
+			AssertParse (text);
+		}
+
+		#endregion
 	}
 }

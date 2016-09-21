@@ -296,17 +296,6 @@ namespace UnitTests {
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
-		// FIXME: need to test Strict vs Loose ParserOptions
-		//[Test]
-		//public void TestParseMailboxWithMissingGreaterThan ()
-		//{
-		//	const string text = "Skye <skye@shield.gov";
-		//	const int tokenIndex = 0;
-		//	int errorIndex = text.Length;
-		//
-		//	AssertParseFailure (text, true, tokenIndex, errorIndex);
-		//}
-
 		[Test]
 		public void TestParseGroup ()
 		{

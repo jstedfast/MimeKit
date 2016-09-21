@@ -510,6 +510,9 @@ namespace MimeKit {
 				index++;
 		}
 
+		static readonly byte[] ReceivedAddrSpecSentinels = { (byte) '>', (byte) ';' };
+		static readonly byte[] ReceivedMessageIdSentinels = { (byte) '>' };
+
 		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
 		{
 			string addrspec;
@@ -517,16 +520,13 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
 				return;
 
-			if (text[index] == (byte) '<') {
+			if (text[index] == (byte) '<')
 				index++;
 
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) '>', false, out addrspec);
+			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, false, out addrspec);
 
-				if (index < text.Length && text[index] == (byte) '>')
-					index++;
-			} else {
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) ';', false, out addrspec);
-			}
+			if (index < text.Length && text[index] == (byte) '>')
+				index++;
 		}
 
 		static void ReceivedTokenSkipMessageId (byte[] text, ref int index)
@@ -539,7 +539,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '<') {
 				index++;
 
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, (byte) '>', false, out addrspec);
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, false, out addrspec);
 
 				if (index < text.Length && text[index] == (byte) '>')
 					index++;

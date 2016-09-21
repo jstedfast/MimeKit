@@ -339,7 +339,9 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte sentinel, bool throwOnError, out string addrspec)
+		static readonly byte[] CommaGreaterThanOrSemiColon = { (byte) ',', (byte) '>', (byte) ';' };
+
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string addrspec)
 		{
 			int startIndex = index;
 
@@ -349,7 +351,7 @@ namespace MimeKit {
 			if (!TryParseLocalPart (text, ref index, endIndex, throwOnError, out localpart))
 				return false;
 
-			if (index >= endIndex || text[index] == sentinel) {
+			if (index >= endIndex || ParseUtils.IsSentinel (text[index], sentinels)) {
 				addrspec = localpart;
 				return true;
 			}
@@ -380,7 +382,7 @@ namespace MimeKit {
 			}
 
 			string domain;
-			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, new [] { sentinel }, throwOnError, out domain))
+			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, sentinels, throwOnError, out domain))
 				return false;
 
 			addrspec = localpart + "@" + domain;
@@ -403,6 +405,21 @@ namespace MimeKit {
 
 			// skip over the '<'
 			index++;
+
+			// Note: check for excessive angle brackets like the example described in section 7.1.2 of rfc7103...
+			if (index < endIndex && text[index] == (byte) '<') {
+				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Excessive angle brackets at offset {0}", index), startIndex, index);
+
+					return false;
+				}
+
+				do {
+					index++;
+				} while (index < endIndex && text[index] == '<');
+			}
+
 			if (index >= endIndex) {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Incomplete mailbox at offset {0}", startIndex), startIndex, index);
@@ -435,8 +452,13 @@ namespace MimeKit {
 					return false;
 			}
 
+			// Note: The only syntactically correct sentinel token here is the '>', but alas... to deal with the first example
+			// in section 7.1.5 of rfc7103, we need to at least handle ',' as a sentinel and might as well handle ';' as well
+			// in case the mailbox is within a group address.
+			//
+			// Example: <third@example.net, fourth@example.net>
 			string addrspec;
-			if (!TryParseAddrspec (text, ref index, endIndex, (byte) '>', throwOnError, out addrspec))
+			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -450,7 +472,22 @@ namespace MimeKit {
 					return false;
 				}
 			} else {
+				// skip over the '>'
 				index++;
+
+				// Note: check for excessive angle brackets like the example described in section 7.1.2 of rfc7103...
+				if (index < endIndex && text[index] == (byte) '>') {
+					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Excessive angle brackets at offset {0}", index), startIndex, index);
+
+						return false;
+					}
+
+					do {
+						index++;
+					} while (index < endIndex && text[index] == '>');
+				}
 			}
 
 			if (route != null)
@@ -553,15 +590,16 @@ namespace MimeKit {
 			//             /  "," / ";" / ":" / "\" / <">  ;  string, to use
 			//             /  "." / "[" / "]"              ;  within a word.
 
-			if (index >= endIndex || text[index] == (byte) ',' || text[index] == ';') {
+			if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) '>' || text[index] == ';') {
 				// we've completely gobbled up an addr-spec w/o a domain
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
+				var sentinels = new byte [] { sentinel };
 				string name, addrspec;
 
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, sentinel, throwOnError, out addrspec))
+				if (!TryParseAddrspec (text, ref index, endIndex, sentinels, throwOnError, out addrspec))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -581,6 +619,17 @@ namespace MimeKit {
 					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
 				} else {
 					name = string.Empty;
+				}
+
+				if (index < endIndex && text[index] == (byte) '>') {
+					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Unexpected '>' token at offset {0}", index), startIndex, index);
+
+						return false;
+					}
+
+					index++;
 				}
 
 				address = new MailboxAddress (name, addrspec);
@@ -643,7 +692,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, (byte) ',', throwOnError, out addrspec))
+				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -663,6 +712,22 @@ namespace MimeKit {
 					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
 				} else {
 					name = string.Empty;
+				}
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
+				// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
+				if (index < endIndex && text[index] == (byte) '>') {
+					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Unexpected '>' token at offset {0}", index), startIndex, index);
+
+						return false;
+					}
+
+					index++;
 				}
 
 				address = new MailboxAddress (name, addrspec);

@@ -661,5 +661,60 @@ namespace UnitTests {
 			Assert.IsTrue (list1.CompareTo (list2) > 0, "CompareTo() should return < 0.");
 			Assert.IsTrue (list2.CompareTo (list1) < 0, "CompareTo() should return > 0.");
 		}
+
+		#region Rfc7103
+
+		// TODO: test both Strict and Loose RfcCompliance modes
+
+		[Test]
+		public void TestParseExcessiveAngleBrackets ()
+		{
+			const string text = "<<<user2@example.org>>>";
+			const string encoded = "user2@example.org";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("", encoded));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithMissingGreaterThan ()
+		{
+			const string text = "<another@example.net";
+			const string encoded = "another@example.net";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("", encoded));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithMissingLessThan ()
+		{
+			const string text = "second@example.org>";
+			const string encoded = "second@example.org";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("", encoded));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseErrantComma ()
+		{
+			const string text = "<third@example.net, fourth@example.net>";
+			const string encoded = "third@example.net, fourth@example.net";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("", "third@example.net"));
+			expected.Add (new MailboxAddress ("", "fourth@example.net"));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		#endregion
 	}
 }
