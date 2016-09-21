@@ -527,6 +527,36 @@ namespace MimeKit.Cryptography {
 			return MimeEntity.Load (content.ContentStream);
 		}
 
+		/// <summary>
+		/// Decompress the specified stream to an output stream.
+		/// </summary>
+		/// <remarks>
+		/// Decompress the specified stream to an output stream.
+		/// </remarks>
+		/// <param name="stream">The stream to decompress.</param>
+		/// <param name="output">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public virtual void DecompressTo (Stream stream, Stream output)
+		{
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (output == null)
+				throw new ArgumentNullException (nameof (output));
+
+			var parser = new CmsCompressedDataParser (stream);
+			var content = parser.GetContent ();
+
+			content.ContentStream.CopyTo (output, 4096);
+		}
+
 		Org.BouncyCastle.Asn1.Cms.AttributeTable AddSecureMimeCapabilities (Org.BouncyCastle.Asn1.Cms.AttributeTable signedAttributes)
 		{
 			var capabilities = new SmimeCapabilityVector ();
@@ -1284,6 +1314,47 @@ namespace MimeKit.Cryptography {
 				var memory = new MemoryStream (content, false);
 
 				return MimeEntity.Load (memory, true);
+			}
+
+			throw new CmsException ("A suitable private key could not be found for decrypting.");
+		}
+
+		/// <summary>
+		/// Decrypts the specified encryptedData to an output stream.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData to an output stream.
+		/// </remarks>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="output">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public virtual void DecryptTo (Stream encryptedData, Stream output)
+		{
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (output == null)
+				throw new ArgumentNullException (nameof (output));
+
+			var parser = new CmsEnvelopedDataParser (encryptedData);
+			var recipients = parser.GetRecipientInfos ();
+			var algorithm = parser.EncryptionAlgorithmID;
+			AsymmetricKeyParameter key;
+
+			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
+				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
+					continue;
+
+				var content = recipient.GetContentStream (key);
+
+				content.ContentStream.CopyTo (output, 4096);
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");
