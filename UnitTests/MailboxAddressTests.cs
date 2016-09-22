@@ -415,7 +415,7 @@ namespace UnitTests {
 			AssertParseFailure (text, false, 0, text.Length, RfcComplianceMode.Strict);
 
 			// for coverage
-			AssertParseFailure (" \"", false, 1, 2, RfcComplianceMode.Strict);
+			AssertParseFailure (" \"", false, 1, 2, RfcComplianceMode.Loose);
 		}
 
 		#endregion
