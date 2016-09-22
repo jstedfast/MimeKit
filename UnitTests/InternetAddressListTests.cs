@@ -146,7 +146,7 @@ namespace UnitTests {
 			InternetAddressList result;
 
 			try {
-				Assert.IsFalse (InternetAddressList.TryParse ("   ", out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				Assert.IsFalse (InternetAddressList.TryParse (text, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
 				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
 			}
@@ -175,7 +175,7 @@ namespace UnitTests {
 			var buffer = Encoding.UTF8.GetBytes (text);
 
 			try {
-				InternetAddressList.Parse ("   ");
+				InternetAddressList.Parse (text);
 				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
 			} catch (ParseException) {
 				// success

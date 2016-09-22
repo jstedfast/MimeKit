@@ -35,18 +35,21 @@ namespace UnitTests {
 	[TestFixture]
 	public class MailboxAddressTests
 	{
-		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex)
+		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
 		{
 			var buffer = text.Length > 0 ? Encoding.ASCII.GetBytes (text) : new byte[1];
+			var options = ParserOptions.Default.Clone ();
 			MailboxAddress mailbox;
 
-			Assert.AreEqual (result, MailboxAddress.TryParse (text, out mailbox), "MailboxAddress.TryParse(string)");
-			Assert.AreEqual (result, MailboxAddress.TryParse (buffer, out mailbox), "MailboxAddress.TryParse(byte[])");
-			Assert.AreEqual (result, MailboxAddress.TryParse (buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int)");
-			Assert.AreEqual (result, MailboxAddress.TryParse (buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(byte[], int, int)");
+			options.AddressParserComplianceMode = mode;
+
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, text, out mailbox), "MailboxAddress.TryParse(string)");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, out mailbox), "MailboxAddress.TryParse(byte[])");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int)");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(byte[], int, int)");
 
 			try {
-				MailboxAddress.Parse (text);
+				MailboxAddress.Parse (options, text);
 				Assert.Fail ("MailboxAddress.Parse(string) should fail.");
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
@@ -56,7 +59,7 @@ namespace UnitTests {
 			}
 
 			try {
-				MailboxAddress.Parse (buffer);
+				MailboxAddress.Parse (options, buffer);
 				Assert.Fail ("MailboxAddress.Parse(byte[]) should fail.");
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
@@ -66,7 +69,7 @@ namespace UnitTests {
 			}
 
 			try {
-				MailboxAddress.Parse (buffer, 0);
+				MailboxAddress.Parse (options, buffer, 0);
 				Assert.Fail ("MailboxAddress.Parse(byte[], int) should fail.");
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
@@ -76,7 +79,7 @@ namespace UnitTests {
 			}
 
 			try {
-				MailboxAddress.Parse (buffer, 0, buffer.Length);
+				MailboxAddress.Parse (options, buffer, 0, buffer.Length);
 				Assert.Fail ("MailboxAddress.Parse(byte[], int, int) should fail.");
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
@@ -375,8 +378,13 @@ namespace UnitTests {
 		public void TestParseMailboxWithExcessiveAngleBrackets ()
 		{
 			const string text = "<<<user2@example.org>>>";
+			var example1 = "User 2 <<<user2@example.org>";
+			var example2 = "User 2 <user2@example.org>>>";
 
 			AssertParse (text);
+
+			AssertParseFailure (example1, false, 0, example1.IndexOf ('<') + 1, RfcComplianceMode.Strict);
+			AssertParseFailure (example2, false, 0, example2.IndexOf ('>') + 1, RfcComplianceMode.Strict);
 		}
 
 		[Test]
@@ -385,6 +393,8 @@ namespace UnitTests {
 			const string text = "<another@example.net";
 
 			AssertParse (text);
+
+			AssertParseFailure (text, false, 0, text.Length, RfcComplianceMode.Strict);
 		}
 
 		[Test]
@@ -393,6 +403,8 @@ namespace UnitTests {
 			const string text = "second@example.org>";
 
 			AssertParse (text);
+
+			AssertParseFailure (text, false, 0, text.Length - 1, RfcComplianceMode.Strict);
 		}
 
 		[Test]
@@ -401,6 +413,8 @@ namespace UnitTests {
 			const string text = "\"Joe <joe@example.com>";
 
 			AssertParse (text);
+
+			AssertParseFailure (text, false, 0, text.Length, RfcComplianceMode.Strict);
 		}
 
 		#endregion
