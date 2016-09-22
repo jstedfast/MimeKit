@@ -372,8 +372,6 @@ namespace UnitTests {
 
 		#region Rfc7103
 
-		// TODO: test both Strict and Loose RfcCompliance modes
-
 		[Test]
 		public void TestParseMailboxWithExcessiveAngleBrackets ()
 		{
@@ -415,6 +413,9 @@ namespace UnitTests {
 			AssertParse (text);
 
 			AssertParseFailure (text, false, 0, text.Length, RfcComplianceMode.Strict);
+
+			// for coverage
+			AssertParseFailure (" \"", false, 1, 2, RfcComplianceMode.Strict);
 		}
 
 		#endregion
