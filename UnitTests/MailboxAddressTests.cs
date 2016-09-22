@@ -35,6 +35,29 @@ namespace UnitTests {
 	[TestFixture]
 	public class MailboxAddressTests
 	{
+		[Test]
+		public void ArgumentExceptionTests ()
+		{
+			var mailbox = new MailboxAddress ("Johnny Appleseed", "johnny@example.com");
+			var route = new [] { "route.com" };
+
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", route, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", route, null));
+
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", route, null));
+
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null));
+
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null));
+
+			Assert.Throws<ArgumentNullException> (() => mailbox.Encoding = null);
+
+			Assert.Throws<ArgumentNullException> (() => mailbox.CompareTo (null));
+		}
+
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
 		{
 			var buffer = text.Length > 0 ? Encoding.ASCII.GetBytes (text) : new byte[1];
