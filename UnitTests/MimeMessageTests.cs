@@ -29,11 +29,13 @@ using System.IO;
 using System.Text;
 using System.Net.Mail;
 using System.Reflection;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]
@@ -52,6 +54,17 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.Subject = null);
 			Assert.Throws<ArgumentNullException> (() => message.MimeVersion = null);
 
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((Stream) null));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((Stream) null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, Stream.Null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (Stream) null, true));
+
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((string) null));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (string) null));
+
 			Assert.Throws<ArgumentNullException> (() => message.Accept (null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((string) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((Stream) null));
@@ -59,6 +72,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (Stream) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (string) null));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (null));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (null, DigestAlgorithm.Sha1));
 		}
 
 		[Test]

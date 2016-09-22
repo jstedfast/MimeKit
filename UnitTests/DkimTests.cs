@@ -119,6 +119,22 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var locator = new DummyPublicKeyLocator (DkimKeys.Public);
+			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
+			var message = new MimeMessage ();
+
+			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (CreateSigner (DkimSignatureAlgorithm.RsaSha1), null));
+			Assert.Throws<ArgumentNullException> (() => message.Verify (null, locator));
+			Assert.Throws<ArgumentNullException> (() => message.Verify (dkimHeader, null));
+			Assert.Throws<ArgumentNullException> (() => message.Verify (null, dkimHeader, locator));
+			Assert.Throws<ArgumentNullException> (() => message.Verify (FormatOptions.Default, null, locator));
+			Assert.Throws<ArgumentNullException> (() => message.Verify (FormatOptions.Default, dkimHeader, null));
+		}
+
+		[Test]
 		public void TestEmptySimpleBodySha1 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "uoq1oCgLlTqpdDX/iUbLy7J1Wic=");
