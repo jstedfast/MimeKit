@@ -40,6 +40,16 @@ namespace UnitTests {
 	public class ConstructorTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var body = new TextPart ("plain") { Text = "This is the body..." };
+
+			Assert.Throws<ArgumentNullException> (() => new MimeMessage ((object[]) null));
+			Assert.Throws<ArgumentException> (() => new MimeMessage (body, null, body));
+			Assert.Throws<ArgumentException> (() => new MimeMessage (5));
+		}
+
+		[Test]
 		public void TestMimeMessageWithHeaders ()
 		{
 			var msg = new MimeMessage (

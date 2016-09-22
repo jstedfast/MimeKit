@@ -2397,6 +2397,8 @@ namespace MimeKit {
 					}
 					break;
 				case HeaderId.XPriority:
+					ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
+
 					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
 						xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
 					} else {
@@ -2470,6 +2472,8 @@ namespace MimeKit {
 					}
 					break;
 				case HeaderId.XPriority:
+					ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
+
 					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
 						xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
 					} else {

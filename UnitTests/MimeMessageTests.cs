@@ -40,6 +40,17 @@ namespace UnitTests {
 	public class MimeMessageTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var message = new MimeMessage ();
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => message.Importance = (MessageImportance) 500);
+			Assert.Throws<ArgumentOutOfRangeException> (() => message.Priority = (MessagePriority) 500);
+			Assert.Throws<ArgumentOutOfRangeException> (() => message.XPriority = (XMessagePriority) 500);
+			Assert.Throws<ArgumentNullException> (() => message.Subject = null);
+		}
+
+		[Test]
 		public void TestReserialization ()
 		{
 			string rawMessageText = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
@@ -416,6 +427,65 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 			message.Headers.Remove (HeaderId.Priority);
 			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+		}
+
+		[Test]
+		public void TestXPriority ()
+		{
+			var message = new MimeMessage (new[] { new MailboxAddress ("Example Sender", "sender@example.com") },
+				new[] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
+				"Yo dawg, what up?",
+				new TextPart { Text = "Hey! What's happenin'?" });
+			string value;
+
+			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+
+			// Note: setting to normal should not change anything
+			message.XPriority = XMessagePriority.Normal;
+			Assert.AreEqual (-1, message.Headers.IndexOf (HeaderId.XPriority));
+
+			message.XPriority = XMessagePriority.Lowest;
+			value = message.Headers[HeaderId.XPriority];
+			Assert.AreEqual (XMessagePriority.Lowest, message.XPriority);
+			Assert.AreEqual ("5 (Lowest)", value);
+
+			message.XPriority = XMessagePriority.Low;
+			value = message.Headers[HeaderId.XPriority];
+			Assert.AreEqual (XMessagePriority.Low, message.XPriority);
+			Assert.AreEqual ("4 (Low)", value);
+
+			message.XPriority = XMessagePriority.Normal;
+			value = message.Headers[HeaderId.XPriority];
+			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+			Assert.AreEqual ("3 (Normal)", value);
+
+			message.XPriority = XMessagePriority.High;
+			value = message.Headers[HeaderId.XPriority];
+			Assert.AreEqual (XMessagePriority.High, message.XPriority);
+			Assert.AreEqual ("2 (High)", value);
+
+			message.XPriority = XMessagePriority.Highest;
+			value = message.Headers[HeaderId.XPriority];
+			Assert.AreEqual (XMessagePriority.Highest, message.XPriority);
+			Assert.AreEqual ("1 (Highest)", value);
+
+			message.Headers[HeaderId.XPriority] = "5";
+			Assert.AreEqual (XMessagePriority.Lowest, message.XPriority);
+
+			message.Headers[HeaderId.XPriority] = "4";
+			Assert.AreEqual (XMessagePriority.Low, message.XPriority);
+
+			message.Headers[HeaderId.XPriority] = "3";
+			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+
+			message.Headers[HeaderId.XPriority] = "2";
+			Assert.AreEqual (XMessagePriority.High, message.XPriority);
+
+			message.Headers[HeaderId.XPriority] = "1";
+			Assert.AreEqual (XMessagePriority.Highest, message.XPriority);
+
+			message.Headers.Remove (HeaderId.XPriority);
+			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
 		}
 
 		[Test]
