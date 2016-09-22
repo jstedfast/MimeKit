@@ -113,6 +113,9 @@ namespace MimeKit {
 		/// </exception>
 		public MailboxAddress (Encoding encoding, string name, string address) : base (encoding, name)
 		{
+			if (address == null)
+				throw new ArgumentNullException (nameof (address));
+
 			Route = new DomainList ();
 			Route.Changed += RouteChanged;
 

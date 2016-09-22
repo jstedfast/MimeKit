@@ -660,6 +660,17 @@ namespace UnitTests {
 
 			Assert.IsTrue (list1.CompareTo (list2) > 0, "CompareTo() should return < 0.");
 			Assert.IsTrue (list2.CompareTo (list1) < 0, "CompareTo() should return > 0.");
+
+			var mailbox = new MailboxAddress ("Joe", "joe@inter.net");
+			var group = new GroupAddress ("Joe", new InternetAddress[] {
+				new MailboxAddress ("Joe", "joe@inter.net")
+			});
+
+			// MailboxAddresses with the same name should always sort first
+			Assert.IsTrue (mailbox.CompareTo (group) < 0, "CompareTo() should return < 0.");
+			Assert.IsTrue (group.CompareTo (mailbox) > 0, "CompareTo() should return > 0.");
+
+			Assert.IsTrue (mailbox.CompareTo (group.Members[0]) == 0, "CompareTo() should return 0.");
 		}
 
 		#region Rfc7103
