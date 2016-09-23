@@ -37,6 +37,28 @@ namespace UnitTests {
 	public class TextConverterTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var converter = new TextToText ();
+
+			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
+			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = -1);
+
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (new StreamReader (Stream.Null), (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, new StreamWriter (Stream.Null)));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (new StreamReader (Stream.Null), (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, new StreamWriter (Stream.Null)));
+		}
+
+		[Test]
 		public void TestSimpleFlowedToText ()
 		{
 			string expected = "This is some sample text that has been formatted " +
