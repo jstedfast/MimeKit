@@ -109,13 +109,13 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity this [int index] {
 			get {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				return attachments[index];
 			}
 			set {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				if (value == null)
@@ -556,7 +556,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Insert (int index, MimeEntity attachment)
 		{
-			if (index < 0 || index > Count)
+			if (index < 0 || index >= Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
 			if (attachment == null)
@@ -596,7 +596,7 @@ namespace MimeKit {
 		/// </exception>
 		public void RemoveAt (int index)
 		{
-			if (index < 0 || index > Count)
+			if (index < 0 || index >= Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
 			attachments.RemoveAt (index);

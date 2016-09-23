@@ -29,6 +29,7 @@ using System;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests
 {
@@ -51,6 +52,52 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestContentBase ()
+		{
+			var part = new MimePart ();
+			var uri = new Uri ("http://www.google.com");
+
+			Assert.IsNull (part.ContentBase, "Initial ContentBase should be null");
+
+			part.ContentBase = uri;
+			Assert.AreEqual (uri, part.ContentBase, "Expected ContentBase to be updated");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentBase), "Expected header to exist");
+
+			part.ContentBase = null;
+			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
+			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentBase), "Expected header to be removed");
+
+			part.Headers.Add (HeaderId.ContentBase, uri.OriginalString);
+			Assert.AreEqual (uri, part.ContentBase, "Expected ContentBase to be set again");
+
+			part.Headers.Remove (HeaderId.ContentBase);
+			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
+		}
+
+		[Test]
+		public void TestContentLocation ()
+		{
+			var part = new MimePart ();
+			var uri = new Uri ("http://www.google.com");
+
+			Assert.IsNull (part.ContentLocation, "Initial ContentLocation should be null");
+
+			part.ContentLocation = uri;
+			Assert.AreEqual (uri, part.ContentLocation, "Expected ContentLocation to be updated");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentLocation), "Expected header to exist");
+
+			part.ContentLocation = null;
+			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
+			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentLocation), "Expected header to be removed");
+
+			part.Headers.Add (HeaderId.ContentLocation, uri.OriginalString);
+			Assert.AreEqual (uri, part.ContentLocation, "Expected ContentLocation to be set again");
+
+			part.Headers.Remove (HeaderId.ContentLocation);
+			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
+		}
+
+		[Test]
 		public void TestContentDuration ()
 		{
 			var part = new MimePart ();
@@ -70,6 +117,29 @@ namespace UnitTests
 
 			part.Headers.Remove (HeaderId.ContentDuration);
 			Assert.IsNull (part.ContentDuration, "Expected ContentDuration to be null again");
+		}
+
+		[Test]
+		public void TestContentId ()
+		{
+			var id = MimeUtils.GenerateMessageId ();
+			var part = new MimePart ();
+
+			Assert.IsNull (part.ContentId, "Initial ContentId value should be null");
+
+			part.ContentId = id;
+			Assert.AreEqual (id, part.ContentId, "Expected ContentId to be updated");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentId), "Expected header to exist");
+
+			part.ContentId = null;
+			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
+			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentId), "Expected header to be removed");
+
+			part.Headers.Add (HeaderId.ContentId, string.Format ("<{0}>", id));
+			Assert.AreEqual (id, part.ContentId, "Expected ContentId to be set again");
+
+			part.Headers.Remove (HeaderId.ContentId);
+			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
 		}
 
 		[Test]
