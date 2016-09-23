@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 
 using NUnit.Framework;
 
@@ -45,10 +46,40 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => new MimePart ((ContentType) null));
 			Assert.Throws<ArgumentNullException> (() => new MimePart (null, "octet-stream"));
 			Assert.Throws<ArgumentNullException> (() => new MimePart ("application", null));
-			Assert.Throws<ArgumentNullException> (() => part.Accept (null));
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => part.ContentDuration = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => part.Prepare (EncodingConstraint.SevenBit, 1));
+
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((Stream) null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((Stream) null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((ParserOptions) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, Stream.Null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (Stream) null, true));
+
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((ContentType) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (new ContentType ("application", "octet-stream"), null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, new ContentType ("application", "octet-stream"), Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, new ContentType ("application", "octet-stream"), null));
+
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((string) null));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (string) null));
+
+			Assert.Throws<ArgumentNullException> (() => part.Accept (null));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((string) null));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((Stream) null));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((string) null, false));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((Stream) null, false));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (string) null));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, Stream.Null, false));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (Stream) null, false));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, "fileName", false));
+			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (string) null, false));
 		}
 
 		[Test]
@@ -71,6 +102,10 @@ namespace UnitTests
 			Assert.AreEqual (uri, part.ContentBase, "Expected ContentBase to be set again");
 
 			part.Headers.Remove (HeaderId.ContentBase);
+			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
+
+			part.ContentBase = uri;
+			part.Headers.Clear ();
 			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
 		}
 
@@ -95,6 +130,10 @@ namespace UnitTests
 
 			part.Headers.Remove (HeaderId.ContentLocation);
 			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
+
+			part.ContentLocation = uri;
+			part.Headers.Clear ();
+			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
 		}
 
 		[Test]
@@ -116,6 +155,10 @@ namespace UnitTests
 			Assert.AreEqual (500, part.ContentDuration, "Expected ContentDuration to be set again");
 
 			part.Headers.Remove (HeaderId.ContentDuration);
+			Assert.IsNull (part.ContentDuration, "Expected ContentDuration to be null again");
+
+			part.ContentDuration = 500;
+			part.Headers.Clear ();
 			Assert.IsNull (part.ContentDuration, "Expected ContentDuration to be null again");
 		}
 
@@ -140,6 +183,10 @@ namespace UnitTests
 
 			part.Headers.Remove (HeaderId.ContentId);
 			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
+
+			part.ContentId = id;
+			part.Headers.Clear ();
+			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
 		}
 
 		[Test]
@@ -161,6 +208,10 @@ namespace UnitTests
 			Assert.AreEqual ("XYZ", part.ContentMd5, "Expected ContentMd5 to be set again");
 
 			part.Headers.Remove (HeaderId.ContentMd5);
+			Assert.IsNull (part.ContentMd5, "Expected ContentMd5 to be null again");
+
+			part.ContentMd5 = "XYZ";
+			part.Headers.Clear ();
 			Assert.IsNull (part.ContentMd5, "Expected ContentMd5 to be null again");
 
 			Assert.Throws<InvalidOperationException> (() => part.ComputeContentMd5 ());
@@ -188,6 +239,10 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be set again");
 
 			part.Headers.Remove (HeaderId.ContentTransferEncoding);
+			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
+
+			part.ContentTransferEncoding = ContentEncoding.UUEncode;
+			part.Headers.Clear ();
 			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
 		}
 	}
