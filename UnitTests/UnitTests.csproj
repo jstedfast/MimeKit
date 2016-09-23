@@ -120,6 +120,7 @@
     <Compile Include="X509CertificateChainTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="YEncodingTests.cs" />
+    <Compile Include="MimePartTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />

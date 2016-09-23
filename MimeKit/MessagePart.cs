@@ -118,7 +118,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new message/rfc822 MIME entity.
 		/// </remarks>
-		public MessagePart () : base ("message", "rfc822")
+		public MessagePart () : this ("rfc822")
 		{
 		}
 

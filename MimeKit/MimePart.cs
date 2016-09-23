@@ -146,7 +146,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
 		/// </exception>
-		public MimePart (string mediaType, string mediaSubtype) : base (new ContentType (mediaType, mediaSubtype))
+		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
 		}
 
@@ -190,7 +190,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new <see cref="MimePart"/> with a Content-Type of application/octet-stream.
 		/// </remarks>
-		public MimePart () : base ("application", "octet-stream")
+		public MimePart () : this ("application", "octet-stream")
 		{
 		}
 
@@ -213,6 +213,8 @@ namespace MimeKit {
 
 				if (value.HasValue && value.Value < 0)
 					throw new ArgumentOutOfRangeException (nameof (value));
+
+				duration = value;
 
 				if (value.HasValue)
 					SetHeader ("Content-Duration", value.Value.ToString ());
@@ -258,13 +260,21 @@ namespace MimeKit {
 		/// applying an encoding such as base64 or quoted-printable.
 		/// </remarks>
 		/// <value>The content transfer encoding.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid content encoding.
+		/// </exception>
 		public ContentEncoding ContentTransferEncoding {
 			get { return encoding; }
 			set {
 				if (encoding == value)
 					return;
 
-				var text = ContentTransferEncodings[(int) value];
+				int index = (int) value;
+
+				if (index < 0 || index >= ContentTransferEncodings.Length)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				var text = ContentTransferEncodings[index];
 
 				encoding = value;
 

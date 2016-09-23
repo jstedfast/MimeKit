@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -44,10 +45,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var message = new MimeMessage ();
+
+			Assert.Throws<ArgumentNullException> (() => new MessagePartial (null, 1, 5));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MessagePartial ("id", 0, 5));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MessagePartial ("id", 6, 5));
+			Assert.Throws<ArgumentNullException> (() => new MessagePartial ("id", 1, 5).Accept (null));
+
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Split (null, 500).ToList ());
+			Assert.Throws<ArgumentOutOfRangeException> (() => MessagePartial.Split (message, 0).ToList ());
+		}
+
+		[Test]
 		public void TestReassemble ()
 		{
-			var message1 = Load ("../../TestData/partial/message-partial.1.msg.txt");
-			var message2 = Load ("../../TestData/partial/message-partial.2.msg.txt");
+			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.msg.txt"));
+			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.msg.txt"));
 
 			Assert.IsNotNull (message1, "Failed to parse message-partial.1.msg");
 			Assert.IsNotNull (message2, "Failed to parse message-partial.2.msg");
@@ -56,6 +71,8 @@ namespace UnitTests {
 			Assert.IsTrue (message2.Body is MessagePartial, "The body of message-partial.2.msg is not a message/partial");
 
 			var partials = new MessagePartial[] { (MessagePartial) message1.Body, (MessagePartial) message2.Body };
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, partials));
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null));
 			var message = MessagePartial.Join (partials);
 
 			Assert.IsNotNull (message, "Failed to reconstruct the message");

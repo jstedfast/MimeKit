@@ -43,10 +43,20 @@ namespace UnitTests {
 		public void TestArgumentExceptions ()
 		{
 			var body = new TextPart ("plain") { Text = "This is the body..." };
+			var message = new MimeMessage ();
 
 			Assert.Throws<ArgumentNullException> (() => new MimeMessage ((object[]) null));
 			Assert.Throws<ArgumentException> (() => new MimeMessage (body, null, body));
 			Assert.Throws<ArgumentException> (() => new MimeMessage (5));
+
+			Assert.Throws<ArgumentNullException> (() => new MessagePart ("rfc822", (object[]) null));
+			Assert.Throws<ArgumentException> (() => new MessagePart ("rfc822", message, null, message));
+			Assert.Throws<ArgumentException> (() => new MessagePart ("rfc822", 5));
+
+			Assert.Throws<ArgumentNullException> (() => new MimePart ("text", "plain", (object[]) null));
+			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.ContentObject, body.ContentObject.Stream));
+			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.ContentObject.Stream, body.ContentObject));
+			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", null, 5));
 		}
 
 		[Test]

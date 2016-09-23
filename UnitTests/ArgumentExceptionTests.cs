@@ -320,5 +320,11 @@ namespace UnitTests {
 				}
 			}
 		}
+
+		[Test]
+		public void TestAcceptArguments ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new MessagePart ().Accept (null));
+		}
 	}
 }
