@@ -83,12 +83,42 @@ namespace UnitTests
 		}
 
 		[Test]
-		public void TestContentBase ()
+		public void TestContentDisposition ()
 		{
 			var part = new MimePart ();
+
+			Assert.IsNull (part.ContentDisposition, "Initial ContentDisposition should be null");
+
+			part.ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition to be set");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to exist");
+
+			part.ContentDisposition = null;
+			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition to be null again");
+			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to be removed");
+
+			part.Headers.Add (HeaderId.ContentDisposition, "attachment");
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition to be set again");
+
+			part.Headers.Remove (HeaderId.ContentDisposition);
+			Assert.IsNull (part.ContentBase, "Expected ContentDisposition to be null again");
+
+			part.ContentDisposition = new ContentDisposition ();
+			part.FileName = "fileName";
+			part.Headers.Clear ();
+			Assert.IsNull (part.ContentBase, "Expected ContentDisposition to be null again");
+		}
+
+		[Test]
+		public void TestContentBase ()
+		{
+			var relative = new Uri ("relative", UriKind.Relative);
 			var uri = new Uri ("http://www.google.com");
+			var part = new MimePart ();
 
 			Assert.IsNull (part.ContentBase, "Initial ContentBase should be null");
+
+			Assert.Throws<ArgumentException> (() => part.ContentBase = relative);
 
 			part.ContentBase = uri;
 			Assert.AreEqual (uri, part.ContentBase, "Expected ContentBase to be updated");
