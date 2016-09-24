@@ -85,6 +85,8 @@ namespace UnitTests {
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 0, 1025, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was > 1024.", filter.GetType ().Name);
 			Assert.AreEqual ("length", ex.ParamName);
+
+			filter.Reset ();
 		}
 
 		[Test]

@@ -38,6 +38,14 @@ namespace UnitTests {
 	public class MessageDeliveryStatusTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var mds = new MessageDeliveryStatus ();
+
+			Assert.Throws<ArgumentNullException> (() => mds.Accept (null));
+		}
+
+		[Test]
 		public void TestMimeParser ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "delivery-status.txt"));

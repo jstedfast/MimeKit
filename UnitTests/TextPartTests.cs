@@ -1,5 +1,5 @@
 ﻿//
-// TestPartTests.cs
+// TextPartTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -35,7 +35,7 @@ using MimeKit.Text;
 namespace UnitTests
 {
 	[TestFixture]
-	public class TestPartTests
+	public class TextPartTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

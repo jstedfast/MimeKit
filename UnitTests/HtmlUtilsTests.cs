@@ -109,6 +109,10 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlDecode (writer, null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlDecode (writer, text, -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlDecode (writer, text, 0, text.Length + 1));
+
+			// HtmlNamespaceExtensions
+			Assert.Throws<ArgumentOutOfRangeException> (() => ((HtmlNamespace) 500).ToNamespaceUrl ());
+			Assert.Throws<ArgumentNullException> (() => ((string) null).ToHtmlNamespace ());
 		}
 
 		static void AssertHtmlAttributeEncode (string text, string expected)

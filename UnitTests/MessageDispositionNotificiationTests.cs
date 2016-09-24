@@ -37,6 +37,14 @@ namespace UnitTests {
 	public class MessageDispositionNotificiationTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var mdn = new MessageDispositionNotification ();
+
+			Assert.Throws<ArgumentNullException> (() => mdn.Accept (null));
+		}
+
+		[Test]
 		public void TestMimeParser ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "disposition-notification.txt"));

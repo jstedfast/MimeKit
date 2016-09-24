@@ -41,6 +41,9 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new HtmlAttribute (null, string.Empty));
 			Assert.Throws<ArgumentException> (() => new HtmlAttribute (string.Empty, string.Empty));
 			Assert.Throws<ArgumentException> (() => new HtmlAttribute ("a b c", string.Empty));
+
+			Assert.Throws<ArgumentNullException> (() => new HtmlAttribute (null));
+			Assert.Throws<ArgumentException> (() => new HtmlAttribute (string.Empty));
 		}
 	}
 }

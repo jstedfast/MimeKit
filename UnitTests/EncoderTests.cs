@@ -535,6 +535,8 @@ namespace UnitTests {
 
 			var clone = encoder.Clone ();
 
+			Assert.AreEqual (encoder.Encoding, clone.Encoding);
+
 			AssertState (encoder, clone);
 
 			AssertArgumentExceptions (encoder);

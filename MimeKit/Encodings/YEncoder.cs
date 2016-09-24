@@ -50,9 +50,12 @@ namespace MimeKit.Encodings {
 		/// Creates a new yEnc encoder.
 		/// </remarks>
 		/// <param name="maxLineLength">The line length to use.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxLineLength"/> is not within the range of <c>60</c> to <c>998</c>.
+		/// </exception>
 		public YEncoder (int maxLineLength = 128)
 		{
-			if (maxLineLength < 0 || maxLineLength > 254)
+			if (maxLineLength < 60 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			lineLength = maxLineLength;

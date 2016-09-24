@@ -40,6 +40,12 @@ namespace UnitTests {
 	public class YEncodingTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (59));
+		}
+
+		[Test]
 		public void TestSimpleYEncMessage ()
 		{
 			using (var file = File.OpenRead ("../../TestData/yenc/simple.msg")) {

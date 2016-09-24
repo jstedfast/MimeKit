@@ -56,6 +56,8 @@ namespace UnitTests {
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
 			Assert.AreEqual (expected, actual);
+
+			filter.Reset ();
 		}
 
 		[Test]
@@ -73,6 +75,8 @@ namespace UnitTests {
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
 			Assert.AreEqual (expected, actual);
+
+			filter.Reset ();
 		}
 
 		[Test]
@@ -90,6 +94,8 @@ namespace UnitTests {
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
 			Assert.AreEqual (expected, actual);
+
+			filter.Reset ();
 		}
 
 		[Test]
@@ -107,6 +113,8 @@ namespace UnitTests {
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
 			Assert.AreEqual (expected, actual);
+
+			filter.Reset ();
 		}
 	}
 }
