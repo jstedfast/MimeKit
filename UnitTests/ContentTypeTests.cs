@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+
 using NUnit.Framework;
 
 using MimeKit;
@@ -35,122 +36,267 @@ namespace UnitTests {
 	public class ContentTypeTests
 	{
 		[Test]
-		public void TestSimpleContentType ()
+		public void TestArgumentExceptions ()
 		{
-			const string text = "text/plain";
+			var type = new ContentType ("text", "plain");
+
+			Assert.Throws<ArgumentNullException> (() => type.MediaType = null);
+			Assert.Throws<ArgumentNullException> (() => type.MediaSubtype = null);
+
+			Assert.Throws<ArgumentNullException> (() => type.IsMimeType (null, "plain"));
+			Assert.Throws<ArgumentNullException> (() => type.IsMimeType ("text", null));
+
+			Assert.Throws<ArgumentNullException> (() => type.ToString (null, true));
+			Assert.Throws<ArgumentNullException> (() => type.ToString (null, Encoding.UTF8, true));
+			Assert.Throws<ArgumentNullException> (() => type.ToString (FormatOptions.Default, null, true));
+		}
+
+		static void AssertTryParse (string text, ContentType expected, bool result = true)
+		{
+			var buffer = Encoding.UTF8.GetBytes (text);
+			var options = ParserOptions.Default;
 			ContentType type;
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "text", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "plain", "Media subtype does not match: {0}", text);
+			Assert.AreEqual (result, ContentType.TryParse (text, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (options, text, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (buffer, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (options, buffer, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (buffer, 0, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (options, buffer, 0, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (buffer, 0, buffer.Length, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+
+			Assert.AreEqual (result, ContentType.TryParse (options, buffer, 0, buffer.Length, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+		}
+
+		[Test]
+		public void TestSimpleContentType ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain";
+
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestSimpleContentTypeWithVendorExtension ()
 		{
+			var expected = new ContentType ("application", "x-vnd.msdoc");
 			const string text = "application/x-vnd.msdoc";
-			ContentType type;
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "x-vnd.msdoc", "Media subtype does not match: {0}", text);
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestSimpleContentTypeWithParameter ()
 		{
+			var expected = new ContentType ("multipart", "mixed") { Boundary = "boundary-text" };
 			const string text = "multipart/mixed; boundary=\"boundary-text\"";
-			ContentType type;
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("boundary"), "Parameter list does not contain boundary param: {0}", text);
-			Assert.AreEqual (type.Parameters["boundary"], "boundary-text", "boundary values do not match: {0}", text);
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestMultipartParameterExampleFromRfc2231 ()
 		{
 			const string text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";
-			ContentType type;
+			var expected = new ContentType ("message", "external-body");
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "message", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "external-body", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("access-type"), "Parameter list does not contain access-type param: {0}", text);
-			Assert.AreEqual (type.Parameters["access-type"], "URL", "access-type values do not match: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("URL"), "Parameter list does not contain URL param: {0}", text);
-			Assert.AreEqual (type.Parameters["URL"], "ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar", "access-type values do not match: {0}", text);
+			expected.Parameters.Add ("access-type", "URL");
+			expected.Parameters.Add ("URL", "ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar");
+
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestContentTypeWithEmptyParameter ()
 		{
 			const string text = "multipart/mixed;;\n                Boundary=\"===========================_ _= 1212158(26598)\"";
-			ContentType type;
+			var expected = new ContentType ("multipart", "mixed");
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("boundary"), "Parameter list does not contain boundary param: {0}", text);
-			Assert.AreEqual (type.Parameters["boundary"], "===========================_ _= 1212158(26598)", "boundary values do not match: {0}", text);
+			expected.Parameters.Add ("Boundary", "===========================_ _= 1212158(26598)");
+
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestContentTypeAndContentTrafserEncodingOnOneLine ()
 		{
 			const string text = "text/plain; charset = \"iso-8859-1\" Content-Transfer-Encoding: 8bit";
-			ContentType type;
+			var expected = new ContentType ("text", "plain");
 
-			Assert.IsFalse (ContentType.TryParse (text, out type), "Content-Type should have failed to parse");
-			Assert.IsNotNull (type, "ContentType should not be null");
-			Assert.IsTrue (type.IsMimeType ("text", "plain"), "ContenType should match text/plain");
+			// TryParse should "fail", but still produce a usable ContentType
+			AssertTryParse (text, expected, false);
 		}
 
 		[Test]
 		public void TestEncodedParameterExampleFromRfc2231 ()
 		{
 			const string text = "application/x-stuff;\n      title*=us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
-			ContentType type;
+			var expected = new ContentType ("application", "x-stuff");
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
-			Assert.AreEqual (type.Parameters["title"], "This is ***fun***", "title values do not match: {0}", text);
+			expected.Parameters.Add (Encoding.ASCII, "title", "This is ***fun***");
+
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestMultipartEncodedParameterExampleFromRfc2231 ()
 		{
 			const string text = "application/x-stuff;\n    title*1*=us-ascii'en'This%20is%20even%20more%20;\n    title*2*=%2A%2A%2Afun%2A%2A%2A%20;\n    title*3=\"isn't it!\"";
-			ContentType type;
+			var expected = new ContentType ("application", "x-stuff");
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
-			Assert.AreEqual (type.Parameters["title"], "This is even more ***fun*** isn't it!", "title values do not match: {0}", text);
+			expected.Parameters.Add (Encoding.ASCII, "title", "This is even more ***fun*** isn't it!");
+
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
 		public void TestRfc2047EncodedParameter ()
 		{
 			const string text = "application/x-stuff;\n    title=\"some chinese characters =?utf-8?q?=E4=B8=AD=E6=96=87?= and stuff\"\n";
-			ContentType type;
+			var expected = new ContentType ("application", "x-stuff");
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "x-stuff", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("title"), "Parameter list does not contain title param: {0}", text);
-			Assert.AreEqual (type.Parameters["title"], "some chinese characters 中文 and stuff", "title values do not match: {0}", text);
+			expected.Parameters.Add ("title", "some chinese characters 中文 and stuff");
+
+			AssertTryParse (text, expected);
+		}
+
+		[Test]
+		public void TestRfc2047EncodedParameterBig5 ()
+		{
+			const string text = "application/x-stuff;\n    title=\"some chinese characters =?big5?b?pKSk5Q==?= and stuff\"\n";
+			var expected = new ContentType ("application", "x-stuff");
+			var big5 = Encoding.GetEncoding ("big5");
+
+			expected.Parameters.Add (big5, "title", "some chinese characters 中文 and stuff");
+
+			AssertTryParse (text, expected);
 		}
 
 		[Test]
