@@ -76,11 +76,11 @@ namespace MimeKit.Utils {
 		/// <param name="y">A string to compare to <paramref name="x"/>.</param>
 		public bool Equals (string x, string y)
 		{
-			if (x == null && y == null)
-				return true;
+			//if (x == null && y == null)
+			//	return true;
 
-			if (x == null || y == null)
-				return false;
+			//if (x == null || y == null)
+			//	return false;
 
 			if (x.Length != y.Length)
 				return false;
