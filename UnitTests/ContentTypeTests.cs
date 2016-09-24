@@ -436,5 +436,37 @@ namespace UnitTests {
 			Assert.IsFalse (ContentType.TryParse (text, out type), "Should not have parsed: {0}", text);
 			Assert.IsNull (type, "The content type should be null.");
 		}
+
+		[Test]
+		public void TestProperties ()
+		{
+			var type = new ContentType ("application", "octet-stream");
+
+			type.MediaType = "text";
+			Assert.AreEqual ("text", type.MediaType);
+
+			type.MediaSubtype = "plain";
+			Assert.AreEqual ("plain", type.MediaSubtype);
+
+			type.Boundary = "--=Boundary=--";
+			Assert.AreEqual ("--=Boundary=--", type.Boundary);
+			type.Boundary = null;
+			Assert.IsNull (type.Boundary);
+
+			type.Format = "flowed";
+			Assert.AreEqual ("flowed", type.Format);
+			type.Format = null;
+			Assert.IsNull (type.Format);
+
+			type.Charset = "iso-8859-1";
+			Assert.AreEqual ("iso-8859-1", type.Charset);
+			type.Charset = null;
+			Assert.IsNull (type.Charset);
+
+			type.Name = "filename.txt";
+			Assert.AreEqual ("filename.txt", type.Name);
+			type.Name = null;
+			Assert.IsNull (type.Name);
+		}
 	}
 }

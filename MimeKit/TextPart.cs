@@ -237,6 +237,8 @@ namespace MimeKit {
 				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out format))
 					return false;
 
+				format = format.Trim ();
+
 				return format.ToLowerInvariant () == "flowed";
 			}
 		}
