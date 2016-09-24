@@ -186,15 +186,15 @@ namespace UnitTests {
 
 		static void DumpMimeTree (StringBuilder builder, MimeMessage message)
 		{
-			var iter = new MimeIterator (message);
+			using (var iter = new MimeIterator (message)) {
+				while (iter.MoveNext ()) {
+					var ctype = iter.Current.ContentType;
 
-			while (iter.MoveNext ()) {
-				var ctype = iter.Current.ContentType;
+					if (iter.Depth > 0)
+						builder.Append (new string (' ', iter.Depth * 3));
 
-				if (iter.Depth > 0)
-					builder.Append (new string (' ', iter.Depth * 3));
-
-				builder.AppendFormat ("Content-Type: {0}/{1}", ctype.MediaType, ctype.MediaSubtype).Append ('\n');
+					builder.AppendFormat ("Content-Type: {0}/{1}", ctype.MediaType, ctype.MediaSubtype).Append ('\n');
+				}
 			}
 		}
 

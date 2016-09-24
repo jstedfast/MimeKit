@@ -51,146 +51,133 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => type.ToString (FormatOptions.Default, null, true));
 		}
 
-		static void AssertTryParse (string text, ContentType expected, bool result = true)
+		static void AssertParseResults (ContentType type, ContentType expected)
+		{
+			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
+			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, type.Parameters[i].Name);
+				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
+				Assert.AreEqual (value, type.Parameters[i].Value);
+				Assert.IsTrue (type.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			}
+		}
+
+		static void AssertParse (string text, ContentType expected, bool result = true, int tokenIndex = -1, int errorIndex = -1)
 		{
 			var buffer = Encoding.UTF8.GetBytes (text);
 			var options = ParserOptions.Default;
 			ContentType type;
 
 			Assert.AreEqual (result, ContentType.TryParse (text, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (options, text, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (buffer, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (options, buffer, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (buffer, 0, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (options, buffer, 0, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (buffer, 0, buffer.Length, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
-
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
-
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
-			}
+			AssertParseResults (type, expected);
 
 			Assert.AreEqual (result, ContentType.TryParse (options, buffer, 0, buffer.Length, out type), "Unexpected result for TryParse: {0}", text);
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+			AssertParseResults (type, expected);
 
-			for (int i = 0; i < expected.Parameters.Count; i++) {
-				var encoding = expected.Parameters[i].Encoding;
-				var value = expected.Parameters[i].Value;
-				var name = expected.Parameters[i].Name;
+			try {
+				type = ContentType.Parse (text);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
 
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+			try {
+				type = ContentType.Parse (options, text);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				type = ContentType.Parse (buffer);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				type = ContentType.Parse (options, buffer);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				type = ContentType.Parse (buffer, 0);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				type = ContentType.Parse (options, buffer, 0);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				type = ContentType.Parse (buffer, 0, buffer.Length);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				type = ContentType.Parse (options, buffer, 0, buffer.Length);
+				AssertParseResults (type, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
 			}
 		}
 
@@ -200,7 +187,7 @@ namespace UnitTests {
 			var expected = new ContentType ("text", "plain");
 			const string text = "text/plain";
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -209,7 +196,7 @@ namespace UnitTests {
 			var expected = new ContentType ("application", "x-vnd.msdoc");
 			const string text = "application/x-vnd.msdoc";
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -218,7 +205,7 @@ namespace UnitTests {
 			var expected = new ContentType ("multipart", "mixed") { Boundary = "boundary-text" };
 			const string text = "multipart/mixed; boundary=\"boundary-text\"";
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -230,7 +217,7 @@ namespace UnitTests {
 			expected.Parameters.Add ("access-type", "URL");
 			expected.Parameters.Add ("URL", "ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar");
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -241,7 +228,7 @@ namespace UnitTests {
 
 			expected.Parameters.Add ("Boundary", "===========================_ _= 1212158(26598)");
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -250,8 +237,9 @@ namespace UnitTests {
 			const string text = "text/plain; charset = \"iso-8859-1\" Content-Transfer-Encoding: 8bit";
 			var expected = new ContentType ("text", "plain");
 
-			// TryParse should "fail", but still produce a usable ContentType
-			AssertTryParse (text, expected, false);
+			// TryParse should "fail", but still produce a usable ContentType.
+			// Parse will throw ParseException.
+			AssertParse (text, expected, false, 35, 35);
 		}
 
 		[Test]
@@ -262,7 +250,7 @@ namespace UnitTests {
 
 			expected.Parameters.Add (Encoding.ASCII, "title", "This is ***fun***");
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -273,7 +261,7 @@ namespace UnitTests {
 
 			expected.Parameters.Add (Encoding.ASCII, "title", "This is even more ***fun*** isn't it!");
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -284,7 +272,7 @@ namespace UnitTests {
 
 			expected.Parameters.Add ("title", "some chinese characters 中文 and stuff");
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -296,7 +284,7 @@ namespace UnitTests {
 
 			expected.Parameters.Add (big5, "title", "some chinese characters 中文 and stuff");
 
-			AssertTryParse (text, expected);
+			AssertParse (text, expected);
 		}
 
 		[Test]
