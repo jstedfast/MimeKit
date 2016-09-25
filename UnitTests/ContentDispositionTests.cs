@@ -48,22 +48,169 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => disposition.ToString (FormatOptions.Default, null, true));
 		}
 
+		static void AssertParseResults (ContentDisposition disposition, ContentDisposition expected)
+		{
+			if (expected == null) {
+				Assert.IsNull (disposition);
+				return;
+			}
+
+			Assert.AreEqual (expected.Disposition, disposition.Disposition, "Disposition");
+			Assert.AreEqual (expected.Parameters.Count, disposition.Parameters.Count, "Parameter count");
+
+			for (int i = 0; i < expected.Parameters.Count; i++) {
+				var encoding = expected.Parameters[i].Encoding;
+				var value = expected.Parameters[i].Value;
+				var name = expected.Parameters[i].Name;
+
+				Assert.AreEqual (name, disposition.Parameters[i].Name);
+				Assert.AreEqual (encoding.EncodingName, disposition.Parameters[i].Encoding.EncodingName);
+				Assert.AreEqual (value, disposition.Parameters[i].Value);
+				Assert.IsTrue (disposition.Parameters.Contains (name));
+				Assert.AreEqual (expected.Parameters[name], disposition.Parameters[name]);
+			}
+		}
+
+		static void AssertParse (string text, ContentDisposition expected, bool result = true, int tokenIndex = -1, int errorIndex = -1)
+		{
+			var buffer = Encoding.UTF8.GetBytes (text);
+			var options = ParserOptions.Default;
+			ContentDisposition disposition;
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (text, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (options, text, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (buffer, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (options, buffer, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (buffer, 0, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (options, buffer, 0, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			Assert.AreEqual (result, ContentDisposition.TryParse (options, buffer, 0, buffer.Length, out disposition), "Unexpected result for TryParse: {0}", text);
+			AssertParseResults (disposition, expected);
+
+			try {
+				disposition = ContentDisposition.Parse (text);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (options, text);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (buffer);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (options, buffer);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (buffer, 0);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (options, buffer, 0);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (buffer, 0, buffer.Length);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+
+			try {
+				disposition = ContentDisposition.Parse (options, buffer, 0, buffer.Length);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+				AssertParseResults (disposition, expected);
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+			} catch (Exception e) {
+				Assert.Fail ("Unexpected exception: {0}", e);
+			}
+		}
+
 		[Test]
 		public void TestMultipleParametersWithIdenticalNames ()
 		{
-			ContentDisposition disposition;
-
 			const string text1 = "inline;\n filename=\"Filename.doc\";\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc";
-			Assert.IsTrue (ContentDisposition.TryParse (text1, out disposition), "Failed to parse first Content-Disposition");
-			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The first filename value does not match.");
-
 			const string text2 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc;\n filename=\"Filename.doc\"";
-			Assert.IsTrue (ContentDisposition.TryParse (text2, out disposition), "Failed to parse second Content-Disposition");
-			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The second filename value does not match.");
-
 			const string text3 = "inline;\n filename*0*=UTF-8''UnicodeFile;\n filename=\"Filename.doc\";\n filename*1*=name.doc";
-			Assert.IsTrue (ContentDisposition.TryParse (text3, out disposition), "Failed to parse third Content-Disposition");
-			Assert.AreEqual ("UnicodeFilename.doc", disposition.FileName, "The third filename value does not match.");
+			var expected = new ContentDisposition ("inline");
+
+			expected.Parameters.Add ("filename", "UnicodeFilename.doc");
+
+			AssertParse (text1, expected);
+			AssertParse (text2, expected);
+			AssertParse (text3, expected);
 		}
 
 		[Test]
@@ -72,42 +219,42 @@ namespace UnitTests {
 			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
 				"filename*1*=\"%70%74%61%63%69%20%73%6D%6C%6F%75%76%79%20%31%32%2E%31%32%2E\";\n " +
 				"filename*2*=\"%64%6F%63\"";
-			const string expected = "ČPP - žádost o akceptaci smlouvy 12.12.doc";
-			var buffer = Encoding.ASCII.GetBytes (text);
-			ContentDisposition disposition;
+			const string filename = "ČPP - žádost o akceptaci smlouvy 12.12.doc";
+			var expected = new ContentDisposition ("attachment");
 
-			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+			expected.Parameters.Add (Encoding.GetEncoding ("ISO-8859-2"), "filename", filename);
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
-
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
-
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+			AssertParse (text, expected);
 		}
 
 		[Test]
 		public void TestUnquotedFilenameParameterValues ()
 		{
 			const string text = " attachment; filename=Partnership Marketing Agreement\n Form - Mega Brands - Easter Toys - Week 11.pdf";
-			const string expected = "Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf";
-			var buffer = Encoding.ASCII.GetBytes (text);
-			ContentDisposition disposition;
+			const string filename = "Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf";
+			var expected = new ContentDisposition ("attachment");
 
-			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+			expected.Parameters.Add ("filename", filename);
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+			AssertParse (text, expected);
+		}
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+		[Test]
+		public void TestInvalidDisposition ()
+		{
+			const string text = "\attachment";
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+			AssertParse (text, null, false, 0, 0);
+		}
+
+		[Test]
+		public void TestInvalidDataAfterMDisposition ()
+		{
+			var expected = new ContentDisposition ("attachment");
+			const string text = "attachment x";
+
+			// TryParse will return false but will have a value to use
+			AssertParse (text, expected, false, 11, 11);
 		}
 
 		[Test]
@@ -155,11 +302,13 @@ namespace UnitTests {
 		public void TestIssue239 ()
 		{
 			const string text = " attachment; size=1049971;\n\tfilename*=\"utf-8''SBD%20%C5%A0kodov%C3%A1k%2Ejpg\"";
-			const string expected = "SBD Škodovák.jpg";
-			ContentDisposition disposition;
+			const string filename = "SBD Škodovák.jpg";
+			var expected = new ContentDisposition ("attachment");
 
-			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual (expected, disposition.FileName, "The filename value does not match.");
+			expected.Parameters.Add ("size", "1049971");
+			expected.Parameters.Add ("filename", filename);
+
+			AssertParse (text, expected);
 		}
 
 		[Test]

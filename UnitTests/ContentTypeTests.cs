@@ -107,6 +107,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (text);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -117,6 +119,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (options, text);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -127,6 +131,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (buffer);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -137,6 +143,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (options, buffer);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -147,6 +155,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (buffer, 0);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -157,6 +167,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (options, buffer, 0);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -167,6 +179,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (buffer, 0, buffer.Length);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
@@ -177,6 +191,8 @@ namespace UnitTests {
 
 			try {
 				type = ContentType.Parse (options, buffer, 0, buffer.Length);
+				if (tokenIndex != -1 && errorIndex != -1)
+					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
