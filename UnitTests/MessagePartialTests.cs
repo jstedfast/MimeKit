@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -86,6 +87,50 @@ namespace UnitTests {
 			Assert.IsNotNull (part, "Second part is null or not a MimePart");
 			Assert.IsTrue (part.ContentType.IsMimeType ("image", "jpeg"), "Attachment is not an image/jpeg");
 			Assert.AreEqual ("2377h003.jpg", part.FileName, "Attachment filename is not the expected value");
+		}
+
+		[Test]
+		public void TestSplit ()
+		{
+			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.msg.txt"));
+			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.msg.txt"));
+			var partials = new MessagePartial[] { (MessagePartial) message1.Body, (MessagePartial) message2.Body };
+			var message = MessagePartial.Join (partials);
+			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
+			var parts = new List<MessagePartial> ();
+
+			Assert.AreEqual (10, split.Count, "Unexpected count");
+
+			for (int i = 0; i < split.Count; i++) {
+				parts.Add ((MessagePartial) split[i].Body);
+
+				Assert.AreEqual (10, parts[i].Total, "Total");
+				Assert.AreEqual (i + 1, parts[i].Number, "Number");
+			}
+
+			var combined = MessagePartial.Join (parts);
+
+			using (var stream = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Unix;
+
+				message.WriteTo (options, stream);
+
+				var bytes0 = new byte[stream.Position];
+				Array.Copy (stream.GetBuffer (), 0, bytes0, 0, (int) stream.Position);
+
+				stream.Position = 0;
+
+				combined.WriteTo (options, stream);
+
+				var bytes1 = new byte[stream.Position];
+				Array.Copy (stream.GetBuffer (), 0, bytes1, 0, (int) stream.Position);
+
+				Assert.AreEqual (bytes0.Length, bytes1.Length, "bytes");
+
+				for (int i = 0; i < bytes0.Length; i++)
+					Assert.AreEqual (bytes0[i], bytes1[i], "bytes[{0}]", i);
+			}
 		}
 	}
 }
