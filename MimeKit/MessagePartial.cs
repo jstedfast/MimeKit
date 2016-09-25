@@ -209,6 +209,8 @@ namespace MimeKit {
 			memory.Seek (0, SeekOrigin.Begin);
 
 			if (memory.Length <= maxSize) {
+				memory.Dispose ();
+
 				yield return message;
 				yield break;
 			}
