@@ -53,6 +53,11 @@ namespace UnitTests {
 
 		static void AssertParseResults (ContentType type, ContentType expected)
 		{
+			if (expected == null) {
+				Assert.IsNull (type);
+				return;
+			}
+
 			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
 			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
 			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
@@ -389,15 +394,12 @@ namespace UnitTests {
 		[Test]
 		public void TestUnquotedParameter ()
 		{
+			var expected = new ContentType ("application", "octet-stream");
 			const string text = "application/octet-stream; name=Test;";
-			ContentType type;
 
-			Assert.IsTrue (ContentType.TryParse (text, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "octet-stream", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("name"), "Parameter list does not contain name param: {0}", text);
-			Assert.AreEqual (type.Parameters["name"], "Test", "name values do not match: {0}", text);
+			expected.Parameters.Add ("name", "Test");
+
+			AssertParse (text, expected);
 		}
 
 		[Test]
@@ -430,11 +432,33 @@ namespace UnitTests {
 		public void TestMimeTypeWithoutSubtype ()
 		{
 			const string text = "application-x-gzip; name=document.xml.gz";
-			ContentType type;
 
-			// this should fail due to the missing subtype
-			Assert.IsFalse (ContentType.TryParse (text, out type), "Should not have parsed: {0}", text);
-			Assert.IsNull (type, "The content type should be null.");
+			AssertParse (text, null, false, 18, 18);
+		}
+
+		[Test]
+		public void TestInvalidType ()
+		{
+			const string text = "åpplication/octet-stream";
+
+			AssertParse (text, null, false, 0, 0);
+		}
+
+		[Test]
+		public void TestInvalidSubtype ()
+		{
+			const string text = "application/åtom";
+
+			AssertParse (text, null, false, 12, 12);
+		}
+
+		[Test]
+		public void TestInvalidDataAfterMimeType ()
+		{
+			var expected = new ContentType ("application", "octet-stream");
+			const string text = "application/octet-stream x";
+
+			AssertParse (text, expected, false, 25, 25);
 		}
 
 		[Test]
