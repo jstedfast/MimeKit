@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata minClientVersion="2.8.6">
 		<id>MimeKit</id>
-		<version>1.6.0</version>
+		<version>1.8.0</version>
 		<title>MimeKit</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,7 +22,9 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-		<releaseNotes>* Use RandomNumberGenerator.Create() for .NET Core instead of System.Random when generating multipart boundaries.
+		<releaseNotes>* Improved parsing of malformed mailbox addresses.
+* Added DecompressTo() and DecryptTo() methods to SecureMimeContext.
+* Fixed MessagePartial.Split().
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

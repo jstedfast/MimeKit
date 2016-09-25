@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 1.8.0
+
+* Improved parsing of malformed mailbox addresses.
+* Added DecompressTo() and DecryptTo() methods to SecureMimeContext.
+* Fixed MessagePartial.Split().
+
 ### MimeKit 1.6.0
 
 * Use RandomNumberGenerator.Create() for .NET Core instead of System.Random when generating
