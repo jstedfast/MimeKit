@@ -203,55 +203,55 @@ namespace MimeKit {
 			if (maxSize < 1)
 				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
-			using (var memory = new MemoryStream ()) {
-				message.WriteTo (memory);
-				memory.Seek (0, SeekOrigin.Begin);
+			var memory = new MemoryStream ();
 
-				if (memory.Length <= maxSize) {
-					yield return message;
-					yield break;
-				}
+			message.WriteTo (memory);
+			memory.Seek (0, SeekOrigin.Begin);
 
-				var streams = new List<Stream> ();
+			if (memory.Length <= maxSize) {
+				yield return message;
+				yield break;
+			}
+
+			var streams = new List<Stream> ();
 #if !PORTABLE && !COREFX
-				var buf = memory.GetBuffer ();
+			var buf = memory.GetBuffer ();
 #else
-				var buf = memory.ToArray ();
+			var buf = memory.ToArray ();
 #endif
-				long startIndex = 0;
+			long startIndex = 0;
 
-				while (startIndex < memory.Length) {
-					// Preferably, we'd split on whole-lines if we can,
-					// but if that's not possible, split on max size
-					long endIndex = Math.Min (memory.Length, startIndex + maxSize);
+			while (startIndex < memory.Length) {
+				// Preferably, we'd split on whole-lines if we can,
+				// but if that's not possible, split on max size
+				long endIndex = Math.Min (memory.Length, startIndex + maxSize);
 
-					if (endIndex < memory.Length) {
-						long ebx = endIndex;
+				if (endIndex < memory.Length) {
+					long ebx = endIndex;
 
-						while (ebx > (startIndex + 1) && buf[ebx] != (byte) '\n')
-							ebx--;
+					while (ebx > (startIndex + 1) && buf[ebx] != (byte) '\n')
+						ebx--;
 
-						if (buf[ebx] == (byte) '\n')
-							endIndex = ebx + 1;
-					}
-
-					streams.Add (new BoundStream (memory, startIndex, endIndex, true));
-					startIndex = endIndex;
+					if (buf[ebx] == (byte) '\n')
+						endIndex = ebx + 1;
 				}
 
-				var id = message.MessageId ?? MimeUtils.GenerateMessageId ();
-				int number = 1;
+				streams.Add (new BoundStream (memory, startIndex, endIndex, true));
+				startIndex = endIndex;
+			}
 
-				foreach (var stream in streams) {
-					var part = new MessagePartial (id, number++, streams.Count);
-					part.ContentObject = new ContentObject (stream);
+			var id = message.MessageId ?? MimeUtils.GenerateMessageId ();
+			int number = 1;
 
-					var submessage = CloneMessage (message);
-					submessage.MessageId = MimeUtils.GenerateMessageId ();
-					submessage.Body = part;
+			foreach (var stream in streams) {
+				var part = new MessagePartial (id, number++, streams.Count);
+				part.ContentObject = new ContentObject (stream);
 
-					yield return submessage;
-				}
+				var submessage = CloneMessage (message);
+				submessage.MessageId = MimeUtils.GenerateMessageId ();
+				submessage.Body = part;
+
+				yield return submessage;
 			}
 
 			yield break;
