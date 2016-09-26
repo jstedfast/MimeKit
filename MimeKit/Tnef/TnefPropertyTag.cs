@@ -5496,7 +5496,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <value><c>true</c> if the property has a special name; otherwise, <c>false</c>.</value>
 		public bool IsNamed {
-			get { return Enum.IsDefined (typeof (TnefPropertyId), id); }
+			get { return true; }
 		}
 
 		/// <summary>
