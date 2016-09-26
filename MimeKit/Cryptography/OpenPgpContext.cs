@@ -917,6 +917,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="signatureData"/> does not contain valid PGP signature data.
+		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
 		{
 			if (content == null)
@@ -935,6 +938,9 @@ namespace MimeKit.Cryptography {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
 					data = factory.NextPgpObject ();
 				}
+
+				if (data == null)
+					throw new FormatException ("Invalid PGP format.");
 
 				signatureList = (PgpSignatureList) data;
 
