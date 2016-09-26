@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System;
+
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF property tag.
@@ -5458,8 +5460,8 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public static readonly TnefPropertyTag Ypos = new TnefPropertyTag (TnefPropertyId.Ypos, TnefPropertyType.Long);
 
-		const TnefPropertyId NamedMin = unchecked ((TnefPropertyId) 0x8000);
-		const TnefPropertyId NamedMax = unchecked ((TnefPropertyId) 0xFFFE);
+		//const TnefPropertyId NamedMin = unchecked ((TnefPropertyId) 0x8000);
+		//const TnefPropertyId NamedMax = unchecked ((TnefPropertyId) 0xFFFE);
 		const short MultiValuedFlag = (short) TnefPropertyType.MultiValued;
 		readonly TnefPropertyType type;
 		readonly TnefPropertyId id;
@@ -5494,7 +5496,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <value><c>true</c> if the property has a special name; otherwise, <c>false</c>.</value>
 		public bool IsNamed {
-			get { return id >= NamedMin && id <= NamedMax; }
+			get { return Enum.IsDefined (typeof (TnefPropertyId), id); }
 		}
 
 		/// <summary>
