@@ -100,6 +100,23 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified address and route.
+		/// </remarks>
+		/// <param name="route">The route of the mailbox.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
+		public MailboxAddress (IEnumerable<string> route, string address) : this (Encoding.UTF8, null, route, address)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new <see cref="MailboxAddress"/> with the specified name and address. The
 		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
 		/// </remarks>
@@ -134,6 +151,20 @@ namespace MimeKit {
 		/// <paramref name="address"/> is <c>null</c>.
 		/// </exception>
 		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified address.
+		/// </remarks>
+		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="address"/> is <c>null</c>.
+		/// </exception>
+		public MailboxAddress (string address) : this (Encoding.UTF8, null, address)
 		{
 		}
 

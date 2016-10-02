@@ -91,7 +91,30 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
 		/// </exception>
-		public SecureMailboxAddress (string name, IEnumerable<string> route, string address, string fingerprint) : base (Encoding.UTF8, name, route, address)
+		public SecureMailboxAddress (string name, IEnumerable<string> route, string address, string fingerprint) : base (name, route, address)
+		{
+			ValidateFingerprint (fingerprint);
+
+			Fingerprint = fingerprint;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
+		/// </remarks>
+		/// <param name="route">The route of the mailbox.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
+		/// </exception>
+		public SecureMailboxAddress (IEnumerable<string> route, string address, string fingerprint) : base (route, address)
 		{
 			ValidateFingerprint (fingerprint);
 
@@ -136,7 +159,27 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
 		/// </exception>
-		public SecureMailboxAddress (string name, string address, string fingerprint) : base (Encoding.UTF8, name, address)
+		public SecureMailboxAddress (string name, string address, string fingerprint) : base (name, address)
+		{
+			ValidateFingerprint (fingerprint);
+
+			Fingerprint = fingerprint;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
+		/// </remarks>
+		/// <param name="address">The address of the mailbox.</param>
+		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
+		/// </exception>
+		public SecureMailboxAddress (string address, string fingerprint) : base (address)
 		{
 			ValidateFingerprint (fingerprint);
 

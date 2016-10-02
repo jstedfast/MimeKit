@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -48,10 +49,15 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null, "example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", route, null));
 
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ((IEnumerable<string>) null, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (route, null));
+
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", "example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null));
 
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null));
+
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null));
 
 			Assert.Throws<ArgumentNullException> (() => mailbox.Encoding = null);
 
