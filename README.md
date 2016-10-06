@@ -128,12 +128,11 @@ the following commands in your terminal within the MimeKit directory:
     git pull
     git submodule update
 
-If you are using [TortoiseGit](https://tortoisegit.org) on Windows, you'll need to right-click on the MailKit
+If you are using [TortoiseGit](https://tortoisegit.org) on Windows, you'll need to right-click on the MimeKit
 directory and select **Git Sync...** in the menu. Once you do that, you'll need to click the **Pull** and
 **Submodule Update** buttons in the following dialog:
 
 ![Update the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/Documentation/media/update.png)
-
 
 ## Building
 
@@ -850,16 +849,15 @@ if (message.Verify (dkim, locator)) {
 
 ## Contributing
 
-The first thing you'll need to do is fork MimeKit to your own GitHub repository. Once you do that,
-
-    git clone git@github.com/<your-account>/MimeKit.git
+The first thing you'll need to do is fork MimeKit to your own GitHub repository. For instructions on how to
+do that, see the section titled **Getting the Source Code**.
 
 If you use [Xamarin Studio](http://xamarin.com/studio) or [MonoDevelop](http://monodevelop.com), all of the
 solution files are configured with the coding style used by MimeKit. If you use Visual Studio or some
 other editor, please try to maintain the existing coding style as best as you can.
 
 Once you've got some changes that you'd like to submit upstream to the official MimeKit repository,
-simply send me a Pull Request and I will try to review your changes in a timely manner.
+simply send me a **Pull Request** and I will try to review your changes in a timely manner.
 
 If you'd like to contribute but don't have any particular features in mind to work on, check out the issue
 tracker and look for something that might pique your interest!
