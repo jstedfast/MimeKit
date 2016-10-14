@@ -40,19 +40,6 @@ namespace MimeKit.Text {
 	/// </example>
 	public class HtmlToHtml : TextConverter
 	{
-		//static readonly HashSet<string> AutoClosingTags;
-
-		//static HtmlToHtml ()
-		//{
-		//	// Note: These are tags that auto-close when an identical tag is encountered and/or when a parent node is closed.
-		//	AutoClosingTags = new HashSet<string> (new [] {
-		//		"li",
-		//		"p",
-		//		"td",
-		//		"tr"
-		//	}, MimeUtils.OrdinalIgnoreCase);
-		//}
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlToHtml"/> class.
 		/// </summary>
@@ -93,6 +80,17 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value><c>true</c> if executable scripts should be filtered; otherwise, <c>false</c>.</value>
 		public bool FilterHtml {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set whether or not comments should be stripped from the output.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets whether or not comments should be stripped from the output.
+		/// </remarks>
+		/// <value><c>true</c> if comments should be filtered; otherwise, <c>false</c>.</value>
+		public bool StripComments {
 			get; set;
 		}
 
@@ -154,34 +152,6 @@ namespace MimeKit.Text {
 		public HtmlTagCallback HtmlTagCallback {
 			get; set;
 		}
-
-#if false
-		/// <summary>
-		/// Get or set whether or not the converter should collapse white space,
-		/// balance tags, and fix other problems in the source HTML.
-		/// </summary>
-		/// <remarks>
-		/// Gets or sets whether or not the converter should collapse white space,
-		/// balance tags, and fix other problems in the source HTML.
-		/// </remarks>
-		/// <value><c>true</c> if the output html should be normalized; otherwise, <c>false</c>.</value>
-		public bool NormalizeHtml {
-			get; set;
-		}
-#endif
-
-#if false
-		/// <summary>
-		/// Get or set whether or not the converter should only output an HTML fragment.
-		/// </summary>
-		/// <remarks>
-		/// Gets or sets whether or not the converter should only output an HTML fragment.
-		/// </remarks>
-		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
-		public bool OutputHtmlFragment {
-			get; set;
-		}
-#endif
 
 		class HtmlToHtmlTagContext : HtmlTagContext
 		{
@@ -288,21 +258,6 @@ namespace MimeKit.Text {
 						var tag = (HtmlTagToken) token;
 
 						if (!tag.IsEndTag) {
-							//if (NormalizeHtml && AutoClosingTags.Contains (startTag.TagName) &&
-							//	(ctx = Pop (stack, startTag.TagName)) != null &&
-							//	ctx.InvokeCallbackForEndTag && !SuppressContent (stack)) {
-							//	var value = string.Format ("</{0}>", ctx.TagName);
-							//	var name = ctx.TagName;
-							//
-							//	ctx = new HtmlToHtmlTagContext (new HtmlTokenTag (HtmlTokenKind.EndTag, name, value)) {
-							//		InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
-							//		SuppressInnerContent = ctx.SuppressInnerContent,
-							//		DeleteEndTag = ctx.DeleteEndTag,
-							//		DeleteTag = ctx.DeleteTag
-							//	};
-							//	callback (ctx, htmlWriter);
-							//}
-
 							if (!tag.IsEmptyElement) {
 								ctx = new HtmlToHtmlTagContext (tag);
 
@@ -341,6 +296,10 @@ namespace MimeKit.Text {
 								callback (ctx, htmlWriter);
 							}
 						}
+						break;
+					case HtmlTokenKind.Comment:
+						if (!StripComments)
+							htmlWriter.WriteToken(token);
 						break;
 					}
 				}
