@@ -86,6 +86,17 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Get or set whether or not the converter should remove HTML comments from the output.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets whether or not the converter should remove HTML comments from the output.
+		/// </remarks>
+		/// <value><c>true</c> if the converter should remove comments; otherwise, <c>false</c>.</value>
+		public bool FilterComments {
+			get; set;
+		}
+
+		/// <summary>
 		/// Get or set whether or not executable scripts should be stripped from the output.
 		/// </summary>
 		/// <remarks>
@@ -282,6 +293,10 @@ namespace MimeKit.Text {
 					switch (token.Kind) {
 					default:
 						if (!SuppressContent (stack))
+							htmlWriter.WriteToken (token);
+						break;
+					case HtmlTokenKind.Comment:
+						if (!FilterComments)
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.Tag:
