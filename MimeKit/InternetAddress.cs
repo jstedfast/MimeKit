@@ -704,29 +704,6 @@ namespace MimeKit {
 				return false;
 			}
 
-			if (text[index] == (byte) '<') {
-				// rfc2822 angle-addr token
-				int nameIndex = startIndex;
-				int codepage = -1;
-				string name;
-
-				if (trimLeadingQuote) {
-					nameIndex++;
-					length--;
-				}
-
-				if (length > 0) {
-					name = Rfc2047.DecodePhrase (options, text, nameIndex, length, out codepage);
-				} else {
-					name = string.Empty;
-				}
-
-				if (codepage == -1)
-					codepage = 65001;
-
-				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
-			}
-
 			if (text[index] == (byte) '@') {
 				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
 				string name, addrspec;
@@ -759,22 +736,68 @@ namespace MimeKit {
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
-				// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
-				if (index < endIndex && text[index] == (byte) '>') {
+				if (index >= endIndex) {
+					address = new MailboxAddress (name, addrspec);
+					return true;
+				}
+
+				if (text[index] == (byte) '<') {
+					// We have an address like "user@example.com <user@example.com>"; i.e. the name is an unquoted string with an '@'.
 					if (strict) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Unexpected '>' token at offset {0}", index), startIndex, index);
+							throw new ParseException (string.Format ("Unexpected '<' token at offset {0}", index), startIndex, index);
 
 						return false;
 					}
 
-					index++;
+					int nameEndIndex = index;
+					while (nameEndIndex > startIndex && text[nameEndIndex - 1].IsWhitespace ())
+						nameEndIndex--;
+
+					length = nameEndIndex - startIndex;
+
+					// fall through to the rfc822 angle-addr token case...
+				} else {
+					// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
+					// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
+					if (text[index] == (byte) '>') {
+						if (strict) {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Unexpected '>' token at offset {0}", index), startIndex, index);
+
+							return false;
+						}
+
+						index++;
+					}
+
+					address = new MailboxAddress (name, addrspec);
+
+					return true;
+				}
+			}
+
+			if (text[index] == (byte) '<') {
+				// rfc2822 angle-addr token
+				int nameIndex = startIndex;
+				int codepage = -1;
+				string name;
+
+				if (trimLeadingQuote) {
+					nameIndex++;
+					length--;
 				}
 
-				address = new MailboxAddress (name, addrspec);
+				if (length > 0) {
+					name = Rfc2047.DecodePhrase (options, text, nameIndex, length, out codepage);
+				} else {
+					name = string.Empty;
+				}
 
-				return true;
+				if (codepage == -1)
+					codepage = 65001;
+
+				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if (throwOnError)

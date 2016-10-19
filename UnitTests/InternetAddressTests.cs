@@ -373,6 +373,14 @@ namespace UnitTests {
 			AssertParse (text);
 		}
 
+		[Test]
+		public void TestParseMailboxWithAddrspecAsUnquotedName ()
+		{
+			const string text = "user@example.com <user@example.com>";
+
+			AssertParse (text);
+		}
+
 		#endregion
 	}
 }

@@ -447,6 +447,17 @@ namespace UnitTests {
 			AssertParseFailure (" \"", false, 1, 2, RfcComplianceMode.Loose);
 		}
 
+		[Test]
+		public void TestParseMailboxWithAddrspecAsUnquotedName ()
+		{
+			const string text = "user@example.com <user@example.com>";
+			int errorIndex = text.IndexOf ('<');
+
+			AssertParse (text);
+
+			AssertParseFailure (text, false, 0, errorIndex, RfcComplianceMode.Strict);
+		}
+
 		#endregion
 	}
 }

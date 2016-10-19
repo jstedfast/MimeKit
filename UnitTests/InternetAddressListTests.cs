@@ -751,6 +751,18 @@ namespace UnitTests {
 			AssertParseAndTryParse (text, encoded, expected);
 		}
 
+		[Test]
+		public void TestParseMailboxWithAddrspecAsUnquotedName ()
+		{
+			const string encoded = "\"user@example.com\" <user@example.com>";
+			const string text = "user@example.com <user@example.com>";
+			var expected = new InternetAddressList ();
+
+			expected.Add (new MailboxAddress ("user@example.com", "user@example.com"));
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
 		#endregion
 	}
 }
