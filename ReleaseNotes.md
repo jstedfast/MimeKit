@@ -1,5 +1,12 @@
 # Release Notes
 
+### MimeKit 1.10.0
+
+* Fixed OpenPgpContext.Verify() to throw FormatException if no data packets found.
+* Added new MailboxAddress constructors that do not take a 'name' argument. (issue #267)
+* Added an HtmlToHtml.FilterComments property to remove comments. (issue #271)
+* Modified address parser to handle invalid addresses like "user@example.com <user@example.com>".
+
 ### MimeKit 1.8.0
 
 * Improved parsing of malformed mailbox addresses.
