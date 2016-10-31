@@ -41,9 +41,9 @@ namespace MessageReader.Android {
 			this.related = related;
 		}
 
-		public override WebResourceResponse ShouldInterceptRequest (WebView view, string url)
+		public override WebResourceResponse ShouldInterceptRequest (WebView view, IWebResourceRequest request)
 		{
-			var uri = new Uri (url);
+			var uri = new Uri (request.Url.ToString ());
 			int index;
 
 			if ((index = related.IndexOf (uri)) != -1) {
@@ -58,7 +58,7 @@ namespace MessageReader.Android {
 				}
 			}
 
-			return base.ShouldInterceptRequest (view, url);
+			return base.ShouldInterceptRequest (view, request);
 		}
 	}
 }
