@@ -583,7 +583,7 @@ namespace MimeKit {
 					filtered.Add (EncoderFilter.Create (encoding));
 
 					if (encoding != ContentEncoding.Binary)
-						filtered.Add (options.CreateNewLineFilter (true));
+						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
 
 					ContentObject.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);

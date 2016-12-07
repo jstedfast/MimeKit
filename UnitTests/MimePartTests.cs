@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -274,6 +275,37 @@ namespace UnitTests
 			part.ContentTransferEncoding = ContentEncoding.UUEncode;
 			part.Headers.Clear ();
 			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
+		}
+
+		[TestCase ("content", TestName = "TestWriteToNoNewLine")]
+		[TestCase ("content\r\n", TestName = "TestWriteToNewLine")]
+		public void TestWriteTo (string text)
+		{
+			var builder = new BodyBuilder ();
+
+			builder.Attachments.Add ("filename", new MemoryStream (Encoding.UTF8.GetBytes (text)));
+
+			var body = builder.ToMessageBody ();
+
+			using (var stream = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				body.WriteTo (options, stream);
+				stream.Position = 0;
+
+				var multipart = (Multipart) MimeEntity.Load (stream);
+				using (var input = ((MimePart) multipart[0]).ContentObject.Open ()) {
+					var buffer = new byte[1024];
+					int n;
+
+					n = input.Read (buffer, 0, buffer.Length);
+
+					var content = Encoding.UTF8.GetString (buffer, 0, n);
+
+					Assert.AreEqual (text, content);
+				}
+			}
 		}
 	}
 }
