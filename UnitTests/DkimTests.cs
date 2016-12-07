@@ -41,6 +41,7 @@ namespace UnitTests
 	[TestFixture]
 	public class DkimTests
 	{
+		static readonly AsymmetricKeyParameter GMailDkimPublicKey;
 		static readonly AsymmetricCipherKeyPair DkimKeys;
 
 		class DummyPublicKeyLocator : IDkimPublicKeyLocator
@@ -64,6 +65,13 @@ namespace UnitTests
 				var reader = new PemReader (stream);
 
 				DkimKeys = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
+			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
+				var reader = new PemReader (stream);
+
+				GMailDkimPublicKey = reader.ReadObject () as AsymmetricKeyParameter;
 			}
 		}
 
@@ -219,16 +227,9 @@ namespace UnitTests
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			AsymmetricKeyParameter key;
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 
-			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
-			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
-				var reader = new PemReader (stream);
-
-				key = reader.ReadObject () as AsymmetricKeyParameter;
-			}
-
-			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
+			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -236,16 +237,9 @@ namespace UnitTests
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			AsymmetricKeyParameter key;
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 
-			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
-			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
-				var reader = new PemReader (stream);
-
-				key = reader.ReadObject () as AsymmetricKeyParameter;
-			}
-
-			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
+			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -253,16 +247,9 @@ namespace UnitTests
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			AsymmetricKeyParameter key;
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 
-			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
-			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "gmail.pub"))) {
-				var reader = new PemReader (stream);
-
-				key = reader.ReadObject () as AsymmetricKeyParameter;
-			}
-
-			Assert.IsTrue (message.Verify (message.Headers[index], new DummyPublicKeyLocator (key)), "Failed to verify GMail signature.");
+			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
