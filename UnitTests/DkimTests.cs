@@ -201,25 +201,25 @@ namespace UnitTests
 		[Test]
 		public void TestUnicodeSimpleBodySha1 ()
 		{
-			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "QtfAlGaDrgrUDxpRGQoj6OvIDik=");
+			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "6GV1ZoyaprYbwRLXsr5+8zY5Jh0=");
 		}
 
 		[Test]
 		public void TestUnicodeSimpleBodySha256 ()
 		{
-			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, "LB6Vpw5lMY1e6iyGUeufZ3a3ZY+7dfnQT2PKxvzGrV8=");
+			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, "BuW/GpCA9rAVDfStp0Dc2duuFhmwcxhy5jOeL+Xn+ew=");
 		}
 
 		[Test]
 		public void TestUnicodeRelaxedBodySha1 ()
 		{
-			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Relaxed, "Z36j2jLSTG9LsPvYIYauY3gqzDo=");
+			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Relaxed, "bbT6nP0aAiAP5OMguA+mHgpzgh4=");
 		}
 
 		[Test]
 		public void TestUnicodeRelaxedBodySha256 ()
 		{
-			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "eXkiJZjbgQ/jzd4niERo0I+eenSPw+qmCQMDlrd9khI=");
+			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "PEaN3fYH5NdIg4QzgaSS+ceYlSMRnYbqCPMxncx6gy0=");
 		}
 
 		[Test]
@@ -267,7 +267,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		[Ignore]
+		//[Ignore]
 		public void TestDkimSignVerifyJwzMbox ()
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
