@@ -445,6 +445,27 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestUnquotedBoundaryWithTrailingNewLineAndSpace ()
+		{
+			const string text = "multipart/mixed;\n boundary=--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f\n ";
+			var options = ParserOptions.Default.Clone ();
+			var buffer = Encoding.ASCII.GetBytes (text);
+			ContentType type;
+
+			options.ParameterComplianceMode = RfcComplianceMode.Strict;
+			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
+			Assert.AreEqual ("--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f", type.Boundary, "The boundary parameter does not match: {0}", text);
+
+			options.ParameterComplianceMode = RfcComplianceMode.Loose;
+			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
+			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
+			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
+			Assert.AreEqual ("--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f", type.Boundary, "The boundary parameter does not match: {0}", text);
+		}
+
+		[Test]
 		public void TestMimeTypeWithoutSubtype ()
 		{
 			const string text = "application-x-gzip; name=document.xml.gz";

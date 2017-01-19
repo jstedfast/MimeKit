@@ -841,6 +841,11 @@ namespace MimeKit {
 						valueIndex = 0;
 					}
 				}
+
+				// Trim trailing white space characters to work around issues such as the
+				// one described in https://github.com/jstedfast/MimeKit/issues/278
+				while (valueLength > valueIndex && value[valueLength - 1].IsWhitespace ())
+					valueLength--;
 			}
 
 			pair = new NameValuePair {
