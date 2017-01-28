@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 1.10.1
+
+* Fixed the Content-Type and Content-Disposition parameter parser to remove trailing lwsp from
+  unquoted parameter values. (issue #278)
+* Fixed MimePart.WriteTo() to not necessarily force the content to end with a new-line.
+
 ### MimeKit 1.10.0
 
 * Fixed OpenPgpContext.Verify() to throw FormatException if no data packets found.
