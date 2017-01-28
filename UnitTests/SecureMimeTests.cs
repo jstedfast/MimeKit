@@ -322,7 +322,7 @@ namespace UnitTests {
 		public void TestSecureMimeSignAndEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
-			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "0a5f8a24c023ef1d4f9782ba145afc2812b511ef");
+			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "d4a7af1cc2ce18ed8b2ea01af286bbd3a7f29115");
 			var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
 			ApplicationPkcs7Mime encrypted;
 
