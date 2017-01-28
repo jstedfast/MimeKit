@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The creation date.</value>
 		public DateTime CreationDate {
-			get { return Certificate.NotBefore; }
+			get { return Certificate.NotBefore.ToUniversalTime (); }
 		}
 
 		/// <summary>
@@ -113,7 +113,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The expiration date.</value>
 		public DateTime ExpirationDate {
-			get { return Certificate.NotAfter; }
+			get { return Certificate.NotAfter.ToUniversalTime (); }
 		}
 
 		/// <summary>

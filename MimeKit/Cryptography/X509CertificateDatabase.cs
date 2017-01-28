@@ -499,8 +499,8 @@ namespace MimeKit.Cryptography {
 			case "BASICCONSTRAINTS": return record.BasicConstraints;
 			case "TRUSTED": return record.IsTrusted;
 			case "KEYUSAGE": return (int) record.KeyUsage;
-			case "NOTBEFORE": return record.NotBefore;
-			case "NOTAFTER": return record.NotAfter;
+			case "NOTBEFORE": return record.NotBefore.ToUniversalTime ();
+			case "NOTAFTER": return record.NotAfter.ToUniversalTime ();
 			case "ISSUERNAME": return record.IssuerName;
 			case "SERIALNUMBER": return record.SerialNumber;
 			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;

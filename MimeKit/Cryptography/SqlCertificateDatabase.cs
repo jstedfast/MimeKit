@@ -197,7 +197,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
-			command.AddParameterWithValue ("@NOW", now);
+			command.AddParameterWithValue ("@NOW", now.ToUniversalTime ());
 
 			if (requirePrivateKey)
 				constraints += "AND PRIVATEKEY IS NOT NULL";
