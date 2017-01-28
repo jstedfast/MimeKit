@@ -323,7 +323,7 @@ namespace MimeKit.Cryptography {
 			command.CommandText = query + "WHERE DELTA = @DELTA AND ISSUERNAME = @ISSUERNAME AND THISUPDATE = @THISUPDATE LIMIT 1";
 			command.AddParameterWithValue ("@DELTA", crl.IsDelta ());
 			command.AddParameterWithValue ("@ISSUERNAME", issuerName);
-			command.AddParameterWithValue ("@THISUPDATE", crl.ThisUpdate);
+			command.AddParameterWithValue ("@THISUPDATE", crl.ThisUpdate.ToUniversalTime ());
 			command.CommandType = CommandType.Text;
 
 			return command;
