@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -131,10 +132,25 @@ namespace UnitTests
 		{
 			var locator = new DummyPublicKeyLocator (DkimKeys.Public);
 			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
+			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1);
+			var options = FormatOptions.Default;
 			var message = new MimeMessage ();
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (CreateSigner (DkimSignatureAlgorithm.RsaSha1), null));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<HeaderId>) null));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<string>) null));
+
+			Assert.Throws<ArgumentNullException> (() => message.Sign (null, signer, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (options, null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => message.Sign (options, signer, new HeaderId[] { HeaderId.From, HeaderId.Unknown }));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (options, signer, (IList<HeaderId>) null));
+
+			Assert.Throws<ArgumentNullException> (() => message.Sign (null, signer, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (options, null, new string[] { "From" }));
+			Assert.Throws<ArgumentException> (() => message.Sign (options, signer, new string[] { "From", null }));
+			Assert.Throws<ArgumentNullException> (() => message.Sign (options, signer, (IList<string>) null));
+
 			Assert.Throws<ArgumentNullException> (() => message.Verify (null, locator));
 			Assert.Throws<ArgumentNullException> (() => message.Verify (dkimHeader, null));
 			Assert.Throws<ArgumentNullException> (() => message.Verify (null, dkimHeader, locator));
