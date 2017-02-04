@@ -62,6 +62,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => mailbox.Encoding = null);
 
 			Assert.Throws<ArgumentNullException> (() => mailbox.CompareTo (null));
+
+			Assert.Throws<ArgumentNullException> (() => mailbox.ToString (null, true));
 		}
 
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
@@ -388,6 +390,7 @@ namespace UnitTests {
 		public void TestRoutedMailbox ()
 		{
 			const string expected = "Rusty McRouterson\n\t<@comcast.net,@forward.com,@geek.net:rusty@final-destination.com>";
+			const string expectedNoName = "<@comcast.net,@forward.com,@geek.net:rusty@final-destination.com>";
 			var mailbox = new MailboxAddress ("Rusty McRouterson", "rusty@final-destination.com");
 
 			mailbox.Route.Add ("comcast.net");
@@ -397,6 +400,16 @@ namespace UnitTests {
 			Assert.AreEqual (expected, mailbox.ToString (true).Replace ("\r\n", "\n"), "Encoded mailbox does not match.");
 
 			AssertParse (expected);
+
+			mailbox.Name = null;
+
+			var encoded = mailbox.ToString (true);
+
+			Assert.AreEqual (expectedNoName, encoded, "Encoded mailbox does not match after setting Name to null.");
+
+			encoded = mailbox.ToString (false);
+
+			Assert.AreEqual (expectedNoName, encoded, "ToString mailbox does not match after setting Name to null.");
 		}
 
 		#region Rfc7103
