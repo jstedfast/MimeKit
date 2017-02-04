@@ -1101,10 +1101,8 @@ namespace MimeKit {
 
 				try {
 					Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
-					Body.Headers.Suppress = true;
-					Body.WriteTo (options, stream, cancellationToken);
+					Body.WriteTo (options, stream, true, cancellationToken);
 				} finally {
-					Body.Headers.Suppress = false;
 					Body.EnsureNewLine = false;
 				}
 			} else {
@@ -1384,10 +1382,8 @@ namespace MimeKit {
 					if (Body != null) {
 						try {
 							Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
-							Body.Headers.Suppress = true;
-							Body.WriteTo (options, filtered, CancellationToken.None);
+							Body.WriteTo (options, filtered, true, CancellationToken.None);
 						} finally {
-							Body.Headers.Suppress = false;
 							Body.EnsureNewLine = false;
 						}
 					}

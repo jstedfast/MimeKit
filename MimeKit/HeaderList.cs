@@ -49,7 +49,6 @@ namespace MimeKit {
 	public sealed class HeaderList : IList<Header>
 	{
 		internal readonly ParserOptions Options;
-		internal bool Suppress;
 
 		// this table references the first header of each field
 		readonly Dictionary<string, Header> table;
@@ -694,9 +693,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
-
-			if (Suppress)
-				return;
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (options.CreateNewLineFilter ());
