@@ -295,6 +295,14 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithUnquotedCommaAndDotInName ()
+		{
+			const string text = "Warren Worthington, Jr. <warren@worthington.com>";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseMailboxWithOpenAngleSpace ()
 		{
 			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";

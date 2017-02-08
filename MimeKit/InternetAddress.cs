@@ -563,6 +563,7 @@ namespace MimeKit {
 			bool trimLeadingQuote = false;
 			int startIndex = index;
 			int length = 0;
+			int words = 0;
 
 			while (index < endIndex) {
 				if (strict) {
@@ -602,7 +603,21 @@ namespace MimeKit {
 						break;
 
 					index++;
+
+					length = index - startIndex;
 				} while (true);
+
+				words++;
+
+				// Note: some clients don't quote commas in the name
+				if (index < endIndex && text[index] == ',' && words > 1) {
+					index++;
+
+					length = index - startIndex;
+
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+				}
 			}
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))

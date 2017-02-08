@@ -267,6 +267,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithUnquotedCommaAndDotInName ()
+		{
+			const string text = "Warren Worthington, Jr. <warren@worthington.com>";
+			const int tokenIndex = 0;
+			int errorIndex = text.IndexOf ('<');
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseMailboxWithOpenAngleSpace ()
 		{
 			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";
