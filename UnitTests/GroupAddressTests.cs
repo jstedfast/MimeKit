@@ -237,6 +237,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseAddrspecNoAtDomain ()
+		{
+			const string text = "jeff";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseAddrspec ()
 		{
 			const string text = "jeff@xamarin.com";

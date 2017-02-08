@@ -271,6 +271,14 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseAddrspecNoAtDomain ()
+		{
+			const string text = "jeff";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseAddrspec ()
 		{
 			const string text = "jeff@xamarin.com";

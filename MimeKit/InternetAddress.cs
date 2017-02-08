@@ -626,6 +626,13 @@ namespace MimeKit {
 				var sentinels = new byte [] { sentinel };
 				string name, addrspec;
 
+				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("addr-spec token at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
