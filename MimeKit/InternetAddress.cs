@@ -592,11 +592,9 @@ namespace MimeKit {
 						if (startIndex == qstringIndex)
 							trimLeadingQuote = true;
 					}
-				} else if (text[index].IsAtom ()) {
+				} else {
 					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
 						break;
-				} else {
-					break;
 				}
 
 				length = index - startIndex;
