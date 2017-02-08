@@ -237,6 +237,14 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseAddrspecNoAtDomain ()
+		{
+			const string text = "jeff";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseAddrspec ()
 		{
 			const string text = "jeff@xamarin.com";
@@ -310,21 +318,19 @@ namespace UnitTests {
 		public void TestParseIncompleteGroup ()
 		{
 			const string text = "Agents of Shield: Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, May <may@shield.gov>";
-			const int tokenIndex = 0;
-			int errorIndex = text.Length;
 
-			// Note: the TryParse() methods are a little more forgiving than Parse().
-			AssertParseFailure (text, true, tokenIndex, errorIndex);
+			AssertParse (text);
 		}
 
 		[Test]
 		public void TestParseGroupNameColon ()
 		{
 			const string text = "Agents of Shield:";
-			const int tokenIndex = 0;
+			int tokenIndex = text.Length;
 			int errorIndex = text.Length;
 
-			AssertParseFailure (text, false, tokenIndex, errorIndex);
+			// Note: the TryParse() methods are a little more forgiving than Parse().
+			AssertParseFailure (text, true, tokenIndex, errorIndex);
 		}
 
 		[Test]

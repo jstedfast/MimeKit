@@ -513,12 +513,6 @@ namespace MimeKit {
 
 			// skip over the ':'
 			index++;
-			if (index >= endIndex) {
-				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete address group at offset {0}", startIndex), startIndex, index);
-
-				return false;
-			}
 
 			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, throwOnError, out members))
 				address = new GroupAddress (encoding, name, members);
@@ -526,7 +520,7 @@ namespace MimeKit {
 				address = new GroupAddress (encoding, name);
 
 			if (index >= endIndex || text[index] != (byte) ';') {
-				if (throwOnError)
+				if (throwOnError && options.AddressParserComplianceMode == RfcComplianceMode.Strict)
 					throw new ParseException (string.Format ("Expected to find ';' at offset {0}", index), startIndex, index);
 
 				while (index < endIndex && text[index] != (byte) ';')
