@@ -41,9 +41,9 @@ namespace MimeKit.Cryptography {
 	public abstract class CryptographyContext : IDisposable
 	{
 		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
-        static Func<SecureMimeContext> SecureMimeContextFactory;
-        static Func<OpenPgpContext> OpenPgpContextFactory;
-        static readonly object mutex = new object ();
+		static Func<SecureMimeContext> SecureMimeContextFactory;
+		static Func<OpenPgpContext> OpenPgpContextFactory;
+		static readonly object mutex = new object ();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CryptographyContext"/> class.
@@ -313,7 +313,7 @@ namespace MimeKit.Cryptography {
 				case "application/x-pkcs7-keys":
 				case "application/pkcs7-keys":
 					if (SecureMimeContextFactory != null)
-						return SecureMimeContextFactory();
+						return SecureMimeContextFactory ();
 
 #if !PORTABLE
 					if (!SqliteCertificateDatabase.IsAvailable) {
@@ -336,7 +336,7 @@ namespace MimeKit.Cryptography {
 				case "application/x-pgp-keys":
 				case "application/pgp-keys":
 					if (OpenPgpContextFactory != null)
-						return OpenPgpContextFactory();
+						return OpenPgpContextFactory ();
 
 					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.OpenPgpContext or MimeKit.Cryptography.GnuPGContext"));
 				default:
@@ -411,46 +411,44 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-        /// <summary>
-        /// Registers a default <see cref="SecureMimeContext"/>.
-        /// </summary>
-        /// <remarks>
-        /// Registers the specified factory as the default <see cref="SecureMimeContext"/> or
-        /// <see cref="OpenPgpContext"/>.
-        /// </remarks>
-        /// <param name="factory">A factory that creates a new instance of <see cref="SecureMimeContext"/>.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// <paramref name="factory"/> is <c>null</c>.
-        /// </exception>
-        public static void Register (Func<SecureMimeContext> factory) 
-        {
-            if (factory == null)
-                throw new ArgumentNullException (nameof (factory));
+		/// <summary>
+		/// Registers a default <see cref="SecureMimeContext"/> factory.
+		/// </summary>
+		/// <remarks>
+		/// Registers a factory that will return a new instance of the default <see cref="SecureMimeContext"/>.
+		/// </remarks>
+		/// <param name="factory">A factory that creates a new instance of <see cref="SecureMimeContext"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="factory"/> is <c>null</c>.
+		/// </exception>
+		public static void Register (Func<SecureMimeContext> factory) 
+		{
+			if (factory == null)
+				throw new ArgumentNullException (nameof (factory));
 
-            lock (mutex) {
-                SecureMimeContextFactory = factory;
-            }
-        }
+			lock (mutex) {
+				SecureMimeContextFactory = factory;
+			}
+		}
 
-        /// <summary>
-        /// Registers a default <see cref="OpenPgpContext"/>.
-        /// </summary>
-        /// <remarks>
-        /// Registers the specified factory as the default <see cref="OpenPgpContext"/> or
-        /// <see cref="OpenPgpContext"/>.
-        /// </remarks>
-        /// <param name="factory">A factory that creates a new instance of <see cref="OpenPgpContext"/>.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// <paramref name="factory"/> is <c>null</c>.
-        /// </exception>
-        public static void Register (Func<OpenPgpContext> factory) 
-	{
-            if (factory == null)
-                throw new ArgumentNullException(nameof (factory));
+		/// <summary>
+		/// Registers a default <see cref="OpenPgpContext"/> factory.
+		/// </summary>
+		/// <remarks>
+		/// Registers a factory that will return a new instance of the default <see cref="OpenPgpContext"/>.
+		/// </remarks>
+		/// <param name="factory">A factory that creates a new instance of <see cref="OpenPgpContext"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="factory"/> is <c>null</c>.
+		/// </exception>
+		public static void Register (Func<OpenPgpContext> factory) 
+		{
+			if (factory == null)
+				throw new ArgumentNullException(nameof (factory));
 
-            lock (mutex) {
-                OpenPgpContextFactory = factory;
-            }
-        }
-    }
+			lock (mutex) {
+				OpenPgpContextFactory = factory;
+			}
+		}
+	}
 }
