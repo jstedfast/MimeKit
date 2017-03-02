@@ -400,11 +400,11 @@ namespace MimeKit.Cryptography {
 
 			if (info.IsSubclassOf (typeof (SecureMimeContext))) {
 				lock (mutex) {
-					SecureMimeContextFactory = () => (SecureMimeContext)ctor.Invoke(new object[0]);
+					SecureMimeContextFactory = () => (SecureMimeContext) ctor.Invoke (new object[0]);
 				}
 			} else if (info.IsSubclassOf (typeof (OpenPgpContext))) {
 				lock (mutex) {
-					OpenPgpContextFactory = () => (OpenPgpContext)ctor.Invoke(new object[0]);
+					OpenPgpContextFactory = () => (OpenPgpContext) ctor.Invoke (new object[0]);
 				}
 			} else {
 				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", nameof (type));
@@ -422,7 +422,7 @@ namespace MimeKit.Cryptography {
         /// <exception cref="System.ArgumentNullException">
         /// <paramref name="factory"/> is <c>null</c>.
         /// </exception>
-        public static void Register(Func<SecureMimeContext> factory) 
+        public static void Register (Func<SecureMimeContext> factory) 
         {
             if (factory == null)
                 throw new ArgumentNullException (nameof (factory));
@@ -443,9 +443,10 @@ namespace MimeKit.Cryptography {
         /// <exception cref="System.ArgumentNullException">
         /// <paramref name="factory"/> is <c>null</c>.
         /// </exception>
-        public static void Register(Func<OpenPgpContext> factory) {
+        public static void Register (Func<OpenPgpContext> factory) 
+	{
             if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
+                throw new ArgumentNullException(nameof (factory));
 
             lock (mutex) {
                 OpenPgpContextFactory = factory;
