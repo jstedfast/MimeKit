@@ -41,9 +41,9 @@ namespace MimeKit.Cryptography {
 	public abstract class CryptographyContext : IDisposable
 	{
 		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
-		static ConstructorInfo SecureMimeContextConstructor;
-		static ConstructorInfo OpenPgpContextConstructor;
-		static readonly object mutex = new object ();
+        static Func<SecureMimeContext> SecureMimeContextFactory;
+        static Func<OpenPgpContext> OpenPgpContextFactory;
+        static readonly object mutex = new object ();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CryptographyContext"/> class.
@@ -312,8 +312,8 @@ namespace MimeKit.Cryptography {
 				case "application/pkcs7-mime":
 				case "application/x-pkcs7-keys":
 				case "application/pkcs7-keys":
-					if (SecureMimeContextConstructor != null)
-						return (CryptographyContext) SecureMimeContextConstructor.Invoke (new object[0]);
+					if (SecureMimeContextFactory != null)
+						return SecureMimeContextFactory();
 
 #if !PORTABLE
 					if (!SqliteCertificateDatabase.IsAvailable) {
@@ -335,8 +335,8 @@ namespace MimeKit.Cryptography {
 				case "application/pgp-encrypted":
 				case "application/x-pgp-keys":
 				case "application/pgp-keys":
-					if (OpenPgpContextConstructor != null)
-						return (CryptographyContext) OpenPgpContextConstructor.Invoke (new object[0]);
+					if (OpenPgpContextFactory != null)
+						return OpenPgpContextFactory();
 
 					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.OpenPgpContext or MimeKit.Cryptography.GnuPGContext"));
 				default:
@@ -400,15 +400,56 @@ namespace MimeKit.Cryptography {
 
 			if (info.IsSubclassOf (typeof (SecureMimeContext))) {
 				lock (mutex) {
-					SecureMimeContextConstructor = ctor;
+					SecureMimeContextFactory = () => (SecureMimeContext)ctor.Invoke(new object[0]);
 				}
 			} else if (info.IsSubclassOf (typeof (OpenPgpContext))) {
 				lock (mutex) {
-					OpenPgpContextConstructor = ctor;
+					OpenPgpContextFactory = () => (OpenPgpContext)ctor.Invoke(new object[0]);
 				}
 			} else {
 				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", nameof (type));
 			}
 		}
-	}
+
+        /// <summary>
+        /// Registers a default <see cref="SecureMimeContext"/>.
+        /// </summary>
+        /// <remarks>
+        /// Registers the specified factory as the default <see cref="SecureMimeContext"/> or
+        /// <see cref="OpenPgpContext"/>.
+        /// </remarks>
+        /// <param name="factory">A factory that creates a new instance of <see cref="SecureMimeContext"/>.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// <paramref name="factory"/> is <c>null</c>.
+        /// </exception>
+        public static void Register(Func<SecureMimeContext> factory) 
+        {
+            if (factory == null)
+                throw new ArgumentNullException (nameof (factory));
+
+            lock (mutex) {
+                SecureMimeContextFactory = factory;
+            }
+        }
+
+        /// <summary>
+        /// Registers a default <see cref="OpenPgpContext"/>.
+        /// </summary>
+        /// <remarks>
+        /// Registers the specified factory as the default <see cref="OpenPgpContext"/> or
+        /// <see cref="OpenPgpContext"/>.
+        /// </remarks>
+        /// <param name="factory">A factory that creates a new instance of <see cref="OpenPgpContext"/>.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// <paramref name="factory"/> is <c>null</c>.
+        /// </exception>
+        public static void Register(Func<OpenPgpContext> factory) {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            lock (mutex) {
+                OpenPgpContextFactory = factory;
+            }
+        }
+    }
 }
