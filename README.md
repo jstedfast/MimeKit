@@ -23,7 +23,7 @@ created broken MIME messages and/or would incorrectly try to parse a MIME messag
 benefits that MIME was meant to provide. MimeKit is meant to address this issue by following the MIME specification
 as closely as possible while also providing programmers with an extremely easy to use high-level API.
 
-This led me, at first, to implement another MIME parser library called [GMime](http://spruce.sourceforge.net/gmime)
+This led me, at first, to implement another MIME parser library called [GMime](https://github.com/jstedfast/gmime)
 which is implemented in C and later added a C# binding called GMime-Sharp.
 
 Now that I typically find myself working in C# rather than lower level languages like C, I decided to
