@@ -83,9 +83,6 @@ namespace MimeKit.Cryptography {
 			path = ".mimekit";
 #endif
 
-			if (!Directory.Exists (path))
-				Directory.CreateDirectory (path);
-
 			DefaultDatabasePath = Path.Combine (path, "smime.db");
 		}
 
