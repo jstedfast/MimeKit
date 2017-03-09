@@ -241,6 +241,9 @@ namespace MimeKit.Cryptography {
 			var algorithms = new List<EncryptionAlgorithm> ();
 			var values = reader.GetString (column);
 
+			if (values.Equals ("None", StringComparison.OrdinalIgnoreCase))
+				return null;
+
 			foreach (var token in values.Split (new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
 				EncryptionAlgorithm algorithm;
 
@@ -262,8 +265,8 @@ namespace MimeKit.Cryptography {
 
 		static string EncodeEncryptionAlgorithms (EncryptionAlgorithm[] algorithms)
 		{
-			if (algorithms == null)
-				return null;
+			if (algorithms == null || algorithms.Length == 0)
+				return "None";
 
 			var tokens = new string[algorithms.Length];
 			for (int i = 0; i < algorithms.Length; i++)
