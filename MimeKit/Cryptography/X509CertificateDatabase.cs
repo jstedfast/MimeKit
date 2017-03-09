@@ -228,9 +228,9 @@ namespace MimeKit.Cryptography {
 			return DecryptAsymmetricKeyParameter (buffer, nread);
 		}
 
-		byte[] EncodePrivateKey (AsymmetricKeyParameter key)
+		object EncodePrivateKey (AsymmetricKeyParameter key)
 		{
-			return key != null ? EncryptAsymmetricKeyParameter (key) : null;
+			return key != null ? (object) EncryptAsymmetricKeyParameter (key) : DBNull.Value;
 		}
 
 		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (DbDataReader reader, int column)
@@ -240,9 +240,6 @@ namespace MimeKit.Cryptography {
 
 			var algorithms = new List<EncryptionAlgorithm> ();
 			var values = reader.GetString (column);
-
-			if (values.Equals ("None", StringComparison.OrdinalIgnoreCase))
-				return null;
 
 			foreach (var token in values.Split (new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
 				EncryptionAlgorithm algorithm;
@@ -263,10 +260,10 @@ namespace MimeKit.Cryptography {
 			return algorithms.ToArray ();
 		}
 
-		static string EncodeEncryptionAlgorithms (EncryptionAlgorithm[] algorithms)
+		static object EncodeEncryptionAlgorithms (EncryptionAlgorithm[] algorithms)
 		{
 			if (algorithms == null || algorithms.Length == 0)
-				return "None";
+				return DBNull.Value;
 
 			var tokens = new string[algorithms.Length];
 			for (int i = 0; i < algorithms.Length; i++)
