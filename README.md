@@ -377,11 +377,11 @@ The `Text` property is the easiest way to both get and set the string content of
 ### Creating a Message with Attachments
 
 Attachments are just like any other `MimePart`, the only difference is that they typically have
-a Content-Disposition header with a value of "attachment" instead of "inline" or no
-Content-Disposition header at all.
+a `Content-Disposition` header with a value of "attachment" instead of "inline" or no
+`Content-Disposition` header at all.
 
-Typically, when a mail client adds attachments to a message, it will create a multipart/mixed
-part and add the text body part and all of the file attachments to the multipart/mixed.
+Typically, when a mail client adds attachments to a message, it will create a `multipart/mixed`
+part and add the text body part and all of the file attachments to the `multipart/mixed.`
 
 Here's how you can do that with MimeKit:
 
@@ -424,7 +424,7 @@ message.Body = multipart;
 
 Of course, that is just a simple example. A lot of modern mail clients such as Outlook or Thunderbird will 
 send out both a text/html and a text/plain version of the message text. To do this, you'd create a `TextPart`
-for the text/plain part and a `TextPart` for the text/html part and then add them to a multipart/alternative
+for the `text/plain` part and a `TextPart` for the `text/html` part and then add them to a `multipart/alternative`
 like so:
 
 ```csharp
