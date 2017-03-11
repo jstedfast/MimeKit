@@ -586,7 +586,7 @@ Now you are ready to encrypt, decrypt, sign and verify PGP/MIME messages!
 
 ### Encrypting Messages with S/MIME
 
-S/MIME uses an application/pkcs7-mime MIME part to encapsulate encrypted content (as well as other things).
+S/MIME uses an `application/pkcs7-mime` MIME part to encapsulate encrypted content (as well as other things).
 
 ```csharp
 var joey = new MailboxAddress ("Joey", "joey@friends.com");
@@ -613,10 +613,10 @@ using (var ctx = new MySecureMimeContext ()) {
 
 ### Decrypting S/MIME Messages
 
-As mentioned earlier, S/MIME uses an application/pkcs7-mime part with an "smime-type" parameter with a value of
+As mentioned earlier, S/MIME uses an `application/pkcs7-mime` part with an "smime-type" parameter with a value of
 "enveloped-data" to encapsulate the encrypted content.
 
-The first thing you must do is find the ApplicationPkcs7Mime part (see the section on traversing MIME parts).
+The first thing you must do is find the `ApplicationPkcs7Mime` part (see the section on traversing MIME parts).
 
 ```csharp
 if (entity is ApplicationPkcs7Mime) {
@@ -629,7 +629,7 @@ if (entity is ApplicationPkcs7Mime) {
 
 ### Encrypting Messages with PGP/MIME
 
-Unlike S/MIME, PGP/MIME uses multipart/encrypted to encapsulate its encrypted data.
+Unlike S/MIME, PGP/MIME uses `multipart/encrypted` to encapsulate its encrypted data.
 
 ```csharp
 var joey = new MailboxAddress ("Joey", "joey@friends.com");
@@ -655,10 +655,10 @@ using (var ctx = new MyGnuPGContext ()) {
 
 ### Decrypting PGP/MIME Messages
 
-As mentioned earlier, PGP/MIME uses a multipart/encrypted part to encapsulate the encrypted content.
+As mentioned earlier, PGP/MIME uses a `multipart/encrypted` part to encapsulate the encrypted content.
 
-A multipart/encrypted contains exactly 2 parts: the first `MimeEntity` is the version information while the
-second `MimeEntity` is the actual encrypted content and will typically be an application/octet-stream.
+A `multipart/encrypted` contains exactly 2 parts: the first `MimeEntity` is the version information while the
+second `MimeEntity` is the actual encrypted content and will typically be an `application/octet-stream`.
 
 The first thing you must do is find the `MultipartEncrypted` part (see the section on traversing MIME parts).
 
@@ -672,7 +672,7 @@ if (entity is MultipartEncrypted) {
 
 ### Digitally Signing Messages with S/MIME or PGP/MIME
 
-Both S/MIME and PGP/MIME use a multipart/signed to contain the signed content and the detached signature data.
+Both S/MIME and PGP/MIME use a `multipart/signed` to contain the signed content and the detached signature data.
 
 Here's how you might digitally sign a message using S/MIME:
 
@@ -741,14 +741,14 @@ using (var ctx = new MyGnuPGContext ()) {
 
 ### Verifying S/MIME and PGP/MIME Digital Signatures
 
-As mentioned earlier, both S/MIME and PGP/MIME typically use a multipart/signed part to contain the
+As mentioned earlier, both S/MIME and PGP/MIME typically use a `multipart/signed` part to contain the
 signed content and the detached signature data.
 
-A multipart/signed contains exactly 2 parts: the first `MimeEntity` is the signed content while the second
+A `multipart/signed` contains exactly 2 parts: the first `MimeEntity` is the signed content while the second
 `MimeEntity` is the detached signature and, by default, will either be an `ApplicationPgpSignature` part or
 an `ApplicationPkcs7Signature` part (depending on whether the sending client signed using OpenPGP or S/MIME).
 
-Because the multipart/signed part may have been signed by multiple signers, it is important to
+Because the `multipart/signed` part may have been signed by multiple signers, it is important to
 verify each of the digital signatures (one for each signer) that are returned by the
 `MultipartSigned.Verify()` method:
 
@@ -772,8 +772,8 @@ if (entity is MultipartSigned) {
 }
 ```
 
-It should be noted, however, that while most S/MIME clients will use the preferred multipart/signed
-approach, it is possible that you may encounter an application/pkcs7-mime part with an "smime-type"
+It should be noted, however, that while most S/MIME clients will use the preferred `multipart/signed`
+approach, it is possible that you may encounter an `application/pkcs7-mime` part with an "smime-type"
 parameter set to "signed-data". Luckily, MimeKit can handle this format as well:
 
 ```csharp
