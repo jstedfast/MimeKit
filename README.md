@@ -423,9 +423,9 @@ message.Body = multipart;
 ```
 
 Of course, that is just a simple example. A lot of modern mail clients such as Outlook or Thunderbird will 
-send out both a text/html and a text/plain version of the message text. To do this, you'd create a `TextPart`
-for the `text/plain` part and a `TextPart` for the `text/html` part and then add them to a `multipart/alternative`
-like so:
+send out both a `text/html` and a `text/plain` version of the message text. To do this, you'd create a
+`TextPart` for the `text/plain` part and another `TextPart` for the `text/html` part and then add them to a
+`multipart/alternative` like so:
 
 ```csharp
 var attachment = CreateAttachment ();
