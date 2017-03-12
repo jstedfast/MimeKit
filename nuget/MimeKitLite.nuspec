@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
 	<metadata minClientVersion="2.8.6">
 		<id>MimeKitLite</id>
-		<version>1.10.1</version>
+		<version>1.12.0</version>
 		<title>MimeKit Lite</title>
 		<authors>Jeffrey Stedfast</authors>
 		<owners>Jeffrey Stedfast</owners>
@@ -22,8 +22,8 @@ API documentation can be found on the web at http://www.mimekit.net/docs
 
 For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
 		<summary>An Open Source library for creating and parsing MIME messages.</summary>
-		<releaseNotes>* Fixed the Content-Type and Content-Disposition parameter parser to remove trailing lwsp from unquoted parameter values. (issue #278)
-* Fixed MimePart.WriteTo() to not necessarily force the content to end with a new-line.
+		<releaseNotes>* Improved the address parser to allow the lack of a terminating ';' character at the end of group addresses.
+* Improved the address parser to unquoted ',' and '.' characters in the name component of mailbox and group addresses.
 </releaseNotes>
 		<copyright>Xamarin Inc.</copyright>
 		<language>en-US</language>

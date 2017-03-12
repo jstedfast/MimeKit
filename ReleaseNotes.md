@@ -1,5 +1,22 @@
 # Release Notes
 
+### MimeKit 1.12.0
+
+* Added new DKIM MimeMessage.Sign() methods that take an IList<string> of header field names
+  to sign.
+* Improved the address parser to allow the lack of a terminating ';' character at the end of
+  group addresses.
+* Improved the address parser to unquoted ',' and '.' characters in the name component of
+  mailbox and group addresses.
+* Added support for CryptographyContext factories by adding new Register() methods that
+  take function callbacks that return a SecureMimeContext or OpenPgpContext. Thanks to
+  Christoph Enzmann for this feature. (issue #283)
+* Fixed DefaultSecureMimeContext..cctor() to not call Directory.CreateDirectory() on
+  the default database directory. Instead, let the .ctor() create it instead if and when
+  an instance of the DefaultSecureMimeContext is created. (issue #285)
+* Store DBNull in S/MIME SQL backends for null values (SQLite handles `null` but
+  databases such as Postgres do not). (issue #286)
+
 ### MimeKit 1.10.1
 
 * Fixed the Content-Type and Content-Disposition parameter parser to remove trailing lwsp from
