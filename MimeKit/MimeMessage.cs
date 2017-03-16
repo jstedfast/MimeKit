@@ -84,13 +84,13 @@ namespace MimeKit {
 		string inreplyto;
 		Version version;
 
-		// Note: this .ctor is used only by the MimeParser
-		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers)
+		// Note: this .ctor is used only by the MimeParser and MimeMessage.CreateFromMailMessage()
+		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
 		{
 			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
 			Headers = new HeaderList (options);
 
-			compliance = RfcComplianceMode.Loose;
+			compliance = mode;
 
 			// initialize our address lists
 			foreach (var name in StandardAddressHeaders) {
@@ -2908,7 +2908,7 @@ namespace MimeKit {
 					headers.Add (new Header (field, value));
 			}
 
-			var msg = new MimeMessage (ParserOptions.Default, headers);
+			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
 			MimeEntity body = null;
 
 			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,

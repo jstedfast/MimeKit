@@ -1220,7 +1220,7 @@ namespace MimeKit {
 				return BoundaryType.Eos;
 			}
 
-			var message = new MimeMessage (options, headers);
+			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 			var type = GetContentType (null);
 
 			if (preHeaderBuffer.Length > 0) {
@@ -1486,7 +1486,7 @@ namespace MimeKit {
 			if (state < MimeParserState.Content && Step (inbuf) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse message headers.");
 
-			var message = new MimeMessage (options, headers);
+			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
 				bounds[0].ContentEnd = -1;
