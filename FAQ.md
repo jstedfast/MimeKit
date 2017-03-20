@@ -16,7 +16,7 @@
 * [How do I save attachments?](#SaveAttachments)
 * [How do I get the email addresses in the From, To, and Cc headers?](#AddressHeaders)
 * [Why doesn't the MimeMessage class implement ISerializable so that I can serialize a message to disk and read it back later?](#Serialize)
-* [Why do attachments with unicode filenames appear as "ATT0####.dat" in Outlook?](#UntitledAttachments)
+* [Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?](#UntitledAttachments)
 * [How do I decrypt PGP messages that are embedded in the main message text?](#DecryptInlinePGP)
 * [How do I reply to a message using MimeKit?](#Reply)
 * [How do I forward a message?](#Forward)
