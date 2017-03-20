@@ -159,15 +159,17 @@ Note: The **Release** build will generate the xml API documentation, but the **D
 One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams.
 There are two ways of accomplishing this task.
 
-The first way is to use one of the `Load()` methods on `MimeKit.MimeMessage`:
+The first way is to use one of the [Load](http://www.mimekit.net/docs/html/Overload_MimeKit_MimeMessage_Load.htm) methods
+on `MimeMessage`:
 
 ```csharp
 // Load a MimeMessage from a stream
 var message = MimeMessage.Load (stream);
 ```
 
-The second way is to use the `MimeParser` class. For the most part, using the `MimeParser` directly is not necessary
-unless you wish to parse a Unix mbox file stream. However, this is how you would do it:
+The second way is to use the [MimeParser](http://www.mimekit.net/docs/html/T_MimeKit_MimeParser.htm) class. For the most
+part, using the `MimeParser` directly is not necessary unless you wish to parse a Unix mbox file stream. However, this is
+how you would do it:
 
 ```csharp
 // Load a MimeMessage from a stream
