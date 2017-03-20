@@ -167,6 +167,13 @@ on `MimeMessage`:
 var message = MimeMessage.Load (stream);
 ```
 
+Or you can load a message from a file path:
+
+```csharp
+// Load a MimeMessage from a file path
+var message = MimeMessage.Load ("message.eml");
+```
+
 The second way is to use the [MimeParser](http://www.mimekit.net/docs/html/T_MimeKit_MimeParser.htm) class. For the most
 part, using the `MimeParser` directly is not necessary unless you wish to parse a Unix mbox file stream. However, this is
 how you would do it:
