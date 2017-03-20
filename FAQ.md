@@ -622,7 +622,7 @@ foreach (var mailbox in message.To.Mailboxes)
     Console.WriteLine ("{0}'s email address is {1}", mailbox.Name, mailbox.Address);
 ```
 
-### <a name="UntitledAttachments">Q: Why do attachments with unicode filenames appear as "ATT0####.dat" in Outlook?</a>
+### <a name="UntitledAttachments">Q: Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?</a>
 
 An attachment filename is stored as a MIME parameter on the `Content-Disposition` header. Unfortunately,
 the original MIME specifications did not specify a method for encoding non-ASCII filenames. In 1997,
