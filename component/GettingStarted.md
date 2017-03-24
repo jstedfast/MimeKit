@@ -5,15 +5,24 @@
 One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams.
 There are two ways of accomplishing this task.
 
-The first way is to use one of the `Load()` methods on `MimeKit.MimeMessage`:
+The first way is to use one of the [Load](http://www.mimekit.net/docs/html/Overload_MimeKit_MimeMessage_Load.htm) methods
+on `MimeMessage`:
 
 ```csharp
 // Load a MimeMessage from a stream
 var message = MimeMessage.Load (stream);
 ```
 
-The second way is to use the `MimeParser` class. For the most part, using the `MimeParser` directly is not necessary
-unless you wish to parse a Unix mbox file stream. However, this is how you would do it:
+Or you can load a message from a file path:
+
+```csharp
+// Load a MimeMessage from a file path
+var message = MimeMessage.Load ("message.eml");
+```
+
+The second way is to use the [MimeParser](http://www.mimekit.net/docs/html/T_MimeKit_MimeParser.htm) class. For the most
+part, using the `MimeParser` directly is not necessary unless you wish to parse a Unix mbox file stream. However, this is
+how you would do it:
 
 ```csharp
 // Load a MimeMessage from a stream
@@ -223,11 +232,11 @@ The `Text` property is the easiest way to both get and set the string content of
 ### Creating a Message with Attachments
 
 Attachments are just like any other `MimePart`, the only difference is that they typically have
-a Content-Disposition header with a value of "attachment" instead of "inline" or no
-Content-Disposition header at all.
+a `Content-Disposition` header with a value of "attachment" instead of "inline" or no
+`Content-Disposition` header at all.
 
-Typically, when a mail client adds attachments to a message, it will create a multipart/mixed
-part and add the text body part and all of the file attachments to the multipart/mixed.
+Typically, when a mail client adds attachments to a message, it will create a `multipart/mixed`
+part and add the text body part and all of the file attachments to the `multipart/mixed.`
 
 Here's how you can do that with MimeKit:
 
@@ -269,9 +278,9 @@ message.Body = multipart;
 ```
 
 Of course, that is just a simple example. A lot of modern mail clients such as Outlook or Thunderbird will 
-send out both a text/html and a text/plain version of the message text. To do this, you'd create a `TextPart`
-for the text/plain part and a `TextPart` for the text/html part and then add them to a multipart/alternative
-like so:
+send out both a `text/html` and a `text/plain` version of the message text. To do this, you'd create a
+`TextPart` for the `text/plain` part and another `TextPart` for the `text/html` part and then add them to a
+`multipart/alternative` like so:
 
 ```csharp
 var attachment = CreateAttachment ();
@@ -320,20 +329,24 @@ Will you be my +1?
 -- Joey
 ";
 
+// generate a Content-Id for the image we'll be referencing
+var contentId = MimeUtils.GenerateMessageId ();
+
 // Set the html version of the message text
-builder.HtmlBody = @"<p>Hey Alice,<br>
+builder.HtmlBody = string.Format (@"<p>Hey Alice,<br>
 <p>What are you up to this weekend? Monica is throwing one of her parties on
 Saturday and I was hoping you could make it.<br>
 <p>Will you be my +1?<br>
 <p>-- Joey<br>
-<center><img src=""sexy-pose.jpg""></center>";
+<center><img src=""cid:{0}"" alt=""selfie.jpg""></center>", contentId);
 
-// Since sexy-pose.jpg is referenced from the html text, we'll need to add it
-// to builder.LinkedResources
-builder.LinkedResources.Add ("C:\\Users\\Joey\\Documents\\SexySelfies\\sexy-pose.jpg");
+// Since selfie.jpg is referenced from the html text, we'll need to add it
+// to builder.LinkedResources and then set the Content-Id header value
+builder.LinkedResources.Add (@"C:\Users\Joey\Documents\Selfies\selfie.jpg");
+builder.LinkedResources[0].ContentId = contentId;
 
 // We may also want to attach a calendar event for Monica's party...
-builder.Attachments.Add ("C:\\Users\Joey\\Documents\\party.ics");
+builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
 
 // Now we just need to set the message body and we're done
 message.Body = builder.ToMessageBody ();
@@ -345,7 +358,7 @@ Before you can begin using MimeKit's S/MIME support, you will need to decide whi
 database to use for certificate storage.
 
 If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
-anything (although you certianly can if you want to) because, by default, I've
+anything (although you certainly can if you want to) because, by default, I've
 configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
 
 If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
@@ -428,7 +441,7 @@ Now you are ready to encrypt, decrypt, sign and verify PGP/MIME messages!
 
 ### Encrypting Messages with S/MIME
 
-S/MIME uses an application/pkcs7-mime MIME part to encapsulate encrypted content (as well as other things).
+S/MIME uses an `application/pkcs7-mime` MIME part to encapsulate encrypted content (as well as other things).
 
 ```csharp
 var joey = new MailboxAddress ("Joey", "joey@friends.com");
@@ -455,10 +468,10 @@ using (var ctx = new MySecureMimeContext ()) {
 
 ### Decrypting S/MIME Messages
 
-As mentioned earlier, S/MIME uses an application/pkcs7-mime part with an "smime-type" parameter with a value of
+As mentioned earlier, S/MIME uses an `application/pkcs7-mime` part with an "smime-type" parameter with a value of
 "enveloped-data" to encapsulate the encrypted content.
 
-The first thing you must do is find the ApplicationPkcs7Mime part (see the section on traversing MIME parts).
+The first thing you must do is find the `ApplicationPkcs7Mime` part (see the section on traversing MIME parts).
 
 ```csharp
 if (entity is ApplicationPkcs7Mime) {
@@ -471,7 +484,7 @@ if (entity is ApplicationPkcs7Mime) {
 
 ### Encrypting Messages with PGP/MIME
 
-Unlike S/MIME, PGP/MIME uses multipart/encrypted to encapsulate its encrypted data.
+Unlike S/MIME, PGP/MIME uses `multipart/encrypted` to encapsulate its encrypted data.
 
 ```csharp
 var joey = new MailboxAddress ("Joey", "joey@friends.com");
@@ -497,10 +510,10 @@ using (var ctx = new MyGnuPGContext ()) {
 
 ### Decrypting PGP/MIME Messages
 
-As mentioned earlier, PGP/MIME uses a multipart/encrypted part to encapsulate the encrypted content.
+As mentioned earlier, PGP/MIME uses a `multipart/encrypted` part to encapsulate the encrypted content.
 
-A multipart/encrtpted contains exactly 2 parts: the first `MimeEntity` is the version information while the
-second `MimeEntity` is the actual encrypted content and will typically be an application/octet-stream.
+A `multipart/encrypted` contains exactly 2 parts: the first `MimeEntity` is the version information while the
+second `MimeEntity` is the actual encrypted content and will typically be an `application/octet-stream`.
 
 The first thing you must do is find the `MultipartEncrypted` part (see the section on traversing MIME parts).
 
@@ -514,7 +527,7 @@ if (entity is MultipartEncrypted) {
 
 ### Digitally Signing Messages with S/MIME or PGP/MIME
 
-Both S/MIME and PGP/MIME use a multipart/signed to contain the signed content and the detached signature data.
+Both S/MIME and PGP/MIME use a `multipart/signed` to contain the signed content and the detached signature data.
 
 Here's how you might digitally sign a message using S/MIME:
 
@@ -583,14 +596,14 @@ using (var ctx = new MyGnuPGContext ()) {
 
 ### Verifying S/MIME and PGP/MIME Digital Signatures
 
-As mentioned earlier, both S/MIME and PGP/MIME typically use a multipart/signed part to contain the
+As mentioned earlier, both S/MIME and PGP/MIME typically use a `multipart/signed` part to contain the
 signed content and the detached signature data.
 
-A multipart/signed contains exactly 2 parts: the first `MimeEntity` is the signed content while the second
+A `multipart/signed` contains exactly 2 parts: the first `MimeEntity` is the signed content while the second
 `MimeEntity` is the detached signature and, by default, will either be an `ApplicationPgpSignature` part or
 an `ApplicationPkcs7Signature` part (depending on whether the sending client signed using OpenPGP or S/MIME).
 
-Because the multipart/signed part may have been signed by multiple signers, it is important to
+Because the `multipart/signed` part may have been signed by multiple signers, it is important to
 verify each of the digital signatures (one for each signer) that are returned by the
 `MultipartSigned.Verify()` method:
 
@@ -614,8 +627,8 @@ if (entity is MultipartSigned) {
 }
 ```
 
-It should be noted, however, that while most S/MIME clients will use the preferred multipart/signed
-approach, it is possible that you may encounter an application/pkcs7-mime part with an "smime-type"
+It should be noted, however, that while most S/MIME clients will use the preferred `multipart/signed`
+approach, it is possible that you may encounter an `application/pkcs7-mime` part with an "smime-type"
 parameter set to "signed-data". Luckily, MimeKit can handle this format as well:
 
 ```csharp
@@ -642,6 +655,50 @@ if (entity is ApplicationPkcs7Mime) {
             }
         }
     }
+}
+```
+
+### Signing Messages with DKIM
+
+In addition to OpenPGP and S/MIME, MimeKit also supports DKIM signatures. To sign a message using DKIM,
+you'll first need a private key. In the following example, assume that the private key is saved in a
+file called **privatekey.pem**:
+
+```csharp
+var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
+var headerAlgorithm = DkimCanonicalizationAlgorithm.Simple;
+var bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
+var signer = new DkimSigner ("privatekey.pem") {
+	SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha1,
+	AgentOrUserIdentifier = "@eng.example.com",
+	QueryMethod = "dns/txt",
+};
+
+// Prepare the message body to be sent over a 7bit transport (such as older versions of SMTP).
+// Note: If the SMTP server you will be sending the message over supports the 8BITMIME extension,
+// then you can use `EncodingConstraint.EightBit` instead.
+message.Prepare (EncodingConstraint.SevenBit);
+
+message.Sign (signer, headers, headerAlgorithm, bodyAlgorithm);
+```
+
+As you can see, it's fairly straight forward.
+
+### Verifying DKIM Signatures
+
+Verifying DKIM signatures is slightly more involved than creating them because you'll need to write a custom
+implementation of the `IDkimPublicKeyLocator` interface. Typically, this custom class will need to download
+the DKIM public keys as they are requested by MimeKit during verification of DKIM signature headers.
+
+Once you've implemented a custom `IDkimPublicKeyLocator`, verifying signatures is fairly trivial:
+
+```csharp
+var dkim = message.Headers[HeaderId.DkimSignature];
+
+if (message.Verify (dkim, locator)) {
+    // the DKIM-Signature header is valid!
+} else {
+    // the DKIM-Signature is invalid
 }
 ```
 
