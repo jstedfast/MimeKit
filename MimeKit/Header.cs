@@ -966,10 +966,14 @@ namespace MimeKit {
 		{
 			switch (Id) {
 			case HeaderId.DispositionNotificationTo:
+			case HeaderId.ResentReplyTo:
+			case HeaderId.ResentSender:
 			case HeaderId.ResentFrom:
 			case HeaderId.ResentBcc:
 			case HeaderId.ResentCc:
 			case HeaderId.ResentTo:
+			case HeaderId.ReplyTo:
+			case HeaderId.Sender:
 			case HeaderId.From:
 			case HeaderId.Bcc:
 			case HeaderId.Cc:
