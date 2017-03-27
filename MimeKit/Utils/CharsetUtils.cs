@@ -162,6 +162,7 @@ namespace MimeKit.Utils {
 			switch (encoding.CodePage) {
 			case 932:   return "iso-2022-jp"; // shift_jis
 			case 949:   return "euc-kr";      // ks_c_5601-1987
+			case 50220: return "iso-2022-jp"; // csISO2022JP
 			case 50221: return "iso-2022-jp"; // csISO2022JP
 			case 50225: return "euc-kr";      // iso-2022-kr
 			default:
