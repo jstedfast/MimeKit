@@ -62,22 +62,25 @@ namespace UnitTests {
 		[Test]
 		public void TestReassemble ()
 		{
-			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.msg.txt"));
-			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.msg.txt"));
+			var message0 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.0.eml"));
+			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.eml"));
+			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.eml"));
 
-			Assert.IsNotNull (message1, "Failed to parse message-partial.1.msg");
-			Assert.IsNotNull (message2, "Failed to parse message-partial.2.msg");
+			Assert.IsNotNull (message0, "Failed to parse message-partial.1.eml");
+			Assert.IsNotNull (message1, "Failed to parse message-partial.1.eml");
+			Assert.IsNotNull (message2, "Failed to parse message-partial.2.eml");
 
-			Assert.IsTrue (message1.Body is MessagePartial, "The body of message-partial.1.msg is not a message/partial");
-			Assert.IsTrue (message2.Body is MessagePartial, "The body of message-partial.2.msg is not a message/partial");
+			Assert.IsTrue (message0.Body is MessagePartial, "The body of message-partial.0.eml is not a message/partial");
+			Assert.IsTrue (message1.Body is MessagePartial, "The body of message-partial.1.eml is not a message/partial");
+			Assert.IsTrue (message2.Body is MessagePartial, "The body of message-partial.2.eml is not a message/partial");
 
-			var partials = new MessagePartial[] { (MessagePartial) message1.Body, (MessagePartial) message2.Body };
+			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body, (MessagePartial) message2.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null));
 			var message = MessagePartial.Join (partials);
 
 			Assert.IsNotNull (message, "Failed to reconstruct the message");
-			Assert.AreEqual ("{15_3779; Victoria & Cherry}: suzeFan - 2377h003.jpg", message.Subject, "Subjects do not match");
+			Assert.AreEqual ("Photo of a girl with feather earrings", message.Subject, "Subjects do not match");
 			Assert.IsTrue (message.Body is Multipart, "Parsed message body is not a multipart");
 
 			var multipart = (Multipart) message.Body;
@@ -86,25 +89,26 @@ namespace UnitTests {
 			var part = multipart[1] as MimePart;
 			Assert.IsNotNull (part, "Second part is null or not a MimePart");
 			Assert.IsTrue (part.ContentType.IsMimeType ("image", "jpeg"), "Attachment is not an image/jpeg");
-			Assert.AreEqual ("2377h003.jpg", part.FileName, "Attachment filename is not the expected value");
+			Assert.AreEqual ("earrings.jpg", part.FileName, "Attachment filename is not the expected value");
 		}
 
 		[Test]
 		public void TestSplit ()
 		{
-			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.msg.txt"));
-			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.msg.txt"));
-			var partials = new MessagePartial[] { (MessagePartial) message1.Body, (MessagePartial) message2.Body };
+			var message0 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.0.eml"));
+			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.eml"));
+			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.eml"));
+			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body, (MessagePartial) message2.Body };
 			var message = MessagePartial.Join (partials);
 			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
 			var parts = new List<MessagePartial> ();
 
-			Assert.AreEqual (10, split.Count, "Unexpected count");
+			Assert.AreEqual (11, split.Count, "Unexpected count");
 
 			for (int i = 0; i < split.Count; i++) {
 				parts.Add ((MessagePartial) split[i].Body);
 
-				Assert.AreEqual (10, parts[i].Total, "Total");
+				Assert.AreEqual (11, parts[i].Total, "Total");
 				Assert.AreEqual (i + 1, parts[i].Number, "Number");
 			}
 

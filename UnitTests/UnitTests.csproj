@@ -176,8 +176,9 @@
     <None Include="TestData\messages\rfc2060.txt" />
     <None Include="TestData\openpgp\mimekit.gpg.pub" />
     <None Include="TestData\openpgp\mimekit.gpg.sec" />
-    <None Include="TestData\partial\message-partial.1.msg.txt" />
-    <None Include="TestData\partial\message-partial.2.msg.txt" />
+    <None Include="TestData\partial\message-partial.0.eml" />
+    <None Include="TestData\partial\message-partial.1.eml" />
+    <None Include="TestData\partial\message-partial.2.eml" />
     <None Include="TestData\smime\certificate-authority.crt" />
     <None Include="TestData\smime\certificate-authority.key" />
     <None Include="TestData\smime\gencerts.sh" />
