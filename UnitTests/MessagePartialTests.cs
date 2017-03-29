@@ -65,8 +65,9 @@ namespace UnitTests {
 			var message0 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.0.eml"));
 			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.eml"));
 			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.eml"));
+			var original = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.eml"));
 
-			Assert.IsNotNull (message0, "Failed to parse message-partial.1.eml");
+			Assert.IsNotNull (message0, "Failed to parse message-partial.0.eml");
 			Assert.IsNotNull (message1, "Failed to parse message-partial.1.eml");
 			Assert.IsNotNull (message2, "Failed to parse message-partial.2.eml");
 
@@ -90,16 +91,34 @@ namespace UnitTests {
 			Assert.IsNotNull (part, "Second part is null or not a MimePart");
 			Assert.IsTrue (part.ContentType.IsMimeType ("image", "jpeg"), "Attachment is not an image/jpeg");
 			Assert.AreEqual ("earrings.jpg", part.FileName, "Attachment filename is not the expected value");
+
+			using (var stream = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Unix;
+
+				original.WriteTo (options, stream);
+
+				var bytes0 = new byte[stream.Position];
+				Array.Copy (stream.GetBuffer (), 0, bytes0, 0, (int) stream.Position);
+
+				stream.Position = 0;
+
+				message.WriteTo (options, stream);
+
+				var bytes1 = new byte[stream.Position];
+				Array.Copy (stream.GetBuffer (), 0, bytes1, 0, (int) stream.Position);
+
+				Assert.AreEqual (bytes0.Length, bytes1.Length, "bytes");
+
+				for (int i = 0; i < bytes0.Length; i++)
+					Assert.AreEqual (bytes0[i], bytes1[i], "bytes[{0}]", i);
+			}
 		}
 
 		[Test]
 		public void TestSplit ()
 		{
-			var message0 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.0.eml"));
-			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.eml"));
-			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.eml"));
-			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body, (MessagePartial) message2.Body };
-			var message = MessagePartial.Join (partials);
+			var message = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.eml"));
 			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
 			var parts = new List<MessagePartial> ();
 
