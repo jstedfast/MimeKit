@@ -524,7 +524,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static unsafe bool IsMboxMarker (byte* text)
+		static unsafe bool IsMboxMarker (byte* text, bool allowMunged = false)
 		{
 #if COMPARE_QWORD
 			const ulong FromMask = 0x000000FFFFFFFFFF;
@@ -534,6 +534,9 @@ namespace MimeKit {
 			return (*qword & FromMask) == From;
 #else
 			byte* inptr = text;
+
+			if (allowMunged && *inptr == (byte) '>')
+				inptr++;
 
 			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr == (byte) ' ';
 #endif
@@ -795,7 +798,7 @@ namespace MimeKit {
 
 							if (state == MimeParserState.MessageHeaders && headers.Count == 0) {
 								// ignore From-lines that might appear at the start of a message
-								if (length < 5 || !IsMboxMarker (start)) {
+								if (length < 5 || !IsMboxMarker (start, true)) {
 									// not a From-line...
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Error;
@@ -846,7 +849,7 @@ namespace MimeKit {
 
 					length = (inptr + 1) - start;
 
-					if (!valid && headers.Count == 0 && length > 5 && IsMboxMarker (start)) {
+					if (!valid && headers.Count == 0 && length > 5 && IsMboxMarker (start, true)) {
 						if (inptr[-1] == (byte) '\r')
 							length--;
 						length--;
