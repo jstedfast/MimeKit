@@ -86,26 +86,26 @@ namespace MimeKit.IO.Filters {
 		{
 			if (preloadLength == 0)
 				return input;
-			
+
 			// We need to preload any data from a previous filter iteration into 
 			// the input buffer, so make sure that we have room...
 			int totalLength = length + preloadLength;
-			
+
 			if (inbuf == null || inbuf.Length < totalLength) {
 				// NOTE: Array.Resize() copies data, we don't need that (slower)
 				inbuf = new byte[GetIdealBufferSize (totalLength)];
 			}
-			
+
 			// Copy our preload data into our internal input buffer
 			Buffer.BlockCopy (preload, 0, inbuf, 0, preloadLength);
-			
+
 			// Copy our input to the end of our internal input buffer
 			Buffer.BlockCopy (input, startIndex, inbuf, preloadLength, length);
-			
-			startIndex = preloadLength;
+
 			length = totalLength;
 			preloadLength = 0;
-			
+			startIndex = 0;
+
 			return inbuf;
 		}
 
@@ -146,7 +146,7 @@ namespace MimeKit.IO.Filters {
 			ValidateArguments (input, startIndex, length);
 
 			input = PreFilter (input, ref startIndex, ref length);
-			
+
 			return Filter (input, startIndex, length, out outputIndex, out outputLength, false);
 		}
 		
