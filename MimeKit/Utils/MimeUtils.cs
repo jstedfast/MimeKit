@@ -128,7 +128,7 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
-#if PORTABLE || COREFX
+#if PORTABLE || NET_STANDARD
 			return GenerateMessageId ("localhost.localdomain");
 #else
 			var properties = IPGlobalProperties.GetIPGlobalProperties ();

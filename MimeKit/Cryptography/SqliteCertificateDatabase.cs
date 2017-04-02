@@ -60,7 +60,7 @@ namespace MimeKit.Cryptography {
 		// assembly.
 		static SqliteCertificateDatabase ()
 		{
-#if COREFX
+#if NET_STANDARD
 			try {
 				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
 					sqliteConnectionClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnection");

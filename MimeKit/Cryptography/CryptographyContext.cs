@@ -318,7 +318,7 @@ namespace MimeKit.Cryptography {
 #if !PORTABLE
 					if (!SqliteCertificateDatabase.IsAvailable) {
 						const string format = "SQLite is not available. Either install the {0} nuget or subclass MimeKit.Cryptography.SecureMimeContext and register it with MimeKit.Cryptography.CryptographyContext.Register().";
-#if COREFX
+#if NET_STANDARD
 						throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
 #else
 						throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
@@ -384,7 +384,7 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-#if PORTABLE || COREFX
+#if PORTABLE || NET_STANDARD
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;

@@ -298,7 +298,7 @@ namespace MimeKit {
 				using (var memory = new MemoryStream ()) {
 					ContentObject.DecodeTo (memory);
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE && !NET_STANDARD
 					var content = memory.GetBuffer ();
 #else
 					var content = memory.ToArray ();
@@ -398,7 +398,7 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				ContentObject.DecodeTo (memory);
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE && !NET_STANDARD
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();

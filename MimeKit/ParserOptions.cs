@@ -221,7 +221,7 @@ namespace MimeKit {
 
 			mimeType = mimeType.ToLowerInvariant ();
 
-#if PORTABLE || COREFX
+#if PORTABLE || NET_STANDARD
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;

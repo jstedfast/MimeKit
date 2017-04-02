@@ -216,7 +216,7 @@ namespace MimeKit {
 			}
 
 			var streams = new List<Stream> ();
-#if !PORTABLE && !COREFX
+#if !PORTABLE && !NET_STANDARD
 			var buf = memory.GetBuffer ();
 #else
 			var buf = memory.ToArray ();

@@ -608,7 +608,7 @@ namespace MimeKit.Cryptography {
 						return LoadCertificateRecord (reader, parser, ref buffer);
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -643,7 +643,7 @@ namespace MimeKit.Cryptography {
 							yield return record.Certificate;
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -679,7 +679,7 @@ namespace MimeKit.Cryptography {
 							yield return record.PrivateKey;
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -722,7 +722,7 @@ namespace MimeKit.Cryptography {
 						yield return LoadCertificateRecord (reader, parser, ref buffer);
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -760,7 +760,7 @@ namespace MimeKit.Cryptography {
 							yield return record;
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -861,7 +861,7 @@ namespace MimeKit.Cryptography {
 						yield return LoadCrlRecord (reader, parser, ref buffer);
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -901,7 +901,7 @@ namespace MimeKit.Cryptography {
 						return LoadCrlRecord (reader, parser, ref buffer);
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();
@@ -995,7 +995,7 @@ namespace MimeKit.Cryptography {
 						crls.Add (record.Crl);
 					}
 				} finally {
-#if COREFX
+#if NET_STANDARD
 					reader.Dispose ();
 #else
 					reader.Close ();

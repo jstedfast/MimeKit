@@ -621,7 +621,7 @@ namespace MimeKit.Text {
 		{
 			var name = value.ToString ();
 
-#if PORTABLE || COREFX
+#if PORTABLE || NET_STANDARD
 			var field = typeof (HtmlAttributeId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false).ToArray ();
 #else

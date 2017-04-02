@@ -1874,7 +1874,7 @@ namespace MimeKit.Cryptography
 			}
 
 			if (File.Exists (PublicKeyRingPath)) {
-#if !COREFX
+#if !NET_STANDARD
 				File.Replace (tmp, PublicKeyRingPath, bak);
 #else
 				if (File.Exists (bak))
@@ -1918,7 +1918,7 @@ namespace MimeKit.Cryptography
 			}
 
 			if (File.Exists (SecretKeyRingPath)) {
-#if !COREFX
+#if !NET_STANDARD
 				File.Replace (tmp, SecretKeyRingPath, bak);
 #else
 				if (File.Exists (bak))

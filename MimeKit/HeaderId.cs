@@ -475,7 +475,7 @@ namespace MimeKit {
 		{
 			var name = value.ToString ();
 
-#if PORTABLE || COREFX
+#if PORTABLE || NET_STANDARD
 			var field = typeof (HeaderId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false).ToArray ();
 #else
