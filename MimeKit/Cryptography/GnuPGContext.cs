@@ -27,7 +27,8 @@
 using System;
 using System.IO;
 
-namespace MimeKit.Cryptography {
+namespace MimeKit.Cryptography
+{
 	/// <summary>
 	/// A <see cref="OpenPgpContext"/> that uses the GnuPG keyrings.
 	/// </summary>
@@ -71,9 +72,12 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
+#if !NET_3_5 && !NET_4_0
 			LoadConfiguration ();
+#endif
 		}
 
+#if !NET_3_5 && !NET_4_0
 		void UpdateKeyServer (string value)
 		{
 			if (string.IsNullOrEmpty (value)) {
@@ -142,5 +146,6 @@ namespace MimeKit.Cryptography {
 				}
 			}
 		}
+#endif
 	}
 }
