@@ -54,6 +54,7 @@
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
     <Compile Include="XMessagePriority.cs" />
+    <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />
