@@ -18,8 +18,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\lib\portable</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\portable</IntermediateOutputPath>
+    <OutputPath>bin\Debug\portable</OutputPath>
+    <IntermediateOutputPath>obj\Debug\portable</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,9 +28,9 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\lib\portable</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\portable</IntermediateOutputPath>
-    <DocumentationFile>bin\Release\lib\portable\MimeKit.xml</DocumentationFile>
+    <OutputPath>bin\Release\portable</OutputPath>
+    <IntermediateOutputPath>obj\Release\portable</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\portable\MimeKit.xml</DocumentationFile>
     <DefineConstants>TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
