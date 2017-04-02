@@ -88,6 +88,7 @@
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\NpgsqlCertificateDatabase.cs" />
+    <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
@@ -249,7 +250,6 @@
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
     <Compile Include="XMessagePriority.cs" />
-    <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Cryptography\" />
