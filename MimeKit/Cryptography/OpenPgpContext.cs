@@ -28,8 +28,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-#if !NET_3_5 && !NET_4_0
+#if USE_HTTP_CLIENT
 using System.Net.Http;
+#else
+using System.Net;
 #endif
 using System.Threading;
 using System.Diagnostics;
@@ -37,10 +39,6 @@ using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
-
-#if __IOS__
-using Foundation;
-#endif
 
 using MimeKit.IO;
 
@@ -59,10 +57,10 @@ namespace MimeKit.Cryptography
 		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
 		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
 		EncryptionAlgorithm defaultAlgorithm;
-#if !NET_3_5 && !NET_4_0
+#if USE_HTTP_CLIENT
 		HttpClient client;
-		Uri keyServer;
 #endif
+		Uri keyServer;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
@@ -75,10 +73,7 @@ namespace MimeKit.Cryptography
 		protected OpenPgpContext ()
 		{
 			defaultAlgorithm = EncryptionAlgorithm.Cast5;
-
-#if __IOS__
-			client = new HttpClient (new NSUrlSessionHandler ());
-#elif !NET_3_5 && !NET_4_0
+#if USE_HTTP_CLIENT
 			client = new HttpClient ();
 #endif
 		}
@@ -190,7 +185,6 @@ namespace MimeKit.Cryptography
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		bool IsValidKeyServer {
 			get {
 				if (keyServer == null)
@@ -237,7 +231,6 @@ namespace MimeKit.Cryptography
 		public bool AutoKeyRetrieve {
 			get; set;
 		}
-#endif
 
 #if PORTABLE
 		/// <summary>
@@ -486,7 +479,6 @@ namespace MimeKit.Cryptography
 			return false;
 		}
 
-#if !NET_3_5 && !NET_4_0
 		PgpPublicKeyRing RetrievePublicKeyRing (long keyId, CancellationToken cancellationToken)
 		{
 			var scheme = keyServer.Scheme.ToLowerInvariant ();
@@ -505,28 +497,34 @@ namespace MimeKit.Cryptography
 			uri.Path = "/pks/lookup";
 			uri.Query = string.Format ("op=get&search=0x{0:X}", keyId);
 
-			using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ()) {
-				using (var stream = new MemoryBlockStream ()) {
-					using (var filtered = new FilteredStream (stream)) {
-						filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
+			using (var stream = new MemoryBlockStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
 
+#if USE_HTTP_CLIENT
+					using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ())
 						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
-						filtered.Flush ();
+#else
+					var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
+					using (var response = request.GetResponse ()) {
+						var content = response.GetResponseStream ();
+						content.CopyTo (filtered, 4096);
 					}
+#endif
+					filtered.Flush ();
+				}
 
-					stream.Position = 0;
+				stream.Position = 0;
 
-					using (var armored = new ArmoredInputStream (stream, true)) {
-						var bundle = new PgpPublicKeyRingBundle (armored);
+				using (var armored = new ArmoredInputStream (stream, true)) {
+					var bundle = new PgpPublicKeyRingBundle (armored);
 
-						Import (bundle);
+					Import (bundle);
 
-						return bundle.GetPublicKeyRing (keyId);
-					}
+					return bundle.GetPublicKeyRing (keyId);
 				}
 			}
 		}
-#endif
 
 		bool TryGetPublicKeyRing (long keyId, out PgpPublicKeyRing keyring, out PgpPublicKey pubkey, CancellationToken cancellationToken)
 		{
@@ -540,7 +538,6 @@ namespace MimeKit.Cryptography
 				}
 			}
 
-#if !NET_3_5 && !NET_4_0
 			if (AutoKeyRetrieve && IsValidKeyServer) {
 				try {
 					if ((keyring = RetrievePublicKeyRing (keyId, cancellationToken)) != null)
@@ -557,10 +554,6 @@ namespace MimeKit.Cryptography
 				keyring = null;
 				pubkey = null;
 			}
-#else
-			keyring = null;
-			pubkey = null;
-#endif
 
 			return false;
 		}
@@ -2168,7 +2161,7 @@ namespace MimeKit.Cryptography
 			};
 		}
 
-#if !NET_3_5 && !NET_4_0
+#if USE_HTTP_CLIENT
 		/// <summary>
 		/// Releases all resources used by the <see cref="MimeKit.Cryptography.OpenPgpContext"/> object.
 		/// </summary>

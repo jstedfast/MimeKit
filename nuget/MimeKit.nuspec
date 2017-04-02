@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-	<metadata minClientVersion="2.8.6">
+	<metadata minClientVersion="2.12">
 		<id>MimeKit</id>
 		<version>1.12.0</version>
 		<title>MimeKit</title>
@@ -79,6 +79,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 			<dependency id="System.Net.NameResolution" version="4.0.0" />
 			<dependency id="System.Net.NetworkInformation" version="4.1.0" />
 			<dependency id="System.Net.Primitives" version="4.0.11" />
+			<dependency id="System.Net.HttpClient" version="4.1.1" />
 			<dependency id="System.Collections" version="4.0.11" />
 			<dependency id="System.Data.Common" version="4.1.0" />
 			<dependency id="System.Reflection" version="4.1.0" />

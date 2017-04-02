@@ -72,12 +72,9 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
-#if !NET_3_5 && !NET_4_0
 			LoadConfiguration ();
-#endif
 		}
 
-#if !NET_3_5 && !NET_4_0
 		void UpdateKeyServer (string value)
 		{
 			if (string.IsNullOrEmpty (value)) {
@@ -146,6 +143,5 @@ namespace MimeKit.Cryptography
 				}
 			}
 		}
-#endif
 	}
 }

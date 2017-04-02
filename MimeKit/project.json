@@ -11,7 +11,7 @@
   "frameworks": {
     "netstandard1.3": {
       "buildOptions": {
-        "define": [ "COREFX", "ENABLE_CRYPTO" ],
+        "define": [ "COREFX", "ENABLE_CRYPTO", "USE_HTTP_CLIENT" ],
         "allowUnsafe": true,
         "compile": {
           "exclude": [
