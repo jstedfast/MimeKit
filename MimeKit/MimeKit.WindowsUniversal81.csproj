@@ -22,8 +22,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\lib\wpa81</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\wpa81</IntermediateOutputPath>
+    <OutputPath>bin\Debug\wpa81</OutputPath>
+    <IntermediateOutputPath>obj\Debug\wpa81</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,9 +33,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType></DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\lib\wpa81</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\wpa81</IntermediateOutputPath>
-    <DocumentationFile>bin\Release\lib\wpa81\MimeKit.xml</DocumentationFile>
+    <OutputPath>bin\Release\wpa81</OutputPath>
+    <IntermediateOutputPath>obj\Release\wpa81</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\wpa81\MimeKit.xml</DocumentationFile>
     <DefineConstants>TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
