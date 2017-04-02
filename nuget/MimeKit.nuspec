@@ -69,13 +69,13 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 		<group targetFramework="Xamarin.iOS10" />
 		<group targetFramework=".NETStandard1.3">
 			<dependency id="NetStandard.Library" version="1.6.0" />
-			<dependency id="System.Runtime.Serialization.Primitives" version="4.1.1" />
-			<dependency id="System.Reflection.TypeExtensions" version="4.1.0" />
-			<dependency id="System.Text.Encoding.CodePages" version="4.0.1" />
-			<dependency id="System.Net.NameResolution" version="4.0.0" />
-			<dependency id="System.Net.NetworkInformation" version="4.1.0" />
-			<dependency id="System.Data.Common" version="4.1.0" />
-			<dependency id="Microsoft.CSharp" version="4.0.1" />
+			<dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
+			<dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
+			<dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
+			<dependency id="System.Net.NameResolution" version="4.3.0" />
+			<dependency id="System.Net.NetworkInformation" version="4.3.0" />
+			<dependency id="System.Data.Common" version="4.3.0" />
+			<dependency id="Microsoft.CSharp" version="4.3.0" />
 			<dependency id="Portable.BouncyCastle" version="1.8.1.2" />
 		</group>
 		<group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10">
