@@ -286,7 +286,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Creates a new <see cref="CryptographyContext"/> for the specified protocol.</para>
 		/// <para>The default <see cref="CryptographyContext"/> types can over overridden by calling
-		/// the <see cref="Register"/> method with the preferred type.</para>
+		/// the <see cref="Register(Type)"/> method with the preferred type.</para>
 		/// </remarks>
 		/// <returns>The <see cref="CryptographyContext"/> for the protocol.</returns>
 		/// <param name="protocol">The protocol.</param>
