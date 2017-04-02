@@ -68,7 +68,7 @@ For those that need SMTP, POP3 or IMAP support, check out https://github.com/jst
 		<group targetFramework="MonoAndroid10" />
 		<group targetFramework="Xamarin.iOS10" />
 		<group targetFramework=".NETStandard1.3">
-			<dependency id="NetStandard.Library" version="1.6.0" />
+			<dependency id="NETStandard.Library" version="1.6.1" />
 			<dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
 			<dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
 			<dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
