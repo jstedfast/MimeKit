@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.WindowsUniversal81"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net35", "MimeKit\MimeKit.Net35.csproj", "{C8C90007-C877-4763-8F3E-5CCF307F7E93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.NetStandard", "MimeKit\MimeKit.NetStandard.csproj", "{E8667DCE-A5BB-4D30-9815-FC8959E447F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKit.NetStandard", "MimeKit\MimeKit.NetStandard.csproj", "{E8667DCE-A5BB-4D30-9815-FC8959E447F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
