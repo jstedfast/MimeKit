@@ -1,9 +1,9 @@
 //
 // PgpMimeTests.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ namespace UnitTests {
 
 			CryptographyContext.Register (typeof (DummyOpenPgpContext));
 
-			foreach (var name in new [] { "pubring.gpg", "pubring.gpg~", "secring.gpg", "secring.gpg~" }) {
+			foreach (var name in new [] { "pubring.gpg", "pubring.gpg~", "secring.gpg", "secring.gpg~", "gpg.conf" }) {
 				if (File.Exists (name))
 					File.Delete (name);
 			}
@@ -58,6 +58,8 @@ namespace UnitTests {
 				using (var pubkeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.pub")))
 					ctx.Import (pubkeys);
 			}
+
+			File.Copy (Path.Combine (dataDir, "gpg.conf"), "gpg.conf", true);
 		}
 
 		[Test]
@@ -440,6 +442,38 @@ namespace UnitTests {
 		}
 
 		[Test]
+		[Ignore]
+		public void TestAutoKeyRetrieve ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "openpgp", "[Announce] GnuPG 2.1.19 released.eml"));
+			var multipart = (MultipartSigned) message.Body;
+
+			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+
+			var protocol = multipart.ContentType.Parameters["protocol"];
+			Assert.AreEqual ("application/pgp-signature", protocol, "The multipart/signed protocol does not match.");
+
+			var micalg = multipart.ContentType.Parameters["micalg"];
+
+			Assert.AreEqual ("pgp-sha1", micalg, "The multipart/signed micalg does not match.");
+
+			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+			Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+
+			var signatures = multipart.Verify ();
+			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+			foreach (var signature in signatures) {
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					Assert.Fail ("Failed to verify signature: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestExport ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -499,6 +533,8 @@ namespace UnitTests {
 				var key = ctx.GetSigningKey (mailboxes[0]);
 				var emptyPubkeys = new PgpPublicKey[0];
 				var stream = new MemoryStream ();
+
+				Assert.Throws<ArgumentException> (() => ctx.KeyServer = new Uri ("relative/uri", UriKind.Relative));
 
 				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpEncrypted ((MimeEntityConstructorArgs) null));
 				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpSignature ((MimeEntityConstructorArgs) null));
