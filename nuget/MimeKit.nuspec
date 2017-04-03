@@ -1,113 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-	<metadata minClientVersion="2.12">
-		<id>MimeKit</id>
-		<version>1.12.0</version>
-		<title>MimeKit</title>
-		<authors>Jeffrey Stedfast</authors>
-		<owners>Jeffrey Stedfast</owners>
-		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-		<projectUrl>http://github.com/jstedfast/MimeKit</projectUrl>
-		<iconUrl>https://raw.github.com/jstedfast/MimeKit/master/nuget/mimekit-50.png</iconUrl>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
+  <metadata minClientVersion="2.12">
+    <id>MimeKit</id>
+    <version>1.12.0</version>
+    <title>MimeKit</title>
+    <authors>Jeffrey Stedfast</authors>
+    <owners>Jeffrey Stedfast</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>http://github.com/jstedfast/MimeKit</projectUrl>
+    <iconUrl>https://raw.github.com/jstedfast/MimeKit/master/nuget/mimekit-50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
-Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and over 100x faster than AE.Net.Mail and MailSystem.NET).
+      Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and over 100x faster than AE.Net.Mail and MailSystem.NET).
 
-MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
+      MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
 
-In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.
+      In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's massive limitations or bugs.
 
-API documentation can be found on the web at http://www.mimekit.net/docs
+      API documentation can be found on the web at http://www.mimekit.net/docs
 
-For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit</description>
-		<summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
-		<releaseNotes>* Added new DKIM MimeMessage.Sign() methods that take an IList&lt;string&gt; of header field names to sign.
-* Improved the address parser to allow the lack of a terminating ';' character at the end of group addresses.
-* Improved the address parser to unquoted ',' and '.' characters in the name component of mailbox and group addresses.
-* Added support for CryptographyContext factories by adding new Register() methods that take function callbacks that return a SecureMimeContext or OpenPgpContext. Thanks to Christoph Enzmann for this feature. (issue #283)
-* Fixed DefaultSecureMimeContext..cctor() to not call Directory.CreateDirectory() on the default database directory. Instead, let the .ctor() create it instead if and when an instance of the DefaultSecureMimeContext is created. (issue #285)
-* Store DBNull in S/MIME SQL backends for null values (SQLite handles `null` but databases such as Postgres do not). (issue #286)
-</releaseNotes>
-		<copyright>Xamarin Inc.</copyright>
-		<language>en-US</language>
-		<tags>mime encryption dkim security smime s/mime openpgp pgp mbox mail email parser tnef dnx dnxcore50 netcore netstandard net35 net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
-		<frameworkAssemblies>
-			<frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
-			<frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
-			<frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.5" />
-			<frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
-			<frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
-			<frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
-			<frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0" />
-			<frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
-			<frameworkAssembly assemblyName="System" targetFramework=".NETFramework3.5" />
-			<frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework3.5" />
-			<frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework3.5" />
-			<frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework3.5" />
-			<frameworkAssembly assemblyName="System" targetFramework="MonoAndroid10" />
-			<frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid10" />
-			<frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid10" />
-			<frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
-			<frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
-			<frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
-		</frameworkAssemblies>
-	<dependencies>
-		<group targetFramework="net35">
-			<dependency id="BouncyCastle" version="1.8.1" />
-		</group>
-		<group targetFramework="net40">
-			<dependency id="BouncyCastle" version="1.8.1" />
-		</group>
-		<group targetFramework="net45">
-			<dependency id="BouncyCastle" version="1.8.1" />
-		</group>
-		<group targetFramework="net451">
-			<dependency id="BouncyCastle" version="1.8.1" />
-		</group>
-		<group targetFramework="MonoAndroid10" />
-		<group targetFramework="Xamarin.iOS10" />
-		<group targetFramework=".NETStandard1.3">
-			<dependency id="NETStandard.Library" version="1.6.1" />
-			<dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
-			<dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
-			<dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
-			<dependency id="System.Net.NameResolution" version="4.3.0" />
-			<dependency id="System.Net.NetworkInformation" version="4.3.0" />
-			<dependency id="System.Data.Common" version="4.3.0" />
-			<dependency id="Microsoft.CSharp" version="4.3.0" />
-			<dependency id="Portable.BouncyCastle" version="1.8.1.2" />
-		</group>
-		<group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10">
-			<dependency id="Portable.BouncyCastle" version="1.8.1.2" />
-		</group>
-		<group targetFramework="wpa81">
-			<dependency id="Portable.BouncyCastle" version="1.8.1.2" />
-		</group>
-	</dependencies>
-	</metadata>
-	<files>
-		<file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.dll" target="lib\netstandard1.3\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.xml" target="lib\netstandard1.3\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid10\BouncyCastle.dll" />
-		<file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid10\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid10\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\Xamarin.iOS\BouncyCastle.dll" target="lib\Xamarin.iOS10\BouncyCastle.dll" />
-		<file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.dll" target="lib\Xamarin.iOS10\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.xml" target="lib\Xamarin.iOS10\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\net35\MimeKit.dll" target="lib\net35\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\net35\MimeKit.xml" target="lib\net35\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net451\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net451\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\portable\MimeKit.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\portable\MimeKit.xml" target="lib\portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\Portable.Text.Encoding.dll" />
-		<file src="..\MimeKit\bin\Release\wpa81\MimeKit.dll" target="lib\wpa81\MimeKit.dll" />
-		<file src="..\MimeKit\bin\Release\wpa81\MimeKit.xml" target="lib\wpa81\MimeKit.xml" />
-		<file src="..\MimeKit\bin\Release\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />
-	</files>
+      For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit
+    </description>
+    <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
+    <releaseNotes>
+      * Added new DKIM MimeMessage.Sign() methods that take an IList&lt;string&gt; of header field names to sign.
+      * Improved the address parser to allow the lack of a terminating ';' character at the end of group addresses.
+      * Improved the address parser to unquoted ',' and '.' characters in the name component of mailbox and group addresses.
+      * Added support for CryptographyContext factories by adding new Register() methods that take function callbacks that return a SecureMimeContext or OpenPgpContext. Thanks to Christoph Enzmann for this feature. (issue #283)
+      * Fixed DefaultSecureMimeContext..cctor() to not call Directory.CreateDirectory() on the default database directory. Instead, let the .ctor() create it instead if and when an instance of the DefaultSecureMimeContext is created. (issue #285)
+      * Store DBNull in S/MIME SQL backends for null values (SQLite handles `null` but databases such as Postgres do not). (issue #286)
+    </releaseNotes>
+    <copyright>Xamarin Inc.</copyright>
+    <language>en-US</language>
+    <tags>mime encryption dkim security smime s/mime openpgp pgp mbox mail email parser tnef dnx dnxcore50 netcore netstandard net35 net40 net45 xamarin android ios monodroid monotouch win8 wp81</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.0" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework3.5" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework3.5" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework3.5" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework3.5" />
+      <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid10" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid10" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid10" />
+      <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS10" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS10" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS10" />
+    </frameworkAssemblies>
+    <dependencies>
+      <group targetFramework="net35">
+        <dependency id="BouncyCastle" version="1.8.1" />
+      </group>
+      <group targetFramework="net40">
+        <dependency id="BouncyCastle" version="1.8.1" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="BouncyCastle" version="1.8.1" />
+      </group>
+      <group targetFramework="net451">
+        <dependency id="BouncyCastle" version="1.8.1" />
+      </group>
+      <group targetFramework="MonoAndroid10" />
+      <group targetFramework="Xamarin.iOS10" />
+      <group targetFramework=".NETStandard1.3">
+        <dependency id="NETStandard.Library" version="1.6.1" />
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
+        <dependency id="System.Net.NameResolution" version="4.3.0" />
+        <dependency id="System.Net.NetworkInformation" version="4.3.0" />
+        <dependency id="System.Data.Common" version="4.3.0" />
+        <dependency id="Microsoft.CSharp" version="4.3.0" />
+        <dependency id="Portable.BouncyCastle" version="1.8.1.2" />
+      </group>
+      <group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10">
+        <dependency id="Portable.BouncyCastle" version="1.8.1.2" />
+      </group>
+      <group targetFramework="wpa81">
+        <dependency id="Portable.BouncyCastle" version="1.8.1.2" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.dll" target="lib\netstandard1.3\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.xml" target="lib\netstandard1.3\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\MonoAndroid\BouncyCastle.dll" target="lib\MonoAndroid10\BouncyCastle.dll" />
+    <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.dll" target="lib\MonoAndroid10\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.xml" target="lib\MonoAndroid10\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\Xamarin.iOS\BouncyCastle.dll" target="lib\Xamarin.iOS10\BouncyCastle.dll" />
+    <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.dll" target="lib\Xamarin.iOS10\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.xml" target="lib\Xamarin.iOS10\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net35\MimeKit.dll" target="lib\net35\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net35\MimeKit.xml" target="lib\net35\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net40\MimeKit.dll" target="lib\net40\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net40\MimeKit.xml" target="lib\net40\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net451\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net451\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\portable\MimeKit.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\portable\MimeKit.xml" target="lib\portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\Portable.Text.Encoding.dll" />
+    <file src="..\MimeKit\bin\Release\wpa81\MimeKit.dll" target="lib\wpa81\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\wpa81\MimeKit.xml" target="lib\wpa81\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />
+  </files>
 </package>
