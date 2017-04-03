@@ -27,8 +27,11 @@
 using System;
 using System.IO;
 
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -40,6 +43,33 @@ namespace MimeKit.Cryptography {
 	public class DkimSigner
 	{
 		/// <summary>
+		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DkimSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DkimSigner"/>.
+		/// </remarks>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// </exception>
+		protected DkimSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		{
+			if (domain == null)
+				throw new ArgumentNullException (nameof (domain));
+
+			if (selector == null)
+				throw new ArgumentNullException (nameof (selector));
+
+			SignatureAlgorithm = algorithm;
+			Selector = selector;
+			Domain = domain;
+		}
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
@@ -48,6 +78,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="key">The signer's private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="key"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -58,7 +89,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector)
+		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
 		{
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
@@ -72,7 +103,7 @@ namespace MimeKit.Cryptography {
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
-			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
+			SignatureAlgorithm = algorithm;
 			Selector = selector;
 			PrivateKey = key;
 			Domain = domain;
@@ -88,6 +119,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="fileName">The file containing the private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -115,7 +147,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public DkimSigner (string fileName, string domain, string selector)
+		public DkimSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -153,7 +185,7 @@ namespace MimeKit.Cryptography {
 			if (key == null || !key.IsPrivate)
 				throw new FormatException ("Private key not found.");
 
-			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
+			SignatureAlgorithm = algorithm;
 			PrivateKey = key;
 			Selector = selector;
 			Domain = domain;
@@ -169,6 +201,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="stream">The stream containing the private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -182,7 +215,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public DkimSigner (Stream stream, string domain, string selector)
+		public DkimSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -228,7 +261,7 @@ namespace MimeKit.Cryptography {
 		/// The private key used for signing.
 		/// </remarks>
 		/// <value>The private key.</value>
-		public AsymmetricKeyParameter PrivateKey {
+		protected AsymmetricKeyParameter PrivateKey {
 			get; private set;
 		}
 
@@ -289,6 +322,30 @@ namespace MimeKit.Cryptography {
 		/// <value>The public key query method.</value>
 		public string QueryMethod {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get the digest signing context for a specified signature algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Gets the digest signing context for the specified signature algorithm.
+		/// </remarks>
+		/// <returns>The digest signer.</returns>
+		public virtual ISigner DigestSigner {
+			get {
+				DerObjectIdentifier id;
+
+				if (SignatureAlgorithm == DkimSignatureAlgorithm.RsaSha256)
+					id = PkcsObjectIdentifiers.Sha256WithRsaEncryption;
+				else
+					id = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
+
+				var signer = SignerUtilities.GetSigner (id);
+
+				signer.Init (true, PrivateKey);
+
+				return signer;
+			}
 		}
 	}
 }

@@ -136,6 +136,19 @@ namespace UnitTests
 			var options = FormatOptions.Default;
 			var message = new MimeMessage ();
 
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner ((AsymmetricKeyParameter) null, "domain", "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner (DkimKeys.Private, null, "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner (DkimKeys.Private, "domain", null));
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner ((string) null, "domain", "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner ("fileName", null, "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner ("fileName", "domain", null));
+			Assert.Throws<ArgumentException> (() => new DkimSigner (string.Empty, "domain", "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DkimSigner ((Stream) null, "domain", "selector"));
+			using (var stream = new MemoryStream ()) {
+				Assert.Throws<ArgumentNullException> (() => new DkimSigner (stream, null, "selector"));
+				Assert.Throws<ArgumentNullException> (() => new DkimSigner (stream, "domain", null));
+			}
+
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<HeaderId>) null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new string[] { "From" }));
