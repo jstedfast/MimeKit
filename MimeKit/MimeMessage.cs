@@ -985,7 +985,7 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (FormatOptions.Default, memory);
 
-#if !PORTABLE && !NET_STANDARD
+#if !PORTABLE && !NETSTANDARD
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();

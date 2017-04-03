@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-#if !PORTABLE && !NET_STANDARD
+#if !PORTABLE && !NETSTANDARD
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 #endif
 
@@ -278,7 +278,7 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-#if !PORTABLE && !NET_STANDARD
+#if !PORTABLE && !NETSTANDARD
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>

@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;USE_HTTP_CLIENT</DefineConstants>
+    <DefineConstants>$(DefineConstants);USE_HTTP_CLIENT;NETSTANDARD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
