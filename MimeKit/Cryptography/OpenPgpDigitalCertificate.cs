@@ -1,9 +1,9 @@
 //
 // OpenPgpDigitalCertificate.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,13 +38,13 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class OpenPgpDigitalCertificate : IDigitalCertificate
 	{
-		internal OpenPgpDigitalCertificate (PgpPublicKey pubkey)
+		internal OpenPgpDigitalCertificate (PgpPublicKeyRing keyring, PgpPublicKey pubkey)
 		{
-			var data = pubkey.GetFingerprint ();
+			var bytes = pubkey.GetFingerprint ();
 			var builder = new StringBuilder ();
 
-			for (int i = 0; i < data.Length; i++)
-				builder.Append (data[i].ToString ("X"));
+			for (int i = 0; i < bytes.Length; i++)
+				builder.Append (bytes[i].ToString ("X2"));
 
 //			var trust = pubkey.GetTrustData ();
 //			if (trust != null) {
@@ -55,18 +55,15 @@ namespace MimeKit.Cryptography {
 
 			Fingerprint = builder.ToString ();
 			PublicKey = pubkey;
+			KeyRing = keyring;
 
-			foreach (string userId in pubkey.GetUserIds ()) {
-				data = Encoding.UTF8.GetBytes (userId);
-				MailboxAddress mailbox;
-				int index = 0;
-
-				if (!MailboxAddress.TryParse (ParserOptions.Default, data, ref index, data.Length, false, out mailbox))
-					continue;
-
-				Email = mailbox.Address;
-				Name = mailbox.Name;
-				break;
+			if (!UpdateUserId (pubkey) && !pubkey.IsMasterKey) {
+				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
+					if (key.IsMasterKey) {
+						UpdateUserId (key);
+						break;
+					}
+				}
 			}
 		}
 
@@ -74,11 +71,40 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
+		bool UpdateUserId (PgpPublicKey pubkey)
+		{
+			foreach (string userId in pubkey.GetUserIds ()) {
+				var bytes = Encoding.UTF8.GetBytes (userId);
+				MailboxAddress mailbox;
+				int index = 0;
+
+				if (!MailboxAddress.TryParse (ParserOptions.Default, bytes, ref index, bytes.Length, false, out mailbox))
+					continue;
+
+				Email = mailbox.Address;
+				Name = mailbox.Name;
+				return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Gets the public key ring.
+		/// </summary>
+		/// <remarks>
+		/// Get the public key ring that <see cref="PublicKey"/> is associated with.
+		/// </remarks>
+		/// <value>The key ring.</value>
+		public PgpPublicKeyRing KeyRing {
+			get; private set;
+		}
+
 		/// <summary>
 		/// Gets the public key.
 		/// </summary>
 		/// <remarks>
-		/// Gets the public key.
+		/// Get the public key.
 		/// </remarks>
 		/// <value>The public key.</value>
 		public PgpPublicKey PublicKey {

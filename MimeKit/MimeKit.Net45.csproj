@@ -19,8 +19,8 @@
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
-    <OutputPath>bin\Debug\lib\net45</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\net45</IntermediateOutputPath>
+    <OutputPath>bin\Debug\net45</OutputPath>
+    <IntermediateOutputPath>obj\Debug\net45</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,13 +28,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>True</Optimize>
-    <OutputPath>bin\Release\lib\net45</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\net45</IntermediateOutputPath>
+    <OutputPath>bin\Release\net45</OutputPath>
+    <IntermediateOutputPath>obj\Release\net45</IntermediateOutputPath>
     <DefineConstants>TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\lib\net45\MimeKit.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\net45\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -87,6 +87,7 @@
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\NpgsqlCertificateDatabase.cs" />
+    <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
@@ -259,7 +260,7 @@
     <Folder Include="Text\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.MimeKit.config" />
+    <None Include="packages.MimeKit.Net45.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,9 +1,9 @@
 //
 // CryptographyContext.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -81,7 +81,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the key exchange protocol.
 		/// </summary>
 		/// <remarks>
-		/// <para>The key exchange protocol is really only used for PGP.</para>
+		/// <para>The key exchange protocol is really only used for OpenPGP.</para>
 		/// </remarks>
 		/// <value>The key exchange protocol.</value>
 		public abstract string KeyExchangeProtocol { get; }
@@ -286,7 +286,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Creates a new <see cref="CryptographyContext"/> for the specified protocol.</para>
 		/// <para>The default <see cref="CryptographyContext"/> types can over overridden by calling
-		/// the <see cref="Register"/> method with the preferred type.</para>
+		/// the <see cref="Register(Type)"/> method with the preferred type.</para>
 		/// </remarks>
 		/// <returns>The <see cref="CryptographyContext"/> for the protocol.</returns>
 		/// <param name="protocol">The protocol.</param>
@@ -318,7 +318,7 @@ namespace MimeKit.Cryptography {
 #if !PORTABLE
 					if (!SqliteCertificateDatabase.IsAvailable) {
 						const string format = "SQLite is not available. Either install the {0} nuget or subclass MimeKit.Cryptography.SecureMimeContext and register it with MimeKit.Cryptography.CryptographyContext.Register().";
-#if COREFX
+#if NETSTANDARD
 						throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
 #else
 						throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
@@ -384,7 +384,7 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-#if PORTABLE || COREFX
+#if PORTABLE || NETSTANDARD
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;

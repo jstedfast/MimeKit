@@ -1,9 +1,9 @@
 //
 // OpenPgpDigitalSignature.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,15 +40,15 @@ namespace MimeKit.Cryptography {
 		DigitalSignatureVerifyException vex;
 		bool? valid;
 
-		internal OpenPgpDigitalSignature (PgpPublicKey pubkey, PgpOnePassSignature signature)
+		internal OpenPgpDigitalSignature (PgpPublicKeyRing keyring, PgpPublicKey pubkey, PgpOnePassSignature signature)
 		{
-			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (pubkey) : null;
+			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (keyring, pubkey) : null;
 			OnePassSignature = signature;
 		}
 
-		internal OpenPgpDigitalSignature (PgpPublicKey pubkey, PgpSignature signature)
+		internal OpenPgpDigitalSignature (PgpPublicKeyRing keyring, PgpPublicKey pubkey, PgpSignature signature)
 		{
-			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (pubkey) : null;
+			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (keyring, pubkey) : null;
 			Signature = signature;
 		}
 
@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 				throw vex;
 
 			if (SignerCertificate == null) {
-				var message = string.Format ("Failed to verify digital signature: no public key found for {0}", Signature.KeyId);
+				var message = string.Format ("Failed to verify digital signature: no public key found for {0:X8}", (int) Signature.KeyId);
 				vex = new DigitalSignatureVerifyException (message);
 				throw vex;
 			}

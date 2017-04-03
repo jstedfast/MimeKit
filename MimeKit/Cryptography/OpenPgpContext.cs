@@ -1,9 +1,9 @@
 //
 // OpenPgpContext.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if USE_HTTP_CLIENT
+using System.Net.Http;
+#else
+using System.Net;
+#endif
+using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -47,7 +53,13 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
+		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
+		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
 		EncryptionAlgorithm defaultAlgorithm;
+#if USE_HTTP_CLIENT
+		HttpClient client;
+#endif
+		Uri keyServer;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
@@ -60,6 +72,9 @@ namespace MimeKit.Cryptography {
 		protected OpenPgpContext ()
 		{
 			defaultAlgorithm = EncryptionAlgorithm.Cast5;
+#if USE_HTTP_CLIENT
+			client = new HttpClient ();
+#endif
 		}
 
 #if PORTABLE
@@ -152,7 +167,7 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
-		/// Gets or sets the default encryption algorithm.
+		/// Get or set the default encryption algorithm.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the default encryption algorithm.
@@ -167,6 +182,53 @@ namespace MimeKit.Cryptography {
 				GetSymmetricKeyAlgorithm (value);
 				defaultAlgorithm = value;
 			}
+		}
+
+		bool IsValidKeyServer {
+			get {
+				if (keyServer == null)
+					return false;
+
+				switch (keyServer.Scheme.ToLowerInvariant ()) {
+				case "https": case "http": case "hkp": return true;
+				default: return false;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get or set the key server to use when automatically retrieving keys.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the key server to use when verifying keys that are
+		/// not already in the public keychain.</para>
+		/// <note type="note">Only HTTP and HKP protocols are supported.</note>
+		/// </remarks>
+		/// <value>The key server.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is not an absolute URI.
+		/// </exception>
+		public Uri KeyServer {
+			get { return keyServer; }
+			set {
+				if (value != null && !value.IsAbsoluteUri)
+					throw new ArgumentException ("The key server URI must be absolute.", nameof (value));
+
+				keyServer = value;
+			}
+		}
+
+		/// <summary>
+		/// Get or set whether unknown PGP keys should automtically be retrieved.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether or not the <see cref="OpenPgpContext"/> should automatically
+		/// fetch keys as needed from the keyserver when verifying signatures.</para>
+		/// <note type="note">Requires a valid <see cref="KeyServer"/> to be set.</note>
+		/// </remarks>
+		/// <value><c>true</c> if unknown PGP keys should automatically be retrieved; otherwise, <c>false</c>.</value>
+		public bool AutoKeyRetrieve {
+			get; set;
 		}
 
 #if PORTABLE
@@ -396,11 +458,11 @@ namespace MimeKit.Cryptography {
 					var fingerprint = HexEncode (key.GetFingerprint ());
 
 					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
-				} else {
-					var id = ((int) key.KeyId).ToString ("X2");
-
-					return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
 				}
+
+				var id = ((int) key.KeyId).ToString ("X2");
+
+				return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
 			}
 
 			foreach (string userId in key.GetUserIds ()) {
@@ -411,6 +473,85 @@ namespace MimeKit.Cryptography {
 
 				if (mailbox.Address.Equals (email.Address, StringComparison.OrdinalIgnoreCase))
 					return true;
+			}
+
+			return false;
+		}
+
+		PgpPublicKeyRing RetrievePublicKeyRing (long keyId, CancellationToken cancellationToken)
+		{
+			var scheme = keyServer.Scheme.ToLowerInvariant ();
+			var uri = new UriBuilder ();
+
+			uri.Scheme = scheme == "hkp" ? "http" : scheme;
+			uri.Host = keyServer.Host;
+
+			if (keyServer.IsDefaultPort) {
+				if (scheme == "hkp")
+					uri.Port = 11371;
+			} else {
+				uri.Port = keyServer.Port;
+			}
+
+			uri.Path = "/pks/lookup";
+			uri.Query = string.Format ("op=get&search=0x{0:X}", keyId);
+
+			using (var stream = new MemoryBlockStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
+
+#if USE_HTTP_CLIENT
+					using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ())
+						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
+#else
+					var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
+					using (var response = request.GetResponse ()) {
+						var content = response.GetResponseStream ();
+						content.CopyTo (filtered, 4096);
+					}
+#endif
+					filtered.Flush ();
+				}
+
+				stream.Position = 0;
+
+				using (var armored = new ArmoredInputStream (stream, true)) {
+					var bundle = new PgpPublicKeyRingBundle (armored);
+
+					Import (bundle);
+
+					return bundle.GetPublicKeyRing (keyId);
+				}
+			}
+		}
+
+		bool TryGetPublicKeyRing (long keyId, out PgpPublicKeyRing keyring, out PgpPublicKey pubkey, CancellationToken cancellationToken)
+		{
+			foreach (PgpPublicKeyRing ring in PublicKeyRingBundle.GetKeyRings ()) {
+				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
+					if (key.KeyId == keyId) {
+						keyring = ring;
+						pubkey = key;
+						return true;
+					}
+				}
+			}
+
+			if (AutoKeyRetrieve && IsValidKeyServer) {
+				try {
+					if ((keyring = RetrievePublicKeyRing (keyId, cancellationToken)) != null)
+						pubkey = keyring.GetPublicKey (keyId);
+					else
+						pubkey = null;
+				} catch (OperationCanceledException) {
+					throw;
+				} catch {
+					keyring = null;
+					pubkey = null;
+				}
+			} else {
+				keyring = null;
+				pubkey = null;
 			}
 
 			return false;
@@ -493,11 +634,11 @@ namespace MimeKit.Cryptography {
 					var fingerprint = HexEncode (key.PublicKey.GetFingerprint ());
 
 					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
-				} else {
-					var id = ((int) key.KeyId).ToString ("X2");
-
-					return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
 				}
+
+				var id = ((int) key.KeyId).ToString ("X2");
+
+				return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
 			}
 
 			foreach (string userId in key.UserIds) {
@@ -871,15 +1012,20 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		DigitalSignatureCollection GetDigitalSignatures (PgpSignatureList signatureList, Stream content)
+		DigitalSignatureCollection GetDigitalSignatures (PgpSignatureList signatureList, Stream content, CancellationToken cancellationToken)
 		{
 			var signatures = new List<IDigitalSignature> ();
 			var buf = new byte[4096];
 			int nread;
 
 			for (int i = 0; i < signatureList.Count; i++) {
-				var pubkey = PublicKeyRingBundle.GetPublicKey (signatureList[i].KeyId);
-				var signature = new OpenPgpDigitalSignature (pubkey, signatureList[i]) {
+				long keyId = signatureList[i].KeyId;
+				PgpPublicKeyRing keyring = null;
+				PgpPublicKey pubkey = null;
+
+				TryGetPublicKeyRing (keyId, out keyring, out pubkey, cancellationToken);
+
+				var signature = new OpenPgpDigitalSignature (keyring, pubkey, signatureList[i]) {
 					PublicKeyAlgorithm = GetPublicKeyAlgorithm (signatureList[i].KeyAlgorithm),
 					DigestAlgorithm = GetDigestAlgorithm (signatureList[i].HashAlgorithm),
 					CreationDate = signatureList[i].CreationTime,
@@ -944,7 +1090,7 @@ namespace MimeKit.Cryptography {
 
 				signatureList = (PgpSignatureList) data;
 
-				return GetDigitalSignatures (signatureList, content);
+				return GetDigitalSignatures (signatureList, content, CancellationToken.None);
 			}
 		}
 
@@ -1528,9 +1674,10 @@ namespace MimeKit.Cryptography {
 
 							for (int i = 0; i < onepasses.Count; i++) {
 								var onepass = onepasses[i];
-								var pubkey = PublicKeyRingBundle.GetPublicKey (onepass.KeyId);
+								PgpPublicKeyRing keyring;
+								PgpPublicKey pubkey;
 
-								if (pubkey == null) {
+								if (!TryGetPublicKeyRing (onepass.KeyId, out keyring, out pubkey, CancellationToken.None)) {
 									// too messy, pretend we never found a one-pass signature list
 									onepassList = null;
 									break;
@@ -1538,7 +1685,7 @@ namespace MimeKit.Cryptography {
 
 								onepass.InitVerify (pubkey);
 
-								var signature = new OpenPgpDigitalSignature (pubkey, onepass) {
+								var signature = new OpenPgpDigitalSignature (keyring, pubkey, onepass) {
 									PublicKeyAlgorithm = GetPublicKeyAlgorithm (onepass.KeyAlgorithm),
 									DigestAlgorithm = GetDigestAlgorithm (onepass.HashAlgorithm),
 								};
@@ -1588,7 +1735,7 @@ namespace MimeKit.Cryptography {
 
 						signatures = new DigitalSignatureCollection (onepassList);
 					} else {
-						signatures = GetDigitalSignatures (signatureList, memory);
+						signatures = GetDigitalSignatures (signatureList, memory, CancellationToken.None);
 						memory.Position = 0;
 					}
 				} else {
@@ -1726,7 +1873,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (PublicKeyRingPath)) {
-#if !COREFX
+#if !NETSTANDARD
 				File.Replace (tmp, PublicKeyRingPath, bak);
 #else
 				if (File.Exists (bak))
@@ -1770,7 +1917,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (SecretKeyRingPath)) {
-#if !COREFX
+#if !NETSTANDARD
 				File.Replace (tmp, SecretKeyRingPath, bak);
 #else
 				if (File.Exists (bak))
@@ -2012,5 +2159,24 @@ namespace MimeKit.Cryptography {
 				ContentObject = new ContentObject (content)
 			};
 		}
+
+#if USE_HTTP_CLIENT
+		/// <summary>
+		/// Releases all resources used by the <see cref="MimeKit.Cryptography.OpenPgpContext"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Cryptography.OpenPgpContext"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Cryptography.OpenPgpContext"/> in an unusable state. After
+		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Cryptography.OpenPgpContext"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.Cryptography.OpenPgpContext"/> was occupying.</remarks>
+		protected override void Dispose (bool disposing)
+		{
+			if (disposing && client != null) {
+				client.Dispose ();
+				client = null;
+			}
+
+			base.Dispose (disposing);
+		}
+#endif
 	}
 }

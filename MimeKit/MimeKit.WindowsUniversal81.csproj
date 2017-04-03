@@ -22,21 +22,21 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\lib\wpa81</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\wpa81</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;ENABLE_CRYPTO</DefineConstants>
+    <OutputPath>bin\Debug\wpa81</OutputPath>
+    <IntermediateOutputPath>obj\Debug\wpa81</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType></DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\lib\wpa81</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\wpa81</IntermediateOutputPath>
-    <DocumentationFile>bin\Release\lib\wpa81\MimeKit.xml</DocumentationFile>
-    <DefineConstants>TRACE;PORTABLE;ENABLE_CRYPTO</DefineConstants>
+    <OutputPath>bin\Release\wpa81</OutputPath>
+    <IntermediateOutputPath>obj\Release\wpa81</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\wpa81\MimeKit.xml</DocumentationFile>
+    <DefineConstants>TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -84,6 +84,7 @@
     <Compile Include="Cryptography\MD5.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
+    <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />

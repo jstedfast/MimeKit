@@ -1,9 +1,9 @@
 //
 // CmsSigner.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE && !NETSTANDARD
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 #endif
 
@@ -278,7 +278,7 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-#if !PORTABLE && !COREFX
+#if !PORTABLE && !NETSTANDARD
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>

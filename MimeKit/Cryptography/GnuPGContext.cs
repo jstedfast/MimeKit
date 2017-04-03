@@ -1,9 +1,9 @@
 //
 // GnuPGContext.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2016 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,13 +38,14 @@ namespace MimeKit.Cryptography {
 	{
 		static readonly string PublicKeyRing;
 		static readonly string SecretKeyRing;
+		static readonly string Configuration;
 
 		static GnuPGContext ()
 		{
-			string gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
+			var gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
 
 			if (gnupg == null) {
-#if !COREFX
+#if !NETSTANDARD
 				if (Path.DirectorySeparatorChar == '\\') {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 					gnupg = Path.Combine (appData, "gnupg");
@@ -59,6 +60,7 @@ namespace MimeKit.Cryptography {
 
 			PublicKeyRing = Path.Combine (gnupg, "pubring.gpg");
 			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
+			Configuration = Path.Combine (gnupg, "gpg.conf");
 		}
 
 		/// <summary>
@@ -69,6 +71,76 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
+			LoadConfiguration ();
+		}
+
+		void UpdateKeyServer (string value)
+		{
+			if (string.IsNullOrEmpty (value)) {
+				KeyServer = null;
+				return;
+			}
+
+			if (!Uri.IsWellFormedUriString (value, UriKind.Absolute))
+				return;
+
+			KeyServer = new Uri (value, UriKind.Absolute);
+		}
+
+		void UpdateKeyServerOptions (string value)
+		{
+			if (string.IsNullOrEmpty (value))
+				return;
+
+			var options = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+			for (int i = 0; i < options.Length; i++) {
+				switch (options[i]) {
+				case "auto-key-retrieve":
+					AutoKeyRetrieve = true;
+					break;
+				}
+			}
+		}
+
+		void LoadConfiguration ()
+		{
+			if (!File.Exists (Configuration))
+				return;
+
+			using (var reader = File.OpenText (Configuration)) {
+				string line;
+
+				while ((line = reader.ReadLine ()) != null) {
+					int startIndex = 0;
+
+					while (startIndex < line.Length && char.IsWhiteSpace (line[startIndex]))
+						startIndex++;
+
+					if (startIndex == line.Length || line[startIndex] == '#')
+						continue;
+
+					int endIndex = startIndex;
+					while (endIndex < line.Length && !char.IsWhiteSpace (line[endIndex]))
+						endIndex++;
+
+					var option = line.Substring (startIndex, endIndex - startIndex);
+					string value;
+
+					if (endIndex < line.Length)
+						value = line.Substring (endIndex + 1).Trim ();
+					else
+						value = null;
+
+					switch (option) {
+					case "keyserver":
+						UpdateKeyServer (value);
+						break;
+					case "keyserver-options":
+						UpdateKeyServerOptions (value);
+						break;
+					}
+				}
+			}
 		}
 	}
 }

@@ -1,7 +1,7 @@
-﻿//
+//
 // DkimBodyFilterBase.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
 // Copyright (c) 2015 Xamarin Inc. (www.xamarin.com)
 //
@@ -26,8 +26,7 @@
 
 using MimeKit.IO.Filters;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A base implementation for DKIM body filters.
 	/// </summary>
