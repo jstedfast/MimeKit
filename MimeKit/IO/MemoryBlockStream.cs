@@ -28,8 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace MimeKit.IO
-{
+namespace MimeKit.IO {
 	/// <summary>
 	/// An efficient memory stream implementation that sacrifices the ability to
 	/// get access to the internal byte buffer in order to drastically improve

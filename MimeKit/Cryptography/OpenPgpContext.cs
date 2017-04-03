@@ -42,8 +42,7 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME.
 	/// </summary>

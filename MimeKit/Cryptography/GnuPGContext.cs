@@ -27,8 +27,7 @@
 using System;
 using System.IO;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A <see cref="OpenPgpContext"/> that uses the GnuPG keyrings.
 	/// </summary>

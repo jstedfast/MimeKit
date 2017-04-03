@@ -28,8 +28,7 @@ using System.Threading;
 
 using Org.BouncyCastle.Crypto;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An interface for a service which locates and retrieves DKIM public keys (probably via DNS).
 	/// </summary>

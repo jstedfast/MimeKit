@@ -29,8 +29,7 @@ using System;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A filter to strip off data before and after an armored OpenPGP block.
 	/// </summary>

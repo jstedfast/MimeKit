@@ -26,8 +26,7 @@
 
 using MimeKit.IO.Filters;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A base implementation for DKIM body filters.
 	/// </summary>
