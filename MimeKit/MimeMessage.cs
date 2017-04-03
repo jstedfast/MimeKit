@@ -1476,7 +1476,14 @@ namespace MimeKit {
 				value.AppendFormat ("; i={0}", signer.AgentOrUserIdentifier);
 			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
 
-			using (var stream = new DkimSignatureStream (DkimGetDigestSigner (signer.SignatureAlgorithm, signer.PrivateKey))) {
+		    ISigner digestSigner;
+
+		    if (signer.CustomSigner == null)
+		        digestSigner = DkimGetDigestSigner(signer.SignatureAlgorithm, signer.PrivateKey);
+		    else
+		        digestSigner = signer.CustomSigner;
+
+		    using (var stream = new DkimSignatureStream (digestSigner)) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
