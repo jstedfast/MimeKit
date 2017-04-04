@@ -63,12 +63,12 @@ namespace MimeKit.Cryptography {
 		Dsa              = 17,
 
 		/// <summary>
-		/// The elliptic curve algorithm.
+		/// The elliptic curve algorithm (aka EC or ECDH).
 		/// </summary>
 		EllipticCurve    = 18,
 
 		/// <summary>
-		/// The elliptic curve DSA algorithm.
+		/// The elliptic curve DSA algorithm (aka ECDSA).
 		/// </summary>
 		EllipticCurveDsa = 19,
 
@@ -81,5 +81,10 @@ namespace MimeKit.Cryptography {
 		/// The Diffie-Hellman algorithm.
 		/// </summary>
 		DiffieHellman    = 21,
+
+		/// <summary>
+		/// The Edwards-Curve DSA algorithm (aka EdDSA).
+		/// </summary>
+		EdwardsCurveDsa  = 22
 	}
 }

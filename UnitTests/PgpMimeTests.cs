@@ -528,6 +528,45 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestAlgorithmMappings ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				foreach (DigestAlgorithm digest in Enum.GetValues (typeof (DigestAlgorithm))) {
+					if (digest == DigestAlgorithm.None)
+						continue;
+
+					var name = ctx.GetDigestAlgorithmName (digest);
+					var algo = ctx.GetDigestAlgorithm (name);
+
+					Assert.AreEqual (digest, algo);
+				}
+
+				Assert.AreEqual (DigestAlgorithm.MD5, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.MD5));
+				Assert.AreEqual (DigestAlgorithm.Sha1, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Sha1));
+				Assert.AreEqual (DigestAlgorithm.RipeMD160, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.RipeMD160));
+				Assert.AreEqual (DigestAlgorithm.DoubleSha, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.DoubleSha));
+				Assert.AreEqual (DigestAlgorithm.MD2, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.MD2));
+				Assert.AreEqual (DigestAlgorithm.Tiger192, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Tiger192));
+				Assert.AreEqual (DigestAlgorithm.Haval5160, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Haval5pass160));
+				Assert.AreEqual (DigestAlgorithm.Sha256, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Sha256));
+				Assert.AreEqual (DigestAlgorithm.Sha384, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Sha384));
+				Assert.AreEqual (DigestAlgorithm.Sha512, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Sha512));
+				Assert.AreEqual (DigestAlgorithm.Sha224, OpenPgpContext.GetDigestAlgorithm (Org.BouncyCastle.Bcpg.HashAlgorithmTag.Sha224));
+
+				Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.RsaGeneral));
+				Assert.AreEqual (PublicKeyAlgorithm.RsaEncrypt, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.RsaEncrypt));
+				Assert.AreEqual (PublicKeyAlgorithm.RsaSign, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.RsaSign));
+				Assert.AreEqual (PublicKeyAlgorithm.ElGamalGeneral, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.ElGamalGeneral));
+				Assert.AreEqual (PublicKeyAlgorithm.ElGamalEncrypt, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.ElGamalEncrypt));
+				Assert.AreEqual (PublicKeyAlgorithm.Dsa, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.Dsa));
+				Assert.AreEqual (PublicKeyAlgorithm.EllipticCurve, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.ECDH));
+				Assert.AreEqual (PublicKeyAlgorithm.EllipticCurveDsa, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.ECDsa));
+				Assert.AreEqual (PublicKeyAlgorithm.DiffieHellman, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.DiffieHellman));
+				//Assert.AreEqual (PublicKeyAlgorithm.EdwardsCurveDsa, OpenPgpContext.GetPublicKeyAlgorithm (Org.BouncyCastle.Bcpg.PublicKeyAlgorithmTag.EdDSA));
+			}
+		}
+
+		[Test]
 		public void TestArgumentExceptions ()
 		{
 			using (var ctx = new DummyOpenPgpContext ()) {
@@ -539,6 +578,13 @@ namespace UnitTests {
 				var stream = new MemoryStream ();
 
 				Assert.Throws<ArgumentException> (() => ctx.KeyServer = new Uri ("relative/uri", UriKind.Relative));
+
+				Assert.Throws<ArgumentNullException> (() => ctx.GetDigestAlgorithm (null));
+				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.DoubleSha));
+				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.Tiger192));
+				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.Haval5160));
+				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.MD4));
+				Assert.Throws<ArgumentOutOfRangeException> (() => OpenPgpContext.GetDigestAlgorithm ((Org.BouncyCastle.Bcpg.HashAlgorithmTag) 1024));
 
 				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpEncrypted ((MimeEntityConstructorArgs) null));
 				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpSignature ((MimeEntityConstructorArgs) null));

@@ -1773,9 +1773,6 @@ namespace MimeKit.Cryptography {
 		{
 			DigitalSignatureCollection signatures;
 
-			if (encryptedData == null)
-				throw new ArgumentNullException (nameof (encryptedData));
-
 			return GetDecryptedStream (encryptedData, out signatures);
 		}
 
@@ -1805,9 +1802,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
 		{
-			if (encryptedData == null)
-				throw new ArgumentNullException (nameof (encryptedData));
-
 			var decrypted = GetDecryptedStream (encryptedData, out signatures);
 
 			return MimeEntity.Load (decrypted, true);
@@ -1839,9 +1833,6 @@ namespace MimeKit.Cryptography {
 		public override MimeEntity Decrypt (Stream encryptedData)
 		{
 			DigitalSignatureCollection signatures;
-
-			if (encryptedData == null)
-				throw new ArgumentNullException (nameof (encryptedData));
 
 			return Decrypt (encryptedData, out signatures);
 		}
