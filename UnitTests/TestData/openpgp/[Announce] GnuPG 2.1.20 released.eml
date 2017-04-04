@@ -1,0 +1,393 @@
+Return-Path: <gnupg-announce-bounces@gnupg.org>
+Delivered-To: stedfast@comcast.net
+Received: from dovdir3-asb-04o.email.comcast.net ([96.118.52.100])
+	by dovback3-asb-16o.email.comcast.net (Dovecot) with LMTP id SwCqDV2y4liSbgAAe2J7nQ
+	for <stedfast@comcast.net>; Mon, 03 Apr 2017 20:36:45 +0000
+Received: from dovpxy-asb-15o.email.comcast.net ([96.118.52.100])
+	by dovdir3-asb-04o.email.comcast.net (Dovecot) with LMTP id vXn5C12y4liMCQAAhMaxxA
+	; Mon, 03 Apr 2017 20:36:45 +0000
+Received: from resimta-po-19v.sys.comcast.net ([96.118.52.100])
+	by dovpxy-asb-15o.email.comcast.net (Dovecot) with LMTP id eJ0VAluy4lhERAAA4bp2Ug
+	; Mon, 03 Apr 2017 20:36:45 +0000
+Received: from smtp.gnome.org ([209.132.180.187])
+	by resimta-po-19v.sys.comcast.net with SMTP
+	id v8gVc1fNzZoAzv8gWcyqvo; Mon, 03 Apr 2017 20:34:44 +0000
+X-Xfinity-Mailstore: COMCAST:COMCAST:DOVECOT:dc1-cl3-vh9
+X-CAA-SPAM: 00000
+X-Authority-Analysis: v=2.2 cv=bNJmGL2Z c=1 sm=1 tr=0
+ a=uEgByXwctBttcLjKQKQYtA==:117 a=uEgByXwctBttcLjKQKQYtA==:17
+ a=1oJP67jkp3AA:10 a=khwyK8DuSVkA:10 a=AzvcPWV-tVgA:10 a=WiVod9pSvdkA:10
+ a=ZZnuYtJkoWoA:10 a=GwUem0DFAAAA:8 a=mDV3o1hIAAAA:8 a=nNARcF-QAAAA:8
+ a=JqEG_dyiAAAA:8 a=Q83hqqJkAAAA:8 a=9-0Oi0abAAAA:8 a=zGGjxxUDAAAA:8
+ a=iUkJxIsUTnZztwgU06QA:9 a=u9Nyc3FOhqt85dBg:21 a=7jKrGPW7xG1lhNxy:21
+ a=-YEVT2Hp1bcA:10 a=oJPD73Op41kA:10 a=Xq9aa3zvdhYA:10 a=U_GgOQBFNowA:10
+ a=KsPcbxWo2tkA:10 a=D-uglarcCZvGfpBmy-sA:9 a=FgQeI0UkT4QA:10
+ a=d7LLu0SMdNDz4RTKyEEA:9 a=CjuIK1q_8ugA:10 a=Saq0ahme5skA:10
+ a=r0dl5i_q2XGqDZkti5dn:22 a=_FVE-zBwftR9WsbkzFJk:22 a=TklvCbwE_hV4U4qT4fN_:22
+ a=FQKWK_U-GmW51KJZGaOH:22 a=dBj5yYZmX_pdmi9WmahZ:22 a=t77UKEx5sq5RR-Q8SVSL:22
+X-Xfinity-Message-Heuristics: IPv6:N;TLS=1;SPF=0;DMARC=
+Received: by smtp.gnome.org (Postfix)
+	id 2192A764BE; Mon,  3 Apr 2017 20:34:43 +0000 (UTC)
+Delivered-To: fejj@gnome.org
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by smtp.gnome.org (Postfix) with ESMTP id 1EFE3764BA
+	for <fejj@gnome.org>; Mon,  3 Apr 2017 20:34:43 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at gnome.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.901
+X-Spam-Level:
+X-Spam-Status: No, score=-6.901 tagged_above=-999 required=2
+	tests=[BAYES_00=-1.9, RCVD_IN_DNSWL_HI=-5, RP_MATCHES_RCVD=-0.001]
+	autolearn=ham
+Received: from smtp.gnome.org ([127.0.0.1])
+	by localhost (restaurant.gnome.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MBMjajS66ZsP for <fejj@gnome.org>;
+	Mon,  3 Apr 2017 20:34:40 +0000 (UTC)
+Received: from lists.gnupg.org (lists.gnupg.org [217.69.76.57])
+	by smtp.gnome.org (Postfix) with ESMTPS id 9E874764B3
+	for <fejj@gnome.org>; Mon,  3 Apr 2017 20:34:40 +0000 (UTC)
+Received: from localhost ([127.0.0.1] helo=trithemius.gnupg.org)
+	by lists.gnupg.org with esmtp (Exim 4.84_2 #2 (Debian))
+	id 1cv8aR-0001hQ-QE; Mon, 03 Apr 2017 22:28:27 +0200
+Received: from kerckhoffs.g10code.com ([217.69.77.222])
+ by lists.gnupg.org with esmtp (Exim 4.84_2 #2 (Debian))
+ id 1cv8aO-0001hE-5W
+ for <mm.gnupg-announce@lists.gnupg.org>; Mon, 03 Apr 2017 22:28:24 +0200
+Received: from uucp by kerckhoffs.g10code.com with local-rmail (Exim 4.84_2 #1
+ (Debian)) id 1cv8aO-0001bv-1k
+ for <gnupg-announce@gnupg.org>; Mon, 03 Apr 2017 22:28:24 +0200
+Received: from wk by wheatstone.g10code.de with local (Exim 4.84 #3 (Debian))
+ id 1cv8Wo-0000SY-2J; Mon, 03 Apr 2017 22:24:42 +0200
+From: Werner Koch <wk@gnupg.org>
+To: gnupg-announce@gnupg.org, info-gnu@gnu.org
+Organisation: The GnuPG Project
+X-message-flag: Mails containing HTML will not be read!
+ Please send only plain text.
+OpenPGP: url=https://k.gnupg.net/80615870F5BAD690333686D0F2AD85AC1E42B367
+Mail-Followup-To: gnupg-users@gnupg.org
+Date: Mon, 03 Apr 2017 22:24:35 +0200
+Message-ID: <87h925qlx8.fsf@wheatstone.g10code.de>
+User-Agent: Gnus/5.13 (Gnus v5.13)
+MIME-Version: 1.0
+Subject: [Announce] GnuPG 2.1.20 released
+X-BeenThere: gnupg-announce@gnupg.org
+X-Mailman-Version: 2.1.23
+Precedence: list
+List-Id: Important GnuPG announcements <gnupg-announce.gnupg.org>
+List-Unsubscribe: <http://lists.gnupg.org/mailman/options/gnupg-announce>,
+ <mailto:gnupg-announce-request@gnupg.org?subject=unsubscribe>
+List-Archive: </pipermail/>
+List-Help: <mailto:gnupg-announce-request@gnupg.org?subject=help>
+List-Subscribe: <http://lists.gnupg.org/mailman/listinfo/gnupg-announce>,
+ <mailto:gnupg-announce-request@gnupg.org?subject=subscribe>
+Content-Type: multipart/mixed; boundary="===============6945878534777301072=="
+Errors-To: gnupg-announce-bounces@gnupg.org
+Sender: "Gnupg-announce" <gnupg-announce-bounces@gnupg.org>
+X-CMAE-Envelope: MS4wfKpdWWhYzC3agE9Ze0hnHwKA+xBABipmmjHFOtRS7E4jJ0udicmFZZu8VBl9SdMvynB76jJSMC7E4eabrmmpZ8+mEMCSmQhl/1gI3zoim5VJiET2P3Pr
+ 5lOz/iqT/Zd11NCvjJ7rwh5cy+zNNQfgKtKfxwsDyn5ZsZNB9Y0Wu6kAoZKaqsu4CxAM7THhvplFPg==
+
+--===============6945878534777301072==
+Content-Type: multipart/signed; boundary="=Al_Jazeera_ASDIC_passwd_ANDVT_NORAD_offensive_information_warfare=Me";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+
+--=Al_Jazeera_ASDIC_passwd_ANDVT_NORAD_offensive_information_warfare=Me
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hello!
+
+The GnuPG team is pleased to announce the availability of a new release
+of GnuPG: version 2.1.20.  See below for a list of new features and bug
+fixes.
+
+
+About GnuPG
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+The GNU Privacy Guard (GnuPG) is a complete and free implementation
+of the OpenPGP standard which is commonly abbreviated as PGP.
+
+GnuPG allows to encrypt and sign data and communication, features a
+versatile key management system as well as access modules for public key
+directories.  GnuPG itself is a command line tool with features for easy
+integration with other applications.  A wealth of frontend applications
+and libraries making use of GnuPG are available.  As an Universal Crypto
+Engine GnuPG provides support for S/MIME and Secure Shell in addition to
+OpenPGP.
+
+GnuPG is Free Software (meaning that it respects your freedom).  It can
+be freely used, modified and distributed under the terms of the GNU
+General Public License.
+
+
+Noteworthy changes in version 2.1.20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+  * gpg: New properties 'expired', 'revoked', and 'disabled' for the
+    import and export filters.
+
+  * gpg: New command --quick-set-primary-uid.
+
+  * gpg: New compliance field for the --with-colon key listing.
+
+  * gpg: Changed the key parser to generalize the processing of local
+    meta data packets.
+
+  * gpg: Fixed assertion failure in the TOFU trust model.
+
+  * gpg: Fixed exporting of zero length user ID packets.
+
+  * scd: Improved support for multiple readers.
+
+  * scd: Fixed timeout handling for key generation.
+
+  * agent: New option --enable-extended-key-format.
+
+  * dirmngr: Do not add a keyserver to a new dirmngr.conf.  Dirmngr
+    uses a default keyserver.
+
+  * dimngr: Do not treat TLS warning alerts as severe error when
+    building with GNUTLS.
+
+  * dirmngr: Actually take /etc/hosts in account.
+
+  * wks: Fixed client problems on Windows.  Published keys are now set
+    to world-readable.
+
+  * tests: Fixed creation of temporary directories.
+
+  * A socket directory for a non standard GNUGHOME is now created on
+    the fly under /run/user.  Thus "gpgconf --create-socketdir" is now
+    optional.  The use of "gpgconf --remove-socketdir" to clean up
+    obsolete socket directories is however recommended to avoid
+    cluttering /run/user with useless directories.
+
+  * Fixed build problems on some platforms.
+
+
+A detailed description of the changes found in this 2.1 branch can be
+found at <https://gnupg.org/faq/whats-new-in-2.1.html>.
+
+
+Getting the Software
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+Please follow the instructions found at <https://gnupg.org/download/> or
+read on:
+
+GnuPG 2.1.20 may be downloaded from one of the GnuPG mirror sites or
+direct from its primary FTP server.  The list of mirrors can be found at
+<https://gnupg.org/download/mirrors.html>.  Note that GnuPG is not
+available at ftp.gnu.org.
+
+The GnuPG source code compressed using BZIP2 and its OpenPGP signature
+are available here:
+
+ https://gnupg.org/ftp/gcrypt/gnupg/gnupg-2.1.20.tar.bz2 (6304k)
+ https://gnupg.org/ftp/gcrypt/gnupg/gnupg-2.1.20.tar.bz2.sig
+
+or via FTP:
+
+ ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-2.1.20.tar.bz2=20
+ ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-2.1.20.tar.bz2.sig
+
+An installer for Windows without any graphical frontend except for a
+very minimal Pinentry tool is available here:
+
+ https://gnupg.org/ftp/gcrypt/binary/gnupg-w32-2.1.20_20170403.exe  (3755k)
+ https://gnupg.org/ftp/gcrypt/binary/gnupg-w32-2.1.20_20170403.exe.sig
+
+or via FTP:
+
+ ftp://ftp.gnupg.org/gcrypt/binary/gnupg-w32-2.1.20_20170403.exe
+ ftp://ftp.gnupg.org/gcrypt/binary/gnupg-w32-2.1.20_20170403.exe.sig
+
+The source used to build the Windows installer can be found in the same
+directory with a ".tar.xz" suffix.  The Windows installer now comes with
+TOFU support, many translations, support for Tor, and support for HKPS
+and the Web Key Directory.
+
+
+Checking the Integrity
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+In order to check that the version of GnuPG which you are going to
+install is an original and unmodified one, you can do it in one of
+the following ways:
+
+ * If you already have a version of GnuPG installed, you can simply
+   verify the supplied signature.  For example to verify the signature
+   of the file gnupg-2.1.20.tar.bz2 you would use this command:
+
+     gpg --verify gnupg-2.1.20.tar.bz2.sig gnupg-2.1.20.tar.bz2
+
+   This checks whether the signature file matches the source file.
+   You should see a message indicating that the signature is good and
+   made by one or more of the release signing keys.  Make sure that
+   this is a valid key, either by matching the shown fingerprint
+   against a trustworthy list of valid release signing keys or by
+   checking that the key has been signed by trustworthy other keys.
+   See the end of this mail for information on the signing keys.
+
+ * If you are not able to use an existing version of GnuPG, you have
+   to verify the SHA-1 checksum.  On Unix systems the command to do
+   this is either "sha1sum" or "shasum".  Assuming you downloaded the
+   file gnupg-2.1.20.tar.bz2, you run the command like this:
+
+     sha1sum gnupg-2.1.20.tar.bz2
+
+   and check that the output matches the next line:
+
+500ddae8e4225ae2e300934090f9b9a427b8def1  gnupg-2.1.20.tar.bz2
+69308ee80699ebb48a055963418597767a76d1d8  gnupg-w32-2.1.20_20170403.exe
+6d9054625a6515971fd121e6648f6d0b0d4d9e44  gnupg-w32-2.1.20_20170403.tar.xz
+
+
+Internationalization
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+This version of GnuPG has support for 26 languages with Chinese, Czech,
+French, German, Japanese, Norwegian, Russian, and Ukrainian being almost
+completely translated.  Due to expected changes in forthcoming releases
+some strings pertaining to the TOFU code are not yet translated.
+
+
+Documentation
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+If you used GnuPG in the past you should read the description of
+changes and new features at doc/whats-new-in-2.1.txt or online at
+
+  https://gnupg.org/faq/whats-new-in-2.1.html
+
+The file gnupg.info has the complete user manual of the system.
+Separate man pages are included as well but they have not all the
+details available as are the manual.  It is also possible to read the
+complete manual online in HTML format at
+
+  https://gnupg.org/documentation/manuals/gnupg/
+
+or in Portable Document Format at
+
+  https://gnupg.org/documentation/manuals/gnupg.pdf .
+
+The chapters on gpg-agent, gpg and gpgsm include information on how
+to set up the whole thing.  You may also want search the GnuPG mailing
+list archives or ask on the gnupg-users mailing lists for advise on
+how to solve problems.  Many of the new features are around for
+several years and thus enough public knowledge is already available.
+
+You may also want to follow our postings at <https://gnupg.org/blob/>
+and <https://twitter.com/gnupg>.
+
+
+Support
+=3D=3D=3D=3D=3D=3D=3D=3D
+
+Please consult the archive of the gnupg-users mailing list before
+reporting a bug <https://gnupg.org/documentation/mailing-lists.html>.
+We suggest to send bug reports for a new release to this list in favor
+of filing a bug at <https://bugs.gnupg.org>.  If you need commercial
+support check out <https://gnupg.org/service.html>.
+
+If you are a developer and you need a certain feature for your project,
+please do not hesitate to bring it to the gnupg-devel mailing list for
+discussion.
+
+Maintenance and development of GnuPG is mostly financed by donations.
+The GnuPG project employs 4 full-time developers, one part-timer, and
+one contractor.  They all work exclusivly on GnuPG and closely related
+software like Libgcrypt, GPGME, and GPA.  Please consider to donate via:
+
+                  https://gnupg.org/donate/
+
+
+Thanks
+=3D=3D=3D=3D=3D=3D
+
+We have to thank all the people who helped with this release, be it
+testing, coding, translating, suggesting, auditing, administering the
+servers, spreading the word, answering questions on the mailing
+lists, and donating money.
+
+
+The GnuPG hackers,
+
+   Andre, dkg, gniibe, Justus, Marcus, Neal, and Werner
+
+
+
+p.s.
+This is an announcement only mailing list.  Please send replies only to
+the gnupg-users'at'gnupg.org mailing list.
+
+p.p.s
+List of Release Signing Keys:
+
+To guarantee that a downloaded GnuPG version has not been tampered by
+malicious entities we provide signature files for all tarballs and
+binary versions.  The keys are also signed by the long term keys of
+their respective owners.  Current releases are signed by one or more
+of these five keys:
+
+  2048R/4F25E3B6 2011-01-12 [expires: 2019-12-31]
+  Key fingerprint =3D D869 2123 C406 5DEA 5E0F  3AB5 249B 39D2 4F25 E3B6
+  Werner Koch (dist sig)
+
+  rsa2048/E0856959 2014-10-29 [expires: 2019-12-31]
+  Key fingerprint =3D 46CC 7308 65BB 5C78 EBAB  ADCF 0437 6F3E E085 6959
+  David Shaw (GnuPG Release Signing Key) <dshaw 'at' jabberwocky.com>
+
+  rsa2048/33BD3F06 2014-10-29 [expires: 2016-10-28]
+  Key fingerprint =3D 031E C253 6E58 0D8E A286  A9F2 2071 B08A 33BD 3F06
+  NIIBE Yutaka (GnuPG Release Key) <gniibe 'at' fsij.org>
+
+  rsa2048/7EFD60D9 2014-10-19 [expires: 2020-12-31]
+  Key fingerprint =3D D238 EA65 D64C 67ED 4C30  73F2 8A86 1B1C 7EFD 60D9
+  Werner Koch (Release Signing Key)
+
+  rsa3072/4B092E28 2017-03-17 [expires: 2027-03-15]
+  Key fingerprint =3D 5B80 C575 4298 F0CB 55D8  ED6A BCEF 7E29 4B09 2E28
+  Andre Heinecke (Release Signing Key)
+
+You may retrieve these keys from a keyserver using this command
+
+  gpg --keyserver hkp://keys.gnupg.net --recv-keys  \
+                  249B39D24F25E3B6 04376F3EE0856959 \
+                  2071B08A33BD3F06 8A861B1C7EFD60D9 BCEF7E294B092E28
+
+The keys are also available at https://gnupg.org/signature_key.html and
+in any recently released GnuPG tarball in the file g10/distsigkey.gpg .
+Note that this mail has been signed by a different key.
+
+=2D-=20
+Die Gedanken sind frei.  Ausnahmen regelt ein Bundesgesetz.
+
+--=Al_Jazeera_ASDIC_passwd_ANDVT_NORAD_offensive_information_warfare=Me
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTkuGjI+QyJZLWvnbxPBUDVd/lflQUCWOKvgwAKCRBPBUDVd/lf
+lXx6AJ9DAzoXa3kfAZTF6RcK7YfaYriAOgCfSI3tH08p/souPCpNUraFa4NNeow=
+=ekoZ
+-----END PGP SIGNATURE-----
+--=Al_Jazeera_ASDIC_passwd_ANDVT_NORAD_offensive_information_warfare=Me--
+
+
+
+--===============6945878534777301072==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Gnupg-announce mailing list
+Gnupg-announce@gnupg.org
+http://lists.gnupg.org/mailman/listinfo/gnupg-announce
+--===============6945878534777301072==--
+
+
+

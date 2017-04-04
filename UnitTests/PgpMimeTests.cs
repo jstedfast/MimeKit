@@ -442,11 +442,10 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore]
 		public void TestAutoKeyRetrieve ()
 		{
-			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "openpgp", "[Announce] GnuPG 2.1.19 released.eml"));
-			var multipart = (MultipartSigned) message.Body;
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
+			var multipart = (MultipartSigned) ((Multipart) message.Body)[0];
 
 			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
 
@@ -467,8 +466,13 @@ namespace UnitTests {
 					bool valid = signature.Verify ();
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+				} catch (DigitalSignatureVerifyException) {
+					// Note: Werner Koch's keyring has an EdDSA subkey which breaks BouncyCastle's
+					// PgpPublicKeyRingBundle reader. If/when one of the round-robin keys.gnupg.net
+					// key servers returns this particular keyring, we can expect to get an exception
+					// about being unable to find Werner's public key.
+
+					//Assert.Fail ("Failed to verify signature: {0}", ex);
 				}
 			}
 		}
