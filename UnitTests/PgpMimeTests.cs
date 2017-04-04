@@ -532,7 +532,7 @@ namespace UnitTests {
 		{
 			using (var ctx = new DummyOpenPgpContext ()) {
 				foreach (DigestAlgorithm digest in Enum.GetValues (typeof (DigestAlgorithm))) {
-					if (digest == DigestAlgorithm.None)
+					if (digest == DigestAlgorithm.None || digest == DigestAlgorithm.DoubleSha)
 						continue;
 
 					var name = ctx.GetDigestAlgorithmName (digest);
@@ -580,6 +580,7 @@ namespace UnitTests {
 				Assert.Throws<ArgumentException> (() => ctx.KeyServer = new Uri ("relative/uri", UriKind.Relative));
 
 				Assert.Throws<ArgumentNullException> (() => ctx.GetDigestAlgorithm (null));
+				Assert.Throws<ArgumentOutOfRangeException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.DoubleSha));
 				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.DoubleSha));
 				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.Tiger192));
 				Assert.Throws<NotSupportedException> (() => OpenPgpContext.GetHashAlgorithm (DigestAlgorithm.Haval5160));
