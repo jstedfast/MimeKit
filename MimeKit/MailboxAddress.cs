@@ -49,6 +49,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class MailboxAddress : InternetAddress
 	{
+		static readonly IdnMapping idn = new IdnMapping ();
 		string address;
 
 		/// <summary>
@@ -248,6 +249,57 @@ namespace MimeKit {
 			}
 		}
 
+		static void Split (string addrspec, out string local, out string domain)
+		{
+			var at = addrspec.LastIndexOf ('@');
+
+			if (at != -1) {
+				domain = addrspec.Substring (at + 1);
+				local = addrspec.Substring (0, at);
+			} else {
+				local = addrspec;
+				domain = null;
+			}
+		}
+
+		internal string EncodeAddrspec (FormatOptions options)
+		{
+			if (IsInternational) {
+				if (options.International)
+					return Address;
+
+				string local, domain;
+
+				Split (Address, out local, out domain);
+
+				local = idn.GetAscii (local);
+
+				if (string.IsNullOrEmpty (domain))
+					return local;
+
+				domain = idn.GetAscii (domain);
+
+				return local + "@" + domain;
+			}
+
+			if (options.International) {
+				string local, domain;
+
+				Split (Address, out local, out domain);
+
+				local = idn.GetUnicode (local);
+
+				if (string.IsNullOrEmpty (domain))
+					return local;
+
+				domain = idn.GetUnicode (domain);
+
+				return local + "@" + domain;
+			}
+
+			return Address;
+		}
+
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
 			if (builder == null)
@@ -256,29 +308,11 @@ namespace MimeKit {
 			if (lineLength < 0)
 				throw new ArgumentOutOfRangeException (nameof (lineLength));
 
-			var route = Route.Encode (options);
+			var route = Route.Encode (options, idn);
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
 
-			string addrspec;
-			if (!options.International && IsInternational) {
-				var at = Address.LastIndexOf ('@');
-				var idn = new IdnMapping ();
-
-				if (at != -1) {
-					var domain = Address.Substring (at + 1);
-					var local = Address.Substring (0, at);
-
-					domain = idn.GetAscii (domain);
-					local = idn.GetAscii (local);
-
-					addrspec = local + "@" + domain;
-				} else {
-					addrspec = idn.GetAscii (Address);
-				}
-			} else {
-				addrspec = Address;
-			}
+			var addrspec = EncodeAddrspec (options);
 
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;

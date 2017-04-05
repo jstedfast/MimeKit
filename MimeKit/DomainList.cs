@@ -342,10 +342,9 @@ namespace MimeKit {
 			return false;
 		}
 
-		internal string Encode (FormatOptions options)
+		internal string Encode (FormatOptions options, IdnMapping idn)
 		{
 			var builder = new StringBuilder ();
-			var idn = new IdnMapping ();
 
 			for (int i = 0; i < domains.Count; i++) {
 				if (IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
@@ -379,7 +378,22 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="DomainList"/>.</returns>
 		public override string ToString ()
 		{
-			return Encode (FormatOptions.Default);
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < domains.Count; i++) {
+				if (IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
+					continue;
+
+				if (builder.Length > 0)
+					builder.Append (',');
+
+				if (!IsNullOrWhiteSpace (domains[i]))
+					builder.Append ('@');
+
+				builder.Append (domains[i]);
+			}
+
+			return builder.ToString ();
 		}
 
 		internal event EventHandler Changed;
