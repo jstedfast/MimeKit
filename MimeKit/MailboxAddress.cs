@@ -268,6 +268,15 @@ namespace MimeKit {
 			}
 		}
 
+		static string IdnEncode (string unicode)
+		{
+			try {
+				return idn.GetAscii (unicode);
+			} catch {
+				return unicode;
+			}
+		}
+
 		/// <summary>
 		/// Encode an addrspec token according to IDN encoding rules.
 		/// </summary>
@@ -288,14 +297,25 @@ namespace MimeKit {
 
 			Split (addrspec, out local, out domain);
 
-			local = idn.GetAscii (local);
+			if (!IsAscii (local))
+				local = IdnEncode (local);
 
 			if (string.IsNullOrEmpty (domain))
 				return local;
 
-			domain = idn.GetAscii (domain);
+			if (!IsAscii (domain))
+				domain = IdnEncode (domain);
 
 			return local + "@" + domain;
+		}
+
+		static string IdnDecode (string ascii)
+		{
+			try {
+				return idn.GetUnicode (ascii);
+			} catch {
+				return ascii;
+			}
 		}
 
 		/// <summary>
@@ -318,12 +338,14 @@ namespace MimeKit {
 
 			Split (addrspec, out local, out domain);
 
-			local = idn.GetUnicode (local);
+			if (IsAscii (local))
+				local = IdnDecode (local);
 
 			if (string.IsNullOrEmpty (domain))
 				return local;
 
-			domain = idn.GetUnicode (domain);
+			if (IsAscii (domain))
+				domain = IdnDecode (domain);
 
 			return local + "@" + domain;
 		}
