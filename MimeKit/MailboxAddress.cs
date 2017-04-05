@@ -233,20 +233,26 @@ namespace MimeKit {
 				if (address == null)
 					return false;
 
-				for (int i = 0; i < address.Length; i++) {
-					if (address[i] > 127)
-						return true;
-				}
+				if (!IsAscii (address))
+					return true;
 
 				foreach (var domain in Route) {
-					for (int i = 0; i < domain.Length; i++) {
-						if (domain[i] > 127)
-							return true;
-					}
+					if (!IsAscii (domain))
+						return true;
 				}
 
 				return false;
 			}
+		}
+
+		static bool IsAscii (string value)
+		{
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] > 127)
+					return false;
+			}
+
+			return true;
 		}
 
 		static void Split (string addrspec, out string local, out string domain)
@@ -262,42 +268,64 @@ namespace MimeKit {
 			}
 		}
 
-		internal string EncodeAddrspec (FormatOptions options)
+		/// <summary>
+		/// Encode an addrspec token according to IDN encoding rules.
+		/// </summary>
+		/// <remarks>
+		/// Encodes an addrspec token according to IDN encoding rules.
+		/// </remarks>
+		/// <returns>The encoded addrspec token.</returns>
+		/// <param name="addrspec">The addrspec token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="addrspec"/> is <c>null</c>.
+		/// </exception>
+		public static string EncodeAddrspec (string addrspec)
 		{
-			if (IsInternational) {
-				if (options.International)
-					return Address;
+			if (addrspec == null)
+				throw new ArgumentNullException (nameof (addrspec));
 
-				string local, domain;
+			string local, domain;
 
-				Split (Address, out local, out domain);
+			Split (addrspec, out local, out domain);
 
-				local = idn.GetAscii (local);
+			local = idn.GetAscii (local);
 
-				if (string.IsNullOrEmpty (domain))
-					return local;
+			if (string.IsNullOrEmpty (domain))
+				return local;
 
-				domain = idn.GetAscii (domain);
+			domain = idn.GetAscii (domain);
 
-				return local + "@" + domain;
-			}
+			return local + "@" + domain;
+		}
 
-			if (options.International) {
-				string local, domain;
+		/// <summary>
+		/// Decode an addrspec token according to IDN decoding rules.
+		/// </summary>
+		/// <remarks>
+		/// Decodes an addrspec token according to IDN decoding rules.
+		/// </remarks>
+		/// <returns>The decoded addrspec token.</returns>
+		/// <param name="addrspec">The addrspec token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="addrspec"/> is <c>null</c>.
+		/// </exception>
+		public static string DecodeAddrspec (string addrspec)
+		{
+			if (addrspec == null)
+				throw new ArgumentNullException (nameof (addrspec));
 
-				Split (Address, out local, out domain);
+			string local, domain;
 
-				local = idn.GetUnicode (local);
+			Split (addrspec, out local, out domain);
 
-				if (string.IsNullOrEmpty (domain))
-					return local;
+			local = idn.GetUnicode (local);
 
-				domain = idn.GetUnicode (domain);
+			if (string.IsNullOrEmpty (domain))
+				return local;
 
-				return local + "@" + domain;
-			}
+			domain = idn.GetUnicode (domain);
 
-			return Address;
+			return local + "@" + domain;
 		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
@@ -312,7 +340,11 @@ namespace MimeKit {
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
 
-			var addrspec = EncodeAddrspec (options);
+			string addrspec;
+			if (options.International)
+				addrspec = DecodeAddrspec (Address);
+			else
+				addrspec = EncodeAddrspec (Address);
 
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;

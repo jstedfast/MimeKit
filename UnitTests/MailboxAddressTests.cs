@@ -409,28 +409,18 @@ namespace UnitTests {
 			const string userUnicode = "點看@domain";
 			const string domainAscii = "user@xn--v8jxj3d1dzdz08w.com";
 			const string domainUnicode = "user@名がドメイン.com";
-
-			var mailbox = new MailboxAddress ("Display Name", domainUnicode);
-			var options = FormatOptions.Default.Clone ();
 			string encoded;
 
-			options.International = false;
-			encoded = mailbox.EncodeAddrspec (options);
+			encoded = MailboxAddress.EncodeAddrspec (domainUnicode);
 			Assert.AreEqual (domainAscii, encoded, "Domain (Encode)");
 
-			options.International = true;
-			mailbox.Address = domainAscii;
-			encoded = mailbox.EncodeAddrspec (options);
+			encoded = MailboxAddress.DecodeAddrspec (domainAscii);
 			Assert.AreEqual (domainUnicode, encoded, "Domain (Decode)");
 
-			options.International = false;
-			mailbox.Address = userUnicode;
-			encoded = mailbox.EncodeAddrspec (options);
+			encoded = MailboxAddress.EncodeAddrspec (userUnicode);
 			Assert.AreEqual (userAscii, encoded, "Local-part (Encode)");
 
-			options.International = true;
-			mailbox.Address = userAscii;
-			encoded = mailbox.EncodeAddrspec (options);
+			encoded = MailboxAddress.DecodeAddrspec (userAscii);
 			Assert.AreEqual (userUnicode, encoded, "Local-part (Decode)");
 		}
 
