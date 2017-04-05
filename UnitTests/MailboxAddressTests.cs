@@ -59,11 +59,16 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null));
 
+			Assert.Throws<ArgumentNullException> (() => mailbox.Address = null);
+
 			Assert.Throws<ArgumentNullException> (() => mailbox.Encoding = null);
 
 			Assert.Throws<ArgumentNullException> (() => mailbox.CompareTo (null));
 
 			Assert.Throws<ArgumentNullException> (() => mailbox.ToString (null, true));
+
+			Assert.Throws<ArgumentNullException> (() => MailboxAddress.EncodeAddrspec (null));
+			Assert.Throws<ArgumentNullException> (() => MailboxAddress.DecodeAddrspec (null));
 		}
 
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
