@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -255,9 +256,29 @@ namespace MimeKit {
 			if (lineLength < 0)
 				throw new ArgumentOutOfRangeException (nameof (lineLength));
 
-			string route = Route.ToString ();
+			var route = Route.Encode (options);
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
+
+			string addrspec;
+			if (!options.International && IsInternational) {
+				var at = Address.LastIndexOf ('@');
+				var idn = new IdnMapping ();
+
+				if (at != -1) {
+					var domain = Address.Substring (at + 1);
+					var local = Address.Substring (0, at);
+
+					domain = idn.GetAscii (domain);
+					local = idn.GetAscii (local);
+
+					addrspec = local + "@" + domain;
+				} else {
+					addrspec = idn.GetAscii (Address);
+				}
+			} else {
+				addrspec = Address;
+			}
 
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;
@@ -290,7 +311,7 @@ namespace MimeKit {
 					builder.Append (name);
 				}
 
-				if ((lineLength + route.Length + Address.Length + 3) > options.MaxLineLength) {
+				if ((lineLength + route.Length + addrspec.Length + 3) > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ("\t<");
 					lineLength = 2;
@@ -302,11 +323,11 @@ namespace MimeKit {
 				lineLength += route.Length;
 				builder.Append (route);
 
-				lineLength += Address.Length + 1;
-				builder.Append (Address);
+				lineLength += addrspec.Length + 1;
+				builder.Append (addrspec);
 				builder.Append ('>');
 			} else if (!string.IsNullOrEmpty (route)) {
-				if ((lineLength + route.Length + Address.Length + 2) > options.MaxLineLength) {
+				if ((lineLength + route.Length + addrspec.Length + 2) > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ("\t<");
 					lineLength = 2;
@@ -318,17 +339,17 @@ namespace MimeKit {
 				lineLength += route.Length;
 				builder.Append (route);
 
-				lineLength += Address.Length + 1;
-				builder.Append (Address);
+				lineLength += addrspec.Length + 1;
+				builder.Append (addrspec);
 				builder.Append ('>');
 			} else {
-				if ((lineLength + Address.Length) > options.MaxLineLength) {
+				if ((lineLength + addrspec.Length) > options.MaxLineLength) {
 					builder.LineWrap (options);
 					lineLength = 1;
 				}
 
-				lineLength += Address.Length;
-				builder.Append (Address);
+				lineLength += addrspec.Length;
+				builder.Append (addrspec);
 			}
 		}
 

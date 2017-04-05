@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Collections;
+using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
@@ -328,17 +329,23 @@ namespace MimeKit {
 			return true;
 		}
 
-		/// <summary>
-		/// Returns a string representation of the list of domains.
-		/// </summary>
-		/// <remarks>
-		/// <para>Each non-empty domain string will be prepended by an '@'.</para>
-		/// <para>If there are multiple domains in the list, they will be separated by a comma.</para>
-		/// </remarks>
-		/// <returns>A string representing the <see cref="DomainList"/>.</returns>
-		public override string ToString ()
+		static bool IsInternational (string value)
+		{
+			if (value == null)
+				return false;
+
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] > 127)
+					return true;
+			}
+
+			return false;
+		}
+
+		internal string Encode (FormatOptions options)
 		{
 			var builder = new StringBuilder ();
+			var idn = new IdnMapping ();
 
 			for (int i = 0; i < domains.Count; i++) {
 				if (IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
@@ -350,10 +357,29 @@ namespace MimeKit {
 				if (!IsNullOrWhiteSpace (domains[i]))
 					builder.Append ('@');
 
-				builder.Append (domains[i]);
+				if (!options.International && IsInternational (domains[i])) {
+					var domain = idn.GetAscii (domains[i]);
+
+					builder.Append (domain);
+				} else {
+					builder.Append (domains[i]);
+				}
 			}
 
 			return builder.ToString ();
+		}
+
+		/// <summary>
+		/// Returns a string representation of the list of domains.
+		/// </summary>
+		/// <remarks>
+		/// <para>Each non-empty domain string will be prepended by an '@'.</para>
+		/// <para>If there are multiple domains in the list, they will be separated by a comma.</para>
+		/// </remarks>
+		/// <returns>A string representing the <see cref="DomainList"/>.</returns>
+		public override string ToString ()
+		{
+			return Encode (FormatOptions.Default);
 		}
 
 		internal event EventHandler Changed;
