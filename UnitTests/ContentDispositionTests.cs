@@ -214,6 +214,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestNonExistentDispositionValueWithParameterValues ()
+		{
+			const string text = " ; filename=\"test.txt\"";
+			const string filename = "test.txt";
+			var expected = new ContentDisposition ("attachment");
+
+			expected.Parameters.Add ("filename", filename);
+
+			AssertParse (text, expected, true, 1, 1);
+		}
+
+		[Test]
 		public void TestMistakenlyQuotedDispositionValue ()
 		{
 			const string text = "\"inline\"; filename=\"test.txt\"";

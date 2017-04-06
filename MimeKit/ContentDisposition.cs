@@ -465,10 +465,16 @@ namespace MimeKit {
 					if (throwOnError)
 						throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
 
-					return false;
-				}
+					// Note: this is a work-around for broken mailers that do not specify a disposition value...
+					//
+					// See https://github.com/jstedfast/MailKit/issues/486 for details.
+					if (index > atom || text[index] != (byte) ';')
+						return false;
 
-				type = Encoding.ASCII.GetString (text, atom, index - atom);
+					type = Attachment;
+				} else {
+					type = Encoding.ASCII.GetString (text, atom, index - atom);
+				}
 			}
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
