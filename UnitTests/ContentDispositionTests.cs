@@ -199,6 +199,14 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEmptyValue ()
+		{
+			const string text = " ";
+
+			AssertParse (text, null, false, 1, 1);
+		}
+
+		[Test]
 		public void TestMultipleParametersWithIdenticalNames ()
 		{
 			const string text1 = "inline;\n filename=\"Filename.doc\";\n filename*0*=UTF-8''UnicodeFile;\n filename*1*=name.doc";
