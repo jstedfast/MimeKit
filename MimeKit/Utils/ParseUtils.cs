@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 
 #if PORTABLE
 using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
@@ -44,6 +45,8 @@ using Decoder = Portable.Text.Decoder;
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
+		static readonly IdnMapping idn = new IdnMapping ();
+
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
 			if (options == null)
@@ -363,6 +366,42 @@ namespace MimeKit.Utils {
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);
 
 			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
+		}
+
+		public static bool IsInternational (string value)
+		{
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] > 127)
+					return true;
+			}
+
+			return false;
+		}
+
+		public static bool IsIdnEncoded (string value)
+		{
+			if (value.StartsWith ("xn--", StringComparison.Ordinal))
+				return true;
+
+			return value.IndexOf (".xn--", StringComparison.Ordinal) != -1;
+		}
+
+		public static string IdnEncode (string unicode)
+		{
+			try {
+				return idn.GetAscii (unicode);
+			} catch {
+				return unicode;
+			}
+		}
+
+		public static string IdnDecode (string ascii)
+		{
+			try {
+				return idn.GetUnicode (ascii);
+			} catch {
+				return ascii;
+			}
 		}
 	}
 }

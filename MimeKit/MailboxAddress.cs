@@ -26,7 +26,6 @@
 
 using System;
 using System.Text;
-using System.Globalization;
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -49,7 +48,6 @@ namespace MimeKit {
 	/// </remarks>
 	public class MailboxAddress : InternetAddress
 	{
-		static readonly IdnMapping idn = new IdnMapping ();
 		string address;
 
 		/// <summary>
@@ -233,26 +231,16 @@ namespace MimeKit {
 				if (address == null)
 					return false;
 
-				if (!IsAscii (address))
+				if (ParseUtils.IsInternational (address))
 					return true;
 
 				foreach (var domain in Route) {
-					if (!IsAscii (domain))
+					if (ParseUtils.IsInternational (domain))
 						return true;
 				}
 
 				return false;
 			}
-		}
-
-		static bool IsAscii (string value)
-		{
-			for (int i = 0; i < value.Length; i++) {
-				if (value[i] > 127)
-					return false;
-			}
-
-			return true;
 		}
 
 		static void Split (string addrspec, out string local, out string domain)
@@ -265,15 +253,6 @@ namespace MimeKit {
 			} else {
 				local = addrspec;
 				domain = null;
-			}
-		}
-
-		static string IdnEncode (string unicode)
-		{
-			try {
-				return idn.GetAscii (unicode);
-			} catch {
-				return unicode;
 			}
 		}
 
@@ -297,25 +276,16 @@ namespace MimeKit {
 
 			Split (addrspec, out local, out domain);
 
-			if (!IsAscii (local))
-				local = IdnEncode (local);
+			if (ParseUtils.IsInternational (local))
+				local = ParseUtils.IdnEncode (local);
 
 			if (string.IsNullOrEmpty (domain))
 				return local;
 
-			if (!IsAscii (domain))
-				domain = IdnEncode (domain);
+			if (ParseUtils.IsInternational (domain))
+				domain = ParseUtils.IdnEncode (domain);
 
 			return local + "@" + domain;
-		}
-
-		static string IdnDecode (string ascii)
-		{
-			try {
-				return idn.GetUnicode (ascii);
-			} catch {
-				return ascii;
-			}
 		}
 
 		/// <summary>
@@ -338,21 +308,21 @@ namespace MimeKit {
 
 			Split (addrspec, out local, out domain);
 
-			if (IsAscii (local))
-				local = IdnDecode (local);
+			if (ParseUtils.IsIdnEncoded (local))
+				local = ParseUtils.IdnDecode (local);
 
 			if (string.IsNullOrEmpty (domain))
 				return local;
 
-			if (IsAscii (domain))
-				domain = IdnDecode (domain);
+			if (ParseUtils.IsIdnEncoded (domain))
+				domain = ParseUtils.IdnDecode (domain);
 
 			return local + "@" + domain;
 		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
-			var route = Route.Encode (options, idn);
+			var route = Route.Encode (options);
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
 

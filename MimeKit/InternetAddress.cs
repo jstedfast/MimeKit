@@ -385,6 +385,9 @@ namespace MimeKit {
 			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, sentinels, throwOnError, out domain))
 				return false;
 
+			if (ParseUtils.IsIdnEncoded (domain))
+				domain = ParseUtils.IdnDecode (domain);
+
 			addrspec = localpart + "@" + domain;
 
 			return true;

@@ -27,7 +27,6 @@
 using System;
 using System.Text;
 using System.Collections;
-using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
@@ -329,20 +328,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static bool IsInternational (string value)
-		{
-			if (value == null)
-				return false;
-
-			for (int i = 0; i < value.Length; i++) {
-				if (value[i] > 127)
-					return true;
-			}
-
-			return false;
-		}
-
-		internal string Encode (FormatOptions options, IdnMapping idn)
+		internal string Encode (FormatOptions options)
 		{
 			var builder = new StringBuilder ();
 
@@ -353,11 +339,13 @@ namespace MimeKit {
 				if (builder.Length > 0)
 					builder.Append (',');
 
-				if (!IsNullOrWhiteSpace (domains[i]))
-					builder.Append ('@');
+				if (IsNullOrWhiteSpace (domains[i]))
+					continue;
 
-				if (!options.International && IsInternational (domains[i])) {
-					var domain = idn.GetAscii (domains[i]);
+				builder.Append ('@');
+
+				if (!options.International && ParseUtils.IsInternational (domains[i])) {
+					var domain = ParseUtils.IdnEncode (domains[i]);
 
 					builder.Append (domain);
 				} else {

@@ -276,6 +276,17 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseIdnAddress ()
+		{
+			const string encoded = "user@xn--v8jxj3d1dzdz08w.com";
+			const string expected = "user@名がドメイン.com";
+			MailboxAddress mailbox;
+
+			Assert.IsTrue (MailboxAddress.TryParse (encoded, out mailbox));
+			Assert.AreEqual (expected, mailbox.Address);
+		}
+
+		[Test]
 		public void TestParseAddrspecNoAtDomain ()
 		{
 			const string text = "jeff";
