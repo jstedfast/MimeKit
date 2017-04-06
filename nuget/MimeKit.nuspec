@@ -79,7 +79,6 @@
         <dependency id="System.Net.NetworkInformation" version="4.3.0" />
         <dependency id="System.Net.NameResolution" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
-        <dependency id="Microsoft.CSharp" version="4.3.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.1.2" />
       </group>
       <group targetFramework="portable-net45+win+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10">
