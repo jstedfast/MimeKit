@@ -477,11 +477,11 @@ namespace MimeKit {
 				}
 			}
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-				return false;
-
 			disposition = new ContentDisposition ();
 			disposition.disposition = type;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
 
 			if (index >= endIndex)
 				return true;
