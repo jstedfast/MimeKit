@@ -437,15 +437,39 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			atom = index;
-			if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+					throw new ParseException (string.Format ("Expected atom token at position {0}", index), index, index);
 
 				return false;
 			}
 
-			type = Encoding.ASCII.GetString (text, atom, index - atom);
+			atom = index;
+			if (text[index] == '"') {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Unxpected qstring token at position {0}", atom), atom, index);
+
+				// Note: This is a work-around for broken mailers that quote the disposition value...
+				//
+				// See https://github.com/jstedfast/MailKit/issues/486 for details.
+				if (!ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError))
+					return false;
+
+				type = CharsetUtils.ConvertToUnicode (options, text, atom, index - atom);
+				type = MimeUtils.Unquote (type);
+
+				if (string.IsNullOrEmpty (type))
+					type = Attachment;
+			} else {
+				if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+
+					return false;
+				}
+
+				type = Encoding.ASCII.GetString (text, atom, index - atom);
+			}
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;

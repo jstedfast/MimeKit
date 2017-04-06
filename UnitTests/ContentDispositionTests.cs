@@ -214,6 +214,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMistakenlyQuotedDispositionValue ()
+		{
+			const string text = "\"inline\"; filename=\"test.txt\"";
+			const string filename = "test.txt";
+			var expected = new ContentDisposition ("inline");
+
+			expected.Parameters.Add ("filename", filename);
+
+			AssertParse (text, expected, true, 0, 0);
+		}
+
+		[Test]
 		public void TestMistakenlyQuotedEncodedParameterValues ()
 		{
 			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
