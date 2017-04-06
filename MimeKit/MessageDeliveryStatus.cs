@@ -33,8 +33,9 @@ namespace MimeKit {
 	/// A message delivery status MIME part.
 	/// </summary>
 	/// <remarks>
-	/// A message delivery status MIME part is a machine readable notification denoting the
-	/// delivery status of a message and has a MIME-type of message/delivery-status.
+	/// <para>A message delivery status MIME part is a machine readable notification denoting the
+	/// delivery status of a message and has a MIME-type of message/delivery-status.</para>
+	/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc3464">rfc3464</a>.</para>
 	/// </remarks>
 	public class MessageDeliveryStatus : MimePart
 	{
@@ -68,9 +69,15 @@ namespace MimeKit {
 		/// Get the groups of delivery status fields.
 		/// </summary>
 		/// <remarks>
-		/// Gets the groups of delivery status fields. The first group of fields
-		/// contains the per-message fields while each of the following groups
-		/// contains fields that pertain to particular recipients of the message.
+		/// <para>Gets the groups of delivery status fields. The first <see cref="HeaderList"/>
+		/// contains the per-message fields while each remaining <see cref="HeaderList"/> contains
+		/// fields that pertain to particular recipients of the message.</para>
+		/// <para>For more information about these fields and their values, check out
+		/// <a href="https://tools.ietf.org/html/rfc3464">rfc3464</a>.</para>
+		/// <para><a href="https://tools.ietf.org/html/rfc3464#section-2.2">Section 2.2</a> defines
+		/// the per-message fields while
+		/// <a href="https://tools.ietf.org/html/rfc3464#section-2.3">Section 2.3</a> defines
+		/// the per-recipient fields.</para>
 		/// </remarks>
 		/// <value>The fields.</value>
 		public HeaderListCollection StatusGroups {

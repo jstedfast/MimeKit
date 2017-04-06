@@ -229,7 +229,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>The Content-MD5 header specifies the base64-encoded MD5 checksum of the content
 		/// in its canonical format.</para>
-		/// <para>For more information, see http://www.ietf.org/rfc/rfc1864.txt</para>
+		/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc1864">rfc1864</a>.</para>
 		/// </remarks>
 		/// <value>The md5sum of the content.</value>
 		public string ContentMd5 {
