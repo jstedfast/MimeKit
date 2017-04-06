@@ -466,6 +466,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestInternationalParameterValue ()
+		{
+			const string text = " text/plain; format=flowed; x-eai-please-do-not=\"abstürzen\"";
+			ContentType type;
+
+			Assert.IsTrue (ContentType.TryParse (text, out type));
+			Assert.AreEqual ("abstürzen", type.Parameters["x-eai-please-do-not"]);
+		}
+
+		[Test]
 		public void TestMimeTypeWithoutSubtype ()
 		{
 			const string text = "application-x-gzip; name=document.xml.gz";
