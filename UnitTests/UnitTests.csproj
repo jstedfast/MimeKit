@@ -57,7 +57,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.Net45.csproj">
       <Project>{D5F54A4F-D84B-430F-9271-F7861E285B3E}</Project>
-      <Name>MimeKit</Name>
+      <Name>MimeKit.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj">
       <Project>{F26434C1-BA3D-41FB-B560-C009CB72B1B6}</Project>
