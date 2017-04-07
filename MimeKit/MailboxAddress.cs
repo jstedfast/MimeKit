@@ -272,12 +272,10 @@ namespace MimeKit {
 			if (addrspec == null)
 				throw new ArgumentNullException (nameof (addrspec));
 
+#if !PORTABLE
 			string local, domain;
 
 			Split (addrspec, out local, out domain);
-
-			if (ParseUtils.IsInternational (local))
-				local = ParseUtils.IdnEncode (local);
 
 			if (string.IsNullOrEmpty (domain))
 				return local;
@@ -286,6 +284,9 @@ namespace MimeKit {
 				domain = ParseUtils.IdnEncode (domain);
 
 			return local + "@" + domain;
+#else
+			return addrspec;
+#endif
 		}
 
 		/// <summary>
@@ -304,12 +305,10 @@ namespace MimeKit {
 			if (addrspec == null)
 				throw new ArgumentNullException (nameof (addrspec));
 
+#if !PORTABLE
 			string local, domain;
 
 			Split (addrspec, out local, out domain);
-
-			if (ParseUtils.IsIdnEncoded (local))
-				local = ParseUtils.IdnDecode (local);
 
 			if (string.IsNullOrEmpty (domain))
 				return local;
@@ -318,6 +317,9 @@ namespace MimeKit {
 				domain = ParseUtils.IdnDecode (domain);
 
 			return local + "@" + domain;
+#else
+			return addrspec;
+#endif
 		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)

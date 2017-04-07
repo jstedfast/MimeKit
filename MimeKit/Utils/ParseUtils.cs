@@ -26,9 +26,9 @@
 
 using System;
 using System.Text;
+#if !PORTABLE
 using System.Globalization;
-
-#if PORTABLE
+#else
 using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
 using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
 using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
@@ -45,7 +45,9 @@ using Decoder = Portable.Text.Decoder;
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
+#if !PORTABLE
 		static readonly IdnMapping idn = new IdnMapping ();
+#endif
 
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
@@ -386,6 +388,7 @@ namespace MimeKit.Utils {
 			return value.IndexOf (".xn--", StringComparison.Ordinal) != -1;
 		}
 
+#if !PORTABLE
 		public static string IdnEncode (string unicode)
 		{
 			try {
@@ -403,5 +406,6 @@ namespace MimeKit.Utils {
 				return ascii;
 			}
 		}
+#endif
 	}
 }
