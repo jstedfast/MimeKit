@@ -14,25 +14,26 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>False</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\net35</OutputPath>
     <IntermediateOutputPath>obj\Debug\net35</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Optimize>True</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\net35</OutputPath>
     <IntermediateOutputPath>obj\Release\net35</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\net35\MimeKit.xml</DocumentationFile>
     <DefineConstants>TRACE;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;NET_3_5</DefineConstants>
+    <GenerateDocumentation>true</GenerateDocumentation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\net35\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

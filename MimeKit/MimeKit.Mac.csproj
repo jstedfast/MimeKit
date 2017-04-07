@@ -24,12 +24,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\Xamarin.Mac</OutputPath>
     <IntermediateOutputPath>obj\Release\Xamarin.Mac</IntermediateOutputPath>
     <DocumentationFile>bin\Release\Xamarin.Mac\MimeKit.xml</DocumentationFile>
     <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__MAC__</DefineConstants>
-    <GenerateDocumentation>True</GenerateDocumentation>
+    <GenerateDocumentation>true</GenerateDocumentation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

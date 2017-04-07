@@ -28,7 +28,7 @@
     <IntermediateOutputPath>obj\Release\Xamarin.TvOS</IntermediateOutputPath>
     <DocumentationFile>bin\Release\Xamarin.TvOS\MimeKit.xml</DocumentationFile>
     <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__TVOS__</DefineConstants>
-    <GenerateDocumentation>True</GenerateDocumentation>
+    <GenerateDocumentation>true</GenerateDocumentation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

@@ -25,23 +25,19 @@
     <OutputPath>bin\Debug\MonoAndroid</OutputPath>
     <IntermediateOutputPath>obj\Debug\MonoAndroid</IntermediateOutputPath>
     <DefineConstants>DEBUG;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AndroidLinkMode>None</AndroidLinkMode>
-    <ConsolePause>false</ConsolePause>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\MonoAndroid</OutputPath>
     <IntermediateOutputPath>obj\Release\MonoAndroid</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\MonoAndroid\MimeKit.xml</DocumentationFile>
+    <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
-    <ConsolePause>false</ConsolePause>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__ANDROID__</DefineConstants>
-    <DocumentationFile>bin\Release\MonoAndroid\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

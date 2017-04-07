@@ -9,8 +9,8 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>MimeKit</RootNamespace>
-    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>MimeKit</AssemblyName>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <TargetFrameworkIdentifier>Xamarin.iOS</TargetFrameworkIdentifier>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,12 +25,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\Xamarin.iOS</OutputPath>
     <IntermediateOutputPath>obj\Release\Xamarin.iOS</IntermediateOutputPath>
     <DocumentationFile>bin\Release\Xamarin.iOS\MimeKit.xml</DocumentationFile>
     <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__IOS__</DefineConstants>
-    <GenerateDocumentation>True</GenerateDocumentation>
+    <GenerateDocumentation>true</GenerateDocumentation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
