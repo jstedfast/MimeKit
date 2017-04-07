@@ -1,0 +1,8 @@
+{
+  "frameworks": {
+    "Xamarin.WatchOS,Version=v1.0": {}
+  },
+  "dependencies": {
+    "Portable.BouncyCastle": "1.8.1.2"
+  }
+}
