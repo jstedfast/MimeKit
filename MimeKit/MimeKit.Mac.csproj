@@ -3,46 +3,36 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D8F8376B-D81D-4465-8942-CC5242EDB207}</ProjectGuid>
-    <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{2CE98315-A444-44D3-8BCE-32389EDDA149}</ProjectGuid>
+    <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>MimeKit</RootNamespace>
-    <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <AssemblyName>MimeKit</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
+    <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\lib\mac</OutputPath>
-    <IntermediateOutputPath>obj\Debug\lib\mac</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
+    <OutputPath>bin\Debug\Xamarin.Mac</OutputPath>
+    <IntermediateOutputPath>obj\Debug\Xamarin.Mac</IntermediateOutputPath>
+    <DefineConstants>DEBUG;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__MAC__</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <UseSGen>false</UseSGen>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateDocumentation>True</GenerateDocumentation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\lib\mac</OutputPath>
-    <IntermediateOutputPath>obj\Release\lib\mac</IntermediateOutputPath>
+    <OutputPath>bin\Release\Xamarin.Mac</OutputPath>
+    <IntermediateOutputPath>obj\Release\Xamarin.Mac</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\Xamarin.Mac\MimeKit.xml</DocumentationFile>
+    <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__MAC__</DefineConstants>
+    <GenerateDocumentation>True</GenerateDocumentation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\lib\mac\MimeKit.xml</DocumentationFile>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <UseSGen>false</UseSGen>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -52,16 +42,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="XamMac" />
     <Reference Include="Mono.Data.Sqlite" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.csproj">
-      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
-      <Name>BouncyCastle</Name>
-    </ProjectReference>
+    <Reference Include="Xamarin.Mac" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
@@ -92,7 +77,6 @@
     <Compile Include="Cryptography\IDigitalSignature.cs" />
     <Compile Include="Cryptography\IDkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
-    <Compile Include="Cryptography\MacSecureMimeContext.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
@@ -150,26 +134,6 @@
     <Compile Include="IO\Filters\PassThroughFilter.cs" />
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="IO\Filters\Unix2DosFilter.cs" />
-    <Compile Include="MacInterop\CFArray.cs" />
-    <Compile Include="MacInterop\CFData.cs" />
-    <Compile Include="MacInterop\CFDictionary.cs" />
-    <Compile Include="MacInterop\CFObject.cs" />
-    <Compile Include="MacInterop\CFRange.cs" />
-    <Compile Include="MacInterop\CFString.cs" />
-    <Compile Include="MacInterop\CssmDbAttributeFormat.cs" />
-    <Compile Include="MacInterop\CssmKeyUse.cs" />
-    <Compile Include="MacInterop\CssmTPAppleCertStatus.cs" />
-    <Compile Include="MacInterop\Dlfcn.cs" />
-    <Compile Include="MacInterop\OSStatus.cs" />
-    <Compile Include="MacInterop\SecCertificate.cs" />
-    <Compile Include="MacInterop\SecExternalFormat.cs" />
-    <Compile Include="MacInterop\SecItemAttr.cs" />
-    <Compile Include="MacInterop\SecItemClass.cs" />
-    <Compile Include="MacInterop\SecItemExportFlags.cs" />
-    <Compile Include="MacInterop\SecKeyAttribute.cs" />
-    <Compile Include="MacInterop\SecKeychain.cs" />
-    <Compile Include="MacInterop\SecKeychainAttribute.cs" />
-    <Compile Include="MacInterop\SecKeychainAttributeList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Text\FlowedToHtml.cs" />
     <Compile Include="Text\FlowedToText.cs" />
@@ -269,6 +233,7 @@
     <Compile Include="MultipartRelated.cs" />
     <Compile Include="MultipartReport.cs" />
     <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterEncodingMethod.cs" />
     <Compile Include="ParameterList.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
@@ -276,22 +241,5 @@
     <Compile Include="TextPart.cs" />
     <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Cryptography\" />
-    <Folder Include="Encodings\" />
-    <Folder Include="IO\Filters\" />
-    <Folder Include="IO\" />
-    <Folder Include="Tnef\" />
-    <Folder Include="Utils\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ProjectExtensions>
-    <MonoDevelop>
-      <Properties>
-        <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
-        </Policies>
-      </Properties>
-    </MonoDevelop>
-  </ProjectExtensions>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

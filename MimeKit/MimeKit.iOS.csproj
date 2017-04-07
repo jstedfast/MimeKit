@@ -19,23 +19,21 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\Xamarin.iOS</OutputPath>
     <IntermediateOutputPath>obj\Debug\Xamarin.iOS</IntermediateOutputPath>
-    <DefineConstants>DEBUG;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
+    <DefineConstants>DEBUG;SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__IOS__</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\Xamarin.iOS</OutputPath>
     <IntermediateOutputPath>obj\Release\Xamarin.iOS</IntermediateOutputPath>
+    <DocumentationFile>bin\Release\Xamarin.iOS\MimeKit.xml</DocumentationFile>
+    <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__UNIFIED__;__MOBILE__;__IOS__</DefineConstants>
+    <GenerateDocumentation>True</GenerateDocumentation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>SERIALIZABLE;ENABLE_CRYPTO;ENABLE_SNM;__MOBILE__;__IOS__</DefineConstants>
-    <GenerateDocumentation>True</GenerateDocumentation>
-    <DocumentationFile>bin\Release\Xamarin.iOS\MimeKit.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
