@@ -42,6 +42,7 @@ using Org.BouncyCastle.X509.Store;
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
 using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
 using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
+using RealX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
 
 using MimeKit.IO;
@@ -101,6 +102,13 @@ namespace MimeKit.Cryptography {
 
 		#region implemented abstract members of SecureMimeContext
 
+		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (RealX509Certificate certificate)
+		{
+			var rawData = certificate.GetRawCertData ();
+
+			return new X509CertificateParser ().ReadCertificate (rawData);
+		}
+
 		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
@@ -120,7 +128,7 @@ namespace MimeKit.Cryptography {
 
 				try {
 					foreach (var certificate in store.Certificates) {
-						var cert = DotNetUtilities.FromX509Certificate (certificate);
+						var cert = GetBouncyCastleCertificate (certificate);
 						if (selector == null || selector.Match (cert))
 							return cert;
 					}
@@ -151,10 +159,10 @@ namespace MimeKit.Cryptography {
 					if (!certificate.HasPrivateKey)
 						continue;
 
-					var cert = DotNetUtilities.FromX509Certificate (certificate);
+					var cert = GetBouncyCastleCertificate (certificate);
 
 					if (selector == null || selector.Match (cert)) {
-						var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
+						var pair = CmsSigner.GetBouncyCastleKeyPair (certificate.PrivateKey);
 						return pair.Private;
 					}
 				}
@@ -183,7 +191,7 @@ namespace MimeKit.Cryptography {
 				store.Open (OpenFlags.ReadOnly);
 
 				foreach (var certificate in store.Certificates) {
-					var cert = DotNetUtilities.FromX509Certificate (certificate);
+					var cert = GetBouncyCastleCertificate (certificate);
 					anchors.Add (new TrustAnchor (cert, null));
 				}
 
@@ -211,7 +219,7 @@ namespace MimeKit.Cryptography {
 				store.Open (OpenFlags.ReadOnly);
 
 				foreach (var certificate in store.Certificates) {
-					var cert = DotNetUtilities.FromX509Certificate (certificate);
+					var cert = GetBouncyCastleCertificate (certificate);
 					intermediate.Add (cert);
 				}
 
@@ -309,7 +317,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			var certificate = GetCmsRecipientCertificate (mailbox);
-			var cert = DotNetUtilities.FromX509Certificate (certificate);
+			var cert = GetBouncyCastleCertificate (certificate);
 			var recipient = new CmsRecipient (cert);
 
 			foreach (var extension in certificate.Extensions) {
@@ -395,8 +403,8 @@ namespace MimeKit.Cryptography {
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
 			var certificate = GetCmsSignerCertificate (mailbox);
-			var pair = DotNetUtilities.GetKeyPair (certificate.PrivateKey);
-			var cert = DotNetUtilities.FromX509Certificate (certificate);
+			var pair = CmsSigner.GetBouncyCastleKeyPair (certificate.PrivateKey);
+			var cert = GetBouncyCastleCertificate (certificate);
 			var signer = new CmsSigner (cert, pair.Private);
 			signer.DigestAlgorithm = digestAlgo;
 			return signer;

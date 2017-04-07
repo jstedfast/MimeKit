@@ -159,7 +159,14 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-#if !PORTABLE && !NETSTANDARD
+#if !PORTABLE
+		static X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
+		{
+			var rawData = certificate.GetRawCertData ();
+
+			return new X509CertificateParser ().ReadCertificate (rawData);
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
@@ -184,7 +191,7 @@ namespace MimeKit.Cryptography {
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
 			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
-			Certificate = DotNetUtilities.FromX509Certificate (certificate);
+			Certificate = GetBouncyCastleCertificate (certificate);
 		}
 #endif
 
