@@ -421,8 +421,8 @@ namespace UnitTests {
 		[Test]
 		public void TestIdnEncoding ()
 		{
-			const string userAscii = "xn--c1yn36f@domain";
-			const string userUnicode = "點看@domain";
+			//const string userAscii = "xn--c1yn36f@domain";
+			//const string userUnicode = "點看@domain";
 			const string domainAscii = "user@xn--v8jxj3d1dzdz08w.com";
 			const string domainUnicode = "user@名がドメイン.com";
 			string encoded;
@@ -433,11 +433,11 @@ namespace UnitTests {
 			encoded = MailboxAddress.DecodeAddrspec (domainAscii);
 			Assert.AreEqual (domainUnicode, encoded, "Domain (Decode)");
 
-			encoded = MailboxAddress.EncodeAddrspec (userUnicode);
-			Assert.AreEqual (userAscii, encoded, "Local-part (Encode)");
+			//encoded = MailboxAddress.EncodeAddrspec (userUnicode);
+			//Assert.AreEqual (userAscii, encoded, "Local-part (Encode)");
 
-			encoded = MailboxAddress.DecodeAddrspec (userAscii);
-			Assert.AreEqual (userUnicode, encoded, "Local-part (Decode)");
+			//encoded = MailboxAddress.DecodeAddrspec (userAscii);
+			//Assert.AreEqual (userUnicode, encoded, "Local-part (Decode)");
 		}
 
 		[Test]
