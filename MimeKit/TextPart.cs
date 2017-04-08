@@ -55,6 +55,9 @@ namespace MimeKit {
 	/// <para>For more information about text media types, see section 4.1 of
 	/// <a href="https://tools.ietf.org/html/rfc2046#section-4.1">rfc2046</a>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public class TextPart : MimePart
 	{
 		/// <summary>
@@ -229,6 +232,9 @@ namespace MimeKit {
 		/// Checks whether or not the text part's Content-Type is <c>text/plain</c> and
 		/// has a format parameter with a value of <c>flowed</c>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value><c>true</c> if the text is flowed; otherwise, <c>false</c>.</value>
 		public bool IsFlowed {
 			get {
@@ -249,6 +255,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Checks whether or not the text part's Content-Type is <c>text/html</c>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		public bool IsHtml {
 			get { return ContentType.IsMimeType ("text", "html"); }

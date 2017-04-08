@@ -34,6 +34,9 @@ namespace MimeKit {
     /// <remarks>
     /// Implemented by <see cref="ContentObject"/>.
     /// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+	/// </example>
 	public interface IContentObject
 	{
 		/// <summary>
@@ -85,6 +88,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>

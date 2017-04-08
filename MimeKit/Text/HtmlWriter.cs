@@ -286,6 +286,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Writes the attribute to the output stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <param name="id">The attribute identifier.</param>
 		/// <param name="value">The attribute value.</param>
 		/// <exception cref="System.ArgumentException">
@@ -572,6 +575,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Writes an end tag.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <param name="id">The HTML tag identifier.</param>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="id"/> is not a valid HTML tag identifier.
@@ -696,6 +702,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Writes a start tag.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <param name="id">The HTML tag identifier.</param>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="id"/> is not a valid HTML tag identifier.
@@ -792,6 +801,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Writes text to the output stream, escaping special characters.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <param name="value">The text.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.

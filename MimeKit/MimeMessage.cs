@@ -954,6 +954,9 @@ namespace MimeKit {
 		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects,
 		/// but does not traverse into the bodies of attached messages.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveBodyParts" />
+		/// </example>
 		/// <value>The body parts.</value>
 		public IEnumerable<MimeEntity> BodyParts {
 			get { return EnumerateMimeParts (Body); }
@@ -966,6 +969,9 @@ namespace MimeKit {
 		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects that
 		/// have a Content-Disposition header set to <c>"attachment"</c>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		/// <value>The attachments.</value>
 		public IEnumerable<MimeEntity> Attachments {
 			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }

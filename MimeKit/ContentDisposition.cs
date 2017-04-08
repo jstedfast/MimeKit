@@ -182,6 +182,9 @@ namespace MimeKit {
 		/// When set, this can provide a useful hint for a default file name for the
 		/// content when the user decides to save it to disk.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		/// <value>The name of the file.</value>
 		public string FileName {
 			get { return Parameters["filename"]; }

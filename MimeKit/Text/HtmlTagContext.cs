@@ -95,6 +95,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether or not the <see cref="HtmlTagCallback"/> should be invoked for the end tag.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value><c>true</c> if the callback should be invoked for end tag; otherwise, <c>false</c>.</value>
 		public bool InvokeCallbackForEndTag {
 			get; set;
@@ -106,6 +109,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets whether or not the tag is an empty element.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</value>
 		public abstract bool IsEmptyElementTag {
 			get;

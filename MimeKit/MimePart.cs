@@ -48,6 +48,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// A leaf-node MIME part that contains content such as the message body text or an attachment.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+	/// </example>
 	public class MimePart : MimeEntity
 	{
 		static readonly string[] ContentTransferEncodings = {
@@ -294,6 +297,9 @@ namespace MimeKit {
 		/// <para>When setting the filename, both the "filename" parameter on the Content-Disposition
 		/// header and the "name" parameter on the Content-Type header are set.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		/// <value>The name of the file.</value>
 		public string FileName {
 			get {
@@ -326,6 +332,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets the MIME content.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		/// <value>The MIME content.</value>
 		public IContentObject ContentObject {
 			get; set;

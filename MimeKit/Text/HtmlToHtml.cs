@@ -161,6 +161,9 @@ namespace MimeKit.Text {
 		/// Get or set the <see cref="HtmlTagCallback"/> method to use for custom
 		/// filtering of HTML tags and content.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The html tag callback.</value>
 		public HtmlTagCallback HtmlTagCallback {
 			get; set;

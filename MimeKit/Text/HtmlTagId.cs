@@ -38,6 +38,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// HTML tag identifiers.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public enum HtmlTagId {
 		/// <summary>
 		/// An unknown HTML tag identifier.

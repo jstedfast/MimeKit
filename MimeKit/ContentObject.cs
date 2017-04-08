@@ -39,6 +39,9 @@ namespace MimeKit {
 	/// A <see cref="ContentObject"/> represents the content of a <see cref="MimePart"/>.
 	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+	/// </example>
 	public class ContentObject : IContentObject
 	{
 		/// <summary>
@@ -200,6 +203,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
