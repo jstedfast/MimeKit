@@ -407,15 +407,15 @@ namespace MimeKit.Utils {
 			}
 		}
 #else
-        public static string IdnEncode (string unicode)
+		public static string IdnEncode (string unicode)
 		{
-            return unicode;
-        }
+			return unicode;
+		}
 
-        public static string IdnDecode (string ascii)
+		public static string IdnDecode (string ascii)
 		{
-            return ascii;
-        }
+			return ascii;
+		}
 #endif
     }
 }
