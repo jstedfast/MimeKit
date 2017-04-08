@@ -1,5 +1,21 @@
 # Release Notes
 
+### MimeKit 1.14.0
+
+* Added International Domain Name support.
+* Added a work-around for mailers that didn't provide a disposition value in a
+  Content-Disposition header.
+* Added a work-around for mailers that quote the disposition value in a Content-Disposition
+  header.
+* Added automatic key retrieval functionality for the GnuPG crypto context.
+* Added a virtual DigestSigner property to DkimSigner so that consumers can hook into services
+  such as Azure. (issue #296)
+* Fixed a bug in the MimeFilterBase.SaveRemainingInput() logic.
+* Preserve munged From-lines at the start of message/rfc822 parts.
+* Map code page 50220 to iso-2022-jp.
+* Format Reply-To and Sender headers as address headers when using Header.SetValue().
+* Fixed MimeMessage.CreateFromMailMessage() to set MimeVersion. (issue #290)
+
 ### MimeKit 1.12.0
 
 * Added new DKIM MimeMessage.Sign() methods that take an IList<string> of header field names
