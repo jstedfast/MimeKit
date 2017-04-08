@@ -27,9 +27,9 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 #if !PORTABLE
+using System.Security.Cryptography;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 #endif
 
@@ -281,7 +281,7 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-#if !PORTABLE
+#if !PORTABLE && !NETSTANDARD
 		static X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
 		{
 			var rawData = certificate.GetRawCertData ();

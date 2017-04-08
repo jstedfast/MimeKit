@@ -2152,14 +2152,14 @@ namespace MimeKit.Cryptography {
 		}
 
 #if USE_HTTP_CLIENT
-		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.Cryptography.OpenPgpContext"/> object.
-		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Cryptography.OpenPgpContext"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Cryptography.OpenPgpContext"/> in an unusable state. After
-		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Cryptography.OpenPgpContext"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.Cryptography.OpenPgpContext"/> was occupying.</remarks>
-		protected override void Dispose (bool disposing)
+        /// <summary>
+        /// Releases all resources used by the <see cref="OpenPgpContext"/> object.
+        /// </summary>
+        /// <remarks>Call <see cref="CryptographyContext.Dispose()"/> when you are finished using the <see cref="OpenPgpContext"/>. The
+        /// <see cref="CryptographyContext.Dispose()"/> method leaves the <see cref="OpenPgpContext"/> in an unusable state. After
+        /// calling <see cref="CryptographyContext.Dispose()"/>, you must release all references to the <see cref="OpenPgpContext"/> so
+        /// the garbage collector can reclaim the memory that the <see cref="OpenPgpContext"/> was occupying.</remarks>
+        protected override void Dispose (bool disposing)
 		{
 			if (disposing && client != null) {
 				client.Dispose ();

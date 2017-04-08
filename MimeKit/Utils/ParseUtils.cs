@@ -406,6 +406,16 @@ namespace MimeKit.Utils {
 				return ascii;
 			}
 		}
+#else
+        public static string IdnEncode (string unicode)
+		{
+            return unicode;
+        }
+
+        public static string IdnDecode (string ascii)
+		{
+            return ascii;
+        }
 #endif
-	}
+    }
 }

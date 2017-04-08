@@ -159,7 +159,7 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-#if !PORTABLE
+#if !PORTABLE && !NETSTANDARD
 		static X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
 		{
 			var rawData = certificate.GetRawCertData ();
