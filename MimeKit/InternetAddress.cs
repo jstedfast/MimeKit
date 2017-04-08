@@ -341,11 +341,12 @@ namespace MimeKit {
 
 		static readonly byte[] CommaGreaterThanOrSemiColon = { (byte) ',', (byte) '>', (byte) ';' };
 
-		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string addrspec)
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string addrspec, out int at)
 		{
 			int startIndex = index;
 
 			addrspec = null;
+			at = -1;
 
 			string localpart;
 			if (!TryParseLocalPart (text, ref index, endIndex, throwOnError, out localpart))
@@ -389,6 +390,7 @@ namespace MimeKit {
 				domain = ParseUtils.IdnDecode (domain);
 
 			addrspec = localpart + "@" + domain;
+			at = localpart.Length;
 
 			return true;
 		}
@@ -461,7 +463,9 @@ namespace MimeKit {
 			//
 			// Example: <third@example.net, fourth@example.net>
 			string addrspec;
-			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec))
+			int at;
+
+			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec, out at))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -494,9 +498,9 @@ namespace MimeKit {
 			}
 
 			if (route != null)
-				address = new MailboxAddress (encoding, name, route, addrspec);
+				address = new MailboxAddress (encoding, name, route, addrspec, at);
 			else
-				address = new MailboxAddress (encoding, name, addrspec);
+				address = new MailboxAddress (encoding, name, addrspec, at);
 
 			return true;
 		}
@@ -635,6 +639,7 @@ namespace MimeKit {
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
 				var sentinels = new byte [] { sentinel };
 				string name, addrspec;
+				int at;
 
 				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 					if (throwOnError)
@@ -646,7 +651,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, sentinels, throwOnError, out addrspec))
+				if (!TryParseAddrspec (text, ref index, endIndex, sentinels, throwOnError, out addrspec, out at))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -679,7 +684,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				address = new MailboxAddress (name, addrspec);
+				address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
 
 				return true;
 			}
@@ -724,11 +729,12 @@ namespace MimeKit {
 			if (text[index] == (byte) '@') {
 				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
 				string name, addrspec;
+				int at;
 
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec))
+				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec, out at))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -754,7 +760,7 @@ namespace MimeKit {
 					return false;
 
 				if (index >= endIndex) {
-					address = new MailboxAddress (name, addrspec);
+					address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
 					return true;
 				}
 
@@ -788,7 +794,7 @@ namespace MimeKit {
 						index++;
 					}
 
-					address = new MailboxAddress (name, addrspec);
+					address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
 
 					return true;
 				}

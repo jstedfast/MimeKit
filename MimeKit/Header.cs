@@ -516,6 +516,7 @@ namespace MimeKit {
 		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
 		{
 			string addrspec;
+			int at;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
 				return;
@@ -523,7 +524,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '<')
 				index++;
 
-			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, false, out addrspec);
+			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, false, out addrspec, out at);
 
 			if (index < text.Length && text[index] == (byte) '>')
 				index++;
@@ -532,6 +533,7 @@ namespace MimeKit {
 		static void ReceivedTokenSkipMessageId (byte[] text, ref int index)
 		{
 			string addrspec;
+			int at;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
 				return;
@@ -539,7 +541,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '<') {
 				index++;
 
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, false, out addrspec);
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, false, out addrspec, out at);
 
 				if (index < text.Length && text[index] == (byte) '>')
 					index++;
