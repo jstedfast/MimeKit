@@ -2,7 +2,7 @@
 
 ### MimeKit 1.14.0
 
-* Added International Domain Name support.
+* Added International Domain Name support for email addresses.
 * Added a work-around for mailers that didn't provide a disposition value in a
   Content-Disposition header.
 * Added a work-around for mailers that quote the disposition value in a Content-Disposition
