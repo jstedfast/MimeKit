@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
 
 using Heijden.DNS;
 
@@ -15,10 +16,13 @@ namespace DkimVerifier
 {
 	class DkimPublicKeyLocator : IDkimPublicKeyLocator
 	{
+		readonly Dictionary<string, AsymmetricKeyParameter> cache;
 		readonly Resolver resolver;
 
 		public DkimPublicKeyLocator ()
 		{
+			cache = new Dictionary<string, AsymmetricKeyParameter> ();
+
 			resolver = new Resolver ("8.8.8.8") {
 				TransportType = TransportType.Udp,
 				UseCache = true,
@@ -29,9 +33,17 @@ namespace DkimVerifier
 		AsymmetricKeyParameter DnsLookup (string domain, string selector, CancellationToken cancellationToken)
 		{
 			var query = selector + "._domainkey." + domain;
+			AsymmetricKeyParameter pubkey;
+
+			// checked if we've already fetched this key
+			if (cache.TryGetValue (query, out pubkey))
+				return pubkey;
+
+			// make a DNS query
 			var response = resolver.Query (query, QType.TXT);
 			var builder = new StringBuilder ();
 
+			// combine the TXT records into 1 string buffer
 			foreach (var record in response.RecordsTXT) {
 				foreach (var text in record.TXT)
 					builder.Append (text);
@@ -41,7 +53,7 @@ namespace DkimVerifier
 			string k = null, p = null;
 			int index = 0;
 
-			// parse responses like: "k=rsa; p=<base64>"
+			// parse the response (will look something like: "k=rsa; p=<base64>")
 			while (index < txt.Length) {
 				while (index < txt.Length && char.IsWhiteSpace (txt[index]))
 					index++;
@@ -86,10 +98,13 @@ namespace DkimVerifier
 					using (var reader = new StreamReader (stream)) {
 						var pem = new PemReader (reader);
 
-						var pubkey = pem.ReadObject () as AsymmetricKeyParameter;
+						pubkey = pem.ReadObject () as AsymmetricKeyParameter;
 
-						if (pubkey != null)
+						if (pubkey != null) {
+							cache.Add (query, pubkey);
+
 							return pubkey;
+						}
 					}
 				}
 			}
@@ -105,7 +120,7 @@ namespace DkimVerifier
 					return DnsLookup (domain, selector, cancellationToken);
 			}
 
-			throw new NotSupportedException (string.Format ("{0} is not a supported lookup method.", methods));
+			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
 		}
 	}
 
@@ -133,11 +148,13 @@ namespace DkimVerifier
 					continue;
 				}
 
+				Console.Write ("{0} -> ", args[i]);
+
 				var message = MimeMessage.Load (args[i]);
 				var index = message.Headers.IndexOf (HeaderId.DkimSignature);
 
 				if (index == -1) {
-					Console.Error.WriteLine ("{0}: No DKIM-Signature header found.", args[i]);
+					Console.WriteLine ("NO SIGNATURE");
 					continue;
 				}
 
@@ -145,10 +162,14 @@ namespace DkimVerifier
 
 				if (message.Verify (dkim, locator)) {
 					// the DKIM-Signature header is valid!
-					Console.WriteLine ("{0}: valid DKIM-Signature!", args[i]);
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine ("VALID");
+					Console.ResetColor ();
 				} else {
-					// the DKIM-Signature is invalid
-					Console.WriteLine ("{0}: invalid DKIM-Signature!", args[i]);
+					// the DKIM-Signature is invalid!
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("INVALID");
+					Console.ResetColor ();
 				}
 			}
 		}

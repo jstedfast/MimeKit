@@ -38,6 +38,9 @@ namespace MimeKit.Cryptography {
 	/// via DNS.</para>
 	/// <seealso cref="MimeKit.MimeMessage.Verify(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+	/// </example>
 	public interface IDkimPublicKeyLocator
 	{
 		/// <summary>
@@ -46,6 +49,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Locates and retrieves the public key for the given domain and selector.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+		/// </example>
 		/// <returns>The public key.</returns>
 		/// <param name="methods">A colon-separated list of query methods used to retrieve the public key. The default is <c>"dns/txt"</c>.</param>
 		/// <param name="domain">The domain.</param>

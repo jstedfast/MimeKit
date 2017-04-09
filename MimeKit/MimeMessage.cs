@@ -1891,6 +1891,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Verifies the specified DKIM-Signature header.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+		/// </example>
 		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
@@ -1980,6 +1983,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Verifies the specified DKIM-Signature header.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+		/// </example>
 		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
