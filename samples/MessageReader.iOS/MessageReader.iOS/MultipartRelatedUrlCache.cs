@@ -1,9 +1,9 @@
 //
 // MultipartRelatedUrlCache.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2014-2017 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,23 @@
 //
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 
 using Foundation;
 
 using MimeKit;
 
 namespace MessageReader.iOS {
+	/// <summary>
+	/// An implementation of an NSUrlCache based on a multipart/related stack.
+	/// </summary>
 	public class MultipartRelatedUrlCache : NSUrlCache
 	{
-		readonly MultipartRelated related;
+		readonly IList<MultipartRelated> stack;
 
-		public MultipartRelatedUrlCache (MultipartRelated related)
+		public MultipartRelatedUrlCache (IList<MultipartRelated> stack)
 		{
-			this.related = related;
+			this.stack = stack;
 		}
 
 		public override NSCachedUrlResponse CachedResponseForRequest (NSUrlRequest request)
@@ -46,7 +49,13 @@ namespace MessageReader.iOS {
 			var uri = (Uri) request.Url;
 			int index;
 
-			if ((index = related.IndexOf (uri)) != -1) {
+			// walk up our multipart/related stack looking for the MIME part for the requested URL
+			for (int i = stack.Count - 1; i >= 0; i--) {
+				var related = stack[i];
+
+				if ((index = related.IndexOf (uri)) == -1)
+					continue;
+
 				var part = related[index] as MimePart;
 
 				if (part != null) {
@@ -55,10 +64,12 @@ namespace MessageReader.iOS {
 					NSUrlResponse response;
 					NSData data;
 
+					// create an NSData wrapper for the MIME part's decoded content stream
 					using (var content = part.ContentObject.Open ())
 						data = NSData.FromStream (content);
 
-					response = new NSUrlResponse (request.Url, mimeType, (int) (uint)data.Length, charset);
+					// construct our response
+					response = new NSUrlResponse (request.Url, mimeType, (int) data.Length, charset);
 
 					return new NSCachedUrlResponse (response, data);
 				}
