@@ -83,6 +83,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="HtmlPreviewVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
