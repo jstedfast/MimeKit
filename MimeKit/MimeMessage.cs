@@ -1522,6 +1522,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Digitally signs the message using a DomainKeys Identified Mail (DKIM) signature.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="signer">The DKIM signer.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
@@ -1579,6 +1582,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Digitally signs the message using a DomainKeys Identified Mail (DKIM) signature.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <param name="signer">The DKIM signer.</param>
 		/// <param name="headers">The headers to sign.</param>
 		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
@@ -1605,6 +1611,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Digitally signs the message using a DomainKeys Identified Mail (DKIM) signature.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="signer">The DKIM signer.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
@@ -1662,6 +1671,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Digitally signs the message using a DomainKeys Identified Mail (DKIM) signature.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <param name="signer">The DKIM signer.</param>
 		/// <param name="headers">The headers to sign.</param>
 		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
