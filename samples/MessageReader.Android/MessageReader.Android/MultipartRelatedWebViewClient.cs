@@ -1,9 +1,9 @@
 ﻿//
 // MultipartRelatedWebViewClient.cs
 //
-// Author: Jeffrey Stedfast <jeff@xamarin.com>
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2014-2017 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,26 @@
 //
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 
 using Android.Webkit;
 
 using MimeKit;
 
 namespace MessageReader.Android {
+	/// <summary>
+	/// A WebViewClient based on a multipart/related stack.
+	/// </summary>
 	public class MultipartRelatedWebViewClient : WebViewClient
 	{
-		readonly MultipartRelated related;
+		readonly IList<MultipartRelated> stack;
 
-		public MultipartRelatedWebViewClient (MultipartRelated related)
+		public MultipartRelatedWebViewClient (IList<MultipartRelated> stack)
 		{
-			this.related = related;
+			// Note: we need to clone the multipart/related stack because Android
+			// may not render the HTML immediately and we need to preserve state
+			// until it does.
+			this.stack = new List<MultipartRelated> (stack);
 		}
 
 		public override WebResourceResponse ShouldInterceptRequest (WebView view, IWebResourceRequest request)
@@ -46,7 +52,13 @@ namespace MessageReader.Android {
 			var uri = new Uri (request.Url.ToString ());
 			int index;
 
-			if ((index = related.IndexOf (uri)) != -1) {
+			// walk up our multipart/related stack looking for the MIME part for the requested URL
+			for (int i = stack.Count - 1; i >= 0; i--) {
+				var related = stack[i];
+
+				if ((index = related.IndexOf (uri)) == -1)
+					continue;
+
 				var part = related[index] as MimePart;
 
 				if (part != null) {
@@ -54,6 +66,7 @@ namespace MessageReader.Android {
 					var stream = part.ContentObject.Open ();
 					var charset = part.ContentType.Charset;
 
+					// construct our response containing the decoded content
 					return new WebResourceResponse (mimeType, charset, stream);
 				}
 			}
