@@ -41,7 +41,10 @@ namespace MessageReader.iOS {
 
 		public MultipartRelatedUrlCache (IList<MultipartRelated> stack)
 		{
-			this.stack = stack;
+			// Note: we need to clone the multipart/related stack because iOS
+			// may not render the HTML immediately and we need to preserve
+			// state until it does.
+			this.stack = new List<MultipartRelated> (stack);
 		}
 
 		public override NSCachedUrlResponse CachedResponseForRequest (NSUrlRequest request)

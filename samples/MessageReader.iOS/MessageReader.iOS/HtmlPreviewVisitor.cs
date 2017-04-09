@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Collections.Generic;
 
 using MimeKit;
@@ -82,84 +80,10 @@ namespace MessageReader.iOS {
 			stack.RemoveAt (stack.Count - 1);
 		}
 
-		// look up the image based on the img src url within our multipart/related stack
-		bool TryGetImage (string url, out MimePart image)
-		{
-			UriKind kind;
-			int index;
-			Uri uri;
-
-			if (Uri.IsWellFormedUriString (url, UriKind.Absolute))
-				kind = UriKind.Absolute;
-			else if (Uri.IsWellFormedUriString (url, UriKind.Relative))
-				kind = UriKind.Relative;
-			else
-				kind = UriKind.RelativeOrAbsolute;
-
-			try {
-				uri = new Uri (url, kind);
-			} catch {
-				image = null;
-				return false;
-			}
-
-			for (int i = stack.Count - 1; i >= 0; i--) {
-				if ((index = stack[i].IndexOf (uri)) == -1)
-					continue;
-
-				image = stack[i][index] as MimePart;
-				return image != null;
-			}
-
-			image = null;
-
-			return false;
-		}
-
-		/// <summary>
-		/// Gets the attachent content as a data URI.
-		/// </summary>
-		/// <returns>The data URI.</returns>
-		/// <param name="attachment">The attachment.</param>
-		string GetDataUri (MimePart attachment)
-		{
-			using (var memory = new MemoryStream ()) {
-				attachment.ContentObject.DecodeTo (memory);
-				var buffer = memory.GetBuffer ();
-				var length = (int) memory.Length;
-				var base64 = Convert.ToBase64String (buffer, 0, length);
-
-				return string.Format ("data:{0};base64,{1}", attachment.ContentType.MimeType, base64);
-			}
-		}
-
-		// Replaces <img src=...> urls that refer to images embedded within the message with
-		// "file://" urls that the browser control will actually be able to load.
+		// Sets the "oncontextmenu" <body> attribute to "return false;"
 		void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
-			if (ctx.TagId == HtmlTagId.Image && !ctx.IsEndTag && stack.Count > 0) {
-				ctx.WriteTag (htmlWriter, false);
-
-				// replace the src attribute with a file:// URL
-				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Id == HtmlAttributeId.Src) {
-						MimePart image;
-						string url;
-
-						if (!TryGetImage (attribute.Value, out image)) {
-							htmlWriter.WriteAttribute (attribute);
-							continue;
-						}
-
-						url = GetDataUri (image);
-
-						htmlWriter.WriteAttributeName (attribute.Name);
-						htmlWriter.WriteAttributeValue (url);
-					} else {
-						htmlWriter.WriteAttribute (attribute);
-					}
-				}
-			} else if (ctx.TagId == HtmlTagId.Body && !ctx.IsEndTag) {
+			if (ctx.TagId == HtmlTagId.Body && !ctx.IsEndTag) {
 				ctx.WriteTag (htmlWriter, false);
 
 				// add and/or replace oncontextmenu="return false;"
