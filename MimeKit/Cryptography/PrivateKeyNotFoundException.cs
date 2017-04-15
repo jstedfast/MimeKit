@@ -52,6 +52,9 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
 		protected PrivateKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
 			KeyId = info.GetString ("KeyId");

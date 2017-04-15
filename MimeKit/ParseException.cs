@@ -56,6 +56,9 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
 		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
 			TokenIndex = info.GetInt32 ("TokenIndex");
