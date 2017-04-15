@@ -122,6 +122,7 @@
     <Compile Include="YEncodingTests.cs" />
     <Compile Include="MimePartTests.cs" />
     <Compile Include="TextPartTests.cs" />
+    <Compile Include="ExceptionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />
