@@ -47,6 +47,16 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((X509Certificate) null));
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((string) null));
+
+			var recipients = new CmsRecipientCollection ();
+			Assert.AreEqual (0, recipients.Count);
+			Assert.IsFalse (recipients.IsReadOnly);
+			Assert.Throws<ArgumentNullException> (() => recipients.Add (null));
+			Assert.Throws<ArgumentNullException> (() => recipients.Contains (null));
+			Assert.Throws<ArgumentNullException> (() => recipients.CopyTo (null, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => recipients.CopyTo (new CmsRecipient[1], -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => recipients.CopyTo (new CmsRecipient[1], 2));
+			Assert.Throws<ArgumentNullException> (() => recipients.Remove (null));
 		}
 
 		static void AssertDefaultValues (CmsRecipient recipient, X509Certificate certificate)
