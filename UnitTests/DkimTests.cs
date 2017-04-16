@@ -299,8 +299,9 @@ namespace UnitTests
 		{
 			using (var stream = File.OpenRead ("../../TestData/mbox/jwz.mbox.txt")) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				int i = 0;
 
-				while (!parser.IsEndOfStream) {
+				while (!parser.IsEndOfStream && i < 10) {
 					var message = parser.ParseMessage ();
 
 					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha1,
@@ -318,6 +319,8 @@ namespace UnitTests
 					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha256,
 						DkimCanonicalizationAlgorithm.Simple,
 						DkimCanonicalizationAlgorithm.Simple);
+
+					i++;
 				}
 			}
 		}
