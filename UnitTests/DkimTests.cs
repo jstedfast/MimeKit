@@ -220,8 +220,6 @@ namespace UnitTests
 
 			var dkim = message.Headers[0];
 
-			Console.WriteLine ("{0}", dkim.Value);
-
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
 			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
