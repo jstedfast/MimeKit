@@ -227,7 +227,7 @@ namespace UnitTests {
 		public void TestSimpleAddrSpec ()
 		{
 			var expected = new InternetAddressList ();
-			var mailbox = new MailboxAddress ("", "");
+			var mailbox = new MailboxAddress ("", "example@mimekit.net");
 			string text;
 
 			expected.Add (mailbox);
@@ -247,7 +247,7 @@ namespace UnitTests {
 			const string encoded = "fejj@helixcode.com";
 			const string text = "fejj@helixcode.com.";
 			var expected = new InternetAddressList ();
-			var mailbox = new MailboxAddress ("", "");
+			var mailbox = new MailboxAddress ("", "example@mimekit.net");
 
 			expected.Add (mailbox);
 
@@ -284,7 +284,7 @@ namespace UnitTests {
 		public void TestSimpleMailboxes ()
 		{
 			var expected = new InternetAddressList ();
-			var mailbox = new MailboxAddress ("", "");
+			var mailbox = new MailboxAddress ("", "example@mimekit.net");
 			string text;
 
 			expected.Add (mailbox);
@@ -334,7 +334,7 @@ namespace UnitTests {
 		public void TestMailboxesWithRfc2047EncodedNames ()
 		{
 			var expected = new InternetAddressList ();
-			var mailbox = new MailboxAddress ("", "");
+			var mailbox = new MailboxAddress ("", "example@mimekit.net");
 			string text;
 
 			expected.Add (mailbox);

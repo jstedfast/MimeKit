@@ -87,6 +87,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="address"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="address"/> is an empty string.
+		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
@@ -114,6 +117,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="address"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="address"/> is an empty string.
+		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
@@ -133,6 +139,9 @@ namespace MimeKit {
 		/// <para><paramref name="route"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="address"/> is an empty string.
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -155,6 +164,9 @@ namespace MimeKit {
 		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="address"/> is an empty string.
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -180,6 +192,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="address"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="address"/> is an empty string.
+		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
@@ -196,6 +211,9 @@ namespace MimeKit {
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="address"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="address"/> is an empty string.
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -238,6 +256,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is an empty string.
+		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="value"/> is malformed.
 		/// </exception>
@@ -246,6 +267,9 @@ namespace MimeKit {
 			set {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
+
+				if (value.Length == 0)
+					throw new ArgumentException ("The address cannot be empty.", nameof (value));
 
 				if (value == address)
 					return;
