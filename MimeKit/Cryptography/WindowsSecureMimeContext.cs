@@ -624,7 +624,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// Importing keys is not supported by this cryptography context.
 		/// </exception>
-		public override void Import (Stream stream, string password)
+		public void Import (Stream stream, string password, X509KeyStorageFlags flags)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -637,9 +637,30 @@ namespace MimeKit.Cryptography {
 			var certs = new X509Certificate2Collection ();
 
 			store.Open (OpenFlags.ReadWrite);
-			certs.Import (rawData, password, X509KeyStorageFlags.UserKeySet);
+			certs.Import (rawData, password, flags);
 			store.AddRange (certs);
 			store.Close ();
+		}
+
+		/// <summary>
+		/// Imports certificates and keys from a pkcs12-encoded stream.
+		/// </summary>
+		/// <remarks>
+		/// Imports certificates and keys from a pkcs12-encoded stream.
+		/// </remarks>
+		/// <param name="stream">The raw certificate and key data.</param>
+		/// <param name="password">The password to unlock the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
+		/// </exception>
+		public override void Import (Stream stream, string password)
+		{
+			Import (stream, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
 		}
 
 		#endregion
