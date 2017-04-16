@@ -94,8 +94,12 @@ namespace UnitTests
 		{
 			const string text = "blurdy bloop =??q?no_charset?= beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
 
-			var result = Rfc2047.DecodeText (buffer);
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
 			Assert.AreEqual (text, result);
 		}
 
@@ -104,8 +108,12 @@ namespace UnitTests
 		{
 			const string text = "blurdy bloop =?*en?q?no_charset?= beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
 
-			var result = Rfc2047.DecodeText (buffer);
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
 			Assert.AreEqual (text, result);
 		}
 
@@ -115,8 +123,12 @@ namespace UnitTests
 			const string text = "blurdy bloop =?iso-8859-1*en?q?this_is_english?= beep boop";
 			const string expected = "blurdy bloop this is english beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
 
-			var result = Rfc2047.DecodeText (buffer);
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (expected, result);
+
+			result = Rfc2047.DecodeText (buffer);
 			Assert.AreEqual (expected, result);
 		}
 
@@ -125,8 +137,40 @@ namespace UnitTests
 		{
 			const string text = "blurdy bloop =?iso-8859-1?x?invalid_encoding?= beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
 
-			var result = Rfc2047.DecodeText (buffer);
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestEncodedWordIncompletePayload ()
+		{
+			const string text = "blurdy bloop =?iso-8859-1?x?invalid_encoding";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestEncodedWordIncompleteCharset ()
+		{
+			const string text = "blurdy bloop =?iso-8859-1";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
 			Assert.AreEqual (text, result);
 		}
 	}
