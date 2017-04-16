@@ -616,6 +616,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the stream.</param>
+		/// <param name="flags">The storage flags to use when importing the certificate and private key.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
