@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using NUnit.Framework;
 
@@ -34,6 +35,8 @@ using Org.BouncyCastle.X509;
 
 using MimeKit;
 using MimeKit.Cryptography;
+
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace UnitTests {
 	public abstract class SecureMimeTestsBase
@@ -53,15 +56,35 @@ namespace UnitTests {
 
 				CryptographyContext.Register (ctx.GetType ());
 
-				foreach (var filename in CertificateAuthorities) {
-					path = Path.Combine (dataDir, filename);
-					using (var file = File.OpenRead (path)) {
-						if (ctx is DefaultSecureMimeContext) {
-							((DefaultSecureMimeContext) ctx).Import (file, true);
-						} else {
-							var parser = new X509CertificateParser ();
-							foreach (X509Certificate certificate in parser.ReadCertificates (file))
-								ctx.Import (certificate);
+				if (ctx is WindowsSecureMimeContext) {
+					var windows = (WindowsSecureMimeContext) ctx;
+					var parser = new X509CertificateParser ();
+
+					using (var stream = File.OpenRead (Path.Combine (dataDir, "certificate-authority.crt"))) {
+						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							windows.Import (StoreName.TrustedPublisher, certificate);
+					}
+
+					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
+						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							windows.Import (StoreName.TrustedPublisher, certificate);
+					}
+
+					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							windows.Import (StoreName.CertificateAuthority, certificate);
+					}
+				} else {
+					foreach (var filename in CertificateAuthorities) {
+						path = Path.Combine (dataDir, filename);
+						using (var stream = File.OpenRead (path)) {
+							if (ctx is DefaultSecureMimeContext) {
+								((DefaultSecureMimeContext) ctx).Import (stream, true);
+							} else {
+								var parser = new X509CertificateParser ();
+								foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+									ctx.Import (certificate);
+							}
 						}
 					}
 				}

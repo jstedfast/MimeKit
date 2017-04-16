@@ -119,9 +119,10 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (IX509Selector selector)
 		{
-			var storeNames = new [] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
+			foreach (StoreName storeName in Enum.GetValues (typeof (StoreName))) {
+				if (storeName == StoreName.Disallowed)
+					continue;
 
-			foreach (var storeName in storeNames) {
 				var store = new X509Store (storeName, StoreLocation);
 
 				store.Open (OpenFlags.ReadOnly);
@@ -182,7 +183,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The trusted anchors.</returns>
 		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
 		{
-			var storeNames = new StoreName[] { StoreName.TrustedPeople, StoreName.Root };
+			var storeNames = new StoreName[] { StoreName.Root, StoreName.TrustedPeople, StoreName.TrustedPublisher };
 			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
 
 			foreach (var storeName in storeNames) {
@@ -210,7 +211,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			var storeNames = new [] { StoreName.My, StoreName.AddressBook, StoreName.TrustedPeople, StoreName.Root };
+			var storeNames = new [] { StoreName.AuthRoot, StoreName.CertificateAuthority, StoreName.TrustedPeople, StoreName.TrustedPublisher };
 			var intermediate = new X509CertificateStore ();
 
 			foreach (var storeName in storeNames) {
@@ -246,35 +247,39 @@ namespace MimeKit.Cryptography {
 
 		X509Certificate2 GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
-			var store = new X509Store (StoreName.My, StoreLocation);
-			var secure = mailbox as SecureMailboxAddress;
-			var now = DateTime.UtcNow;
+			var storeNames = new [] { StoreName.AddressBook, StoreName.My, StoreName.TrustedPeople };
 
-			store.Open (OpenFlags.ReadOnly);
+			foreach (var storeName in storeNames) {
+				var store = new X509Store (storeName, StoreLocation);
+				var secure = mailbox as SecureMailboxAddress;
+				var now = DateTime.UtcNow;
 
-			try {
-				foreach (var certificate in store.Certificates) {
-					if (certificate.NotBefore > now || certificate.NotAfter < now)
-						continue;
+				store.Open (OpenFlags.ReadOnly);
 
-					var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
-					if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.KeyEncipherment) == 0)
-						continue;
-
-					if (secure != null) {
-						if (certificate.Thumbprint != secure.Fingerprint)
+				try {
+					foreach (var certificate in store.Certificates) {
+						if (certificate.NotBefore > now || certificate.NotAfter < now)
 							continue;
-					} else {
-						var address = certificate.GetNameInfo (X509NameType.EmailName, false);
 
-						if (!address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
+						var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
+						if (usage != null && (usage.KeyUsages & RealX509KeyUsageFlags.KeyEncipherment) == 0)
 							continue;
+
+						if (secure != null) {
+							if (certificate.Thumbprint != secure.Fingerprint)
+								continue;
+						} else {
+							var address = certificate.GetNameInfo (X509NameType.EmailName, false);
+
+							if (!address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
+								continue;
+						}
+
+						return certificate;
 					}
-
-					return certificate;
+				} finally {
+					store.Close ();
 				}
-			} finally {
-				store.Close ();
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -574,20 +579,36 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Import the specified certificate.
 		/// </remarks>
+		/// <param name="storeName">The store to import the certificate into.</param>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public void Import (StoreName storeName, Org.BouncyCastle.X509.X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			var store = new X509Store (storeName, StoreLocation);
+
+			store.Open (OpenFlags.ReadWrite);
+			store.Add (new X509Certificate2 (certificate.GetEncoded ()));
+			store.Close ();
+		}
+
+		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <remarks>
+		/// Imports the specified certificate into the <see cref="StoreName.AddressBook"/> store.
+		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
 		public override void Import (Org.BouncyCastle.X509.X509Certificate certificate)
 		{
-			if (certificate == null)
-				throw new ArgumentNullException (nameof (certificate));
-
-			var store = new X509Store (StoreName.AddressBook, StoreLocation);
-
-			store.Open (OpenFlags.ReadWrite);
-			store.Add (new X509Certificate2 (certificate.GetEncoded ()));
-			store.Close ();
+			Import (StoreName.AddressBook, certificate);
 		}
 
 		/// <summary>
@@ -605,7 +626,8 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
 
-			// TODO: figure out where to store the CRLs...
+			foreach (Org.BouncyCastle.X509.X509Certificate certificate in crl.GetRevokedCertificates ())
+				Import (StoreName.Disallowed, certificate);
 		}
 
 		/// <summary>
