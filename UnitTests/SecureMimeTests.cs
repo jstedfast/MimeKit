@@ -61,12 +61,12 @@ namespace UnitTests {
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "certificate-authority.crt"))) {
 						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-							windows.Import (StoreName.Root, certificate);
+							windows.Import (StoreName.AuthRoot, certificate);
 					}
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
 						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-							windows.Import (StoreName.Root, certificate);
+							windows.Import (StoreName.AuthRoot, certificate);
 					}
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
