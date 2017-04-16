@@ -106,7 +106,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeEncapsulatedSigning ()
+		public virtual void TestSecureMimeEncapsulatedSigning ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
@@ -153,7 +153,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeSigning ()
+		public virtual void TestSecureMimeSigning ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -250,7 +250,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeEncryption ()
+		public virtual void TestSecureMimeEncryption ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -319,7 +319,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSecureMimeSignAndEncrypt ()
+		public virtual void TestSecureMimeSignAndEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "d4a7af1cc2ce18ed8b2ea01af286bbd3a7f29115");
@@ -529,4 +529,51 @@ namespace UnitTests {
 		}
 	}
 	#endif
+
+	[TestFixture]
+	public class WindowsSecureMimeTests : SecureMimeTestsBase
+	{
+		readonly WindowsSecureMimeContext ctx = new WindowsSecureMimeContext ();
+
+		protected override SecureMimeContext CreateContext ()
+		{
+			return ctx;
+		}
+
+		[Test]
+		public override void TestSecureMimeEncapsulatedSigning ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeEncapsulatedSigning ();
+		}
+
+		[Test]
+		public override void TestSecureMimeSigning ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeSigning ();
+		}
+
+		[Test]
+		public override void TestSecureMimeEncryption ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeEncryption ();
+		}
+
+		[Test]
+		public override void TestSecureMimeSignAndEncrypt ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeSignAndEncrypt ();
+		}
+	}
 }
