@@ -35,8 +35,9 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.X509.Store;
 
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
@@ -417,12 +418,77 @@ namespace MimeKit.Cryptography {
 			return signer;
 		}
 
+		CryptographicAttributeObject GetSecureMimeCapabilities ()
+		{
+			var algorithms = new AsnEncodedDataCollection ();
+
+			foreach (var algorithm in EncryptionAlgorithmRank) {
+				if (!IsEnabled (algorithm))
+					continue;
+
+				DerSequence der = null;
+
+				switch (algorithm) {
+				case EncryptionAlgorithm.Camellia256:
+					der = new DerSequence (NttObjectIdentifiers.IdCamellia256Cbc);
+					break;
+				case EncryptionAlgorithm.Camellia192:
+					der = new DerSequence (NttObjectIdentifiers.IdCamellia192Cbc);
+					break;
+				case EncryptionAlgorithm.Camellia128:
+					der = new DerSequence (NttObjectIdentifiers.IdCamellia128Cbc);
+					break;
+				case EncryptionAlgorithm.Aes256:
+					der = new DerSequence (SmimeCapabilities.Aes256Cbc);
+					break;
+				case EncryptionAlgorithm.Aes192:
+					der = new DerSequence (SmimeCapabilities.Aes192Cbc);
+					break;
+				case EncryptionAlgorithm.Aes128:
+					der = new DerSequence (SmimeCapabilities.Aes128Cbc);
+					break;
+				case EncryptionAlgorithm.Idea:
+					der = new DerSequence (SmimeCapabilities.IdeaCbc);
+					break;
+				case EncryptionAlgorithm.Cast5:
+					der = new DerSequence (SmimeCapabilities.Cast5Cbc);
+					break;
+				case EncryptionAlgorithm.TripleDes:
+					der = new DerSequence (SmimeCapabilities.DesEde3Cbc);
+					break;
+				case EncryptionAlgorithm.RC2128:
+					der = new DerSequence (SmimeCapabilities.RC2Cbc, new DerInteger (128));
+					break;
+				case EncryptionAlgorithm.RC264:
+					der = new DerSequence (SmimeCapabilities.RC2Cbc, new DerInteger (64));
+					break;
+				case EncryptionAlgorithm.RC240:
+					der = new DerSequence (SmimeCapabilities.RC2Cbc, new DerInteger (40));
+					break;
+				case EncryptionAlgorithm.Des:
+					der = new DerSequence (SmimeCapabilities.DesCbc);
+					break;
+				case EncryptionAlgorithm.Blowfish:
+				case EncryptionAlgorithm.Twofish:
+					break;
+				}
+
+				if (der != null)
+					algorithms.Add (new AsnEncodedData (der.GetEncoded ()));
+			}
+
+			var oid = new Oid (SmimeAttributes.SmimeCapabilities.Id);
+
+			return new CryptographicAttributeObject (oid, algorithms);
+		}
+
 		RealCmsSigner GetRealCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
 			var signer = new RealCmsSigner (GetCmsSignerCertificate (mailbox));
 			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
+			signer.SignedAttributes.Add (GetSecureMimeCapabilities ());
 			signer.SignedAttributes.Add (new Pkcs9SigningTime ());
-			signer.IncludeOption = X509IncludeOption.EndCertOnly;
+			signer.IncludeOption = X509IncludeOption.ExcludeRoot;
 			return signer;
 		}
 
@@ -493,7 +559,14 @@ namespace MimeKit.Cryptography {
 			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
 			var signed = new SignedCms (contentInfo, false);
-			signed.ComputeSignature (cmsSigner);
+
+			try {
+				signed.ComputeSignature (cmsSigner);
+			} catch (CryptographicException) {
+				cmsSigner.IncludeOption = X509IncludeOption.EndCertOnly;
+				signed.ComputeSignature (cmsSigner);
+			}
+
 			var signedData = signed.Encode ();
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, new MemoryStream (signedData, false));
@@ -538,7 +611,14 @@ namespace MimeKit.Cryptography {
 			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
 			var signed = new SignedCms (contentInfo, true);
-			signed.ComputeSignature (cmsSigner);
+
+			try {
+				signed.ComputeSignature (cmsSigner);
+			} catch (CryptographicException) {
+				cmsSigner.IncludeOption = X509IncludeOption.EndCertOnly;
+				signed.ComputeSignature (cmsSigner);
+			}
+
 			var signedData = signed.Encode ();
 
 			return new ApplicationPkcs7Signature (new MemoryStream (signedData, false));
