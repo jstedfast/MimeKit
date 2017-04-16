@@ -47,8 +47,7 @@ namespace UnitTests {
 
 		protected abstract SecureMimeContext CreateContext ();
 
-		[TestFixtureSetUp]
-		public void SetUp ()
+		protected SecureMimeTestsBase ()
 		{
 			using (var ctx = CreateContext ()) {
 				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
@@ -62,12 +61,12 @@ namespace UnitTests {
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "certificate-authority.crt"))) {
 						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-							windows.Import (StoreName.TrustedPublisher, certificate);
+							windows.Import (StoreName.Root, certificate);
 					}
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
 						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-							windows.Import (StoreName.TrustedPublisher, certificate);
+							windows.Import (StoreName.Root, certificate);
 					}
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
