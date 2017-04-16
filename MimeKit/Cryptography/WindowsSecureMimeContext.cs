@@ -464,6 +464,23 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		Stream Sign (RealCmsSigner signer, Stream content, bool detach)
+		{
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			var signed = new SignedCms (contentInfo, detach);
+
+			try {
+				signed.ComputeSignature (signer);
+			} catch (CryptographicException) {
+				signer.IncludeOption = X509IncludeOption.EndCertOnly;
+				signed.ComputeSignature (signer);
+			}
+
+			var signedData = signed.Encode ();
+
+			return new MemoryStream (signedData, false);
+		}
+
 		/// <summary>
 		/// Sign and encapsulate the content using the specified signer.
 		/// </summary>
@@ -500,20 +517,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
-			var signed = new SignedCms (contentInfo, false);
 
-			try {
-				signed.ComputeSignature (cmsSigner);
-			} catch (CryptographicException) {
-				cmsSigner.IncludeOption = X509IncludeOption.EndCertOnly;
-				signed.ComputeSignature (cmsSigner);
-			}
-
-			var signedData = signed.Encode ();
-
-			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, new MemoryStream (signedData, false));
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (cmsSigner, content, false));
 		}
 
 		/// <summary>
@@ -552,20 +558,9 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
-			var signed = new SignedCms (contentInfo, true);
 
-			try {
-				signed.ComputeSignature (cmsSigner);
-			} catch (CryptographicException) {
-				cmsSigner.IncludeOption = X509IncludeOption.EndCertOnly;
-				signed.ComputeSignature (cmsSigner);
-			}
-
-			var signedData = signed.Encode ();
-
-			return new ApplicationPkcs7Signature (new MemoryStream (signedData, false));
+			return new ApplicationPkcs7Signature (Sign (cmsSigner, content, true));
 		}
 
 		/// <summary>
