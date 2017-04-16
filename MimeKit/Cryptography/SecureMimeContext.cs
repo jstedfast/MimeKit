@@ -1362,6 +1362,7 @@ namespace MimeKit.Cryptography {
 				var content = recipient.GetContentStream (key);
 
 				content.ContentStream.CopyTo (output, 4096);
+				return;
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");
