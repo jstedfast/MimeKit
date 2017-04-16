@@ -44,6 +44,8 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Nist;
 
+using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
+
 using MimeKit.IO;
 using MimeKit.Utils;
 
@@ -557,7 +559,7 @@ namespace MimeKit.Cryptography {
 			content.ContentStream.CopyTo (output, 4096);
 		}
 
-		Org.BouncyCastle.Asn1.Cms.AttributeTable AddSecureMimeCapabilities (Org.BouncyCastle.Asn1.Cms.AttributeTable signedAttributes)
+		internal SmimeCapabilitiesAttribute GetSecureMimeCapabilitiesAttribute ()
 		{
 			var capabilities = new SmimeCapabilityVector ();
 
@@ -611,7 +613,12 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			var attr = new SmimeCapabilitiesAttribute (capabilities);
+			return new SmimeCapabilitiesAttribute (capabilities);
+		}
+
+		AttributeTable AddSecureMimeCapabilities (AttributeTable signedAttributes)
+		{
+			var attr = GetSecureMimeCapabilitiesAttribute ();
 
 			// populate our signed attributes with some S/MIME capabilities
 			return signedAttributes.Add (attr.AttrType, attr.AttrValues[0]);
