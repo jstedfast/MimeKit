@@ -56,6 +56,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class WindowsSecureMimeContext : SecureMimeContext
 	{
+		const X509KeyStorageFlags DefaultKeyStorageFlags = X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
 		/// </summary>
@@ -584,7 +586,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
-		public void Import (StoreName storeName, Org.BouncyCastle.X509.X509Certificate certificate)
+		public void Import (StoreName storeName, X509Certificate2 certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -592,8 +594,42 @@ namespace MimeKit.Cryptography {
 			var store = new X509Store (storeName, StoreLocation);
 
 			store.Open (OpenFlags.ReadWrite);
-			store.Add (new X509Certificate2 (certificate.GetEncoded ()));
+			store.Add (certificate);
 			store.Close ();
+		}
+
+		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <remarks>
+		/// Imports the specified certificate into the <see cref="StoreName.AddressBook"/> store.
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public void Import (X509Certificate2 certificate)
+		{
+			Import (StoreName.AddressBook, certificate);
+		}
+
+		/// <summary>
+		/// Import the specified certificate.
+		/// </summary>
+		/// <remarks>
+		/// Import the specified certificate.
+		/// </remarks>
+		/// <param name="storeName">The store to import the certificate into.</param>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public void Import (StoreName storeName, Org.BouncyCastle.X509.X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			Import (storeName, new X509Certificate2 (certificate.GetEncoded ()));
 		}
 
 		/// <summary>
@@ -644,9 +680,6 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Importing keys is not supported by this cryptography context.
-		/// </exception>
 		public void Import (Stream stream, string password, X509KeyStorageFlags flags)
 		{
 			if (stream == null)
@@ -678,12 +711,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// Importing keys is not supported by this cryptography context.
-		/// </exception>
 		public override void Import (Stream stream, string password)
 		{
-			Import (stream, password, X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+			Import (stream, password, DefaultKeyStorageFlags);
 		}
 
 		#endregion
