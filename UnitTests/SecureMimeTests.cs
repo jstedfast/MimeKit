@@ -120,6 +120,8 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => ctx.DecompressTo (null, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.DecompressTo (stream, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Decrypt (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.DecryptTo (null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.DecryptTo (stream, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (null, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (signer, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (null, DigestAlgorithm.Sha256, stream));
@@ -345,6 +347,16 @@ namespace UnitTests {
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+
+				using (var stream = new MemoryStream ()) {
+					ctx.DecryptTo (encrypted.ContentObject.Open (), stream);
+					stream.Position = 0;
+
+					decrypted = MimeEntity.Load (stream);
+
+					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+					Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+				}
 			}
 		}
 

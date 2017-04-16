@@ -152,6 +152,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
+#if false
+			// Note: GetPrivateKey() is only used by the base class implementations of Decrypt() and DecryptTo().
+			// Since we override those methods, there is no use for this method.
 			var store = new X509Store (StoreName.My, StoreLocation);
 
 			store.Open (OpenFlags.ReadOnly);
@@ -171,7 +174,7 @@ namespace MimeKit.Cryptography {
 			} finally {
 				store.Close ();
 			}
-
+#endif
 			return null;
 		}
 
@@ -594,6 +597,40 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryStream (decryptedData, false);
 
 			return MimeEntity.Load (memory, true);
+		}
+
+		/// <summary>
+		/// Decrypts the specified encryptedData to an output stream.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData to an output stream.
+		/// </remarks>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="output">The output stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override void DecryptTo (Stream encryptedData, Stream output)
+		{
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (output == null)
+				throw new ArgumentNullException (nameof (output));
+
+			var enveloped = new EnvelopedCms ();
+
+			enveloped.Decode (ReadAllBytes (encryptedData));
+			enveloped.Decrypt ();
+
+			var decryptedData = enveloped.Encode ();
+
+			output.Write (decryptedData, 0, decryptedData.Length);
 		}
 
 		/// <summary>
