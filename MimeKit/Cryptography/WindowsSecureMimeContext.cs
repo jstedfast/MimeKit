@@ -35,9 +35,7 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.X509.Store;
 
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
