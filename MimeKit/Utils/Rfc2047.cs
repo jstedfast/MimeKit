@@ -130,7 +130,7 @@ namespace MimeKit.Utils {
 			var culture = new StringBuilder ();
 
 			// find the end of the charset name
-			while (inptr < inend && *inptr != '?' && *inptr != '*') {
+			while (*inptr != '?' && *inptr != '*') {
 				if (!IsAsciiAtom (*inptr))
 					return false;
 
@@ -143,7 +143,7 @@ namespace MimeKit.Utils {
 				inptr++;
 
 				// find the end of the language code
-				while (inptr < inend && *inptr != '?') {
+				while (*inptr != '?') {
 					if (!IsAsciiAtom (*inptr))
 						return false;
 
@@ -151,9 +151,6 @@ namespace MimeKit.Utils {
 					inptr++;
 				}
 			}
-
-			if (inptr == inend)
-				return false;
 
 			// skip over the '?' to get to the encoding
 			inptr++;
