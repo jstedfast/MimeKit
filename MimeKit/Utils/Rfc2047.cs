@@ -634,6 +634,12 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodePhrase (ParserOptions options, byte[] phrase)
 		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (phrase == null)
+				throw new ArgumentNullException (nameof (phrase));
+
 			return DecodePhrase (options, phrase, 0, phrase.Length);
 		}
 
@@ -650,6 +656,9 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodePhrase (byte[] phrase)
 		{
+			if (phrase == null)
+				throw new ArgumentNullException (nameof (phrase));
+
 			return DecodePhrase (phrase, 0, phrase.Length);
 		}
 
@@ -777,6 +786,12 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodeText (ParserOptions options, byte[] text)
 		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
 			return DecodeText (options, text, 0, text.Length);
 		}
 
@@ -793,6 +808,9 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodeText (byte[] text)
 		{
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
 			return DecodeText (text, 0, text.Length);
 		}
 

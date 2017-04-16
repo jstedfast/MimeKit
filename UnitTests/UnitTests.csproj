@@ -82,6 +82,7 @@
     <Compile Include="DummyOpenPgpContext.cs" />
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="EncoderTests.cs" />
+    <Compile Include="ExceptionTests.cs" />
     <Compile Include="GroupAddressTests.cs" />
     <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="MessagePartialTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />
+    <Compile Include="MimePartTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
     <Compile Include="MimeUtilsTests.cs" />
     <Compile Include="MimeVisitorTests.cs" />
@@ -111,18 +113,17 @@
     <Compile Include="ParameterTests.cs" />
     <Compile Include="ParseUtilsTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
+    <Compile Include="Rfc2047Tests.cs" />
     <Compile Include="RtfCompressedToRtfTests.cs" />
     <Compile Include="SecureMimeTests.cs" />
     <Compile Include="TextConverterTests.cs" />
+    <Compile Include="TextPartTests.cs" />
     <Compile Include="TnefTests.cs" />
     <Compile Include="TrieTests.cs" />
     <Compile Include="UrlScannerTests.cs" />
     <Compile Include="X509CertificateChainTests.cs" />
     <Compile Include="X509CertificateStoreTests.cs" />
     <Compile Include="YEncodingTests.cs" />
-    <Compile Include="MimePartTests.cs" />
-    <Compile Include="TextPartTests.cs" />
-    <Compile Include="ExceptionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />
