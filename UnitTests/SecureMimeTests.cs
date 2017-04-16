@@ -85,6 +85,42 @@ namespace UnitTests {
 			// Accept
 			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Mime (SecureMimeType.SignedData, stream).Accept (null));
 			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Signature (stream).Accept (null));
+
+			using (var ctx = CreateContext ()) {
+				var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
+				var recipients = new CmsRecipientCollection ();
+				DigitalSignatureCollection signatures;
+				MimeEntity entity;
+
+				Assert.Throws<ArgumentNullException> (() => ctx.Compress (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Decompress (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.DecompressTo (null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.DecompressTo (stream, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Decrypt (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (signer, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (null, DigestAlgorithm.Sha256, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.EncapsulatedSign (mailbox, DigestAlgorithm.Sha256, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((CmsRecipientCollection) null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (recipients, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((IEnumerable<MailboxAddress>) null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (new MailboxAddress[0], null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Export (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.GetDigestAlgorithm (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import (stream, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Crl) null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Certificate) null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Sign (null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.Sign (signer, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Sign (null, DigestAlgorithm.Sha256, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.Sign (mailbox, DigestAlgorithm.Sha256, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out signatures));
+				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out entity));
+			}
 		}
 
 		[Test]
@@ -533,11 +569,9 @@ namespace UnitTests {
 	[TestFixture]
 	public class WindowsSecureMimeTests : SecureMimeTestsBase
 	{
-		readonly WindowsSecureMimeContext ctx = new WindowsSecureMimeContext ();
-
 		protected override SecureMimeContext CreateContext ()
 		{
-			return ctx;
+			return new WindowsSecureMimeContext ();
 		}
 
 		[Test]
