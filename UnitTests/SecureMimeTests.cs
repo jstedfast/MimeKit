@@ -324,7 +324,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public virtual void TestSecureMimeEncryption ()
+		public virtual void TestSecureMimeMessageEncryption ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -347,12 +347,28 @@ namespace UnitTests {
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+			}
+		}
+
+		[Test]
+		public virtual void TestSecureMimeEncryption ()
+		{
+			var certificate = new X509Certificate2 (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			var recipients = new CmsRecipientCollection ();
+
+			recipients.Add (new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+			using (var ctx = CreateContext ()) {
+				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+
+				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
 				using (var stream = new MemoryStream ()) {
 					ctx.DecryptTo (encrypted.ContentObject.Open (), stream);
 					stream.Position = 0;
 
-					decrypted = MimeEntity.Load (stream);
+					var decrypted = MimeEntity.Load (stream);
 
 					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 					Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
