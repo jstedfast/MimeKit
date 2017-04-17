@@ -31,7 +31,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
-using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
@@ -40,6 +40,8 @@ using Org.BouncyCastle.X509.Store;
 
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
 using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
+using RealAlgorithmIdentifier = System.Security.Cryptography.Pkcs.AlgorithmIdentifier;
+using RealSubjectIdentifierType = System.Security.Cryptography.Pkcs.SubjectIdentifierType;
 using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
 using RealX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
@@ -289,29 +291,6 @@ namespace MimeKit.Cryptography {
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
-		{
-			using (var memory = new MemoryStream (rawData, false)) {
-				using (var asn1 = new Asn1InputStream (memory)) {
-					var algorithms = new List<EncryptionAlgorithm> ();
-					var sequence = asn1.ReadObject () as Asn1Sequence;
-
-					if (sequence == null)
-						return null;
-
-					for (int i = 0; i < sequence.Count; i++) {
-						var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence[i]);
-						EncryptionAlgorithm algorithm;
-
-						if (TryGetEncryptionAlgorithm (identifier, out algorithm))
-							algorithms.Add (algorithm);
-					}
-
-					return algorithms.ToArray ();
-				}
-			}
-		}
-
 		/// <summary>
 		/// Gets the X.509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
@@ -327,35 +306,45 @@ namespace MimeKit.Cryptography {
 		{
 			var certificate = GetCmsRecipientCertificate (mailbox);
 			var cert = GetBouncyCastleCertificate (certificate);
-			var recipient = new CmsRecipient (cert);
 
-			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
-					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
-
-					if (algorithms != null)
-						recipient.EncryptionAlgorithms = algorithms;
-
-					break;
-				}
-			}
-
-			return recipient;
+			return new CmsRecipient (cert);
 		}
 
 		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
 		{
-			return new RealCmsRecipient (GetCmsRecipientCertificate (mailbox));
+			return new RealCmsRecipient (RealSubjectIdentifierType.SubjectKeyIdentifier, GetCmsRecipientCertificate (mailbox));
 		}
 
-		RealCmsRecipientCollection GetRealCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
+		RealCmsRecipientCollection GetRealCmsRecipients (IEnumerable<MailboxAddress> recipients)
 		{
-			var recipients = new RealCmsRecipientCollection ();
+			var collection = new RealCmsRecipientCollection ();
 
-			foreach (var mailbox in mailboxes)
-				recipients.Add (GetRealCmsRecipient (mailbox));
+			foreach (var recipient in recipients)
+				collection.Add (GetRealCmsRecipient (recipient));
 
-			return recipients;
+			if (collection.Count == 0)
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
+
+			return collection;
+		}
+
+		RealCmsRecipientCollection GetRealCmsRecipients (CmsRecipientCollection recipients)
+		{
+			var collection = new RealCmsRecipientCollection ();
+
+			foreach (var recipient in recipients) {
+				var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
+				RealSubjectIdentifierType type;
+
+				if (recipient.RecipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+					type = RealSubjectIdentifierType.IssuerAndSerialNumber;
+				else
+					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
+
+				collection.Add (new RealCmsRecipient (type, certificate));
+			}
+
+			return collection;
 		}
 
 		X509Certificate2 GetCmsSignerCertificate (MailboxAddress mailbox)
@@ -561,6 +550,186 @@ namespace MimeKit.Cryptography {
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
 
 			return new ApplicationPkcs7Signature (Sign (cmsSigner, content, true));
+		}
+
+		class VoteComparer : IComparer<int>
+		{
+			#region IComparer implementation
+			public int Compare (int x, int y)
+			{
+				return y - x;
+			}
+			#endregion
+		}
+
+		/// <summary>
+		/// Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
+		/// based on the encryption algorithms supported by each of the recipients, the
+		/// <see cref="SecureMimeContext.EnabledEncryptionAlgorithms"/>, and the
+		/// <see cref="SecureMimeContext.EncryptionAlgorithmRank"/>.</para>
+		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
+		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
+		/// </remarks>
+		/// <returns>The preferred encryption algorithm.</returns>
+		/// <param name="recipients">The recipients.</param>
+		protected virtual EncryptionAlgorithm GetPreferredEncryptionAlgorithm (RealCmsRecipientCollection recipients)
+		{
+			var votes = new int[EncryptionAlgorithmCount];
+
+			foreach (var recipient in recipients) {
+				var supported = CmsRecipient.GetEncryptionAlgorithms (recipient.Certificate);
+				int cast = EncryptionAlgorithmCount;
+
+				foreach (var algorithm in supported) {
+					votes[(int) algorithm] += cast;
+					cast--;
+				}
+			}
+
+			// Starting with S/MIME v3 (published in 1999), Triple-DES is a REQUIRED algorithm.
+			// S/MIME v2.x and older only required RC2/40, but SUGGESTED Triple-DES.
+			// Considering the fact that Bruce Schneier was able to write a
+			// screensaver that could crack RC2/40 back in the late 90's, let's
+			// not default to anything weaker than Triple-DES...
+			EncryptionAlgorithm chosen = EncryptionAlgorithm.TripleDes;
+			int nvotes = 0;
+
+			// iterate through the algorithms, from strongest to weakest, keeping track
+			// of the algorithm with the most amount of votes (between algorithms with
+			// the same number of votes, choose the strongest of the 2 - i.e. the one
+			// that we arrive at first).
+			var algorithms = EncryptionAlgorithmRank;
+			for (int i = 0; i < algorithms.Length; i++) {
+				var algorithm = algorithms[i];
+
+				if (!IsEnabled (algorithm))
+					continue;
+
+				if (votes[(int) algorithm] > nvotes) {
+					nvotes = votes[(int) algorithm];
+					chosen = algorithm;
+				}
+			}
+
+			return chosen;
+		}
+
+		Stream Envelope (RealCmsRecipientCollection recipients, Stream content, EncryptionAlgorithm encryptionAlgorithm)
+		{
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			RealAlgorithmIdentifier algorithm;
+
+			switch (encryptionAlgorithm) {
+			case EncryptionAlgorithm.Aes256:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes256Cbc));
+				break;
+			case EncryptionAlgorithm.Aes192:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Cbc));
+				break;
+			case EncryptionAlgorithm.Aes128:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Cbc));
+				break;
+			case EncryptionAlgorithm.RC2128:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 128);
+				break;
+			case EncryptionAlgorithm.RC264:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 64);
+				break;
+			case EncryptionAlgorithm.RC240:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 40);
+				break;
+			default:
+				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.DesEde3Cbc));
+				break;
+			}
+
+			var envelopedData = new EnvelopedCms (contentInfo, algorithm);
+			envelopedData.Encrypt (recipients);
+
+			return new MemoryStream (envelopedData.Encode (), false);
+		}
+
+		Stream Envelope (CmsRecipientCollection recipients, Stream content)
+		{
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return Envelope (GetRealCmsRecipients (recipients), content, algorithm);
+		}
+
+		Stream Envelope (RealCmsRecipientCollection recipients, Stream content)
+		{
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return Envelope (recipients, content, algorithm);
+		}
+
+		/// <summary>
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// containing the encrypted content.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (recipients, content));
+		}
+
+		/// <summary>
+		/// Encrypts the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
+		{
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var real = GetRealCmsRecipients (recipients);
+
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (real, content));
 		}
 
 		/// <summary>

@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 	public abstract class SecureMimeContext : CryptographyContext
 	{
 		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
-		static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
+		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
 		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank;
 		int enabled;
 
@@ -848,7 +848,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="identifier"/> is <c>null</c>.
 		/// </exception>
-		protected static bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
+		internal protected static bool TryGetEncryptionAlgorithm (AlgorithmIdentifier identifier, out EncryptionAlgorithm algorithm)
 		{
 			if (identifier == null)
 				throw new ArgumentNullException (nameof (identifier));
@@ -1243,7 +1243,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
+		public virtual ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
