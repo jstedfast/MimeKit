@@ -569,6 +569,11 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
+			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Create (null));
+			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Type) null));
+			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Func<OpenPgpContext>) null));
+			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Func<SecureMimeContext>) null));
+
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var mailboxes = new [] { new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com") };
 				var emptyMailboxes = new MailboxAddress[0];

@@ -42,8 +42,7 @@ namespace UnitTests {
 		static string MboxDataDir = Path.Combine ("..", "..", "TestData", "mbox");
 		static FormatOptions UnixFormatOptions;
 
-		[SetUp]
-		public void Setup ()
+		public MimeParserTests ()
 		{
 			UnixFormatOptions = FormatOptions.Default.Clone ();
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;

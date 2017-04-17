@@ -111,6 +111,7 @@
     <Compile Include="MultipartTests.cs" />
     <Compile Include="ParameterListTests.cs" />
     <Compile Include="ParameterTests.cs" />
+    <Compile Include="ParserOptionsTests.cs" />
     <Compile Include="ParseUtilsTests.cs" />
     <Compile Include="PgpMimeTests.cs" />
     <Compile Include="Rfc2047Tests.cs" />

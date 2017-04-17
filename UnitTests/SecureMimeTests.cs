@@ -664,6 +664,15 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public override void TestSecureMimeMessageEncryption ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeMessageEncryption ();
+		}
+
+		[Test]
 		public override void TestSecureMimeEncryption ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
