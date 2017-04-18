@@ -553,6 +553,7 @@ namespace MimeKit {
 		{
 			bool strict = options.AddressParserComplianceMode == RfcComplianceMode.Strict;
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
+			int minWordCount = options.AllowAddressesWithoutDomain ? 1 : 0;
 
 			address = null;
 
@@ -617,7 +618,7 @@ namespace MimeKit {
 				words++;
 
 				// Note: some clients don't quote commas in the name
-				if (index < endIndex && text[index] == ',' && words > 1) {
+				if (index < endIndex && text[index] == ',' && words > minWordCount) {
 					index++;
 
 					length = index - startIndex;

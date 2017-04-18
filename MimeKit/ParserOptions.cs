@@ -77,6 +77,21 @@ namespace MimeKit {
 		public RfcComplianceMode AddressParserComplianceMode { get; set; }
 
 		/// <summary>
+		/// Gets or sets whether the rfc822 address parser should allow addresses without a domain.
+		/// </summary>
+		/// <remarks>
+		/// <para>In general, you'll probably want this value to be <c>false</c> (the default) as it allows 
+		/// maximum interoperability with existing (broken) mail clients and other mail software such as
+		/// sloppily written perl scripts (aka spambots) that do not properly quote the name in addresses
+		/// such as <c>LastName, FirstName &lt;user@example.com&gt;</c>.</para>
+		/// <para>This option exists in order to allow parsing of mailbox addresses that do not have an
+		/// @domain component. These types of addresses are rare and were typically only used when sending
+		/// mail to other users on the same UNIX system.</para>
+		/// </remarks>
+		/// <value><c>true</c> if the address parser should allow mailbox addresses without a domain; otherwise, <c>false</c>.</value>
+		public bool AllowAddressesWithoutDomain { get; set; }
+
+		/// <summary>
 		/// Gets or sets the compliance mode that should be used when parsing Content-Type and Content-Disposition parameters.
 		/// </summary>
 		/// <remarks>
@@ -141,6 +156,7 @@ namespace MimeKit {
 			ParameterComplianceMode = RfcComplianceMode.Loose;
 			Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			CharsetEncoding = CharsetUtils.UTF8;
+			AllowAddressesWithoutDomain = false;
 			RespectContentLength = false;
 		}
 
@@ -156,6 +172,7 @@ namespace MimeKit {
 		{
 			var options = new ParserOptions ();
 			options.AddressParserComplianceMode = AddressParserComplianceMode;
+			options.AllowAddressesWithoutDomain = AllowAddressesWithoutDomain;
 			options.ParameterComplianceMode = ParameterComplianceMode;
 			options.Rfc2047ComplianceMode = Rfc2047ComplianceMode;
 			options.RespectContentLength = RespectContentLength;

@@ -319,6 +319,33 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithUnquotedCommaInName ()
+		{
+			const string text = "Worthington, Warren <warren@worthington.com>";
+			MailboxAddress mailbox;
+
+			AssertParse (text);
+
+			// default options should parse this as a single mailbox address
+			mailbox = MailboxAddress.Parse (text);
+			Assert.AreEqual ("Worthington, Warren", mailbox.Name);
+
+			// this should fail when we allow mailbox addresses w/o a domain
+			var options = ParserOptions.Default.Clone ();
+			options.AllowAddressesWithoutDomain = true;
+
+			try {
+				mailbox = MailboxAddress.Parse (options, text);
+				Assert.Fail ("Should not have parsed \"{0}\" with AllowAddressesWithoutDomain = true", text);
+			} catch (ParseException pex) {
+				Assert.AreEqual (text.IndexOf (','), pex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (text.IndexOf (','), pex.ErrorIndex, "ErrorIndex");
+			} catch (Exception ex) {
+				Assert.Fail ("Should not have thrown {0}", ex.GetType ().Name);
+			}
+		}
+
+		[Test]
 		public void TestParseMailboxWithOpenAngleSpace ()
 		{
 			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";
