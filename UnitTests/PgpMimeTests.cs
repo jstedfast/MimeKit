@@ -294,11 +294,18 @@ namespace UnitTests {
 			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 			DigitalSignatureCollection signatures;
 
-			message.From.Add (self);
-			message.To.Add (self);
-			message.Body = body;
-
 			using (var ctx = new DummyOpenPgpContext ()) {
+				// throws because no Body has been set
+				Assert.Throws<InvalidOperationException> (() => message.SignAndEncrypt (ctx));
+
+				message.Body = body;
+
+				// throws because no sender has been set
+				Assert.Throws<InvalidOperationException> (() => message.SignAndEncrypt (ctx));
+
+				message.From.Add (self);
+				message.To.Add (self);
+
 				message.SignAndEncrypt (ctx);
 
 				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);

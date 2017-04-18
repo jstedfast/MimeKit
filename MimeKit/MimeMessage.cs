@@ -2166,7 +2166,7 @@ namespace MimeKit {
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
 		/// <para>-or-</para>
-		/// <para>The sender has been specified.</para>
+		/// <para>No sender has been specified.</para>
 		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
@@ -2195,8 +2195,6 @@ namespace MimeKit {
 				throw new InvalidOperationException ("The sender has not been set.");
 
 			var recipients = GetMessageRecipients (true);
-			if (recipients.Count == 0)
-				throw new InvalidOperationException ("No recipients have been set.");
 
 			if (ctx is SecureMimeContext) {
 				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
@@ -2232,7 +2230,7 @@ namespace MimeKit {
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The <see cref="Body"/> has not been set.</para>
 		/// <para>-or-</para>
-		/// <para>The sender has been specified.</para>
+		/// <para>No sender has been specified.</para>
 		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
