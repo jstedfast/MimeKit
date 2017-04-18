@@ -87,7 +87,7 @@ namespace UnitTests
 		[Test]
 		public void TestBestEncodingFilter ()
 		{
-			const string fromLine = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox).\n";
+			const string fromLines = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox). And let's have another\nFrom for good measure, shall we?\n";
 			const string ascii = "This is some ascii text to make sure that\nthe filter returns 7bit encoding...\n";
 			const string french = "Wikipédia est un projet d’encyclopédie collective en ligne, universelle, multilingue et fonctionnant sur le principe du wiki. Wikipédia a pour objectif d’offrir un contenu librement réutilisable, objectif et vérifiable, que chacun peut modifier et améliorer.\n\nTous les rédacteurs des articles de Wikipédia sont bénévoles. Ils coordonnent leurs efforts au sein d'une communauté collaborative, sans dirigeant.";
 			var filter = new BestEncodingFilter ();
@@ -123,8 +123,8 @@ namespace UnitTests
 			// Test ASCII text with a line beginning with "From "
 			using (var stream = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (stream)) {
-					int fromIndex = fromLine.IndexOf ("\nFrom ", StringComparison.Ordinal);
-					var buffer = Encoding.UTF8.GetBytes (fromLine);
+					int fromIndex = fromLines.IndexOf ("\nFrom ", StringComparison.Ordinal);
+					var buffer = Encoding.UTF8.GetBytes (fromLines);
 					ContentEncoding encoding;
 
 					filtered.Add (filter);
