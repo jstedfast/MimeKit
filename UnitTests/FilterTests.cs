@@ -33,6 +33,7 @@ using NUnit.Framework;
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using MimeKit.Utils;
 
 namespace UnitTests
 {
@@ -223,6 +224,69 @@ namespace UnitTests
 			Assert.AreEqual (buffer.Length - 2, outputLength, "outputLength");
 
 			filter.Reset ();
+		}
+
+		[Test]
+		public void TestCharsetFilter ()
+		{
+			const string french = "Wikipédia est un projet d’encyclopédie collective en ligne, universelle, multilingue et fonctionnant sur le principe du wiki. Wikipédia a pour objectif d’offrir un contenu librement réutilisable, objectif et vérifiable, que chacun peut modifier et améliorer.\n\nTous les rédacteurs des articles de Wikipédia sont bénévoles. Ils coordonnent leurs efforts au sein d'une communauté collaborative, sans dirigeant.";
+			CharsetFilter filter;
+
+			Assert.Throws<ArgumentNullException> (() => new CharsetFilter (null, "iso-8859-1"));
+			Assert.Throws<ArgumentNullException> (() => new CharsetFilter ("iso-8859-1", null));
+			Assert.Throws<NotSupportedException> (() => new CharsetFilter ("bogus charset", "iso-8859-1"));
+			Assert.Throws<NotSupportedException> (() => new CharsetFilter ("iso-8859-1", "bogus charset"));
+
+			Assert.Throws<ArgumentNullException> (() => new CharsetFilter (null, Encoding.UTF8));
+			Assert.Throws<ArgumentNullException> (() => new CharsetFilter (Encoding.UTF8, null));
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => new CharsetFilter (-1, 28591));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new CharsetFilter (28591, -1));
+
+			filter = new CharsetFilter (Encoding.UTF8, CharsetUtils.Latin1);
+
+			TestArgumentExceptions (filter);
+			filter.Reset ();
+
+			// Try converting, no fallback
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (french))) {
+				using (var filtered = new FilteredStream (stream)) {
+					var expected = Encoding.GetEncoding ("iso-8859-15").GetBytes (french);
+					var buffer = new byte[1024];
+					int length;
+
+					filtered.Add (new CharsetFilter ("utf-8", "iso-8859-15"));
+
+					length = filtered.Read (buffer, 0, expected.Length / 2);
+					length += filtered.Read (buffer, expected.Length / 2, buffer.Length - (expected.Length / 2));
+
+					// Note: this Flush() should do nothing but test a code-path
+					filtered.Flush ();
+
+					Assert.AreEqual (expected.Length, length, "iso-8859-15 length");
+				}
+			}
+
+			// Try converting with fallback (at least 1 char does not fit within iso-8859-1)
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (french))) {
+				using (var filtered = new FilteredStream (stream)) {
+					var utf8 = Encoding.GetEncoding ("utf-8", new EncoderReplacementFallback ("?"), new DecoderReplacementFallback ("?"));
+					var latin1 = Encoding.GetEncoding ("iso-8859-1", new EncoderReplacementFallback ("?"), new DecoderReplacementFallback ("?"));
+					var expected = latin1.GetBytes (french);
+					var buffer = new byte[1024];
+					int length;
+
+					filtered.Add (new CharsetFilter (utf8, latin1));
+
+					length = filtered.Read (buffer, 0, expected.Length / 2);
+					length += filtered.Read (buffer, expected.Length / 2, buffer.Length - (expected.Length / 2));
+
+					// Note: this Flush() should do nothing but test a code-path
+					filtered.Flush ();
+
+					Assert.AreEqual (expected.Length, length, "iso-8859-1 length");
+				}
+			}
 		}
 	}
 }

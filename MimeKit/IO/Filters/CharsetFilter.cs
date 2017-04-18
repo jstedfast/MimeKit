@@ -197,15 +197,15 @@ namespace MimeKit.IO.Filters {
 				} else {
 					decoded = true;
 				}
-				
+
 				charsLeft = charIndex;
 				charIndex = 0;
-				
+
 				// encode *all* input chars into the output buffer
 				while (!encoded) {
 					EnsureOutputSize (outputOffset + TargetEncoding.GetMaxByteCount (charsLeft) + 4, true);
 					outputLeft = OutputBuffer.Length - outputOffset;
-					
+
 					encoder.Convert (chars, charIndex, charsLeft, OutputBuffer, outputOffset, outputLeft, flush, out nread, out nwritten, out encoded);
 					outputOffset += nwritten;
 					charIndex += nread;
