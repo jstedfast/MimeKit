@@ -151,8 +151,15 @@ namespace UnitTests
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<HeaderId>) null));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new HeaderId[] { HeaderId.Unknown, HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new HeaderId[] { HeaderId.Received, HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new HeaderId[] { HeaderId.ContentType }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new string[] { "From" }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<string>) null));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { "", "From" }));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { null, "From" }));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { "Received", "From" }));
+			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { "Content-Type" }));
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, signer, new HeaderId[] { HeaderId.From }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (options, null, new HeaderId[] { HeaderId.From }));

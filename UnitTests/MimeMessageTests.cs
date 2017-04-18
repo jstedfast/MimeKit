@@ -49,6 +49,9 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.Importance = (MessageImportance) 500);
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.Priority = (MessagePriority) 500);
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.XPriority = (XMessagePriority) 500);
+			Assert.Throws<ArgumentException> (() => message.ResentMessageId = "this is some random text...");
+			Assert.Throws<ArgumentException> (() => message.MessageId = "this is some random text...");
+			Assert.Throws<ArgumentException> (() => message.InReplyTo = "this is some random text...");
 			Assert.Throws<ArgumentNullException> (() => message.ResentMessageId = null);
 			Assert.Throws<ArgumentNullException> (() => message.MessageId = null);
 			Assert.Throws<ArgumentNullException> (() => message.Subject = null);
@@ -66,6 +69,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (string) null));
 
 			Assert.Throws<ArgumentNullException> (() => message.Accept (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => message.Prepare (EncodingConstraint.None, 10));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((string) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (null, Stream.Null));

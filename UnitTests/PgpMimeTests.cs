@@ -69,10 +69,18 @@ namespace UnitTests {
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
-			message.From.Add (self);
-			message.Body = body;
-
 			using (var ctx = new DummyOpenPgpContext ()) {
+				// throws because no Body is set
+				Assert.Throws<InvalidOperationException> (() => message.Sign (ctx));
+
+				message.Body = body;
+
+				// throws because no sender is set
+				Assert.Throws<InvalidOperationException> (() => message.Sign (ctx));
+
+				message.From.Add (self);
+
+				// ok, now we can sign
 				message.Sign (ctx);
 
 				Assert.IsInstanceOf<MultipartSigned> (message.Body);

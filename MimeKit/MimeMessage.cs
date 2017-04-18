@@ -1561,9 +1561,12 @@ namespace MimeKit {
 				if (headers[i] == null)
 					throw new ArgumentException ("The list of headers cannot contain null.", nameof (headers));
 
+				if (headers[i].Length == 0)
+					throw new ArgumentException ("The list of headers cannot contain empty string.", nameof (headers));
+
 				fields[i] = headers[i].ToLowerInvariant ();
 
-				if (DkimShouldNotInclude.Contains (headers[i]))
+				if (DkimShouldNotInclude.Contains (fields[i]))
 					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i]));
 
 				if (fields[i] == "from")
