@@ -102,7 +102,23 @@ namespace UnitTests
 					var buffer = Encoding.UTF8.GetBytes (ascii);
 					ContentEncoding encoding;
 
+					Assert.IsFalse (filtered.CanTimeout, "CanTimeout");
+					Assert.Throws<InvalidOperationException> (() => { var x = filtered.ReadTimeout; });
+					Assert.Throws<InvalidOperationException> (() => { var x = filtered.WriteTimeout; });
+					Assert.Throws<InvalidOperationException> (() => filtered.ReadTimeout = 50);
+					Assert.Throws<InvalidOperationException> (() => filtered.WriteTimeout = 50);
+					Assert.Throws<NotSupportedException> (() => { long x = filtered.Length; });
+					Assert.Throws<NotSupportedException> (() => filtered.SetLength (100));
+					Assert.Throws<NotSupportedException> (() => { long x = filtered.Position; });
+					Assert.Throws<NotSupportedException> (() => filtered.Position = 0);
+
+					Assert.Throws<ArgumentNullException> (() => filtered.Add (null));
+					Assert.Throws<ArgumentNullException> (() => filtered.Contains (null));
+					Assert.Throws<ArgumentNullException> (() => filtered.Remove (null));
+
 					filtered.Add (filter);
+
+					Assert.IsTrue (filtered.Contains (filter), "Contains");
 
 					filtered.Write (buffer, 0, buffer.Length);
 					filtered.Flush ();
@@ -115,6 +131,8 @@ namespace UnitTests
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.None);
 					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "ASCII no constraint.");
+
+					Assert.IsTrue (filtered.Remove (filter), "Remove");
 				}
 			}
 
@@ -187,7 +205,24 @@ namespace UnitTests
 					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "French (long lines) no constraint.");
 				}
 			}
+		}
 
+		[Test]
+		public void TestPassThroughFilter ()
+		{
+			var filter = new PassThroughFilter ();
+			int outputIndex, outputLength;
+			var buffer = new byte[10];
+
+			Assert.AreEqual (buffer, filter.Filter (buffer, 1, buffer.Length - 2, out outputIndex, out outputLength));
+			Assert.AreEqual (1, outputIndex, "outputIndex");
+			Assert.AreEqual (buffer.Length - 2, outputLength, "outputLength");
+
+			Assert.AreEqual (buffer, filter.Flush (buffer, 1, buffer.Length - 2, out outputIndex, out outputLength));
+			Assert.AreEqual (1, outputIndex, "outputIndex");
+			Assert.AreEqual (buffer.Length - 2, outputLength, "outputLength");
+
+			filter.Reset ();
 		}
 	}
 }
