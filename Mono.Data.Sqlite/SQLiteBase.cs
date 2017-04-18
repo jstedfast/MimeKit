@@ -126,7 +126,7 @@ namespace Mono.Data.Sqlite
     internal abstract DateTime GetDateTime(SqliteStatement stmt, int index);
     internal abstract bool IsNull(SqliteStatement stmt, int index);
 
-    internal abstract void CreateCollation(string strCollation, SQLiteCollation func, SQLiteCollation func16);
+    internal abstract void CreateCollation(string strCollation, SQLiteCollation func, SQLiteCollation func16, IntPtr user_data);
     internal abstract void CreateFunction(string strFunction, int nArgs, bool needCollSeq, SQLiteCallback func, SQLiteCallback funcstep, SQLiteFinalCallback funcfinal);
     internal abstract CollationSequence GetCollationSequence(SqliteFunction func, IntPtr context);
     internal abstract int ContextCollateCompare(CollationEncodingEnum enc, IntPtr context, string s1, string s2);
@@ -206,8 +206,13 @@ namespace Mono.Data.Sqlite
 #if !SQLITE_STANDARD
         int n = UnsafeNativeMethods.sqlite3_close_interop(db);
 #else
-      ResetConnection(db);
-      int n = UnsafeNativeMethods.sqlite3_close(db);
+        ResetConnection(db);
+        int n;
+        if (UnsafeNativeMethods.use_sqlite3_close_v2) {
+          n = UnsafeNativeMethods.sqlite3_close_v2(db);
+        } else {
+          n = UnsafeNativeMethods.sqlite3_close(db);
+        }
 #endif
         if (n > 0) throw new SqliteException(n, SQLiteLastError(db));
       }

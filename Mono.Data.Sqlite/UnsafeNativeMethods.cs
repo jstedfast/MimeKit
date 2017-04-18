@@ -16,6 +16,27 @@ namespace Mono.Data.Sqlite
 #endif
   internal static class UnsafeNativeMethods
   {
+    internal static readonly bool use_sqlite3_close_v2 = false;
+    internal static readonly bool use_sqlite3_open_v2 = false;
+    internal static readonly bool use_sqlite3_create_function_v2 = false;
+    static UnsafeNativeMethods()
+    {
+      // calculate the version number parts
+      // https://www.sqlite.org/c3ref/c_source_id.html
+      // (<major> * 1000000) + (<minor> * 1000) + (<release>)
+      int versionNumber = sqlite3_libversion_number();
+      int release = versionNumber % 1000;
+      int minor = (versionNumber / 1000) % 1000;
+      int major = versionNumber / 1000000;
+      Version version = new Version(major, minor, release);
+
+      // set the various versions
+      // https://sqlite.org/changes.html
+      use_sqlite3_open_v2 = version >= new Version(3, 5, 0);
+      use_sqlite3_close_v2 = version >= new Version(3, 7, 14);
+      use_sqlite3_create_function_v2 = version >= new Version(3, 7, 3);
+    }
+
 #if !SQLITE_STANDARD
 
 #if !USE_INTEROP_DLL
@@ -30,6 +51,8 @@ namespace Mono.Data.Sqlite
     private const string SQLITE_DLL = "SQLite.Interop.DLL";
 #endif // USE_INTEROP_DLL
 
+#elif MONOTOUCH
+	private const string SQLITE_DLL = "/usr/lib/libsqlite3.dylib";
 #else
     private const string SQLITE_DLL = "sqlite3";
 #endif
@@ -133,6 +156,13 @@ namespace Mono.Data.Sqlite
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern int sqlite3_close(IntPtr db);
+		
+#if !PLATFORM_COMPACTFRAMEWORK
+    [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
+#else
+    [DllImport(SQLITE_DLL)]
+#endif
+    internal static extern int sqlite3_close_v2(IntPtr db);
 
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
@@ -140,6 +170,13 @@ namespace Mono.Data.Sqlite
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern int sqlite3_create_function(IntPtr db, byte[] strName, int nArgs, int nType, IntPtr pvUser, SQLiteCallback func, SQLiteCallback fstep, SQLiteFinalCallback ffinal);
+
+#if !PLATFORM_COMPACTFRAMEWORK
+		[DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
+#else
+		[DllImport(SQLITE_DLL)]
+#endif
+		internal static extern int sqlite3_create_function_v2(IntPtr db, byte[] strName, int nArgs, int nType, IntPtr pvUser, SQLiteCallback func, SQLiteCallback fstep, SQLiteFinalCallback ffinal, SQLiteFinalCallback fdestroy);
 
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
@@ -184,6 +221,8 @@ namespace Mono.Data.Sqlite
 #endif
     internal static extern IntPtr sqlite3_bind_parameter_name(IntPtr stmt, int index);
 
+// Apple does not include those symbols in it's libsqlite3
+#if !MONOTOUCH
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
 #else
@@ -197,6 +236,7 @@ namespace Mono.Data.Sqlite
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern IntPtr sqlite3_column_database_name16(IntPtr stmt, int index);
+#endif
 
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
@@ -226,6 +266,7 @@ namespace Mono.Data.Sqlite
 #endif
     internal static extern IntPtr sqlite3_column_name16(IntPtr stmt, int index);
 
+#if !MONOTOUCH
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
 #else
@@ -253,6 +294,7 @@ namespace Mono.Data.Sqlite
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern IntPtr sqlite3_column_table_name16(IntPtr stmt, int index);
+#endif // !MONOTOUCH
 
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
@@ -630,6 +672,7 @@ namespace Mono.Data.Sqlite
 #endif
     internal static extern void sqlite3_result_text16(IntPtr context, string strName, int nLen, IntPtr pvReserved);
 
+#if !MONOTOUCH
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
 #else
@@ -643,6 +686,7 @@ namespace Mono.Data.Sqlite
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern int sqlite3_rekey(IntPtr db, byte[] key, int keylen);
+#endif
 
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
@@ -692,13 +736,27 @@ namespace Mono.Data.Sqlite
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern int sqlite3_config (SQLiteConfig config);
-		
+
+#if !PLATFORM_COMPACTFRAMEWORK
+		[DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
+#else
+		[DllImport(SQLITE_DLL)]
+#endif
+		internal static extern IntPtr sqlite3_user_data (IntPtr context);
+
 #if !PLATFORM_COMPACTFRAMEWORK
     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
 #else
     [DllImport(SQLITE_DLL)]
 #endif
     internal static extern int sqlite3_free (IntPtr ptr);
+
+#if !PLATFORM_COMPACTFRAMEWORK
+    [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
+#else
+    [DllImport(SQLITE_DLL)]
+#endif
+    internal static extern int sqlite3_libversion_number();
 
     #endregion
   }

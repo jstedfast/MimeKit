@@ -125,9 +125,9 @@ namespace Mono.Data.Sqlite
 	// Compatibility with versions < 3.5.0
         int n;
 
-	try {
+	if (UnsafeNativeMethods.use_sqlite3_open_v2) {
 		n = UnsafeNativeMethods.sqlite3_open_v2(ToUTF8(strFilename), out db, (int)flags, IntPtr.Zero);
-	} catch (EntryPointNotFoundException) {
+	} else {
 		Console.WriteLine ("Your sqlite3 version is old - please upgrade to at least v3.5.0!");
 		n = UnsafeNativeMethods.sqlite3_open (ToUTF8 (strFilename), out db);
 	}
@@ -499,6 +499,8 @@ namespace Mono.Data.Sqlite
 #if !SQLITE_STANDARD
       int len;
       return UTF8ToString(UnsafeNativeMethods.sqlite3_column_origin_name_interop(stmt._sqlite_stmt, index, out len), len);
+#elif MONOTOUCH
+      throw new NotImplementedException ();
 #else
       return UTF8ToString(UnsafeNativeMethods.sqlite3_column_origin_name(stmt._sqlite_stmt, index), -1);
 #endif
@@ -509,6 +511,8 @@ namespace Mono.Data.Sqlite
 #if !SQLITE_STANDARD
       int len;
       return UTF8ToString(UnsafeNativeMethods.sqlite3_column_database_name_interop(stmt._sqlite_stmt, index, out len), len);
+#elif MONOTOUCH
+      throw new NotImplementedException ();
 #else
       return UTF8ToString(UnsafeNativeMethods.sqlite3_column_database_name(stmt._sqlite_stmt, index), -1);
 #endif
@@ -519,6 +523,8 @@ namespace Mono.Data.Sqlite
 #if !SQLITE_STANDARD
       int len;
       return UTF8ToString(UnsafeNativeMethods.sqlite3_column_table_name_interop(stmt._sqlite_stmt, index, out len), len);
+#elif MONOTOUCH
+      throw new NotImplementedException ();
 #else
       return UTF8ToString(UnsafeNativeMethods.sqlite3_column_table_name(stmt._sqlite_stmt, index), -1);
 #endif
@@ -652,11 +658,37 @@ namespace Mono.Data.Sqlite
       return UnsafeNativeMethods.sqlite3_aggregate_count(context);
     }
 
+#if MONOTOUCH
+    class FunctionData {
+      public SQLiteCallback Func;
+      public SQLiteCallback FuncStep;
+      public SQLiteFinalCallback FuncFinal;
+    }
+#endif
+
     internal override void CreateFunction(string strFunction, int nArgs, bool needCollSeq, SQLiteCallback func, SQLiteCallback funcstep, SQLiteFinalCallback funcfinal)
     {
       int n;
 
-#if !SQLITE_STANDARD
+#if MONOTOUCH
+      var data = new FunctionData();
+      data.Func = func;
+      data.FuncStep = funcstep;
+      data.FuncFinal = funcfinal;
+      SQLiteCallback func_callback = func == null ? null : new SQLiteCallback(scalar_callback);
+      SQLiteCallback funcstep_callback = funcstep == null ? null : new SQLiteCallback(step_callback);
+      SQLiteFinalCallback funcfinal_callback = funcfinal == null ? null : new SQLiteFinalCallback(final_callback);
+
+      IntPtr user_data;
+      user_data = GCHandle.ToIntPtr(GCHandle.Alloc(data));
+      n = UnsafeNativeMethods.sqlite3_create_function_v2(_sql, ToUTF8(strFunction), nArgs, 4, user_data, func_callback, funcstep_callback, funcfinal_callback, destroy_callback);
+
+      if (n == 0) {
+        // sqlite3_create_function_v2 will call 'destroy_callback' if it fails, so we need to recreate the gchandle here.
+        user_data = GCHandle.ToIntPtr(GCHandle.Alloc(data));
+        n = UnsafeNativeMethods.sqlite3_create_function_v2(_sql, ToUTF8(strFunction), nArgs, 1, user_data, func_callback, funcstep_callback, funcfinal_callback, destroy_callback);
+      }
+#elif !SQLITE_STANDARD
       n = UnsafeNativeMethods.sqlite3_create_function_interop(_sql, ToUTF8(strFunction), nArgs, 4, IntPtr.Zero, func, funcstep, funcfinal, (needCollSeq == true) ? 1 : 0);
       if (n == 0) n = UnsafeNativeMethods.sqlite3_create_function_interop(_sql, ToUTF8(strFunction), nArgs, 1, IntPtr.Zero, func, funcstep, funcfinal, (needCollSeq == true) ? 1 : 0);
 #else
@@ -666,12 +698,44 @@ namespace Mono.Data.Sqlite
       if (n > 0) throw new SqliteException(n, SQLiteLastError());
     }
 
-    internal override void CreateCollation(string strCollation, SQLiteCollation func, SQLiteCollation func16)
+    internal override void CreateCollation(string strCollation, SQLiteCollation func, SQLiteCollation func16, IntPtr user_data)
     {
-      int n = UnsafeNativeMethods.sqlite3_create_collation(_sql, ToUTF8(strCollation), 2, IntPtr.Zero, func16);
-      if (n == 0) UnsafeNativeMethods.sqlite3_create_collation(_sql, ToUTF8(strCollation), 1, IntPtr.Zero, func);
+      int n = UnsafeNativeMethods.sqlite3_create_collation(_sql, ToUTF8(strCollation), 2, user_data, func16);
+      if (n == 0) UnsafeNativeMethods.sqlite3_create_collation(_sql, ToUTF8(strCollation), 1, user_data, func);
       if (n > 0) throw new SqliteException(n, SQLiteLastError());
     }
+
+#if MONOTOUCH
+    [MonoTouch.MonoPInvokeCallback(typeof(SQLiteCallback))]
+    internal static void scalar_callback(IntPtr context, int nArgs, IntPtr argsptr)
+    {
+      var handle = GCHandle.FromIntPtr (UnsafeNativeMethods.sqlite3_user_data(context));
+      var func = (FunctionData)handle.Target;
+      func.Func(context, nArgs, argsptr);
+    }
+
+    [MonoTouch.MonoPInvokeCallback(typeof(SQLiteCallback))]
+    internal static void step_callback(IntPtr context, int nArgs, IntPtr argsptr)
+    {
+      var handle = GCHandle.FromIntPtr(UnsafeNativeMethods.sqlite3_user_data(context));
+      var func = (FunctionData)handle.Target;
+      func.FuncStep(context, nArgs, argsptr);
+    }
+
+    [MonoTouch.MonoPInvokeCallback(typeof(SQLiteFinalCallback))]
+    internal static void final_callback(IntPtr context)
+    {
+      var handle = GCHandle.FromIntPtr(UnsafeNativeMethods.sqlite3_user_data(context));
+      var func = (FunctionData)handle.Target;
+      func.FuncFinal(context);
+    }
+
+    [MonoTouch.MonoPInvokeCallback(typeof(SQLiteFinalCallback))]
+    internal static void destroy_callback(IntPtr context)
+    {
+      GCHandle.FromIntPtr(context).Free();
+    }
+#endif
 
     internal override int ContextCollateCompare(CollationEncodingEnum enc, IntPtr context, string s1, string s2)
     {
@@ -865,6 +929,17 @@ namespace Mono.Data.Sqlite
       return UnsafeNativeMethods.sqlite3_aggregate_context(context, 1);
     }
 
+#if MONOTOUCH
+	internal override void SetPassword(byte[] passwordBytes)
+	{
+		throw new NotImplementedException ();
+	}
+
+	internal override void ChangePassword(byte[] newPasswordBytes)
+	{
+		throw new NotImplementedException ();
+	}
+#else
     internal override void SetPassword(byte[] passwordBytes)
     {
       int n = UnsafeNativeMethods.sqlite3_key(_sql, passwordBytes, passwordBytes.Length);
@@ -876,6 +951,7 @@ namespace Mono.Data.Sqlite
       int n = UnsafeNativeMethods.sqlite3_rekey(_sql, newPasswordBytes, (newPasswordBytes == null) ? 0 : newPasswordBytes.Length);
       if (n > 0) throw new SqliteException(n, SQLiteLastError());
     }
+#endif
 		
 #if MONOTOUCH
     SQLiteUpdateCallback update_callback;
