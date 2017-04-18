@@ -92,6 +92,9 @@ namespace UnitTests {
 		[Test]
 		public void TestFilterArguments ()
 		{
+			Assert.Throws<ArgumentNullException> (() => new EncoderFilter (null));
+			Assert.Throws<ArgumentNullException> (() => new DecoderFilter (null));
+
 			AssertFilterArguments (new Dos2UnixFilter ());
 			AssertFilterArguments (new Unix2DosFilter ());
 			AssertFilterArguments (new ArmoredFromFilter ());

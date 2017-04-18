@@ -67,8 +67,14 @@ namespace MimeKit.IO.Filters {
 		/// Creates a new <see cref="IMimeFilter"/> using the specified encoder.
 		/// </remarks>
 		/// <param name="encoder">A specific encoder for the filter to use.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encoder"/> is <c>null</c>.
+		/// </exception>
 		public EncoderFilter (IMimeEncoder encoder)
 		{
+			if (encoder == null)
+				throw new ArgumentNullException (nameof (encoder));
+
 			Encoder = encoder;
 		}
 

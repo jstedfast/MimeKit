@@ -33,6 +33,7 @@ using NUnit.Framework;
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using MimeKit.Cryptography;
 using MimeKit.Utils;
 
 namespace UnitTests
@@ -287,6 +288,48 @@ namespace UnitTests
 					Assert.AreEqual (expected.Length, length, "iso-8859-1 length");
 				}
 			}
+		}
+
+		static void TestOpenPgpBlockFilter (OpenPgpBlockFilter filter, byte[] buffer, string expected, int increment)
+		{
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					int startIndex = 0;
+
+					filtered.Add (filter);
+
+					while (startIndex < buffer.Length) {
+						int n = Math.Min (buffer.Length - startIndex, increment);
+
+						filtered.Write (buffer, startIndex, n);
+						startIndex += n;
+					}
+
+					filtered.Flush ();
+
+					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+
+					Assert.AreEqual (expected, actual, "increment of {0} failed.", increment);
+				}
+			}
+		}
+
+		[Test]
+		public void TestOpenPgpBlockFilter ()
+		{
+			const string input = "% cat sample\nThis is a sample.\n\nThis is a sample text file.  I created it with an editor.  If it were\nan actual message, it would contain some useful information.\n\nThis has been a sample.\n% pgp -eat sample john\nPretty Good Privacy(tm) 2.6.2 - Public-key encryption for the masses.\n(c) 1990-1994 Philip Zimmermann, Phil's Pretty Good Software. 11 Oct 94\nUses the RSAREF(tm) Toolkit, which is copyright RSA Data Security, Inc.\nDistributed by the Massachusetts Institute of Technology.\nExport of this software may be restricted by the U.S. government.\nCurrent time: 1996/11/09 13:10 GMT\n\n\nRecipients' public key(s) will be used to encrypt. \nKey for user ID: John E Doe <jd@somewhere.net>\n1024-bit key, Key ID F4DD25F1, created 1996/11/07\n\nWARNING:  Because this public key is not certified with a trusted\nsignature, it is not known with high confidence that this public key\nactually belongs to: \"John E Doe <jd@somewhere.net>\".\n\nAre you sure you want to use this public key (y/N)? y\n.\nTransport armor file: sample.asc\n% cat sample.asc\n-----BEGIN PGP MESSAGE-----\nVersion: 2.6.2\n\nhIwD1vwet/TdJfEBBACdcCPkNI3kRwYqtHUyfpvVAY5rt+Lb9P6EztNd4sYq9egV\nCZjfqcCn36XZmYPbbO6nZbl992kPRFzTgCRszKNPtlk6Wa93AqXs3KCZp+4emXQh\n7moE+XTf4QUGJZ2L3w/sSNs5WFkZRIbto0ivK1aRlX1XTqhPqo9HbgEfElBVUaYA\nAACQEWaOS3/h6BVLHTfXaK20vmLcg9BUisB5RDvYGLZv9XFwHMMjctFJJQYnWIOp\n+7LLkmNO5fE48rWh0EOAwjAeduGzJGQb4yiE7OlxoESmmTJQ+qO1K2nDz8Stk3a6\nWvAQJrpEUY7Og8QGlQQRPKl2F++j6XbIhZ27OeYqJp+vgylUd874KDMCcTrzF3ph\n/Qfi\n=xTV9\n-----END PGP MESSAGE-----\n%\n";
+			const string expected = "-----BEGIN PGP MESSAGE-----\nVersion: 2.6.2\n\nhIwD1vwet/TdJfEBBACdcCPkNI3kRwYqtHUyfpvVAY5rt+Lb9P6EztNd4sYq9egV\nCZjfqcCn36XZmYPbbO6nZbl992kPRFzTgCRszKNPtlk6Wa93AqXs3KCZp+4emXQh\n7moE+XTf4QUGJZ2L3w/sSNs5WFkZRIbto0ivK1aRlX1XTqhPqo9HbgEfElBVUaYA\nAACQEWaOS3/h6BVLHTfXaK20vmLcg9BUisB5RDvYGLZv9XFwHMMjctFJJQYnWIOp\n+7LLkmNO5fE48rWh0EOAwjAeduGzJGQb4yiE7OlxoESmmTJQ+qO1K2nDz8Stk3a6\nWvAQJrpEUY7Og8QGlQQRPKl2F++j6XbIhZ27OeYqJp+vgylUd874KDMCcTrzF3ph\n/Qfi\n=xTV9\n-----END PGP MESSAGE-----\n";
+			var filter = new OpenPgpBlockFilter ("-----BEGIN PGP MESSAGE-----", "-----END PGP MESSAGE-----");
+			var buffer = Encoding.UTF8.GetBytes (input);
+
+			//Assert.Throws<ArgumentNullException> (() => new OpenPgpBlockFilter (null, "marker"));
+			//Assert.Throws<ArgumentNullException> (() => new OpenPgpBlockFilter ("marker", null));
+
+			TestOpenPgpBlockFilter (filter, buffer, expected, 20);
+
+			// Make sure that resetting state works
+			filter.Reset ();
+			TestOpenPgpBlockFilter (filter, buffer, expected, 21);
 		}
 	}
 }

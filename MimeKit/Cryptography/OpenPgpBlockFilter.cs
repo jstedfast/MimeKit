@@ -97,7 +97,7 @@ namespace MimeKit.Cryptography {
 			if (i < endIndex && input[i] == (byte) '\r')
 				i++;
 
-			return input[i] == (byte) '\n';
+			return i == endIndex;
 		}
 
 		/// <summary>
@@ -177,8 +177,6 @@ namespace MimeKit.Cryptography {
 					index++;
 
 				if (index == endIndex) {
-					midline = true;
-
 					if (!flush) {
 						if (IsPartialMatch (input, lineIndex, index, endMarker)) {
 							SaveRemainingInput (input, lineIndex, index - lineIndex);
