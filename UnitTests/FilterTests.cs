@@ -56,8 +56,8 @@ namespace UnitTests
 		[Test]
 		public void TestArmoredFromFilter ()
 		{
-			const string text = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox).\n";
-			const string expected = "This text is meant to test that the filter will armor lines beginning with\n=46rom (like mbox).\n";
+			const string text = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox). And let's add another\nFrom line for good measure, shall we?\n";
+			const string expected = "This text is meant to test that the filter will armor lines beginning with\n=46rom (like mbox). And let's add another\n=46rom line for good measure, shall we?\n";
 			var filter = new ArmoredFromFilter ();
 
 			TestArgumentExceptions (filter);
@@ -87,7 +87,7 @@ namespace UnitTests
 		[Test]
 		public void TestBestEncodingFilter ()
 		{
-			const string fromLines = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox). And let's have another\nFrom for good measure, shall we?\n";
+			const string fromLines = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox).\n";
 			const string ascii = "This is some ascii text to make sure that\nthe filter returns 7bit encoding...\n";
 			const string french = "Wikipédia est un projet d’encyclopédie collective en ligne, universelle, multilingue et fonctionnant sur le principe du wiki. Wikipédia a pour objectif d’offrir un contenu librement réutilisable, objectif et vérifiable, que chacun peut modifier et améliorer.\n\nTous les rédacteurs des articles de Wikipédia sont bénévoles. Ils coordonnent leurs efforts au sein d'une communauté collaborative, sans dirigeant.";
 			var filter = new BestEncodingFilter ();
