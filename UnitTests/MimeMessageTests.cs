@@ -78,6 +78,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (string) null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, DigestAlgorithm.Sha1));
+			Assert.Throws<ArgumentNullException> (() => message.Encrypt (null));
+			Assert.Throws<ArgumentNullException> (() => message.SignAndEncrypt (null));
 		}
 
 		[Test]

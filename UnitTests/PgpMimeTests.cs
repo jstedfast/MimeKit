@@ -164,11 +164,18 @@ namespace UnitTests {
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
 			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
-			message.From.Add (self);
-			message.To.Add (self);
-			message.Body = body;
-
 			using (var ctx = new DummyOpenPgpContext ()) {
+				// throws because no Body has been set
+				Assert.Throws<InvalidOperationException> (() => message.Encrypt (ctx));
+
+				message.Body = body;
+
+				// throws because no recipients have been set
+				Assert.Throws<InvalidOperationException> (() => message.Encrypt (ctx));
+
+				message.From.Add (self);
+				message.To.Add (self);
+
 				message.Encrypt (ctx);
 
 				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
