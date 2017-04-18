@@ -37,10 +37,10 @@ namespace MimeKit.IO.Filters {
 	public class BestEncodingFilter : IMimeFilter
 	{
 		readonly byte[] marker = new byte[6];
-		bool midline, hasMarker;
 		int maxline, linelen;
 		int count0, count8;
 		int markerLength;
+		bool hasMarker;
 		int total;
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace MimeKit.IO.Filters {
 					return ContentEncoding.QuotedPrintable;
 				}
 
-				if (maxline > maxLineLength)
+				if (hasMarker || maxline > maxLineLength)
 					return ContentEncoding.QuotedPrintable;
 
 				break;
@@ -92,7 +92,7 @@ namespace MimeKit.IO.Filters {
 				if (count0 > 0)
 					return ContentEncoding.Base64;
 
-				if (maxline > maxLineLength)
+				if (hasMarker || maxline > maxLineLength)
 					return ContentEncoding.QuotedPrintable;
 
 				if (count8 > 0)
@@ -100,11 +100,15 @@ namespace MimeKit.IO.Filters {
 
 				break;
 			case EncodingConstraint.None:
+				if (hasMarker || maxline > maxLineLength) {
+					if (count8 > (int) (total * (17.0 / 100.0)))
+						return ContentEncoding.Base64;
+
+					return ContentEncoding.QuotedPrintable;
+				}
+
 				if (count0 > 0)
 					return ContentEncoding.Binary;
-
-				if (maxline > maxLineLength)
-					return ContentEncoding.QuotedPrintable;
 
 				if (count8 > 0)
 					return ContentEncoding.EightBit;
@@ -113,9 +117,6 @@ namespace MimeKit.IO.Filters {
 			default:
 				throw new ArgumentOutOfRangeException (nameof (constraint));
 			}
-
-			if (hasMarker)
-				return ContentEncoding.QuotedPrintable;
 
 			return ContentEncoding.SevenBit;
 		}
@@ -140,34 +141,30 @@ namespace MimeKit.IO.Filters {
 		unsafe void Scan (byte* inptr, byte* inend)
 		{
 			while (inptr < inend) {
-				if (midline) {
-					byte c = 0;
+				byte c = 0;
 
-					while (inptr < inend && (c = *inptr++) != (byte) '\n') {
-						if (c == 0)
-							count0++;
-						else if ((c & 0x80) != 0)
-							count8++;
+				while (inptr < inend && (c = *inptr++) != (byte) '\n') {
+					if (c == 0)
+						count0++;
+					else if ((c & 0x80) != 0)
+						count8++;
 
-						if (!hasMarker && markerLength > 0 && markerLength < 5)
-							marker[markerLength++] = c;
+					if (!hasMarker && markerLength < 5)
+						marker[markerLength++] = c;
 
-						linelen++;
-					}
-
-					if (c == (byte) '\n') {
-						maxline = Math.Max (maxline, linelen);
-						midline = false;
-						linelen = 0;
-					}
+					linelen++;
 				}
 
-				// check our from-save buffer for "From "
-				if (!hasMarker && markerLength == 5 && IsMboxMarker (marker))
-					hasMarker = true;
+				if (c == (byte) '\n') {
+					maxline = Math.Max (maxline, linelen);
+					linelen = 0;
 
-				markerLength = 0;
-				midline = true;
+					// check our from-save buffer for "From "
+					if (!hasMarker && markerLength == 5 && IsMboxMarker (marker))
+						hasMarker = true;
+
+					markerLength = 0;
+				}
 			}
 		}
 
@@ -257,7 +254,6 @@ namespace MimeKit.IO.Filters {
 		{
 			hasMarker = false;
 			markerLength = 0;
-			midline = false;
 			linelen = 0;
 			maxline = 0;
 			count0 = 0;

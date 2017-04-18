@@ -83,6 +83,7 @@
     <Compile Include="DummySecureMimeContext.cs" />
     <Compile Include="EncoderTests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="FilterTests.cs" />
     <Compile Include="GroupAddressTests.cs" />
     <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
