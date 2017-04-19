@@ -46,7 +46,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleYEncMessage ()
+		public void TestYDecodeSimpleMessage ()
 		{
 			using (var file = File.OpenRead ("../../TestData/yenc/simple.msg")) {
 				var message = MimeMessage.Load (file);
@@ -105,6 +105,27 @@ namespace UnitTests {
 							Assert.AreEqual (expected, actual, "Encoded value does not match original.");
 						}
 					}
+				}
+			}
+		}
+
+		[Test]
+		public void TestYDecodeYBeginStateTransitions ()
+		{
+			using (var file = File.OpenRead ("../../TestData/yenc/ybegin-state.dat")) {
+				using (var decoded = new MemoryStream ()) {
+					var ydec = new YDecoder ();
+
+					using (var filtered = new FilteredStream (decoded)) {
+						filtered.Add (new DecoderFilter (ydec));
+						file.CopyTo (filtered, 4096);
+						filtered.Flush ();
+					}
+
+					decoded.Position = 0;
+
+					Assert.AreEqual (584, decoded.Length, "The decoded size does not match.");
+					Assert.AreEqual (0xded29f4f, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match.");
 				}
 			}
 		}

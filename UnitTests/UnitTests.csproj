@@ -228,9 +228,10 @@
     <None Include="TestData\tnef\triples.tnef" />
     <None Include="TestData\tnef\two-files.list" />
     <None Include="TestData\tnef\two-files.tnef" />
-    <None Include="TestData\yenc\simple.msg" />
     <None Include="TestData\tnef\winmail.tnef" />
     <None Include="TestData\tnef\winmail.list" />
+    <None Include="TestData\yenc\simple.msg" />
+    <None Include="TestData\yenc\ybegin-state.dat" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
