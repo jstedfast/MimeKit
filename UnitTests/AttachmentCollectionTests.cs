@@ -52,16 +52,19 @@ namespace UnitTests
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, data));
 				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, stream));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, stream));
-				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, data, new ContentType ("application", "octet-stream")));
-				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, data, new ContentType ("application", "octet-stream")));
-				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, stream, new ContentType ("application", "octet-stream")));
-				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, stream, new ContentType ("application", "octet-stream")));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, contentType));
+				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, contentType));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, data, contentType));
+				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, data, contentType));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, stream, contentType));
+				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, stream, contentType));
 
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (byte[]) null));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (Stream) null));
-				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (byte[]) null, new ContentType ("application", "octet-stream")));
-				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (Stream) null, new ContentType ("application", "octet-stream")));
+				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (byte[]) null, contentType));
+				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (Stream) null, contentType));
 
+				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (ContentType) null));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", data, null));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", stream, null));
 
