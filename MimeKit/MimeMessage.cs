@@ -2463,8 +2463,7 @@ namespace MimeKit {
 
 				switch (id) {
 				case HeaderId.MimeVersion:
-					if (MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version))
-						return;
+					MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version);
 					break;
 				case HeaderId.References:
 					references.Changed -= ReferencesChanged;
@@ -2477,27 +2476,18 @@ namespace MimeKit {
 					break;
 				case HeaderId.ResentMessageId:
 					resentMessageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
-					if (resentMessageId != null)
-						return;
 					break;
 				case HeaderId.MessageId:
 					messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
-					if (messageId != null)
-						return;
 					break;
 				case HeaderId.ResentSender:
 					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out resentSender);
-					if (resentSender != null)
-						return;
 					break;
 				case HeaderId.Sender:
 					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out sender);
-					if (sender != null)
-						return;
 					break;
 				case HeaderId.ResentDate:
-					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate))
-						return;
+					DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);
 					break;
 				case HeaderId.Importance:
 					switch (header.Value.ToLowerInvariant ().Trim ()) {
@@ -2523,8 +2513,7 @@ namespace MimeKit {
 					}
 					break;
 				case HeaderId.Date:
-					if (DateUtils.TryParse (rawValue, 0, rawValue.Length, out date))
-						return;
+					DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
 					break;
 				}
 			}

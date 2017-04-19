@@ -566,12 +566,15 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			const string date2 = "Fri, 29 Jun 2007 12:47:52 -0500";
 			const string msgid1 = "message-id1@example.com";
 			const string msgid2 = "message-id2@example.com";
+			const string version1 = "1.0";
+			const string version2 = "2.0";
 			var message = new MimeMessage ();
 
 			foreach (var property in message.GetType ().GetProperties (BindingFlags.Instance | BindingFlags.Public)) {
 				var getter = property.GetGetMethod ();
 				var setter = property.GetSetMethod ();
 				DateTimeOffset date;
+				Version version;
 				object value;
 				HeaderId id;
 
@@ -627,6 +630,21 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 					date = (DateTimeOffset) getter.Invoke (message, new object[0]);
 					Assert.AreEqual (date2, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date2", property.Name);
+
+					setter.Invoke (message, new object[] { date });
+					break;
+				case "System.Version":
+					message.Headers[id] = version1;
+
+					version = (Version) getter.Invoke (message, new object[0]);
+					Assert.AreEqual (version1, version.ToString (), "Unexpected result when setting {0} to version1", property.Name);
+
+					message.Headers[message.Headers.IndexOf (id)] = new Header (id, version2);
+
+					version = (Version) getter.Invoke (message, new object[0]);
+					Assert.AreEqual (version2, version.ToString (), "Unexpected result when setting {0} to version2", property.Name);
+
+					setter.Invoke (message, new object[] { version });
 					break;
 				case "System.String":
 					switch (id) {
@@ -642,6 +660,8 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 						value = getter.Invoke (message, new object[0]);
 						Assert.AreEqual (msgid2, value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
+
+						setter.Invoke (message, new object[] { msgid1 });
 
 						setter.Invoke (message, new object[] { "<" + msgid1 + ">" });
 						value = getter.Invoke (message, new object[0]);
