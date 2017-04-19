@@ -68,6 +68,7 @@
     <Compile Include="ApplicationPkcs7MimeTests.cs" />
     <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="AssortedTests.cs" />
+    <Compile Include="AttachmentCollectionTests.cs" />
     <Compile Include="ChainedStreamTests.cs" />
     <Compile Include="CharsetUtilsTests.cs" />
     <Compile Include="CmsRecipientTests.cs" />
