@@ -82,6 +82,9 @@ namespace UnitTests
 				Assert.Throws<ArgumentOutOfRangeException> (() => { var x = attachments[10]; });
 				Assert.Throws<ArgumentOutOfRangeException> (() => attachments[10] = new TextPart ("plain"));
 				Assert.Throws<ArgumentNullException> (() => attachments[0] = null);
+
+				Assert.Throws<ArgumentOutOfRangeException> (() => attachments.Insert (-1, new TextPart ("plain")));
+				Assert.Throws<ArgumentNullException> (() => attachments.Insert (0, null));
 			}
 		}
 	}
