@@ -45,11 +45,16 @@ namespace UnitTests
 			var data = new byte[1024];
 
 			using (var stream = new MemoryStream ()) {
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((MimeEntity) null));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, data));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, data));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, stream));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, stream));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, data, new ContentType ("application", "octet-stream")));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, data, new ContentType ("application", "octet-stream")));
+				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty, stream, new ContentType ("application", "octet-stream")));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ((string) null, stream, new ContentType ("application", "octet-stream")));
 
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (byte[]) null));
@@ -70,8 +75,10 @@ namespace UnitTests
 				Assert.Throws<ArgumentNullException> (() => attachments.Remove (null));
 				Assert.Throws<ArgumentOutOfRangeException> (() => attachments.RemoveAt (0));
 
+				attachments.Add (new TextPart ("plain"));
 				Assert.Throws<ArgumentOutOfRangeException> (() => { var x = attachments[10]; });
 				Assert.Throws<ArgumentOutOfRangeException> (() => attachments[10] = new TextPart ("plain"));
+				Assert.Throws<ArgumentNullException> (() => attachments[0] = null);
 			}
 		}
 	}
