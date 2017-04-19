@@ -603,6 +603,7 @@ namespace UnitTests {
 				var key = ctx.GetSigningKey (mailboxes[0]);
 				var emptyPubkeys = new PgpPublicKey[0];
 				var stream = new MemoryStream ();
+				var entity = new MimePart ();
 
 				Assert.Throws<ArgumentException> (() => ctx.KeyServer = new Uri ("relative/uri", UriKind.Relative));
 
@@ -691,6 +692,46 @@ namespace UnitTests {
 				// Verify
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, stream), "Verify");
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null), "Verify");
+
+
+				// MultipartEncrypted
+
+				// Encrypt
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt ((MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (mailboxes, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt ((PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (pubkeys, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, (MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, mailboxes, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, (PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, pubkeys, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, mailboxes, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, pubkeys, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, mailboxes, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, pubkeys, null));
 			}
 		}
 	}
