@@ -117,6 +117,9 @@ namespace UnitTests {
 		{
 			Assert.IsTrue (chained.CanSeek, "Expected to be able to seek in the chained stream.");
 
+			Assert.Throws<IOException> (() => chained.Seek (-1, SeekOrigin.Begin));
+			Assert.Throws<IOException> (() => chained.Seek (int.MaxValue, SeekOrigin.Begin));
+
 			for (int attempt = 0; attempt < 10; attempt++) {
 				long offset = random.Next () % master.Length;
 				var origin = (SeekOrigin) (attempt % 3);
