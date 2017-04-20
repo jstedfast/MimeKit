@@ -82,8 +82,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>In general, you'll probably want this value to be <c>false</c> (the default) as it allows 
 		/// maximum interoperability with existing (broken) mail clients and other mail software such as
-		/// sloppily written perl scripts (aka spambots) that do not properly quote the name in addresses
-		/// such as <c>LastName, FirstName &lt;user@example.com&gt;</c>.</para>
+		/// sloppily written perl scripts (aka spambots) that do not properly quote the name when it
+		/// contains a comma.</para>
 		/// <para>This option exists in order to allow parsing of mailbox addresses that do not have an
 		/// @domain component. These types of addresses are rare and were typically only used when sending
 		/// mail to other users on the same UNIX system.</para>
