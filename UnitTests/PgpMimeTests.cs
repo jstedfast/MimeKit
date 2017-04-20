@@ -602,6 +602,7 @@ namespace UnitTests {
 				var pubkeys = ctx.GetPublicKeys (mailboxes);
 				var key = ctx.GetSigningKey (mailboxes[0]);
 				var emptyPubkeys = new PgpPublicKey[0];
+				DigitalSignatureCollection signatures;
 				var stream = new MemoryStream ();
 				var entity = new MimePart ();
 
@@ -778,6 +779,12 @@ namespace UnitTests {
 				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
 				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
 
+				var encrypted = new MultipartEncrypted ();
+
+				Assert.Throws<ArgumentNullException> (() => encrypted.Accept (null));
+
+				Assert.Throws<ArgumentNullException> (() => encrypted.Decrypt (null));
+				Assert.Throws<ArgumentNullException> (() => encrypted.Decrypt (null, out signatures));
 			}
 		}
 	}
