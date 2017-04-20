@@ -206,7 +206,13 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MailboxAddress"/> with the specified address.
+		/// <para>Creates a new <see cref="MailboxAddress"/> with the specified address.</para>
+		/// <note type="note">
+		/// <para>The <paramref name="address"/> must be in the form <c>user@domain</c>.</para>
+		/// <para>This method cannot be used to parse a free-form email address that includes
+		/// the name or encloses the address in angle brackets.</para>
+		/// <para>To parse a free-form email address, use <see cref="Parse(string)"/> instead.</para>
+		/// </note>
 		/// </remarks>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
