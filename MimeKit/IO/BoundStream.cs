@@ -440,7 +440,7 @@ namespace MimeKit.IO {
 				real = StartBoundary + offset;
 				break;
 			case SeekOrigin.Current:
-				real = position + offset;
+				real = StartBoundary + position + offset;
 				break;
 			case SeekOrigin.End:
 				if (offset >= 0 || (EndBoundary == -1 && !eos)) {

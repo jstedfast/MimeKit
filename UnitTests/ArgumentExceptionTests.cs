@@ -321,6 +321,8 @@ namespace UnitTests {
 				using (var stream = new ChainedStream ()) {
 					stream.Add (memory);
 
+					Assert.Throws<ArgumentNullException> (() => stream.Add (null));
+
 					AssertStreamArguments (stream);
 				}
 			}

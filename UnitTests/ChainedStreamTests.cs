@@ -39,13 +39,12 @@ namespace UnitTests {
 	public class ChainedStreamTests
 	{
 		readonly List<int> lengths = new List<int> ();
-		ChainedStream chained;
-		MemoryStream master;
-		byte[] cbuf, mbuf;
+		readonly MemoryStream master, backing;
+		readonly ChainedStream chained;
+		readonly byte[] cbuf, mbuf;
 		Random random;
 
-		[TestFixtureSetUp]
-		public void Setup ()
+		public ChainedStreamTests ()
 		{
 			var bytes = new byte[10 * 1024];
 			int position = 0;
@@ -56,6 +55,7 @@ namespace UnitTests {
 			// this is our master stream, all operations on the chained stream
 			// should match the results on this stream
 			master = new MemoryStream (bytes);
+			backing = new MemoryStream (master.ToArray ());
 			cbuf = new byte[4096];
 			mbuf = new byte[4096];
 
@@ -64,21 +64,22 @@ namespace UnitTests {
 			while (position < bytes.Length) {
 				int n = Math.Min (bytes.Length - position, random.Next () % 4096);
 
-				var segment = new byte[n];
-				Buffer.BlockCopy (bytes, position, segment, 0, n);
+				var stream = new BoundStream (backing, position, position + n, true);
+
 				lengths.Add (n);
 				position += n;
 
-				chained.Add (new ReadOneByteStream (new MemoryStream (segment)));
+				chained.Add (new ReadOneByteStream (stream));
 			}
 		}
 
-		[TestFixtureTearDown]
-		public void TearDown ()
-		{
-			chained.Dispose ();
-			master.Dispose ();
-		}
+		//[TestFixtureTearDown]
+		//public void TearDown ()
+		//{
+		//	backing.Dispose ();
+		//	chained.Dispose ();
+		//	master.Dispose ();
+		//}
 
 		[Test]
 		public void TestReading ()
@@ -174,6 +175,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestWriting ()
+		{
+			var buffer = new byte[(int) chained.Length];
+
+			for (int i = 0; i < buffer.Length; i++)
+				buffer[i] = (byte) (i & 0xff);
+
+			chained.Position = 0;
+			chained.Write (buffer, 0, buffer.Length);
+			chained.Flush ();
+
+			var array = backing.ToArray ();
+			for (int i = 0; i < buffer.Length; i++)
+				Assert.AreEqual (buffer[i], array[i], "Written byte @ offset {0} did not match", i);
+		}
+
+		[Test]
 		public void TestChainedHeadersAndContent ()
 		{
 			var buf = Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\n");
@@ -188,13 +206,14 @@ namespace UnitTests {
 			content.Write (buf, 0, buf.Length);
 			content.Position = 0;
 
-			var chained = new ChainedStream ();
-			chained.Add (headers);
-			chained.Add (content);
+			using (var chained = new ChainedStream ()) {
+				chained.Add (headers);
+				chained.Add (content);
 
-			var entity = MimeEntity.Load (chained, true) as TextPart;
+				var entity = MimeEntity.Load (chained, true) as TextPart;
 
-			Assert.AreEqual ("Hello, world!\r\n", entity.Text);
+				Assert.AreEqual ("Hello, world!\r\n", entity.Text);
+			}
 		}
 
 		[Test]
