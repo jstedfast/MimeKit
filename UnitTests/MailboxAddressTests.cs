@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]
@@ -42,17 +43,17 @@ namespace UnitTests {
 			var mailbox = new MailboxAddress ("Johnny Appleseed", "johnny@example.com");
 			var route = new [] { "route.com" };
 
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", route, "example.com"));
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", route, "johnny@example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null, "johnny@example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", route, null));
 
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null, "johnny@example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", route, null));
 
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ((IEnumerable<string>) null, "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ((IEnumerable<string>) null, "johnny@example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (route, null));
 
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", "example.com"));
+			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", "johnny@example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null));
 
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null));
@@ -69,6 +70,36 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => MailboxAddress.EncodeAddrspec (null));
 			Assert.Throws<ArgumentNullException> (() => MailboxAddress.DecodeAddrspec (null));
+
+			// SecureMailboxAddress
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (null, "name", route, "johnny@example.com", "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", null, "johnny@example.com", "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", route, null, "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", route, "johnny@example.com", null));
+			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", route, "johnny@example.com", "not hex encoded"));
+
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", null, "johhny@example.com", "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", route, null, "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", route, "johnny@example.com", null));
+			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("name", route, "johnny@example.com", "not hex encoded"));
+
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ((IEnumerable<string>) null, "johnny@example.com", "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (route, null, "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (route, "johnny@example.com", null));
+			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress (route, "johnny@example.com", "not hex encoded"));
+
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (null, "name", "johnny@example.com", "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", null, "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", "johnny@example.com", null));
+			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", "johnny@example.com", "not hex encoded"));
+
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", null, "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", "johnny@example.com", null));
+			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("name", "johnny@example.com", "not hex encoded"));
+
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (null, "ffff"));
+			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("johnny@example.com", null));
+			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("johnny@example.com", "not hex encoded"));
 		}
 
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
