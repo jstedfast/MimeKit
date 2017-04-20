@@ -281,9 +281,15 @@ namespace MimeKit {
 					return;
 
 				var buffer = CharsetUtils.UTF8.GetBytes (value);
+				string addrspec;
 				int index = 0;
 
-				TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], true, out address, out at);
+				TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], true, out addrspec, out at);
+
+				if (index != buffer.Length)
+					throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+
+				address = addrspec;
 
 				OnChanged ();
 			}
