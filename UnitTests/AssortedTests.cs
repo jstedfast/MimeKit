@@ -192,5 +192,60 @@ namespace UnitTests {
 
 			Assert.AreEqual ("local-part", msgid);
 		}
+
+		[Test]
+		public void TestCharsetUtilsGetCodePage ()
+		{
+			for (int i = 1; i < 16; i++) {
+				int expected, codepage;
+				string name;
+
+				name = string.Format ("iso-8859-{0}", i);
+				codepage = CharsetUtils.GetCodePage (name);
+
+				switch (i) {
+				case 11: expected = 874; break;
+				case 10: case 12: case 13: case 14: expected = -1; break;
+				default: expected = 28590 + i; break;
+				}
+
+				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
+			}
+
+			for (int i = 0; i < 10; i++) {
+				int expected, codepage;
+				string name;
+
+				if (i < 9)
+					expected = 1250 + i;
+				else
+					expected = -1;
+
+				name = string.Format ("windows-125{0}", i);
+				codepage = CharsetUtils.GetCodePage (name);
+
+				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
+
+				name = string.Format ("windows-cp125{0}", i);
+				codepage = CharsetUtils.GetCodePage (name);
+
+				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
+
+				name = string.Format ("cp125{0}", i);
+				codepage = CharsetUtils.GetCodePage (name);
+
+				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
+			}
+
+			foreach (var ibm in new int[] { 850, 852, 855, 857, 860, 861, 862, 863 }) {
+				int codepage;
+				string name;
+
+				name = string.Format ("ibm-{0}", ibm);
+				codepage = CharsetUtils.GetCodePage (name);
+
+				Assert.AreEqual (ibm, codepage, "Invalid codepage for: {0}", name);
+			}
+		}
 	}
 }
