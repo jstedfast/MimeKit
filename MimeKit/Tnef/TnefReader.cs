@@ -162,15 +162,15 @@ namespace MimeKit.Tnef {
 				try {
 					var encoding = Encoding.GetEncoding (value);
 					codepage = encoding.CodePage;
-				} catch (ArgumentOutOfRangeException) {
+				} catch (ArgumentOutOfRangeException ex) {
 					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
 					if (ComplianceMode == TnefComplianceMode.Strict)
-						throw new TnefException (string.Format ("Invalid message codepage: {0}", value));
+						throw new TnefException (TnefComplianceStatus.InvalidMessageCodepage, string.Format ("Invalid message codepage: {0}", value), ex);
 					codepage = 1252;
-				} catch (NotSupportedException) {
+				} catch (NotSupportedException ex) {
 					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
 					if (ComplianceMode == TnefComplianceMode.Strict)
-						throw new TnefException (string.Format ("Unsupported message codepage: {0}", value));
+						throw new TnefException (TnefComplianceStatus.InvalidMessageCodepage, string.Format ("Unsupported message codepage: {0}", value), ex);
 					codepage = 1252;
 				}
 			}
@@ -211,7 +211,7 @@ namespace MimeKit.Tnef {
 				if (value != 0x00010000) {
 					ComplianceStatus |= TnefComplianceStatus.InvalidTnefVersion;
 					if (ComplianceMode == TnefComplianceMode.Strict)
-						throw new TnefException (string.Format ("Invalid TNEF version: {0}", value));
+						throw new TnefException (TnefComplianceStatus.InvalidTnefVersion, string.Format ("Invalid TNEF version: {0}", value));
 				}
 
 				version = value;
@@ -367,9 +367,9 @@ namespace MimeKit.Tnef {
 			}
 
 			if (innerException != null)
-				throw new TnefException (message, innerException);
+				throw new TnefException (error, message, innerException);
 
-			throw new TnefException (message);
+			throw new TnefException (error, message);
 		}
 
 		void DecodeHeader ()

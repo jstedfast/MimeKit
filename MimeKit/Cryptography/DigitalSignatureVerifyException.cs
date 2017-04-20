@@ -25,7 +25,10 @@
 //
 
 using System;
+#if SERIALIZABLE
+using System.Security;
 using System.Runtime.Serialization;
+#endif
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -53,15 +56,95 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected DigitalSignatureVerifyException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
+			KeyId = (long?) info.GetValue ("KeyId", typeof (long?));
 		}
 #endif
 
-		internal DigitalSignatureVerifyException (string message, Exception innerException) : base (message, innerException)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DigitalSignatureVerifyException"/>.
+		/// </remarks>
+		/// <param name="keyId">The key identifier.</param>
+		/// <param name="message">The error message.</param>
+		/// <param name="innerException">The inner exception.</param>
+		public DigitalSignatureVerifyException (long keyId, string message, Exception innerException) : base (message, innerException)
+		{
+			KeyId = keyId;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DigitalSignatureVerifyException"/>.
+		/// </remarks>
+		/// <param name="keyId">The key identifier.</param>
+		/// <param name="message">The error message.</param>
+		public DigitalSignatureVerifyException (long keyId, string message) : base (message)
+		{
+			KeyId = keyId;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DigitalSignatureVerifyException"/>.
+		/// </remarks>
+		/// <param name="message">The error message.</param>
+		/// <param name="innerException">The inner exception.</param>
+		public DigitalSignatureVerifyException (string message, Exception innerException) : base (message, innerException)
 		{
 		}
 
-		internal DigitalSignatureVerifyException (string message) : base (message)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DigitalSignatureVerifyException"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DigitalSignatureVerifyException"/>.
+		/// </remarks>
+		/// <param name="message">The error message.</param>
+		public DigitalSignatureVerifyException (string message) : base (message)
 		{
+		}
+
+#if SERIALIZABLE
+		/// <summary>
+		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </summary>
+		/// <remarks>
+		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </remarks>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The streaming context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		[SecurityCritical]
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			if (info == null)
+				throw new ArgumentNullException (nameof (info));
+
+			info.AddValue ("KeyId", KeyId, typeof (long?));
+
+			base.GetObjectData (info, context);
+		}
+#endif
+
+		/// <summary>
+		/// Get the key identifier, if available.
+		/// </summary>
+		/// <remarks>
+		/// Gets the key identifier, if available.
+		/// </remarks>
+		/// <value>The key identifier.</value>
+		public long? KeyId {
+			get; private set;
 		}
 	}
 }

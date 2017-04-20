@@ -130,7 +130,7 @@ namespace MimeKit.Cryptography {
 
 			if (SignerCertificate == null) {
 				var message = string.Format ("Failed to verify digital signature: no public key found for {0:X8}", (int) Signature.KeyId);
-				vex = new DigitalSignatureVerifyException (message);
+				vex = new DigitalSignatureVerifyException (Signature.KeyId, message);
 				throw vex;
 			}
 
@@ -142,7 +142,7 @@ namespace MimeKit.Cryptography {
 				return valid.Value;
 			} catch (Exception ex) {
 				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);
-				vex = new DigitalSignatureVerifyException (message, ex);
+				vex = new DigitalSignatureVerifyException (Signature.KeyId, message, ex);
 				throw vex;
 			}
 		}

@@ -24,12 +24,14 @@
 // THE SOFTWARE.
 //
 
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Tnef;
 using MimeKit.Cryptography;
 
 namespace UnitTests
@@ -68,6 +70,54 @@ namespace UnitTests
 			}
 		}
 
+		[Test]
+		public void TestDigitalSignatureVerifyException ()
+		{
+			var expected = new DigitalSignatureVerifyException (0xdeadbeef, "Message", new Exception ("InnerException"));
+
+			using (var stream = new MemoryStream ()) {
+				var formatter = new BinaryFormatter ();
+				formatter.Serialize (stream, expected);
+				stream.Position = 0;
+
+				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+				Assert.AreEqual (expected.KeyId, ex.KeyId, "Unexpected KeyId.");
+			}
+
+			expected = new DigitalSignatureVerifyException ("Message", new Exception ("InnerException"));
+
+			using (var stream = new MemoryStream ()) {
+				var formatter = new BinaryFormatter ();
+				formatter.Serialize (stream, expected);
+				stream.Position = 0;
+
+				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+				Assert.AreEqual (expected.KeyId, ex.KeyId, "Unexpected KeyId.");
+			}
+
+			expected = new DigitalSignatureVerifyException (0xdeadbeef, "Message");
+
+			using (var stream = new MemoryStream ()) {
+				var formatter = new BinaryFormatter ();
+				formatter.Serialize (stream, expected);
+				stream.Position = 0;
+
+				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+				Assert.AreEqual (expected.KeyId, ex.KeyId, "Unexpected KeyId.");
+			}
+
+			expected = new DigitalSignatureVerifyException ("Message");
+
+			using (var stream = new MemoryStream ()) {
+				var formatter = new BinaryFormatter ();
+				formatter.Serialize (stream, expected);
+				stream.Position = 0;
+
+				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+				Assert.AreEqual (expected.KeyId, ex.KeyId, "Unexpected KeyId.");
+			}
+		}
+
 		static void TestPrivateKeyNotFoundException (PrivateKeyNotFoundException expected)
 		{
 			using (var stream = new MemoryStream ()) {
@@ -100,6 +150,32 @@ namespace UnitTests
 
 				var ex = (PublicKeyNotFoundException) formatter.Deserialize (stream);
 				Assert.IsTrue (expected.Mailbox.Equals (ex.Mailbox), "Unexpected Mailbox.");
+			}
+		}
+
+		[Test]
+		public void TestTnefException ()
+		{
+			var expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message", new Exception ("InnerException"));
+
+			using (var stream = new MemoryStream ()) {
+				var formatter = new BinaryFormatter ();
+				formatter.Serialize (stream, expected);
+				stream.Position = 0;
+
+				var ex = (TnefException) formatter.Deserialize (stream);
+				Assert.AreEqual (expected.Error, ex.Error, "Unexpected Error.");
+			}
+
+			expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message");
+
+			using (var stream = new MemoryStream ()) {
+				var formatter = new BinaryFormatter ();
+				formatter.Serialize (stream, expected);
+				stream.Position = 0;
+
+				var ex = (TnefException) formatter.Deserialize (stream);
+				Assert.AreEqual (expected.Error, ex.Error, "Unexpected Error.");
 			}
 		}
 	}
