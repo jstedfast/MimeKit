@@ -172,7 +172,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Creates a new <see cref="MailboxAddress"/> with the specified address.</para>
 		/// <note type="note">
-		/// <para>The <paramref name="address"/> must be in the form <c>user@domain</c>.</para>
+		/// <para>The <paramref name="address"/> must be in the form <c>user@example.com</c>.</para>
 		/// <para>This method cannot be used to parse a free-form email address that includes
 		/// the name or encloses the address in angle brackets.</para>
 		/// <para>To parse a free-form email address, use <see cref="MailboxAddress.Parse(string)"/>
