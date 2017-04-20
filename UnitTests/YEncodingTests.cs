@@ -110,19 +110,56 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestYDecodeYBeginStateTransitions ()
+		public void TestYDecodeMultiPart ()
 		{
-			using (var file = File.OpenRead ("../../TestData/yenc/ybegin-state.dat")) {
+			var expected = File.ReadAllBytes ("../../TestData/yenc/joystick.jpg");
+
+			using (var decoded = new MemoryStream ()) {
+				using (var file = File.OpenRead ("../../TestData/yenc/00000020.ntx")) {
+					var ydec = new YDecoder ();
+
+					using (var filtered = new FilteredStream (decoded)) {
+						filtered.Add (new DecoderFilter (ydec));
+						file.CopyTo (filtered, 1);
+						filtered.Flush ();
+					}
+
+					Assert.AreEqual (11250, decoded.Length, "The decoded size does not match (part 1).");
+					Assert.AreEqual (0xbfae5c0b, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match (part 1).");
+				}
+
+				using (var file = File.OpenRead ("../../TestData/yenc/00000021.ntx")) {
+					var ydec = new YDecoder ();
+
+					using (var filtered = new FilteredStream (decoded)) {
+						filtered.Add (new DecoderFilter (ydec));
+						file.CopyTo (filtered, 1);
+						filtered.Flush ();
+					}
+
+					Assert.AreEqual (19338, decoded.Length, "The decoded size does not match (part 2).");
+					Assert.AreEqual (0xaca76043, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match (part 2).");
+				}
+
+				var actual = decoded.GetBuffer ();
+
+				for (int i = 0; i < expected.Length; i++)
+					Assert.AreEqual (expected[i], actual[i], "different content at index {0}", i);
+			}
+		}
+
+		[Test]
+		public void TestYDecodeStateTransitions ()
+		{
+			using (var file = File.OpenRead ("../../TestData/yenc/state-changes.ntx")) {
 				using (var decoded = new MemoryStream ()) {
 					var ydec = new YDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
-						file.CopyTo (filtered, 4096);
+						file.CopyTo (filtered, 1);
 						filtered.Flush ();
 					}
-
-					decoded.Position = 0;
 
 					Assert.AreEqual (584, decoded.Length, "The decoded size does not match.");
 					Assert.AreEqual (0xded29f4f, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match.");

@@ -292,12 +292,16 @@ namespace MimeKit.Encodings {
 
 					state = YDecoderState.ExpectYPartOrPayload;
 					octet = *inptr++;
-					break;
+
+					if (inptr == inend)
+						break;
 				}
 
 				if (state == YDecoderState.ExpectYPartOrPayload) {
 					if (*inptr != (byte) '=') {
 						state = YDecoderState.Payload;
+						escaped = false;
+						eoln = true;
 						break;
 					}
 
@@ -312,6 +316,8 @@ namespace MimeKit.Encodings {
 				if (state == YDecoderState.YPartEqual) {
 					if (*inptr != (byte) 'y') {
 						state = YDecoderState.Payload;
+						escaped = false;
+						eoln = true;
 						return inptr;
 					}
 
@@ -404,6 +410,8 @@ namespace MimeKit.Encodings {
 
 					state = YDecoderState.Payload;
 					octet = *inptr++;
+					escaped = false;
+					eoln = true;
 					break;
 				}
 			}
@@ -433,8 +441,6 @@ namespace MimeKit.Encodings {
 			if (state < YDecoderState.Payload) {
 				if ((inptr = ScanYBeginMarker (inptr, inend)) == inend)
 					return 0;
-
-				eoln = true;
 			}
 
 			if (state == YDecoderState.Ended)

@@ -230,8 +230,11 @@
     <None Include="TestData\tnef\two-files.tnef" />
     <None Include="TestData\tnef\winmail.tnef" />
     <None Include="TestData\tnef\winmail.list" />
+    <None Include="TestData\yenc\00000020.ntx" />
+    <None Include="TestData\yenc\00000021.ntx" />
+    <None Include="TestData\yenc\joystick.jpg" />
     <None Include="TestData\yenc\simple.msg" />
-    <None Include="TestData\yenc\ybegin-state.dat" />
+    <None Include="TestData\yenc\state-changes.ntx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
