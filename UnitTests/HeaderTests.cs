@@ -317,6 +317,10 @@ namespace UnitTests {
 			Assert.IsTrue (Header.TryParse (buffer, out header), "Failed to parse raw UTF-8 Subject header.");
 			Assert.AreEqual (HeaderId.Subject, header.Id, "HeaderId does not match");
 			Assert.AreEqual (expected, header.Value, "Subject values do not match.");
+
+			Assert.IsTrue (Header.TryParse (buffer, 0, buffer.Length, out header), "Failed to parse raw UTF-8 Subject header.");
+			Assert.AreEqual (HeaderId.Subject, header.Id, "HeaderId does not match");
+			Assert.AreEqual (expected, header.GetValue ("utf-8"), "Subject values do not match.");
 		}
 
 		[Test]
