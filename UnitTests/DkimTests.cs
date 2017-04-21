@@ -85,6 +85,37 @@ namespace UnitTests
 			};
 		}
 
+		[Test]
+		public void TestDkimSignatureStream ()
+		{
+			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1);
+			var buffer = new byte[128];
+
+			Assert.Throws<ArgumentNullException> (() => new DkimSignatureStream (null));
+
+			using (var stream = new DkimSignatureStream (signer.DigestSigner)) {
+				Assert.IsFalse (stream.CanRead);
+				Assert.IsTrue (stream.CanWrite);
+				Assert.IsFalse (stream.CanSeek);
+				Assert.IsFalse (stream.CanTimeout);
+
+				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
+
+				Assert.Throws<ArgumentNullException> (() => stream.Write (null, 0, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
+
+				Assert.AreEqual (0, stream.Length);
+
+				Assert.Throws<NotSupportedException> (() => stream.Position = 64);
+
+				Assert.Throws<NotSupportedException> (() => stream.Seek (64, SeekOrigin.Begin));
+				Assert.Throws<NotSupportedException> (() => stream.SetLength (256));
+
+				Assert.Throws<ArgumentNullException> (() => stream.VerifySignature (null));
+			}
+		}
+
 		static void VerifyDkimBodyHash (MimeMessage message, DkimSignatureAlgorithm algorithm, string expectedHash)
 		{
 			var value = message.Headers[HeaderId.DkimSignature];
