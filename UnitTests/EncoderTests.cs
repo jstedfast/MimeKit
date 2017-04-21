@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using System.Security.Cryptography;
 
 using NUnit.Framework;
 
@@ -475,8 +476,13 @@ namespace UnitTests {
 				} else if (field.FieldType == typeof (short)) {
 					field.SetValue (fsm, (short) random.Next (1, short.MaxValue));
 				} else if (field.FieldType == typeof (Crc32)) {
-					var crc = field.GetValue (fsm);
-					SetRandomState (crc);
+					var crc = (Crc32) field.GetValue (fsm);
+					var buf = new byte[100];
+
+					using (var rng = RandomNumberGenerator.Create ())
+						rng.GetBytes (buf);
+
+					crc.Update (buf, 0, buf.Length);
 				} else {
 					Assert.Fail ("Unknown field type: {0}.{1}", fsm.GetType ().Name, field.Name);
 				}

@@ -337,5 +337,16 @@ namespace UnitTests {
 		{
 			Assert.Throws<ArgumentNullException> (() => new MessagePart ().Accept (null));
 		}
+
+		[Test]
+		public void TestCrc32Arguments ()
+		{
+			var crc32 = new Crc32 ();
+			var buffer = new byte[10];
+
+			Assert.Throws<ArgumentNullException> (() => crc32.Update (null, 0, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => crc32.Update (buffer, -1, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => crc32.Update (buffer, 0, 20));
+		}
 	}
 }
