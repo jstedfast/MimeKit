@@ -366,5 +366,19 @@ namespace UnitTests {
 			collection.Add (new HeaderList ());
 			Assert.Throws<ArgumentNullException> (() => collection[0] = null);
 		}
+
+		[Test]
+		public void TestMimeIteratorArguments ()
+		{
+			var iter = new MimeIterator (new MimeMessage { Body = new TextPart ("plain") });
+
+			Assert.Throws<ArgumentNullException> (() => new MimeIterator (null));
+			Assert.Throws<InvalidOperationException> (() => { var x = iter.Current; });
+			Assert.Throws<InvalidOperationException> (() => { var x = iter.Parent; });
+			Assert.Throws<InvalidOperationException> (() => { var x = iter.PathSpecifier; });
+			Assert.Throws<ArgumentNullException> (() => iter.MoveTo (null));
+			Assert.Throws<ArgumentException> (() => iter.MoveTo (string.Empty));
+			Assert.Throws<FormatException> (() => iter.MoveTo ("xyz"));
+		}
 	}
 }
