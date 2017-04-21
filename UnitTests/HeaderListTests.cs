@@ -43,6 +43,14 @@ namespace UnitTests {
 			Header header;
 			string value;
 
+			using (var stream = new MemoryStream ()) {
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (null, "filename.txt"));
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (ParserOptions.Default, (string) null));
+
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (null, stream));
+				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (ParserOptions.Default, (Stream) null));
+			}
+
 			// Add
 			Assert.Throws<ArgumentNullException> (() => list.Add (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Add (HeaderId.Unknown, "value"));
@@ -150,11 +158,20 @@ namespace UnitTests {
 			headers.Add ("To", "first@localhost");
 			headers.Add ("To", "second@localhost");
 			headers.Add ("To", "third@localhost");
+			headers.Add ("To", "fourth@localhost");
 			headers.Add ("Cc", "carbon.copy@localhost");
+
+			Assert.IsFalse (headers.IsReadOnly);
+			Assert.IsFalse (headers.Contains (new Header (HeaderId.Received, "value")));
+			Assert.AreEqual (-1, headers.IndexOf (new Header (HeaderId.Received, "value")));
+			Assert.AreEqual (-1, headers.IndexOf ("Received"));
+			Assert.AreEqual (-1, headers.LastIndexOf (HeaderId.Received));
+			Assert.AreEqual (null, headers[HeaderId.Received]);
 
 			Assert.IsTrue (headers.Remove ("Cc"));
 
 			// try removing a header that no longer exists
+			Assert.IsFalse (headers.Remove (new Header (HeaderId.Cc, "value")));
 			Assert.IsFalse (headers.Remove (HeaderId.Cc));
 			Assert.IsFalse (headers.Remove ("Cc"));
 
@@ -164,6 +181,8 @@ namespace UnitTests {
 			Assert.AreEqual ("second@localhost", headers[HeaderId.To]);
 			Assert.IsTrue (headers.Remove ("To"));
 			Assert.AreEqual ("third@localhost", headers[HeaderId.To]);
+			headers.RemoveAt (headers.IndexOf ("To"));
+			Assert.AreEqual ("fourth@localhost", headers[HeaderId.To]);
 		}
 
 		[Test]
@@ -206,6 +225,18 @@ namespace UnitTests {
 
 			headers.RemoveAll ("Content-Location");
 			Assert.AreEqual (3, headers.Count, "Unexpected number of headers after removing Content-Location.");
+
+			headers.Clear ();
+
+			headers.Add (HeaderId.Received, "received 1");
+			headers.Add (HeaderId.Received, "received 2");
+			headers.Add (HeaderId.Received, "received 3");
+			headers.Add (HeaderId.ReturnPath, "return-path");
+
+			headers[0] = new Header (HeaderId.ReturnPath, "new return-path");
+			Assert.AreEqual ("new return-path", headers[HeaderId.ReturnPath]);
+			headers[0] = new Header (HeaderId.Received, "new received");
+			Assert.AreEqual ("new received", headers[HeaderId.Received]);
 		}
 
 		[Test]
