@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageReader.iOS", "MessageReader.iOS\MessageReader.iOS.csproj", "{60EA692F-305A-4CF7-97A8-3565CC81310A}"
 EndProject
@@ -17,6 +17,10 @@ Global
 		Release|iPhoneSimulator = Release|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Ad-Hoc|iPhone.ActiveCfg = Release|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.AppStore|iPhone.ActiveCfg = Release|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.AppStore|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhone.Build.0 = Debug|iPhone
 		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
