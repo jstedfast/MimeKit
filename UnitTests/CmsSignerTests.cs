@@ -32,7 +32,8 @@ using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.X509;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
@@ -46,6 +47,18 @@ namespace UnitTests {
 		public void TestArgumentExceptions ()
 		{
 			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+			var certificate = new X509Certificate2 (signer.Certificate.GetEncoded ());
+			var chain = new[] { DotNetUtilities.FromX509Certificate (certificate) };
+			AsymmetricCipherKeyPair keyPair;
+
+			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"))) {
+				var reader = new PemReader (stream);
+
+				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			Assert.Throws<ArgumentException> (() => new CmsSigner (certificate));
+			Assert.Throws<ArgumentException> (() => new CmsSigner (chain, keyPair.Public));
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((IEnumerable<X509Certificate>) null, signer.PrivateKey));
 			Assert.Throws<ArgumentException> (() => new CmsSigner (new X509Certificate[0], signer.PrivateKey));
@@ -61,6 +74,33 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((string) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ("fileName", null));
+		}
+
+		[Test]
+		public void TestConstructors ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			var password = "no.secret";
+			CmsSigner signer;
+
+			try {
+				signer = new CmsSigner (path, password);
+			} catch (Exception ex) {
+				Assert.Fail (".ctor (string, string): {0}", ex.Message);
+			}
+
+			try {
+				using (var stream = File.OpenRead (path))
+					signer = new CmsSigner (stream, password);
+			} catch (Exception ex) {
+				Assert.Fail (".ctor (Stream, string): {0}", ex.Message);
+			}
+
+			try {
+				signer = new CmsSigner (new X509Certificate2 (path, password));
+			} catch (Exception ex) {
+				Assert.Fail (".ctor (string, string): {0}", ex.Message);
+			}
 		}
 	}
 }

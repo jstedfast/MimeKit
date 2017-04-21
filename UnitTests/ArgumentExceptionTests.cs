@@ -373,6 +373,7 @@ namespace UnitTests {
 			var iter = new MimeIterator (new MimeMessage { Body = new TextPart ("plain") });
 
 			Assert.Throws<ArgumentNullException> (() => new MimeIterator (null));
+			Assert.Throws<InvalidOperationException> (() => { var x = iter.Depth; });
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.Current; });
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.Parent; });
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.PathSpecifier; });
