@@ -6,7 +6,7 @@ publisher-url: http://github.com/jstedfast/MimeKit
 getting-started: GettingStarted.md
 details: Details.md
 license: ../License.md
-summary: A complete MIME library with support for S/MIME and PGP.
+summary: A complete MIME email library with support for S/MIME, OpenPGP, and DKIM.
 icons:
   - mimekit_512x512.png
   - mimekit_128x128.png
