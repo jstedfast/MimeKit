@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>1.14.0</version>
+    <version>1.16.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,14 +25,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added International Domain Name support for email addresses.
-* Added a work-around for mailers that didn't provide a disposition value in a Content-Disposition header.
-* Added a work-around for mailers that quote the disposition value in a Content-Disposition header.
-* Fixed a bug in the MimeFilterBase.SaveRemainingInput() logic.
-* Preserve munged From-lines at the start of message/rfc822 parts.
-* Map code page 50220 to iso-2022-jp.
-* Format Reply-To and Sender headers as address headers when using Header.SetValue().
-* Fixed MimeMessage.CreateFromMailMessage() to set MimeVersion. (issue #290)
+* Added new ParserOptions option to allow local-only mailbox addresses (e.g. no @domain).
+* Improved address parser to interpret unquoted names containing commas in email addresses as all part of the same name/email address instead of as a separate email address.
+* A number of fixes to bugs exposed by an ever-increasing set of unit tests (up to 87% coverage).
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

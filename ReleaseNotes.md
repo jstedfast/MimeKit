@@ -1,5 +1,13 @@
 # Release Notes
 
+### MimeKit 1.16.0
+
+* Added new ParserOptions option to allow local-only mailbox addresses (e.g. no @domain).
+* Improved address parser to interpret unquoted names containing commas in email addresses
+  as all part of the same name/email address instead of as a separate email address.
+* Greatly improved the WindowsSecureMimeContext backend.
+* A number of fixes to bugs exposed by an ever-increasing set of unit tests (up to 87% coverage).
+
 ### MimeKit 1.14.0
 
 * Added International Domain Name support for email addresses.
