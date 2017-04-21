@@ -209,7 +209,6 @@ namespace MimeKit.Encodings {
 					saved2 = *inptr++;
 					saved = 2;
 				}
-				
 			}
 
 			return (int) (outptr - output);
@@ -257,7 +256,7 @@ namespace MimeKit.Encodings {
 		unsafe int Flush (byte* input, int length, byte* output)
 		{
 			byte* outptr = output;
-			
+
 			if (length > 0)
 				outptr += Encode (input, length, output);
 
