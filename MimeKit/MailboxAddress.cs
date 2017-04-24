@@ -338,6 +338,9 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (addrspec));
 
 #if !PORTABLE
+			if (addrspec.Length == 0)
+				return addrspec;
+
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int at, index = 0;
 			string address;
@@ -384,6 +387,9 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (addrspec));
 
 #if !PORTABLE
+			if (addrspec.Length == 0)
+				return addrspec;
+
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int at, index = 0;
 			string address;
