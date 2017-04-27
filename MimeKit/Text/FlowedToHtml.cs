@@ -160,7 +160,8 @@ namespace MimeKit.Text {
 		/// Get or set whether or not the converter should only output an HTML fragment.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the converter should only output an HTML fragment.
+		/// Gets or sets whether or not the converter should only output an entire
+		/// HTML document or just a fragment of the HTML body content.
 		/// </remarks>
 		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
 		public bool OutputHtmlFragment {
@@ -359,9 +360,12 @@ namespace MimeKit.Text {
 			if (writer == null)
 				throw new ArgumentNullException (nameof (writer));
 
+			if (!OutputHtmlFragment)
+				writer.Write ("<html><body>");
+
 			if (!string.IsNullOrEmpty (Header)) {
 				if (HeaderFormat == HeaderFooterFormat.Text) {
-					var converter = new TextToHtml ();
+					var converter = new TextToHtml { OutputHtmlFragment = true };
 
 					using (var sr = new StringReader (Header))
 						converter.Convert (sr, writer);
@@ -427,7 +431,7 @@ namespace MimeKit.Text {
 
 			if (!string.IsNullOrEmpty (Footer)) {
 				if (FooterFormat == HeaderFooterFormat.Text) {
-					var converter = new TextToHtml ();
+					var converter = new TextToHtml { OutputHtmlFragment = true };
 
 					using (var sr = new StringReader (Footer))
 						converter.Convert (sr, writer);
@@ -435,6 +439,9 @@ namespace MimeKit.Text {
 					writer.Write (Footer);
 				}
 			}
+
+			if (!OutputHtmlFragment)
+				writer.Write ("</body></html>");
 		}
 	}
 }

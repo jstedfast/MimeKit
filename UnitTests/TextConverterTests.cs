@@ -145,7 +145,7 @@ namespace UnitTests {
 				Environment.NewLine +
 				Environment.NewLine +
 				"And this line of text should be separate by 4 blank lines." + Environment.NewLine;
-			var converter = new FlowedToHtml ();
+			var converter = new FlowedToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);
@@ -172,7 +172,7 @@ namespace UnitTests {
 				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			var converter = new FlowedToHtml ();
+			var converter = new FlowedToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);
@@ -200,7 +200,7 @@ namespace UnitTests {
 				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			var converter = new FlowedToHtml ();
+			var converter = new FlowedToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);
@@ -211,7 +211,7 @@ namespace UnitTests {
 		{
 			string expected = "<p>Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!</p>" + Environment.NewLine;
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
-			var converter = new FlowedToHtml ();
+			var converter = new FlowedToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);
@@ -269,7 +269,7 @@ namespace UnitTests {
 			string text = "This is some sample text. This is line #1." + Environment.NewLine +
 				"This is line #2." + Environment.NewLine +
 				"And this is line #3." + Environment.NewLine;
-			var converter = new TextToHtml ();
+			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);
@@ -280,7 +280,7 @@ namespace UnitTests {
 		{
 			const string expected = "Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!<br/>";
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
-			var converter = new TextToHtml ();
+			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
 			Assert.AreEqual (expected, result);
