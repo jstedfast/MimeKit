@@ -946,9 +946,12 @@ namespace MimeKit.Cryptography {
 			var crls = parser.GetCrls ("Collection");
 			var store = parser.GetSignerInfos ();
 
-			// FIXME: we might not want to import these...
-			foreach (X509Crl crl in crls.GetMatches (null))
-				Import (crl);
+			try {
+				// FIXME: we might not want to import these...
+				foreach (X509Crl crl in crls.GetMatches (null))
+					Import (crl);
+			} catch {
+			}
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
@@ -983,10 +986,14 @@ namespace MimeKit.Cryptography {
 
 				if (certificate != null) {
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-					if (algorithms.Count > 0 && signedDate != null)
+					if (algorithms.Count > 0 && signedDate != null) {
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
-					else
-						Import (certificate);
+					} else {
+						try {
+							Import (certificate);
+						} catch {
+						}
+					}
 				}
 
 				var anchors = GetTrustedAnchors ();
