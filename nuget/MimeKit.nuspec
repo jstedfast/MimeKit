@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>1.16.0</version>
+    <version>1.16.1</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,10 +25,10 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added new ParserOptions option to allow local-only mailbox addresses (e.g. no @domain).
-* Improved address parser to interpret unquoted names containing commas in email addresses as all part of the same name/email address instead of as a separate email address.
-* Greatly improved the WindowsSecureMimeContext backend.
-* A number of fixes to bugs exposed by an ever-increasing set of unit tests (up to 87% coverage).
+* Fixed TextToHtml and FlowedToHtml's OutputHtmlFragment property to work.
+* Fixed EncodeAddrspec and DecodeAddrspec to handle string.Empty. (issue #302)
+* Allow string.Empty as a valid addrspec for MailboxAddress. (issue #302)
+* Catch exceptions trying to import CRLs and Certs when verifying S/MIME signatures. (issue #304)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

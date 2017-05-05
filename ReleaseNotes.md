@@ -1,5 +1,12 @@
 # Release Notes
 
+### MimeKit 1.16.1
+
+* Fixed TextToHtml and FlowedToHtml's OutputHtmlFragment property to work.
+* Fixed EncodeAddrspec and DecodeAddrspec to handle string.Empty. (issue #302)
+* Allow string.Empty as a valid addrspec for MailboxAddress. (issue #302)
+* Catch exceptions trying to import CRLs and Certs when verifying S/MIME signatures. (issue #304)
+
 ### MimeKit 1.16.0
 
 * Added new ParserOptions option to allow local-only mailbox addresses (e.g. no @domain).
