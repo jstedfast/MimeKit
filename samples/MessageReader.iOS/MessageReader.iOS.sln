@@ -17,6 +17,10 @@ Global
 		Release|iPhoneSimulator = Release|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Ad-Hoc|iPhone.ActiveCfg = Release|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.AppStore|iPhone.ActiveCfg = Release|iPhone
+		{60EA692F-305A-4CF7-97A8-3565CC81310A}.AppStore|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhone.Build.0 = Debug|iPhone
 		{60EA692F-305A-4CF7-97A8-3565CC81310A}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
