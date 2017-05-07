@@ -2,7 +2,7 @@ id: mimekit
 name: MimeKit
 version: 1.16.1
 publisher: Jeffrey Stedfast
-publisher-url: http://github.com/jstedfast/MimeKit
+publisher-url: https://github.com/jstedfast/MimeKit
 getting-started: GettingStarted.md
 details: Details.md
 license: ../License.md
