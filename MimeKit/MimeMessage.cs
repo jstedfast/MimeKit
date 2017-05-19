@@ -2928,24 +2928,42 @@ namespace MimeKit {
 			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
 			// then the following MailMessage properties will have been merged into the Headers, so
 			// check to make sure our MimeMessage properties are empty before adding them.
-			if (msg.Sender == null && message.Sender != null)
+			if (message.Sender != null)
 				msg.Sender = (MailboxAddress) message.Sender;
-			if (msg.From.Count == 0 && message.From != null)
+
+			if (message.From != null) {
+				msg.Headers.Replace (HeaderId.From, string.Empty);
 				msg.From.Add ((MailboxAddress) message.From);
+			}
 #if NET_3_5
-			if (msg.ReplyTo.Count == 0 && message.ReplyTo != null)
+			if (message.ReplyTo != null) {
+				msg.Headers.Replace (HeaderId.ReplyTo, string.Empty);
 				msg.ReplyTo.Add ((MailboxAddress) message.ReplyTo);
+			}
 #else
-			if (msg.ReplyTo.Count == 0 && message.ReplyToList.Count > 0)
+			if (message.ReplyToList.Count > 0) {
+				msg.Headers.Replace (HeaderId.ReplyTo, string.Empty);
 				msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+			}
 #endif
-			if (msg.To.Count == 0 && message.To.Count > 0)
+			if (message.To.Count > 0) {
+				msg.Headers.Replace (HeaderId.To, string.Empty);
 				msg.To.AddRange ((InternetAddressList) message.To);
-			if (msg.Cc.Count == 0 && message.CC.Count > 0)
+			}
+
+			if (message.CC.Count > 0) {
+				msg.Headers.Replace (HeaderId.Cc, string.Empty);
 				msg.Cc.AddRange ((InternetAddressList) message.CC);
-			if (msg.Bcc.Count == 0 && message.Bcc.Count > 0)
+			}
+
+			if (message.Bcc.Count > 0) {
+				msg.Headers.Replace (HeaderId.Bcc, string.Empty);
 				msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
-			if (string.IsNullOrEmpty (msg.Subject))
+			}
+
+			if (message.SubjectEncoding != null)
+				msg.Headers.Replace (HeaderId.Subject, message.SubjectEncoding, message.Subject ?? string.Empty);
+			else
 				msg.Subject = message.Subject ?? string.Empty;
 
 			switch (message.Priority) {
