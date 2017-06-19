@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>1.16.1</version>
+    <version>1.16.2</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,10 +25,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed TextToHtml and FlowedToHtml's OutputHtmlFragment property to work.
-* Fixed EncodeAddrspec and DecodeAddrspec to handle string.Empty. (issue #302)
-* Allow string.Empty as a valid addrspec for MailboxAddress. (issue #302)
-* Catch exceptions trying to import CRLs and Certs when verifying S/MIME signatures. (issue #304)
+* Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

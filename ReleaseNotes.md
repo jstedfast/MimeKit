@@ -1,5 +1,9 @@
 # Release Notes
 
+### MimeKit 1.16.2
+
+* Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
+
 ### MimeKit 1.16.1
 
 * Fixed TextToHtml and FlowedToHtml's OutputHtmlFragment property to work.

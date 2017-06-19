@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
     <AssemblyTitle>MimeKit</AssemblyTitle>
-    <VersionPrefix>1.16.1</VersionPrefix>
+    <VersionPrefix>1.16.2</VersionPrefix>
     <Authors>Jeffrey Stedfast</Authors>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
