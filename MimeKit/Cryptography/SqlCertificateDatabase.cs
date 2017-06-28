@@ -264,7 +264,7 @@ namespace MimeKit.Cryptography {
 							constraints += " AND ";
 
 						command.AddParameterWithValue ("@FLAGS", (int) flags);
-						constraints += "(KEYUSAGE & @FLAGS) != 0";
+						constraints += "(KEYUSAGE == 0 OR (KEYUSAGE & @FLAGS) == @FLAGS)";
 					}
 				}
 			}

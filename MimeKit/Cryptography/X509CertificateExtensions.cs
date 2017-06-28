@@ -176,26 +176,24 @@ namespace MimeKit.Cryptography {
 		{
 			var flags = X509KeyUsageFlags.None;
 
-			if (usage != null) {
-				if (usage[(int) X509KeyUsageBits.DigitalSignature])
-					flags |= X509KeyUsageFlags.DigitalSignature;
-				if (usage[(int) X509KeyUsageBits.NonRepudiation])
-					flags |= X509KeyUsageFlags.NonRepudiation;
-				if (usage[(int) X509KeyUsageBits.KeyEncipherment])
-					flags |= X509KeyUsageFlags.KeyEncipherment;
-				if (usage[(int) X509KeyUsageBits.DataEncipherment])
-					flags |= X509KeyUsageFlags.DataEncipherment;
-				if (usage[(int) X509KeyUsageBits.KeyAgreement])
-					flags |= X509KeyUsageFlags.KeyAgreement;
-				if (usage[(int) X509KeyUsageBits.KeyCertSign])
-					flags |= X509KeyUsageFlags.KeyCertSign;
-				if (usage[(int) X509KeyUsageBits.CrlSign])
-					flags |= X509KeyUsageFlags.CrlSign;
-				if (usage[(int) X509KeyUsageBits.EncipherOnly])
-					flags |= X509KeyUsageFlags.EncipherOnly;
-				if (usage[(int) X509KeyUsageBits.DecipherOnly])
-					flags |= X509KeyUsageFlags.DecipherOnly;
-			}
+			if (usage == null || usage[(int) X509KeyUsageBits.DigitalSignature])
+				flags |= X509KeyUsageFlags.DigitalSignature;
+			if (usage == null || usage[(int) X509KeyUsageBits.NonRepudiation])
+				flags |= X509KeyUsageFlags.NonRepudiation;
+			if (usage == null || usage[(int) X509KeyUsageBits.KeyEncipherment])
+				flags |= X509KeyUsageFlags.KeyEncipherment;
+			if (usage == null || usage[(int) X509KeyUsageBits.DataEncipherment])
+				flags |= X509KeyUsageFlags.DataEncipherment;
+			if (usage == null || usage[(int) X509KeyUsageBits.KeyAgreement])
+				flags |= X509KeyUsageFlags.KeyAgreement;
+			if (usage == null || usage[(int) X509KeyUsageBits.KeyCertSign])
+				flags |= X509KeyUsageFlags.KeyCertSign;
+			if (usage == null || usage[(int) X509KeyUsageBits.CrlSign])
+				flags |= X509KeyUsageFlags.CrlSign;
+			if (usage == null || usage[(int) X509KeyUsageBits.EncipherOnly])
+				flags |= X509KeyUsageFlags.EncipherOnly;
+			if (usage == null || usage[(int) X509KeyUsageBits.DecipherOnly])
+				flags |= X509KeyUsageFlags.DecipherOnly;
 
 			return flags;
 		}
