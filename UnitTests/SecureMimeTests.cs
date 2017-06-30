@@ -42,7 +42,7 @@ namespace UnitTests {
 	public abstract class SecureMimeTestsBase
 	{
 		static readonly string[] CertificateAuthorities = {
-			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
+			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
 		protected abstract SecureMimeContext CreateContext ();
@@ -62,6 +62,11 @@ namespace UnitTests {
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "certificate-authority.crt"))) {
 						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
 							windows.Import (StoreName.AuthRoot, certificate);
+					}
+
+					using (var stream = File.OpenRead (Path.Combine (dataDir, "intermediate.crt"))) {
+						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							windows.Import (StoreName.CertificateAuthority, certificate);
 					}
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
@@ -308,7 +313,11 @@ namespace UnitTests {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						if (Path.DirectorySeparatorChar == '/' && ctx is WindowsSecureMimeContext) {
+							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
+						} else {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
 					}
 
 					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
@@ -422,7 +431,7 @@ namespace UnitTests {
 		public virtual void TestSecureMimeSignAndEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
-			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "d4a7af1cc2ce18ed8b2ea01af286bbd3a7f29115");
+			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "2c29c66e281c9c515cc16a91ac87c4da988dbadf");
 			var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
 			ApplicationPkcs7Mime encrypted;
 

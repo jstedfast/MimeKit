@@ -513,13 +513,13 @@ namespace MimeKit.Cryptography {
 
 					for (int i = startIndex; i < chain.Length; i++) {
 						if ((record = dbase.Find (chain[i].Certificate, X509CertificateRecordFields.Id)) == null)
-							dbase.Add (new X509CertificateRecord (chain[i].Certificate));
+							dbase.Add (new X509CertificateRecord (chain[i].Certificate) { IsTrusted = true });
 					}
 				} else if (pkcs12.IsCertificateEntry (alias)) {
 					var entry = pkcs12.GetCertificate (alias);
 
 					if ((record = dbase.Find (entry.Certificate, X509CertificateRecordFields.Id)) == null)
-						dbase.Add (new X509CertificateRecord (entry.Certificate));
+						dbase.Add (new X509CertificateRecord (entry.Certificate) { IsTrusted = true });
 				}
 			}
 		}
@@ -545,10 +545,17 @@ namespace MimeKit.Cryptography {
 			var parser = new X509CertificateParser ();
 
 			foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
-				if (dbase.Find (certificate, X509CertificateRecordFields.Id) != null)
-					continue;
+				X509CertificateRecord record;
 
-				var record = new X509CertificateRecord (certificate);
+				if ((record = dbase.Find (certificate, X509CertificateRecordFields.Id | X509CertificateRecordFields.Trusted)) != null) {
+					if (trusted && !record.IsTrusted) {
+						record.IsTrusted = trusted;
+						dbase.Update (record, X509CertificateRecordFields.Trusted);
+					}
+					continue;
+				}
+
+				record = new X509CertificateRecord (certificate);
 				record.IsTrusted = trusted;
 				dbase.Add (record);
 			}

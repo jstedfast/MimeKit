@@ -82,7 +82,7 @@ namespace UnitTests {
 			var count = store.Certificates.Count ();
 
 			Assert.AreEqual (1, count, "Unexpected number of certificates imported.");
-			Assert.AreEqual ("bruce.wayne@example.com", certificate.GetSubjectEmailAddress (), "Unexpected email address for certificate.");
+			Assert.AreEqual ("root@example.com", certificate.GetSubjectEmailAddress (), "Unexpected email address for certificate.");
 		}
 
 		[Test]
@@ -116,7 +116,7 @@ namespace UnitTests {
 			var certificate = store.Certificates.FirstOrDefault ();
 			var count = store.Certificates.Count ();
 
-			Assert.AreEqual (1, count, "Unexpected number of certificates imported.");
+			Assert.AreEqual (3, count, "Unexpected number of certificates imported.");
 			Assert.IsNotNull (store.GetPrivateKey (certificate), "Failed to get private key.");
 
 			foreach (var authority in CertificateAuthorities)

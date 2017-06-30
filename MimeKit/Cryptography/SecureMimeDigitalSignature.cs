@@ -168,6 +168,12 @@ namespace MimeKit.Cryptography {
 				throw vex;
 			}
 
+			if (ChainException != null) {
+				var message = string.Format ("Failed to verify digital signature: {0}", ChainException.Message);
+				vex = new DigitalSignatureVerifyException (message, ChainException);
+				throw vex;
+			}
+
 			try {
 				var certificate = ((SecureMimeDigitalCertificate) SignerCertificate).Certificate;
 				valid = SignerInfo.Verify (certificate);

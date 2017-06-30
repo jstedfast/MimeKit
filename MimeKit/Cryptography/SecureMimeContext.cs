@@ -824,7 +824,7 @@ namespace MimeKit.Cryptography {
 			parameters.AddStore (crls);
 
 			parameters.ValidityModel = PkixParameters.ChainValidityModel;
-			parameters.IsRevocationEnabled = true;
+			parameters.IsRevocationEnabled = false;
 
 			if (signingTime.HasValue)
 				parameters.Date = new DateTimeObject (signingTime.Value);
