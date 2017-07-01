@@ -26,6 +26,8 @@
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
 * Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
+* If no KeyUsage extension exists for an X509 certificate, assume no restrictions on key usage.
+* Throw an exception if there is a problem building an X509 certificate chain when verifying S/MIME signatures.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

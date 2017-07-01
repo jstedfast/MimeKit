@@ -3,6 +3,9 @@
 ### MimeKit 1.16.2
 
 * Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
+* If no KeyUsage extension exists for an X509 certificate, assume no restrictions on key usage.
+* Throw an exception if there is a problem building an X509 certificate chain when verifying
+  S/MIME signatures.
 
 ### MimeKit 1.16.1
 
