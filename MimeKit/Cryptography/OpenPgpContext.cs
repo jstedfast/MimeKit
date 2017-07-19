@@ -1940,9 +1940,6 @@ namespace MimeKit.Cryptography {
 			if (keyring == null)
 				throw new ArgumentNullException (nameof (keyring));
 
-			if (PublicKeyRingBundle.Contains (keyring.GetPublicKey ().KeyId))
-				return;
-
 			PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
 			SavePublicKeyRingBundle ();
 		}
@@ -1965,10 +1962,8 @@ namespace MimeKit.Cryptography {
 			int publicKeysAdded = 0;
 
 			foreach (PgpPublicKeyRing pubring in bundle.GetKeyRings ()) {
-				if (!PublicKeyRingBundle.Contains (pubring.GetPublicKey ().KeyId)) {
-					PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, pubring);
-					publicKeysAdded++;
-				}
+				PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, pubring);
+				publicKeysAdded++;
 			}
 
 			if (publicKeysAdded > 0)
@@ -2014,9 +2009,6 @@ namespace MimeKit.Cryptography {
 			if (keyring == null)
 				throw new ArgumentNullException (nameof (keyring));
 
-			if (SecretKeyRingBundle.Contains (keyring.GetSecretKey ().KeyId))
-				return;
-
 			SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, keyring);
 			SaveSecretKeyRingBundle ();
 		}
@@ -2039,10 +2031,8 @@ namespace MimeKit.Cryptography {
 			int secretKeysAdded = 0;
 
 			foreach (PgpSecretKeyRing secring in bundle.GetKeyRings ()) {
-				if (!SecretKeyRingBundle.Contains (secring.GetSecretKey ().KeyId)) {
-					SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, secring);
-					secretKeysAdded++;
-				}
+				SecretKeyRingBundle = PgpSecretKeyRingBundle.AddSecretKeyRing (SecretKeyRingBundle, secring);
+				secretKeysAdded++;
 			}
 
 			if (secretKeysAdded > 0)
