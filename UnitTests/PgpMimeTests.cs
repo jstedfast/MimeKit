@@ -64,7 +64,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestEnumerateKeys ()
+		public void TestKeyEnumeration ()
 		{
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var unknownMailbox = new MailboxAddress ("Snarky McSnarkypants", "snarky@snarkypants.net");
@@ -533,6 +533,20 @@ namespace UnitTests {
 				Assert.IsNotNull (exported, "The exported MIME part should not be null.");
 				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
 				Assert.AreEqual ("application/pgp-keys", exported.ContentType.MimeType);
+
+				using (var stream = new MemoryStream ()) {
+					ctx.Export (new[] { self }, stream, true);
+
+					Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
+				}
+
+				foreach (var keyring in ctx.EnumeratePublicKeyRings (self)) {
+					using (var stream = new MemoryStream ()) {
+						ctx.Export (new[] { self }, stream, true);
+
+						Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
+					}
+				}
 			}
 		}
 
@@ -666,6 +680,18 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => ctx.Export ((PgpPublicKeyRingBundle) null), "Export");
 				Assert.Throws<ArgumentNullException> (() => ctx.Export ((MailboxAddress[]) null), "Export");
 				Assert.Throws<ArgumentNullException> (() => ctx.Export ((PgpPublicKey[]) null), "Export");
+				Assert.Throws<ArgumentNullException> (() => ctx.Export ((PgpPublicKeyRingBundle) null, stream, true), "Export");
+				Assert.Throws<ArgumentNullException> (() => ctx.Export ((MailboxAddress[]) null, stream, true), "Export");
+				Assert.Throws<ArgumentNullException> (() => ctx.Export ((PgpPublicKey[]) null, stream, true), "Export");
+				Assert.Throws<ArgumentNullException> (() => ctx.Export (ctx.PublicKeyRingBundle, null, true), "Export");
+				Assert.Throws<ArgumentNullException> (() => ctx.Export (mailboxes, null, true), "Export");
+				Assert.Throws<ArgumentNullException> (() => ctx.Export (pubkeys, null, true), "Export");
+
+				// EnumeratePublicKey[Ring]s
+				Assert.Throws<ArgumentNullException> (() => ctx.EnumeratePublicKeyRings (null).FirstOrDefault ());
+				Assert.Throws<ArgumentNullException> (() => ctx.EnumeratePublicKeys (null).FirstOrDefault ());
+				Assert.Throws<ArgumentNullException> (() => ctx.EnumerateSecretKeyRings (null).FirstOrDefault ());
+				Assert.Throws<ArgumentNullException> (() => ctx.EnumerateSecretKeys (null).FirstOrDefault ());
 
 				// GetDecryptedStream
 				Assert.Throws<ArgumentNullException> (() => ctx.GetDecryptedStream (null), "GetDecryptedStream");

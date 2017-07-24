@@ -626,9 +626,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public IEnumerable<PgpPublicKey> EnumeratePublicKeys (MailboxAddress mailbox)
 		{
-			if (mailbox == null)
-				throw new ArgumentNullException (nameof (mailbox));
-
 			foreach (var keyring in EnumeratePublicKeyRings (mailbox)) {
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ())
 					yield return key;
@@ -706,9 +703,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public IEnumerable<PgpSecretKey> EnumerateSecretKeys (MailboxAddress mailbox)
 		{
-			if (mailbox == null)
-				throw new ArgumentNullException (nameof (mailbox));
-
 			foreach (var keyring in EnumerateSecretKeyRings (mailbox)) {
 				foreach (PgpSecretKey key in keyring.GetSecretKeys ())
 					yield return key;
