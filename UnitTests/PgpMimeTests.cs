@@ -528,7 +528,14 @@ namespace UnitTests {
 			using (var ctx = new DummyOpenPgpContext ()) {
 				Assert.AreEqual ("application/pgp-keys", ctx.KeyExchangeProtocol, "The key-exchange protocol does not match.");
 
+				var keys = ctx.EnumeratePublicKeys (self).ToList ();
 				var exported = ctx.Export (new [] { self });
+
+				Assert.IsNotNull (exported, "The exported MIME part should not be null.");
+				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
+				Assert.AreEqual ("application/pgp-keys", exported.ContentType.MimeType);
+
+				exported = ctx.Export (keys);
 
 				Assert.IsNotNull (exported, "The exported MIME part should not be null.");
 				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
@@ -546,6 +553,12 @@ namespace UnitTests {
 
 						Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
 					}
+				}
+
+				using (var stream = new MemoryStream ()) {
+					ctx.Export (keys, stream, true);
+
+					Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
 				}
 			}
 		}
