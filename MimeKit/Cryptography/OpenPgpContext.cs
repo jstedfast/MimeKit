@@ -558,12 +558,172 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the public key associated with the mailbox address.
+		/// Enumerate all public keyrings.
 		/// </summary>
 		/// <remarks>
-		/// Gets the public key associated with the mailbox address.
+		/// Enumerates all public keyrings.
 		/// </remarks>
-		/// <returns>The encryption key.</returns>
+		/// <returns>The list of available public keyrings.</returns>
+		public IEnumerable<PgpPublicKeyRing> EnumeratePublicKeyRings ()
+		{
+			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ())
+				yield return keyring;
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate all public keys.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all public keys.
+		/// </remarks>
+		/// <returns>The list of available public keys.</returns>
+		public IEnumerable<PgpPublicKey> EnumeratePublicKeys ()
+		{
+			foreach (var keyring in EnumeratePublicKeyRings ()) {
+				foreach (PgpPublicKey key in keyring.GetPublicKeys ())
+					yield return key;
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate the public keyrings for a particular mailbox.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all public keyrings for the specified mailbox.
+		/// </remarks>
+		/// <returns>The public keys.</returns>
+		/// <param name="mailbox">Mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public IEnumerable<PgpPublicKeyRing> EnumeratePublicKeyRings (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			foreach (var keyring in EnumeratePublicKeyRings ()) {
+				if (PgpPublicKeyMatches (keyring.GetPublicKey (), mailbox))
+					yield return keyring;
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate the public keys for a particular mailbox.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all public keys for the specified mailbox.
+		/// </remarks>
+		/// <returns>The public keys.</returns>
+		/// <param name="mailbox">The mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public IEnumerable<PgpPublicKey> EnumeratePublicKeys (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			foreach (var keyring in EnumeratePublicKeyRings (mailbox)) {
+				foreach (PgpPublicKey key in keyring.GetPublicKeys ())
+					yield return key;
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate all secret keyrings.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all secret keyrings.
+		/// </remarks>
+		/// <returns>The list of available secret keyrings.</returns>
+		public IEnumerable<PgpSecretKeyRing> EnumerateSecretKeyRings ()
+		{
+			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ())
+				yield return keyring;
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate all secret keys.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all secret keys.
+		/// </remarks>
+		/// <returns>The list of available secret keys.</returns>
+		public IEnumerable<PgpSecretKey> EnumerateSecretKeys ()
+		{
+			foreach (var keyring in EnumerateSecretKeyRings ()) {
+				foreach (PgpSecretKey key in keyring.GetSecretKeys ())
+					yield return key;
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate the secret keyrings for a particular mailbox.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all secret keyrings for the specified mailbox.
+		/// </remarks>
+		/// <returns>The secret keys.</returns>
+		/// <param name="mailbox">The mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public IEnumerable<PgpSecretKeyRing> EnumerateSecretKeyRings (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			foreach (var keyring in EnumerateSecretKeyRings ()) {
+				if (PgpSecretKeyMatches (keyring.GetSecretKey (), mailbox))
+					yield return keyring;
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Enumerate the secret keys for a particular mailbox.
+		/// </summary>
+		/// <remarks>
+		/// Enumerates all secret keys for the specified mailbox.
+		/// </remarks>
+		/// <returns>The public keys.</returns>
+		/// <param name="mailbox">The mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public IEnumerable<PgpSecretKey> EnumerateSecretKeys (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			foreach (var keyring in EnumerateSecretKeyRings (mailbox)) {
+				foreach (PgpSecretKey key in keyring.GetSecretKeys ())
+					yield return key;
+			}
+
+			yield break;
+		}
+
+		/// <summary>
+		/// Get the public key associated with the mailbox address.
+		/// </summary>
+		/// <remarks>
+		/// Gets a valid public key associated with the mailbox address that can be used for encryption.
+		/// </remarks>
+		/// <returns>The public encryption key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <c>null</c>.
@@ -573,36 +733,28 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected virtual PgpPublicKey GetPublicKey (MailboxAddress mailbox)
 		{
-			if (mailbox == null)
-				throw new ArgumentNullException (nameof (mailbox));
+			foreach (var key in EnumeratePublicKeys (mailbox)) {
+				if (!key.IsEncryptionKey || key.IsRevoked ())
+					continue;
 
-			foreach (PgpPublicKeyRing keyring in PublicKeyRingBundle.GetKeyRings ()) {
-				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
-					if (!PgpPublicKeyMatches (keyring.GetPublicKey (), mailbox))
+				long seconds = key.GetValidSeconds ();
+				if (seconds != 0) {
+					var expires = key.CreationTime.AddSeconds ((double) seconds);
+					if (expires <= DateTime.Now)
 						continue;
-
-					if (!key.IsEncryptionKey || key.IsRevoked ())
-						continue;
-
-					long seconds = key.GetValidSeconds ();
-					if (seconds != 0) {
-						var expires = key.CreationTime.AddSeconds ((double) seconds);
-						if (expires <= DateTime.Now)
-							continue;
-					}
-
-					return key;
 				}
+
+				return key;
 			}
 
 			throw new PublicKeyNotFoundException (mailbox, "The public key could not be found.");
 		}
 
 		/// <summary>
-		/// Gets the public keys for the specified mailbox addresses.
+		/// Get the public keys for the specified mailbox addresses.
 		/// </summary>
 		/// <remarks>
-		/// Gets the public keys for the specified mailbox addresses.
+		/// Gets a list of valid public keys for the specified mailbox addresses that can be used for encryption.
 		/// </remarks>
 		/// <returns>The encryption keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
@@ -655,7 +807,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the signing key associated with the mailbox address.
+		/// Get the signing key associated with the mailbox address.
 		/// </summary>
 		/// <remarks>
 		/// Gets the signing key associated with the mailbox address.
@@ -2073,7 +2225,7 @@ namespace MimeKit.Cryptography {
 		/// Exports the public keys for the specified mailboxes.
 		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
-		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="mailboxes">The mailboxes associated with the public keys to export.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
 		/// </exception>
@@ -2085,7 +2237,13 @@ namespace MimeKit.Cryptography {
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
 
-			return Export (GetPublicKeys (mailboxes));
+			var keyrings = new List<PgpPublicKeyRing> ();
+			foreach (var mailbox in mailboxes)
+				keyrings.AddRange (EnumeratePublicKeyRings (mailbox));
+
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return Export (bundle);
 		}
 
 		/// <summary>
@@ -2095,7 +2253,7 @@ namespace MimeKit.Cryptography {
 		/// Exports the specified public keys.
 		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
-		/// <param name="keys">The keys.</param>
+		/// <param name="keys">The public keys to export.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
 		/// </exception>
@@ -2111,13 +2269,13 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the specified public keys.
+		/// Export the specified public keys.
 		/// </summary>
 		/// <remarks>
 		/// Exports the specified public keys.
 		/// </remarks>
 		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
-		/// <param name="keys">The keys.</param>
+		/// <param name="keys">The public keys to export.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
 		/// </exception>
@@ -2128,10 +2286,7 @@ namespace MimeKit.Cryptography {
 
 			var content = new MemoryBlockStream ();
 
-			using (var armored = new ArmoredOutputStream (content)) {
-				keys.Encode (armored);
-				armored.Flush ();
-			}
+			Export (keys, content, true);
 
 			content.Position = 0;
 
@@ -2139,6 +2294,107 @@ namespace MimeKit.Cryptography {
 				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
 				ContentObject = new ContentObject (content)
 			};
+		}
+
+		/// <summary>
+		/// Export the public keyrings for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Exports the public keyrings for the specified mailboxes.
+		/// </remarks>
+		/// <param name="keys">The public keys to export.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor)
+		{
+			if (mailboxes == null)
+				throw new ArgumentNullException (nameof (mailboxes));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			var keyrings = new List<PgpPublicKeyRing> ();
+			foreach (var mailbox in mailboxes)
+				keyrings.AddRange (EnumeratePublicKeyRings (mailbox));
+
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			Export (bundle, stream, armor);
+		}
+
+		/// <summary>
+		/// Export the specified public keys.
+		/// </summary>
+		/// <remarks>
+		/// Exports the specified public keys.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
+		/// <param name="keys">The public keys to export.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="keys"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void Export (IEnumerable<PgpPublicKey> keys, Stream stream, bool armor)
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			Export (bundle, stream, armor);
+		}
+
+		/// <summary>
+		/// Export the public keyring bundle.
+		/// </summary>
+		/// <remarks>
+		/// Exports the public keyring bundle.
+		/// </remarks>
+		/// <param name="keys">The public keyring bundle to export.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="keys"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void Export (PgpPublicKeyRingBundle keys, Stream stream, bool armor)
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (armor) {
+				using (var armored = new ArmoredOutputStream (stream)) {
+					keys.Encode (armored);
+					armored.Flush ();
+				}
+			} else {
+				keys.Encode (stream);
+			}
 		}
 
 #if USE_HTTP_CLIENT

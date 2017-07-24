@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -60,6 +61,26 @@ namespace UnitTests {
 			}
 
 			File.Copy (Path.Combine (dataDir, "gpg.conf"), "gpg.conf", true);
+		}
+
+		[Test]
+		public void TestEnumerateKeys ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				var unknownMailbox = new MailboxAddress ("Snarky McSnarkypants", "snarky@snarkypants.net");
+				var knownMailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+				int count = ctx.EnumeratePublicKeys ().Count ();
+
+				// Note: the count will be 8 if run as a complete unit test or 2 if run individually
+				Assert.IsTrue (count == 8 || count == 2, "Unexpected number of public keys");
+				Assert.AreEqual (0, ctx.EnumeratePublicKeys (unknownMailbox).Count (), "Unexpected number of public keys for an unknown mailbox");
+				Assert.AreEqual (2, ctx.EnumeratePublicKeys (knownMailbox).Count (), "Unexpected number of public keys for a known mailbox");
+
+				Assert.AreEqual (2, ctx.EnumerateSecretKeys ().Count (), "Unexpected number of secret keys");
+				Assert.AreEqual (0, ctx.EnumerateSecretKeys (unknownMailbox).Count (), "Unexpected number of secret keys for an unknown mailbox");
+				Assert.AreEqual (2, ctx.EnumerateSecretKeys (knownMailbox).Count (), "Unexpected number of secret keys for a known mailbox");
+			}
 		}
 
 		[Test]
