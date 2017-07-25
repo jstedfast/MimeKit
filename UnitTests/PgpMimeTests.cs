@@ -34,6 +34,8 @@ using NUnit.Framework;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 
 namespace UnitTests {
@@ -846,6 +848,44 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => encrypted.Decrypt (null));
 				Assert.Throws<ArgumentNullException> (() => encrypted.Decrypt (null, out signatures));
 			}
+		}
+
+		static void PumpDataThroughFilter (IMimeFilter filter, string fileName, bool isText)
+		{
+			using (var stream = File.OpenRead (fileName)) {
+				using (var filtered = new FilteredStream (stream)) {
+					var buffer = new byte[1];
+					int outputLength;
+					int outputIndex;
+					int n;
+
+					if (isText)
+						filtered.Add (new Unix2DosFilter ());
+
+					while ((n = filtered.Read (buffer, 0, buffer.Length)) > 0)
+						filter.Filter (buffer, 0, n, out outputIndex, out outputLength);
+
+					filter.Flush (buffer, 0, 0, out outputIndex, out outputLength);
+				}
+			}
+		}
+
+		[Test]
+		public void TestOpenPgpDetectionFilter ()
+		{
+			var filter = new OpenPgpDetectionFilter ();
+
+			PumpDataThroughFilter (filter, Path.Combine ("..", "..", "TestData", "openpgp", "mimekit.gpg.pub"), true);
+			Assert.AreEqual (OpenPgpDataType.PublicKey, filter.DataType);
+			Assert.AreEqual (0, filter.BeginOffset);
+			Assert.AreEqual (1754, filter.EndOffset);
+
+			filter.Reset ();
+
+			PumpDataThroughFilter (filter, Path.Combine ("..", "..", "TestData", "openpgp", "mimekit.gpg.sec"), true);
+			Assert.AreEqual (OpenPgpDataType.PrivateKey, filter.DataType);
+			Assert.AreEqual (0, filter.BeginOffset);
+			Assert.AreEqual (3650, filter.EndOffset);
 		}
 	}
 }

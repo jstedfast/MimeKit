@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
