@@ -1055,6 +1055,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
+		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">A cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
@@ -1067,7 +1068,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -1105,15 +1106,65 @@ namespace MimeKit {
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
-				try {
-					Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
-					Body.WriteTo (options, stream, true, cancellationToken);
-				} finally {
-					Body.EnsureNewLine = false;
+				if (!headersOnly) {
+					try {
+						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
+						Body.WriteTo (options, stream, true, cancellationToken);
+					} finally {
+						Body.EnsureNewLine = false;
+					}
 				}
 			} else {
 				Headers.WriteTo (options, stream, cancellationToken);
 			}
+		}
+
+		/// <summary>
+		/// Writes the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			WriteTo (options, stream, false, cancellationToken);
+		}
+
+		/// <summary>
+		/// Writes the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (Stream stream, bool headersOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			WriteTo (FormatOptions.Default, stream, headersOnly, cancellationToken);
 		}
 
 		/// <summary>
@@ -1135,7 +1186,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
 
 #if !PORTABLE
