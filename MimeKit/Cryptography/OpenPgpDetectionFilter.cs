@@ -30,20 +30,6 @@ using MimeKit.IO.Filters;
 namespace MimeKit.Cryptography
 {
 	/// <summary>
-	/// An enum expressing a type of OpenPGP data.
-	/// </summary>
-	/// <remarks>
-	/// An enum expressing a type of OpenPGP data.
-	/// </remarks>
-	public enum OpenPgpDataType {
-		None,
-		SignedMessage,
-		EncryptedMessage,
-		PublicKey,
-		PrivateKey
-	}
-
-	/// <summary>
 	/// A filter meant to aid in the detection of OpenPGP blocks.
 	/// </summary>
 	/// <remarks>

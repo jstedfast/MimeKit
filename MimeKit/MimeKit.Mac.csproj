@@ -82,6 +82,7 @@
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
+    <Compile Include="Cryptography\OpenPgpDataType.cs" />
     <Compile Include="Cryptography\OpenPgpDetectionFilter.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
