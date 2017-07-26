@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the preferred rank order for the encryption algorithms; from the most preferred to the least.
 		/// </remarks>
 		/// <value>The preferred encryption algorithm ranking.</value>
-		public EncryptionAlgorithm[] EncryptionAlgorithmRank {
+		protected EncryptionAlgorithm[] EncryptionAlgorithmRank {
 			get { return encryptionAlgorithmRank; }
 			set {
 				if (value == null)
@@ -146,7 +146,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the enabled encryption algorithms in ranked order.
 		/// </remarks>
 		/// <value>The enabled encryption algorithms.</value>
-		protected EncryptionAlgorithm[] EnabledEncryptionAlgorithms {
+		public EncryptionAlgorithm[] EnabledEncryptionAlgorithms {
 			get {
 				var algorithms = new List<EncryptionAlgorithm> ();
 
@@ -203,7 +203,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the preferred rank order for the digest algorithms; from the most preferred to the least.
 		/// </remarks>
 		/// <value>The preferred encryption algorithm ranking.</value>
-		public DigestAlgorithm[] DigestAlgorithmRank {
+		protected DigestAlgorithm[] DigestAlgorithmRank {
 			get { return digestAlgorithmRank; }
 			set {
 				if (value == null)
@@ -223,7 +223,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the enabled digest algorithms in ranked order.
 		/// </remarks>
 		/// <value>The enabled encryption algorithms.</value>
-		protected DigestAlgorithm[] EnabledDigestAlgorithms {
+		public DigestAlgorithm[] EnabledDigestAlgorithms {
 			get {
 				var algorithms = new List<DigestAlgorithm> ();
 

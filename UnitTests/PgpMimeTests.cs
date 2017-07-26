@@ -69,16 +69,20 @@ namespace UnitTests {
 		public void TestPreferredAlgorithms ()
 		{
 			using (var ctx = new DummyOpenPgpContext ()) {
-				Assert.AreEqual (4, ctx.EncryptionAlgorithmRank.Length);
-				Assert.AreEqual (EncryptionAlgorithm.Aes256, ctx.EncryptionAlgorithmRank[0]);
-				Assert.AreEqual (EncryptionAlgorithm.Aes192, ctx.EncryptionAlgorithmRank[1]);
-				Assert.AreEqual (EncryptionAlgorithm.Aes128, ctx.EncryptionAlgorithmRank[2]);
-				Assert.AreEqual (EncryptionAlgorithm.TripleDes, ctx.EncryptionAlgorithmRank[3]);
+				var encryptionAlgorithms = ctx.EnabledEncryptionAlgorithms;
 
-				Assert.AreEqual (3, ctx.DigestAlgorithmRank.Length);
-				Assert.AreEqual (DigestAlgorithm.Sha256, ctx.DigestAlgorithmRank[0]);
-				Assert.AreEqual (DigestAlgorithm.Sha512, ctx.DigestAlgorithmRank[1]);
-				Assert.AreEqual (DigestAlgorithm.Sha1, ctx.DigestAlgorithmRank[2]);
+				Assert.AreEqual (4, encryptionAlgorithms.Length);
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, encryptionAlgorithms[0]);
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, encryptionAlgorithms[1]);
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, encryptionAlgorithms[2]);
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, encryptionAlgorithms[3]);
+
+				var digestAlgorithms = ctx.EnabledDigestAlgorithms;
+
+				Assert.AreEqual (3, digestAlgorithms.Length);
+				Assert.AreEqual (DigestAlgorithm.Sha256, digestAlgorithms[0]);
+				Assert.AreEqual (DigestAlgorithm.Sha512, digestAlgorithms[1]);
+				Assert.AreEqual (DigestAlgorithm.Sha1, digestAlgorithms[2]);
 			}
 		}
 
