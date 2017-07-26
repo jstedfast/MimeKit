@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -36,6 +37,9 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class GnuPGContext : OpenPgpContext
 	{
+		static readonly Dictionary<string, EncryptionAlgorithm> EncryptionAlgorithms;
+		//static readonly Dictionary<string, PublicKeyAlgorithm> PublicKeyAlgorithms;
+		static readonly Dictionary<string, DigestAlgorithm> DigestAlgorithms;
 		static readonly string PublicKeyRing;
 		static readonly string SecretKeyRing;
 		static readonly string Configuration;
@@ -61,6 +65,39 @@ namespace MimeKit.Cryptography {
 			PublicKeyRing = Path.Combine (gnupg, "pubring.gpg");
 			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
 			Configuration = Path.Combine (gnupg, "gpg.conf");
+
+			EncryptionAlgorithms = new Dictionary<string, EncryptionAlgorithm> {
+				{ "AES", EncryptionAlgorithm.Aes128 },
+				{ "AES128", EncryptionAlgorithm.Aes128 },
+				{ "AES192", EncryptionAlgorithm.Aes192 },
+				{ "AES256", EncryptionAlgorithm.Aes256 },
+				{ "BLOWFISH", EncryptionAlgorithm.Blowfish },
+				{ "CAMELLIA128", EncryptionAlgorithm.Camellia128 },
+				{ "CAMELLIA192", EncryptionAlgorithm.Camellia192 },
+				{ "CAMELLIA256", EncryptionAlgorithm.Camellia256 },
+				{ "CAST5", EncryptionAlgorithm.Cast5 },
+				{ "IDEA", EncryptionAlgorithm.Idea },
+				{ "3DES", EncryptionAlgorithm.TripleDes },
+				{ "TWOFISH", EncryptionAlgorithm.Twofish }
+			};
+
+			//PublicKeyAlgorithms = new Dictionary<string, PublicKeyAlgorithm> {
+			//	{ "DSA", PublicKeyAlgorithm.Dsa },
+			//	{ "ECDH", PublicKeyAlgorithm.EllipticCurve },
+			//	{ "ECDSA", PublicKeyAlgorithm.EllipticCurveDsa },
+			//	{ "EDDSA", PublicKeyAlgorithm.EdwardsCurveDsa },
+			//	{ "ELG", PublicKeyAlgorithm.ElGamalGeneral },
+			//	{ "RSA", PublicKeyAlgorithm.RsaGeneral }
+			//};
+
+			DigestAlgorithms = new Dictionary<string, DigestAlgorithm> {
+				{ "RIPEMD160", DigestAlgorithm.RipeMD160 },
+				{ "SHA1", DigestAlgorithm.Sha1 },
+				{ "SHA224", DigestAlgorithm.Sha224 },
+				{ "SHA256", DigestAlgorithm.Sha256 },
+				{ "SHA384", DigestAlgorithm.Sha384 },
+				{ "SHA512", DigestAlgorithm.Sha512 }
+			};
 		}
 
 		/// <summary>
@@ -102,6 +139,82 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		static EncryptionAlgorithm[] ParseEncryptionAlgorithms (string value)
+		{
+			var names = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+			var algorithms = new List<EncryptionAlgorithm> ();
+			var seen = new HashSet<EncryptionAlgorithm> ();
+
+			for (int i = 0; i < names.Length; i++) {
+				var name = names[i].ToUpperInvariant ();
+				EncryptionAlgorithm algorithm;
+
+				if (EncryptionAlgorithms.TryGetValue (name, out algorithm) && seen.Add (algorithm))
+					algorithms.Add (algorithm);
+			}
+
+			if (!seen.Contains (EncryptionAlgorithm.TripleDes))
+				algorithms.Add (EncryptionAlgorithm.TripleDes);
+
+			return algorithms.ToArray ();
+		}
+
+		//static PublicKeyAlgorithm[] ParsePublicKeyAlgorithms (string value)
+		//{
+		//	var names = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+		//	var algorithms = new List<PublicKeyAlgorithm> ();
+		//	var seen = new HashSet<PublicKeyAlgorithm> ();
+
+		//	for (int i = 0; i < names.Length; i++) {
+		//		var name = names[i].ToUpperInvariant ();
+		//		PublicKeyAlgorithm algorithm;
+
+		//		if (PublicKeyAlgorithms.TryGetValue (name, out algorithm) && seen.Add (algorithm))
+		//			algorithms.Add (algorithm);
+		//	}
+
+		//	if (!seen.Contains (PublicKeyAlgorithm.Dsa))
+		//		seen.Add (PublicKeyAlgorithm.Dsa);
+
+		//	return algorithms.ToArray ();
+		//}
+
+		static DigestAlgorithm[] ParseDigestAlgorithms (string value)
+		{
+			var names = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+			var algorithms = new List<DigestAlgorithm> ();
+			var seen = new HashSet<DigestAlgorithm> ();
+
+			for (int i = 0; i < names.Length; i++) {
+				var name = names[i].ToUpperInvariant ();
+				DigestAlgorithm algorithm;
+
+				if (DigestAlgorithms.TryGetValue (name, out algorithm) && seen.Add (algorithm))
+					algorithms.Add (algorithm);
+			}
+
+			if (!seen.Contains (DigestAlgorithm.Sha1))
+				algorithms.Add (DigestAlgorithm.Sha1);
+
+			return algorithms.ToArray ();
+		}
+
+		void UpdatePersonalCipherPreferences (string value)
+		{
+			EncryptionAlgorithmRank = ParseEncryptionAlgorithms (value);
+
+			foreach (var algorithm in EncryptionAlgorithmRank)
+				Enable (algorithm);
+		}
+
+		void UpdatePersonalDigestPreferences (string value)
+		{
+			DigestAlgorithmRank = ParseDigestAlgorithms (value);
+
+			foreach (var algorithm in DigestAlgorithmRank)
+				Enable (algorithm);
+		}
+
 		void LoadConfiguration ()
 		{
 			if (!File.Exists (Configuration))
@@ -138,6 +251,14 @@ namespace MimeKit.Cryptography {
 					case "keyserver-options":
 						UpdateKeyServerOptions (value);
 						break;
+					case "personal-cipher-preferences":
+						UpdatePersonalCipherPreferences (value);
+						break;
+					case "personal-digest-preferences":
+						UpdatePersonalDigestPreferences (value);
+						break;
+					//case "personal-compress-preferences":
+					//	break;
 					}
 				}
 			}

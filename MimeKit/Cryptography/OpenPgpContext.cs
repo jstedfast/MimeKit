@@ -38,9 +38,11 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -55,6 +57,30 @@ namespace MimeKit.Cryptography {
 	{
 		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
 		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
+
+		internal static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank = {
+			EncryptionAlgorithm.Idea,
+			EncryptionAlgorithm.TripleDes,
+			EncryptionAlgorithm.Cast5,
+			EncryptionAlgorithm.Blowfish,
+			EncryptionAlgorithm.Aes128,
+			EncryptionAlgorithm.Aes192,
+			EncryptionAlgorithm.Aes256,
+			EncryptionAlgorithm.Twofish,
+			EncryptionAlgorithm.Camellia128,
+			EncryptionAlgorithm.Camellia192,
+			EncryptionAlgorithm.Camellia256
+		};
+
+		internal static readonly DigestAlgorithm[] DefaultDigestAlgorithmRank = {
+			DigestAlgorithm.Sha1,
+			DigestAlgorithm.RipeMD160,
+			DigestAlgorithm.Sha256,
+			DigestAlgorithm.Sha384,
+			DigestAlgorithm.Sha512,
+			DigestAlgorithm.Sha224
+		};
+
 		EncryptionAlgorithm defaultAlgorithm;
 #if USE_HTTP_CLIENT
 		HttpClient client;
@@ -233,7 +259,7 @@ namespace MimeKit.Cryptography {
 
 #if PORTABLE
 		/// <summary>
-		/// Gets the public keyring.
+		/// Get the public keyring.
 		/// </summary>
 		/// <remarks>
 		/// Gets the public keyring.
@@ -244,7 +270,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the secret keyring.
+		/// Get the secret keyring.
 		/// </summary>
 		/// <remarks>
 		/// Gets the secret keyring.
@@ -255,7 +281,7 @@ namespace MimeKit.Cryptography {
 		}
 #else
 		/// <summary>
-		/// Gets the public keyring path.
+		/// Get the public keyring path.
 		/// </summary>
 		/// <remarks>
 		/// Gets the public keyring path.
@@ -266,7 +292,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the secret keyring path.
+		/// Get the secret keyring path.
 		/// </summary>
 		/// <remarks>
 		/// Gets the secret keyring path.
@@ -278,7 +304,7 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
-		/// Gets the public keyring bundle.
+		/// Get the public keyring bundle.
 		/// </summary>
 		/// <remarks>
 		/// Gets the public keyring bundle.
@@ -289,7 +315,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the secret keyring bundle.
+		/// Get the secret keyring bundle.
 		/// </summary>
 		/// <remarks>
 		/// Gets the secret keyring bundle.
@@ -300,7 +326,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the signature protocol.
+		/// Get the signature protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
@@ -313,7 +339,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the encryption protocol.
+		/// Get the encryption protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
@@ -326,7 +352,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the key exchange protocol.
+		/// Get the key exchange protocol.
 		/// </summary>
 		/// <remarks>
 		/// Gets the key exchange protocol.
@@ -337,7 +363,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks whether or not the specified protocol is supported.
+		/// Check whether or not the specified protocol is supported.
 		/// </summary>
 		/// <remarks>
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
@@ -364,7 +390,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+		/// Get the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// <para>Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
@@ -408,7 +434,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// Get the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
