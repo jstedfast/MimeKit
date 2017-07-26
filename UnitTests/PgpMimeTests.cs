@@ -66,6 +66,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestPreferredAlgorithms ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				Assert.AreEqual (4, ctx.EncryptionAlgorithmRank.Length);
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, ctx.EncryptionAlgorithmRank[0]);
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, ctx.EncryptionAlgorithmRank[1]);
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, ctx.EncryptionAlgorithmRank[2]);
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, ctx.EncryptionAlgorithmRank[3]);
+
+				Assert.AreEqual (3, ctx.DigestAlgorithmRank.Length);
+				Assert.AreEqual (DigestAlgorithm.Sha256, ctx.DigestAlgorithmRank[0]);
+				Assert.AreEqual (DigestAlgorithm.Sha512, ctx.DigestAlgorithmRank[1]);
+				Assert.AreEqual (DigestAlgorithm.Sha1, ctx.DigestAlgorithmRank[2]);
+			}
+		}
+
+		[Test]
 		public void TestKeyEnumeration ()
 		{
 			using (var ctx = new DummyOpenPgpContext ()) {
