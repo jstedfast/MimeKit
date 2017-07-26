@@ -45,18 +45,36 @@ namespace MimeKit.Cryptography {
 		static Func<OpenPgpContext> OpenPgpContextFactory;
 		static readonly object mutex = new object ();
 
+		EncryptionAlgorithm[] encryptionAlgorithmRank;
+		DigestAlgorithm[] digestAlgorithmRank;
+
+		int enabledEncryptionAlgorithms;
+		int enabledDigestAlgorithms;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CryptographyContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="CryptographyContext"/>.
+		/// <para>Creates a new <see cref="CryptographyContext"/>.</para>
+		/// <para>By default, only the 3DES encryption algorithm and the SHA-1 digest algorithm are enabled.</para>
 		/// </remarks>
 		protected CryptographyContext ()
 		{
+			encryptionAlgorithmRank = new[] {
+				EncryptionAlgorithm.TripleDes
+			};
+
+			Enable (EncryptionAlgorithm.TripleDes);
+
+			digestAlgorithmRank = new[] {
+				DigestAlgorithm.Sha1
+			};
+
+			Enable (DigestAlgorithm.Sha1);
 		}
 
 		/// <summary>
-		/// Gets the signature protocol.
+		/// Get the signature protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
@@ -67,7 +85,7 @@ namespace MimeKit.Cryptography {
 		public abstract string SignatureProtocol { get; }
 
 		/// <summary>
-		/// Gets the encryption protocol.
+		/// Get the encryption protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
@@ -78,7 +96,7 @@ namespace MimeKit.Cryptography {
 		public abstract string EncryptionProtocol { get; }
 
 		/// <summary>
-		/// Gets the key exchange protocol.
+		/// Get the key exchange protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The key exchange protocol is really only used for OpenPGP.</para>
@@ -86,7 +104,7 @@ namespace MimeKit.Cryptography {
 		/// <value>The key exchange protocol.</value>
 		public abstract string KeyExchangeProtocol { get; }
 
-		#if NOT_YET
+#if NOT_YET
 		/// <summary>
 		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allows online
 		/// certificate retrieval.
@@ -99,10 +117,164 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The online certificate retrieval timeout.</value>
 		public TimeSpan OnlineCertificateRetrievalTimeout { get; set; }
-		#endif
+#endif
 
 		/// <summary>
-		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// Get the preferred rank order for the encryption algorithms; from the most preferred to the least.
+		/// </summary>
+		/// <remarks>
+		/// Gets the preferred rank order for the encryption algorithms; from the most preferred to the least.
+		/// </remarks>
+		/// <value>The preferred encryption algorithm ranking.</value>
+		public EncryptionAlgorithm[] EncryptionAlgorithmRank {
+			get { return encryptionAlgorithmRank; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException (nameof (value));
+
+				if (value.Length == 0)
+					throw new ArgumentException ("The array of encryption algorithms cannot be empty.", nameof (value));
+
+				encryptionAlgorithmRank = value;
+			}
+		}
+
+		/// <summary>
+		/// Get the enabled encryption algorithms in ranked order.
+		/// </summary>
+		/// <remarks>
+		/// Gets the enabled encryption algorithms in ranked order.
+		/// </remarks>
+		/// <value>The enabled encryption algorithms.</value>
+		protected EncryptionAlgorithm[] EnabledEncryptionAlgorithms {
+			get {
+				var algorithms = new List<EncryptionAlgorithm> ();
+
+				foreach (var algorithm in EncryptionAlgorithmRank) {
+					if (IsEnabled (algorithm))
+						algorithms.Add (algorithm);
+				}
+
+				return algorithms.ToArray ();
+			}
+		}
+
+		/// <summary>
+		/// Enable the encryption algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Enables the encryption algorithm.
+		/// </remarks>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		public void Enable (EncryptionAlgorithm algorithm)
+		{
+			enabledEncryptionAlgorithms |= 1 << (int) algorithm;
+		}
+
+		/// <summary>
+		/// Disable the encryption algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Disables the encryption algorithm.
+		/// </remarks>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		public void Disable (EncryptionAlgorithm algorithm)
+		{
+			enabledEncryptionAlgorithms &= ~(1 << (int) algorithm);
+		}
+
+		/// <summary>
+		/// Check whether the specified encryption algorithm is enabled.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified encryption algorithm is enabled.
+		/// </remarks>
+		/// <returns><c>true</c> if the specified encryption algorithm is enabled; otherwise, <c>false</c>.</returns>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		public bool IsEnabled (EncryptionAlgorithm algorithm)
+		{
+			return (enabledEncryptionAlgorithms & (1 << (int) algorithm)) != 0;
+		}
+
+		/// <summary>
+		/// Get the preferred rank order for the digest algorithms; from the most preferred to the least.
+		/// </summary>
+		/// <remarks>
+		/// Gets the preferred rank order for the digest algorithms; from the most preferred to the least.
+		/// </remarks>
+		/// <value>The preferred encryption algorithm ranking.</value>
+		public DigestAlgorithm[] DigestAlgorithmRank {
+			get { return digestAlgorithmRank; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException (nameof (value));
+
+				if (value.Length == 0)
+					throw new ArgumentException ("The array of digest algorithms cannot be empty.", nameof (value));
+
+				digestAlgorithmRank = value;
+			}
+		}
+
+		/// <summary>
+		/// Get the enabled digest algorithms in ranked order.
+		/// </summary>
+		/// <remarks>
+		/// Gets the enabled digest algorithms in ranked order.
+		/// </remarks>
+		/// <value>The enabled encryption algorithms.</value>
+		protected DigestAlgorithm[] EnabledDigestAlgorithms {
+			get {
+				var algorithms = new List<DigestAlgorithm> ();
+
+				foreach (var algorithm in DigestAlgorithmRank) {
+					if (IsEnabled (algorithm))
+						algorithms.Add (algorithm);
+				}
+
+				return algorithms.ToArray ();
+			}
+		}
+
+		/// <summary>
+		/// Enable the digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Enables the digest algorithm.
+		/// </remarks>
+		/// <param name="algorithm">The digest algorithm.</param>
+		public void Enable (DigestAlgorithm algorithm)
+		{
+			enabledDigestAlgorithms |= 1 << (int) algorithm;
+		}
+
+		/// <summary>
+		/// Disable the digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Disables the digest algorithm.
+		/// </remarks>
+		/// <param name="algorithm">The digest algorithm.</param>
+		public void Disable (DigestAlgorithm algorithm)
+		{
+			enabledDigestAlgorithms &= ~(1 << (int) algorithm);
+		}
+
+		/// <summary>
+		/// Check whether the specified digest algorithm is enabled.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified digest algorithm is enabled.
+		/// </remarks>
+		/// <returns><c>true</c> if the specified digest algorithm is enabled; otherwise, <c>false</c>.</returns>
+		/// <param name="algorithm">The digest algorithm.</param>
+		public bool IsEnabled (DigestAlgorithm algorithm)
+		{
+			return (enabledDigestAlgorithms & (1 << (int) algorithm)) != 0;
+		}
+
+		/// <summary>
+		/// Check whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <remarks>
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
@@ -116,7 +288,7 @@ namespace MimeKit.Cryptography {
 		public abstract bool Supports (string protocol);
 
 		/// <summary>
-		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+		/// Get the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
@@ -131,7 +303,7 @@ namespace MimeKit.Cryptography {
 		public abstract string GetDigestAlgorithmName (DigestAlgorithm micalg);
 
 		/// <summary>
-		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// Get the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.

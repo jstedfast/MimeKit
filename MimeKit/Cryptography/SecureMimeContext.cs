@@ -62,27 +62,6 @@ namespace MimeKit.Cryptography {
 	{
 		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
 		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
-		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank;
-		int enabled;
-
-		static SecureMimeContext ()
-		{
-			DefaultEncryptionAlgorithmRank = new [] {
-				EncryptionAlgorithm.Camellia256,
-				EncryptionAlgorithm.Aes256,
-				EncryptionAlgorithm.Camellia192,
-				EncryptionAlgorithm.Aes192,
-				EncryptionAlgorithm.Camellia128,
-				EncryptionAlgorithm.Aes128,
-				EncryptionAlgorithm.Idea,
-				EncryptionAlgorithm.Cast5,
-				EncryptionAlgorithm.TripleDes,
-				EncryptionAlgorithm.RC2128,
-				EncryptionAlgorithm.RC264,
-				EncryptionAlgorithm.Des,
-				EncryptionAlgorithm.RC240
-			};
-		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
@@ -90,30 +69,48 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Enables the following encryption algorithms by default:</para>
 		/// <list type="bullet">
-		/// <item><term><see cref="EncryptionAlgorithm.Camellia256"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Camellia192"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Camellia128"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Aes256"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Aes192"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Aes128"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Idea"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Camellia256"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Camellia192"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Camellia128"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.TripleDes"/></term></item>
 		/// </list>
 		/// </remarks>
 		protected SecureMimeContext ()
 		{
-			foreach (var algorithm in DefaultEncryptionAlgorithmRank) {
-				Enable (algorithm);
+			EncryptionAlgorithmRank = new[] {
+				EncryptionAlgorithm.Aes256,
+				EncryptionAlgorithm.Aes192,
+				EncryptionAlgorithm.Aes128,
+				EncryptionAlgorithm.Idea,
+				EncryptionAlgorithm.Cast5,
+				EncryptionAlgorithm.Camellia256,
+				EncryptionAlgorithm.Camellia192,
+				EncryptionAlgorithm.Camellia128,
+				EncryptionAlgorithm.TripleDes,
+				EncryptionAlgorithm.RC2128,
+				EncryptionAlgorithm.RC264,
+				EncryptionAlgorithm.Des,
+				EncryptionAlgorithm.RC240
+			};
 
+			foreach (var algorithm in EncryptionAlgorithmRank) {
 				// Don't enable anything weaker than Triple-DES by default
 				if (algorithm == EncryptionAlgorithm.TripleDes)
 					break;
+
+				Enable (algorithm);
 			}
+
+			// TODO: Set a preferred digest algorithm rank and enable them.
 		}
 
 		/// <summary>
-		/// Gets the signature protocol.
+		/// Get the signature protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The signature protocol is used by <see cref="MultipartSigned"/>
@@ -126,7 +123,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the encryption protocol.
+		/// Get the encryption protocol.
 		/// </summary>
 		/// <remarks>
 		/// <para>The encryption protocol is used by <see cref="MultipartEncrypted"/>
@@ -139,7 +136,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the key exchange protocol.
+		/// Get the key exchange protocol.
 		/// </summary>
 		/// <remarks>
 		/// Gets the key exchange protocol.
@@ -150,7 +147,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// Check whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <remarks>
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
@@ -177,7 +174,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
+		/// Get the string name of the digest algorithm for use with the micalg parameter of a multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// <para>Maps the <see cref="DigestAlgorithm"/> to the appropriate string identifier
@@ -217,7 +214,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the digest algorithm from the micalg parameter value in a multipart/signed part.
+		/// Get the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
@@ -249,75 +246,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
-		/// </summary>
-		/// <remarks>
-		/// Gets the preferred rank order for the encryption algorithms; from the strongest to the weakest.
-		/// </remarks>
-		/// <value>The preferred encryption algorithm ranking.</value>
-		protected virtual EncryptionAlgorithm[] EncryptionAlgorithmRank {
-			get { return DefaultEncryptionAlgorithmRank; }
-		}
-
-		/// <summary>
-		/// Gets the enabled encryption algorithms in ranked order.
-		/// </summary>
-		/// <remarks>
-		/// Gets the enabled encryption algorithms in ranked order.
-		/// </remarks>
-		/// <value>The enabled encryption algorithms.</value>
-		protected EncryptionAlgorithm[] EnabledEncryptionAlgorithms {
-			get {
-				var algorithms = new List<EncryptionAlgorithm> ();
-
-				foreach (var algorithm in EncryptionAlgorithmRank) {
-					if (IsEnabled (algorithm))
-						algorithms.Add (algorithm);
-				}
-
-				return algorithms.ToArray ();
-			}
-		}
-
-		/// <summary>
-		/// Enables the encryption algorithm.
-		/// </summary>
-		/// <remarks>
-		/// Enables the encryption algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The encryption algorithm.</param>
-		public void Enable (EncryptionAlgorithm algorithm)
-		{
-			enabled |= 1 << (int) algorithm;
-		}
-
-		/// <summary>
-		/// Disables the encryption algorithm.
-		/// </summary>
-		/// <remarks>
-		/// Disables the encryption algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The encryption algorithm.</param>
-		public void Disable (EncryptionAlgorithm algorithm)
-		{
-			enabled &= ~(1 << (int) algorithm);
-		}
-
-		/// <summary>
-		/// Checks whether the specified encryption algorithm is enabled.
-		/// </summary>
-		/// <remarks>
-		/// Determines whether the specified encryption algorithm is enabled.
-		/// </remarks>
-		/// <returns><c>true</c> if the specified encryption algorithm is enabled; otherwise, <c>false</c>.</returns>
-		/// <param name="algorithm">Algorithm.</param>
-		public bool IsEnabled (EncryptionAlgorithm algorithm)
-		{
-			return (enabled & (1 << (int) algorithm)) != 0;
-		}
-
-		/// <summary>
-		/// Gets the X.509 certificate matching the specified selector.
+		/// Get the X.509 certificate matching the specified selector.
 		/// </summary>
 		/// <remarks>
 		/// Gets the first certificate that matches the specified selector.
@@ -327,7 +256,7 @@ namespace MimeKit.Cryptography {
 		protected abstract X509Certificate GetCertificate (IX509Selector selector);
 
 		/// <summary>
-		/// Gets the private key for the certificate matching the specified selector.
+		/// Get the private key for the certificate matching the specified selector.
 		/// </summary>
 		/// <remarks>
 		/// Gets the private key for the first certificate that matches the specified selector.
@@ -337,7 +266,7 @@ namespace MimeKit.Cryptography {
 		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
 
 		/// <summary>
-		/// Gets the trusted anchors.
+		/// Get the trusted anchors.
 		/// </summary>
 		/// <remarks>
 		/// A trusted anchor is a trusted root-level X.509 certificate,
@@ -347,7 +276,7 @@ namespace MimeKit.Cryptography {
 		protected abstract HashSet GetTrustedAnchors ();
 
 		/// <summary>
-		/// Gets the intermediate certificates.
+		/// Get the intermediate certificates.
 		/// </summary>
 		/// <remarks>
 		/// An intermediate certificate is any certificate that exists between the root
@@ -358,7 +287,7 @@ namespace MimeKit.Cryptography {
 		protected abstract IX509Store GetIntermediateCertificates ();
 
 		/// <summary>
-		/// Gets the certificate revocation lists.
+		/// Get the certificate revocation lists.
 		/// </summary>
 		/// <remarks>
 		/// A Certificate Revocation List (CRL) is a list of certificate serial numbers issued
@@ -369,7 +298,7 @@ namespace MimeKit.Cryptography {
 		protected abstract IX509Store GetCertificateRevocationLists ();
 
 		/// <summary>
-		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
+		/// Get the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
 		/// <remarks>
 		/// <para>Constructs a <see cref="CmsRecipient"/> with the appropriate certificate and
@@ -386,7 +315,7 @@ namespace MimeKit.Cryptography {
 		protected abstract CmsRecipient GetCmsRecipient (MailboxAddress mailbox);
 
 		/// <summary>
-		/// Gets a collection of CmsRecipients for the specified mailboxes.
+		/// Get a collection of CmsRecipients for the specified mailboxes.
 		/// </summary>
 		/// <remarks>
 		/// Gets a collection of CmsRecipients for the specified mailboxes.
@@ -413,7 +342,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
+		/// Get the <see cref="CmsSigner"/> for the specified mailbox.
 		/// </summary>
 		/// <remarks>
 		/// <para>Constructs a <see cref="CmsSigner"/> with the appropriate signing certificate
@@ -442,7 +371,7 @@ namespace MimeKit.Cryptography {
 		protected abstract void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp);
 
 		/// <summary>
-		/// Gets the OID for the digest algorithm.
+		/// Get the OID for the digest algorithm.
 		/// </summary>
 		/// <remarks>
 		/// Gets the OID for the digest algorithm.
@@ -929,7 +858,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the list of digital signatures.
+		/// Get the list of digital signatures.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets the list of digital signatures.</para>
@@ -1119,7 +1048,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
+		/// Get the preferred encryption algorithm to use for encrypting to the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
