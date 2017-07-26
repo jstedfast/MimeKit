@@ -97,7 +97,17 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		protected OpenPgpContext ()
 		{
+			EncryptionAlgorithmRank = DefaultEncryptionAlgorithmRank;
+			DigestAlgorithmRank = DefaultDigestAlgorithmRank;
+
+			foreach (var algorithm in EncryptionAlgorithmRank)
+				Enable (algorithm);
+
+			foreach (var algorithm in DigestAlgorithmRank)
+				Enable (algorithm);
+
 			defaultAlgorithm = EncryptionAlgorithm.Cast5;
+
 #if USE_HTTP_CLIENT
 			client = new HttpClient ();
 #endif

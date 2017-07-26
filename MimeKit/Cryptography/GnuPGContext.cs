@@ -109,6 +109,12 @@ namespace MimeKit.Cryptography {
 		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
 		{
 			LoadConfiguration ();
+
+			foreach (var algorithm in EncryptionAlgorithmRank)
+				Enable (algorithm);
+
+			foreach (var algorithm in DigestAlgorithmRank)
+				Enable (algorithm);
 		}
 
 		void UpdateKeyServer (string value)
@@ -202,17 +208,11 @@ namespace MimeKit.Cryptography {
 		void UpdatePersonalCipherPreferences (string value)
 		{
 			EncryptionAlgorithmRank = ParseEncryptionAlgorithms (value);
-
-			foreach (var algorithm in EncryptionAlgorithmRank)
-				Enable (algorithm);
 		}
 
 		void UpdatePersonalDigestPreferences (string value)
 		{
 			DigestAlgorithmRank = ParseDigestAlgorithms (value);
-
-			foreach (var algorithm in DigestAlgorithmRank)
-				Enable (algorithm);
 		}
 
 		void LoadConfiguration ()
