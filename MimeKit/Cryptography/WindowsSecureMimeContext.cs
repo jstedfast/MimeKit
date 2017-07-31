@@ -254,11 +254,11 @@ namespace MimeKit.Cryptography {
 		X509Certificate2 GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
 			var storeNames = new [] { StoreName.AddressBook, StoreName.My, StoreName.TrustedPeople };
+			var secure = mailbox as SecureMailboxAddress;
+			var now = DateTime.UtcNow;
 
 			foreach (var storeName in storeNames) {
 				var store = new X509Store (storeName, StoreLocation);
-				var secure = mailbox as SecureMailboxAddress;
-				var now = DateTime.UtcNow;
 
 				store.Open (OpenFlags.ReadOnly);
 
