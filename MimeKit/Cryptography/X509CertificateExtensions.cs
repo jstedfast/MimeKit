@@ -138,7 +138,26 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static string GetSubjectEmailAddress (this X509Certificate certificate)
 		{
-			return certificate.GetSubjectNameInfo (X509Name.EmailAddress);
+			var address = certificate.GetSubjectNameInfo (X509Name.EmailAddress);
+
+			if (address != null)
+				return address;
+
+			var alt = certificate.GetExtensionValue (X509Extensions.SubjectAlternativeName);
+
+			if (alt == null)
+				return null;
+
+			var seq = DerSequence.GetInstance (Asn1Object.FromByteArray (alt.GetOctets ()));
+
+			foreach (Asn1Encodable encodable in seq) {
+				var name = GeneralName.GetInstance (encodable);
+
+				if (name.TagNo == GeneralName.Rfc822Name)
+					return ((IAsn1String) name.Name).GetString ();
+			}
+
+			return null;
 		}
 
 		/// <summary>
