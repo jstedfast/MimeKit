@@ -182,6 +182,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
+			var secure = mailbox as SecureMailboxAddress;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -192,17 +193,25 @@ namespace MimeKit.Cryptography {
 				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
-				var address = certificate.GetSubjectEmailAddress ();
+				if (secure != null) {
+					var fingerprint = certificate.GetFingerprint ();
 
-				if (address != null && address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase)) {
-					var recipient = new CmsRecipient (certificate);
-					EncryptionAlgorithm[] algorithms;
+					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
+						continue;
+				} else {
+					var address = certificate.GetSubjectEmailAddress ();
 
-					if (capabilities.TryGetValue (certificate, out algorithms))
-						recipient.EncryptionAlgorithms = algorithms;
-
-					return recipient;
+					if (address == null || !address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+						continue;
 				}
+
+				var recipient = new CmsRecipient (certificate);
+				EncryptionAlgorithm[] algorithms;
+
+				if (capabilities.TryGetValue (certificate, out algorithms))
+					recipient.EncryptionAlgorithms = algorithms;
+
+				return recipient;
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -226,6 +235,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
+			var secure = mailbox as SecureMailboxAddress;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -241,13 +251,21 @@ namespace MimeKit.Cryptography {
 				if (!keys.TryGetValue (certificate, out key))
 					continue;
 
-				var address = certificate.GetSubjectEmailAddress ();
+				if (secure != null) {
+					var fingerprint = certificate.GetFingerprint ();
 
-				if (address != null && address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase)) {
-					var signer = new CmsSigner (certificate, key);
-					signer.DigestAlgorithm = digestAlgo;
-					return signer;
+					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
+						continue;
+				} else {
+					var address = certificate.GetSubjectEmailAddress ();
+
+					if (address == null || !address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+						continue;
 				}
+
+				return new CmsSigner (certificate, key) {
+					DigestAlgorithm = digestAlgo
+				};
 			}
 
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
