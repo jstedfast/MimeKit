@@ -10,7 +10,7 @@
 * Updated GnuPGContext to load algorithm preferences from gpg.conf.
 * Fixed TemporarySecureMimeContext to use the fingerprint in the certificate lookup methods
   when the MailboxAddress argument is a SecureMailboxAddress. (issue #322)
-* Fall back to using the Subject Alternative Rfc822 Name if the SubjectEmailAddress fails.
+* Fall back to using the Subject Alternative Rfc822 Name if the SubjectEmailAddress fails. (issue #323)
 
 ### MimeKit 1.16.2
 
