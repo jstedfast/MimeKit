@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>1.16.2</version>
+    <version>1.18.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,9 +25,14 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
-* If no KeyUsage extension exists for an X509 certificate, assume no restrictions on key usage.
-* Throw an exception if there is a problem building an X509 certificate chain when verifying S/MIME signatures.
+* Allow importing of known PGP keys (needed when re-importing keys after signing them). (issue #315)
+* Added APIs to enumerate public and secret PGP keys.
+* Added an OpenPgpDetectionFilter to detect OpenPGP blocks and their stream offsets.
+* Added a MimeMessage.WriteTo() overload that takes a bool headersOnly argument.
+* Pushed SecureMimeContext's EncryptionAlgorithm preferences down into CryptographyContext.
+* Updated GnuPGContext to load algorithm preferences from gpg.conf.
+* Fixed TemporarySecureMimeContext to use the fingerprint in the certificate lookup methods when the MailboxAddress argument is a SecureMailboxAddress. (issue #322)
+* Fall back to using the Subject Alternative Rfc822 Name if the SubjectEmailAddress fails.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

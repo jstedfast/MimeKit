@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>1.16.2</version>
+    <version>1.18.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,7 +25,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
+* Added a MimeMessage.WriteTo() overload that takes a bool headersOnly argument.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

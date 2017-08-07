@@ -38,8 +38,11 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -978,6 +981,144 @@ namespace MimeKit.Cryptography {
 
 			return GetPrivateKey (secret);
 		}
+
+		PublicKeyAlgorithmTag GetPublicKeyAlgorithmTag (PublicKeyAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case PublicKeyAlgorithm.DiffieHellman: return PublicKeyAlgorithmTag.DiffieHellman;
+			case PublicKeyAlgorithm.Dsa: return PublicKeyAlgorithmTag.Dsa;
+			case PublicKeyAlgorithm.EdwardsCurveDsa: throw new NotSupportedException ("EDDSA is not currently supported.");
+			case PublicKeyAlgorithm.ElGamalEncrypt: return PublicKeyAlgorithmTag.ElGamalEncrypt;
+			case PublicKeyAlgorithm.ElGamalGeneral: return PublicKeyAlgorithmTag.ElGamalGeneral;
+			case PublicKeyAlgorithm.EllipticCurve: return PublicKeyAlgorithmTag.ECDH;
+			case PublicKeyAlgorithm.EllipticCurveDsa: return PublicKeyAlgorithmTag.ECDsa;
+			case PublicKeyAlgorithm.RsaEncrypt: return PublicKeyAlgorithmTag.RsaEncrypt;
+			case PublicKeyAlgorithm.RsaGeneral: return PublicKeyAlgorithmTag.RsaGeneral;
+			case PublicKeyAlgorithm.RsaSign: return PublicKeyAlgorithmTag.RsaSign;
+			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
+			}
+		}
+
+		void AddEncryptionKeyPair (PgpKeyRingGenerator keyRingGenerator, KeyGenerationParameters parameters, PublicKeyAlgorithmTag algorithm, DateTime now, long expirationTime, int[] encryptionAlgorithms, int[] digestAlgorithms)
+		{
+			var keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator ("RSA");
+
+			keyPairGenerator.Init (parameters);
+
+			var keyPair = new PgpKeyPair (algorithm, keyPairGenerator.GenerateKeyPair (), now);
+			var subpacketGenerator = new PgpSignatureSubpacketGenerator ();
+
+			subpacketGenerator.SetKeyFlags (false, PgpKeyFlags.CanEncryptCommunications | PgpKeyFlags.CanEncryptStorage);
+			subpacketGenerator.SetPreferredSymmetricAlgorithms (false, encryptionAlgorithms);
+			subpacketGenerator.SetPreferredHashAlgorithms (false, digestAlgorithms);
+
+			if (expirationTime > 0) {
+				subpacketGenerator.SetKeyExpirationTime (false, expirationTime);
+				subpacketGenerator.SetSignatureExpirationTime (false, expirationTime);
+			}
+
+			keyRingGenerator.AddSubKey (keyPair, subpacketGenerator.Generate (), null);
+		}
+
+		PgpKeyRingGenerator CreateKeyRingGenerator (MailboxAddress mailbox, long expirationTime, string password, DateTime now)
+		{
+			var enabledEncryptionAlgorithms = EnabledEncryptionAlgorithms;
+			var enabledDigestAlgorithms = EnabledDigestAlgorithms;
+			var encryptionAlgorithms = new int[enabledEncryptionAlgorithms.Length];
+			var digestAlgorithms = new int[enabledDigestAlgorithms.Length];
+
+			for (int i = 0; i < enabledEncryptionAlgorithms.Length; i++)
+				encryptionAlgorithms[i] = (int) enabledEncryptionAlgorithms[i];
+			for (int i = 0; i < enabledDigestAlgorithms.Length; i++)
+				digestAlgorithms[i] = (int) enabledDigestAlgorithms[i];
+
+			var parameters = new RsaKeyGenerationParameters (BigInteger.ValueOf (0x10001), new SecureRandom (), 2048, 12);
+			var signingAlgorithm = PublicKeyAlgorithmTag.RsaSign;
+
+			var keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator ("RSA");
+
+			keyPairGenerator.Init (parameters);
+
+			var signingKeyPair = new PgpKeyPair (signingAlgorithm, keyPairGenerator.GenerateKeyPair (), now);
+
+			var subpacketGenerator = new PgpSignatureSubpacketGenerator ();
+			subpacketGenerator.SetKeyFlags (false, PgpKeyFlags.CanSign | PgpKeyFlags.CanCertify);
+			subpacketGenerator.SetPreferredSymmetricAlgorithms (false, encryptionAlgorithms);
+			subpacketGenerator.SetPreferredHashAlgorithms (false, digestAlgorithms);
+
+			if (expirationTime > 0) {
+				subpacketGenerator.SetKeyExpirationTime (false, expirationTime);
+				subpacketGenerator.SetSignatureExpirationTime (false, expirationTime);
+			}
+
+			subpacketGenerator.SetFeature (false, Org.BouncyCastle.Bcpg.Sig.Features.FEATURE_MODIFICATION_DETECTION);
+
+			var keyRingGenerator = new PgpKeyRingGenerator (
+				PgpSignature.PositiveCertification,
+				signingKeyPair,
+				mailbox.ToString (false),
+				SymmetricKeyAlgorithmTag.Aes256,
+				CharsetUtils.UTF8.GetBytes (password),
+				true,
+				subpacketGenerator.Generate (),
+				null,
+				new SecureRandom ());
+
+			// Add the (optional) encryption subkey.
+			AddEncryptionKeyPair (keyRingGenerator, parameters, PublicKeyAlgorithmTag.RsaGeneral, now, expirationTime, encryptionAlgorithms, digestAlgorithms);
+
+			return keyRingGenerator;
+		}
+
+		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null)
+		{
+			var now = DateTime.UtcNow;
+			long expirationTime = 0;
+
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			if (password == null)
+				throw new ArgumentNullException (nameof (password));
+
+			if (expirationDate.HasValue) {
+				if (expirationDate.Value < now)
+					throw new ArgumentException ("expireDate needs to be greater than DateTime.UtcNow");
+
+				if ((expirationTime = Convert.ToInt64 (expirationDate.Value.Subtract (now).TotalSeconds)) <= 0)
+					throw new ArgumentException ("expireDate needs to be greater than DateTime.UtcNow");
+			}
+
+			var generator = CreateKeyRingGenerator (mailbox, expirationTime, password, now);
+
+			Import (generator.GenerateSecretKeyRing ());
+			Import (generator.GeneratePublicKeyRing ());
+		}
+
+		//public void SignPublicKey (PgpSecretKey secretKey, PgpPublicKey publicKey, DigestAlgorithm digestAlgo = DigestAlgorithm.Sha1)
+		//{
+		//	if (secretKey == null)
+		//		throw new ArgumentNullException (nameof (secretKey));
+
+		//	if (publicKey == null)
+		//		throw new ArgumentNullException (nameof (publicKey));
+
+		//	var privateKey = GetPrivateKey (secretKey);
+		//	var signatureGenerator = new PgpSignatureGenerator (secretKey.PublicKey.Algorithm, GetHashAlgorithm (digestAlgo));
+
+		//	signatureGenerator.InitSign (PgpSignature.CasualCertification, privateKey);
+		//	signatureGenerator.GenerateOnePassVersion (false);
+
+		//	var subpacketGenerator = new PgpSignatureSubpacketGenerator ();
+		//	var subpacketVector = subpacketGenerator.Generate ();
+
+		//	signatureGenerator.SetHashedSubpackets (subpacketVector);
+
+		//	var signedKey = PgpPublicKey.AddCertification (publicKey, signatureGenerator.Generate ());
+		//	var keyring = new PgpPublicKeyRing (signedKey.GetEncoded ());
+
+		//	Import (keyring);
+		//}
 
 		/// <summary>
 		/// Gets the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> for the 

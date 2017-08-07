@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 1.18.0
+
+* Allow importing of known PGP keys (needed when re-importing keys after signing them). (issue #315)
+* Added APIs to enumerate public and secret PGP keys.
+* Added an OpenPgpDetectionFilter to detect OpenPGP blocks and their stream offsets.
+* Added a MimeMessage.WriteTo() overload that takes a bool headersOnly argument.
+* Pushed SecureMimeContext's EncryptionAlgorithm preferences down into CryptographyContext.
+* Updated GnuPGContext to load algorithm preferences from gpg.conf.
+* Fixed TemporarySecureMimeContext to use the fingerprint in the certificate lookup methods
+  when the MailboxAddress argument is a SecureMailboxAddress. (issue #322)
+* Fall back to using the Subject Alternative Rfc822 Name if the SubjectEmailAddress fails.
+
 ### MimeKit 1.16.2
 
 * Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue #306)
