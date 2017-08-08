@@ -120,6 +120,8 @@ namespace UnitTests {
 				DigitalSignatureCollection signatures;
 				MimeEntity entity;
 
+				Assert.Throws<ArgumentNullException> (() => ctx.CanSign (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.CanEncrypt (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Compress (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Decompress (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.DecompressTo (null, stream));
@@ -235,6 +237,8 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
+				Assert.IsTrue (ctx.CanSign (self));
+
 				message.Sign (ctx);
 
 				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
@@ -344,6 +348,8 @@ namespace UnitTests {
 			message.Body = body;
 
 			using (var ctx = CreateContext ()) {
+				Assert.IsTrue (ctx.CanEncrypt (self));
+
 				message.Encrypt (ctx);
 
 				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");

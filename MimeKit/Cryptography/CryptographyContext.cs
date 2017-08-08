@@ -316,6 +316,32 @@ namespace MimeKit.Cryptography {
 		public abstract DigestAlgorithm GetDigestAlgorithm (string micalg);
 
 		/// <summary>
+		/// Check whether or not a particular mailbox address can be used for signing.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// </remarks>
+		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signer"/> is <c>null</c>.
+		/// </exception>
+		public abstract bool CanSign (MailboxAddress signer);
+
+		/// <summary>
+		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// </remarks>
+		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public abstract bool CanEncrypt (MailboxAddress mailbox);
+
+		/// <summary>
 		/// Cryptographically signs the content.
 		/// </summary>
 		/// <remarks>

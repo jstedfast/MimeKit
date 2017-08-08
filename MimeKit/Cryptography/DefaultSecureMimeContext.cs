@@ -196,6 +196,58 @@ namespace MimeKit.Cryptography {
 			dbase = database;
 		}
 
+		/// <summary>
+		/// Check whether or not a particular mailbox address can be used for signing.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// </remarks>
+		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signer"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanSign (MailboxAddress signer)
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			foreach (var record in dbase.Find (signer, DateTime.UtcNow, true, CmsSignerFields)) {
+				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+					continue;
+
+				return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// </remarks>
+		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanEncrypt (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
+				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
+					continue;
+
+				return true;
+			}
+
+			return false;
+		}
+
 #region implemented abstract members of SecureMimeContext
 
 		/// <summary>

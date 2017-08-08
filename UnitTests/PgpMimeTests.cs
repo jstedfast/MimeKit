@@ -103,6 +103,12 @@ namespace UnitTests {
 				Assert.AreEqual (2, ctx.EnumerateSecretKeys ().Count (), "Unexpected number of secret keys");
 				Assert.AreEqual (0, ctx.EnumerateSecretKeys (unknownMailbox).Count (), "Unexpected number of secret keys for an unknown mailbox");
 				Assert.AreEqual (2, ctx.EnumerateSecretKeys (knownMailbox).Count (), "Unexpected number of secret keys for a known mailbox");
+
+				Assert.IsTrue (ctx.CanSign (knownMailbox));
+				Assert.IsFalse (ctx.CanSign (unknownMailbox));
+
+				Assert.IsTrue (ctx.CanEncrypt (knownMailbox));
+				Assert.IsFalse (ctx.CanEncrypt (unknownMailbox));
 			}
 		}
 
@@ -694,6 +700,9 @@ namespace UnitTests {
 				// Accept
 				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpEncrypted ().Accept (null));
 				Assert.Throws<ArgumentNullException> (() => new ApplicationPgpSignature (stream).Accept (null));
+
+				Assert.Throws<ArgumentNullException> (() => ctx.CanSign (null));
+				Assert.Throws<ArgumentNullException> (() => ctx.CanEncrypt (null));
 
 				// Decrypt
 				Assert.Throws<ArgumentNullException> (() => ctx.Decrypt (null), "Decrypt");

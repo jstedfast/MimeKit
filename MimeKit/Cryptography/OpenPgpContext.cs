@@ -1155,6 +1155,81 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Check whether or not a particular mailbox address can be used for signing.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// </remarks>
+		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signer"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanSign (MailboxAddress signer)
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			foreach (PgpSecretKeyRing keyring in SecretKeyRingBundle.GetKeyRings ()) {
+				foreach (PgpSecretKey key in keyring.GetSecretKeys ()) {
+					if (!PgpSecretKeyMatches (keyring.GetSecretKey (), signer))
+						continue;
+
+					if (!key.IsSigningKey)
+						continue;
+
+					var pubkey = key.PublicKey;
+					if (pubkey.IsRevoked ())
+						continue;
+
+					long seconds = pubkey.GetValidSeconds ();
+					if (seconds != 0) {
+						var expires = pubkey.CreationTime.AddSeconds ((double) seconds);
+						if (expires <= DateTime.Now)
+							continue;
+					}
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// </remarks>
+		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanEncrypt (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			foreach (var key in EnumeratePublicKeys (mailbox)) {
+				if (!key.IsEncryptionKey || key.IsRevoked ())
+					continue;
+
+				long seconds = key.GetValidSeconds ();
+				if (seconds != 0) {
+					var expires = key.CreationTime.AddSeconds ((double) seconds);
+					if (expires <= DateTime.Now)
+						continue;
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
 		/// Cryptographically signs the content.
 		/// </summary>
 		/// <remarks>

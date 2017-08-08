@@ -64,6 +64,46 @@ namespace MimeKit.Cryptography {
 			crls = new List<X509Crl> ();
 		}
 
+		/// <summary>
+		/// Check whether or not a particular mailbox address can be used for signing.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// </remarks>
+		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signer"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanSign (MailboxAddress signer)
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			AsymmetricKeyParameter key;
+
+			return GetCmsSignerCertificate (signer, out key) != null;
+		}
+
+		/// <summary>
+		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// </remarks>
+		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanEncrypt (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			return GetCmsRecipientCertificate (mailbox) != null;
+		}
+
 		#region implemented abstract members of SecureMimeContext
 
 		/// <summary>
@@ -165,22 +205,7 @@ namespace MimeKit.Cryptography {
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
-		/// <summary>
-		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
-		/// </summary>
-		/// <remarks>
-		/// <para>Constructs a <see cref="CmsRecipient"/> with the appropriate certificate and
-		/// <see cref="CmsRecipient.EncryptionAlgorithms"/> for the specified mailbox.</para>
-		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
-		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
-		/// the mailbox address.</para>
-		/// </remarks>
-		/// <returns>A <see cref="CmsRecipient"/>.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
+		X509Certificate GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
 			var secure = mailbox as SecureMailboxAddress;
 			var now = DateTime.UtcNow;
@@ -205,42 +230,49 @@ namespace MimeKit.Cryptography {
 						continue;
 				}
 
-				var recipient = new CmsRecipient (certificate);
-				EncryptionAlgorithm[] algorithms;
-
-				if (capabilities.TryGetValue (certificate, out algorithms))
-					recipient.EncryptionAlgorithms = algorithms;
-
-				return recipient;
+				return certificate;
 			}
 
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+			return null;
 		}
 
 		/// <summary>
-		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
+		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
 		/// <remarks>
-		/// <para>Constructs a <see cref="CmsSigner"/> with the appropriate signing certificate
-		/// for the specified mailbox.</para>
+		/// <para>Constructs a <see cref="CmsRecipient"/> with the appropriate certificate and
+		/// <see cref="CmsRecipient.EncryptionAlgorithms"/> for the specified mailbox.</para>
 		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
 		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
-		/// the mailbox address for database lookups.</para>
+		/// the mailbox address.</para>
 		/// </remarks>
-		/// <returns>A <see cref="CmsSigner"/>.</returns>
+		/// <returns>A <see cref="CmsRecipient"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="digestAlgo">The preferred digest algorithm.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
+		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
+		{
+			X509Certificate certificate;
+
+			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+
+			var recipient = new CmsRecipient (certificate);
+			EncryptionAlgorithm[] algorithms;
+
+			if (capabilities.TryGetValue (certificate, out algorithms))
+				recipient.EncryptionAlgorithms = algorithms;
+
+			return recipient;
+		}
+
+		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter key)
 		{
 			var secure = mailbox as SecureMailboxAddress;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
-				AsymmetricKeyParameter key;
-
 				if (certificate.NotBefore > now || certificate.NotAfter < now)
 					continue;
 
@@ -263,12 +295,41 @@ namespace MimeKit.Cryptography {
 						continue;
 				}
 
-				return new CmsSigner (certificate, key) {
-					DigestAlgorithm = digestAlgo
-				};
+				return certificate;
 			}
 
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+			key = null;
+
+			return null;
+		}
+
+		/// <summary>
+		/// Gets the <see cref="CmsSigner"/> for the specified mailbox.
+		/// </summary>
+		/// <remarks>
+		/// <para>Constructs a <see cref="CmsSigner"/> with the appropriate signing certificate
+		/// for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address for database lookups.</para>
+		/// </remarks>
+		/// <returns>A <see cref="CmsSigner"/>.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="digestAlgo">The preferred digest algorithm.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
+		{
+			X509Certificate certificate;
+			AsymmetricKeyParameter key;
+
+			if ((certificate = GetCmsSignerCertificate (mailbox, out key)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+
+			return new CmsSigner (certificate, key) {
+				DigestAlgorithm = digestAlgo
+			};
 		}
 
 		/// <summary>

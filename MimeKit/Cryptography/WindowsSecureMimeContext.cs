@@ -103,6 +103,44 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Check whether or not a particular mailbox address can be used for signing.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// </remarks>
+		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signer"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanSign (MailboxAddress signer)
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			return GetCmsSignerCertificate (signer) != null;
+		}
+
+		/// <summary>
+		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// </summary>
+		/// <remarks>
+		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// </remarks>
+		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		public override bool CanEncrypt (MailboxAddress mailbox)
+		{
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			return GetCmsRecipientCertificate (mailbox) != null;
+		}
+
 		#region implemented abstract members of SecureMimeContext
 
 		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (RealX509Certificate certificate)
@@ -288,7 +326,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+			return null;
 		}
 
 		/// <summary>
@@ -304,7 +342,11 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			var certificate = GetCmsRecipientCertificate (mailbox);
+			X509Certificate2 certificate;
+
+			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+
 			var cert = GetBouncyCastleCertificate (certificate);
 
 			return new CmsRecipient (cert);
@@ -312,7 +354,12 @@ namespace MimeKit.Cryptography {
 
 		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
 		{
-			return new RealCmsRecipient (RealSubjectIdentifierType.SubjectKeyIdentifier, GetCmsRecipientCertificate (mailbox));
+			X509Certificate2 certificate;
+
+			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+
+			return new RealCmsRecipient (RealSubjectIdentifierType.SubjectKeyIdentifier, certificate);
 		}
 
 		RealCmsRecipientCollection GetRealCmsRecipients (IEnumerable<MailboxAddress> recipients)
@@ -383,7 +430,7 @@ namespace MimeKit.Cryptography {
 				store.Close ();
 			}
 
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+			return null;
 		}
 
 		/// <summary>
@@ -400,7 +447,11 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var certificate = GetCmsSignerCertificate (mailbox);
+			X509Certificate2 certificate;
+
+			if ((certificate = GetCmsSignerCertificate (mailbox)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+			
 			var pair = CmsSigner.GetBouncyCastleKeyPair (certificate.PrivateKey);
 			var cert = GetBouncyCastleCertificate (certificate);
 			var signer = new CmsSigner (cert, pair.Private);
@@ -417,7 +468,12 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			var signer = new RealCmsSigner (GetCmsSignerCertificate (mailbox));
+			X509Certificate2 certificate;
+
+			if ((certificate = GetCmsSignerCertificate (mailbox)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+
+			var signer = new RealCmsSigner (certificate);
 			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
 			signer.SignedAttributes.Add (GetSecureMimeCapabilities ());
 			signer.SignedAttributes.Add (new Pkcs9SigningTime ());
