@@ -53,6 +53,10 @@ namespace MimeKit.Utils {
 		{
 			int gb2312;
 
+#if NETSTANDARD
+			Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
+#endif
+
 			try {
 				Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 			} catch (NotSupportedException) {
