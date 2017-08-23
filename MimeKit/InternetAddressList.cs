@@ -496,7 +496,7 @@ namespace MimeKit {
 				if (i > 0)
 					builder.Append (", ");
 
-				builder.Append (list[i].ToString ());
+				builder.Append (list[i].ToString (options, false));
 			}
 
 			return builder.ToString ();
