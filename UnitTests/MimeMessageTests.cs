@@ -26,10 +26,10 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Net.Mail;
 using System.Reflection;
-using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -872,6 +872,30 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.9.txt"));
 			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.9.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.9.txt.");
+		}
+
+		[Test]
+		public void TestNoBodyWithTextAttachment()
+		{
+			const string rawMessageText = @"From: sender@domain.com
+Date: Tue, 29 Aug 2017 09:45:39 +1000
+Subject: This has no body, just a text attachment
+Message-Id: <75SXBEJJ72U4.5KFFZ6J56L2T2@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; name=""Plain Text.txt""
+Content-Disposition: attachment; filename=""Plain Text.txt""
+Content-Transfer-Encoding: 7bit
+
+This is the text attachment";
+
+			using (var source = new MemoryStream(Encoding.UTF8.GetBytes(rawMessageText)))
+			{
+				var parser = new MimeParser(source, MimeFormat.Default);
+				var message = parser.ParseMessage();
+
+				Assert.Null(message.TextBody, "Message text should be blank, as no body defined");
+				Assert.AreEqual(1, message.Attachments.OfType<TextPart>().Count(), "Message should contain one text attachment");
+			}
 		}
 	}
 }
