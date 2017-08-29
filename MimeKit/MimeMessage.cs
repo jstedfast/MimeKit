@@ -921,7 +921,7 @@ namespace MimeKit {
 			} else {
 				var body = Body as TextPart;
 
-				if (body != null && body.IsFormat (format))
+				if (body != null && body.IsFormat (format) && !body.IsAttachment)
 					return body.Text;
 			}
 
