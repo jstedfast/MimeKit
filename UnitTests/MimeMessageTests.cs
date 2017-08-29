@@ -875,7 +875,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 		}
 
 		[Test]
-		public void TestNoBodyWithTextAttachment()
+		public void TestNoBodyWithTextAttachment ()
 		{
 			const string rawMessageText = @"From: sender@domain.com
 Date: Tue, 29 Aug 2017 09:45:39 +1000
@@ -888,13 +888,12 @@ Content-Transfer-Encoding: 7bit
 
 This is the text attachment";
 
-			using (var source = new MemoryStream(Encoding.UTF8.GetBytes(rawMessageText)))
-			{
-				var parser = new MimeParser(source, MimeFormat.Default);
-				var message = parser.ParseMessage();
+			using (var source = new MemoryStream(Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
 
-				Assert.Null(message.TextBody, "Message text should be blank, as no body defined");
-				Assert.AreEqual(1, message.Attachments.OfType<TextPart>().Count(), "Message should contain one text attachment");
+				Assert.IsNull (message.TextBody, "Message text should be blank, as no body defined");
+				Assert.AreEqual (1, message.Attachments.OfType<TextPart> ().Count (), "Message should contain one text attachment");
 			}
 		}
 	}
