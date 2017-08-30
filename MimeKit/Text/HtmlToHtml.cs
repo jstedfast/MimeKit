@@ -299,7 +299,7 @@ namespace MimeKit.Text {
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.Comment:
-						if (!FilterComments)
+						if (!FilterComments && !SuppressContent (stack))
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.Tag:
