@@ -91,6 +91,7 @@
     <Compile Include="HtmlAttributeTests.cs" />
     <Compile Include="HtmlEntityDecoderTests.cs" />
     <Compile Include="HtmlPreviewVisitor.cs" />
+    <Compile Include="HtmlToHtmlTests.cs" />
     <Compile Include="HtmlTokenizerTests.cs" />
     <Compile Include="HtmlUtilsTests.cs" />
     <Compile Include="HtmlWriterTests.cs" />
