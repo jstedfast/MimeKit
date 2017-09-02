@@ -122,6 +122,7 @@
     <Compile Include="SecureMimeTests.cs" />
     <Compile Include="TextConverterTests.cs" />
     <Compile Include="TextPartTests.cs" />
+    <Compile Include="TextToHtmlTests.cs" />
     <Compile Include="TnefTests.cs" />
     <Compile Include="TrieTests.cs" />
     <Compile Include="UrlScannerTests.cs" />

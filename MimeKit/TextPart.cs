@@ -176,7 +176,6 @@ namespace MimeKit {
 				return "enriched";
 			case TextFormat.Flowed:
 			case TextFormat.Plain:
-			case TextFormat.Text:
 				return "plain";
 			case TextFormat.Html:
 				return "html";
@@ -372,7 +371,6 @@ namespace MimeKit {
 		internal bool IsFormat (TextFormat format)
 		{
 			switch (format) {
-			case TextFormat.Text:     return IsPlain;
 			case TextFormat.Plain:    return IsPlain;
 			case TextFormat.Flowed:   return IsFlowed;
 			case TextFormat.Html:     return IsHtml;

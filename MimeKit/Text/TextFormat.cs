@@ -40,7 +40,7 @@ namespace MimeKit.Text {
 		/// <summary>
 		/// An alias for the plain text format.
 		/// </summary>
-		Text,
+		Text = Plain,
 
 		/// <summary>
 		/// The flowed text format (as described in rfc3676).
