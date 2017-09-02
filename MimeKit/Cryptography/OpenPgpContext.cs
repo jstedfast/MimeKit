@@ -1114,30 +1114,62 @@ namespace MimeKit.Cryptography {
 			Import (generator.GeneratePublicKeyRing ());
 		}
 
-		//public void SignPublicKey (PgpSecretKey secretKey, PgpPublicKey publicKey, DigestAlgorithm digestAlgo = DigestAlgorithm.Sha1)
-		//{
-		//	if (secretKey == null)
-		//		throw new ArgumentNullException (nameof (secretKey));
+		/// <summary>
+		/// Sign a public key.
+		/// </summary>
+		/// <remarks>
+		/// <para>Signs a public key using the specified secret key.</para>
+		/// <para>Most OpenPGP implementations use <see cref="OpenPgpKeyCertification.GenericCertification"/>
+		/// to make their "key signatures". Some implementations are known to use the other
+		/// certification types, but few differentiate between them.</para>
+		/// </remarks>
+		/// <param name="secretKey">The secret key to use for signing.</param>
+		/// <param name="publicKey">The public key to sign.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <param name="certification">The certification to give the signed key.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="secretKey"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="publicKey"/> is <c>null</c>.</para>
+		/// </exception>
+		public void SignKey (PgpSecretKey secretKey, PgpPublicKey publicKey, DigestAlgorithm digestAlgo = DigestAlgorithm.Sha1, OpenPgpKeyCertification certification = OpenPgpKeyCertification.GenericCertification)
+		{
+			if (secretKey == null)
+				throw new ArgumentNullException (nameof (secretKey));
 
-		//	if (publicKey == null)
-		//		throw new ArgumentNullException (nameof (publicKey));
+			if (publicKey == null)
+				throw new ArgumentNullException (nameof (publicKey));
 
-		//	var privateKey = GetPrivateKey (secretKey);
-		//	var signatureGenerator = new PgpSignatureGenerator (secretKey.PublicKey.Algorithm, GetHashAlgorithm (digestAlgo));
+			var privateKey = GetPrivateKey (secretKey);
+			var signatureGenerator = new PgpSignatureGenerator (secretKey.PublicKey.Algorithm, GetHashAlgorithm (digestAlgo));
 
-		//	signatureGenerator.InitSign (PgpSignature.CasualCertification, privateKey);
-		//	signatureGenerator.GenerateOnePassVersion (false);
+			signatureGenerator.InitSign ((int) certification, privateKey);
+			signatureGenerator.GenerateOnePassVersion (false);
 
-		//	var subpacketGenerator = new PgpSignatureSubpacketGenerator ();
-		//	var subpacketVector = subpacketGenerator.Generate ();
+			var subpacketGenerator = new PgpSignatureSubpacketGenerator ();
+			var subpacketVector = subpacketGenerator.Generate ();
 
-		//	signatureGenerator.SetHashedSubpackets (subpacketVector);
+			signatureGenerator.SetHashedSubpackets (subpacketVector);
 
-		//	var signedKey = PgpPublicKey.AddCertification (publicKey, signatureGenerator.Generate ());
-		//	var keyring = new PgpPublicKeyRing (signedKey.GetEncoded ());
+			var signedKey = PgpPublicKey.AddCertification (publicKey, signatureGenerator.Generate ());
+			PgpPublicKeyRing keyring = null;
 
-		//	Import (keyring);
-		//}
+			foreach (var ring in EnumeratePublicKeyRings ()) {
+				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
+					if (key.KeyId == publicKey.KeyId) {
+						PublicKeyRingBundle = PgpPublicKeyRingBundle.RemovePublicKeyRing (PublicKeyRingBundle, ring);
+						keyring = PgpPublicKeyRing.InsertPublicKey (ring, signedKey);
+						break;
+					}
+				}
+			}
+
+			if (keyring == null)
+				keyring = new PgpPublicKeyRing (signedKey.GetEncoded ());
+
+			PublicKeyRingBundle = PgpPublicKeyRingBundle.AddPublicKeyRing (PublicKeyRingBundle, keyring);
+			SavePublicKeyRingBundle ();
+		}
 
 		/// <summary>
 		/// Gets the equivalent <see cref="Org.BouncyCastle.Bcpg.HashAlgorithmTag"/> for the 

@@ -81,6 +81,7 @@
     <Compile Include="Cryptography\OpenPgpDetectionFilter.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalCertificate.cs" />
     <Compile Include="Cryptography\OpenPgpDigitalSignature.cs" />
+    <Compile Include="Cryptography\OpenPgpKeyCertification.cs" />
     <Compile Include="Cryptography\PrivateKeyNotFoundException.cs" />
     <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
     <Compile Include="Cryptography\PublicKeyNotFoundException.cs" />

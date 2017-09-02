@@ -31,6 +31,7 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
+using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit;
@@ -133,6 +134,48 @@ namespace UnitTests {
 
 				ctx.Delete (secring);
 				Assert.AreEqual (secretKeyRings, ctx.EnumerateSecretKeyRings ().Count (), "Unexpected number of secret keyrings");
+			}
+		}
+
+		[Test]
+		public void TestKeySigning ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				var seckey = ctx.EnumerateSecretKeys (new MailboxAddress ("", "mimekit@example.com")).FirstOrDefault ();
+				var mailbox = new MailboxAddress ("Snarky McSnarkypants", "snarky@snarkypants.net");
+
+				ctx.GenerateKeyPair (mailbox, "password", DateTime.Now.AddYears (1));
+
+				// delete the secret keyring, we don't need it
+				var secring = ctx.EnumerateSecretKeyRings (mailbox).FirstOrDefault ();
+				ctx.Delete (secring);
+
+				var pubring = ctx.EnumeratePublicKeyRings (mailbox).FirstOrDefault ();
+				var pubkey = pubring.GetPublicKey ();
+				int sigCount = 0;
+
+				foreach (PgpSignature sig in pubkey.GetKeySignatures ())
+					sigCount++;
+
+				Assert.AreEqual (0, sigCount);
+
+				ctx.SignKey (seckey, pubkey, DigestAlgorithm.Sha256, OpenPgpKeyCertification.CasualCertification);
+
+				pubring = ctx.EnumeratePublicKeyRings (mailbox).FirstOrDefault ();
+				pubkey = pubring.GetPublicKey ();
+
+				sigCount = 0;
+
+				foreach (PgpSignature sig in pubkey.GetKeySignatures ()) {
+					Assert.AreEqual (seckey.KeyId, sig.KeyId);
+					Assert.AreEqual (HashAlgorithmTag.Sha256, sig.HashAlgorithm);
+					Assert.AreEqual ((int) OpenPgpKeyCertification.CasualCertification, sig.SignatureType);
+					sigCount++;
+				}
+
+				Assert.AreEqual (1, sigCount);
+
+				ctx.Delete (pubring);
 			}
 		}
 
