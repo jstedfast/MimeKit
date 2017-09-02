@@ -120,7 +120,7 @@ namespace UnitTests {
 				int publicKeyRings = ctx.EnumeratePublicKeyRings ().Count ();
 				int secretKeyRings = ctx.EnumerateSecretKeyRings ().Count ();
 
-				ctx.GenerateKeyPair (mailbox, "password");
+				ctx.GenerateKeyPair (mailbox, "password", DateTime.Now.AddYears (1));
 
 				var pubring = ctx.EnumeratePublicKeyRings (mailbox).FirstOrDefault ();
 				Assert.IsNotNull (pubring, "Expected to find the generated public keyring");
