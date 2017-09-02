@@ -113,6 +113,30 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestKeyGeneration ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				var mailbox = new MailboxAddress ("Snarky McSnarkypants", "snarky@snarkypants.net");
+				int publicKeyRings = ctx.EnumeratePublicKeyRings ().Count ();
+				int secretKeyRings = ctx.EnumerateSecretKeyRings ().Count ();
+
+				ctx.GenerateKeyPair (mailbox, "password");
+
+				var pubring = ctx.EnumeratePublicKeyRings (mailbox).FirstOrDefault ();
+				Assert.IsNotNull (pubring, "Expected to find the generated public keyring");
+
+				ctx.Delete (pubring);
+				Assert.AreEqual (publicKeyRings, ctx.EnumeratePublicKeyRings ().Count (), "Unexpected number of public keyrings");
+
+				var secring = ctx.EnumerateSecretKeyRings (mailbox).FirstOrDefault ();
+				Assert.IsNotNull (secring, "Expected to find the generated secret keyring");
+
+				ctx.Delete (secring);
+				Assert.AreEqual (secretKeyRings, ctx.EnumerateSecretKeyRings ().Count (), "Unexpected number of secret keyrings");
+			}
+		}
+
+		[Test]
 		public void TestMimeMessageSign ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -737,6 +761,11 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => ctx.EnumeratePublicKeys (null).FirstOrDefault ());
 				Assert.Throws<ArgumentNullException> (() => ctx.EnumerateSecretKeyRings (null).FirstOrDefault ());
 				Assert.Throws<ArgumentNullException> (() => ctx.EnumerateSecretKeys (null).FirstOrDefault ());
+
+				// GenerateKeyPair
+				Assert.Throws<ArgumentNullException> (() => ctx.GenerateKeyPair (null, "password"));
+				Assert.Throws<ArgumentNullException> (() => ctx.GenerateKeyPair (mailboxes[0], null));
+				Assert.Throws<ArgumentException> (() => ctx.GenerateKeyPair (mailboxes[0], "password", DateTime.Now));
 
 				// GetDecryptedStream
 				Assert.Throws<ArgumentNullException> (() => ctx.GetDecryptedStream (null), "GetDecryptedStream");
