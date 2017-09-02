@@ -1070,6 +1070,23 @@ namespace MimeKit.Cryptography {
 			return keyRingGenerator;
 		}
 
+		/// <summary>
+		/// Generate a new key pair.
+		/// </summary>
+		/// <remarks>
+		/// Generates a new RSA key pair.
+		/// </remarks>
+		/// <param name="mailbox">The mailbox to generate the key pair for.</param>
+		/// <param name="password">The password to be set on the secret key.</param>
+		/// <param name="expirationDate">The expiration date for the generated key pair.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mailbox"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="expirationDate"/> is not a date in the future.
+		/// </exception>
 		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null)
 		{
 			var now = DateTime.UtcNow;
@@ -1082,11 +1099,11 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (password));
 
 			if (expirationDate.HasValue) {
-				if (expirationDate.Value < now)
-					throw new ArgumentException ("expireDate needs to be greater than DateTime.UtcNow");
+				if (expirationDate.Value <= now)
+					throw new ArgumentException ("expirationDate needs to be greater than DateTime.UtcNow");
 
 				if ((expirationTime = Convert.ToInt64 (expirationDate.Value.Subtract (now).TotalSeconds)) <= 0)
-					throw new ArgumentException ("expireDate needs to be greater than DateTime.UtcNow");
+					throw new ArgumentException ("expirationDate needs to be greater than DateTime.UtcNow");
 			}
 
 			var generator = CreateKeyRingGenerator (mailbox, expirationTime, password, now);
