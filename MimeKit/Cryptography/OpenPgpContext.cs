@@ -1099,11 +1099,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (password));
 
 			if (expirationDate.HasValue) {
-				if (expirationDate.Value <= now)
-					throw new ArgumentException ("expirationDate needs to be greater than DateTime.UtcNow");
+				var utc = expirationDate.Value.ToUniversalTime ();
 
-				if ((expirationTime = Convert.ToInt64 (expirationDate.Value.Subtract (now).TotalSeconds)) <= 0)
-					throw new ArgumentException ("expirationDate needs to be greater than DateTime.UtcNow");
+				if (utc <= now)
+					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
+
+				if ((expirationTime = Convert.ToInt64 (utc.Subtract (now).TotalSeconds)) <= 0)
+					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
 			}
 
 			var generator = CreateKeyRingGenerator (mailbox, expirationTime, password, now);
@@ -2658,6 +2660,44 @@ namespace MimeKit.Cryptography {
 			} else {
 				keys.Encode (stream);
 			}
+		}
+
+		/// <summary>
+		/// Delete a public pgp keyring.
+		/// </summary>
+		/// <remarks>
+		/// Deletes a public pgp keyring.
+		/// </remarks>
+		/// <param name="keyring">The pgp keyring.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyring"/> is <c>null</c>.
+		/// </exception>
+		public void Delete (PgpPublicKeyRing keyring)
+		{
+			if (keyring == null)
+				throw new ArgumentNullException (nameof (keyring));
+
+			PublicKeyRingBundle = PgpPublicKeyRingBundle.RemovePublicKeyRing (PublicKeyRingBundle, keyring);
+			SavePublicKeyRingBundle ();
+		}
+
+		/// <summary>
+		/// Delete a secret pgp keyring.
+		/// </summary>
+		/// <remarks>
+		/// Deletes a secret pgp keyring.
+		/// </remarks>
+		/// <param name="keyring">The pgp keyring.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyring"/> is <c>null</c>.
+		/// </exception>
+		public void Delete (PgpSecretKeyRing keyring)
+		{
+			if (keyring == null)
+				throw new ArgumentNullException (nameof (keyring));
+
+			SecretKeyRingBundle = PgpSecretKeyRingBundle.RemoveSecretKeyRing (SecretKeyRingBundle, keyring);
+			SaveSecretKeyRingBundle ();
 		}
 
 #if USE_HTTP_CLIENT
