@@ -1370,6 +1370,8 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
+				armored.SetHeader ("Version", null);
+
 				var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 				using (var compressed = compresser.Open (armored)) {
 					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
@@ -1569,6 +1571,8 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
+				armored.SetHeader ("Version", null);
+
 				using (var compressed = Compress (content)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 						compressed.CopyTo (encrypted, 4096);
@@ -1978,6 +1982,8 @@ namespace MimeKit.Cryptography {
 
 				var memory = new MemoryBlockStream ();
 				using (var armored = new ArmoredOutputStream (memory)) {
+					armored.SetHeader ("Version", null);
+
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 						compressed.CopyTo (encrypted, 4096);
 						encrypted.Flush ();
@@ -2686,6 +2692,8 @@ namespace MimeKit.Cryptography {
 
 			if (armor) {
 				using (var armored = new ArmoredOutputStream (stream)) {
+					armored.SetHeader ("Version", null);
+
 					keys.Encode (armored);
 					armored.Flush ();
 				}
