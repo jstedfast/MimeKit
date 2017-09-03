@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -204,9 +205,20 @@ namespace UnitTests {
 				codepage = CharsetUtils.GetCodePage (name);
 
 				switch (i) {
-				case 11: expected = 874; break;
-				case 10: case 12: case 13: case 14: expected = -1; break;
-				default: expected = 28590 + i; break;
+				case 11:
+					expected = 874;
+					break;
+				case 10: case 12: case 14:
+					expected = -1;
+					break;
+				case 13:
+					if (Path.DirectorySeparatorChar == '\\')
+						goto default;
+					expected = -1;
+					break;
+				default:
+					expected = 28590 + i;
+					break;
 				}
 
 				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
