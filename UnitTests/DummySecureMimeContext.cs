@@ -249,7 +249,7 @@ namespace UnitTests {
 
 			if ((certificate = GetCmsSignerCertificate (mailbox, out key)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-			
+
 			var signer = new CmsSigner (certificate, key);
 			signer.DigestAlgorithm = digestAlgo;
 			return signer;

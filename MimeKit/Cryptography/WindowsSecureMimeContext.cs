@@ -451,7 +451,7 @@ namespace MimeKit.Cryptography {
 
 			if ((certificate = GetCmsSignerCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-			
+
 			var pair = CmsSigner.GetBouncyCastleKeyPair (certificate.PrivateKey);
 			var cert = GetBouncyCastleCertificate (certificate);
 			var signer = new CmsSigner (cert, pair.Private);
