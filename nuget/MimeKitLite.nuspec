@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>1.18.0</version>
+    <version>1.18.1</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,7 +25,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added a MimeMessage.WriteTo() overload that takes a bool headersOnly argument.
+* Automatically register the CodePagesEncodingProvider when running on .NETStandard. (issue #330)
+* Fixed MimeMessage.TextBody to return null when the top-level MIME part is a TextPart marked as an attachment.
+* Fixed the HtmlToHtml converter to suppress comments if the HtmlTagContext's SuppressInnerContent property is active (even if FilterComments is false).
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

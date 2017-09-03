@@ -1,5 +1,19 @@
 # Release Notes
 
+### MimeKit 1.18.1
+
+* Added CanSign() and CanEncrypt() methods to CryptographyContext for checking
+  whether or not a mailbox can be used for signing or be encrypted to. (issue #325)
+* Automatically register the CodePagesEncodingProvider when running on .NETStandard. (issue #330)
+* Fixed MimeMessage.TextBody to return null when the top-level MIME part is a TextPart
+  marked as an attachment.
+* Fixed the HtmlToHtml converter to suppress comments if the HtmlTagContext's SuppressInnerContent
+  property is active (even if FilterComments is false).
+* Documented OpenPgpContext.GenerateKeyPair() which was added in 1.18.0.
+* Added OpenPgpContext.Delete() methods to delete public and secret keyrings.
+* Added OpenPgpContext.SignKey().
+* Remove "Version:" header from armored OpenPGP output. (issue #319)
+
 ### MimeKit 1.18.0
 
 * Allow importing of known PGP keys (needed when re-importing keys after signing them). (issue #315)
