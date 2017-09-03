@@ -99,7 +99,7 @@ namespace UnitTests {
 			try {
 				signer = new CmsSigner (new X509Certificate2 (path, password));
 			} catch (Exception ex) {
-				Assert.Fail (".ctor (string, string): {0}", ex.Message);
+				Assert.Fail (".ctor (X509Certificate2): {0}", ex);
 			}
 		}
 	}
