@@ -199,10 +199,6 @@
     <None Include="TestData\smime\StartComCertificationAuthority.crt" />
     <None Include="TestData\smime\StartComClass1PrimaryIntermediateClientCA.crt" />
     <None Include="TestData\smime\thunderbird-signed.txt" />
-    <None Include="..\lib\sqlite3.dll">
-      <Link>sqlite3.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Npgsql.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
