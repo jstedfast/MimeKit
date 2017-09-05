@@ -1,4 +1,4 @@
-//
+﻿//
 // ContentObject.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -131,7 +131,7 @@ namespace MimeKit {
 		/// <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/> instead.</note>
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -193,7 +193,7 @@ namespace MimeKit {
 		/// stream will be copied into the output stream as-is.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
