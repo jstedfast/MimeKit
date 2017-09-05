@@ -1,4 +1,4 @@
-//
+﻿//
 // Multipart.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -402,7 +402,7 @@ namespace MimeKit {
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>

@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeMessage.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -1056,7 +1056,7 @@ namespace MimeKit {
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1127,7 +1127,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1152,7 +1152,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -1174,7 +1174,7 @@ namespace MimeKit {
 		/// Writes the message to the output stream using the default formatting options.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -1198,7 +1198,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1243,7 +1243,7 @@ namespace MimeKit {
 		/// Writes the message to the specified file using the default formatting options.
 		/// </remarks>
 		/// <param name="fileName">The file.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
 		/// </exception>
@@ -2694,7 +2694,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -2732,7 +2732,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -2767,7 +2767,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -2794,7 +2794,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -2823,7 +2823,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="fileName">The name of the file to load.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -2873,7 +2873,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
 		/// </exception>

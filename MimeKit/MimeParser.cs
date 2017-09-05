@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeParser.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -1383,7 +1383,7 @@ namespace MimeKit {
 		/// Parses a list of headers from the stream.
 		/// </remarks>
 		/// <returns>The parsed list of headers.</returns>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1444,7 +1444,7 @@ namespace MimeKit {
 		/// Parses an entity from the stream.
 		/// </remarks>
 		/// <returns>The parsed entity.</returns>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1541,7 +1541,7 @@ namespace MimeKit {
 		/// Parses a message from the stream.
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>

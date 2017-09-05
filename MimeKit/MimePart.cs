@@ -1,4 +1,4 @@
-//
+﻿//
 // MimePart.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -371,7 +371,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The most efficient content encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="constraint"/> is not a valid value.
 		/// </exception>
@@ -395,7 +395,7 @@ namespace MimeKit {
 		/// <returns>The most efficient content encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
 		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>72</c> and <c>998</c> (inclusive).</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
 		/// <para>-or-</para>
@@ -551,7 +551,7 @@ namespace MimeKit {
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
-		/// <param name="cancellationToken">A cancellation token.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
