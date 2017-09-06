@@ -378,7 +378,7 @@ namespace UnitTests {
 
 		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-			return Task.FromResult (Read (buffer, offset, count));
+			return source.ReadAsync (buffer, offset, count, cancellationToken);
 		}
 
 		public override void Write (byte[] buffer, int offset, int count)
@@ -388,8 +388,7 @@ namespace UnitTests {
 
 		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-			Write (buffer, offset, count);
-			return Task.FromResult (0);
+			return source.WriteAsync (buffer, offset, count, cancellationToken);
 		}
 
 		public override long Seek (long offset, SeekOrigin origin)
@@ -404,8 +403,7 @@ namespace UnitTests {
 
 		public override Task FlushAsync (CancellationToken cancellationToken)
 		{
-			Flush ();
-			return Task.FromResult (0);
+			return source.FlushAsync (cancellationToken);
 		}
 
 		public override void SetLength (long value)
