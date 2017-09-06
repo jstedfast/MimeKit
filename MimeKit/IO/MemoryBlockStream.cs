@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace MimeKit.IO {
@@ -246,6 +248,42 @@ namespace MimeKit.IO {
 			return nread;
 		}
 
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (Read (buffer, offset, count));
+		}
+#endif
+
 		/// <summary>
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -307,6 +345,47 @@ namespace MimeKit.IO {
 
 			length = Math.Max (length, position);
 		}
+
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Writes the entire buffer to the stream and advances the current position
+		/// within the stream by the number of bytes written, adding memory blocks as
+		/// needed in order to contain the newly written bytes.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			Write (buffer, offset, count);
+
+			return Task.FromResult (0);
+		}
+#endif
 
 		/// <summary>
 		/// Sets the position within the current stream.
@@ -381,6 +460,27 @@ namespace MimeKit.IO {
 
 			// nothing to do...
 		}
+
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
+		/// </summary>
+		/// <remarks>
+		/// This method does not do anything.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous flush operation.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		public override Task FlushAsync (CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+
+			return Task.FromResult (0);
+		}
+#endif
 
 		/// <summary>
 		/// Sets the length of the stream.

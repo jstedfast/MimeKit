@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using MimeKit.IO.Filters;
@@ -398,6 +399,81 @@ namespace MimeKit.IO {
 			return Read (buffer, offset, count, CancellationToken.None);
 		}
 
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads up to the requested number of bytes, passing the data read from the <see cref="Source"/> stream
+		/// through each of the filters before finally copying the result into the provided buffer.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+			CheckCanRead ();
+
+			ValidateArguments (buffer, offset, count);
+
+			lastOp = IOOperation.Read;
+			if (readbuf == null)
+				readbuf = new byte[ReadBufferSize];
+
+			int nread;
+
+			if (filteredLength == 0) {
+				if ((nread = await Source.ReadAsync (readbuf, 0, ReadBufferSize, cancellationToken).ConfigureAwait (false)) <= 0)
+					return nread;
+
+				// filter the data we've just read...
+				filteredLength = nread;
+				filteredIndex = 0;
+				filtered = readbuf;
+
+				foreach (var filter in filters)
+					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+			}
+
+			// copy our filtered data into our caller's buffer
+			nread = Math.Min (filteredLength, count);
+
+			if (nread > 0) {
+				Buffer.BlockCopy (filtered, filteredIndex, buffer, offset, nread);
+				filteredLength -= nread;
+				filteredIndex += nread;
+			}
+
+			return nread;
+		}
+#endif
+
 		/// <summary>
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -491,6 +567,62 @@ namespace MimeKit.IO {
 		{
 			Write (buffer, offset, count, CancellationToken.None);
 		}
+
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Filters the provided buffer through each of the filters before finally writing
+		/// the result to the underlying <see cref="Source"/> stream.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+			CheckCanWrite ();
+
+			ValidateArguments (buffer, offset, count);
+
+			lastOp = IOOperation.Write;
+			flushed = false;
+
+			filteredIndex = offset;
+			filteredLength = count;
+			filtered = buffer;
+
+			foreach (var filter in filters)
+				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+
+			return Source.WriteAsync (filtered, filteredIndex, filteredLength, cancellationToken);
+		}
+#endif
 
 		/// <summary>
 		/// Sets the position within the current stream.
@@ -591,6 +723,59 @@ namespace MimeKit.IO {
 		{
 			Flush (CancellationToken.None);
 		}
+
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
+		/// </summary>
+		/// <remarks>
+		/// Flushes the state of all filters, writing any output to the underlying <see cref="Source"/>
+		/// stream and then calling <see cref="System.IO.Stream.Flush"/> on the <see cref="Source"/>.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous flush operation.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async Task FlushAsync (CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+			CheckCanWrite ();
+
+			if (lastOp == IOOperation.Read)
+				return;
+
+			if (!flushed) {
+				filtered = new byte[0];
+				filteredIndex = 0;
+				filteredLength = 0;
+
+				foreach (var filter in filters)
+					filtered = filter.Flush (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+
+				flushed = true;
+			}
+
+			if (filteredLength > 0) {
+				await Source.WriteAsync (filtered, filteredIndex, filteredLength, cancellationToken).ConfigureAwait (false);
+
+				filteredIndex = 0;
+				filteredLength = 0;
+			}
+
+			await Source.FlushAsync (cancellationToken).ConfigureAwait (false);
+		}
+#endif
 
 		/// <summary>
 		/// Sets the length of the stream.

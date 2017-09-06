@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MimeKit.IO {
 	/// <summary>
@@ -184,6 +186,34 @@ namespace MimeKit.IO {
 			throw new NotSupportedException ("The stream does not support reading");
 		}
 
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reading from a <see cref="MeasuringStream"/> is not supported.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
+		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="offset">The offset into the buffer to start reading data.</param>
+		/// <param name="count">The number of bytes to read.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
+		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+
+			throw new NotSupportedException ("The stream does not support reading");
+		}
+#endif
+
 		/// <summary>
 		/// Writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -225,6 +255,48 @@ namespace MimeKit.IO {
 
 			length = Math.Max (length, position);
 		}
+
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously writes a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Increments the <see cref="Position"/> property by the number of bytes written.
+		/// If the updated position is greater than the current length of the stream, then
+		/// the <see cref="Length"/> property will be updated to be identical to the
+		/// position.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="offset">The offset of the first byte to write.</param>
+		/// <param name="count">The number of bytes to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
+		/// at the specified <paramref name="offset"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			Write (buffer, offset, count);
+
+			return Task.FromResult (0);
+		}
+#endif
 
 		/// <summary>
 		/// Sets the position within the current stream.
@@ -294,6 +366,29 @@ namespace MimeKit.IO {
 
 			// nothing to do...
 		}
+
+#if !NET_3_5
+		/// <summary>
+		/// Asynchronously clears all buffers for this stream and causes any buffered data to be written
+		/// to the underlying device.
+		/// </summary>
+		/// <remarks>
+		/// Since a <see cref="MeasuringStream"/> does not actually do anything other than
+		/// count bytes, this method is a no-op.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous flush operation.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		public override Task FlushAsync (CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+
+			// nothing to do...
+			return Task.FromResult (0);
+		}
+#endif
 
 		/// <summary>
 		/// Sets the length of the stream.
