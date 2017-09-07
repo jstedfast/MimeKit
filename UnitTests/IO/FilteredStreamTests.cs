@@ -78,6 +78,21 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestGetSetTimeouts ()
+		{
+			using (var filtered = new FilteredStream (new TimeoutStream ())) {
+				Assert.AreEqual (0, filtered.ReadTimeout);
+				Assert.AreEqual (0, filtered.WriteTimeout);
+
+				filtered.ReadTimeout = 10;
+				Assert.AreEqual (10, filtered.ReadTimeout);
+
+				filtered.WriteTimeout = 100;
+				Assert.AreEqual (100, filtered.WriteTimeout);
+			}
+		}
+
+		[Test]
 		public void TestRead ()
 		{
 			using (var original = new MemoryStream ()) {

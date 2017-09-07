@@ -77,6 +77,21 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestGetSetTimeouts ()
+		{
+			using (var bounded = new BoundStream (new TimeoutStream (), 0, -1, false)) {
+				Assert.AreEqual (0, bounded.ReadTimeout);
+				Assert.AreEqual (0, bounded.WriteTimeout);
+
+				bounded.ReadTimeout = 10;
+				Assert.AreEqual (10, bounded.ReadTimeout);
+
+				bounded.WriteTimeout = 100;
+				Assert.AreEqual (100, bounded.WriteTimeout);
+			}
+		}
+
+		[Test]
 		public void TestSeek ()
 		{
 			using (var memory = new MemoryStream ()) {
@@ -174,6 +189,8 @@ namespace UnitTests
 
 				using (var bounded = new BoundStream (memory, 0, -1, true)) {
 					var buf = new byte[1024];
+
+					Assert.AreEqual (buffer.Length, bounded.Length);
 
 					bounded.Read (buf, 0, buf.Length); // read the text
 					bounded.Read (buf, 0, buf.Length); // cause eos to be true

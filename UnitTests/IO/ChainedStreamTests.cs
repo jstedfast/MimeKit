@@ -128,6 +128,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestGetSetTimeouts ()
+		{
+			using (var chained = new ChainedStream ()) {
+				chained.Add (new TimeoutStream ());
+
+				Assert.Throws<InvalidOperationException> (() => { int x = chained.ReadTimeout; });
+				Assert.Throws<InvalidOperationException> (() => { int x = chained.WriteTimeout; });
+
+				Assert.Throws<InvalidOperationException> (() => chained.ReadTimeout = 5);
+				Assert.Throws<InvalidOperationException> (() => chained.WriteTimeout = 5);
+			}
+		}
+
+		[Test]
 		public void TestRead ()
 		{
 			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
