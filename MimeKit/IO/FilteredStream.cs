@@ -292,8 +292,8 @@ namespace MimeKit.IO {
 		/// Reads up to the requested number of bytes, passing the data read from the <see cref="Source"/> stream
 		/// through each of the filters before finally copying the result into the provided buffer.
 		/// </remarks>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
-		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
@@ -373,8 +373,8 @@ namespace MimeKit.IO {
 		/// Reads up to the requested number of bytes, passing the data read from the <see cref="Source"/> stream
 		/// through each of the filters before finally copying the result into the provided buffer.
 		/// </remarks>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
-		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
@@ -410,8 +410,8 @@ namespace MimeKit.IO {
 		/// Reads up to the requested number of bytes, passing the data read from the <see cref="Source"/> stream
 		/// through each of the filters before finally copying the result into the provided buffer.
 		/// </remarks>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
-		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>

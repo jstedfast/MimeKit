@@ -307,8 +307,8 @@ namespace MimeKit.IO {
 		/// Reads data from the <see cref="BaseStream"/>, not allowing it to
 		/// read beyond the <see cref="EndBoundary"/>.
 		/// </remarks>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
-		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
@@ -367,8 +367,8 @@ namespace MimeKit.IO {
 		/// Reads data from the <see cref="BaseStream"/>, not allowing it to
 		/// read beyond the <see cref="EndBoundary"/>.
 		/// </remarks>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
-		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
 		/// <param name="buffer">The buffer to read data into.</param>
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
