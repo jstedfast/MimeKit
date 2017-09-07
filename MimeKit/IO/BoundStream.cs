@@ -578,7 +578,7 @@ namespace MimeKit.IO {
 						return -1;
 				} else if (EndBoundary == -1) {
 					// seeking backwards from eos (which happens to be our current position)
-					real = position + offset;
+					real = StartBoundary + position + offset;
 				} else {
 					// seeking backwards from a known position
 					real = EndBoundary + offset;

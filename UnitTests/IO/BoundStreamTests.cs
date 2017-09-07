@@ -83,12 +83,60 @@ namespace UnitTests
 				var buffer = Encoding.ASCII.GetBytes ("This is some text...");
 
 				memory.Write (buffer, 0, buffer.Length);
-				//memory.Position = 0;
+
+				using (var bounded = new BoundStream (memory, 5, -1, true)) {
+					long position;
+					string text;
+					int n;
+
+					// make sure that BoundStream will properly reset the underlying stream
+					Assert.AreEqual (0, bounded.Position);
+					n = bounded.Read (buffer, 0, buffer.Length);
+					text = Encoding.ASCII.GetString (buffer, 0, n);
+					Assert.AreEqual ("is some text...", text);
+
+					// force eos state to be true
+					bounded.Read (buffer, 0, buffer.Length);
+
+					position = bounded.Seek (-1 * n, SeekOrigin.End);
+					Assert.AreEqual (0, position, "SeekOrigin.End");
+					n = bounded.Read (buffer, 0, buffer.Length);
+					text = Encoding.ASCII.GetString (buffer, 0, n);
+					Assert.AreEqual ("is some text...", text);
+
+					position = bounded.Seek (0, SeekOrigin.Begin);
+					Assert.AreEqual (0, position, "SeekOrigin.Begin");
+					n = bounded.Read (buffer, 0, buffer.Length);
+					text = Encoding.ASCII.GetString (buffer, 0, n);
+					Assert.AreEqual ("is some text...", text);
+
+					position = bounded.Seek (-1 * n, SeekOrigin.Current);
+					Assert.AreEqual (0, position, "SeekOrigin.Current");
+					n = bounded.Read (buffer, 0, buffer.Length);
+					text = Encoding.ASCII.GetString (buffer, 0, n);
+					Assert.AreEqual ("is some text...", text);
+
+					// now try seeking out of bounds
+					Assert.Throws<IOException> (() => bounded.Seek (-1, SeekOrigin.Begin));
+					Assert.Throws<IOException> (() => bounded.Seek (-1 * buffer.Length, SeekOrigin.End));
+				}
+			}
+
+			using (var memory = new MemoryStream ()) {
+				var buffer = Encoding.ASCII.GetBytes ("This is some text...");
+
+				memory.Write (buffer, 0, buffer.Length);
 
 				using (var bounded = new BoundStream (memory, 5, buffer.Length, true)) {
 					long position;
 					string text;
 					int n;
+
+					// make sure that BoundStream will properly reset the underlying stream
+					Assert.AreEqual (0, bounded.Position);
+					n = bounded.Read (buffer, 0, buffer.Length);
+					text = Encoding.ASCII.GetString (buffer, 0, n);
+					Assert.AreEqual ("is some text...", text);
 
 					position = bounded.Seek (0, SeekOrigin.Begin);
 					Assert.AreEqual (0, position, "SeekOrigin.Begin");
@@ -120,7 +168,18 @@ namespace UnitTests
 		public void TestSetLength ()
 		{
 			using (var memory = new MemoryStream ()) {
+				var buffer = Encoding.ASCII.GetBytes ("This is some text...");
+
+				memory.Write (buffer, 0, buffer.Length);
+
 				using (var bounded = new BoundStream (memory, 0, -1, true)) {
+					var buf = new byte[1024];
+
+					bounded.Read (buf, 0, buf.Length); // read the text
+					bounded.Read (buf, 0, buf.Length); // cause eos to be true
+
+					Assert.AreEqual (buffer.Length, bounded.Length);
+
 					bounded.SetLength (500);
 
 					Assert.AreEqual (500, bounded.Length);
@@ -134,6 +193,8 @@ namespace UnitTests
 				memory.Write (buffer, 0, buffer.Length);
 
 				using (var bounded = new BoundStream (memory, 0, buffer.Length, true)) {
+					Assert.AreEqual (buffer.Length, bounded.Length);
+
 					bounded.SetLength (500);
 
 					Assert.AreEqual (500, bounded.Length);
@@ -147,6 +208,8 @@ namespace UnitTests
 				memory.Write (buffer, 0, buffer.Length);
 
 				using (var bounded = new BoundStream (memory, 0, buffer.Length, true)) {
+					Assert.AreEqual (buffer.Length, bounded.Length);
+
 					bounded.SetLength (5);
 
 					Assert.AreEqual (5, bounded.Length);
