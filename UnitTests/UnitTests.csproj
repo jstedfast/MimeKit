@@ -65,36 +65,54 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationPkcs7MimeTests.cs" />
+    <Compile Include="Cryptography\ApplicationPkcs7MimeTests.cs" />
+    <Compile Include="Cryptography\CmsRecipientTests.cs" />
+    <Compile Include="Cryptography\CmsSignerTests.cs" />
+    <Compile Include="Cryptography\DkimRelaxedBodyFilterTests.cs" />
+    <Compile Include="Cryptography\DkimTests.cs" />
+    <Compile Include="Cryptography\DummyOpenPgpContext.cs" />
+    <Compile Include="Cryptography\DummySecureMimeContext.cs" />
+    <Compile Include="Cryptography\PgpMimeTests.cs" />
+    <Compile Include="Cryptography\SecureMimeTests.cs" />
+    <Compile Include="Cryptography\X509CertificateChainTests.cs" />
+    <Compile Include="Cryptography\X509CertificateStoreTests.cs" />
+    <Compile Include="Encodings\EncoderTests.cs" />
+    <Compile Include="Encodings\YEncodingTests.cs" />
+    <Compile Include="IO\Filters\FilterTests.cs" />
+    <Compile Include="IO\BoundStreamTests.cs" />
+    <Compile Include="IO\CanReadWriteSeekStream.cs" />
+    <Compile Include="IO\ChainedStreamTests.cs" />
+    <Compile Include="IO\FilteredStreamTests.cs" />
+    <Compile Include="IO\ReadOneByteStream.cs" />
+    <Compile Include="Text\HtmlAttributeTests.cs" />
+    <Compile Include="Text\HtmlEntityDecoderTests.cs" />
+    <Compile Include="Text\HtmlToHtmlTests.cs" />
+    <Compile Include="Text\HtmlTokenizerTests.cs" />
+    <Compile Include="Text\HtmlUtilsTests.cs" />
+    <Compile Include="Text\HtmlWriterTests.cs" />
+    <Compile Include="Text\RtfCompressedToRtfTests.cs" />
+    <Compile Include="Text\TextConverterTests.cs" />
+    <Compile Include="Text\TextToHtmlTests.cs" />
+    <Compile Include="Text\TrieTests.cs" />
+    <Compile Include="Text\UrlScannerTests.cs" />
+    <Compile Include="Tnef\TnefTests.cs" />
+    <Compile Include="Utils\CharsetUtilsTests.cs" />
+    <Compile Include="Utils\DateParserTests.cs" />
+    <Compile Include="Utils\MimeUtilsTests.cs" />
+    <Compile Include="Utils\ParseUtilsTests.cs" />
+    <Compile Include="Utils\Rfc2047Tests.cs" />
     <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="AssortedTests.cs" />
     <Compile Include="AttachmentCollectionTests.cs" />
-    <Compile Include="ChainedStreamTests.cs" />
-    <Compile Include="CharsetUtilsTests.cs" />
-    <Compile Include="CmsRecipientTests.cs" />
-    <Compile Include="CmsSignerTests.cs" />
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="ContentDispositionTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
-    <Compile Include="DateParserTests.cs" />
-    <Compile Include="DkimRelaxedBodyFilterTests.cs" />
-    <Compile Include="DkimTests.cs" />
     <Compile Include="DomainListTests.cs" />
-    <Compile Include="DummyOpenPgpContext.cs" />
-    <Compile Include="DummySecureMimeContext.cs" />
-    <Compile Include="EncoderTests.cs" />
     <Compile Include="ExceptionTests.cs" />
-    <Compile Include="FilterTests.cs" />
     <Compile Include="GroupAddressTests.cs" />
     <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
-    <Compile Include="HtmlAttributeTests.cs" />
-    <Compile Include="HtmlEntityDecoderTests.cs" />
     <Compile Include="HtmlPreviewVisitor.cs" />
-    <Compile Include="HtmlToHtmlTests.cs" />
-    <Compile Include="HtmlTokenizerTests.cs" />
-    <Compile Include="HtmlUtilsTests.cs" />
-    <Compile Include="HtmlWriterTests.cs" />
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="InternetAddressTests.cs" />
     <Compile Include="MailboxAddressTests.cs" />
@@ -107,7 +125,6 @@
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="MimePartTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
-    <Compile Include="MimeUtilsTests.cs" />
     <Compile Include="MimeVisitorTests.cs" />
     <Compile Include="MultipartRelatedTests.cs" />
     <Compile Include="MultipartReportTests.cs" />
@@ -115,20 +132,7 @@
     <Compile Include="ParameterListTests.cs" />
     <Compile Include="ParameterTests.cs" />
     <Compile Include="ParserOptionsTests.cs" />
-    <Compile Include="ParseUtilsTests.cs" />
-    <Compile Include="PgpMimeTests.cs" />
-    <Compile Include="Rfc2047Tests.cs" />
-    <Compile Include="RtfCompressedToRtfTests.cs" />
-    <Compile Include="SecureMimeTests.cs" />
-    <Compile Include="TextConverterTests.cs" />
     <Compile Include="TextPartTests.cs" />
-    <Compile Include="TextToHtmlTests.cs" />
-    <Compile Include="TnefTests.cs" />
-    <Compile Include="TrieTests.cs" />
-    <Compile Include="UrlScannerTests.cs" />
-    <Compile Include="X509CertificateChainTests.cs" />
-    <Compile Include="X509CertificateStoreTests.cs" />
-    <Compile Include="YEncodingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />
@@ -235,7 +239,6 @@
     <None Include="TestData\yenc\state-changes.ntx" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.105.2\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.105.2\build\net45\System.Data.SQLite.Core.targets')" />
 </Project>

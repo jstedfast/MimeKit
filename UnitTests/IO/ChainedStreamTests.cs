@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -84,7 +83,52 @@ namespace UnitTests {
 		//}
 
 		[Test]
-		public void TestReading ()
+		public void TestCanReadWriteSeek ()
+		{
+			var buffer = new byte[1024];
+
+			using (var chained = new ChainedStream ()) {
+				chained.Add (new CanReadWriteSeekStream (true, false, false, false));
+
+				Assert.IsTrue (chained.CanRead);
+				Assert.IsFalse (chained.CanWrite);
+				Assert.IsFalse (chained.CanSeek);
+				Assert.IsFalse (chained.CanTimeout);
+
+				Assert.Throws<NotImplementedException> (() => chained.Read (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => chained.Write (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => chained.Seek (0, SeekOrigin.End));
+			}
+
+			using (var chained = new ChainedStream ()) {
+				chained.Add (new CanReadWriteSeekStream (false, true, false, false));
+
+				Assert.IsFalse (chained.CanRead);
+				Assert.IsTrue (chained.CanWrite);
+				Assert.IsFalse (chained.CanSeek);
+				Assert.IsFalse (chained.CanTimeout);
+
+				Assert.Throws<NotSupportedException> (() => chained.Read (buffer, 0, buffer.Length));
+				Assert.Throws<NotImplementedException> (() => chained.Write (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => chained.Seek (0, SeekOrigin.End));
+			}
+
+			using (var chained = new ChainedStream ()) {
+				chained.Add (new CanReadWriteSeekStream (false, false, true, false));
+
+				Assert.IsFalse (chained.CanRead);
+				Assert.IsFalse (chained.CanWrite);
+				Assert.IsTrue (chained.CanSeek);
+				Assert.IsFalse (chained.CanTimeout);
+
+				Assert.Throws<NotSupportedException> (() => chained.Read (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => chained.Write (buffer, 0, buffer.Length));
+				Assert.Throws<NotImplementedException> (() => chained.Seek (0, SeekOrigin.End));
+			}
+		}
+
+		[Test]
+		public void TestRead ()
 		{
 			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
 
@@ -102,7 +146,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestReadingAsync ()
+		public async void TestReadAsync ()
 		{
 			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
 
@@ -276,7 +320,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestWriting ()
+		public void TestWrite ()
 		{
 			var buffer = new byte[(int) chained.Length];
 
@@ -293,7 +337,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestWritingAsync ()
+		public async void TestWriteAsync ()
 		{
 			var buffer = new byte[(int) chained.Length];
 
@@ -335,80 +379,9 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSetLengthThrowsNotSupported ()
+		public void TestSetLength ()
 		{
 			Assert.Throws<NotSupportedException> (() => chained.SetLength (500));
-		}
-	}
-
-	class ReadOneByteStream : Stream
-	{
-		readonly Stream source;
-
-		public ReadOneByteStream (Stream source)
-		{
-			this.source = source;
-		}
-
-		public override bool CanRead {
-			get { return source.CanRead; }
-		}
-
-		public override bool CanWrite {
-			get { return source.CanWrite; }
-		}
-
-		public override bool CanSeek {
-			get { return source.CanSeek; }
-		}
-
-		public override long Length {
-			get { return source.Length; }
-		}
-
-		public override long Position {
-			get { return source.Position; }
-			set { source.Position = value; }
-		}
-
-		public override int Read (byte[] buffer, int offset, int count)
-		{
-			return source.Read (buffer, offset, 1);
-		}
-
-		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-		{
-			return source.ReadAsync (buffer, offset, count, cancellationToken);
-		}
-
-		public override void Write (byte[] buffer, int offset, int count)
-		{
-			source.Write (buffer, offset, count);
-		}
-
-		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-		{
-			return source.WriteAsync (buffer, offset, count, cancellationToken);
-		}
-
-		public override long Seek (long offset, SeekOrigin origin)
-		{
-			return source.Seek (offset, origin);
-		}
-
-		public override void Flush ()
-		{
-			source.Flush ();
-		}
-
-		public override Task FlushAsync (CancellationToken cancellationToken)
-		{
-			return source.FlushAsync (cancellationToken);
-		}
-
-		public override void SetLength (long value)
-		{
-			source.SetLength (value);
 		}
 	}
 }
