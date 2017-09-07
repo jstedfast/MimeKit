@@ -83,7 +83,9 @@
     <Compile Include="IO\CanReadWriteSeekStream.cs" />
     <Compile Include="IO\ChainedStreamTests.cs" />
     <Compile Include="IO\FilteredStreamTests.cs" />
+    <Compile Include="IO\MemoryBlockStreamTests.cs" />
     <Compile Include="IO\ReadOneByteStream.cs" />
+    <Compile Include="IO\TimeoutStream.cs" />
     <Compile Include="Text\HtmlAttributeTests.cs" />
     <Compile Include="Text\HtmlEntityDecoderTests.cs" />
     <Compile Include="Text\HtmlToHtmlTests.cs" />
@@ -116,7 +118,6 @@
     <Compile Include="InternetAddressListTests.cs" />
     <Compile Include="InternetAddressTests.cs" />
     <Compile Include="MailboxAddressTests.cs" />
-    <Compile Include="MemoryBlockStreamTests.cs" />
     <Compile Include="MessageDeliveryStatusTests.cs" />
     <Compile Include="MessageDispositionNotificiationTests.cs" />
     <Compile Include="MessageIdListTests.cs" />
@@ -133,7 +134,6 @@
     <Compile Include="ParameterTests.cs" />
     <Compile Include="ParserOptionsTests.cs" />
     <Compile Include="TextPartTests.cs" />
-    <Compile Include="IO\TimeoutStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />
