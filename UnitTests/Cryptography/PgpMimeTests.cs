@@ -771,6 +771,10 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => ctx.CanSign (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.CanEncrypt (null));
 
+				// Delete
+				Assert.Throws<ArgumentNullException> (() => ctx.Delete ((PgpPublicKeyRing) null), "Delete");
+				Assert.Throws<ArgumentNullException> (() => ctx.Delete ((PgpSecretKeyRing) null), "Delete");
+
 				// Decrypt
 				Assert.Throws<ArgumentNullException> (() => ctx.Decrypt (null), "Decrypt");
 
@@ -850,6 +854,10 @@ namespace UnitTests {
 				Assert.Throws<ArgumentException> (() => ctx.SignAndEncrypt (key, DigestAlgorithm.Sha1, emptyPubkeys, stream), "SignAndEncrypt");
 				Assert.Throws<ArgumentNullException> (() => ctx.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null), "SignAndEncrypt");
 				Assert.Throws<ArgumentNullException> (() => ctx.SignAndEncrypt (key, DigestAlgorithm.Sha1, pubkeys, null), "SignAndEncrypt");
+
+				// SignKey
+				Assert.Throws<ArgumentNullException> (() => ctx.SignKey (null, pubkeys[0]), "SignKey");
+				Assert.Throws<ArgumentNullException> (() => ctx.SignKey (key, null), "SignKey");
 
 				// Supports
 				Assert.Throws<ArgumentNullException> (() => ctx.Supports (null), "Supports");
