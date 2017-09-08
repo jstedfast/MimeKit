@@ -2312,8 +2312,7 @@ namespace MimeKit.Cryptography {
 			var tmp = Path.Combine (dirname, "." + filename);
 			var bak = Path.Combine (dirname, filename);
 
-			if (!Directory.Exists (dirname))
-				Directory.CreateDirectory (dirname);
+			Directory.CreateDirectory (dirname);
 
 			using (var file = File.Open (tmp, FileMode.Create, FileAccess.Write)) {
 				PublicKeyRingBundle.Encode (file);
@@ -2356,8 +2355,7 @@ namespace MimeKit.Cryptography {
 			var tmp = Path.Combine (dirname, "." + filename);
 			var bak = Path.Combine (dirname, filename);
 
-			if (!Directory.Exists (dirname))
-				Directory.CreateDirectory (dirname);
+			Directory.CreateDirectory (dirname);
 
 			using (var file = File.Open (tmp, FileMode.Create, FileAccess.Write)) {
 				SecretKeyRingBundle.Encode (file);
