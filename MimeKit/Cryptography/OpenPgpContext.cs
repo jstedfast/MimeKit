@@ -958,6 +958,7 @@ namespace MimeKit.Cryptography {
 			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
 		}
 
+		#if false
 		/// <summary>
 		/// Gets the private key.
 		/// </summary>
@@ -998,6 +999,7 @@ namespace MimeKit.Cryptography {
 			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
 			}
 		}
+		#endif
 
 		void AddEncryptionKeyPair (PgpKeyRingGenerator keyRingGenerator, KeyGenerationParameters parameters, PublicKeyAlgorithmTag algorithm, DateTime now, long expirationTime, int[] encryptionAlgorithms, int[] digestAlgorithms)
 		{
