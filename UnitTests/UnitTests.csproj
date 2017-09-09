@@ -83,6 +83,7 @@
     <Compile Include="IO\CanReadWriteSeekStream.cs" />
     <Compile Include="IO\ChainedStreamTests.cs" />
     <Compile Include="IO\FilteredStreamTests.cs" />
+    <Compile Include="IO\MeasuringStreamTests.cs" />
     <Compile Include="IO\MemoryBlockStreamTests.cs" />
     <Compile Include="IO\ReadOneByteStream.cs" />
     <Compile Include="IO\TimeoutStream.cs" />
