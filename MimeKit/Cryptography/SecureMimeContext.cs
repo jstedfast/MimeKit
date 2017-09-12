@@ -833,17 +833,20 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.RC2Cbc) {
-				var param = (DerInteger) identifier.Parameters;
-				int bits = param.Value.IntValue;
+                // RC2CBCParameter see: https://tools.ietf.org/html/rfc3370#section-5.2
+                var param = (DerSequence)identifier.Parameters;
+
+                var rc2ParameterVersion = (DerInteger)param[0];
+				int bits = rc2ParameterVersion.Value.IntValue;
 
 				switch (bits) {
-				case 128: algorithm = EncryptionAlgorithm.RC2128; return true;
-				case 64: algorithm = EncryptionAlgorithm.RC264; return true;
-				case 40: algorithm = EncryptionAlgorithm.RC240; return true;
+				    case 160: algorithm = EncryptionAlgorithm.RC240; return true;
+				    case 120: algorithm = EncryptionAlgorithm.RC264; return true;
+				    case 58: algorithm = EncryptionAlgorithm.RC2128; return true;
 				}
-			}
+            }
 
-			algorithm = EncryptionAlgorithm.RC240;
+            algorithm = EncryptionAlgorithm.RC240;
 
 			return false;
 		}
