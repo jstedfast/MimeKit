@@ -998,7 +998,7 @@ namespace MimeKit {
 #endif
 				int count = (int) memory.Length;
 
-				return CharsetUtils.Latin1.GetString (buffer, 0, count);
+				return CharsetUtils.UTF8.GetString (buffer, 0, count);
 			}
 		}
 
