@@ -765,13 +765,72 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
+		/// to a <see cref="DigestAlgorithm"/>.
+		/// </summary>
+		/// <remarks>
+		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
+		/// to a <see cref="DigestAlgorithm"/>.
+		/// </remarks>
+		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; otherwise, <c>false</c>.</returns>
+		/// <param name="identifier">The algorithm identifier.</param>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="identifier"/> is <c>null</c>.
+		/// </exception>
+		protected static bool TryGetDigestAlgorithm (AlgorithmIdentifier identifier, out DigestAlgorithm algorithm)
+		{
+			if (identifier == null)
+				throw new ArgumentNullException (nameof (identifier));
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha1) {
+				algorithm = DigestAlgorithm.Sha1;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha224) {
+				algorithm = DigestAlgorithm.Sha224;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha256) {
+				algorithm = DigestAlgorithm.Sha256;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha384) {
+				algorithm = DigestAlgorithm.Sha384;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha512) {
+				algorithm = DigestAlgorithm.Sha512;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestRipeMD160) {
+				algorithm = DigestAlgorithm.RipeMD160;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestMD5) {
+				algorithm = DigestAlgorithm.MD5;
+				return true;
+			}
+
+			algorithm = DigestAlgorithm.None;
+
+			return false;
+		}
+
+		/// <summary>
+		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
 		/// to a <see cref="EncryptionAlgorithm"/>.
 		/// </summary>
 		/// <remarks>
 		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
 		/// to a <see cref="EncryptionAlgorithm"/>.
 		/// </remarks>
-		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; otherwise, <c>false</c>.</returns>
 		/// <param name="identifier">The algorithm identifier.</param>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -888,6 +947,7 @@ namespace MimeKit.Cryptography {
 				var signature = new SecureMimeDigitalSignature (signerInfo);
 				var algorithms = new List<EncryptionAlgorithm> ();
 				DateTime? signedDate = null;
+				DigestAlgorithm digestAlgo;
 
 				if (signerInfo.SignedAttributes != null) {
 					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
@@ -913,6 +973,9 @@ namespace MimeKit.Cryptography {
 
 					signature.EncryptionAlgorithms = algorithms.ToArray ();
 				}
+
+				if (TryGetDigestAlgorithm (signerInfo.DigestAlgorithmID, out digestAlgo))
+					signature.DigestAlgorithm = digestAlgo;
 
 				if (certificate != null) {
 					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
