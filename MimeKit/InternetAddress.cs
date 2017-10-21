@@ -521,6 +521,9 @@ namespace MimeKit {
 			// skip over the ':'
 			index++;
 
+			while (index < endIndex && (text[index] == ':' || text[index].IsBlank ()))
+				index++;
+
 			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, throwOnError, out members))
 				address = new GroupAddress (encoding, name, members);
 			else
