@@ -43,6 +43,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class Header
 	{
+		internal static readonly byte[] Colon = { (byte) ':' };
 		internal readonly ParserOptions Options;
 
 		// cached FormatOptions that change the way the header is formatted

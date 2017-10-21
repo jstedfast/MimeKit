@@ -701,7 +701,7 @@ namespace MimeKit {
 					var rawValue = header.GetRawValue (options);
 
 					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
-					filtered.Write (new [] { (byte) ':' }, 0, 1, cancellationToken);
+					filtered.Write (Header.Colon, 0, Header.Colon.Length, cancellationToken);
 					filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
 				}
 
