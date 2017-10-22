@@ -576,31 +576,6 @@ namespace MimeKit.Utils {
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses an rfc822 date and time from the supplied buffer starting at the given index
-		/// and spanning across the specified number of bytes.
-		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-		/// <param name="buffer">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The number of bytes in the input buffer to parse.</param>
-		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		[Obsolete ("Use TryParse (byte[] buffer, int startIndex, int length, out DateTimeOffset date) instead.")]
-		public static bool TryParseDateTime (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
-		{
-			return TryParse (buffer, startIndex, length, out date);
-		}
-
-		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
-		/// </summary>
-		/// <remarks>
 		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
 		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
@@ -639,28 +614,6 @@ namespace MimeKit.Utils {
 		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
 		/// <remarks>
-		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
-		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-		/// <param name="buffer">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is not within the range of the byte array.
-		/// </exception>
-		[Obsolete ("Use TryParse (byte[] buffer, int startIndex, out DateTimeOffset date) instead.")]
-		public static bool TryParseDateTime (byte[] buffer, int startIndex, out DateTimeOffset date)
-		{
-			return TryParse (buffer, startIndex, out date);
-		}
-
-		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
-		/// </summary>
-		/// <remarks>
 		/// Parses an rfc822 date and time from the specified buffer.
 		/// </remarks>
 		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
@@ -685,24 +638,6 @@ namespace MimeKit.Utils {
 			date = new DateTimeOffset ();
 
 			return false;
-		}
-
-		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
-		/// </summary>
-		/// <remarks>
-		/// Parses an rfc822 date and time from the specified buffer.
-		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-		/// <param name="buffer">The input buffer.</param>
-		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
-		/// </exception>
-		[Obsolete ("Use TryParse (byte[] buffer, out DateTimeOffset date) instead.")]
-		public static bool TryParseDateTime (byte[] buffer, out DateTimeOffset date)
-		{
-			return TryParse (buffer, out date);
 		}
 
 		/// <summary>
@@ -734,24 +669,6 @@ namespace MimeKit.Utils {
 			date = new DateTimeOffset ();
 
 			return false;
-		}
-
-		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
-		/// </summary>
-		/// <remarks>
-		/// Parses an rfc822 date and time from the specified text.
-		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
-		/// <param name="text">The input text.</param>
-		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
-		/// </exception>
-		[Obsolete ("Use TryParse (string text, out DateTimeOffset date) instead.")]
-		public static bool TryParseDateTime (string text, out DateTimeOffset date)
-		{
-			return TryParse (text, out date);
 		}
 
 		// Note: this method exists because BouncyCastle's DerUtcTime.ParseDateString() fails
