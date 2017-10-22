@@ -29,6 +29,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -371,6 +374,18 @@ namespace MimeKit {
 			}
 		}
 
+#if !NET_3_5 && !NET_4_0
+		static Task WriteBytesAsync (FormatOptions options, Stream stream, byte[] bytes, CancellationToken cancellationToken)
+		{
+			var filter = options.CreateNewLineFilter ();
+			int index, length;
+
+			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
+
+			return stream.WriteAsync (output, index, length, cancellationToken);
+		}
+#endif
+
 		/// <summary>
 		/// Prepare the MIME entity for transport using the specified encoding constraints.
 		/// </summary>
@@ -504,6 +519,83 @@ namespace MimeKit {
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
 				WriteBytes (options, stream, RawEpilogue, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the multipart MIME entity and its subparts to the output stream.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (Boundary == null)
+				Boundary = GenerateBoundary ();
+
+			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
+
+			if (ContentType.IsMimeType ("multipart", "signed")) {
+				// don't reformat the headers or content of any children of a multipart/signed
+				if (options.International || options.HiddenHeaders.Count > 0) {
+					options = options.Clone ();
+					options.HiddenHeaders.Clear ();
+					options.International = false;
+				}
+			}
+
+			if (RawPreamble != null && RawPreamble.Length > 0)
+				await WriteBytesAsync (options, stream, RawPreamble, cancellationToken).ConfigureAwait (false);
+
+			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
+
+			for (int i = 0; i < children.Count; i++) {
+				var msg = children[i] as MessagePart;
+				var multi = children[i] as Multipart;
+				var part = children[i] as MimePart;
+
+				await stream.WriteAsync (boundary, 0, boundary.Length - 2, cancellationToken).ConfigureAwait (false);
+				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				await children[i].WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
+
+				if (msg != null && msg.Message != null && msg.Message.Body != null) {
+					multi = msg.Message.Body as Multipart;
+					part = msg.Message.Body as MimePart;
+				}
+
+				if ((part != null && part.ContentObject == null) ||
+				    (multi != null && !multi.WriteEndBoundary))
+					continue;
+
+				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+			}
+
+			if (!WriteEndBoundary)
+				return;
+
+			await stream.WriteAsync (boundary, 0, boundary.Length, cancellationToken).ConfigureAwait (false);
+
+			if (RawEpilogue == null)
+				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+
+			if (RawEpilogue != null && RawEpilogue.Length > 0)
+				await WriteBytesAsync (options, stream, RawEpilogue, cancellationToken).ConfigureAwait (false);
+		}
+#endif
 
 		#region ICollection implementation
 

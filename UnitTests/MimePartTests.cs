@@ -81,6 +81,19 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (Stream) null, false));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, "fileName", false));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (string) null, false));
+
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((string) null));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((string) null, false));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null, false));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, Stream.Null, false));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null, false));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName", false));
+			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null, false));
 		}
 
 		[Test]

@@ -29,6 +29,9 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -423,6 +426,44 @@ namespace MimeKit {
 				Headers.WriteTo (options, stream, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public virtual Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (!contentOnly)
+				return Headers.WriteToAsync (options, stream, cancellationToken);
+
+			return Task.FromResult (0);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -449,6 +490,34 @@ namespace MimeKit {
 			WriteTo (options, stream, false, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (options, stream, false, cancellationToken);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -472,6 +541,31 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Adsynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the entity to the output stream.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (FormatOptions.Default, stream, contentOnly, cancellationToken);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -493,6 +587,30 @@ namespace MimeKit {
 		{
 			WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the entity to the output stream.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (FormatOptions.Default, stream, false, cancellationToken);
+		}
+#endif
 
 #if !PORTABLE
 		/// <summary>
@@ -542,6 +660,55 @@ namespace MimeKit {
 				WriteTo (options, stream, contentOnly, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="fileName">The file.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				await WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -588,6 +755,54 @@ namespace MimeKit {
 				WriteTo (options, stream, false, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="fileName">The file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				await WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -629,6 +844,49 @@ namespace MimeKit {
 				WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// </remarks>
+		/// <param name="fileName">The file.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				await WriteToAsync (FormatOptions.Default, stream, contentOnly, cancellationToken).ConfigureAwait (false);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -668,6 +926,48 @@ namespace MimeKit {
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// </remarks>
+		/// <param name="fileName">The file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				await WriteToAsync (FormatOptions.Default, stream, false, cancellationToken).ConfigureAwait (false);
+		}
+#endif
 #endif
 
 		/// <summary>

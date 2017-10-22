@@ -29,6 +29,9 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -1119,6 +1122,73 @@ namespace MimeKit {
 			}
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
+				MimeVersion = new Version (1, 0);
+
+			if (Body != null) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					foreach (var header in MergeHeaders ()) {
+						if (options.HiddenHeaders.Contains (header.Id))
+							continue;
+
+						var rawValue = header.GetRawValue (options);
+
+						await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
+						await filtered.WriteAsync (Header.Colon, 0, Header.Colon.Length, cancellationToken).ConfigureAwait (false);
+						await filtered.WriteAsync (rawValue, 0, rawValue.Length, cancellationToken).ConfigureAwait (false);
+					}
+
+					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+				}
+
+				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+
+				if (!headersOnly) {
+					try {
+						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
+						await Body.WriteToAsync (options, stream, true, cancellationToken).ConfigureAwait (false);
+					} finally {
+						Body.EnsureNewLine = false;
+					}
+				}
+			} else {
+				await Headers.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+			}
+		}
+#endif
+
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
@@ -1144,6 +1214,33 @@ namespace MimeKit {
 			WriteTo (options, stream, false, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (options, stream, false, cancellationToken);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
@@ -1167,6 +1264,31 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, headersOnly, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (Stream stream, bool headersOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (FormatOptions.Default, stream, headersOnly, cancellationToken);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the message to the specified output stream.
 		/// </summary>
@@ -1188,6 +1310,30 @@ namespace MimeKit {
 		{
 			WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the default formatting options.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (FormatOptions.Default, stream, false, cancellationToken);
+		}
+#endif
 
 #if !PORTABLE
 		/// <summary>
@@ -1236,6 +1382,54 @@ namespace MimeKit {
 				WriteTo (options, stream, cancellationToken);
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the message to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the specified file using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="fileName">The file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				await WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the message to the specified file.
 		/// </summary>
@@ -1275,6 +1469,48 @@ namespace MimeKit {
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the message to the specified file.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the specified file using the default formatting options.
+		/// </remarks>
+		/// <param name="fileName">The file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="fileName"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to write to the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+				await WriteToAsync (FormatOptions.Default, stream, cancellationToken).ConfigureAwait (false);
+		}
+#endif
 #endif
 
 		MailboxAddress GetMessageSigner ()

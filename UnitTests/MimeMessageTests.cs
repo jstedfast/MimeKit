@@ -76,6 +76,12 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (Stream) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (string) null));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync ((string) null));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync ((Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (FormatOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (FormatOptions.Default, (string) null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, DigestAlgorithm.Sha1));
 			Assert.Throws<ArgumentNullException> (() => message.Encrypt (null));
@@ -83,7 +89,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestReserialization ()
+		public async void TestReserialization ()
 		{
 			string rawMessageText = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
 Received: from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
@@ -158,7 +164,6 @@ Just for fun....  -- Nathaniel<nl>
 
 --Multipart.Alternative.IeCBvV20M2YtEoUA0A--
 ".Replace ("\r\n", "\n");
-			string result;
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
@@ -170,15 +175,26 @@ Just for fun....  -- Nathaniel<nl>
 
 					message.WriteTo (options, serialized);
 
-					result = Encoding.UTF8.GetString (serialized.ToArray ());
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
 				}
 			}
-
-			Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
 		}
 
 		[Test]
-		public void TestReserializationEmptyParts ()
+		public async void TestReserializationEmptyParts ()
 		{
 			string rawMessageText = @"Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
 From: MimeKit Unit Tests <unit.tests@mimekit.org>
@@ -207,7 +223,6 @@ Content-Description: this part contains a single blank line
 
 --Interpart.Boundary.IeCBvV20M2YtEoUA0A--
 ".Replace ("\r\n", "\n");
-			string result;
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
@@ -219,15 +234,26 @@ Content-Description: this part contains a single blank line
 
 					message.WriteTo (options, serialized);
 
-					result = Encoding.UTF8.GetString (serialized.ToArray ());
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
 				}
 			}
-
-			Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
 		}
 
 		[Test]
-		public void TestReserializationMessageParts ()
+		public async void TestReserializationMessageParts ()
 		{
 			string rawMessageText = @"Path: flop.mcom.com!news.Stanford.EDU!agate!tcsi.tcs.com!uunet!vixen.cso.uiuc.edu!gateway
 From: Internet-Drafts@CNRI.Reston.VA.US
@@ -302,7 +328,6 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 --NextPart--
 ".Replace ("\r\n", "\n");
-			string result;
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
@@ -314,11 +339,22 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 					message.WriteTo (options, serialized);
 
-					result = Encoding.UTF8.GetString (serialized.ToArray ());
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
 				}
 			}
-
-			Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
 		}
 
 		[Test]

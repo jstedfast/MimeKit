@@ -27,6 +27,9 @@
 using System;
 using System.IO;
 using System.Threading;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -184,6 +187,58 @@ namespace MimeKit {
 			}
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously copies the content stream to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>This is equivalent to simply using <see cref="System.IO.Stream.CopyTo(System.IO.Stream)"/>
+		/// to copy the content stream to the output stream except that this method is cancellable.</para>
+		/// <note type="note">If you want the decoded content, use
+		/// <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/> instead.</note>
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			var buf = new byte[4096];
+			int nread;
+
+			Stream.Seek (0, SeekOrigin.Begin);
+
+			try {
+				do {
+					if ((nread = await Stream.ReadAsync (buf, 0, buf.Length, cancellationToken).ConfigureAwait (false)) <= 0)
+						break;
+
+					await stream.WriteAsync (buf, 0, nread, cancellationToken).ConfigureAwait (false);
+				} while (true);
+
+				Stream.Seek (0, SeekOrigin.Begin);
+			} catch (OperationCanceledException) {
+				// try and reset the stream
+				try {
+					Stream.Seek (0, SeekOrigin.Begin);
+				} catch (IOException) {
+				}
+
+				throw;
+			}
+		}
+#endif
+
 		/// <summary>
 		/// Decodes the content stream into another stream.
 		/// </summary>
@@ -217,6 +272,42 @@ namespace MimeKit {
 				filtered.Flush (cancellationToken);
 			}
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously decodes the content stream into another stream.
+		/// </summary>
+		/// <remarks>
+		/// If the content stream is encoded, this method will decode it into the output stream
+		/// using a suitable decoder based on the <see cref="Encoding"/> property, otherwise the
+		/// stream will be copied into the output stream as-is.
+		/// </remarks>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
+		public async Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			using (var filtered = new FilteredStream (stream)) {
+				filtered.Add (DecoderFilter.Create (Encoding));
+				await WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+			}
+		}
+#endif
 
 		#endregion
 	}

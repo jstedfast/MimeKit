@@ -29,6 +29,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -718,6 +721,54 @@ namespace MimeKit {
 			}
 		}
 
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes all of the headers to the output stream.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task WriteToAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			using (var filtered = new FilteredStream (stream)) {
+				filtered.Add (options.CreateNewLineFilter ());
+
+				foreach (var header in headers) {
+					var rawValue = header.GetRawValue (options);
+
+					await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
+					await filtered.WriteAsync (Header.Colon, 0, Header.Colon.Length, cancellationToken).ConfigureAwait (false);
+					await filtered.WriteAsync (rawValue, 0, rawValue.Length, cancellationToken).ConfigureAwait (false);
+				}
+
+				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+			}
+
+			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+		}
+#endif
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
@@ -739,6 +790,31 @@ namespace MimeKit {
 		{
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.HeaderList"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes all of the headers to the output stream.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return WriteToAsync (FormatOptions.Default, stream, cancellationToken);
+		}
+#endif
 
 		#region ICollection implementation
 

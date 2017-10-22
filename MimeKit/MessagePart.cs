@@ -27,6 +27,9 @@
 using System;
 using System.IO;
 using System.Threading;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 
 using MimeKit.IO;
 
@@ -220,5 +223,43 @@ namespace MimeKit {
 
 			Message.WriteTo (options, stream, cancellationToken);
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MessagePart"/> to the output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the MIME entity and its message to the output stream.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
+
+			if (Message == null)
+				return;
+
+			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0) {
+				await stream.WriteAsync (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken).ConfigureAwait (false);
+				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+			}
+
+			await Message.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+		}
+#endif
 	}
 }

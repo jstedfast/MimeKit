@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+
 using NUnit.Framework;
 
 using MimeKit;
@@ -216,45 +217,13 @@ namespace UnitTests {
 			}
 		}
 
-		[Test]
-		public void TestJwzMbox ()
+		static void AssertJwzMboxResults (string actual, Stream output)
 		{
 			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
-			var options = FormatOptions.Default.Clone ();
 			var original = new MemoryBlockStream ();
-			var output = new MemoryBlockStream ();
-			var builder = new StringBuilder ();
 			var expected = new byte[4096];
 			var buffer = new byte[4096];
 			int nx, n;
-
-			options.NewLineFormat = NewLineFormat.Unix;
-
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
-				int count = 0;
-
-				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
-
-					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
-					if (message.From.Count > 0)
-						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
-					if (message.To.Count > 0)
-						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
-					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
-					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
-					DumpMimeTree (builder, message);
-					builder.Append ('\n');
-
-					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
-					output.Write (marker, 0, marker.Length);
-					message.WriteTo (options, output);
-					count++;
-				}
-			}
-
-			string actual = builder.ToString ();
 
 			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
 			string iso2022jp = Encoding.GetEncoding ("iso-2022-jp").GetString (Convert.FromBase64String ("GyRAOjRGI0stGyhK"));
@@ -295,6 +264,78 @@ namespace UnitTests {
 					Assert.AreEqual (strExpected, strActual, "The mbox differs at position {0}", position + i);
 				}
 			} while (true);
+		}
+
+		[Test]
+		public void TestJwzMbox ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			var output = new MemoryBlockStream ();
+			var builder = new StringBuilder ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				int count = 0;
+
+				while (!parser.IsEndOfStream) {
+					var message = parser.ParseMessage ();
+
+					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
+					if (message.From.Count > 0)
+						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
+					if (message.To.Count > 0)
+						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
+					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
+					DumpMimeTree (builder, message);
+					builder.Append ('\n');
+
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
+					output.Write (marker, 0, marker.Length);
+					message.WriteTo (options, output);
+					count++;
+				}
+			}
+
+			AssertJwzMboxResults (builder.ToString (), output);
+		}
+
+		[Test]
+		public async void TestJwzMboxAsync ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			var output = new MemoryBlockStream ();
+			var builder = new StringBuilder ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				int count = 0;
+
+				while (!parser.IsEndOfStream) {
+					var message = parser.ParseMessage ();
+
+					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
+					if (message.From.Count > 0)
+						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
+					if (message.To.Count > 0)
+						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
+					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
+					DumpMimeTree (builder, message);
+					builder.Append ('\n');
+
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
+					await output.WriteAsync (marker, 0, marker.Length);
+					await message.WriteToAsync (options, output);
+					count++;
+				}
+			}
+
+			AssertJwzMboxResults (builder.ToString (), output);
 		}
 
 		[Test]

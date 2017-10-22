@@ -28,6 +28,9 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+#if !NET_3_5 && !NET_4_0
+using System.Threading.Tasks;
+#endif
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
@@ -622,6 +625,75 @@ namespace MimeKit {
 				ContentObject.WriteTo (stream, cancellationToken);
 			}
 		}
+
+#if !NET_3_5 && !NET_4_0
+		/// <summary>
+		/// Asynchronously writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the MIME part to the output stream.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
+
+			if (ContentObject == null)
+				return;
+
+			if (ContentObject.Encoding != encoding) {
+				if (encoding == ContentEncoding.UUEncode) {
+					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
+					var buffer = Encoding.UTF8.GetBytes (begin);
+
+					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
+					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				}
+
+				// transcode the content into the desired Content-Transfer-Encoding
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (EncoderFilter.Create (encoding));
+
+					if (encoding != ContentEncoding.Binary)
+						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+
+					await ContentObject.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
+					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+				}
+
+				if (encoding == ContentEncoding.UUEncode) {
+					var buffer = Encoding.ASCII.GetBytes ("end");
+
+					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
+					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				}
+			} else if (encoding != ContentEncoding.Binary) {
+				using (var filtered = new FilteredStream (stream)) {
+					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
+					// MimeMessage.WriteTo() *always* ends with a new-line.
+					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+					await ContentObject.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+				}
+			} else {
+				await ContentObject.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
+			}
+		}
+#endif
 
 		/// <summary>
 		/// Called when the headers change in some way.
