@@ -470,49 +470,6 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse a version from a header such as Mime-Version.
-		/// </summary>
-		/// <remarks>
-		/// Parses a MIME version string from the supplied buffer starting at the given index
-		/// and spanning across the specified number of bytes.
-		/// </remarks>
-		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
-		/// <param name="buffer">The raw byte buffer to parse.</param>
-		/// <param name="startIndex">The index into the buffer to start parsing.</param>
-		/// <param name="length">The length of the buffer to parse.</param>
-		/// <param name="version">The parsed version.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		[Obsolete ("Use TryParse (byte[] buffer, int startIndex, int length, out Version version) instead.")]
-		public static bool TryParseVersion (byte[] buffer, int startIndex, int length, out Version version)
-		{
-			return TryParse (buffer, startIndex, length, out version);
-		}
-
-		/// <summary>
-		/// Tries to parse a version from a header such as Mime-Version.
-		/// </summary>
-		/// <remarks>
-		/// Parses a MIME version string from the specified text.
-		/// </remarks>
-		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
-		/// <param name="text">The text to parse.</param>
-		/// <param name="version">The parsed version.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
-		/// </exception>
-		[Obsolete ("Use TryParse (string text, out Version version) instead.")]
-		public static bool TryParseVersion (string text, out Version version)
-		{
-			return TryParse (text, out version);
-		}
-
-		/// <summary>
 		/// Tries to parse the value of a Content-Transfer-Encoding header.
 		/// </summary>
 		/// <remarks>
