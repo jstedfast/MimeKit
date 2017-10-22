@@ -2495,33 +2495,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports secret pgp keys from the specified stream.
-		/// </summary>
-		/// <remarks>
-		/// <para>Imports secret pgp keys from the specified stream.</para>
-		/// <para>The stream should consist of an armored secret keyring bundle
-		/// containing 1 or more secret keyrings.</para>
-		/// </remarks>
-		/// <param name="rawData">The raw key data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// <para>An error occurred while parsing the raw key-ring data</para>
-		/// <para>-or-</para>
-		/// <para>An error occured while saving the public key-ring bundle.</para>
-		/// </exception>
-		[Obsolete ("Use Import(PgpSecretKeyRingBundle) or Import(PgpSecretKeyRing)")]
-		public virtual void ImportSecretKeys (Stream rawData)
-		{
-			if (rawData == null)
-				throw new ArgumentNullException (nameof (rawData));
-
-			using (var armored = new ArmoredInputStream (rawData))
-				Import (new PgpSecretKeyRingBundle (armored));
-		}
-
-		/// <summary>
 		/// Exports the public keys for the specified mailboxes.
 		/// </summary>
 		/// <remarks>

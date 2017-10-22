@@ -56,8 +56,10 @@ namespace UnitTests {
 			}
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				using (var seckeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.sec")))
-					ctx.ImportSecretKeys (seckeys);
+				using (var seckeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.sec"))) {
+					using (var armored = new ArmoredInputStream (seckeys))
+						ctx.Import (new PgpSecretKeyRingBundle (armored));
+				}
 
 				using (var pubkeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.pub")))
 					ctx.Import (pubkeys);
@@ -826,9 +828,6 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpPublicKeyRingBundle) null), "Import");
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpSecretKeyRing) null), "Import");
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((PgpSecretKeyRingBundle) null), "Import");
-
-				// ImportSecretKeys
-				Assert.Throws<ArgumentNullException> (() => ctx.ImportSecretKeys (null), "ImportSecretKeys");
 
 				// Sign
 				Assert.Throws<ArgumentNullException> (() => ctx.Sign ((MailboxAddress) null, DigestAlgorithm.Sha1, stream), "Sign");
