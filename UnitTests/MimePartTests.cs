@@ -290,6 +290,90 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
 		}
 
+		[Test]
+		public void TestTranscoding ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var expected = File.ReadAllBytes (path);
+
+			var part = new MimePart ("image", "jpeg") {
+				ContentObject = new ContentObject (new MemoryStream (expected, false)),
+				ContentTransferEncoding = ContentEncoding.Base64,
+				FileName = "girl.jpg"
+			};
+
+			// encode in base64
+			using (var output = new MemoryStream ()) {
+				part.WriteTo (output);
+				output.Position = 0;
+
+				part = (MimePart) MimeEntity.Load (output);
+			}
+
+			// transcode to uuencode
+			part.ContentTransferEncoding = ContentEncoding.UUEncode;
+			using (var output = new MemoryStream ()) {
+				part.WriteTo (output);
+				output.Position = 0;
+
+				part = (MimePart) MimeEntity.Load (output);
+			}
+
+			// verify decoded content
+			using (var output = new MemoryStream ()) {
+				part.ContentObject.DecodeTo (output);
+				output.Position = 0;
+
+				var actual = output.ToArray ();
+
+				Assert.AreEqual (expected.Length, actual.Length);
+				for (int i = 0; i < expected.Length; i++)
+					Assert.AreEqual (expected[i], actual[i], "Image content differs at index {0}", i);
+			}
+		}
+
+		[Test]
+		public async void TestTranscodingAsync ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var expected = File.ReadAllBytes (path);
+
+			var part = new MimePart ("image", "jpeg") {
+				ContentObject = new ContentObject (new MemoryStream (expected, false)),
+				ContentTransferEncoding = ContentEncoding.Base64,
+				FileName = "girl.jpg"
+			};
+
+			// encode in base64
+			using (var output = new MemoryStream ()) {
+				await part.WriteToAsync (output);
+				output.Position = 0;
+
+				part = (MimePart) MimeEntity.Load (output);
+			}
+
+			// transcode to uuencode
+			part.ContentTransferEncoding = ContentEncoding.UUEncode;
+			using (var output = new MemoryStream ()) {
+				await part.WriteToAsync (output);
+				output.Position = 0;
+
+				part = (MimePart) MimeEntity.Load (output);
+			}
+
+			// verify decoded content
+			using (var output = new MemoryStream ()) {
+				await part.ContentObject.DecodeToAsync (output);
+				output.Position = 0;
+
+				var actual = output.ToArray ();
+
+				Assert.AreEqual (expected.Length, actual.Length);
+				for (int i = 0; i < expected.Length; i++)
+					Assert.AreEqual (expected[i], actual[i], "Image content differs at index {0}", i);
+			}
+		}
+
 		[TestCase ("content", TestName = "TestWriteToNoNewLine")]
 		[TestCase ("content\r\n", TestName = "TestWriteToNewLine")]
 		public void TestWriteTo (string text)
@@ -305,6 +389,37 @@ namespace UnitTests
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				body.WriteTo (options, stream);
+				stream.Position = 0;
+
+				var multipart = (Multipart) MimeEntity.Load (stream);
+				using (var input = ((MimePart) multipart[0]).ContentObject.Open ()) {
+					var buffer = new byte[1024];
+					int n;
+
+					n = input.Read (buffer, 0, buffer.Length);
+
+					var content = Encoding.UTF8.GetString (buffer, 0, n);
+
+					Assert.AreEqual (text, content);
+				}
+			}
+		}
+
+		[TestCase ("content", TestName = "TestWriteToNoNewLine")]
+		[TestCase ("content\r\n", TestName = "TestWriteToNewLine")]
+		public async void TestWriteToAsync (string text)
+		{
+			var builder = new BodyBuilder ();
+
+			builder.Attachments.Add ("filename", new MemoryStream (Encoding.UTF8.GetBytes (text)));
+
+			var body = builder.ToMessageBody ();
+
+			using (var stream = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				await body.WriteToAsync (options, stream);
 				stream.Position = 0;
 
 				var multipart = (Multipart) MimeEntity.Load (stream);
