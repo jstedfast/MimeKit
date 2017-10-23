@@ -196,6 +196,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async void TestEmptyMessageAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var message = await MimeMessage.LoadAsync (memory);
+
+					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse message: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestSimpleMbox ()
 		{
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt"))) {
@@ -225,6 +241,44 @@ namespace UnitTests {
 
 					using (var memory = new MemoryStream ()) {
 						entity.WriteTo (UnixFormatOptions, memory);
+
+						var text = Encoding.ASCII.GetString (memory.ToArray ());
+						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async void TestSimpleMboxAsync ()
+		{
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt"))) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+
+				while (!parser.IsEndOfStream) {
+					var message = await parser.ParseMessageAsync ();
+					Multipart multipart;
+					MimeEntity entity;
+
+					Assert.IsInstanceOf<Multipart> (message.Body);
+					multipart = (Multipart) message.Body;
+					Assert.AreEqual (1, multipart.Count);
+					entity = multipart[0];
+
+					Assert.IsInstanceOf<Multipart> (entity);
+					multipart = (Multipart) entity;
+					Assert.AreEqual (1, multipart.Count);
+					entity = multipart[0];
+
+					Assert.IsInstanceOf<Multipart> (entity);
+					multipart = (Multipart) entity;
+					Assert.AreEqual (1, multipart.Count);
+					entity = multipart[0];
+
+					Assert.IsInstanceOf<TextPart> (entity);
+
+					using (var memory = new MemoryStream ()) {
+						await entity.WriteToAsync (UnixFormatOptions, memory);
 
 						var text = Encoding.ASCII.GetString (memory.ToArray ());
 						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
@@ -496,6 +550,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async void TestJapaneseMessageAsync ()
+		{
+			const string subject = "日本語メールテスト (testing Japanese emails)";
+			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
+
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
+				var message = await MimeMessage.LoadAsync (stream);
+
+				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
+				Assert.AreEqual (body, message.TextBody.Replace ("\r\n", "\n"), "Message text does not match.");
+			}
+		}
+
+		[Test]
 		public void TestUnmungedFromLines ()
 		{
 			int count = 0;
@@ -505,6 +573,32 @@ namespace UnitTests {
 
 				while (!parser.IsEndOfStream) {
 					parser.ParseMessage ();
+
+					var marker = parser.MboxMarker;
+
+					if ((count % 2) == 0) {
+						Assert.AreEqual ("From -", marker.TrimEnd (), "Message #{0}", count);
+					} else {
+						Assert.AreEqual ("From Russia with love", marker.TrimEnd (), "Message #{0}", count);
+					}
+
+					count++;
+				}
+			}
+
+			Assert.AreEqual (4, count, "Expected to find 4 messages.");
+		}
+
+		[Test]
+		public async void TestUnmungedFromLinesAsync ()
+		{
+			int count = 0;
+
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "unmunged.mbox.txt"))) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+
+				while (!parser.IsEndOfStream) {
+					await parser.ParseMessageAsync ();
 
 					var marker = parser.MboxMarker;
 
@@ -538,6 +632,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async void TestMultipartEpilogueWithTextAsync ()
+		{
+			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
+
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
+				var message = await MimeMessage.LoadAsync (stream);
+				var multipart = message.Body as Multipart;
+
+				Assert.AreEqual (epilogue, multipart.Epilogue.Replace ("\r\n", "\n"), "The epilogue does not match");
+
+				Assert.IsTrue (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n',
+				               "The RawEpilogue does not start with a new-line.");
+			}
+		}
+
+		[Test]
 		public void TestMissingSubtype ()
 		{
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
@@ -560,6 +670,22 @@ namespace UnitTests {
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				try {
 					MimeMessage.Load (stream);
+				} catch {
+					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
+				}
+			}
+		}
+
+		[Test]
+		public async void TestMissingMessageBodyAsync ()
+		{
+			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +
+				"From: Jeffrey Stedfast <notifications@github.com>\r\n" +
+				"Subject: Re: [MimeKit] Allow parsing of message with 0 byte body. (#51)\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				try {
+					await MimeMessage.LoadAsync (stream);
 				} catch {
 					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
 				}

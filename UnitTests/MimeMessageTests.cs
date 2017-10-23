@@ -68,6 +68,17 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (string) null));
 
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((Stream) null, true));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync (ParserOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, Stream.Null, true));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync (ParserOptions.Default, (Stream) null, true));
+
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((string) null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (async () => await MimeMessage.LoadAsync (ParserOptions.Default, (string) null));
+
 			Assert.Throws<ArgumentNullException> (() => message.Accept (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.Prepare (EncodingConstraint.None, 10));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((string) null));
