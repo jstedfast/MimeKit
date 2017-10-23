@@ -1519,12 +1519,13 @@ namespace MimeKit {
 
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
-				switch (Step (inbuf, cancellationToken)) {
-				case MimeParserState.Error:
+				Step (inbuf, cancellationToken);
+
+				if (state == MimeParserState.Error)
 					throw new FormatException ("Failed to find mbox From marker.");
-				case MimeParserState.Eos:
-					throw new FormatException ("End of stream.");
-				}
+
+				if (state == MimeParserState.Eos)
+					break;
 			}
 
 			// parse the headers
