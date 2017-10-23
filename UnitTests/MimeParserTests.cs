@@ -79,6 +79,35 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async void TestHeaderParserAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = await HeaderList.LoadAsync (memory);
+					string value;
+
+					Assert.AreEqual (3, headers.Count, "Unexpected header count.");
+
+					value = headers["Header-1"];
+
+					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+
+					value = headers["Header-2"];
+
+					Assert.AreEqual ("value 2", value, "Unexpected header value.");
+
+					value = headers["Header-3"];
+
+					Assert.AreEqual ("value 3", value, "Unexpected header value.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestSingleHeaderNoTerminator ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
@@ -99,6 +128,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async void TestSingleHeaderNoTerminatorAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = await HeaderList.LoadAsync (memory);
+
+					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+
+					var value = headers["Header-1"];
+
+					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestEmptyHeaders ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
@@ -106,6 +155,22 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
 					var headers = HeaderList.Load (memory);
+
+					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
+		public async void TestEmptyHeadersAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = await HeaderList.LoadAsync (memory);
 
 					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
@@ -378,6 +443,45 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async void TestJwzPersistentMboxAsync ()
+		{
+			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
+			var builder = new StringBuilder ();
+
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox, true);
+
+				while (!parser.IsEndOfStream) {
+					var message = await parser.ParseMessageAsync ();
+
+					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
+					if (message.From.Count > 0)
+						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
+					if (message.To.Count > 0)
+						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
+					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
+					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
+					DumpMimeTree (builder, message);
+					builder.Append ('\n');
+
+					// Force the various MimePart objects to write their content streams.
+					// The idea is that by forcing the MimeParts to seek in their content,
+					// we will test to make sure that the parser correctly deals with it.
+					message.WriteTo (Stream.Null);
+				}
+			}
+
+			string actual = builder.ToString ();
+
+			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
+			string iso2022jp = Encoding.GetEncoding ("iso-2022-jp").GetString (Convert.FromBase64String ("GyRAOjRGI0stGyhK"));
+			if (iso2022jp != "佐藤豊")
+				actual = actual.Replace (iso2022jp, "佐藤豊");
+
+			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+		}
+
+		[Test]
 		public void TestJapaneseMessage ()
 		{
 			const string subject = "日本語メールテスト (testing Japanese emails)";
@@ -447,7 +551,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestIssue51 ()
+		public void TestMissingMessageBody ()
 		{
 			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +
 				"From: Jeffrey Stedfast <notifications@github.com>\r\n" +

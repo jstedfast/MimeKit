@@ -49,6 +49,12 @@ namespace UnitTests {
 
 				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (null, stream));
 				Assert.Throws<ArgumentNullException> (() => HeaderList.Load (ParserOptions.Default, (Stream) null));
+
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (null, "filename.txt"));
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (ParserOptions.Default, (string) null));
+
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (null, stream));
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (ParserOptions.Default, (Stream) null));
 			}
 
 			// Add
@@ -131,10 +137,22 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => HeaderList.Load ((Stream) null));
 				Assert.Throws<ArgumentNullException> (() => HeaderList.Load ((string) null));
 
+				// LoadAsync
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (ParserOptions.Default, (Stream) null));
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (ParserOptions.Default, (string) null));
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync (null, stream));
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync ((Stream) null));
+				Assert.Throws<ArgumentNullException> (async () => await HeaderList.LoadAsync ((string) null));
+
 				// WriteTo
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (FormatOptions.Default, null));
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null, stream));
 				Assert.Throws<ArgumentNullException> (() => list.WriteTo (null));
+
+				// WriteToAsync
+				Assert.Throws<ArgumentNullException> (async () => await list.WriteToAsync (FormatOptions.Default, null));
+				Assert.Throws<ArgumentNullException> (async () => await list.WriteToAsync (null, stream));
+				Assert.Throws<ArgumentNullException> (async () => await list.WriteToAsync (null));
 			}
 
 			// Indexers
