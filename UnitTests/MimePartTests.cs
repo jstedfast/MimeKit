@@ -68,6 +68,23 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (string) null));
 
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null, true));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ParserOptions) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, Stream.Null, true));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null, true));
+
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ContentType) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (new ContentType ("application", "octet-stream"), null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, new ContentType ("application", "octet-stream"), Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, new ContentType ("application", "octet-stream"), null));
+
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((string) null));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, "fileName"));
+			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (string) null));
+
 			Assert.Throws<ArgumentNullException> (() => part.Accept (null));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((string) null));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((Stream) null));
@@ -349,7 +366,7 @@ namespace UnitTests
 				await part.WriteToAsync (output);
 				output.Position = 0;
 
-				part = (MimePart) MimeEntity.Load (output);
+				part = (MimePart) await MimeEntity.LoadAsync (output);
 			}
 
 			// transcode to uuencode
@@ -358,7 +375,7 @@ namespace UnitTests
 				await part.WriteToAsync (output);
 				output.Position = 0;
 
-				part = (MimePart) MimeEntity.Load (output);
+				part = (MimePart) await MimeEntity.LoadAsync (output);
 			}
 
 			// verify decoded content
@@ -422,7 +439,7 @@ namespace UnitTests
 				await body.WriteToAsync (options, stream);
 				stream.Position = 0;
 
-				var multipart = (Multipart) MimeEntity.Load (stream);
+				var multipart = (Multipart) await MimeEntity.LoadAsync (stream);
 				using (var input = ((MimePart) multipart[0]).ContentObject.Open ()) {
 					var buffer = new byte[1024];
 					int n;

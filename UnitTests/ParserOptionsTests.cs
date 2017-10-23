@@ -83,5 +83,24 @@ namespace UnitTests
 				Assert.IsInstanceOf<CustomTextHtmlPart> (html, "Expected the text/html part to use our custom type.");
 			}
 		}
+
+		[Test]
+		public async void TestParsingOfCustomTypeAsync ()
+		{
+			var options = ParserOptions.Default.Clone ();
+
+			options.RegisterMimeType ("text/html", typeof (CustomTextHtmlPart));
+
+			using (var stream = new MemoryStream ()) {
+				var text = new TextPart ("html") { Text = "<html>this is some html and stuff</html>" };
+
+				text.WriteTo (stream);
+				stream.Position = 0;
+
+				var html = await MimeEntity.LoadAsync (options, stream);
+
+				Assert.IsInstanceOf<CustomTextHtmlPart> (html, "Expected the text/html part to use our custom type.");
+			}
+		}
 	}
 }
