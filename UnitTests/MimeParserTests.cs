@@ -316,7 +316,7 @@ namespace UnitTests {
 				int count = 0;
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					var message = await parser.ParseMessageAsync ();
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
