@@ -140,7 +140,6 @@ namespace MimeKit {
 
 		MimeParserState state;
 		MimeFormat format;
-		bool headersOnly;
 		bool persistent;
 		bool eos;
 
@@ -883,24 +882,17 @@ namespace MimeKit {
 
 				if (available <= left) {
 					// EOF reached before we reached the end of the headers...
-					if (left == 0 && !midline) {
-						// the last header we encountered has been parsed cleanly, so try to
-						// fail gracefully by pretending we found the end of the headers...
-						//
-						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
-						state = MimeParserState.Content;
-					} else {
-						if (left > 0)
-							AppendRawHeaderData (inputIndex, left);
-
-						// the last header we encountered was truncated - probably best to
-						// error out in this case *unless* we're parsing headers only...
-						if (!headersOnly)
-							state = MimeParserState.Error;
-					}
+					if (left > 0)
+						AppendRawHeaderData (inputIndex, left);
 
 					ParseAndAppendHeader ();
 					inputIndex = inputEnd;
+
+					// fail gracefully by pretending we found the end of the headers...
+					//
+					// For more details, see https://github.com/jstedfast/MimeKit/pull/51
+					// and https://github.com/jstedfast/MimeKit/issues/348
+					state = MimeParserState.Content;
 					return;
 				}
 
@@ -1404,14 +1396,9 @@ namespace MimeKit {
 
 		unsafe HeaderList ParseHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
-			try {
-				headersOnly = true;
-				state = MimeParserState.Headers;
-				if (Step (inbuf, cancellationToken) == MimeParserState.Error)
-					throw new FormatException ("Failed to parse headers.");
-			} finally {
-				headersOnly = false;
-			}
+			state = MimeParserState.Headers;
+			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
+				throw new FormatException ("Failed to parse headers.");
 
 			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
 
