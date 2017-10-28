@@ -1,5 +1,6 @@
 Mono.Data.Sqlite/Documentation
 *project.lock.json
+*.csproj.nuget.cache
 *.userprefs
 *.user
 *.suo
