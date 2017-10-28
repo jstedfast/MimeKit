@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,7 +18,7 @@
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\net40</OutputPath>
     <IntermediateOutputPath>obj\Debug\net40</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;SERIALIZABLE;ENABLE_SNM</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SERIALIZABLE;ENABLE_SNM;NET_4_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -27,7 +27,7 @@
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\net40</OutputPath>
     <IntermediateOutputPath>obj\Release\net40</IntermediateOutputPath>
-    <DefineConstants>TRACE;SERIALIZABLE;ENABLE_SNM</DefineConstants>
+    <DefineConstants>TRACE;SERIALIZABLE;ENABLE_SNM;NET_4_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -189,13 +189,7 @@
     <Compile Include="TextPart.cs" />
     <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Encodings\" />
-    <Folder Include="IO\Filters\" />
-    <Folder Include="IO\" />
-    <Folder Include="Tnef\" />
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
