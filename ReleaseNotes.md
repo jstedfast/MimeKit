@@ -1,5 +1,18 @@
 # Release Notes
 
+### MimeKit 1.20.0
+
+* Added async support for writing MimeMessage, MimeEntity, HeaderList and ContentObject.
+* Added async support for parsing MimeMessage, MimeEntity, and HeaderList.
+* Added async support to MimeKit.IO streams.
+* Removed methods marked [Obsolete] (which have been marked obsolete for several years now).
+* Improved performance of writing messages by a small amount.
+* Fixed SecureMimeDigitalSignature to capture the signature digest algorithm used by the sending
+  client. (issue #341)
+* Fixed the S/MIME decoder to correctly determine the RC2 algorithm used by the sending client.
+  (issue #337)
+* Fixed a bug in BoundStream.Seek().
+
 ### MimeKit 1.18.1
 
 * Added CanSign() and CanEncrypt() methods to CryptographyContext for checking

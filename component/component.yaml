@@ -1,6 +1,6 @@
 id: mimekit
 name: MimeKit
-version: 1.18.1
+version: 1.20.0
 publisher: Jeffrey Stedfast
 publisher-url: https://github.com/jstedfast/MimeKit
 getting-started: GettingStarted.md
@@ -12,9 +12,9 @@ icons:
   - mimekit_128x128.png
 packages:
   ios-unified:
-    - MimeKit, Version=1.18.1
+    - MimeKit, Version=1.20.0
   android:
-    - MimeKit, Version=1.18.1
+    - MimeKit, Version=1.20.0
 samples:
   - name: "Android Sample"
     path: ../samples/MessageReader.Android/MessageReader.Android.sln
