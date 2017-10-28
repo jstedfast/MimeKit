@@ -40,7 +40,7 @@ namespace MimeKit {
 		{
 			int left, start, end;
 
-			if (!ReadAheadCore (atleast, save, out left, out start, out end))
+			if (!AlignReadAheadBuffer (atleast, save, out left, out start, out end))
 				return left;
 
 			int nread = await stream.ReadAsync (input, start, end - start, cancellationToken).ConfigureAwait (false);
@@ -70,7 +70,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						StepByteOrderMarkCore (inbuf, ref bomIndex);
+						StepByteOrderMark (inbuf, ref bomIndex);
 					}
 				}
 			} while (inputIndex == inputEnd);
@@ -100,7 +100,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						StepMboxMarkerCore (inbuf, ref needInput, ref complete, ref left);
+						StepMboxMarker (inbuf, ref needInput, ref complete, ref left);
 					}
 				}
 			} while (!complete);
@@ -141,7 +141,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte *inbuf = input) {
-						if (!StepHeadersCore (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
+						if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
 							return;
 					}
 				}
@@ -153,7 +153,7 @@ namespace MimeKit {
 			do {
 				unsafe {
 					fixed (byte* inbuf = input) {
-						if (SkipLineCore (inbuf, consumeNewLine))
+						if (SkipLine (inbuf, consumeNewLine))
 							return true;
 					}
 				}
@@ -219,7 +219,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						ScanContentCore (inbuf, ref contentIndex, ref nleft, ref midline, ref found);
+						ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref found);
 					}
 				}
 			} while (found == BoundaryType.None);

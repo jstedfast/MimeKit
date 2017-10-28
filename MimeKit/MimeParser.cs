@@ -437,7 +437,7 @@ namespace MimeKit {
 			return (need + 63) & ~63;
 		}
 
-		bool ReadAheadCore (int atleast, int save, out int left, out int start, out int end)
+		bool AlignReadAheadBuffer (int atleast, int save, out int left, out int start, out int end)
 		{
 			left = inputEnd - inputIndex;
 			start = inputStart;
@@ -483,7 +483,7 @@ namespace MimeKit {
 		{
 			int nread, left, start, end;
 
-			if (!ReadAheadCore (atleast, save, out left, out start, out end))
+			if (!AlignReadAheadBuffer (atleast, save, out left, out start, out end))
 				return left;
 
 			// use the cancellable stream interface if available...
@@ -530,7 +530,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		unsafe void StepByteOrderMarkCore (byte* inbuf, ref int bomIndex)
+		unsafe void StepByteOrderMark (byte* inbuf, ref int bomIndex)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -556,7 +556,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				StepByteOrderMarkCore (inbuf, ref bomIndex);
+				StepByteOrderMark (inbuf, ref bomIndex);
 			} while (inputIndex == inputEnd);
 
 			return true;
@@ -580,7 +580,7 @@ namespace MimeKit {
 #endif
 		}
 
-		unsafe void StepMboxMarkerCore (byte *inbuf, ref bool needInput, ref bool complete, ref int left)
+		unsafe void StepMboxMarker (byte *inbuf, ref bool needInput, ref bool complete, ref int left)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -651,7 +651,7 @@ namespace MimeKit {
 
 				needInput = false;
 
-				StepMboxMarkerCore (inbuf, ref needInput, ref complete, ref left);
+				StepMboxMarker (inbuf, ref needInput, ref complete, ref left);
 			} while (!complete);
 
 			state = MimeParserState.MessageHeaders;
@@ -714,8 +714,8 @@ namespace MimeKit {
 			return *text == (byte) '\n';
 		}
 
-		unsafe bool StepHeadersCore (byte* inbuf, ref bool scanningFieldName, ref bool checkFolded, ref bool midline,
-		                             ref bool blank, ref bool valid, ref int left)
+		unsafe bool StepHeaders (byte* inbuf, ref bool scanningFieldName, ref bool checkFolded, ref bool midline,
+		                         ref bool blank, ref bool valid, ref int left)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -896,12 +896,12 @@ namespace MimeKit {
 					return;
 				}
 
-				if (!StepHeadersCore (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
+				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
 					return;
 			} while (true);
 		}
 
-		unsafe bool SkipLineCore (byte* inbuf, bool consumeNewLine)
+		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -931,7 +931,7 @@ namespace MimeKit {
 		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine, CancellationToken cancellationToken)
 		{
 			do {
-				if (SkipLineCore (inbuf, consumeNewLine))
+				if (SkipLine (inbuf, consumeNewLine))
 					return true;
 
 				if (ReadAhead (ReadAheadSize, 1, cancellationToken) <= 0)
@@ -1080,7 +1080,7 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe void ScanContentCore (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline, ref BoundaryType found)
+		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline, ref BoundaryType found)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
@@ -1169,7 +1169,7 @@ namespace MimeKit {
 					break;
 				}
 
-				ScanContentCore (inbuf, ref contentIndex, ref nleft, ref midline, ref found);
+				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref found);
 			} while (found == BoundaryType.None);
 
 			if (contentIndex < inputIndex)
