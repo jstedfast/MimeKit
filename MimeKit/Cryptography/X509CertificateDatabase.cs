@@ -132,13 +132,18 @@ namespace MimeKit.Cryptography {
 		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
 		{
 			long nread;
-
+#if NETSTANDARD
+			buffer= reader.GetFieldValue<byte[]> (column);
+			nread = buffer.Length;
+			return (int) nread;
+#else
 			// first, get the length of the buffer needed
 			if ((nread = reader.GetBytes (column, 0, null, 0, buffer.Length)) > buffer.Length)
 				Array.Resize (ref buffer, (int) nread);
 
 			// read the certificate data
 			return (int) reader.GetBytes (column, 0, buffer, 0, (int) nread);
+#endif
 		}
 
 		static X509Certificate DecodeCertificate (DbDataReader reader, X509CertificateParser parser, int column, ref byte[] buffer)
