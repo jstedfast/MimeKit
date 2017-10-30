@@ -131,12 +131,12 @@ namespace MimeKit.Cryptography {
 
 		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
 		{
-			long nread;
 #if NETSTANDARD
-			buffer= reader.GetFieldValue<byte[]> (column);
-			nread = buffer.Length;
-			return (int) nread;
+			buffer = reader.GetFieldValue<byte[]> (column);
+			return (int) buffer.Length;
 #else
+			long nread;
+
 			// first, get the length of the buffer needed
 			if ((nread = reader.GetBytes (column, 0, null, 0, buffer.Length)) > buffer.Length)
 				Array.Resize (ref buffer, (int) nread);
