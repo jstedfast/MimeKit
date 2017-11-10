@@ -513,12 +513,17 @@ If you are targetting any of the Xamarin platforms (or Linux), you won't need to
 anything (although you certainly can if you want to) because, by default, I've
 configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
 
-If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
-provider such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
-Once you've made your choice and installed it (via NuGet or however), you'll need to
-implement your own `SecureMimeContext` subclass. Luckily, it's very simple to do. Assuming
-you've chosen System.Data.SQLite, here's how you'd implement your own `SecureMimeContext`
-class:
+If you are on any of the Windows platforms, however, you'll need to decide on whether
+to use one of the conveniently available backends such as the `WindowsSecureMimeContext`
+backend or the `TemporarySecureMimeContext` backend or else you'll need to pick a
+System.Data provider such as
+[System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite) to use with
+the `DefaultSecureMimeContext` base class.
+
+If you opt for using the `DefaultSecureMimeContext` backend, you'll need to implement
+your own `DefaultSecureMimeContext` subclass. Luckily, it's very simple to do.
+Assuming you've chosen System.Data.SQLite, here's how you'd implement your own
+`DefaultSecureMimeContext` class:
 
 ```csharp
 using System.Data.SQLite;
@@ -556,6 +561,9 @@ CryptographyContext.Register (typeof (MySecureMimeContext));
 ```
 
 Now you are ready to encrypt, decrypt, sign and verify S/MIME messages!
+
+Note: If you choose to use the `WindowsSecureMimeContext` or `TemporarySecureMimeContext` backends
+instead, you should register that class instead.
 
 ### Preparing to use MimeKit's PGP/MIME support
 
