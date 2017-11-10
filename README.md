@@ -562,8 +562,8 @@ CryptographyContext.Register (typeof (MySecureMimeContext));
 
 Now you are ready to encrypt, decrypt, sign and verify S/MIME messages!
 
-Note: If you choose to use the `WindowsSecureMimeContext` or `TemporarySecureMimeContext` backends
-instead, you should register that class instead.
+Note: If you choose to use the `WindowsSecureMimeContext` or `TemporarySecureMimeContext` backend,
+you should register that class instead.
 
 ### Preparing to use MimeKit's PGP/MIME support
 
