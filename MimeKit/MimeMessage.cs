@@ -2667,7 +2667,7 @@ namespace MimeKit {
 			int index = 0;
 
 			// parse the addresses in the new header and add them to our address list
-			if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, false, out parsed))
+			if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, 0, false, out parsed))
 				return;
 
 			list.Changed -= InternetAddressListChanged;
@@ -2689,7 +2689,7 @@ namespace MimeKit {
 				List<InternetAddress> parsed;
 				int index = 0;
 
-				if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, false, out parsed))
+				if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, 0, false, out parsed))
 					continue;
 
 				list.AddRange (parsed);

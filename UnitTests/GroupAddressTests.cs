@@ -352,5 +352,16 @@ namespace UnitTests {
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
+
+		[Test]
+		public void TestDefaultMaxGroupDepthOverflow ()
+		{
+			const string overflow = "group0: group1: group2: group3: milbox@host.com;;;;";
+			const string safe = "group0: group1: group2: milbox@host.com;;;";
+
+			AssertParse (safe);
+
+			AssertParseFailure (overflow, false, 24, 30);
+		}
 	}
 }

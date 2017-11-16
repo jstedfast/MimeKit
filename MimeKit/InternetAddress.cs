@@ -505,7 +505,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
+		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, int groupDepth, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
 			List<InternetAddress> members;
 			Encoding encoding;
@@ -524,7 +524,7 @@ namespace MimeKit {
 			while (index < endIndex && (text[index] == ':' || text[index].IsBlank ()))
 				index++;
 
-			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, throwOnError, out members))
+			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, groupDepth, throwOnError, out members))
 				address = new GroupAddress (encoding, name, members);
 			else
 				address = new GroupAddress (encoding, name);
@@ -552,7 +552,7 @@ namespace MimeKit {
 			Parse               = TryParse | ThrowOnError
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, AddressParserFlags flags, out InternetAddress address)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, AddressParserFlags flags, out InternetAddress address)
 		{
 			bool strict = options.AddressParserComplianceMode == RfcComplianceMode.Strict;
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
@@ -647,7 +647,7 @@ namespace MimeKit {
 
 				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("addr-spec token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format ("Addr-spec token at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
@@ -701,7 +701,14 @@ namespace MimeKit {
 
 				if ((flags & AddressParserFlags.AllowGroupAddress) == 0) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("group address token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format ("Group address token at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+
+				if (groupDepth >= options.MaxAddressGroupDepth) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Exceeded maximum rfc822 group depth at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
@@ -720,12 +727,12 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseGroup (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
+				return TryParseGroup (options, text, startIndex, ref index, endIndex, groupDepth + 1, MimeUtils.Unquote (name), codepage, throwOnError, out address);
 			}
 
 			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("mailbox address token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format ("Mailbox address token at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
@@ -862,7 +869,7 @@ namespace MimeKit {
 			int endIndex = startIndex + length;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.TryParse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.TryParse, out address))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false)) {
@@ -929,7 +936,7 @@ namespace MimeKit {
 			int endIndex = buffer.Length;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.TryParse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.TryParse, out address))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
@@ -985,7 +992,7 @@ namespace MimeKit {
 			int endIndex = buffer.Length;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.TryParse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.TryParse, out address))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
@@ -1036,7 +1043,7 @@ namespace MimeKit {
 			int endIndex = buffer.Length;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.TryParse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.TryParse, out address))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
@@ -1097,7 +1104,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.Parse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
 				throw new ParseException ("No address found.", startIndex, startIndex);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
@@ -1164,7 +1171,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.Parse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
 				throw new ParseException ("No address found.", startIndex, startIndex);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
@@ -1225,7 +1232,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.Parse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
 				throw new ParseException ("No address found.", 0, 0);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
@@ -1283,7 +1290,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, AddressParserFlags.Parse, out address))
+			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
 				throw new ParseException ("No address found.", 0, 0);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
