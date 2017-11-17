@@ -383,6 +383,9 @@ namespace MimeKit.Tnef {
 
 			message.Body = builder.ToMessageBody ();
 
+            if(reader.MessageCodepage != 0)
+                message.Headers.Add("X-OriginalCodepage", reader.MessageCodepage.ToString());
+
 			return message;
 		}
 
