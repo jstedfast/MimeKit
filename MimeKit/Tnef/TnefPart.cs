@@ -168,7 +168,14 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var html = new TextPart ("html");
 						html.ContentType.Name = "body.html";
-						html.Text = prop.ReadValueAsString ();
+						Encoding encoding;
+
+						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
+							encoding = Encoding.GetEncoding (reader.MessageCodepage);
+						else
+							encoding = CharsetUtils.UTF8;
+
+						html.SetText (encoding, prop.ReadValueAsString ());
 
 						builder.Attachments.Add (html);
 					}
@@ -179,7 +186,14 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var plain = new TextPart ("plain");
 						plain.ContentType.Name = "body.txt";
-						plain.Text = prop.ReadValueAsString ();
+						Encoding encoding;
+
+						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
+							encoding = Encoding.GetEncoding (reader.MessageCodepage);
+						else
+							encoding = CharsetUtils.UTF8;
+
+						plain.SetText (encoding, prop.ReadValueAsString ());
 
 						builder.Attachments.Add (plain);
 					}
