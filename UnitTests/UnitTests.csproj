@@ -188,6 +188,7 @@
     <None Include="TestData\messages\missing-subtype.txt" />
     <None Include="TestData\messages\multipart-digest.txt" />
     <None Include="TestData\messages\rfc2060.txt" />
+    <None Include="TestData\messages\stack-overflow.txt" />
     <None Include="TestData\openpgp\gpg.conf" />
     <None Include="TestData\openpgp\mimekit.gpg.pub" />
     <None Include="TestData\openpgp\mimekit.gpg.sec" />
@@ -233,6 +234,7 @@
     <None Include="TestData\tnef\triples.tnef" />
     <None Include="TestData\tnef\two-files.list" />
     <None Include="TestData\tnef\two-files.tnef" />
+    <None Include="TestData\tnef\ukr.eml" />
     <None Include="TestData\tnef\winmail.tnef" />
     <None Include="TestData\tnef\winmail.list" />
     <None Include="TestData\yenc\00000020.ntx" />
@@ -241,7 +243,6 @@
     <None Include="TestData\yenc\simple.msg" />
     <None Include="TestData\yenc\state-changes.ntx" />
     <None Include="packages.config" />
-    <None Include="TestData\messages\stack-overflow.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.105.2\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.105.2\build\net45\System.Data.SQLite.Core.targets')" />
