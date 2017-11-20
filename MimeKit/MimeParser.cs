@@ -877,16 +877,22 @@ namespace MimeKit {
 			ResetRawHeaderData ();
 			headers.Clear ();
 
-			do {
-				var available = ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
+			ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
 
-				if (available <= left) {
+			do {
+				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
+					return;
+
+				var available = ReadAhead (left + 1, 0, cancellationToken);
+
+				if (available == 0) {
 					// EOF reached before we reached the end of the headers...
-					if (left > 0)
+					if (left > 0) {
 						AppendRawHeaderData (inputIndex, left);
+						inputIndex = inputEnd;
+					}
 
 					ParseAndAppendHeader ();
-					inputIndex = inputEnd;
 
 					// fail gracefully by pretending we found the end of the headers...
 					//
@@ -895,9 +901,6 @@ namespace MimeKit {
 					state = MimeParserState.Content;
 					return;
 				}
-
-				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
-					return;
 			} while (true);
 		}
 

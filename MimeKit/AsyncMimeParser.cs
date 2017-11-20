@@ -120,16 +120,26 @@ namespace MimeKit {
 			ResetRawHeaderData ();
 			headers.Clear ();
 
-			do {
-				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
+			await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
 
-				if (available <= left) {
+			do {
+				unsafe {
+					fixed (byte *inbuf = input) {
+						if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
+							return;
+					}
+				}
+
+				var available = await ReadAheadAsync (left + 1, 0, cancellationToken).ConfigureAwait (false);
+
+				if (available == 0) {
 					// EOF reached before we reached the end of the headers...
-					if (left > 0)
+					if (left > 0) {
 						AppendRawHeaderData (inputIndex, left);
+						inputIndex = inputEnd;
+					}
 
 					ParseAndAppendHeader ();
-					inputIndex = inputEnd;
 
 					// fail gracefully by pretending we found the end of the headers...
 					//
@@ -137,13 +147,6 @@ namespace MimeKit {
 					// and https://github.com/jstedfast/MimeKit/issues/348
 					state = MimeParserState.Content;
 					return;
-				}
-
-				unsafe {
-					fixed (byte *inbuf = input) {
-						if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
-							return;
-					}
 				}
 			} while (true);
 		}

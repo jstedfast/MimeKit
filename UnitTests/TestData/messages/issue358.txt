@@ -1,0 +1,114 @@
+Return-Path: <jang.abcdef@xyzlinux12345678.it>
+Delivered-To: jang12@linux12.org.new
+Received: (qmail 21619 invoked from network); 15 Nov 2017 14:16:18 -0000
+Received: from unknown (HELO EUR01-HE1-obe.outbound.protection.outlook.com) (80.68.177.35)
+  by  with SMTP; 15 Nov 2017 14:16:18 -0000
+Received-SPF: pass (: local policy designates 80.68.177.35 as permitted sender)
+X-Assp-ID: myassp01.mynet.it m1-55381-06197
+X-Assp-Session: 7F209ACC1BB8 (mail 1)
+X-Assp-Version: 2.5.5(17223) on myassp01.mynet.it
+X-Assp-Delay: not delayed (104.47.0.133 in whitebox (PBWhite));
+	15 Nov 2017 15:16:22 +0100
+X-Assp-Message-Score: -26 (KnownGoodHelo)
+X-Assp-IP-Score: -26 (KnownGoodHelo)
+X-Assp-Message-Score: -2 (104.47.0.0 in griplist (0.13))
+X-Original-Authentication-Results: myassp01.mynet.it; spf=pass
+X-Assp-Message-Score: -10 (SPF pass)
+X-Assp-IP-Score: -10 (SPF pass)
+X-Assp-Message-Score: 10 (Foreign IP-Country FI (MICROSOFT CORPORATION))
+X-Assp-Message-Score: -15 (In Penalty White Box)
+X-Assp-DKIM: not verified
+Received: from mail-he1eur01on0133.outbound.protection.outlook.com
+	([104.47.0.133] helo=EUR01-HE1-obe.outbound.protection.outlook.com) by
+	myassp01.mynet.it with SMTP (2.5.5); 15 Nov 2017 15:16:20 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=CMMSRL.onmicrosoft.com; s=selector1-cmmlaser-it;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=JmZzBMD0RLaOTuqX/VlM86EEKHsfeOF0B0kBWE4fKBY=;
+ b=h65Qop22nh21H30A/T/T47dDaCkb70hySSaJfJCzh+0E2A41BTqlUT7Y3c80Kf6zc5Totg4Kmuub2P8r/Fj30rIiQP5EXW+/caFvHtXEQjZXeuWYRfBweASqK5/1ClHkY3SBgnw3dEuAhlIDzid6M/5YxuJqzn6d/mKvmjV2Ju0=
+Received: from AM4PR01MB1444.eurprd01.prod.exchangelabs.com (10.164.76.26) by
+ AM4PR01MB1442.eurprd01.prod.exchangelabs.com (10.164.76.24) with Microsoft
+ SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256) id 15.20.218.12; Wed, 15
+ Nov 2017 14:16:14 +0000
+Received: from AM4PR01MB1444.eurprd01.prod.exchangelabs.com
+ ([fe80::7830:c66f:eaa8:e3dd]) by AM4PR01MB1444.eurprd01.prod.exchangelabs.com
+ ([fe80::7830:c66f:eaa8:e3dd%14]) with mapi id 15.20.0218.015; Wed, 15 Nov
+ 2017 14:16:14 +0000
+From: jang.abcdef@xyzlinu <jang.abcdef@xyzlinux12345678.it>
+To: "jang12@linux12.org.new" <jang12@linux12.org.new>
+Subject: R: R: R: I: FR-selca LA selcaE
+Thread-Topic: R: R: I: FR-selca LA selcaE
+Thread-Index: AdNST+6DXK4xfZYaRzuyUbaIacENgAHGVF+AAACaRUAAAhGDmgAASt6QACm+BjkA/3MzkAAAPw7yAAA7j6A=
+Date: Wed, 15 Nov 2017 14:16:14 +0000
+Message-ID: <AM4PR01MB1444B3F21AE7DA9C8128C28FF7290@AM4PR01MB1444.eurprd01.prod.exchangelabs.com>
+References: <AM4PR01MB1444920F2AF5B6F4856FEA13F7290@AM4PR01MB1444.eurprd01.prod.exchangelabs.com>
+ <5185e377-81c5-4361-91ba-11d42f4c5cc9@AM5EUR02FT056.eop-EUR02.prod.protection.outlook.com>
+In-Reply-To: <5185e377-81c5-4361-91ba-11d42f4c5cc9@AM5EUR02FT056.eop-EUR02.prod.protection.outlook.com>
+Accept-Language: it-IT, en-US
+Content-Language: it-IT
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator:
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=jang.selca.tubi@linux.selca;
+x-originating-ip: [5.157.97.187]
+x-ms-publictraffictype: Email
+x-microsoft-exchange-diagnostics: 1;AM4PR01MB1442;6:1Y77VdiYZvwhWtdzFszn6F8yBYOr9DiSFIBUWJ8SQrYO+GoiaLLmQOfmDQVXmDvmDnRwyng6J22fXvtcG04spQNMJazjDFklW2fGAIpJ2gvTn7ArKjUtFCyuGykrD/yB/JUK6RZYvsxUsDV3dXwKS3PuVpzifGICmyzMFVALJ7NK8ecOtOj3Qp6KvT2psfZoTpts7Irol8FlEL6C6FlMIN0J//87QnwoTyiOQ5XNePxfNGAcaUY8XNSwAjfSHPQm7bv7OdCzaGWyYhDe77a4ZkGARb4BrEhXIySEYvn5jzBh6eZfhc66eWipkOa9n6XVF8/l0PrnCZctKS01QKPJRauPb0d4hb6ef8J6XuTwp7c=;5:0mdIwN341bN0FTmWCx+Rn0IjBXFHQD0t5xQqdG1YfDjltV8z2aOTs+PA8jwC8gRlQJgCsqV6eA9GRJQSFM+F4v8v4s50czNV0fOKx4Wc12B7WEL/5lgk1aywT30necTuDd7hERC+FWqUuWOFugmGmDk5S4wOGf/Tkw9BVTk24KM=;24:HUnkg54iCuj6MNXhWIzOvI70tz4nrBWXbqDjYqwnhc4VkRaTtvHnwevxRjTi3JaTLxysPao9DaTZNH5KafLalDFhPl20xy2S5P14oPX5MvY=;7:J2PFuP4gaIeIi2SPncoR2UKg6CFsCSZmdOTGG4lFWekuIRS7OtntB9lFVSKNUylGdvOAnLXYYY8X63/sH6MSlFG6/7xmc
+P8FxVksOO2tmFWl+LxT0Acgv7RaCFBKFmzA31fwJabrvuEaFINDvMVgEV9Cc41bylhc13tqhso5spmuc9CbMZeue0AiPQ9RuNpeVei9YN5e8YUIIdP/S8WATGsVvQE7G5VE4WMrcgXje4icdG+gZn6dPAlKpXuhqGH0
+x-ms-exchange-antispam-srfa-diagnostics: SSOS;
+x-ms-office365-filtering-correlation-id: b6800147-d5b4-494e-46ff-08d52c336e1f
+x-microsoft-antispam: UriScan:;BCL:0;PCL:0;RULEID:(22001)(4534020)(4602075)(4603075)(4627115)(201702281549075)(2017052603258)(49563074);SRVR:AM4PR01MB1442;
+x-ms-traffictypediagnostic: AM4PR01MB1442:
+x-microsoft-antispam-prvs: <AM4PR01MB1442C8A12445186690B81C88F7290@AM4PR01MB1442.eurprd01.prod.exchangelabs.com>
+x-exchange-antispam-report-test: UriScan:(227612066756510)(21748063052155);
+x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(100000700101)(100105000095)(100000701101)(100105300095)(100000702101)(100105100095)(102415395)(6040450)(2401047)(5005006)(8121501046)(3231022)(93006095)(93001095)(10201501046)(3002001)(100000703101)(100105400095)(6041248)(2016111802025)(20161123564025)(20161123558100)(20161123555025)(20161123560025)(20161123562025)(201703131423075)(201702281528075)(201703061421075)(201703061406153)(6043046)(6072148)(201708071742011)(100000704101)(100105200095)(100000705101)(100105500095);SRVR:AM4PR01MB1442;BCL:0;PCL:0;RULEID:(100000800101)(100110000095)(100000801101)(100110300095)(100000802101)(100110100095)(100000803101)(100110400095)(100000804101)(100110200095)(100000805101)(100110500095);SRVR:AM4PR01MB1442;
+x-forefront-prvs: 0492FD61DD
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(376002)(189002)(13464003)(199003)(733005)(606006)(86362001)(6436002)(478600001)(6506006)(8676002)(2501003)(8936002)(55016002)(5640700003)(3660700001)(53546010)(53386004)(5250100002)(3280700002)(99286004)(2950100002)(5660300001)(6916009)(71446004)(7696004)(53936002)(25786009)(101416001)(74316002)(316002)(50986999)(99936001)(1730700003)(66066001)(81166006)(54356999)(76176999)(81156014)(68736007)(14454004)(5630700001)(54896002)(6116002)(7736002)(102836003)(54556002)(9686003)(33656002)(105586002)(106356001)(74482002)(790700001)(6306002)(2900100001)(2906002)(3846002)(236005)(97736004)(2351001)(189998001)(19627235001);DIR:OUT;SFP:1102;SCL:1;SRVR:AM4PR01MB1442;H:AM4PR01MB1444.eurprd01.prod.exchangelabs.com;FPR:;SPF:None;PTR:InfoNoRecor
+ds;MX:1;A:1;LANG:it;
+received-spf: None (protection.outlook.com: cmmlaser.it does not designate
+ permitted sender hosts)
+spamdiagnosticoutput: 1:99
+spamdiagnosticmetadata: NSPM
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0031_01D36222.8A648550"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.5931
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.6157
+X-Antivirus: Avast (VPS 171120-2, 20/11/2017), Outbound message
+X-Antivirus-Status: Clean
+X-UIDL: "Q9"!_8W!!^di!!)A3"!
+X-Antivirus: Avast (VPS 171120-2, 20/11/2017), Inbound message
+X-Antivirus-Status: Clean
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0031_01D36222.8A648550
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Test headers
+
+
+------=_NextPart_000_0031_01D36222.8A648550
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Diso-8859-1" http-equiv=3DContent-Type=
+>
+<META name=3DGENERATOR content=3D"MSHTML 8.00.6001.23588">
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT size=3D2 face=3DArial>Test headers</FONT></DIV><div id=3D"DAB4FA=
+D8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" height=3D"1">=
+ </a></div></BODY></HTML>
+
+------=_NextPart_000_0031_01D36222.8A648550--
+

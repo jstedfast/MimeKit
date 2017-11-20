@@ -691,5 +691,23 @@ namespace UnitTests {
 				}
 			}
 		}
+
+		[Test]
+		public void TestIssue358 ()
+		{
+			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
+			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
+			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Unix2DosFilter ());
+
+					var message = MimeMessage.Load (filtered);
+
+					// make sure that the top-level MIME part is a multipart/alternative
+					Assert.IsInstanceOf (typeof (MultipartAlternative), message.Body);
+				}
+			}
+		}
 	}
 }
