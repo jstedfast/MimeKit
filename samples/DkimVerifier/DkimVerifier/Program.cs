@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Heijden.DNS;
@@ -121,6 +122,11 @@ namespace DkimVerifier
 			}
 
 			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
+		}
+
+		public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			throw new NotImplementedException ("Asynchronous DKIM public key lookup is not implemented in this sample.");
 		}
 	}
 

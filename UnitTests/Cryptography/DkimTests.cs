@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -57,6 +58,11 @@ namespace UnitTests
 			public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
 			{
 				return key;
+			}
+
+			public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+			{
+				return Task.FromResult (key);
 			}
 		}
 
@@ -298,6 +304,16 @@ namespace UnitTests
 		}
 
 		[Test]
+		public async void TestVerifyGoogleMailDkimSignatureAsync ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+
+			Assert.IsTrue (await message.VerifyAsync (message.Headers[index], locator), "Failed to verify GMail signature.");
+		}
+
+		[Test]
 		public void TestVerifyGoogleMultipartRelatedDkimSignature ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
@@ -308,6 +324,16 @@ namespace UnitTests
 		}
 
 		[Test]
+		public async void TestVerifyGoogleMultipartRelatedDkimSignatureAsync ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+
+			Assert.IsTrue (await message.VerifyAsync (message.Headers[index], locator), "Failed to verify GMail signature.");
+		}
+
+		[Test]
 		public void TestVerifyGoogleMultipartWithoutEndBoundaryDkimSignature ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "multipart-no-end-boundary.msg"));
@@ -315,6 +341,16 @@ namespace UnitTests
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 
 			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
+		}
+
+		[Test]
+		public async void TestVerifyGoogleMultipartWithoutEndBoundaryDkimSignatureAsync ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "multipart-no-end-boundary.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+
+			Assert.IsTrue (await message.VerifyAsync (message.Headers[index], locator), "Failed to verify GMail signature.");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)

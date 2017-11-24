@@ -2175,37 +2175,7 @@ namespace MimeKit {
 			return new Header (dkimSignature.Options, dkimSignature.RawField, rawValue);
 		}
 
-		/// <summary>
-		/// Verify the specified DKIM-Signature header.
-		/// </summary>
-		/// <remarks>
-		/// Verifies the specified DKIM-Signature header.
-		/// </remarks>
-		/// <example>
-		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
-		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="dkimSignature">The DKIM-Signature header.</param>
-		/// <param name="publicKeyLocator">The public key locator service.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// The DKIM-Signature header value is malformed.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		public bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		async Task<bool> VerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -2228,9 +2198,12 @@ namespace MimeKit {
 			int maxLength;
 
 			ValidateDkimSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
-				out d, out s, out q, out headers, out bh, out b, out maxLength);
+			                                 out d, out s, out q, out headers, out bh, out b, out maxLength);
 
-			key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
+			if (doAsync)
+				key = await publicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
+			else
+				key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
@@ -2277,6 +2250,76 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
 		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <param name="publicKeyLocator">The public key locator service.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The DKIM-Signature header value is malformed.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return VerifyAsync (options, dkimSignature, publicKeyLocator, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously verify the specified DKIM-Signature header.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the specified DKIM-Signature header.
+		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+		/// </example>
+		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <param name="publicKeyLocator">The public key locator service.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The DKIM-Signature header value is malformed.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task<bool> VerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return VerifyAsync (options, dkimSignature, publicKeyLocator, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Verify the specified DKIM-Signature header.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the specified DKIM-Signature header.
+		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+		/// </example>
+		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -2297,6 +2340,38 @@ namespace MimeKit {
 		public bool Verify (Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Verify (FormatOptions.Default, dkimSignature, publicKeyLocator, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously verify the specified DKIM-Signature header.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the specified DKIM-Signature header.
+		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+		/// </example>
+		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <param name="publicKeyLocator">The public key locator service.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The DKIM-Signature header value is malformed.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task<bool> VerifyAsync (Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return VerifyAsync (FormatOptions.Default, dkimSignature, publicKeyLocator, cancellationToken);
 		}
 
 		/// <summary>
