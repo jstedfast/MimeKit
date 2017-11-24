@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>1.20.0</version>
+    <version>1.22.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,14 +25,10 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added async support for writing MimeMessage, MimeEntity, HeaderList and ContentObject.
-* Added async support for parsing MimeMessage, MimeEntity, and HeaderList.
-* Added async support to MimeKit.IO streams.
-* Removed methods marked [Obsolete] (which have been marked obsolete for several years now).
-* Improved performance of writing messages by a small amount.
-* Fixed SecureMimeDigitalSignature to capture the signature digest algorithm used by the sending client. (issue #341)
-* Fixed the S/MIME decoder to correctly determine the RC2 algorithm used by the sending client. (issue #337)
-* Fixed a bug in BoundStream.Seek().
+* Fixed a buffering bug in MimeParser's header parser. (issue #358)
+* Set the TnefReader charset on extracted text/plain and text/html bodies. (issue #357)
+* Added safeguard to protect against malformed nested group addresses which could cause a stack overflow in the parser. ParserOptions now has a way of limiting the recursive depth of rfc822 group addresses using the MaxAddressGroupDepth property. (issue #355)
+* Fixed the S/MIME certificate database for .NETStandard by using GetFieldValue() instead of GetBytes() which is not supported on .NETStandard. (issue #351)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

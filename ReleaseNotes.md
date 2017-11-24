@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 1.22.0
+
+* Fixed a buffering bug in MimeParser's header parser. (issue #358)
+* Set the TnefReader charset on extracted text/plain and text/html bodies. (issue #357)
+* Added safeguard to protect against malformed nested group addresses which could cause
+  a stack overflow in the parser. ParserOptions now has a way of limiting the recursive
+  depth of rfc822 group addresses using the MaxAddressGroupDepth property. (issue #355)
+* Fixed the S/MIME certificate database for .NETStandard by using GetFieldValue() instead
+  of GetBytes() which is not supported on .NETStandard. (issue #351)
+
 ### MimeKit 1.20.0
 
 * Added async support for writing MimeMessage, MimeEntity, HeaderList and ContentObject.
