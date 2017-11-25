@@ -576,7 +576,7 @@ namespace MimeKit {
 			if (allowMunged && *inptr == (byte) '>')
 				inptr++;
 
-			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr == (byte) ' ';
+			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr++ == (byte) ' ' && *inptr == (byte) '-';
 #endif
 		}
 
