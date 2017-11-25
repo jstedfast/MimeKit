@@ -550,7 +550,7 @@ namespace MimeKit {
 			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
 
 			if (ContentType.IsMimeType ("multipart", "signed")) {
-				// don't reformat the headers or content of any children of a multipart/signed
+				// don't hide or reformat the headers of any children of a multipart/signed
 				if (options.International || options.HiddenHeaders.Count > 0) {
 					options = options.Clone ();
 					options.HiddenHeaders.Clear ();
