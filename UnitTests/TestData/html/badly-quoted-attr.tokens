@@ -1,0 +1,20 @@
+Tag: <HTML>
+Data: \n
+Tag: <BODY>
+Data: \n\t
+Tag: <p class="MsoNormal">
+Tag: <span style="font-family:\"Calibri\"">
+Data: Hello,
+Tag: </span>
+Tag: </p>
+Data: \n\t
+Tag: <p class="MsoNormal">
+Tag: <span style="font-family:\"Calibri\"">
+Data: how are you
+Tag: </span>
+Tag: </p>
+Data: \n
+Tag: </BODY>
+Data: \n
+Tag: </HTML>
+Data: \n

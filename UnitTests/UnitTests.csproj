@@ -148,6 +148,8 @@
     <None Include="TestData\encoders\photo.b64" />
     <None Include="TestData\encoders\photo.jpg" />
     <None Include="TestData\encoders\photo.uu" />
+    <None Include="TestData\html\badly-quoted-attr.html" />
+    <None Include="TestData\html\badly-quoted-attr.tokens" />
     <None Include="TestData\html\blocked.html" />
     <None Include="TestData\html\blocked.tokens" />
     <None Include="TestData\html\cdata.html" />

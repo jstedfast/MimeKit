@@ -204,6 +204,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestBadlyQuotedAttribute ()
+		{
+			VerifyHtmlTokenizerOutput (Path.Combine ("..", "..", "TestData", "html", "badly-quoted-attr.html"));
+		}
+
+		[Test]
 		public void TestHtmlDecode ()
 		{
 			const string encoded = "&lt;&pound;&euro;&cent;&yen;&nbsp;&copy;&reg;&gt;";

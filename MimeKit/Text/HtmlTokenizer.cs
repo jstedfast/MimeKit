@@ -1,4 +1,4 @@
-//
+﻿//
 // HtmlTokenizer.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -1587,6 +1587,7 @@ namespace MimeKit.Text {
 				default:
 					if (c == quote) {
 						TokenizerState = HtmlTokenizerState.AfterAttributeValueQuoted;
+						quote = '\0';
 						break;
 					}
 
@@ -2378,6 +2379,7 @@ namespace MimeKit.Text {
 				default:
 					if (c == quote) {
 						TokenizerState = HtmlTokenizerState.AfterDocTypePublicIdentifier;
+						quote = '\0';
 						break;
 					}
 
@@ -2579,6 +2581,7 @@ namespace MimeKit.Text {
 				default:
 					if (c == quote) {
 						TokenizerState = HtmlTokenizerState.AfterDocTypeSystemIdentifier;
+						quote = '\0';
 						break;
 					}
 
