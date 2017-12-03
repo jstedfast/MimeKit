@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -108,6 +108,7 @@
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
+    <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
@@ -255,15 +256,7 @@
     <Compile Include="TextPart.cs" />
     <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Cryptography\" />
-    <Folder Include="Encodings\" />
-    <Folder Include="IO\Filters\" />
-    <Folder Include="IO\" />
-    <Folder Include="Tnef\" />
-    <Folder Include="Utils\" />
-    <Folder Include="Text\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.MimeKit.Net45.config" />
   </ItemGroup>

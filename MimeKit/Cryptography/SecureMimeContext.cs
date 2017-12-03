@@ -763,6 +763,48 @@ namespace MimeKit.Cryptography {
 			return result.CertPath;
 		}
 
+		internal static bool TryGetDigestAlgorithm (string id, out DigestAlgorithm algorithm)
+		{
+			if (id == CmsSignedGenerator.DigestSha1) {
+				algorithm = DigestAlgorithm.Sha1;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha224) {
+				algorithm = DigestAlgorithm.Sha224;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha256) {
+				algorithm = DigestAlgorithm.Sha256;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha384) {
+				algorithm = DigestAlgorithm.Sha384;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha512) {
+				algorithm = DigestAlgorithm.Sha512;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestRipeMD160) {
+				algorithm = DigestAlgorithm.RipeMD160;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestMD5) {
+				algorithm = DigestAlgorithm.MD5;
+				return true;
+			}
+
+			algorithm = DigestAlgorithm.None;
+
+			return false;
+		}
+
 		/// <summary>
 		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
 		/// to a <see cref="DigestAlgorithm"/>.
@@ -782,44 +824,7 @@ namespace MimeKit.Cryptography {
 			if (identifier == null)
 				throw new ArgumentNullException (nameof (identifier));
 
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha1) {
-				algorithm = DigestAlgorithm.Sha1;
-				return true;
-			}
-
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha224) {
-				algorithm = DigestAlgorithm.Sha224;
-				return true;
-			}
-
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha256) {
-				algorithm = DigestAlgorithm.Sha256;
-				return true;
-			}
-
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha384) {
-				algorithm = DigestAlgorithm.Sha384;
-				return true;
-			}
-
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestSha512) {
-				algorithm = DigestAlgorithm.Sha512;
-				return true;
-			}
-
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestRipeMD160) {
-				algorithm = DigestAlgorithm.RipeMD160;
-				return true;
-			}
-
-			if (identifier.Algorithm.Id == CmsSignedGenerator.DigestMD5) {
-				algorithm = DigestAlgorithm.MD5;
-				return true;
-			}
-
-			algorithm = DigestAlgorithm.None;
-
-			return false;
+			return TryGetDigestAlgorithm (identifier.Algorithm.Id, out algorithm);
 		}
 
 		/// <summary>
@@ -1065,7 +1070,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
+		public virtual DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
@@ -1094,7 +1099,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public Stream Verify (Stream signedData, out DigitalSignatureCollection signatures)
+		public virtual Stream Verify (Stream signedData, out DigitalSignatureCollection signatures)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));

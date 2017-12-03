@@ -46,6 +46,10 @@ using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipien
 using RealX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
 
+
+using CmsAttributes = Org.BouncyCastle.Asn1.Cms.CmsAttributes;
+using SmimeAttributes = Org.BouncyCastle.Asn1.Smime.SmimeAttributes;
+
 using MimeKit.IO;
 
 namespace MimeKit.Cryptography {
@@ -606,6 +610,192 @@ namespace MimeKit.Cryptography {
 			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
 
 			return new ApplicationPkcs7Signature (Sign (cmsSigner, content, true));
+		}
+
+		/// <summary>
+		/// Attempts to map a <see cref="System.Security.Cryptography.Oid"/>
+		/// to a <see cref="DigestAlgorithm"/>.
+		/// </summary>
+		/// <remarks>
+		/// Attempts to map a <see cref="System.Security.Cryptography.Oid"/>
+		/// to a <see cref="DigestAlgorithm"/>.
+		/// </remarks>
+		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; otherwise, <c>false</c>.</returns>
+		/// <param name="identifier">The algorithm identifier.</param>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="identifier"/> is <c>null</c>.
+		/// </exception>
+		protected static bool TryGetDigestAlgorithm (Oid identifier, out DigestAlgorithm algorithm)
+		{
+			if (identifier == null)
+				throw new ArgumentNullException (nameof (identifier));
+
+			return TryGetDigestAlgorithm (identifier.Value, out algorithm);
+		}
+
+		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
+		{
+			var rawData = certificate.GetRawCertData ();
+
+			return new X509CertificateParser ().ReadCertificate (rawData);
+		}
+
+		DigitalSignatureCollection GetDigitalSignatures (SignedCms signed)
+		{
+			var signatures = new List<IDigitalSignature> ();
+
+			foreach (var signerInfo in signed.SignerInfos) {
+				var signature = new WindowsSecureMimeDigitalSignature (signerInfo);
+				var algorithms = new List<EncryptionAlgorithm> ();
+				DateTime? signedDate = null;
+				DigestAlgorithm digestAlgo;
+
+				if (signerInfo.SignedAttributes != null) {
+					for (int i = 0; i < signerInfo.SignedAttributes.Count; i++) {
+						if (signerInfo.SignedAttributes[i].Oid.Value == CmsAttributes.SigningTime.Id) {
+							var signingTime = signerInfo.SignedAttributes[i].Values[0] as Pkcs9SigningTime;
+
+							if (signingTime != null) {
+								signature.CreationDate = signingTime.SigningTime;
+								signedDate = signingTime.SigningTime;
+							}
+						} else if (signerInfo.SignedAttributes[i].Oid.Value == SmimeAttributes.SmimeCapabilities.Id) {
+							foreach (var value in signerInfo.SignedAttributes[i].Values) {
+								var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (value.RawData);
+								EncryptionAlgorithm algorithm;
+
+								if (TryGetEncryptionAlgorithm (identifier, out algorithm))
+									algorithms.Add (algorithm);
+							}
+						}
+					}
+
+					signature.EncryptionAlgorithms = algorithms.ToArray ();
+				}
+
+				if (TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
+					signature.DigestAlgorithm = digestAlgo;
+
+				var certificate = GetBouncyCastleCertificate (signerInfo.Certificate);
+
+				signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
+				if (algorithms.Count > 0 && signedDate != null) {
+					UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
+				} else {
+					try {
+						Import (signerInfo.Certificate);
+					} catch {
+					}
+				}
+
+				signatures.Add (signature);
+			}
+
+			return new DigitalSignatureCollection (signatures);
+		}
+
+		/// <summary>
+		/// Verify the specified content using the detached signature data.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the specified content using the detached signature data.
+		/// </remarks>
+		/// <returns>A list of the digital signatures.</returns>
+		/// <param name="content">The content.</param>
+		/// <param name="signatureData">The detached signature data.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
+		{
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			if (signatureData == null)
+				throw new ArgumentNullException (nameof (signatureData));
+
+			var contentInfo = new ContentInfo (ReadAllBytes (signatureData));
+			var signed = new SignedCms (contentInfo, true);
+
+			signed.Decode (ReadAllBytes (content));
+
+			return GetDigitalSignatures (signed);
+		}
+
+		/// <summary>
+		/// Verify the digital signatures of the specified signed data and extract the original content.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signatures of the specified signed data and extracts the original content.
+		/// </remarks>
+		/// <returns>The list of digital signatures.</returns>
+		/// <param name="signedData">The signed data.</param>
+		/// <param name="entity">The extracted MIME entity.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The extracted content could not be parsed as a MIME entity.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
+		{
+			if (signedData == null)
+				throw new ArgumentNullException (nameof (signedData));
+
+			var contentInfo = new ContentInfo (ReadAllBytes (signedData));
+			var signed = new SignedCms ();
+
+			signed.Decode (ReadAllBytes (signedData));
+
+			var memory = new MemoryStream (signed.ContentInfo.Content, false);
+
+			try {
+				entity = MimeEntity.Load (memory, true);
+			} catch {
+				memory.Dispose ();
+				throw;
+			}
+
+			return GetDigitalSignatures (signed);
+		}
+
+		/// <summary>
+		/// Verify the digital signatures of the specified signed data and extract the original content.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signatures of the specified signed data and extracts the original content.
+		/// </remarks>
+		/// <returns>The extracted content stream.</returns>
+		/// <param name="signedData">The signed data.</param>
+		/// <param name="signatures">The digital signatures.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures)
+		{
+			if (signedData == null)
+				throw new ArgumentNullException (nameof (signedData));
+
+			var contentInfo = new ContentInfo (ReadAllBytes (signedData));
+			var signed = new SignedCms ();
+
+			signed.Decode (ReadAllBytes (signedData));
+
+			signatures = GetDigitalSignatures (signed);
+
+			return new MemoryStream (signed.ContentInfo.Content, false);
 		}
 
 		class VoteComparer : IComparer<int>

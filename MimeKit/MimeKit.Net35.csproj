@@ -105,6 +105,7 @@
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
+    <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />
