@@ -42,6 +42,7 @@ namespace UnitTests {
 	public abstract class SecureMimeTestsBase
 	{
 		const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
+		const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
@@ -204,7 +205,12 @@ namespace UnitTests {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						} else {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
 					}
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -267,7 +273,12 @@ namespace UnitTests {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						} else {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
 					}
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -486,7 +497,12 @@ namespace UnitTests {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						} else {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
 					}
 
 					var algorithms = GetEncryptionAlgorithms (signature);
