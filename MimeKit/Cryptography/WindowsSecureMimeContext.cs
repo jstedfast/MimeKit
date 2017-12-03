@@ -32,6 +32,7 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
@@ -45,7 +46,6 @@ using RealSubjectIdentifierType = System.Security.Cryptography.Pkcs.SubjectIdent
 using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
 using RealX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
-
 
 using CmsAttributes = Org.BouncyCastle.Asn1.Cms.CmsAttributes;
 using SmimeAttributes = Org.BouncyCastle.Asn1.Smime.SmimeAttributes;
@@ -662,11 +662,17 @@ namespace MimeKit.Cryptography {
 							}
 						} else if (signerInfo.SignedAttributes[i].Oid.Value == SmimeAttributes.SmimeCapabilities.Id) {
 							foreach (var value in signerInfo.SignedAttributes[i].Values) {
-								var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (value.RawData);
-								EncryptionAlgorithm algorithm;
+								var sequences = (Asn1Set) Asn1Object.FromByteArray (value.RawData);
 
-								if (TryGetEncryptionAlgorithm (identifier, out algorithm))
-									algorithms.Add (algorithm);
+								foreach (Asn1Sequence sequence in sequences) {
+									for (int j = 0; i < sequence.Count; i++) {
+										var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence[j]);
+										EncryptionAlgorithm algorithm;
+
+										if (TryGetEncryptionAlgorithm (identifier, out algorithm))
+											algorithms.Add (algorithm);
+									}
+								}
 							}
 						}
 					}
