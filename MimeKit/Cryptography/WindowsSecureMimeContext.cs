@@ -140,7 +140,7 @@ namespace MimeKit.Cryptography {
 
 		#region implemented abstract members of SecureMimeContext
 
-		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (RealX509Certificate certificate)
+		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
 		{
 			var rawData = certificate.GetRawCertData ();
 
@@ -634,13 +634,6 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (identifier));
 
 			return TryGetDigestAlgorithm (identifier.Value, out algorithm);
-		}
-
-		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
-		{
-			var rawData = certificate.GetRawCertData ();
-
-			return new X509CertificateParser ().ReadCertificate (rawData);
 		}
 
 		DigitalSignatureCollection GetDigitalSignatures (SignedCms signed)
