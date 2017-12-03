@@ -27,10 +27,8 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
-using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.X509;
 
 using CmsAttributes = Org.BouncyCastle.Asn1.Cms.CmsAttributes;
 using SmimeAttributes = Org.BouncyCastle.Asn1.Smime.SmimeAttributes;
@@ -46,7 +44,6 @@ namespace MimeKit.Cryptography
 	public class WindowsSecureMimeDigitalSignature : IDigitalSignature
 	{
 		DigitalSignatureVerifyException vex;
-		bool? valid;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeDigitalSignature"/> class.
@@ -96,9 +93,7 @@ namespace MimeKit.Cryptography
 			if (WindowsSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
 				DigestAlgorithm = digestAlgo;
 
-			var certificate = signerInfo.Certificate.AsBouncyCastleCertificate ();
-
-			SignerCertificate = new SecureMimeDigitalCertificate (certificate);
+			SignerCertificate = new WindowsSecureMimeDigitalCertificate (signerInfo.Certificate);
 		}
 
 		/// <summary>
@@ -183,21 +178,11 @@ namespace MimeKit.Cryptography
 		/// </exception>
 		public bool Verify ()
 		{
-			if (valid.HasValue)
-				return valid.Value;
-
 			if (vex != null)
 				throw vex;
 
-			if (SignerInfo.Certificate == null) {
-				var message = string.Format ("Failed to verify digital signature: missing certificate.");
-				vex = new DigitalSignatureVerifyException (message);
-				throw vex;
-			}
-
 			try {
 				SignerInfo.CheckSignature (false);
-				valid = true;
 				return true;
 			} catch (Exception ex) {
 				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);

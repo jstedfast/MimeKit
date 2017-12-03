@@ -1,5 +1,5 @@
-//
-// SecureMimeDigitalCertificate.cs
+﻿//
+// WindowsSecureMimeDigitalCertificate.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -25,9 +25,8 @@
 //
 
 using System;
-
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Crypto.Parameters;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -36,35 +35,35 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An S/MIME digital certificate.
 	/// </remarks>
-	public class SecureMimeDigitalCertificate : IDigitalCertificate
+	public class WindowsSecureMimeDigitalCertificate : IDigitalCertificate
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeDigitalCertificate"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeDigitalCertificate"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="SecureMimeDigitalCertificate"/>.
+		/// Creates a new <see cref="WindowsSecureMimeDigitalCertificate"/>.
 		/// </remarks>
 		/// <param name="certificate">An X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
-		public SecureMimeDigitalCertificate (X509Certificate certificate)
+		public WindowsSecureMimeDigitalCertificate (X509Certificate2 certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
 			Certificate = certificate;
 
-			var pubkey = certificate.GetPublicKey ();
-			if (pubkey is DsaKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.Dsa;
-			else if (pubkey is RsaKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.RsaGeneral;
-			else if (pubkey is ElGamalKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.ElGamalGeneral;
-			else if (pubkey is ECKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.EllipticCurve;
-			else if (pubkey is DHKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
+			var algorithm = certificate.PublicKey.Key;
 
-			Fingerprint = certificate.GetFingerprint ();
+			if (algorithm is DSA)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.Dsa;
+			else if (algorithm is RSA)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.RsaGeneral;
+			else if (algorithm is ECDiffieHellman)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
+			else if (algorithm is ECDsa)
+				PublicKeyAlgorithm = PublicKeyAlgorithm.EdwardsCurveDsa;
 		}
 
 		/// <summary>
@@ -74,7 +73,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the X.509 certificate.
 		/// </remarks>
 		/// <value>The certificate.</value>
-		public X509Certificate Certificate {
+		public X509Certificate2 Certificate {
 			get; private set;
 		}
 
@@ -140,7 +139,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The email address.</value>
 		public string Email {
-			get { return Certificate.GetSubjectEmailAddress (); }
+			get { return Certificate.GetNameInfo (X509NameType.EmailName, false); }
 		}
 
 		/// <summary>
@@ -151,7 +150,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The name of the owner.</value>
 		public string Name {
-			get { return Certificate.GetSubjectName (); }
+			get { return Certificate.GetNameInfo (X509NameType.SimpleName, false); }
 		}
 
 		#endregion
