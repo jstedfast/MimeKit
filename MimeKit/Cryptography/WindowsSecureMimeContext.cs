@@ -662,16 +662,14 @@ namespace MimeKit.Cryptography {
 							}
 						} else if (signerInfo.SignedAttributes[i].Oid.Value == SmimeAttributes.SmimeCapabilities.Id) {
 							foreach (var value in signerInfo.SignedAttributes[i].Values) {
-								var sequences = (Asn1Set) Asn1Object.FromByteArray (value.RawData);
+								var sequences = (DerSequence) Asn1Object.FromByteArray (value.RawData);
 
 								foreach (Asn1Sequence sequence in sequences) {
-									for (int j = 0; i < sequence.Count; i++) {
-										var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence[j]);
-										EncryptionAlgorithm algorithm;
+									var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence);
+									EncryptionAlgorithm algorithm;
 
-										if (TryGetEncryptionAlgorithm (identifier, out algorithm))
-											algorithms.Add (algorithm);
-									}
+									if (TryGetEncryptionAlgorithm (identifier, out algorithm))
+										algorithms.Add (algorithm);
 								}
 							}
 						}

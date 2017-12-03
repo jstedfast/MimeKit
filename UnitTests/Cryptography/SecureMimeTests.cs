@@ -41,6 +41,7 @@ using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 namespace UnitTests {
 	public abstract class SecureMimeTestsBase
 	{
+		const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
@@ -172,6 +173,11 @@ namespace UnitTests {
 			}
 		}
 
+		protected virtual EncryptionAlgorithm[] GetEncryptionAlgorithms (IDigitalSignature signature)
+		{
+			return ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+		}
+
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigning ()
 		{
@@ -201,7 +207,7 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					var algorithms = GetEncryptionAlgorithms (signature);
 					int i = 0;
 
 					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
@@ -264,7 +270,7 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					var algorithms = GetEncryptionAlgorithms (signature);
 					int i = 0;
 
 					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
@@ -317,14 +323,17 @@ namespace UnitTests {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						if (Path.DirectorySeparatorChar == '/' && ctx is WindowsSecureMimeContext) {
-							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
+						if (ctx is WindowsSecureMimeContext) {
+							if (Path.DirectorySeparatorChar == '/')
+								Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
+							else
+								Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
 						} else {
 							Assert.Fail ("Failed to verify signature: {0}", ex);
 						}
 					}
 
-					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					var algorithms = GetEncryptionAlgorithms (signature);
 					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
 					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
 					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
@@ -480,7 +489,7 @@ namespace UnitTests {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 
-					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					var algorithms = GetEncryptionAlgorithms (signature);
 					int i = 0;
 
 					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
@@ -561,10 +570,17 @@ namespace UnitTests {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						if (ctx is WindowsSecureMimeContext) {
+							if (Path.DirectorySeparatorChar == '/')
+								Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
+							else
+								Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
+						} else {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
 					}
 
-					var algorithms = ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+					var algorithms = GetEncryptionAlgorithms (signature);
 					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
 					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
 					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
@@ -658,6 +674,11 @@ namespace UnitTests {
 		protected override SecureMimeContext CreateContext ()
 		{
 			return new WindowsSecureMimeContext ();
+		}
+
+		protected override EncryptionAlgorithm[] GetEncryptionAlgorithms (IDigitalSignature signature)
+		{
+			return ((WindowsSecureMimeDigitalSignature) signature).EncryptionAlgorithms;
 		}
 
 		[Test]
