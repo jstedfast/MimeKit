@@ -720,10 +720,10 @@ namespace MimeKit.Cryptography {
 			if (signatureData == null)
 				throw new ArgumentNullException (nameof (signatureData));
 
-			var contentInfo = new ContentInfo (ReadAllBytes (signatureData));
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var signed = new SignedCms (contentInfo, true);
 
-			signed.Decode (ReadAllBytes (content));
+			signed.Decode (ReadAllBytes (signatureData));
 
 			return GetDigitalSignatures (signed);
 		}
