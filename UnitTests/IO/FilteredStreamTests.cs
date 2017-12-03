@@ -33,8 +33,7 @@ using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
 
-namespace UnitTests
-{
+namespace UnitTests.IO {
 	[TestFixture]
 	public class FilteredStreamTests
 	{

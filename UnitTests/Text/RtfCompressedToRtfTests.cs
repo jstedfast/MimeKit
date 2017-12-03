@@ -33,7 +33,7 @@ using MimeKit.Tnef;
 
 using NUnit.Framework;
 
-namespace UnitTests {
+namespace UnitTests.Text {
 	[TestFixture]
 	public class RtfCompressedToRtfTests
 	{

@@ -29,8 +29,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UnitTests
-{
+namespace UnitTests.IO {
 	class CanReadWriteSeekStream : Stream
 	{
 		readonly bool read, write, seek, timeout;

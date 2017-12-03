@@ -35,7 +35,7 @@ using MimeKit.IO;
 using MimeKit.IO.Filters;
 using MimeKit.Encodings;
 
-namespace UnitTests {
+namespace UnitTests.Encodings {
 	[TestFixture]
 	public class YEncodingTests
 	{

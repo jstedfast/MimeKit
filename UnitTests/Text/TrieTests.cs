@@ -30,7 +30,7 @@ using MimeKit.Text;
 
 using NUnit.Framework;
 
-namespace UnitTests {
+namespace UnitTests.Text {
 	[TestFixture]
 	public class TrieTests
 	{

@@ -32,7 +32,7 @@ using NUnit.Framework;
 using Newtonsoft.Json;
 using MimeKit.Text;
 
-namespace UnitTests {
+namespace UnitTests.Text {
 	[TestFixture]
 	public class HtmlEntityDecoderTests
 	{

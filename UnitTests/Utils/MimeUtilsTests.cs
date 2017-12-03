@@ -31,7 +31,7 @@ using NUnit.Framework;
 
 using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests.Utils {
 	[TestFixture]
 	public class MimeUtilsTests
 	{

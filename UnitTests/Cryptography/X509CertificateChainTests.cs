@@ -33,7 +33,7 @@ using Org.BouncyCastle.X509;
 
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class X509CertificateChainTests
 	{

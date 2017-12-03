@@ -32,8 +32,7 @@ using NUnit.Framework;
 
 using MimeKit.IO;
 
-namespace UnitTests
-{
+namespace UnitTests.IO {
 	[TestFixture]
 	public class BoundStreamTests
 	{

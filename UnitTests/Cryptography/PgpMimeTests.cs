@@ -39,7 +39,7 @@ using MimeKit.IO;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class PgpMimeTests
 	{

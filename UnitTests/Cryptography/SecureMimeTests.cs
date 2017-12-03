@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
@@ -38,11 +39,14 @@ using MimeKit.Cryptography;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	public abstract class SecureMimeTestsBase
 	{
 		const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
 		const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
+		const string ThunderbirdFingerprint = "354ea4dcf98166639b58ec5df06a65de0cd8a95c";
+		const string MimeKitFingerprint = "2c29c66e281c9c515cc16a91ac87c4da988dbadf";
+
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
@@ -267,41 +271,45 @@ namespace UnitTests {
 
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
-						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
-						}
+				var signature = signatures[0];
+
+				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
+				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint);
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						// AppVeyor gets an exception about the root certificate not being trusted
+						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
-
-					var algorithms = GetEncryptionAlgorithms (signature);
-					int i = 0;
-
-					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-						Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-						Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
-					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
-					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -326,32 +334,38 @@ namespace UnitTests {
 
 				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
+				// Note: this fails in WindowsSecureMimeContext
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							if (Path.DirectorySeparatorChar == '/')
-								Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
-							else
-								Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
-						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
-						}
+				var sender = message.From.Mailboxes.FirstOrDefault ();
+				var signature = signatures[0];
+
+				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
+				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint);
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
+				Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[3], "Expected RC2-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[4], "Expected RC2-64 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[5], "Expected DES capability");
+				Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[6], "Expected RC2-40 capability");
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						if (Path.DirectorySeparatorChar == '/')
+							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
+						else
+							Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
-
-					var algorithms = GetEncryptionAlgorithms (signature);
-					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
-					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
-					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[3], "Expected RC2-128 capability");
-					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[4], "Expected RC2-64 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[5], "Expected DES capability");
-					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[6], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -457,7 +471,7 @@ namespace UnitTests {
 		public virtual void TestSecureMimeSignAndEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
-			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "2c29c66e281c9c515cc16a91ac87c4da988dbadf");
+			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", MimeKitFingerprint);
 			var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
 			ApplicationPkcs7Mime encrypted;
 
@@ -491,41 +505,45 @@ namespace UnitTests {
 				var signatures = signed.Verify (ctx);
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
-						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
-						}
+				var signature = signatures[0];
+
+				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
+				Assert.AreEqual (self.Fingerprint, signature.SignerCertificate.Fingerprint);
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						// AppVeyor gets an exception about the root certificate not being trusted
+						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
-
-					var algorithms = GetEncryptionAlgorithms (signature);
-					int i = 0;
-
-					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-						Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-						Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
-					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
-					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
 				}
 			}
 		}
@@ -580,30 +598,35 @@ namespace UnitTests {
 				var signatures = signed.Verify (ctx);
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							if (Path.DirectorySeparatorChar == '/')
-								Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
-							else
-								Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
-						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
-						}
+				var sender = message.From.Mailboxes.FirstOrDefault ();
+				var signature = signatures[0];
+
+				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
+				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint);
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
+				Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[3], "Expected RC2-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[4], "Expected RC2-64 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[5], "Expected DES capability");
+				Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[6], "Expected RC2-40 capability");
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						if (Path.DirectorySeparatorChar == '/')
+							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
+						else
+							Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
-
-					var algorithms = GetEncryptionAlgorithms (signature);
-					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[1], "Expected AES-128 capability");
-					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[2], "Expected Triple-DES capability");
-					Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[3], "Expected RC2-128 capability");
-					Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[4], "Expected RC2-64 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[5], "Expected DES capability");
-					Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[6], "Expected RC2-40 capability");
 				}
 			}
 		}

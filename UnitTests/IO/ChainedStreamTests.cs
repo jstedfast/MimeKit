@@ -35,7 +35,7 @@ using NUnit.Framework;
 using MimeKit.IO;
 using MimeKit;
 
-namespace UnitTests {
+namespace UnitTests.IO {
 	[TestFixture]
 	public class ChainedStreamTests
 	{

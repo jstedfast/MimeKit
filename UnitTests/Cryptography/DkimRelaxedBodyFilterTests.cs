@@ -37,7 +37,7 @@ using Org.BouncyCastle.OpenSsl;
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class DkimRelaxedBodyFilterTests
 	{

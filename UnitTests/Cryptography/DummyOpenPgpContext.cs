@@ -31,7 +31,7 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	public class DummyOpenPgpContext : GnuPGContext
 	{
 		public DummyOpenPgpContext ()

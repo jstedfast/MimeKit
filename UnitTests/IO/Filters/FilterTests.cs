@@ -36,8 +36,7 @@ using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 using MimeKit.Utils;
 
-namespace UnitTests
-{
+namespace UnitTests.IO.Filters {
 	[TestFixture]
 	public class FilterTests
 	{

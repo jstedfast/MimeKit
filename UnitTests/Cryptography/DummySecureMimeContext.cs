@@ -37,7 +37,7 @@ using Org.BouncyCastle.X509;
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	public class DummySecureMimeContext : SecureMimeContext
 	{
 		readonly Dictionary<X509Certificate, EncryptionAlgorithm[]> capabilities = new Dictionary<X509Certificate, EncryptionAlgorithm[]> ();

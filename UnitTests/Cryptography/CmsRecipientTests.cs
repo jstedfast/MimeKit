@@ -36,7 +36,7 @@ using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class CmsRecipientTests
 	{

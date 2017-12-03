@@ -32,7 +32,7 @@ using NUnit.Framework;
 
 using MimeKit.Text;
 
-namespace UnitTests {
+namespace UnitTests.Text {
 	[TestFixture]
 	public class HtmlWriterTests
 	{

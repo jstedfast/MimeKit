@@ -28,8 +28,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UnitTests
-{
+namespace UnitTests.IO {
 	class ReadOneByteStream : Stream
 	{
 		readonly Stream source;

@@ -36,7 +36,7 @@ using MimeKit.IO.Filters;
 
 using NUnit.Framework;
 
-namespace UnitTests {
+namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefTests
 	{

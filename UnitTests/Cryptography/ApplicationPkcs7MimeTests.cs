@@ -35,7 +35,7 @@ using Org.BouncyCastle.X509;
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests {
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class ApplicationPkcs7MimeTests
 	{
