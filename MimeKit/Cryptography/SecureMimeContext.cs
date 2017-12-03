@@ -921,11 +921,11 @@ namespace MimeKit.Cryptography {
 
 		static DateTime ToAdjustedDateTime (DerUtcTime time)
 		{
-			try {
-				return time.ToAdjustedDateTime ();
-			} catch {
+			//try {
+			//	return time.ToAdjustedDateTime ();
+			//} catch {
 				return DateUtils.Parse (time.AdjustedTimeString, "yyyyMMddHHmmsszzz");
-			}
+			//}
 		}
 
 		/// <summary>
