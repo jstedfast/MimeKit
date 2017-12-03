@@ -207,7 +207,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the fingerprint of the certificate and/or key to use for signing or encrypting.
 		/// <seealso cref="System.Security.Cryptography.X509Certificates.X509Certificate2.Thumbprint"/>
-		/// <seealso cref="MimeKit.Cryptography.X509CertificateExtensions"/>
+		/// <seealso cref="MimeKit.Cryptography.BouncyCastleCertificateExtensions"/>
 		/// </summary>
 		/// <remarks>
 		/// A fingerprint is a SHA-1 hash of the raw certificate data and is often used

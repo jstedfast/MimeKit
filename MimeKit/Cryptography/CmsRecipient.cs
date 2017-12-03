@@ -26,14 +26,12 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
+
+using Org.BouncyCastle.X509;
 
 #if !PORTABLE && !NETSTANDARD
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 #endif
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -161,52 +159,6 @@ namespace MimeKit.Cryptography {
 #endif
 
 #if !PORTABLE && !NETSTANDARD
-		static X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
-		{
-			var rawData = certificate.GetRawCertData ();
-
-			return new X509CertificateParser ().ReadCertificate (rawData);
-		}
-
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
-		{
-			using (var memory = new MemoryStream (rawData, false)) {
-				using (var asn1 = new Asn1InputStream (memory)) {
-					var algorithms = new List<EncryptionAlgorithm> ();
-					var sequence = asn1.ReadObject () as Asn1Sequence;
-
-					if (sequence == null)
-						return null;
-
-					for (int i = 0; i < sequence.Count; i++) {
-						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
-						EncryptionAlgorithm algorithm;
-
-						if (SecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
-							algorithms.Add (algorithm);
-					}
-
-					return algorithms.ToArray ();
-				}
-			}
-		}
-
-		internal static EncryptionAlgorithm[] GetEncryptionAlgorithms (X509Certificate2 certificate)
-		{
-			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
-					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
-
-					if (algorithms != null)
-						return algorithms;
-
-					break;
-				}
-			}
-
-			return new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
-		}
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
@@ -230,8 +182,8 @@ namespace MimeKit.Cryptography {
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
-			EncryptionAlgorithms = GetEncryptionAlgorithms (certificate);
-			Certificate = GetBouncyCastleCertificate (certificate);
+			EncryptionAlgorithms = certificate.GetEncryptionAlgorithms ();
+			Certificate = certificate.AsBouncyCastleCertificate ();
 		}
 #endif
 

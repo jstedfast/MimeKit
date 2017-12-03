@@ -257,7 +257,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				if (match.KeyUsage != null) {
-					var flags = X509CertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
+					var flags = BouncyCastleCertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
 
 					if (flags != X509KeyUsageFlags.None) {
 						if (command.Parameters.Count > 0)

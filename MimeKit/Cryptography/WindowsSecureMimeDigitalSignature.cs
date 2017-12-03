@@ -96,16 +96,9 @@ namespace MimeKit.Cryptography
 			if (WindowsSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
 				DigestAlgorithm = digestAlgo;
 
-			var certificate = GetBouncyCastleCertificate (signerInfo.Certificate);
+			var certificate = signerInfo.Certificate.AsBouncyCastleCertificate ();
 
 			SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-		}
-
-		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
-		{
-			var rawData = certificate.GetRawCertData ();
-
-			return new X509CertificateParser ().ReadCertificate (rawData);
 		}
 
 		/// <summary>

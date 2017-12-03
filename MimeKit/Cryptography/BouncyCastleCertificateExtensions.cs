@@ -1,5 +1,5 @@
 //
-// X509CertificateExtensions.cs
+// BouncyCastleCertificateExtensions.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -32,15 +32,36 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto.Digests;
 
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// X509Certificate extension methods.
+	/// Extension methods for use with BouncyCastle X509Certificates.
 	/// </summary>
 	/// <remarks>
-	/// A collection of useful extension methods for an <see cref="Org.BouncyCastle.X509.X509Certificate"/>.
+	/// Extension methods for use with BouncyCastle X509Certificates.
 	/// </remarks>
-	public static class X509CertificateExtensions
+	public static class BouncyCastleCertificateExtensions
 	{
+		/// <summary>
+		/// Convert a BouncyCastle certificate into an X509Certificate2.
+		/// </summary>
+		/// <remarks>
+		/// Converts a BouncyCastle certificate into an X509Certificate2.
+		/// </remarks>
+		/// <returns>The X509Certificate2.</returns>
+		/// <param name="certificate">The BouncyCastle certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public static X509Certificate2 AsX509Certificate2 (this X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			return new X509Certificate2 (certificate.GetEncoded ());
+		}
+
 		/// <summary>
 		/// Gets the issuer name info.
 		/// </summary>
@@ -148,7 +169,7 @@ namespace MimeKit.Cryptography {
 			if (alt == null)
 				return null;
 
-			var seq = DerSequence.GetInstance (Asn1Object.FromByteArray (alt.GetOctets ()));
+			var seq = Asn1Sequence.GetInstance (Asn1Object.FromByteArray (alt.GetOctets ()));
 
 			foreach (Asn1Encodable encodable in seq) {
 				var name = GeneralName.GetInstance (encodable);

@@ -46,6 +46,8 @@
     <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
+    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" />
+    <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />
     <Compile Include="Cryptography\CmsRecipient.cs" />
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
@@ -91,9 +93,9 @@
     <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
+    <Compile Include="Cryptography\X509Certificate2Extensions.cs" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
-    <Compile Include="Cryptography\X509CertificateExtensions.cs" />
     <Compile Include="Cryptography\X509CertificateRecord.cs" />
     <Compile Include="Cryptography\X509CertificateStore.cs" />
     <Compile Include="Cryptography\X509CrlRecord.cs" />

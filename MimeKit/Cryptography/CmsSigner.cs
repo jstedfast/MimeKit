@@ -282,57 +282,6 @@ namespace MimeKit.Cryptography {
 #endif
 
 #if !PORTABLE && !NETSTANDARD
-		static X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
-		{
-			var rawData = certificate.GetRawCertData ();
-
-			return new X509CertificateParser ().ReadCertificate (rawData);
-		}
-
-		static AsymmetricCipherKeyPair GetBouncyCastleDsaKeyPair (DSA dsa)
-		{
-			var dp = dsa.ExportParameters (true);
-			var validationParameters = dp.Seed != null ?
-				new DsaValidationParameters (dp.Seed, dp.Counter) : null;
-			var parameters = new DsaParameters (
-				new BigInteger (1, dp.P),
-				new BigInteger (1, dp.Q),
-				new BigInteger (1, dp.G),
-				validationParameters);
-			var pubKey = new DsaPublicKeyParameters (new BigInteger (1, dp.Y), parameters);
-			var privKey = new DsaPrivateKeyParameters (new BigInteger (1, dp.X), parameters);
-
-			return new AsymmetricCipherKeyPair (pubKey, privKey);
-		}
-
-		static AsymmetricCipherKeyPair GetBouncyCastleRsaKeyPair (RSA rsa)
-		{
-			var rp = rsa.ExportParameters (true);
-			var modulus = new BigInteger (1, rp.Modulus);
-			var exponent = new BigInteger (1, rp.Exponent);
-			var pubKey = new RsaKeyParameters (false, modulus, exponent);
-			var privKey = new RsaPrivateCrtKeyParameters (modulus, exponent,
-				new BigInteger (1, rp.D),
-				new BigInteger (1, rp.P),
-				new BigInteger (1, rp.Q),
-				new BigInteger (1, rp.DP),
-				new BigInteger (1, rp.DQ),
-				new BigInteger (1, rp.InverseQ));
-
-			return new AsymmetricCipherKeyPair (pubKey, privKey);
-		}
-
-		internal static AsymmetricCipherKeyPair GetBouncyCastleKeyPair (AsymmetricAlgorithm privateKey)
-		{
-			if (privateKey is DSA)
-				return GetBouncyCastleDsaKeyPair ((DSA) privateKey);
-
-			if (privateKey is RSA)
-				return GetBouncyCastleRsaKeyPair ((RSA) privateKey);
-
-			throw new ArgumentException ("Unsupported algorithm specified", "privateKey");
-		}
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
@@ -357,8 +306,8 @@ namespace MimeKit.Cryptography {
 			if (!certificate.HasPrivateKey)
 				throw new ArgumentException ("The certificate does not contain a private key.", nameof (certificate));
 
-			var cert = GetBouncyCastleCertificate (certificate);
-			var key = GetBouncyCastleKeyPair (certificate.PrivateKey);
+			var cert = certificate.AsBouncyCastleCertificate ();
+			var key = certificate.PrivateKey.AsBouncyCastleKeyPair ();
 
 			CheckCertificateCanBeUsedForSigning (cert);
 
