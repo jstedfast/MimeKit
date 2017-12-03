@@ -152,9 +152,11 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			Buffer.BlockCopy (input, startIndex, output, 0, length);
-
-			return length;
+			unsafe {
+				fixed (byte* inptr = input, outptr = output) {
+					return Decode (inptr + startIndex, length, outptr);
+				}
+			}
 		}
 
 		/// <summary>
