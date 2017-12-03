@@ -119,7 +119,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
-			get; internal set;
+			get { return PublicKeyAlgorithm.None; }
 		}
 
 		/// <summary>

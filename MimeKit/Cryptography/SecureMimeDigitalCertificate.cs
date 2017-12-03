@@ -27,7 +27,6 @@
 using System;
 
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 
 namespace MimeKit.Cryptography {

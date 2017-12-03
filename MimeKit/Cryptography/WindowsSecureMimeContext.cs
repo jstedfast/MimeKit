@@ -32,12 +32,8 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.X509.Store;
 
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
 using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
@@ -46,9 +42,6 @@ using RealSubjectIdentifierType = System.Security.Cryptography.Pkcs.SubjectIdent
 using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
 using RealX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate;
 using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
-
-using CmsAttributes = Org.BouncyCastle.Asn1.Cms.CmsAttributes;
-using SmimeAttributes = Org.BouncyCastle.Asn1.Smime.SmimeAttributes;
 
 using MimeKit.IO;
 
@@ -635,7 +628,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="identifier"/> is <c>null</c>.
 		/// </exception>
-		protected static bool TryGetDigestAlgorithm (Oid identifier, out DigestAlgorithm algorithm)
+		internal protected static bool TryGetDigestAlgorithm (Oid identifier, out DigestAlgorithm algorithm)
 		{
 			if (identifier == null)
 				throw new ArgumentNullException (nameof (identifier));
@@ -656,45 +649,11 @@ namespace MimeKit.Cryptography {
 
 			foreach (var signerInfo in signed.SignerInfos) {
 				var signature = new WindowsSecureMimeDigitalSignature (signerInfo);
-				var algorithms = new List<EncryptionAlgorithm> ();
-				DateTime? signedDate = null;
-				DigestAlgorithm digestAlgo;
 
-				if (signerInfo.SignedAttributes != null) {
-					for (int i = 0; i < signerInfo.SignedAttributes.Count; i++) {
-						if (signerInfo.SignedAttributes[i].Oid.Value == CmsAttributes.SigningTime.Id) {
-							var signingTime = signerInfo.SignedAttributes[i].Values[0] as Pkcs9SigningTime;
+				if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0) {
+					var certificate = ((SecureMimeDigitalCertificate) signature.SignerCertificate).Certificate;
 
-							if (signingTime != null) {
-								signature.CreationDate = signingTime.SigningTime;
-								signedDate = signingTime.SigningTime;
-							}
-						} else if (signerInfo.SignedAttributes[i].Oid.Value == SmimeAttributes.SmimeCapabilities.Id) {
-							foreach (var value in signerInfo.SignedAttributes[i].Values) {
-								var sequences = (DerSequence) Asn1Object.FromByteArray (value.RawData);
-
-								foreach (Asn1Sequence sequence in sequences) {
-									var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence);
-									EncryptionAlgorithm algorithm;
-
-									if (TryGetEncryptionAlgorithm (identifier, out algorithm))
-										algorithms.Add (algorithm);
-								}
-							}
-						}
-					}
-
-					signature.EncryptionAlgorithms = algorithms.ToArray ();
-				}
-
-				if (TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
-					signature.DigestAlgorithm = digestAlgo;
-
-				var certificate = GetBouncyCastleCertificate (signerInfo.Certificate);
-
-				signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-				if (algorithms.Count > 0 && signedDate != null) {
-					UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
+					UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 				} else {
 					try {
 						Import (signerInfo.Certificate);

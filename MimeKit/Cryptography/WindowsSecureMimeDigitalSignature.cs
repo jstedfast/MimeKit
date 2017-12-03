@@ -25,10 +25,15 @@
 //
 
 using System;
-using System.Security;
-using System.Security.Cryptography;
+using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
+
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.X509;
+
+using CmsAttributes = Org.BouncyCastle.Asn1.Cms.CmsAttributes;
+using SmimeAttributes = Org.BouncyCastle.Asn1.Smime.SmimeAttributes;
 
 namespace MimeKit.Cryptography
 {
@@ -43,13 +48,64 @@ namespace MimeKit.Cryptography
 		DigitalSignatureVerifyException vex;
 		bool? valid;
 
-		internal WindowsSecureMimeDigitalSignature (SignerInfo signerInfo)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeDigitalSignature"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="WindowsSecureMimeDigitalSignature"/>.
+		/// </remarks>
+		/// <param name="signerInfo">The information about the signer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="signerInfo"/> is <c>null</c>.
+		/// </exception>
+		public WindowsSecureMimeDigitalSignature (SignerInfo signerInfo)
 		{
+			if (signerInfo == null)
+				throw new ArgumentNullException (nameof (signerInfo));
+
 			SignerInfo = signerInfo;
+
+			var algorithms = new List<EncryptionAlgorithm> ();
+			DigestAlgorithm digestAlgo;
+
+			if (signerInfo.SignedAttributes != null) {
+				for (int i = 0; i < signerInfo.SignedAttributes.Count; i++) {
+					if (signerInfo.SignedAttributes[i].Oid.Value == CmsAttributes.SigningTime.Id) {
+						var signingTime = signerInfo.SignedAttributes[i].Values[0] as Pkcs9SigningTime;
+
+						if (signingTime != null)
+							CreationDate = signingTime.SigningTime;
+					} else if (signerInfo.SignedAttributes[i].Oid.Value == SmimeAttributes.SmimeCapabilities.Id) {
+						foreach (var value in signerInfo.SignedAttributes[i].Values) {
+							var sequences = (DerSequence) Asn1Object.FromByteArray (value.RawData);
+
+							foreach (Asn1Sequence sequence in sequences) {
+								var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence);
+								EncryptionAlgorithm algorithm;
+
+								if (SecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
+									algorithms.Add (algorithm);
+							}
+						}
+					}
+				}
+			}
+
+			EncryptionAlgorithms = algorithms.ToArray ();
+
+			if (WindowsSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
+				DigestAlgorithm = digestAlgo;
+
+			var certificate = GetBouncyCastleCertificate (signerInfo.Certificate);
+
+			SignerCertificate = new SecureMimeDigitalCertificate (certificate);
 		}
 
-		WindowsSecureMimeDigitalSignature ()
+		static Org.BouncyCastle.X509.X509Certificate GetBouncyCastleCertificate (X509Certificate2 certificate)
 		{
+			var rawData = certificate.GetRawCertData ();
+
+			return new X509CertificateParser ().ReadCertificate (rawData);
 		}
 
 		/// <summary>
@@ -73,7 +129,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <value>The S/MIME encryption algorithms.</value>
 		public EncryptionAlgorithm[] EncryptionAlgorithms {
-			get; internal set;
+			get; private set;
 		}
 
 		#region IDigitalSignature implementation
@@ -86,7 +142,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
 		public IDigitalCertificate SignerCertificate {
-			get; internal set;
+			get; private set;
 		}
 
 		/// <summary>
@@ -97,7 +153,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
-			get; internal set;
+			get { return PublicKeyAlgorithm.None; }
 		}
 
 		/// <summary>
@@ -108,7 +164,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <value>The digest algorithm.</value>
 		public DigestAlgorithm DigestAlgorithm {
-			get; internal set;
+			get; private set;
 		}
 
 		/// <summary>
@@ -119,7 +175,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <value>The creation date in coordinated universal time (UTC).</value>
 		public DateTime CreationDate {
-			get; internal set;
+			get; private set;
 		}
 
 		/// <summary>
@@ -140,7 +196,7 @@ namespace MimeKit.Cryptography
 			if (vex != null)
 				throw vex;
 
-			if (SignerCertificate == null) {
+			if (SignerInfo.Certificate == null) {
 				var message = string.Format ("Failed to verify digital signature: missing certificate.");
 				vex = new DigitalSignatureVerifyException (message);
 				throw vex;
