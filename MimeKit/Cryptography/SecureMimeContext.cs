@@ -253,7 +253,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected abstract X509Certificate GetCertificate (IX509Selector selector);
+		protected virtual X509Certificate GetCertificate (IX509Selector selector)
+		{
+			return null;
+		}
 
 		/// <summary>
 		/// Get the private key for the certificate matching the specified selector.
@@ -263,7 +266,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
+		protected virtual AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
+		{
+			return null;
+		}
 
 		/// <summary>
 		/// Get the trusted anchors.
@@ -273,7 +279,10 @@ namespace MimeKit.Cryptography {
 		/// generally issued by a certificate authority (CA).
 		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
-		protected abstract HashSet GetTrustedAnchors ();
+		protected virtual HashSet GetTrustedAnchors ()
+		{
+			return new HashSet ();
+		}
 
 		/// <summary>
 		/// Get the intermediate certificates.
@@ -284,7 +293,10 @@ namespace MimeKit.Cryptography {
 		/// the end of the chain.
 		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
-		protected abstract IX509Store GetIntermediateCertificates ();
+		protected virtual IX509Store GetIntermediateCertificates ()
+		{
+			return new X509CertificateStore ();
+		}
 
 		/// <summary>
 		/// Get the certificate revocation lists.
@@ -295,7 +307,12 @@ namespace MimeKit.Cryptography {
 		/// itself or by the owner of the revoked certificate.
 		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
-		protected abstract IX509Store GetCertificateRevocationLists ();
+		protected virtual IX509Store GetCertificateRevocationLists ()
+		{
+			var crls = new List<X509Crl> ();
+
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
+		}
 
 		/// <summary>
 		/// Get the <see cref="CmsRecipient"/> for the specified mailbox.
@@ -728,9 +745,8 @@ namespace MimeKit.Cryptography {
 		{
 			var matches = store.GetMatches (signer);
 
-			foreach (X509Certificate certificate in matches) {
+			foreach (X509Certificate certificate in matches)
 				return certificate;
-			}
 
 			return GetCertificate (signer);
 		}

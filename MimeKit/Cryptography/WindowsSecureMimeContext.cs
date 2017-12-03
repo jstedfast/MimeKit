@@ -154,6 +154,7 @@ namespace MimeKit.Cryptography {
 			return new X509CertificateParser ().ReadCertificate (rawData);
 		}
 
+#if false // Note: this is not needed since WindowsSecureMimeContext implements its own Verify methods
 		/// <summary>
 		/// Gets the X.509 certificate based on the selector.
 		/// </summary>
@@ -185,7 +186,9 @@ namespace MimeKit.Cryptography {
 
 			return null;
 		}
+#endif
 
+#if false // Note: Not needed since WindowsSecureMimeContext implements its own Decrypt methods
 		/// <summary>
 		/// Gets the private key based on the provided selector.
 		/// </summary>
@@ -196,7 +199,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
-#if false
 			// Note: GetPrivateKey() is only used by the base class implementations of Decrypt() and DecryptTo().
 			// Since we override those methods, there is no use for this method.
 			var store = new X509Store (StoreName.My, StoreLocation);
@@ -218,10 +220,12 @@ namespace MimeKit.Cryptography {
 			} finally {
 				store.Close ();
 			}
-#endif
+
 			return null;
 		}
+#endif
 
+#if false // Note: This is not needed since WindowsSexureMimeContext implements its own signature verification
 		/// <summary>
 		/// Gets the trusted anchors.
 		/// </summary>
@@ -249,7 +253,9 @@ namespace MimeKit.Cryptography {
 
 			return anchors;
 		}
+#endif
 
+#if false // Note: This is not needed since WindowsSexureMimeContext implements its own signature verification
 		/// <summary>
 		/// Gets the intermediate certificates.
 		/// </summary>
@@ -277,7 +283,9 @@ namespace MimeKit.Cryptography {
 
 			return intermediate;
 		}
+#endif
 
+#if false // Note: This is not needed since WindowsSecureMimeContext does its own signature verification
 		/// <summary>
 		/// Gets the certificate revocation lists.
 		/// </summary>
@@ -292,6 +300,7 @@ namespace MimeKit.Cryptography {
 
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
+#endif
 
 		X509Certificate2 GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
@@ -804,12 +813,10 @@ namespace MimeKit.Cryptography {
 
 		class VoteComparer : IComparer<int>
 		{
-			#region IComparer implementation
 			public int Compare (int x, int y)
 			{
 				return y - x;
 			}
-			#endregion
 		}
 
 		/// <summary>
@@ -1188,6 +1195,6 @@ namespace MimeKit.Cryptography {
 			Import (stream, password, DefaultKeyStorageFlags);
 		}
 
-		#endregion
+#endregion
 	}
 }
