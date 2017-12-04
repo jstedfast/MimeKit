@@ -330,7 +330,7 @@ namespace UnitTests.Cryptography {
 				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
-				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint);
+				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
 
 				var algorithms = GetEncryptionAlgorithms (signature);
 				int i = 0;
@@ -399,7 +399,7 @@ namespace UnitTests.Cryptography {
 				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
-				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint);
+				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
 
 				var algorithms = GetEncryptionAlgorithms (signature);
 				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
@@ -568,7 +568,7 @@ namespace UnitTests.Cryptography {
 				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
-				Assert.AreEqual (self.Fingerprint, signature.SignerCertificate.Fingerprint);
+				Assert.AreEqual (self.Fingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
 
 				var algorithms = GetEncryptionAlgorithms (signature);
 				int i = 0;
@@ -664,7 +664,7 @@ namespace UnitTests.Cryptography {
 				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
-				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint);
+				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
 
 				var algorithms = GetEncryptionAlgorithms (signature);
 				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[0], "Expected AES-256 capability");
