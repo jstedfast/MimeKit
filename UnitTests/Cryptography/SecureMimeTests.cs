@@ -121,6 +121,11 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Mime (SecureMimeType.SignedData, stream).Accept (null));
 			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Signature (stream).Accept (null));
 
+			Assert.Throws<ArgumentOutOfRangeException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.None));
+			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.DoubleSha));
+			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.Haval5160));
+			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.Tiger192));
+
 			using (var ctx = CreateContext ()) {
 				var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
 				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
@@ -174,6 +179,31 @@ namespace UnitTests.Cryptography {
 
 				Assert.IsTrue (ctx.CanSign (valid), "{0} should be able to sign.", valid);
 				Assert.IsTrue (ctx.CanEncrypt (valid), "{0} should be able to encrypt.", valid);
+			}
+		}
+
+		[Test]
+		public void TestDigestAlgorithmMappings ()
+		{
+			using (var ctx = CreateContext ()) {
+				foreach (DigestAlgorithm digestAlgo in Enum.GetValues (typeof (DigestAlgorithm))) {
+					if (digestAlgo == DigestAlgorithm.None ||
+					    digestAlgo == DigestAlgorithm.DoubleSha)
+						continue;
+
+					// make sure that the name & enum values map back and forth correctly
+					var micalg = ctx.GetDigestAlgorithmName (digestAlgo);
+					var algorithm = ctx.GetDigestAlgorithm (micalg);
+					Assert.AreEqual (digestAlgo, algorithm);
+
+					// make sure that the oid and enum values map back and forth correctly
+					try {
+						var oid = SecureMimeContext.GetDigestOid (digestAlgo);
+						SecureMimeContext.TryGetDigestAlgorithm (oid, out algorithm);
+						Assert.AreEqual (digestAlgo, algorithm);
+					} catch (NotSupportedException) {
+					}
+				}
 			}
 		}
 

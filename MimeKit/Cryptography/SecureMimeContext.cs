@@ -168,18 +168,26 @@ namespace MimeKit.Cryptography {
 		/// header. For example:</para>
 		/// <list type="table">
 		/// <listheader><term>Algorithm</term><description>Name</description></listheader>
+		/// <item><term><see cref="DigestAlgorithm.MD2"/></term><description>md2</description></item>
+		/// <item><term><see cref="DigestAlgorithm.MD4"/></term><description>md4</description></item>
 		/// <item><term><see cref="DigestAlgorithm.MD5"/></term><description>md5</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Sha1"/></term><description>sha-1</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Sha224"/></term><description>sha-224</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Sha256"/></term><description>sha-256</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Sha384"/></term><description>sha-384</description></item>
 		/// <item><term><see cref="DigestAlgorithm.Sha512"/></term><description>sha-512</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Tiger192"/></term><description>tiger-192</description></item>
+		/// <item><term><see cref="DigestAlgorithm.RipeMD160"/></term><description>ripemd160</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Haval5160"/></term><description>haval-5-160</description></item>
 		/// </list>
 		/// </remarks>
 		/// <returns>The micalg value.</returns>
 		/// <param name="micalg">The digest algorithm.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="micalg"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
 		public override string GetDigestAlgorithmName (DigestAlgorithm micalg)
 		{
@@ -195,7 +203,10 @@ namespace MimeKit.Cryptography {
 			case DigestAlgorithm.Sha512:     return "sha-512";
 			case DigestAlgorithm.Sha224:     return "sha-224";
 			case DigestAlgorithm.MD4:        return "md4";
-			default: throw new ArgumentOutOfRangeException (nameof (micalg));
+			case DigestAlgorithm.DoubleSha:
+				throw new NotSupportedException (string.Format ("{0} is not supported.", micalg));
+			default:
+				throw new ArgumentOutOfRangeException (nameof (micalg), micalg, string.Format ("Unknown DigestAlgorithm: {0}", micalg));
 			}
 		}
 
@@ -204,6 +215,21 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/>.
+		/// <para>Maps the micalg parameter value string back to the appropriate <see cref="DigestAlgorithm"/></para>
+		/// <list type="table">
+		/// <listheader><term>Algorithm</term><description>Name</description></listheader>
+		/// <item><term><see cref="DigestAlgorithm.MD2"/></term><description>md2</description></item>
+		/// <item><term><see cref="DigestAlgorithm.MD4"/></term><description>md4</description></item>
+		/// <item><term><see cref="DigestAlgorithm.MD5"/></term><description>md5</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha1"/></term><description>sha-1</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha224"/></term><description>sha-224</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha256"/></term><description>sha-256</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha384"/></term><description>sha-384</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Sha512"/></term><description>sha-512</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Tiger192"/></term><description>tiger-192</description></item>
+		/// <item><term><see cref="DigestAlgorithm.RipeMD160"/></term><description>ripemd160</description></item>
+		/// <item><term><see cref="DigestAlgorithm.Haval5160"/></term><description>haval-5-160</description></item>
+		/// </list>
 		/// </remarks>
 		/// <returns>The digest algorithm.</returns>
 		/// <param name="micalg">The micalg parameter value.</param>
@@ -248,22 +274,74 @@ namespace MimeKit.Cryptography {
 		internal protected static string GetDigestOid (DigestAlgorithm digestAlgo)
 		{
 			switch (digestAlgo) {
-			case DigestAlgorithm.MD5:        return PkcsObjectIdentifiers.MD5.Id;
-			case DigestAlgorithm.Sha1:       return X509ObjectIdentifiers.IdSha1.Id;
+			case DigestAlgorithm.MD5:        return CmsSignedGenerator.DigestMD5;
+			case DigestAlgorithm.Sha1:       return CmsSignedGenerator.DigestSha1;
 			case DigestAlgorithm.MD2:        return PkcsObjectIdentifiers.MD2.Id;
-			case DigestAlgorithm.Sha256:     return NistObjectIdentifiers.IdSha256.Id;
-			case DigestAlgorithm.Sha384:     return NistObjectIdentifiers.IdSha384.Id;
-			case DigestAlgorithm.Sha512:     return NistObjectIdentifiers.IdSha512.Id;
-			case DigestAlgorithm.Sha224:     return NistObjectIdentifiers.IdSha224.Id;
+			case DigestAlgorithm.Sha256:     return CmsSignedGenerator.DigestSha256;
+			case DigestAlgorithm.Sha384:     return CmsSignedGenerator.DigestSha384;
+			case DigestAlgorithm.Sha512:     return CmsSignedGenerator.DigestSha512;
+			case DigestAlgorithm.Sha224:     return CmsSignedGenerator.DigestSha224;
 			case DigestAlgorithm.MD4:        return PkcsObjectIdentifiers.MD4.Id;
-			case DigestAlgorithm.RipeMD160:
+			case DigestAlgorithm.RipeMD160:  return CmsSignedGenerator.DigestRipeMD160;
 			case DigestAlgorithm.DoubleSha:
 			case DigestAlgorithm.Tiger192:
 			case DigestAlgorithm.Haval5160:
-				throw new NotSupportedException ();
+				throw new NotSupportedException (string.Format ("{0} is not supported.", digestAlgo));
 			default:
-				throw new ArgumentOutOfRangeException ();
+				throw new ArgumentOutOfRangeException (nameof (digestAlgo), digestAlgo, string.Format ("Unknown DigestAlgorithm: {0}", digestAlgo));
 			}
+		}
+
+		internal static bool TryGetDigestAlgorithm (string id, out DigestAlgorithm algorithm)
+		{
+			if (id == CmsSignedGenerator.DigestSha1) {
+				algorithm = DigestAlgorithm.Sha1;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha224) {
+				algorithm = DigestAlgorithm.Sha224;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha256) {
+				algorithm = DigestAlgorithm.Sha256;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha384) {
+				algorithm = DigestAlgorithm.Sha384;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestSha512) {
+				algorithm = DigestAlgorithm.Sha512;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestRipeMD160) {
+				algorithm = DigestAlgorithm.RipeMD160;
+				return true;
+			}
+
+			if (id == CmsSignedGenerator.DigestMD5) {
+				algorithm = DigestAlgorithm.MD5;
+				return true;
+			}
+
+			if (id == PkcsObjectIdentifiers.MD4.Id) {
+				algorithm = DigestAlgorithm.MD4;
+				return true;
+			}
+
+			if (id == PkcsObjectIdentifiers.MD2.Id) {
+				algorithm = DigestAlgorithm.MD2;
+				return true;
+			}
+
+			algorithm = DigestAlgorithm.None;
+
+			return false;
 		}
 
 		/// <summary>
@@ -469,48 +547,6 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
 		public abstract ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content);
-
-		internal static bool TryGetDigestAlgorithm (string id, out DigestAlgorithm algorithm)
-		{
-			if (id == CmsSignedGenerator.DigestSha1) {
-				algorithm = DigestAlgorithm.Sha1;
-				return true;
-			}
-
-			if (id == CmsSignedGenerator.DigestSha224) {
-				algorithm = DigestAlgorithm.Sha224;
-				return true;
-			}
-
-			if (id == CmsSignedGenerator.DigestSha256) {
-				algorithm = DigestAlgorithm.Sha256;
-				return true;
-			}
-
-			if (id == CmsSignedGenerator.DigestSha384) {
-				algorithm = DigestAlgorithm.Sha384;
-				return true;
-			}
-
-			if (id == CmsSignedGenerator.DigestSha512) {
-				algorithm = DigestAlgorithm.Sha512;
-				return true;
-			}
-
-			if (id == CmsSignedGenerator.DigestRipeMD160) {
-				algorithm = DigestAlgorithm.RipeMD160;
-				return true;
-			}
-
-			if (id == CmsSignedGenerator.DigestMD5) {
-				algorithm = DigestAlgorithm.MD5;
-				return true;
-			}
-
-			algorithm = DigestAlgorithm.None;
-
-			return false;
-		}
 
 		/// <summary>
 		/// Verify the digital signatures of the specified signed data and extract the original content.
