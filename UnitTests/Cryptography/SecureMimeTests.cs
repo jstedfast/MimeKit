@@ -133,6 +133,13 @@ namespace UnitTests.Cryptography {
 				DigitalSignatureCollection signatures;
 				MimeEntity entity;
 
+				Assert.IsFalse (ctx.Supports ("text/plain"), "Should not support text/plain");
+				Assert.IsTrue (ctx.Supports ("application/pkcs7-mime"), "Should support application/pkcs7-mime");
+				Assert.IsTrue (ctx.Supports ("application/x-pkcs7-mime"), "Should support application/x-pkcs7-mime");
+				Assert.IsTrue (ctx.Supports ("application/pkcs7-signature"), "Should support application/pkcs7-signature");
+				Assert.IsTrue (ctx.Supports ("application/x-pkcs7-signature"), "Should support application/x-pkcs7-signature");
+
+				Assert.Throws<ArgumentNullException> (() => ctx.Supports (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.CanSign (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.CanEncrypt (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Compress (null));

@@ -434,12 +434,6 @@ namespace MimeKit.Cryptography {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			if (signer.Certificate == null)
-				throw new ArgumentException ("No signer certificate specified.", nameof (signer));
-
-			if (signer.PrivateKey == null)
-				throw new ArgumentException ("No private key specified.", nameof (signer));
-
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
@@ -511,12 +505,6 @@ namespace MimeKit.Cryptography {
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
-
-			if (signer.Certificate == null)
-				throw new ArgumentException ("No signer certificate specified.", nameof (signer));
-
-			if (signer.PrivateKey == null)
-				throw new ArgumentException ("No private key specified.", nameof (signer));
 
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
