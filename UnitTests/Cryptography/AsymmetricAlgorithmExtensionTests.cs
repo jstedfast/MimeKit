@@ -30,6 +30,7 @@ using System.Security.Cryptography;
 using NUnit.Framework;
 
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Crypto;
 
 using MimeKit.Cryptography;
 
@@ -41,8 +42,11 @@ namespace UnitTests.Cryptography
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm (null));
 			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricKeyParameter (null));
+			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricCipherKeyPair (null));
+
+			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm ((AsymmetricKeyParameter) null));
+			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm ((AsymmetricCipherKeyPair) null));
 		}
 
 		static void AssertAreEqual (byte[] expected, byte[] actual, string paramName)
@@ -67,7 +71,7 @@ namespace UnitTests.Cryptography
 			using (var dsa = new DSACryptoServiceProvider (1024)) {
 				// first, check private key conversion
 				var expected = dsa.ExportParameters (true);
-				var bouncyCastle = dsa.AsAsymmetricKeyParameter ();
+				var bouncyCastle = dsa.AsAsymmetricCipherKeyPair ();
 				var windows = bouncyCastle.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
 				var actual = windows.ExportParameters (true);
 
@@ -82,8 +86,7 @@ namespace UnitTests.Cryptography
 
 				// now test public key conversion
 				expected = dsa.ExportParameters (false);
-				bouncyCastle = dsa.AsAsymmetricKeyParameter ();
-				windows = bouncyCastle.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
+				windows = bouncyCastle.Public.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
 				actual = windows.ExportParameters (false);
 
 				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
