@@ -128,7 +128,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The fingerprint.</value>
 		public string Fingerprint {
-			get; private set;
+			get { return Certificate.Thumbprint; }
 		}
 
 		/// <summary>
