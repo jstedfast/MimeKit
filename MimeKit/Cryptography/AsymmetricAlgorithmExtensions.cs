@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2017 Microsoft Corp.
+// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography
 	{
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACryptoServiceProvider dsa)
 		{
-			var dp = dsa.ExportParameters (true);
+			var dp = dsa.ExportParameters (!dsa.PublicOnly);
 			var validationParameters = dp.Seed != null ? new DsaValidationParameters (dp.Seed, dp.Counter) : null;
 			var parameters = new DsaParameters (
 				new BigInteger (1, dp.P),
@@ -59,7 +59,7 @@ namespace MimeKit.Cryptography
 
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACryptoServiceProvider rsa)
 		{
-			var rp = rsa.ExportParameters (true);
+			var rp = rsa.ExportParameters (!rsa.PublicOnly);
 			var modulus = new BigInteger (1, rp.Modulus);
 			var exponent = new BigInteger (1, rp.Exponent);
 
@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="key"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
+		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="key"/> is an unsupported asymmetric algorithm.
 		/// </exception>
 		public static AsymmetricKeyParameter AsAsymmetricKeyParameter (this AsymmetricAlgorithm key)
@@ -106,7 +106,7 @@ namespace MimeKit.Cryptography
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
-			throw new ArgumentException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name), nameof (key));
+			throw new NotSupportedException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name));
 		}
 
 		static DSAParameters GetDSAParameters (DsaKeyParameters key)
@@ -147,22 +147,14 @@ namespace MimeKit.Cryptography
 			return dsa;
 		}
 
-		static RSAParameters GetRSAParameters (RsaKeyParameters key)
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
 		{
 			var parameters = new RSAParameters ();
 
-			parameters.Exponent = key.Exponent.ToByteArray ();
+			parameters.Exponent = key.PublicExponent.ToByteArray ();
 			parameters.Modulus = key.Modulus.ToByteArray ();
-
-			return parameters;
-		}
-
-		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
-		{
-			var parameters = GetRSAParameters (key);
-
-			parameters.D = key.PublicExponent.ToByteArray ();
 			parameters.InverseQ = key.QInv.ToByteArray ();
+			parameters.D = key.Exponent.ToByteArray ();
 			parameters.DP = key.DP.ToByteArray ();
 			parameters.DQ = key.DQ.ToByteArray ();
 			parameters.P = key.P.ToByteArray ();
@@ -176,7 +168,9 @@ namespace MimeKit.Cryptography
 
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaKeyParameters key)
 		{
-			var parameters = GetRSAParameters (key);
+			var parameters = new RSAParameters ();
+			parameters.Exponent = key.Exponent.ToByteArray ();
+			parameters.Modulus = key.Modulus.ToByteArray ();
 
 			var rsa = RSA.Create ();
 			rsa.ImportParameters (parameters);
