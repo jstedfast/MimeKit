@@ -33,7 +33,7 @@ namespace MimeKit.Cryptography {
 	/// An S/MIME digital certificate.
 	/// </summary>
 	/// <remarks>
-	/// An S/MIME digital certificate.
+	/// An S/MIME digital certificate that is used with the <see cref="WindowsSecureMimeContext"/>.
 	/// </remarks>
 	public class WindowsSecureMimeDigitalCertificate : IDigitalCertificate
 	{

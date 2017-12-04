@@ -29,14 +29,10 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
@@ -47,9 +43,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// The default S/MIME context is designed to be usable on any platform
 	/// where there exists a .NET runtime by storing certificates, CRLs, and
-	/// (encrypted) private keys in a SQLite database.
+	/// (encrypted) private keys in a SQL database.
 	/// </remarks>
-	public class DefaultSecureMimeContext : SecureMimeContext
+	public class DefaultSecureMimeContext : BouncyCastleSecureMimeContext
 	{
 		const X509CertificateRecordFields CmsRecipientFields = X509CertificateRecordFields.Algorithms | X509CertificateRecordFields.Certificate;
 		const X509CertificateRecordFields CmsSignerFields = X509CertificateRecordFields.Certificate | X509CertificateRecordFields.PrivateKey;
@@ -339,7 +335,7 @@ namespace MimeKit.Cryptography {
 		/// the mailbox address for database lookups.</para>
 		/// </remarks>
 		/// <returns>A <see cref="CmsRecipient"/>.</returns>
-		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
@@ -371,7 +367,7 @@ namespace MimeKit.Cryptography {
 		/// the mailbox address for database lookups.</para>
 		/// </remarks>
 		/// <returns>A <see cref="CmsSigner"/>.</returns>
-		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="mailbox">The signer's mailbox address.</param>
 		/// <param name="digestAlgo">The preferred digest algorithm.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.

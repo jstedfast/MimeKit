@@ -61,6 +61,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
+    <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />
     <Compile Include="Cryptography\CmsRecipient.cs" />
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />

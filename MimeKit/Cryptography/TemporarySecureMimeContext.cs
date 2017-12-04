@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 	/// does not use a persistent store for certificates, private keys, or CRLs.
 	/// Instead, certificates, private keys, and CRLs are maintained in memory only.
 	/// </remarks>
-	public class TemporarySecureMimeContext : SecureMimeContext
+	public class TemporarySecureMimeContext : BouncyCastleSecureMimeContext
 	{
 		readonly Dictionary<X509Certificate, EncryptionAlgorithm[]> capabilities;
 		readonly Dictionary<X509Certificate, AsymmetricKeyParameter> keys;
@@ -277,7 +277,7 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var keyUsage = certificate.GetKeyUsageFlags ();
-				if (keyUsage != 0 && (keyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+				if (keyUsage != 0 && (keyUsage & DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
 				if (!keys.TryGetValue (certificate, out key))

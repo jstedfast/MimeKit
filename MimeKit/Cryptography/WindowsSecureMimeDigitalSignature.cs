@@ -39,7 +39,7 @@ namespace MimeKit.Cryptography
 	/// An S/MIME digital signature.
 	/// </summary>
 	/// <remarks>
-	/// An S/MIME digital signature.
+	/// An S/MIME digital signature that is used with the <see cref="WindowsSecureMimeContext"/>.
 	/// </remarks>
 	public class WindowsSecureMimeDigitalSignature : IDigitalSignature
 	{
@@ -80,7 +80,7 @@ namespace MimeKit.Cryptography
 								var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence);
 								EncryptionAlgorithm algorithm;
 
-								if (SecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
+								if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
 									algorithms.Add (algorithm);
 							}
 						}

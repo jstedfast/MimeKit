@@ -80,7 +80,7 @@ namespace MimeKit.Cryptography
 		/// Convert an AsymmetricAlgorithm into a BouncyCastle AsymmetricCipherKeyPair.
 		/// </summary>
 		/// <remarks>
-		/// <para>Converts an AsymmetricAlgorithm into a BouncyCastle AsymmetricCipherKeyPair.</para>
+		/// Converts an AsymmetricAlgorithm into a BouncyCastle AsymmetricCipherKeyPair.
 		/// </remarks>
 		/// <returns>The bouncy castle key pair.</returns>
 		/// <param name="privateKey">The private key.</param>
@@ -104,6 +104,117 @@ namespace MimeKit.Cryptography
 			// TODO: support ECDiffieHellman and ECDsa?
 
 			throw new ArgumentException (string.Format ("'{0}' is currently not supported.", privateKey.GetType ().Name), nameof (privateKey));
+		}
+
+		static DSAParameters GetDSAParameters (DsaKeyParameters key)
+		{
+			var parameters = new DSAParameters ();
+
+			if (key.Parameters.ValidationParameters != null) {
+				parameters.Counter = key.Parameters.ValidationParameters.Counter;
+				parameters.Seed = key.Parameters.ValidationParameters.GetSeed ();
+			}
+
+			parameters.G = key.Parameters.G.ToByteArray ();
+			parameters.P = key.Parameters.P.ToByteArray ();
+			parameters.Q = key.Parameters.Q.ToByteArray ();
+
+			return parameters;
+		}
+
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPrivateKeyParameters key)
+		{
+			var parameters = GetDSAParameters (key);
+			parameters.X = key.X.ToByteArray ();
+
+			var dsa = DSA.Create ();
+			dsa.ImportParameters (parameters);
+
+			return dsa;
+		}
+
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPublicKeyParameters key)
+		{
+			var parameters = GetDSAParameters (key);
+			parameters.Y = key.Y.ToByteArray ();
+
+			var dsa = DSA.Create ();
+			dsa.ImportParameters (parameters);
+
+			return dsa;
+		}
+
+		static RSAParameters GetRSAParameters (RsaKeyParameters key)
+		{
+			var parameters = new RSAParameters ();
+
+			parameters.Exponent = key.Exponent.ToByteArray ();
+			parameters.Modulus = key.Modulus.ToByteArray ();
+
+			return parameters;
+		}
+
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
+		{
+			var parameters = GetRSAParameters (key);
+
+			parameters.D = key.PublicExponent.ToByteArray ();
+			parameters.InverseQ = key.QInv.ToByteArray ();
+			parameters.DP = key.DP.ToByteArray ();
+			parameters.DQ = key.DQ.ToByteArray ();
+			parameters.P = key.P.ToByteArray ();
+			parameters.Q = key.Q.ToByteArray ();
+
+			var rsa = RSA.Create ();
+			rsa.ImportParameters (parameters);
+
+			return rsa;
+		}
+
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaKeyParameters key)
+		{
+			var parameters = GetRSAParameters (key);
+
+			var rsa = RSA.Create ();
+			rsa.ImportParameters (parameters);
+
+			return rsa;
+		}
+
+		/// <summary>
+		/// Convert a BouncyCastle AsymmetricKeyParameter into an AsymmetricAlgorithm.
+		/// </summary>
+		/// <remarks>
+		/// Converts a BouncyCastle AsymmetricKeyParameter into an AsymmetricAlgorithm.
+		/// </remarks>
+		/// <returns>The AsymmetricAlgorithm.</returns>
+		/// <param name="key">The AsymmetricKeyParameter.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="key"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="key"/> is an unsupported asymmetric key parameter.
+		/// </exception>
+		public static AsymmetricAlgorithm AsAsymmetricAlgorithm (this AsymmetricKeyParameter key)
+		{
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
+
+			if (key.IsPrivate) {
+				if (key is DsaPrivateKeyParameters)
+					return GetAsymmetricAlgorithm ((DsaPrivateKeyParameters) key);
+
+				if (key is RsaPrivateCrtKeyParameters)
+					return GetAsymmetricAlgorithm ((RsaPrivateCrtKeyParameters) key);
+			} else {
+				if (key is DsaPublicKeyParameters)
+					return GetAsymmetricAlgorithm ((DsaPublicKeyParameters) key);
+
+				if (key is RsaKeyParameters)
+					return GetAsymmetricAlgorithm ((RsaKeyParameters) key);
+			}
+
+			throw new NotSupportedException (string.Format ("Cannot convert {0} into an AsymmetricAlgorithm.", key.GetType ().Name));
 		}
 	}
 }

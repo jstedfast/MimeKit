@@ -46,10 +46,11 @@ using MimeKit.IO;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An S/MIME cryptography context that uses Windows' <see cref="System.Security.Cryptography.X509Certificates.X509Store"/>.
+	/// A Secure MIME (S/MIME) cryptography context.
 	/// </summary>
 	/// <remarks>
-	/// An S/MIME cryptography context that uses Windows' <see cref="System.Security.Cryptography.X509Certificates.X509Store"/>.
+	/// An S/MIME cryptography context that uses <see cref="System.Security.Cryptography.X509Certificates.X509Store"/>
+	/// for certificate storage and retrieval.
 	/// </remarks>
 	public class WindowsSecureMimeContext : SecureMimeContext
 	{
@@ -115,7 +116,7 @@ namespace MimeKit.Cryptography {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			return GetCmsSignerCertificate (signer) != null;
+			return GetSignerCertificate (signer) != null;
 		}
 
 		/// <summary>
@@ -134,160 +135,23 @@ namespace MimeKit.Cryptography {
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
 
-			return GetCmsRecipientCertificate (mailbox) != null;
+			return GetRecipientCertificate (mailbox) != null;
 		}
 
 		#region implemented abstract members of SecureMimeContext
 
-#if false // Note: this is not needed since WindowsSecureMimeContext implements its own Verify methods
 		/// <summary>
-		/// Gets the X.509 certificate based on the selector.
+		/// Get the certificate for the specified recipient.
 		/// </summary>
 		/// <remarks>
-		/// Gets the X.509 certificate based on the selector.
+		/// <para>Gets the certificate for the specified recipient.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address.</para>
 		/// </remarks>
-		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
-		/// <param name="selector">The search criteria for the certificate.</param>
-		protected override Org.BouncyCastle.X509.X509Certificate GetCertificate (IX509Selector selector)
-		{
-			foreach (StoreName storeName in Enum.GetValues (typeof (StoreName))) {
-				if (storeName == StoreName.Disallowed)
-					continue;
-
-				var store = new X509Store (storeName, StoreLocation);
-
-				store.Open (OpenFlags.ReadOnly);
-
-				try {
-					foreach (var certificate in store.Certificates) {
-						var cert = certificate.AsBouncyCastleCertificate ();
-						if (selector == null || selector.Match (cert))
-							return cert;
-					}
-				} finally {
-					store.Close ();
-				}
-			}
-
-			return null;
-		}
-#endif
-
-#if false // Note: Not needed since WindowsSecureMimeContext implements its own Decrypt methods
-		/// <summary>
-		/// Gets the private key based on the provided selector.
-		/// </summary>
-		/// <remarks>
-		/// Gets the private key based on the provided selector.
-		/// </remarks>
-		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
-		/// <param name="selector">The search criteria for the private key.</param>
-		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
-		{
-			// Note: GetPrivateKey() is only used by the base class implementations of Decrypt() and DecryptTo().
-			// Since we override those methods, there is no use for this method.
-			var store = new X509Store (StoreName.My, StoreLocation);
-
-			store.Open (OpenFlags.ReadOnly);
-
-			try {
-				foreach (var certificate in store.Certificates) {
-					if (!certificate.HasPrivateKey)
-						continue;
-
-					var cert = certificate.AsBouncyCastleCertificate ();
-
-					if (selector == null || selector.Match (cert)) {
-						var pair = CmsSigner.GetBouncyCastleKeyPair (certificate.PrivateKey);
-						return pair.Private;
-					}
-				}
-			} finally {
-				store.Close ();
-			}
-
-			return null;
-		}
-#endif
-
-#if false // Note: This is not needed since WindowsSexureMimeContext implements its own signature verification
-		/// <summary>
-		/// Gets the trusted anchors.
-		/// </summary>
-		/// <remarks>
-		/// Gets the trusted anchors.
-		/// </remarks>
-		/// <returns>The trusted anchors.</returns>
-		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
-		{
-			var storeNames = new StoreName[] { StoreName.Root, StoreName.TrustedPeople, StoreName.TrustedPublisher };
-			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
-
-			foreach (var storeName in storeNames) {
-				var store = new X509Store (storeName, StoreLocation);
-
-				store.Open (OpenFlags.ReadOnly);
-
-				foreach (var certificate in store.Certificates) {
-					var cert = certificate.AsBouncyCastleCertificate ();
-					anchors.Add (new TrustAnchor (cert, null));
-				}
-
-				store.Close ();
-			}
-
-			return anchors;
-		}
-#endif
-
-#if false // Note: This is not needed since WindowsSexureMimeContext implements its own signature verification
-		/// <summary>
-		/// Gets the intermediate certificates.
-		/// </summary>
-		/// <remarks>
-		/// Gets the intermediate certificates.
-		/// </remarks>
-		/// <returns>The intermediate certificates.</returns>
-		protected override IX509Store GetIntermediateCertificates ()
-		{
-			var storeNames = new [] { StoreName.AuthRoot, StoreName.CertificateAuthority, StoreName.TrustedPeople, StoreName.TrustedPublisher };
-			var intermediate = new X509CertificateStore ();
-
-			foreach (var storeName in storeNames) {
-				var store = new X509Store (storeName, StoreLocation);
-
-				store.Open (OpenFlags.ReadOnly);
-
-				foreach (var certificate in store.Certificates) {
-					var cert = certificate.AsBouncyCastleCertificate ();
-					intermediate.Add (cert);
-				}
-
-				store.Close ();
-			}
-
-			return intermediate;
-		}
-#endif
-
-#if false // Note: This is not needed since WindowsSecureMimeContext does its own signature verification
-		/// <summary>
-		/// Gets the certificate revocation lists.
-		/// </summary>
-		/// <remarks>
-		/// Gets the certificate revocation lists.
-		/// </remarks>
-		/// <returns>The certificate revocation lists.</returns>
-		protected override IX509Store GetCertificateRevocationLists ()
-		{
-			// TODO: figure out how other Windows apps keep track of CRLs...
-			var crls = new List<X509Crl> ();
-
-			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
-		}
-#endif
-
-		X509Certificate2 GetCmsRecipientCertificate (MailboxAddress mailbox)
+		/// <returns>The certificate to use for the recipient; otherwise, or <c>null</c>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
+		protected virtual X509Certificate2 GetRecipientCertificate (MailboxAddress mailbox)
 		{
 			var storeNames = new [] { StoreName.AddressBook, StoreName.My, StoreName.TrustedPeople };
 			var secure = mailbox as SecureMailboxAddress;
@@ -328,50 +192,58 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the X.509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// Get the <see cref="System.Security.Cryptography.Pkcs.CmsRecipient"/> for the specified mailbox.
 		/// </summary>
 		/// <remarks>
-		/// Gets the X.509 certificate associated with the <see cref="MimeKit.MailboxAddress"/>.
+		/// <para>Constructs a <see cref="System.Security.Cryptography.Pkcs.CmsRecipient"/> with
+		/// the appropriate certificate for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address.</para>
 		/// </remarks>
-		/// <returns>The certificate.</returns>
-		/// <param name="mailbox">The mailbox.</param>
+		/// <returns>A <see cref="CmsRecipient"/>.</returns>
+		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
+		protected virtual RealCmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
 			X509Certificate2 certificate;
 
-			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
-				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
-
-			return new CmsRecipient (certificate);
-		}
-
-		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
-		{
-			X509Certificate2 certificate;
-
-			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
+			if ((certificate = GetRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
 			return new RealCmsRecipient (RealSubjectIdentifierType.SubjectKeyIdentifier, certificate);
 		}
 
-		RealCmsRecipientCollection GetRealCmsRecipients (IEnumerable<MailboxAddress> recipients)
+		/// <summary>
+		/// Get a collection of <see cref="System.Security.Cryptography.Pkcs.CmsRecipient"/> for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Gets a collection of <see cref="System.Security.Cryptography.Pkcs.CmsRecipient"/> for the specified mailboxes.
+		/// </remarks>
+		/// <returns>A <see cref="CmsRecipientCollection"/>.</returns>
+		/// <param name="mailboxes">The recipient mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		RealCmsRecipientCollection GetCmsRecipients (IEnumerable<MailboxAddress> mailboxes)
 		{
 			var collection = new RealCmsRecipientCollection ();
 
-			foreach (var recipient in recipients)
-				collection.Add (GetRealCmsRecipient (recipient));
+			foreach (var recipient in mailboxes)
+				collection.Add (GetCmsRecipient (recipient));
 
 			if (collection.Count == 0)
-				throw new ArgumentException ("No recipients specified.", nameof (recipients));
+				throw new ArgumentException ("No recipients specified.", nameof (mailboxes));
 
 			return collection;
 		}
 
-		RealCmsRecipientCollection GetRealCmsRecipients (CmsRecipientCollection recipients)
+		RealCmsRecipientCollection GetCmsRecipients (CmsRecipientCollection recipients)
 		{
 			var collection = new RealCmsRecipientCollection ();
 
@@ -390,7 +262,18 @@ namespace MimeKit.Cryptography {
 			return collection;
 		}
 
-		X509Certificate2 GetCmsSignerCertificate (MailboxAddress mailbox)
+		/// <summary>
+		/// Get the certificate for the specified signer.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the certificate for the specified signer.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address.</para>
+		/// </remarks>
+		/// <returns>The certificate to use for the signer; otherwise, or <c>null</c>.</returns>
+		/// <param name="mailbox">The signer's mailbox address.</param>
+		protected virtual X509Certificate2 GetSignerCertificate (MailboxAddress mailbox)
 		{
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var secure = mailbox as SecureMailboxAddress;
@@ -429,32 +312,6 @@ namespace MimeKit.Cryptography {
 			return null;
 		}
 
-		/// <summary>
-		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
-		/// </summary>
-		/// <remarks>
-		/// Gets the cms signer for the specified <see cref="MimeKit.MailboxAddress"/>.
-		/// </remarks>
-		/// <returns>The cms signer.</returns>
-		/// <param name="mailbox">The mailbox.</param>
-		/// <param name="digestAlgo">The preferred digest algorithm.</param>
-		/// <exception cref="CertificateNotFoundException">
-		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
-		/// </exception>
-		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
-		{
-			X509Certificate2 certificate;
-
-			if ((certificate = GetCmsSignerCertificate (mailbox)) == null)
-				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-
-			var pair = certificate.PrivateKey.AsBouncyCastleKeyPair ();
-			var cert = certificate.AsBouncyCastleCertificate ();
-			var signer = new CmsSigner (cert, pair.Private);
-			signer.DigestAlgorithm = digestAlgo;
-			return signer;
-		}
-
 		AsnEncodedData GetSecureMimeCapabilities ()
 		{
 			var attr = GetSecureMimeCapabilitiesAttribute ();
@@ -462,13 +319,8 @@ namespace MimeKit.Cryptography {
 			return new AsnEncodedData (attr.AttrType.Id, attr.AttrValues[0].GetEncoded ());
 		}
 
-		RealCmsSigner GetRealCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
+		RealCmsSigner GetRealCmsSigner (X509Certificate2 certificate, DigestAlgorithm digestAlgo)
 		{
-			X509Certificate2 certificate;
-
-			if ((certificate = GetCmsSignerCertificate (mailbox)) == null)
-				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
-
 			var signer = new RealCmsSigner (certificate);
 			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
 			signer.SignedAttributes.Add (GetSecureMimeCapabilities ());
@@ -477,25 +329,48 @@ namespace MimeKit.Cryptography {
 			return signer;
 		}
 
+		RealCmsSigner GetRealCmsSigner (CmsSigner signer)
+		{
+			var certificate = signer.Certificate.AsX509Certificate2 ();
+
+			certificate.PrivateKey = signer.PrivateKey.AsAsymmetricAlgorithm ();
+
+			return GetRealCmsSigner (certificate, signer.DigestAlgorithm);
+		}
+
 		/// <summary>
-		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// Get the <see cref="System.Security.Cryptography.Pkcs.CmsSigner"/> for the specified mailbox.
 		/// </summary>
 		/// <remarks>
-		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// <para>Constructs a <see cref="System.Security.Cryptography.Pkcs.CmsSigner"/> with
+		/// the appropriate signing certificate for the specified mailbox.</para>
+		/// <para>If the mailbox is a <see cref="SecureMailboxAddress"/>, the
+		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
+		/// the mailbox address for database lookups.</para>
 		/// </remarks>
-		/// <param name="certificate">The certificate.</param>
-		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
-		/// <param name="timestamp">The timestamp.</param>
-		protected override void UpdateSecureMimeCapabilities (Org.BouncyCastle.X509.X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
+		/// <returns>A <see cref="System.Security.Cryptography.Pkcs.CmsSigner"/>.</returns>
+		/// <param name="mailbox">The signer's mailbox address.</param>
+		/// <param name="digestAlgo">The preferred digest algorithm.</param>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		protected virtual RealCmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
+			X509Certificate2 certificate;
+
+			if ((certificate = GetSignerCertificate (mailbox)) == null)
+				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+
+			return GetRealCmsSigner (certificate, digestAlgo);
 		}
 
 		/// <summary>
 		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
 		/// </summary>
 		/// <remarks>
-		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// <para>Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.</para>
+		/// <para>This method is called from <see cref="GetDigitalSignatures"/>, allowing custom implementations
+		/// to update the X.509 certificate records with the list of preferred encryption algorithms specified by the sending client.</para>
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
@@ -503,7 +378,6 @@ namespace MimeKit.Cryptography {
 		protected virtual void UpdateSecureMimeCapabilities (X509Certificate2 certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
 			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
-			UpdateSecureMimeCapabilities (certificate.AsBouncyCastleCertificate (), algorithms, timestamp);
 		}
 
 		static byte[] ReadAllBytes (Stream stream)
@@ -535,6 +409,43 @@ namespace MimeKit.Cryptography {
 			var signedData = signed.Encode ();
 
 			return new MemoryStream (signedData, false);
+		}
+
+		/// <summary>
+		/// Cryptographically signs and encapsulates the content using the specified signer.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs and encapsulates the content using the specified signer.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content)
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (signer.Certificate == null)
+				throw new ArgumentException ("No signer certificate specified.", nameof (signer));
+
+			if (signer.PrivateKey == null)
+				throw new ArgumentException ("No private key specified.", nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var real = GetRealCmsSigner (signer);
+
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (real, content, true));
 		}
 
 		/// <summary>
@@ -573,9 +484,46 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
+			var real = GetCmsSigner (signer, digestAlgo);
 
-			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (cmsSigner, content, false));
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (real, content, false));
+		}
+
+		/// <summary>
+		/// Cryptographically signs the content using the specified signer.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the content using the specified signer.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content)
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (signer.Certificate == null)
+				throw new ArgumentException ("No signer certificate specified.", nameof (signer));
+
+			if (signer.PrivateKey == null)
+				throw new ArgumentException ("No private key specified.", nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var real = GetRealCmsSigner (signer);
+
+			return new ApplicationPkcs7Signature (Sign (real, content, false));
 		}
 
 		/// <summary>
@@ -614,7 +562,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var cmsSigner = GetRealCmsSigner (signer, digestAlgo);
+			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
 			return new ApplicationPkcs7Signature (Sign (cmsSigner, content, true));
 		}
@@ -677,7 +625,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
@@ -711,7 +659,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// The extracted content could not be parsed as a MIME entity.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
@@ -864,18 +812,16 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.Encode (), false);
 		}
 
-		Stream Envelope (CmsRecipientCollection recipients, Stream content)
-		{
-			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
-
-			return Envelope (GetRealCmsRecipients (recipients), content, algorithm);
-		}
-
 		Stream Envelope (RealCmsRecipientCollection recipients, Stream content)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
 
 			return Envelope (recipients, content, algorithm);
+		}
+
+		Stream Envelope (CmsRecipientCollection recipients, Stream content)
+		{
+			return Envelope (GetCmsRecipients (recipients), content);
 		}
 
 		/// <summary>
@@ -939,7 +885,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var real = GetRealCmsRecipients (recipients);
+			var real = GetCmsRecipients (recipients);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (real, content));
 		}
@@ -1150,6 +1096,53 @@ namespace MimeKit.Cryptography {
 			Import (stream, password, DefaultKeyStorageFlags);
 		}
 
+		/// <summary>
+		/// Exports the certificates for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Exports the certificates for the specified mailboxes.
+		/// </remarks>
+		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
+		/// the exported keys.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// No mailboxes were specified.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
+		{
+			if (mailboxes == null)
+				throw new ArgumentNullException (nameof (mailboxes));
+
+			var certificates = new X509CertificateStore ();
+			int count = 0;
+
+			foreach (var mailbox in mailboxes) {
+				var certificate = GetRecipientCertificate (mailbox);
+				certificates.Add (certificate.AsBouncyCastleCertificate ());
+				count++;
+			}
+
+			if (count == 0)
+				throw new ArgumentException ("No mailboxes specified.", nameof (mailboxes));
+
+			var cms = new CmsSignedDataStreamGenerator ();
+			var memory = new MemoryBlockStream ();
+
+			cms.AddCertificates (certificates);
+			cms.Open (memory).Dispose ();
+			memory.Position = 0;
+
+			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
+		}
 #endregion
 	}
 }
