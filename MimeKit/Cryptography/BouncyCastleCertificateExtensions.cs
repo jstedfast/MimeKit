@@ -25,7 +25,9 @@
 //
 
 using System;
+using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
@@ -33,6 +35,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto.Digests;
 
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+using Org.BouncyCastle.Asn1.Smime;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -256,6 +259,56 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			return GetKeyUsageFlags (certificate.GetKeyUsage ());
+		}
+
+		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
+		{
+			using (var memory = new MemoryStream (rawData, false)) {
+				using (var asn1 = new Asn1InputStream (memory)) {
+					var algorithms = new List<EncryptionAlgorithm> ();
+					var sequence = asn1.ReadObject () as Asn1Sequence;
+
+					if (sequence == null)
+						return null;
+
+					for (int i = 0; i < sequence.Count; i++) {
+						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
+						EncryptionAlgorithm algorithm;
+
+						if (SecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
+							algorithms.Add (algorithm);
+					}
+
+					return algorithms.ToArray ();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get the encryption algorithms that can be used with an X.509 certificate.
+		/// </summary>
+		/// <remarks>
+		/// <para>Scans the X.509 certificate for the S/MIME capabilities extension. If found,
+		/// the supported encryption algorithms will be decoded and returned.</para>
+		/// <para>If no extension can be found, the <see cref="EncryptionAlgorithm.TripleDes"/>
+		/// algorithm is returned.</para>
+		/// </remarks>
+		/// <returns>The encryption algorithms.</returns>
+		/// <param name="certificate">The X.509 certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public static EncryptionAlgorithm[] GetEncryptionAlgorithms (this X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			var capabilities = certificate.GetExtensionValue (SmimeAttributes.SmimeCapabilities);
+
+			if (capabilities != null)
+				return DecodeEncryptionAlgorithms (capabilities.GetOctets ());
+
+			return new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
 		}
 
 		internal static bool IsDelta (this X509Crl crl)

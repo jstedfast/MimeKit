@@ -47,10 +47,6 @@ namespace MimeKit.Cryptography {
 			SignerInfo = signerInfo;
 		}
 
-		SecureMimeDigitalSignature ()
-		{
-		}
-
 		/// <summary>
 		/// Gets the signer info.
 		/// </summary>

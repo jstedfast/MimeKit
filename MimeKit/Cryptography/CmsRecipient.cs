@@ -49,9 +49,12 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
 		/// <remarks>
-		/// The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
-		/// S/MIME v3.x client implementations.
+		/// <para>Creates a new <see cref="CmsRecipient"/> based on the provided certificate.</para>
+		/// <para>If the X.509 certificate contains an S/MIME capability extension, the initial value of the
+		/// <see cref="EncryptionAlgorithms"/> property will be set to whatever encryption algorithms are
+		/// defined by the S/MIME capability extension, otherwise int will be initialized to a list
+		/// containing only the Triple-Des encryption algorithm which should be safe to assume for all
+		/// modern S/MIME v3.x client implementations.</para>
 		/// </remarks>
 		/// <param name="certificate">The recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
@@ -68,7 +71,7 @@ namespace MimeKit.Cryptography {
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
-			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
+			EncryptionAlgorithms = certificate.GetEncryptionAlgorithms ();
 			Certificate = certificate;
 		}
 
@@ -77,9 +80,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CmsRecipient"/>, loading the certificate from the specified stream.</para>
-		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
-		/// S/MIME v3.x client implementations.</para>
+		/// <para>If the X.509 certificate contains an S/MIME capability extension, the initial value of the
+		/// <see cref="EncryptionAlgorithms"/> property will be set to whatever encryption algorithms are
+		/// defined by the S/MIME capability extension, otherwise int will be initialized to a list
+		/// containing only the Triple-Des encryption algorithm which should be safe to assume for all
+		/// modern S/MIME v3.x client implementations.</para>
 		/// </remarks>
 		/// <param name="stream">The stream containing the recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
@@ -101,9 +106,10 @@ namespace MimeKit.Cryptography {
 
 			var parser = new X509CertificateParser ();
 
-			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
 			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			Certificate = parser.ReadCertificate (stream);
+
+			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
 
 #if !PORTABLE
@@ -112,9 +118,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CmsRecipient"/>, loading the certificate from the specified file.</para>
-		/// <para>The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
-		/// S/MIME v3.x client implementations.</para>
+		/// <para>If the X.509 certificate contains an S/MIME capability extension, the initial value of the
+		/// <see cref="EncryptionAlgorithms"/> property will be set to whatever encryption algorithms are
+		/// defined by the S/MIME capability extension, otherwise int will be initialized to a list
+		/// containing only the Triple-Des encryption algorithm which should be safe to assume for all
+		/// modern S/MIME v3.x client implementations.</para>
 		/// </remarks>
 		/// <param name="fileName">The file containing the recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
@@ -150,11 +158,10 @@ namespace MimeKit.Cryptography {
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
-			EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
-			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
-
 			using (var stream = File.OpenRead (fileName))
 				Certificate = parser.ReadCertificate (stream);
+
+			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
 #endif
 
@@ -163,9 +170,12 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
 		/// <remarks>
-		/// The initial value of the <see cref="EncryptionAlgorithms"/> property will be set to
-		/// the Triple-DES encryption algorithm, which should be safe to assume for all modern
-		/// S/MIME v3.x client implementations.
+		/// <para>Creates a new <see cref="CmsRecipient"/> based on the provided certificate.</para>
+		/// <para>If the X.509 certificate contains an S/MIME capability extension, the initial value of the
+		/// <see cref="EncryptionAlgorithms"/> property will be set to whatever encryption algorithms are
+		/// defined by the S/MIME capability extension, otherwise int will be initialized to a list
+		/// containing only the Triple-Des encryption algorithm which should be safe to assume for all
+		/// modern S/MIME v3.x client implementations.</para>
 		/// </remarks>
 		/// <param name="certificate">The recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>

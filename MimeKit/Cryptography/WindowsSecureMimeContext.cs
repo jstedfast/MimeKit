@@ -345,9 +345,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
-			var cert = certificate.AsBouncyCastleCertificate ();
-
-			return new CmsRecipient (cert);
+			return new CmsRecipient (certificate);
 		}
 
 		RealCmsRecipient GetRealCmsRecipient (MailboxAddress mailbox)
@@ -505,6 +503,7 @@ namespace MimeKit.Cryptography {
 		protected virtual void UpdateSecureMimeCapabilities (X509Certificate2 certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
 			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
+			UpdateSecureMimeCapabilities (certificate.AsBouncyCastleCertificate (), algorithms, timestamp);
 		}
 
 		static byte[] ReadAllBytes (Stream stream)
@@ -650,9 +649,7 @@ namespace MimeKit.Cryptography {
 				var signature = new WindowsSecureMimeDigitalSignature (signerInfo);
 
 				if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0) {
-					var certificate = ((WindowsSecureMimeDigitalCertificate) signature.SignerCertificate).Certificate;
-
-					UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
+					UpdateSecureMimeCapabilities (signerInfo.Certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 				} else {
 					try {
 						Import (signerInfo.Certificate);

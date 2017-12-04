@@ -68,6 +68,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7MimeTests.cs" />
     <Compile Include="Cryptography\CmsRecipientTests.cs" />
     <Compile Include="Cryptography\CmsSignerTests.cs" />
+    <Compile Include="Cryptography\DefaultSecureMimeContextTests.cs" />
     <Compile Include="Cryptography\DkimRelaxedBodyFilterTests.cs" />
     <Compile Include="Cryptography\DkimTests.cs" />
     <Compile Include="Cryptography\DummyOpenPgpContext.cs" />

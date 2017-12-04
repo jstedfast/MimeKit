@@ -163,6 +163,21 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public virtual void TestCanSignAndEncrypt ()
+		{
+			var valid = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
+
+			using (var ctx = CreateContext ()) {
+				Assert.IsFalse (ctx.CanSign (invalid), "{0} should not be able to sign.", invalid);
+				Assert.IsFalse (ctx.CanEncrypt (invalid), "{0} should not be able to encrypt.", invalid);
+
+				Assert.IsTrue (ctx.CanSign (valid), "{0} should be able to sign.", valid);
+				Assert.IsTrue (ctx.CanEncrypt (valid), "{0} should be able to encrypt.", valid);
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeCompression ()
 		{
 			var original = new TextPart ("plain");
@@ -724,6 +739,15 @@ namespace UnitTests.Cryptography {
 		protected override EncryptionAlgorithm[] GetEncryptionAlgorithms (IDigitalSignature signature)
 		{
 			return ((WindowsSecureMimeDigitalSignature) signature).EncryptionAlgorithms;
+		}
+
+		[Test]
+		public override void TestCanSignAndEncrypt ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestCanSignAndEncrypt ();
 		}
 
 		[Test]

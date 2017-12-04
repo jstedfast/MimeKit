@@ -99,8 +99,14 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The encryption algorithms.</returns>
 		/// <param name="certificate">The X.509 certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
 		public static EncryptionAlgorithm[] GetEncryptionAlgorithms (this X509Certificate2 certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
 			foreach (var extension in certificate.Extensions) {
 				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
 					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
