@@ -31,13 +31,15 @@ using System.Security.Cryptography.X509Certificates;
 
 using NUnit.Framework;
 
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 
-using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
-
 using MimeKit.Cryptography;
+
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
+using X509KeyUsageFlags = MimeKit.Cryptography.X509KeyUsageFlags;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
@@ -62,9 +64,11 @@ namespace UnitTests.Cryptography {
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((IEnumerable<X509Certificate>) null, signer.PrivateKey));
 			Assert.Throws<ArgumentException> (() => new CmsSigner (new X509Certificate[0], signer.PrivateKey));
+			Assert.Throws<ArgumentException> (() => new CmsSigner (signer.CertificateChain, keyPair.Public));
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner (signer.CertificateChain, null));
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((X509Certificate) null, signer.PrivateKey));
+			Assert.Throws<ArgumentException> (() => new CmsSigner (signer.Certificate, keyPair.Public));
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner (signer.Certificate, null));
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((X509Certificate2) null));
@@ -76,10 +80,47 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ("fileName", null));
 		}
 
+		static void LoadPkcs12 (string path, string password, out List<X509Certificate> certificates, out AsymmetricKeyParameter privateKey)
+		{
+			certificates = null;
+			privateKey = null;
+
+			using (var stream = File.OpenRead (path)) {
+				var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
+
+				foreach (string alias in pkcs12.Aliases) {
+					if (!pkcs12.IsKeyEntry (alias))
+						continue;
+
+					var chain = pkcs12.GetCertificateChain (alias);
+					var key = pkcs12.GetKey (alias);
+
+					if (!key.Key.IsPrivate || chain.Length == 0)
+						continue;
+
+					var flags = chain[0].Certificate.GetKeyUsageFlags ();
+
+					if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+						continue;
+
+					certificates = new List<X509Certificate> ();
+					certificates.Add (chain[0].Certificate);
+					privateKey = key.Key;
+
+					foreach (var entry in chain)
+						certificates.Add (entry.Certificate);
+
+					return;
+				}
+			}
+		}
+
 		[Test]
 		public void TestConstructors ()
 		{
 			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			List<X509Certificate> certificates;
+			AsymmetricKeyParameter key;
 			var password = "no.secret";
 			CmsSigner signer;
 
@@ -94,6 +135,20 @@ namespace UnitTests.Cryptography {
 					signer = new CmsSigner (stream, password);
 			} catch (Exception ex) {
 				Assert.Fail (".ctor (Stream, string): {0}", ex.Message);
+			}
+
+			LoadPkcs12 (path, password, out certificates, out key);
+
+			try {
+				signer = new CmsSigner (certificates, key);
+			} catch (Exception ex) {
+				Assert.Fail (".ctor (IEnumerable<X509Certificate>, AsymmetricKeyParameter): {0}", ex.Message);
+			}
+
+			try {
+				signer = new CmsSigner (certificates[0], key);
+			} catch (Exception ex) {
+				Assert.Fail (".ctor (X509Certificate, AsymmetricKeyParameter): {0}", ex.Message);
 			}
 
 			try {
