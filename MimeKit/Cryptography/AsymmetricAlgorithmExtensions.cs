@@ -130,7 +130,7 @@ namespace MimeKit.Cryptography
 			var parameters = GetDSAParameters (key);
 			parameters.X = key.X.ToByteArray ();
 
-			var dsa = DSA.Create ();
+			var dsa = new DSACryptoServiceProvider ();
 			dsa.ImportParameters (parameters);
 
 			return dsa;
@@ -141,7 +141,7 @@ namespace MimeKit.Cryptography
 			var parameters = GetDSAParameters (key);
 			parameters.Y = key.Y.ToByteArray ();
 
-			var dsa = DSA.Create ();
+			var dsa = new DSACryptoServiceProvider ();
 			dsa.ImportParameters (parameters);
 
 			return dsa;
@@ -160,7 +160,7 @@ namespace MimeKit.Cryptography
 			parameters.P = key.P.ToByteArray ();
 			parameters.Q = key.Q.ToByteArray ();
 
-			var rsa = RSA.Create ();
+			var rsa = new RSACryptoServiceProvider ();
 			rsa.ImportParameters (parameters);
 
 			return rsa;
@@ -172,7 +172,7 @@ namespace MimeKit.Cryptography
 			parameters.Exponent = key.Exponent.ToByteArray ();
 			parameters.Modulus = key.Modulus.ToByteArray ();
 
-			var rsa = RSA.Create ();
+			var rsa = new RSACryptoServiceProvider ();
 			rsa.ImportParameters (parameters);
 
 			return rsa;

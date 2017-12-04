@@ -151,7 +151,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The name of the owner.</value>
 		public string Name {
-			get { return Certificate.GetSubjectName (); }
+			get { return Certificate.GetCommonName (); }
 		}
 
 		#endregion

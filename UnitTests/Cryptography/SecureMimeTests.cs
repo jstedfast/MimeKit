@@ -46,8 +46,7 @@ namespace UnitTests.Cryptography {
 		const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
 		const string ThunderbirdFingerprint = "354ea4dcf98166639b58ec5df06a65de0cd8a95c";
 		const string MimeKitFingerprint = "2c29c66e281c9c515cc16a91ac87c4da988dbadf";
-		const string ThunderbirdName = null;
-		const string MimeKitName = null;
+		const string ThunderbirdName = "fejj@gnome.org";
 
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
@@ -328,7 +327,8 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				Assert.AreEqual (MimeKitName, signature.SignerCertificate.Name);
+				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint);
 
@@ -396,7 +396,8 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
+				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint);
 
@@ -564,7 +565,8 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				Assert.AreEqual (MimeKitName, signature.SignerCertificate.Name);
+				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (self.Fingerprint, signature.SignerCertificate.Fingerprint);
 
@@ -659,7 +661,8 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
+				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint);
 
