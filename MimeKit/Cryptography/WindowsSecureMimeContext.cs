@@ -493,6 +493,20 @@ namespace MimeKit.Cryptography {
 			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
 		}
 
+		/// <summary>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </summary>
+		/// <remarks>
+		/// Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
+		/// <param name="timestamp">The timestamp.</param>
+		protected virtual void UpdateSecureMimeCapabilities (X509Certificate2 certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
+		{
+			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
+		}
+
 		static byte[] ReadAllBytes (Stream stream)
 		{
 			if (stream is MemoryBlockStream)
@@ -636,7 +650,7 @@ namespace MimeKit.Cryptography {
 				var signature = new WindowsSecureMimeDigitalSignature (signerInfo);
 
 				if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0) {
-					var certificate = ((SecureMimeDigitalCertificate) signature.SignerCertificate).Certificate;
+					var certificate = ((WindowsSecureMimeDigitalCertificate) signature.SignerCertificate).Certificate;
 
 					UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 				} else {
