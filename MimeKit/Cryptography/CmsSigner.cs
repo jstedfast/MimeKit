@@ -29,18 +29,14 @@ using System.IO;
 using System.Collections.Generic;
 
 #if !PORTABLE
-using System.Security.Cryptography;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 #endif
 
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Parameters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -307,14 +303,14 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("The certificate does not contain a private key.", nameof (certificate));
 
 			var cert = certificate.AsBouncyCastleCertificate ();
-			var key = certificate.PrivateKey.AsBouncyCastleKeyPair ();
+			var key = certificate.PrivateKey.AsAsymmetricKeyParameter ();
 
 			CheckCertificateCanBeUsedForSigning (cert);
 
 			CertificateChain = new X509CertificateChain ();
 			CertificateChain.Add (cert);
 			Certificate = cert;
-			PrivateKey = key.Private;
+			PrivateKey = key;
 		}
 #endif
 

@@ -41,7 +41,7 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
-		static AsymmetricCipherKeyPair GetBouncyCastleKeyPair (DSA dsa)
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACryptoServiceProvider dsa)
 		{
 			var dp = dsa.ExportParameters (true);
 			var validationParameters = dp.Seed != null ? new DsaValidationParameters (dp.Seed, dp.Counter) : null;
@@ -50,19 +50,23 @@ namespace MimeKit.Cryptography
 				new BigInteger (1, dp.Q),
 				new BigInteger (1, dp.G),
 				validationParameters);
-			var pubKey = new DsaPublicKeyParameters (new BigInteger (1, dp.Y), parameters);
-			var privKey = new DsaPrivateKeyParameters (new BigInteger (1, dp.X), parameters);
 
-			return new AsymmetricCipherKeyPair (pubKey, privKey);
+			if (dsa.PublicOnly)
+				return new DsaPublicKeyParameters (new BigInteger (1, dp.Y), parameters);
+
+			return new DsaPrivateKeyParameters (new BigInteger (1, dp.X), parameters);
 		}
 
-		static AsymmetricCipherKeyPair GetBouncyCastleKeyPair (RSA rsa)
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACryptoServiceProvider rsa)
 		{
 			var rp = rsa.ExportParameters (true);
 			var modulus = new BigInteger (1, rp.Modulus);
 			var exponent = new BigInteger (1, rp.Exponent);
-			var pubKey = new RsaKeyParameters (false, modulus, exponent);
-			var privKey = new RsaPrivateCrtKeyParameters (
+
+			if (rsa.PublicOnly)
+				return new RsaKeyParameters (false, modulus, exponent);
+
+			return new RsaPrivateCrtKeyParameters (
 				modulus,
 				exponent,
 				new BigInteger (1, rp.D),
@@ -72,38 +76,37 @@ namespace MimeKit.Cryptography
 				new BigInteger (1, rp.DQ),
 				new BigInteger (1, rp.InverseQ)
 			);
-
-			return new AsymmetricCipherKeyPair (pubKey, privKey);
 		}
 
 		/// <summary>
-		/// Convert an AsymmetricAlgorithm into a BouncyCastle AsymmetricCipherKeyPair.
+		/// Convert an AsymmetricAlgorithm into a BouncyCastle AsymmetricKeyParameter.
 		/// </summary>
 		/// <remarks>
-		/// Converts an AsymmetricAlgorithm into a BouncyCastle AsymmetricCipherKeyPair.
+		/// <para>Converts an AsymmetricAlgorithm into a BouncyCastle AsymmetricKeyParameter.</para>
+		/// <note type="note">Currently, only RSA and DSA keys are supported.</note>
 		/// </remarks>
-		/// <returns>The bouncy castle key pair.</returns>
-		/// <param name="privateKey">The private key.</param>
+		/// <returns>The Bouncy Castle AsymmetricKeyParameter.</returns>
+		/// <param name="key">The key.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="privateKey"/> is <c>null</c>.
+		/// <paramref name="key"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="privateKey"/> is an unsupported asymmetric algorithm.
+		/// <paramref name="key"/> is an unsupported asymmetric algorithm.
 		/// </exception>
-		public static AsymmetricCipherKeyPair AsBouncyCastleKeyPair (this AsymmetricAlgorithm privateKey)
+		public static AsymmetricKeyParameter AsAsymmetricKeyParameter (this AsymmetricAlgorithm key)
 		{
-			if (privateKey == null)
-				throw new ArgumentNullException (nameof (privateKey));
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
 
-			if (privateKey is DSA)
-				return GetBouncyCastleKeyPair ((DSA) privateKey);
+			if (key is DSACryptoServiceProvider)
+				return GetAsymmetricKeyParameter ((DSACryptoServiceProvider) key);
 
-			if (privateKey is RSA)
-				return GetBouncyCastleKeyPair ((RSA) privateKey);
+			if (key is RSACryptoServiceProvider)
+				return GetAsymmetricKeyParameter ((RSACryptoServiceProvider) key);
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
-			throw new ArgumentException (string.Format ("'{0}' is currently not supported.", privateKey.GetType ().Name), nameof (privateKey));
+			throw new ArgumentException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name), nameof (key));
 		}
 
 		static DSAParameters GetDSAParameters (DsaKeyParameters key)
@@ -185,7 +188,8 @@ namespace MimeKit.Cryptography
 		/// Convert a BouncyCastle AsymmetricKeyParameter into an AsymmetricAlgorithm.
 		/// </summary>
 		/// <remarks>
-		/// Converts a BouncyCastle AsymmetricKeyParameter into an AsymmetricAlgorithm.
+		/// <para>Converts a BouncyCastle AsymmetricKeyParameter into an AsymmetricAlgorithm.</para>
+		/// <note type="note">Currently, only RSA and DSA keys are supported.</note>
 		/// </remarks>
 		/// <returns>The AsymmetricAlgorithm.</returns>
 		/// <param name="key">The AsymmetricKeyParameter.</param>
@@ -214,7 +218,7 @@ namespace MimeKit.Cryptography
 					return GetAsymmetricAlgorithm ((RsaKeyParameters) key);
 			}
 
-			throw new NotSupportedException (string.Format ("Cannot convert {0} into an AsymmetricAlgorithm.", key.GetType ().Name));
+			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.GetType ().Name));
 		}
 	}
 }
