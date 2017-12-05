@@ -395,6 +395,8 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 			mail.AlternateViews.Add (view);
 
+			mail.Attachments.Add (new Attachment (new MemoryStream (imageData, false), "empty.jpeg", "image/jpeg"));
+
 			var message = (MimeMessage) mail;
 
 			Assert.AreEqual (mail.Sender.DisplayName, message.Sender.Name, "The sender names do not match.");
@@ -411,9 +413,19 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			Assert.AreEqual (mail.Bcc[0].Address, ((MailboxAddress) message.Bcc[0]).Address, "The bcc addresses do not match.");
 			Assert.AreEqual (mail.Subject, message.Subject, "The message subjects do not match.");
 			Assert.AreEqual (MessagePriority.Urgent, message.Priority, "The message priority does not match.");
-			Assert.IsTrue (message.Body is MultipartAlternative, "The top-level MIME part should be a multipart/alternative.");
+			Assert.IsInstanceOf<Multipart> (message.Body, "The top-level MIME part should be a multipart/mixed.");
 
-			var alternative = (MultipartAlternative) message.Body;
+			var mixed = (Multipart) message.Body;
+
+			Assert.AreEqual ("multipart/mixed", mixed.ContentType.MimeType, "The top-level MIME part should be a multipart/mixed.");
+			Assert.AreEqual (2, mixed.Count, "Expected 2 MIME parts within the multipart/mixed");
+			Assert.IsInstanceOf<MultipartAlternative> (mixed[0], "Expected the first part the multipart/mixed to be a multipart/alternative");
+			Assert.IsInstanceOf<MimePart> (mixed[1], "Expected the first part the multipart/mixed to be a MimePart");
+
+			var attachment = (MimePart) mixed[1];
+			Assert.AreEqual ("empty.jpeg", attachment.FileName, "Expected the attachment to have a filename");
+
+			var alternative = (MultipartAlternative) mixed[0];
 
 			Assert.AreEqual (2, alternative.Count, "Expected 2 MIME parts within the multipart/alternative.");
 			Assert.IsTrue (alternative[1] is MultipartRelated, "The second MIME part should be a multipart/related.");
