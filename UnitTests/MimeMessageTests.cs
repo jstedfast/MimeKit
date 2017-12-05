@@ -421,7 +421,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			var related = (MultipartRelated) alternative[1];
 
 			Assert.AreEqual (2, related.Count, "Expected 2 MIME parts within the multipart/related.");
-			Assert.AreEqual ("http://example.com", related.ContentBase.OriginalString);
+			Assert.AreEqual ("http://example.com/", related.ContentBase.ToString ());
 			Assert.IsTrue (related[0] is TextPart, "The first part of the multipart/related should be the html part");
 			Assert.IsNull (((TextPart) related[0]).ContentLocation);
 			Assert.IsNull (((TextPart) related[0]).ContentBase);

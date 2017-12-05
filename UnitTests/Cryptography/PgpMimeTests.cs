@@ -318,6 +318,7 @@ namespace UnitTests.Cryptography {
 
 				message.ResentFrom.Add (self);
 				message.ResentTo.Add (self);
+				message.Body = body;
 
 				message.Encrypt (ctx);
 
@@ -483,6 +484,7 @@ namespace UnitTests.Cryptography {
 
 				message.ResentFrom.Add (self);
 				message.ResentTo.Add (self);
+				message.Body = body;
 
 				message.SignAndEncrypt (ctx);
 
