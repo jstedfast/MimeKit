@@ -181,6 +181,20 @@ namespace MimeKit.Cryptography
 			throw new NotSupportedException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name));
 		}
 
+		static byte[] GetPaddedByteArray (BigInteger big, int length)
+		{
+			var bytes = big.ToByteArrayUnsigned ();
+
+			if (bytes.Length == length)
+				return bytes;
+
+			var padded = new byte[length];
+
+			Buffer.BlockCopy (bytes, length - bytes.Length, padded, 0, bytes.Length);
+
+			return padded;
+		}
+
 		static DSAParameters GetDSAParameters (DsaKeyParameters key)
 		{
 			var parameters = new DSAParameters ();
@@ -190,9 +204,9 @@ namespace MimeKit.Cryptography
 				parameters.Seed = key.Parameters.ValidationParameters.GetSeed ();
 			}
 
-			parameters.G = key.Parameters.G.ToByteArray ();
-			parameters.P = key.Parameters.P.ToByteArray ();
-			parameters.Q = key.Parameters.Q.ToByteArray ();
+			parameters.G = key.Parameters.G.ToByteArrayUnsigned ();
+			parameters.P = key.Parameters.P.ToByteArrayUnsigned ();
+			parameters.Q = key.Parameters.Q.ToByteArrayUnsigned ();
 
 			return parameters;
 		}
@@ -200,8 +214,8 @@ namespace MimeKit.Cryptography
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPrivateKeyParameters key, DsaPublicKeyParameters pub)
 		{
 			var parameters = GetDSAParameters (key);
-			parameters.X = key.X.ToByteArray ();
-			parameters.Y = pub.Y.ToByteArray ();
+			parameters.X = key.X.ToByteArrayUnsigned ();
+			parameters.Y = pub.Y.ToByteArrayUnsigned ();
 
 			var dsa = new DSACryptoServiceProvider ();
 			dsa.ImportParameters (parameters);
@@ -212,7 +226,7 @@ namespace MimeKit.Cryptography
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPublicKeyParameters key)
 		{
 			var parameters = GetDSAParameters (key);
-			parameters.Y = key.Y.ToByteArray ();
+			parameters.Y = key.Y.ToByteArrayUnsigned ();
 
 			var dsa = new DSACryptoServiceProvider ();
 			dsa.ImportParameters (parameters);
@@ -224,14 +238,15 @@ namespace MimeKit.Cryptography
 		{
 			var parameters = new RSAParameters ();
 
-			parameters.Exponent = key.PublicExponent.ToByteArray ();
-			parameters.Modulus = key.Modulus.ToByteArray ();
-			parameters.InverseQ = key.QInv.ToByteArray ();
-			parameters.D = key.Exponent.ToByteArray ();
-			parameters.DP = key.DP.ToByteArray ();
-			parameters.DQ = key.DQ.ToByteArray ();
-			parameters.P = key.P.ToByteArray ();
-			parameters.Q = key.Q.ToByteArray ();
+			parameters.Exponent = key.PublicExponent.ToByteArrayUnsigned ();
+			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
+			parameters.P = key.P.ToByteArrayUnsigned ();
+			parameters.Q = key.Q.ToByteArrayUnsigned ();
+
+			parameters.InverseQ = GetPaddedByteArray (key.QInv, parameters.Q.Length);
+			parameters.D = GetPaddedByteArray (key.Exponent, parameters.Modulus.Length);
+			parameters.DP = GetPaddedByteArray (key.DP, parameters.P.Length);
+			parameters.DQ = GetPaddedByteArray (key.DQ, parameters.Q.Length);
 
 			var rsa = new RSACryptoServiceProvider ();
 			rsa.ImportParameters (parameters);
@@ -242,8 +257,8 @@ namespace MimeKit.Cryptography
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaKeyParameters key)
 		{
 			var parameters = new RSAParameters ();
-			parameters.Exponent = key.Exponent.ToByteArray ();
-			parameters.Modulus = key.Modulus.ToByteArray ();
+			parameters.Exponent = key.Exponent.ToByteArrayUnsigned ();
+			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
 
 			var rsa = new RSACryptoServiceProvider ();
 			rsa.ImportParameters (parameters);
