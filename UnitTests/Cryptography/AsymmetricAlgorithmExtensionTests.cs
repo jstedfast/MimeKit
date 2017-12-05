@@ -98,7 +98,10 @@ namespace UnitTests.Cryptography
 
 				// test public key conversion
 				expected = dsa.ExportParameters (false);
-				keyParameter = dsa.AsAsymmetricKeyParameter ();
+				var pubdsa = new DSACryptoServiceProvider ();
+				pubdsa.ImportParameters (expected);
+
+				keyParameter = pubdsa.AsAsymmetricKeyParameter ();
 				windows = keyParameter.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
 				actual = windows.ExportParameters (false);
 
