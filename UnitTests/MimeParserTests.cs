@@ -268,6 +268,44 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestDoubleMboxMarker ()
+		{
+			var content = Encoding.ASCII.GetBytes ("From - \r\nFrom -\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
+
+			using (var stream = new MemoryStream (content, false)) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				MimeMessage message;
+
+				message = parser.ParseMessage ();
+				Assert.AreEqual (0, message.Headers.Count);
+
+				message = parser.ParseMessage ();
+				Assert.AreEqual (3, message.Headers.Count);
+
+				stream.Position = 0;
+			}
+		}
+
+		[Test]
+		public async void TestDoubleMboxMarkerAsync ()
+		{
+			var content = Encoding.ASCII.GetBytes ("From - \r\nFrom -\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
+
+			using (var stream = new MemoryStream (content, false)) {
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				MimeMessage message;
+
+				message = await parser.ParseMessageAsync ();
+				Assert.AreEqual (0, message.Headers.Count);
+
+				message = await parser.ParseMessageAsync ();
+				Assert.AreEqual (3, message.Headers.Count);
+
+				stream.Position = 0;
+			}
+		}
+
+		[Test]
 		public void TestEmptyMessage ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
