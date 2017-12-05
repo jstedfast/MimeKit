@@ -308,6 +308,30 @@ namespace UnitTests.Cryptography {
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+
+				// now do the same thing, but encrypt to the Resent-To headers
+				message.From.Clear ();
+				message.To.Clear ();
+
+				message.From.Add (new MailboxAddress ("Dummy Sender", "dummy@sender.com"));
+				message.To.Add (new MailboxAddress ("Dummy Recipient", "dummy@recipient.com"));
+
+				message.ResentFrom.Add (self);
+				message.ResentTo.Add (self);
+
+				message.Encrypt (ctx);
+
+				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+
+				encrypted = (MultipartEncrypted) message.Body;
+
+				//using (var file = File.Create ("pgp-encrypted.asc"))
+				//	encrypted.WriteTo (file);
+
+				decrypted = encrypted.Decrypt (ctx);
+
+				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
 			}
 		}
 
@@ -435,6 +459,41 @@ namespace UnitTests.Cryptography {
 				//	encrypted.WriteTo (file);
 
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
+
+				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+
+				// now do the same thing, but encrypt to the Resent-To headers
+				message.From.Clear ();
+				message.To.Clear ();
+
+				message.From.Add (new MailboxAddress ("Dummy Sender", "dummy@sender.com"));
+				message.To.Add (new MailboxAddress ("Dummy Recipient", "dummy@recipient.com"));
+
+				message.ResentFrom.Add (self);
+				message.ResentTo.Add (self);
+
+				message.SignAndEncrypt (ctx);
+
+				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+
+				encrypted = (MultipartEncrypted) message.Body;
+
+				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
+				//	encrypted.WriteTo (file);
+
+				decrypted = encrypted.Decrypt (ctx, out signatures);
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
