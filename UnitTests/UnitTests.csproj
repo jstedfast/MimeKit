@@ -111,6 +111,7 @@
     <Compile Include="AttachmentCollectionTests.cs" />
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="ContentDispositionTests.cs" />
+    <Compile Include="ContentObjectTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="DomainListTests.cs" />
     <Compile Include="ExceptionTests.cs" />
