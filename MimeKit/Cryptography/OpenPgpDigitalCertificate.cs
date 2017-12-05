@@ -67,10 +67,6 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		OpenPgpDigitalCertificate ()
-		{
-		}
-
 		bool UpdateUserId (PgpPublicKey pubkey)
 		{
 			foreach (string userId in pubkey.GetUserIds ()) {

@@ -52,10 +52,6 @@ namespace MimeKit.Cryptography {
 			Signature = signature;
 		}
 
-		OpenPgpDigitalSignature ()
-		{
-		}
-
 		internal PgpOnePassSignature OnePassSignature {
 			get; private set;
 		}
