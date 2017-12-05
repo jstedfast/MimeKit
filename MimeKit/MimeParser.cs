@@ -605,7 +605,7 @@ namespace MimeKit {
 				if (inptr >= inend) {
 					// we don't have enough input data
 					inputIndex = (int) (start - inbuf);
-					left = (int) length;
+					left = (int) (inptr - start);
 					needInput = true;
 					break;
 				}

@@ -235,6 +235,39 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParsingGarbage ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
+
+				for (int i = 0; i < 200; i++)
+					stream.Write (line, 0, line.Length);
+
+				stream.Position = 0;
+
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage (), "Mbox");
+
+				stream.Position = 0;
+
+				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "MboxAsync");
+
+				stream.Position = 0;
+
+				parser.SetStream (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage (), "Entity");
+
+				stream.Position = 0;
+
+				parser.SetStream (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "EntityAsync");
+			}
+		}
+
+		[Test]
 		public void TestEmptyMessage ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
