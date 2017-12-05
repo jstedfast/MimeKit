@@ -75,7 +75,7 @@ namespace MimeKit {
 				}
 			} while (inputIndex == inputEnd);
 
-			return true;
+			return bomIndex == 0 || bomIndex == UTF8ByteOrderMark.Length;
 		}
 
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)

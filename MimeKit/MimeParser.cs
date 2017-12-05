@@ -559,7 +559,7 @@ namespace MimeKit {
 				StepByteOrderMark (inbuf, ref bomIndex);
 			} while (inputIndex == inputEnd);
 
-			return true;
+			return bomIndex == 0 || bomIndex == UTF8ByteOrderMark.Length;
 		}
 
 		static unsafe bool IsMboxMarker (byte* text, bool allowMunged = false)

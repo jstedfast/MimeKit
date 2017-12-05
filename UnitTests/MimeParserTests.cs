@@ -27,6 +27,8 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -47,6 +49,28 @@ namespace UnitTests {
 		{
 			UnixFormatOptions = FormatOptions.Default.Clone ();
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
+		}
+
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var parser = new MimeParser (stream);
+
+				Assert.Throws<ArgumentNullException> (() => new MimeParser (null));
+				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, stream));
+				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, MimeFormat.Default));
+				Assert.Throws<ArgumentNullException> (() => new MimeParser (ParserOptions.Default, null));
+				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, stream, MimeFormat.Default));
+				Assert.Throws<ArgumentNullException> (() => new MimeParser (ParserOptions.Default, null, MimeFormat.Default));
+
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream, MimeFormat.Default));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null, MimeFormat.Default));
+			}
 		}
 
 		[Test]
@@ -180,6 +204,37 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestPartialByteOrderMarkEOF ()
+		{
+			var bom = new byte[] { 0xEF, 0xBB/*, 0xBF */ };
+
+			using (var stream = new MemoryStream (bom, false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+			}
+		}
+
+		[Test]
+		public void TestPartialByteOrderMark ()
+		{
+			var bom = new byte[] { 0xEF, 0xBB/*, 0xBF */ };
+
+			using (var stream = new MemoryStream ()) {
+				stream.Write (bom, 0, bom.Length);
+
+				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+					file.CopyTo (stream, 4096);
+
+				stream.Position = 0;
+
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+			}
+		}
+
+		[Test]
 		public void TestEmptyMessage ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
@@ -211,40 +266,79 @@ namespace UnitTests {
 			}
 		}
 
+		static void AssertSimpleMbox (Stream stream)
+		{
+			var parser = new MimeParser (stream, MimeFormat.Mbox);
+
+			while (!parser.IsEndOfStream) {
+				var message = parser.ParseMessage ();
+				Multipart multipart;
+				MimeEntity entity;
+
+				Assert.IsInstanceOf<Multipart> (message.Body);
+				multipart = (Multipart) message.Body;
+				Assert.AreEqual (1, multipart.Count);
+				entity = multipart[0];
+
+				Assert.IsInstanceOf<Multipart> (entity);
+				multipart = (Multipart) entity;
+				Assert.AreEqual (1, multipart.Count);
+				entity = multipart[0];
+
+				Assert.IsInstanceOf<Multipart> (entity);
+				multipart = (Multipart) entity;
+				Assert.AreEqual (1, multipart.Count);
+				entity = multipart[0];
+
+				Assert.IsInstanceOf<TextPart> (entity);
+
+				using (var memory = new MemoryStream ()) {
+					entity.WriteTo (UnixFormatOptions, memory);
+
+					var text = Encoding.ASCII.GetString (memory.ToArray ());
+					Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
+				}
+			}
+		}
+
 		[Test]
 		public void TestSimpleMbox ()
 		{
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				AssertSimpleMbox (stream);
+		}
 
-				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
-					Multipart multipart;
-					MimeEntity entity;
+		static async Task AssertSimpleMboxAsync (Stream stream)
+		{
+			var parser = new MimeParser (stream, MimeFormat.Mbox);
 
-					Assert.IsInstanceOf<Multipart> (message.Body);
-					multipart = (Multipart) message.Body;
-					Assert.AreEqual (1, multipart.Count);
-					entity = multipart[0];
+			while (!parser.IsEndOfStream) {
+				var message = await parser.ParseMessageAsync ();
+				Multipart multipart;
+				MimeEntity entity;
 
-					Assert.IsInstanceOf<Multipart> (entity);
-					multipart = (Multipart) entity;
-					Assert.AreEqual (1, multipart.Count);
-					entity = multipart[0];
+				Assert.IsInstanceOf<Multipart> (message.Body);
+				multipart = (Multipart) message.Body;
+				Assert.AreEqual (1, multipart.Count);
+				entity = multipart[0];
 
-					Assert.IsInstanceOf<Multipart> (entity);
-					multipart = (Multipart) entity;
-					Assert.AreEqual (1, multipart.Count);
-					entity = multipart[0];
+				Assert.IsInstanceOf<Multipart> (entity);
+				multipart = (Multipart) entity;
+				Assert.AreEqual (1, multipart.Count);
+				entity = multipart[0];
 
-					Assert.IsInstanceOf<TextPart> (entity);
+				Assert.IsInstanceOf<Multipart> (entity);
+				multipart = (Multipart) entity;
+				Assert.AreEqual (1, multipart.Count);
+				entity = multipart[0];
 
-					using (var memory = new MemoryStream ()) {
-						entity.WriteTo (UnixFormatOptions, memory);
+				Assert.IsInstanceOf<TextPart> (entity);
 
-						var text = Encoding.ASCII.GetString (memory.ToArray ());
-						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
-					}
+				using (var memory = new MemoryStream ()) {
+					await entity.WriteToAsync (UnixFormatOptions, memory);
+
+					var text = Encoding.ASCII.GetString (memory.ToArray ());
+					Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
 				}
 			}
 		}
@@ -252,38 +346,41 @@ namespace UnitTests {
 		[Test]
 		public async void TestSimpleMboxAsync ()
 		{
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				await AssertSimpleMboxAsync (stream);
+		}
 
-				while (!parser.IsEndOfStream) {
-					var message = await parser.ParseMessageAsync ();
-					Multipart multipart;
-					MimeEntity entity;
+		[Test]
+		public void TestSimpleMboxWithByteOrderMark ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var bom = new byte[] { 0xEF, 0xBB, 0xBF };
 
-					Assert.IsInstanceOf<Multipart> (message.Body);
-					multipart = (Multipart) message.Body;
-					Assert.AreEqual (1, multipart.Count);
-					entity = multipart[0];
+				stream.Write (bom, 0, bom.Length);
 
-					Assert.IsInstanceOf<Multipart> (entity);
-					multipart = (Multipart) entity;
-					Assert.AreEqual (1, multipart.Count);
-					entity = multipart[0];
+				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+					file.CopyTo (stream, 4096);
 
-					Assert.IsInstanceOf<Multipart> (entity);
-					multipart = (Multipart) entity;
-					Assert.AreEqual (1, multipart.Count);
-					entity = multipart[0];
+				stream.Position = 0;
 
-					Assert.IsInstanceOf<TextPart> (entity);
+				AssertSimpleMbox (stream);
+			}
+		}
 
-					using (var memory = new MemoryStream ()) {
-						await entity.WriteToAsync (UnixFormatOptions, memory);
+		[Test]
+		public async void TestSimpleMboxWithByteOrderMarkAsync ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var bom = new byte[] { 0xEF, 0xBB, 0xBF };
 
-						var text = Encoding.ASCII.GetString (memory.ToArray ());
-						Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
-					}
-				}
+				stream.Write (bom, 0, bom.Length);
+
+				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+					file.CopyTo (stream, 4096);
+
+				stream.Position = 0;
+
+				await AssertSimpleMboxAsync (stream);
 			}
 		}
 
