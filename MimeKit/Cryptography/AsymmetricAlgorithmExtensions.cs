@@ -185,7 +185,7 @@ namespace MimeKit.Cryptography
 		{
 			var bytes = big.ToByteArrayUnsigned ();
 
-			if (bytes.Length == length)
+			if (bytes.Length >= length)
 				return bytes;
 
 			var padded = new byte[length];
