@@ -47,9 +47,5 @@ namespace MimeKit {
 			ContentType = ctype;
 			Headers = headers;
 		}
-
-		MimeEntityConstructorArgs ()
-		{
-		}
 	}
 }
