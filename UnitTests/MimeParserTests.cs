@@ -132,6 +132,46 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestTruncatedHeader ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = HeaderList.Load (memory);
+
+					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+
+					var value = headers["Header-1"];
+
+					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
+		public async void TestTruncatedHeaderAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = await HeaderList.LoadAsync (memory);
+
+					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+
+					var value = headers["Header-1"];
+
+					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestSingleHeaderNoTerminator ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
@@ -211,7 +251,13 @@ namespace UnitTests {
 			using (var stream = new MemoryStream (bom, false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 
-				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+				Assert.Throws<FormatException> (() => parser.ParseMessage (), "ParseMessage");
+
+				stream.Position = 0;
+
+				parser.SetStream (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
 			}
 		}
 
@@ -230,7 +276,13 @@ namespace UnitTests {
 
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 
-				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+				Assert.Throws<FormatException> (() => parser.ParseMessage (), "ParseMessage");
+
+				stream.Position = 0;
+
+				parser.SetStream (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
 			}
 		}
 
@@ -281,8 +333,6 @@ namespace UnitTests {
 
 				message = parser.ParseMessage ();
 				Assert.AreEqual (3, message.Headers.Count);
-
-				stream.Position = 0;
 			}
 		}
 
@@ -300,8 +350,6 @@ namespace UnitTests {
 
 				message = await parser.ParseMessageAsync ();
 				Assert.AreEqual (3, message.Headers.Count);
-
-				stream.Position = 0;
 			}
 		}
 
