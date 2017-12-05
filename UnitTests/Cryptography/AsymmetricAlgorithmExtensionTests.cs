@@ -71,28 +71,40 @@ namespace UnitTests.Cryptography
 			using (var dsa = new DSACryptoServiceProvider (1024)) {
 				// first, check private key conversion
 				var expected = dsa.ExportParameters (true);
-				var bouncyCastle = dsa.AsAsymmetricCipherKeyPair ();
-				var windows = bouncyCastle.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
+				var keyParameter = dsa.AsAsymmetricKeyParameter ();
+				var windows = keyParameter.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
 				var actual = windows.ExportParameters (true);
 
 				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
 				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
 				AssertAreEqual (expected.G, actual.G, "G");
-				//AssertAreEqual (expected.J, actual.J, "J");
 				AssertAreEqual (expected.P, actual.P, "P");
 				AssertAreEqual (expected.Q, actual.Q, "Q");
 				AssertAreEqual (expected.X, actual.X, "X");
 				AssertAreEqual (expected.Y, actual.Y, "Y");
 
-				// now test public key conversion
+				// test AsymmetricCipherKeyPair conversion
+				var keyPair = dsa.AsAsymmetricCipherKeyPair ();
+				windows = keyPair.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
+				actual = windows.ExportParameters (true);
+
+				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
+				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
+				AssertAreEqual (expected.G, actual.G, "G");
+				AssertAreEqual (expected.P, actual.P, "P");
+				AssertAreEqual (expected.Q, actual.Q, "Q");
+				AssertAreEqual (expected.X, actual.X, "X");
+				AssertAreEqual (expected.Y, actual.Y, "Y");
+
+				// test public key conversion
 				expected = dsa.ExportParameters (false);
-				windows = bouncyCastle.Public.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
+				keyParameter = dsa.AsAsymmetricKeyParameter ();
+				windows = keyParameter.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
 				actual = windows.ExportParameters (false);
 
 				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
 				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
 				AssertAreEqual (expected.G, actual.G, "G");
-				//AssertAreEqual (expected.J, actual.J, "J");
 				AssertAreEqual (expected.P, actual.P, "P");
 				AssertAreEqual (expected.Q, actual.Q, "Q");
 				AssertAreEqual (expected.X, actual.X, "X");
@@ -106,8 +118,8 @@ namespace UnitTests.Cryptography
 			using (var rsa = new RSACryptoServiceProvider (1024)) {
 				// first, check private key conversion
 				var expected = rsa.ExportParameters (true);
-				var bouncyCastle = rsa.AsAsymmetricKeyParameter ();
-				var windows = bouncyCastle.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
+				var keyParameter = rsa.AsAsymmetricKeyParameter ();
+				var windows = keyParameter.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
 				var actual = windows.ExportParameters (true);
 
 				AssertAreEqual (expected.D, actual.D, "D");
@@ -119,13 +131,27 @@ namespace UnitTests.Cryptography
 				AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
 				AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
 
-				// now test public key conversion
+				// test AsymmetricCipherKeyPair conversion
+				var keyPair = rsa.AsAsymmetricCipherKeyPair ();
+				windows = keyPair.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
+				actual = windows.ExportParameters (true);
+
+				AssertAreEqual (expected.D, actual.D, "D");
+				AssertAreEqual (expected.DP, actual.DP, "DP");
+				AssertAreEqual (expected.DQ, actual.DQ, "DQ");
+				AssertAreEqual (expected.P, actual.P, "P");
+				AssertAreEqual (expected.Q, actual.Q, "Q");
+				AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
+				AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
+				AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+
+				// test public key conversion
 				expected = rsa.ExportParameters (false);
 				var pubrsa = new RSACryptoServiceProvider ();
 				pubrsa.ImportParameters (expected);
 
-				bouncyCastle = pubrsa.AsAsymmetricKeyParameter ();
-				windows = bouncyCastle.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
+				keyParameter = pubrsa.AsAsymmetricKeyParameter ();
+				windows = keyParameter.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
 				actual = windows.ExportParameters (false);
 
 				AssertAreEqual (expected.D, actual.D, "D");

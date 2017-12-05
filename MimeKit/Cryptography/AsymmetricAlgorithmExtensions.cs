@@ -215,7 +215,9 @@ namespace MimeKit.Cryptography
 		{
 			var parameters = GetDSAParameters (key);
 			parameters.X = key.X.ToByteArrayUnsigned ();
-			parameters.Y = pub.Y.ToByteArrayUnsigned ();
+
+			if (pub != null)
+				parameters.Y = pub.Y.ToByteArrayUnsigned ();
 
 			var dsa = new DSACryptoServiceProvider ();
 			dsa.ImportParameters (parameters);
@@ -287,6 +289,9 @@ namespace MimeKit.Cryptography
 				throw new ArgumentNullException (nameof (key));
 
 			if (key.IsPrivate) {
+				if (key is DsaPrivateKeyParameters)
+					return GetAsymmetricAlgorithm ((DsaPrivateKeyParameters) key, null);
+
 				if (key is RsaPrivateCrtKeyParameters)
 					return GetAsymmetricAlgorithm ((RsaPrivateCrtKeyParameters) key);
 			} else {
