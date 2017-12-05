@@ -380,13 +380,20 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			mail.Bcc.Add (new MailAddress ("bcc@bcc.com", "The Blind Carbon-Copied Recipient"));
 			mail.Subject = "This is the message subject";
 			mail.Priority = MailPriority.High;
-			mail.Body = null;
+			mail.Body = "This is plain text.";
 
-			var text = new MemoryStream (Encoding.ASCII.GetBytes ("This is plain text."), false);
-			mail.AlternateViews.Add (new AlternateView (text, "text/plain"));
+			//var text = new MemoryStream (Encoding.ASCII.GetBytes ("This is plain text."), false);
+			//mail.AlternateViews.Add (new AlternateView (text, "text/plain"));
 
 			var html = new MemoryStream (Encoding.ASCII.GetBytes ("This is HTML."), false);
-			mail.AlternateViews.Add (new AlternateView (html, "text/html"));
+			var view = new AlternateView (html, "text/html");
+
+			var imageData = new byte[1024];
+			var image = new MemoryStream (imageData, false);
+			view.LinkedResources.Add (new LinkedResource (image, "image/jpeg") { ContentId = "id@jpeg", ContentLink = new Uri ("link", UriKind.Relative) });
+			view.BaseUri = new Uri ("http://example.com");
+
+			mail.AlternateViews.Add (view);
 
 			var message = (MimeMessage) mail;
 
@@ -404,12 +411,25 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			Assert.AreEqual (mail.Bcc[0].Address, ((MailboxAddress) message.Bcc[0]).Address, "The bcc addresses do not match.");
 			Assert.AreEqual (mail.Subject, message.Subject, "The message subjects do not match.");
 			Assert.AreEqual (MessagePriority.Urgent, message.Priority, "The message priority does not match.");
-			Assert.IsTrue (message.Body is Multipart, "The top-level MIME part should be a multipart.");
-			Assert.IsTrue (message.Body.ContentType.IsMimeType ("multipart", "alternative"), "The top-level MIME part should be multipart/alternative.");
+			Assert.IsTrue (message.Body is MultipartAlternative, "The top-level MIME part should be a multipart/alternative.");
 
-			var multipart = (Multipart) message.Body;
+			var alternative = (MultipartAlternative) message.Body;
 
-			Assert.AreEqual (2, multipart.Count, "Expected 2 MIME parts within the multipart/alternative.");
+			Assert.AreEqual (2, alternative.Count, "Expected 2 MIME parts within the multipart/alternative.");
+			Assert.IsTrue (alternative[1] is MultipartRelated, "The second MIME part should be a multipart/related.");
+
+			var related = (MultipartRelated) alternative[1];
+
+			Assert.AreEqual (2, related.Count, "Expected 2 MIME parts within the multipart/related.");
+			Assert.AreEqual ("http://example.com", related.ContentBase.OriginalString);
+			Assert.IsTrue (related[0] is TextPart, "The first part of the multipart/related should be the html part");
+			Assert.IsNull (((TextPart) related[0]).ContentLocation);
+			Assert.IsNull (((TextPart) related[0]).ContentBase);
+
+			var jpeg = (MimePart) related[1];
+			Assert.AreEqual ("id@jpeg", jpeg.ContentId);
+			Assert.AreEqual ("image/jpeg", jpeg.ContentType.MimeType);
+			Assert.AreEqual ("link", jpeg.ContentLocation.OriginalString);
 		}
 
 		[Test]

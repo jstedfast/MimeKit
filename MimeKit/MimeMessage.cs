@@ -3600,17 +3600,12 @@ namespace MimeKit {
 				foreach (var view in message.AlternateViews) {
 					var part = GetMimePart (view);
 
-					if (view.BaseUri != null)
-						part.ContentLocation = view.BaseUri;
-
 					if (view.LinkedResources.Count > 0) {
 						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
 						var related = new MultipartRelated ();
 
 						related.ContentType.Parameters.Add ("type", type);
-
-						if (view.BaseUri != null)
-							related.ContentLocation = view.BaseUri;
+						related.ContentBase = view.BaseUri;
 
 						related.Add (part);
 
@@ -3625,6 +3620,7 @@ namespace MimeKit {
 
 						alternative.Add (related);
 					} else {
+						part.ContentBase = view.BaseUri;
 						alternative.Add (part);
 					}
 				}
