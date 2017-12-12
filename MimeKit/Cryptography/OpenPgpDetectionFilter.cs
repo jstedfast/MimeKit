@@ -134,31 +134,36 @@ namespace MimeKit.Cryptography
 			}
 		}
 
-		static bool IsMarker (byte[] input, int startIndex, byte[] marker, out bool cr)
+		static bool IsMarker (byte[] input, int startIndex, int endIndex, byte[] marker, out bool cr)
 		{
 			int i = startIndex;
+			int j = 0;
 
 			cr = false;
 
-			for (int j = 0; j < marker.Length; i++, j++) {
-				if (input[i] != marker[j])
+			while (j < marker.Length && i < endIndex) {
+				if (input[i++] != marker[j++])
 					return false;
 			}
 
-			if (input[i] == (byte) '\r') {
+			if (j < marker.Length)
+				return false;
+
+			if (i < endIndex && input[i] == (byte) '\r') {
 				cr = true;
 				i++;
 			}
 
-			return input[i] == (byte) '\n';
+			return i < endIndex && input[i] == (byte) '\n';
 		}
 
 		static bool IsPartialMatch (byte[] input, int startIndex, int endIndex, byte[] marker)
 		{
 			int i = startIndex;
+			int j = 0;
 
-			for (int j = 0; j < marker.Length && i < endIndex; i++, j++) {
-				if (input[i] != marker[j])
+			while (j < marker.Length && i < endIndex) {
+				if (input[i++] != marker[j++])
 					return false;
 			}
 
@@ -257,7 +262,7 @@ namespace MimeKit.Cryptography
 					index++;
 
 					for (int i = 0; i < OpenPgpMarkers.Length; i++) {
-						if (OpenPgpMarkers[i].InitialState == state && IsMarker (input, lineIndex, OpenPgpMarkers[i].Marker, out cr)) {
+						if (OpenPgpMarkers[i].InitialState == state && IsMarker (input, lineIndex, endIndex, OpenPgpMarkers[i].Marker, out cr)) {
 							state = OpenPgpMarkers[i].DetectedState;
 							SetPosition (lineIndex - startIndex, i, cr);
 							outputLength = index - lineIndex;
@@ -303,7 +308,7 @@ namespace MimeKit.Cryptography
 
 				index++;
 
-				if (IsMarker (input, lineIndex, OpenPgpMarkers[next].Marker, out cr)) {
+				if (IsMarker (input, lineIndex, endIndex, OpenPgpMarkers[next].Marker, out cr)) {
 					seenEndMarker = OpenPgpMarkers[next].IsEnd;
 					state = OpenPgpMarkers[next].DetectedState;
 					SetPosition (lineIndex - startIndex, next, cr);
