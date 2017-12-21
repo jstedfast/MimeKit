@@ -91,6 +91,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The specified file does not contain a certificate.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -108,6 +111,9 @@ namespace MimeKit.Cryptography {
 
 			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			Certificate = parser.ReadCertificate (stream);
+
+			if (Certificate == null)
+				throw new FormatException ();
 
 			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
@@ -143,6 +149,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The specified file does not contain a certificate.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -160,6 +169,9 @@ namespace MimeKit.Cryptography {
 
 			using (var stream = File.OpenRead (fileName))
 				Certificate = parser.ReadCertificate (stream);
+
+			if (Certificate == null)
+				throw new FormatException ();
 
 			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}

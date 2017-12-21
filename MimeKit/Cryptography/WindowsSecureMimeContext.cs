@@ -1184,7 +1184,10 @@ namespace MimeKit.Cryptography {
 
 			foreach (var mailbox in mailboxes) {
 				var certificate = GetRecipientCertificate (mailbox);
-				certificates.Add (certificate.AsBouncyCastleCertificate ());
+
+				if (certificate != null)
+					certificates.Add (certificate.AsBouncyCastleCertificate ());
+
 				count++;
 			}
 
