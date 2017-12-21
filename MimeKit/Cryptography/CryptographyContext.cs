@@ -344,7 +344,7 @@ namespace MimeKit.Cryptography {
 		public abstract bool CanEncrypt (MailboxAddress mailbox);
 
 		/// <summary>
-		/// Cryptographically signs the content.
+		/// Cryptographically sign the content.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer and digest algorithm.
@@ -411,13 +411,12 @@ namespace MimeKit.Cryptography {
 		public abstract Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
-		/// containing the encrypted data.</returns>
+		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -431,7 +430,7 @@ namespace MimeKit.Cryptography {
 		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content);
 
 		/// <summary>
-		/// Decrypts the specified encryptedData.
+		/// Decrypt the specified encryptedData.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData.

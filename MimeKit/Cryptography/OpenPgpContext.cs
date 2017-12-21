@@ -1645,7 +1645,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -1680,7 +1680,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -1719,7 +1719,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -1776,7 +1776,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -1801,7 +1801,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Cryptographically sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
@@ -1859,7 +1859,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Cryptographically sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
@@ -1911,7 +1911,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Cryptographically sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
@@ -2039,7 +2039,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Cryptographically sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
@@ -2416,7 +2416,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Atomically saves the secret key-ring bundle to the path specified by <see cref="SecretKeyRingPath"/>.</para>
-		/// <para>Called by <see cref="ImportSecretKeys"/> if any secret keys were successfully imported.</para>
+		/// <para>Called by <see cref="Import(PgpSecretKeyRing)"/> if any secret keys were successfully imported.</para>
 		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the secret key-ring bundle.

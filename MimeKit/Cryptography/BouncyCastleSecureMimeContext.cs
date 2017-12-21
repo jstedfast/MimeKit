@@ -880,7 +880,7 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -909,7 +909,7 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -944,7 +944,7 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Decrypts the specified encryptedData.
+		/// Decrypt the specified encryptedData.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData.
@@ -985,7 +985,7 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Decrypts the specified encryptedData to an output stream.
+		/// Decrypt the specified encryptedData to an output stream.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData to an output stream.
@@ -1027,7 +1027,7 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Exports the certificates for the specified mailboxes.
+		/// Export the certificates for the specified mailboxes.
 		/// </summary>
 		/// <remarks>
 		/// Exports the certificates for the specified mailboxes.
