@@ -247,7 +247,7 @@ namespace MimeKit {
 
 			foreach (var stream in streams) {
 				var part = new MessagePartial (id, number++, streams.Count);
-				part.ContentObject = new ContentObject (stream);
+				part.Content = new MimeContent (stream);
 
 				var submessage = CloneMessage (message);
 				submessage.MessageId = MimeUtils.GenerateMessageId ();
@@ -321,7 +321,7 @@ namespace MimeKit {
 					if (number != i + 1)
 						throw new ArgumentException ("One or more partials is missing.", nameof (partials));
 
-					var content = parts[i].ContentObject;
+					var content = parts[i].Content;
 
 					chained.Add (content.Open ());
 				}

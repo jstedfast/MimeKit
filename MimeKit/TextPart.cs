@@ -298,13 +298,13 @@ namespace MimeKit {
 		/// <value>The text.</value>
 		public string Text {
 			get {
-				if (ContentObject == null)
+				if (Content == null)
 					return string.Empty;
 
 				var charset = ContentType.Parameters["charset"];
 
 				using (var memory = new MemoryStream ()) {
-					ContentObject.DecodeTo (memory);
+					Content.DecodeTo (memory);
 
 #if !PORTABLE && !NETSTANDARD
 					var content = memory.GetBuffer ();
@@ -399,11 +399,11 @@ namespace MimeKit {
 			if (encoding == null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (ContentObject == null)
+			if (Content == null)
 				return string.Empty;
 
 			using (var memory = new MemoryStream ()) {
-				ContentObject.DecodeTo (memory);
+				Content.DecodeTo (memory);
 
 #if !PORTABLE && !NETSTANDARD
 				var buffer = memory.GetBuffer ();
@@ -465,7 +465,7 @@ namespace MimeKit {
 
 			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
 			var content = new MemoryStream (encoding.GetBytes (text));
-			ContentObject = new ContentObject (content);
+			Content = new MimeContent (content);
 		}
 
 		/// <summary>

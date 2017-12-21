@@ -54,8 +54,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => new MessagePart ("rfc822", 5));
 
 			Assert.Throws<ArgumentNullException> (() => new MimePart ("text", "plain", (object[]) null));
-			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.ContentObject, body.ContentObject.Stream));
-			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.ContentObject.Stream, body.ContentObject));
+			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.Content, body.Content.Stream));
+			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.Content.Stream, body.Content));
 			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", null, 5));
 		}
 
@@ -126,11 +126,11 @@ namespace UnitTests {
 				checksum = Convert.ToBase64String (md5.ComputeHash (data));
 
 			var msg = new MimePart ("application", "octet-stream",
-				new ContentObject (new MemoryStream (data), ContentEncoding.Binary)
+				new MimeContent (new MemoryStream (data), ContentEncoding.Binary)
 			);
 
 			Assert.AreEqual (checksum, msg.ComputeContentMd5 (), "Content MD5 is wrong");
-			Assert.AreEqual (ContentEncoding.Binary, msg.ContentObject.Encoding, "ContentEncoding is wrong");
+			Assert.AreEqual (ContentEncoding.Binary, msg.Content.Encoding, "ContentEncoding is wrong");
 		}
 
 		[Test]
@@ -144,10 +144,10 @@ namespace UnitTests {
 			);
 
 			var buffer = new MemoryStream ();
-			msg.ContentObject.DecodeTo (buffer);
+			msg.Content.DecodeTo (buffer);
 			buffer.Seek (0, SeekOrigin.Begin);
 
-			Assert.AreEqual (ContentEncoding.Default, msg.ContentObject.Encoding, "ContentEncoding is wrong");
+			Assert.AreEqual (ContentEncoding.Default, msg.Content.Encoding, "ContentEncoding is wrong");
 			Assert.AreEqual (data, buffer.ToArray (), "ContentEncoding is wrong");
 		}
 	}

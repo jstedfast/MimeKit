@@ -1,5 +1,5 @@
 ﻿//
-// ContentObject.cs
+// MimeContent.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -27,9 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -39,16 +37,16 @@ namespace MimeKit {
 	/// Encapsulates a content stream used by <see cref="MimeKit.MimePart"/>.
 	/// </summary>
 	/// <remarks>
-	/// A <see cref="ContentObject"/> represents the content of a <see cref="MimePart"/>.
+	/// A <see cref="MimeContent"/> represents the content of a <see cref="MimePart"/>.
 	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 	/// </example>
-	public class ContentObject : IContentObject
+	public class MimeContent : IMimeContent
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
+		/// Initializes a new instance of the <see cref="MimeKit.MimeContent"/> class.
 		/// </summary>
 		/// <remarks>
 		/// When creating new <see cref="MimeKit.MimePart"/>s, the <paramref name="encoding"/>
@@ -65,7 +63,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> does not support seeking.</para>
 		/// </exception>
-		public ContentObject (Stream stream, ContentEncoding encoding = ContentEncoding.Default)
+		public MimeContent (Stream stream, ContentEncoding encoding = ContentEncoding.Default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -187,7 +185,6 @@ namespace MimeKit {
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously copies the content stream to the specified output stream.
 		/// </summary>
@@ -237,7 +234,6 @@ namespace MimeKit {
 				throw;
 			}
 		}
-#endif
 
 		/// <summary>
 		/// Decodes the content stream into another stream.
@@ -273,7 +269,6 @@ namespace MimeKit {
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously decodes the content stream into another stream.
 		/// </summary>
@@ -307,7 +302,6 @@ namespace MimeKit {
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 			}
 		}
-#endif
 
 		#endregion
 	}

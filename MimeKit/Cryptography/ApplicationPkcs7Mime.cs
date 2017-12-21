@@ -84,7 +84,7 @@ namespace MimeKit.Cryptography {
 		{
 			ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 			ContentTransferEncoding = ContentEncoding.Base64;
-			ContentObject = new ContentObject (stream);
+			Content = new MimeContent (stream);
 
 			switch (type) {
 			case SecureMimeType.CompressedData:
@@ -185,7 +185,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+				Content.DecodeTo (memory);
 				memory.Position = 0;
 
 				return ctx.Decompress (memory);
@@ -244,7 +244,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+				Content.DecodeTo (memory);
 				memory.Position = 0;
 
 				return ctx.Decrypt (memory, cancellationToken);
@@ -299,7 +299,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+				Content.DecodeTo (memory);
 				memory.Position = 0;
 
 				ctx.Import (memory);
@@ -340,7 +340,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				ContentObject.DecodeTo (memory);
+				Content.DecodeTo (memory);
 				memory.Position = 0;
 
 				return ctx.Verify (memory, out entity, cancellationToken);

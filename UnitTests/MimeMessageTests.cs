@@ -450,7 +450,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			var message = new MimeMessage ();
 			message.Body = new TextPart ("plain") {
 				ContentTransferEncoding = ContentEncoding.Base64,
-				ContentObject = new ContentObject (new MemoryStream (new byte[1], false))
+				Content = new MimeContent (new MemoryStream (new byte[1], false))
 			};
 
 			try {

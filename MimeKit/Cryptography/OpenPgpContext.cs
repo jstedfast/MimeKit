@@ -1582,7 +1582,7 @@ namespace MimeKit.Cryptography {
 			return VerifyAsync (content, signatureData, true, cancellationToken);
 		}
 
-		static Stream Compress (Stream content)
+		static Stream Compress (Stream content, byte[] buf)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 			var memory = new MemoryBlockStream ();
@@ -1591,7 +1591,11 @@ namespace MimeKit.Cryptography {
 				var literalGenerator = new PgpLiteralDataGenerator ();
 
 				using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
-					content.CopyTo (literal, 4096);
+					int nread;
+
+					while ((nread = content.Read (buf, 0, buf.Length)) > 0)
+						literal.Write (buf, 0, nread);
+
 					literal.Flush ();
 				}
 
@@ -1608,11 +1612,17 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
+				var buf = new byte[4096];
+
 				armored.SetHeader ("Version", null);
 
-				using (var compressed = Compress (content)) {
+				using (var compressed = Compress (content, buf)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
-						compressed.CopyTo (encrypted, 4096);
+						int nread;
+
+						while ((nread = compressed.Read (buf, 0, buf.Length)) > 0)
+							encrypted.Write (buf, 0, nread);
+
 						encrypted.Flush ();
 					}
 				}
@@ -1771,7 +1781,7 @@ namespace MimeKit.Cryptography {
 
 			return new MimePart ("application", "octet-stream") {
 				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
-				ContentObject = new ContentObject (encrypted),
+				Content = new MimeContent (encrypted),
 			};
 		}
 
@@ -1963,7 +1973,8 @@ namespace MimeKit.Cryptography {
 			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (cipherAlgo), true);
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var unique = new HashSet<long> ();
-			int count = 0;
+			var buf = new byte[4096];
+			int nread, count = 0;
 
 			foreach (var recipient in recipients) {
 				if (!recipient.IsEncryptionKey)
@@ -1998,9 +2009,6 @@ namespace MimeKit.Cryptography {
 
 					var literalGenerator = new PgpLiteralDataGenerator ();
 					using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
-						var buf = new byte[4096];
-						int nread;
-
 						while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
 							signatureGenerator.Update (buf, 0, nread);
 							literal.Write (buf, 0, nread);
@@ -2018,11 +2026,14 @@ namespace MimeKit.Cryptography {
 				compressed.Position = 0;
 
 				var memory = new MemoryBlockStream ();
+
 				using (var armored = new ArmoredOutputStream (memory)) {
 					armored.SetHeader ("Version", null);
 
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
-						compressed.CopyTo (encrypted, 4096);
+						while ((nread = compressed.Read (buf, 0, buf.Length)) > 0)
+							encrypted.Write (buf, 0, nread);
+
 						encrypted.Flush ();
 					}
 
@@ -2033,7 +2044,7 @@ namespace MimeKit.Cryptography {
 
 				return new MimePart ("application", "octet-stream") {
 					ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
-					ContentObject = new ContentObject (memory)
+					Content = new MimeContent (memory)
 				};
 			}
 		}
@@ -2642,7 +2653,7 @@ namespace MimeKit.Cryptography {
 
 			return new MimePart ("application", "pgp-keys") {
 				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
-				ContentObject = new ContentObject (content)
+				Content = new MimeContent (content)
 			};
 		}
 

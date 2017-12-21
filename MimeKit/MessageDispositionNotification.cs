@@ -75,11 +75,11 @@ namespace MimeKit {
 		public HeaderList Fields {
 			get {
 				if (fields == null) {
-					if (ContentObject == null) {
-						ContentObject = new ContentObject (new MemoryBlockStream ());
+					if (Content == null) {
+						Content = new MimeContent (new MemoryBlockStream ());
 						fields = new HeaderList ();
 					} else {
-						using (var stream = ContentObject.Open ()) {
+						using (var stream = Content.Open ()) {
 							fields = HeaderList.Load (stream);
 						}
 					}
@@ -99,7 +99,7 @@ namespace MimeKit {
 			fields.WriteTo (options, stream);
 			stream.Position = 0;
 
-			ContentObject = new ContentObject (stream);
+			Content = new MimeContent (stream);
 		}
 
 		/// <summary>

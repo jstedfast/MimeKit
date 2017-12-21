@@ -146,7 +146,7 @@ namespace UnitTests.Tnef {
 							}
 						}
 
-						rtf.ContentObject = new ContentObject (content);
+						rtf.Content = new MimeContent (content);
 						content.Position = 0;
 
 						builder.Attachments.Add (rtf);
@@ -319,7 +319,7 @@ namespace UnitTests.Tnef {
 							var buffer = content.GetBuffer ();
 							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-							attachment.ContentObject = new ContentObject (content);
+							attachment.Content = new MimeContent (content);
 							filter.Reset ();
 
 							//Console.WriteLine ("Attachment Property: {0} has GUID {1}", prop.PropertyTag.Id, new Guid (guid));
@@ -351,7 +351,7 @@ namespace UnitTests.Tnef {
 					attachData = prop.ReadValueAsBytes ();
 					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
+					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
 					filter.Reset ();
 
 					builder.Attachments.Add (attachment);
@@ -485,7 +485,7 @@ namespace UnitTests.Tnef {
 
 			// now use TnefPart to do the same thing
 			using (var content = File.OpenRead (path + ".tnef")) {
-				var tnef = new TnefPart { ContentObject = new ContentObject (content) };
+				var tnef = new TnefPart { Content = new MimeContent (content) };
 				var attachments = tnef.ExtractAttachments ().ToList ();
 
 				foreach (var name in names) {

@@ -57,7 +57,7 @@ namespace UnitTests.Encodings {
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
 
-						((MimePart) message.Body).ContentObject.WriteTo (filtered);
+						((MimePart) message.Body).Content.WriteTo (filtered);
 						filtered.Flush ();
 					}
 
@@ -89,7 +89,7 @@ namespace UnitTests.Encodings {
 							using (var filtered = new FilteredStream (original)) {
 								filtered.Add (new Dos2UnixFilter ());
 
-								((MimePart) message.Body).ContentObject.WriteTo (filtered);
+								((MimePart) message.Body).Content.WriteTo (filtered);
 								filtered.Flush ();
 							}
 

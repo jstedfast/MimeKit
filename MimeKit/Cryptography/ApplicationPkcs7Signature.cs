@@ -74,7 +74,7 @@ namespace MimeKit.Cryptography {
 		{
 			ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 			ContentTransferEncoding = ContentEncoding.Base64;
-			ContentObject = new ContentObject (stream);
+			Content = new MimeContent (stream);
 			FileName = "smime.p7s";
 		}
 

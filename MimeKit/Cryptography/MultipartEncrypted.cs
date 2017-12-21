@@ -1050,14 +1050,14 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ();
 
 			var encrypted = this[1] as MimePart;
-			if (encrypted == null || encrypted.ContentObject == null)
+			if (encrypted == null || encrypted.Content == null)
 				throw new FormatException ();
 
 			if (!encrypted.ContentType.IsMimeType ("application", "octet-stream"))
 				throw new FormatException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				encrypted.ContentObject.DecodeTo (memory, cancellationToken);
+				encrypted.Content.DecodeTo (memory, cancellationToken);
 				memory.Position = 0;
 
 				return ctx.Decrypt (memory, out signatures, cancellationToken);
@@ -1153,7 +1153,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ();
 
 			var encrypted = this[1] as MimePart;
-			if (encrypted == null || encrypted.ContentObject == null)
+			if (encrypted == null || encrypted.Content == null)
 				throw new FormatException ();
 
 			if (!encrypted.ContentType.IsMimeType ("application", "octet-stream"))
@@ -1163,7 +1163,7 @@ namespace MimeKit.Cryptography {
 				using (var memory = new MemoryBlockStream ()) {
 					var pgp = ctx as OpenPgpContext;
 
-					encrypted.ContentObject.DecodeTo (memory, cancellationToken);
+					encrypted.Content.DecodeTo (memory, cancellationToken);
 					memory.Position = 0;
 
 					if (pgp != null)

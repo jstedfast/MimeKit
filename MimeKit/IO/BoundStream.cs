@@ -39,7 +39,7 @@ namespace MimeKit.IO {
 	/// <para>Wraps an arbitrary stream, limiting I/O operations to a subset of the source stream.
 	/// If the <see cref="EndBoundary"/> is <c>-1</c>, then the end of the stream is unbound.</para>
 	/// <para>When a <see cref="MimeParser"/> is set to parse a persistent stream, it will construct
-	/// <see cref="ContentObject"/>s using bounded streams instead of loading the content into memory.</para>
+	/// <see cref="MimeContent"/>s using bounded streams instead of loading the content into memory.</para>
 	/// </remarks>
 	public class BoundStream : Stream
 	{

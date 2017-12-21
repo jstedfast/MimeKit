@@ -96,7 +96,7 @@ namespace MimeKit {
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.IContentObject"/> or
+		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.IMimeContent"/> or
 		/// <see cref="System.IO.Stream"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
@@ -106,13 +106,13 @@ namespace MimeKit {
 			if (args == null)
 				throw new ArgumentNullException (nameof (args));
 
-			IContentObject content = null;
+			IMimeContent content = null;
 
 			foreach (object obj in args) {
 				if (obj == null || TryInit (obj))
 					continue;
 
-				var co = obj as IContentObject;
+				var co = obj as IMimeContent;
 				if (co != null) {
 					if (content != null)
 						throw new ArgumentException ("ContentObject should not be specified more than once.");
@@ -127,7 +127,7 @@ namespace MimeKit {
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
 
 					// Use default as specified by ContentObject ctor when building a new MimePart.
-					content = new ContentObject (stream);
+					content = new MimeContent (stream);
 					continue;
 				}
 
@@ -135,7 +135,7 @@ namespace MimeKit {
 			}
 
 			if (content != null)
-				ContentObject = content;
+				Content = content;
 		}
 
 		/// <summary>
@@ -339,7 +339,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The MIME content.</value>
-		public IContentObject ContentObject {
+		public IMimeContent Content {
 			get; set;
 		}
 
@@ -370,7 +370,7 @@ namespace MimeKit {
 		/// Calculates the most efficient content encoding given the specified constraint.
 		/// </summary>
 		/// <remarks>
-		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
+		/// If no <see cref="Content"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
 		/// </remarks>
 		/// <returns>The most efficient content encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
@@ -393,7 +393,7 @@ namespace MimeKit {
 		/// Calculates the most efficient content encoding given the specified constraint.
 		/// </summary>
 		/// <remarks>
-		/// If no <see cref="ContentObject"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
+		/// If no <see cref="Content"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
 		/// </remarks>
 		/// <returns>The most efficient content encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
@@ -412,7 +412,7 @@ namespace MimeKit {
 		/// </exception>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ContentObject == null)
+			if (Content == null)
 				return ContentEncoding.SevenBit;
 
 			using (var measure = new MeasuringStream ()) {
@@ -420,7 +420,7 @@ namespace MimeKit {
 					var filter = new BestEncodingFilter ();
 
 					filtered.Add (filter);
-					ContentObject.DecodeTo (filtered, cancellationToken);
+					Content.DecodeTo (filtered, cancellationToken);
 					filtered.Flush ();
 
 					return filter.GetBestEncoding (constraint, maxLineLength);
@@ -437,14 +437,14 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The md5sum of the content.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="ContentObject"/> is <c>null</c>.
+		/// The <see cref="Content"/> is <c>null</c>.
 		/// </exception>
 		public string ComputeContentMd5 ()
 		{
-			if (ContentObject == null)
+			if (Content == null)
 				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
 
-			using (var stream = ContentObject.Open ()) {
+			using (var stream = Content.Open ()) {
 				byte[] checksum;
 
 				using (var filtered = new FilteredStream (stream)) {
@@ -487,7 +487,7 @@ namespace MimeKit {
 		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
 		public bool VerifyContentMd5 ()
 		{
-			if (IsNullOrWhiteSpace (md5sum) || ContentObject == null)
+			if (IsNullOrWhiteSpace (md5sum) || Content == null)
 				return false;
 
 			return md5sum == ComputeContentMd5 ();
@@ -570,12 +570,12 @@ namespace MimeKit {
 		{
 			base.WriteTo (options, stream, contentOnly, cancellationToken);
 
-			if (ContentObject == null)
+			if (Content == null)
 				return;
 
 			var cancellable = stream as ICancellableStream;
 
-			if (ContentObject.Encoding != encoding) {
+			if (Content.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
@@ -597,7 +597,7 @@ namespace MimeKit {
 					if (encoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
 
-					ContentObject.DecodeTo (filtered, cancellationToken);
+					Content.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
 
@@ -618,11 +618,11 @@ namespace MimeKit {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
 					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
-					ContentObject.WriteTo (filtered, cancellationToken);
+					Content.WriteTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
 			} else {
-				ContentObject.WriteTo (stream, cancellationToken);
+				Content.WriteTo (stream, cancellationToken);
 			}
 		}
 
@@ -652,10 +652,10 @@ namespace MimeKit {
 		{
 			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
 
-			if (ContentObject == null)
+			if (Content == null)
 				return;
 
-			if (ContentObject.Encoding != encoding) {
+			if (Content.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
@@ -671,7 +671,7 @@ namespace MimeKit {
 					if (encoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
 
-					await ContentObject.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
+					await Content.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 
@@ -686,11 +686,11 @@ namespace MimeKit {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
 					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
-					await ContentObject.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+					await Content.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 			} else {
-				await ContentObject.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
+				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			}
 		}
 #endif

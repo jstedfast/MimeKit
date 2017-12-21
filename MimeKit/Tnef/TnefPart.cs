@@ -156,7 +156,7 @@ namespace MimeKit.Tnef {
 							}
 						}
 
-						rtf.ContentObject = new ContentObject (content);
+						rtf.Content = new MimeContent (content);
 						content.Position = 0;
 
 						builder.Attachments.Add (rtf);
@@ -287,7 +287,7 @@ namespace MimeKit.Tnef {
 							content.Position = 0;
 
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-							attachment.ContentObject = new ContentObject (content);
+							attachment.Content = new MimeContent (content);
 							filter.Reset ();
 
 							builder.Attachments.Add (attachment);
@@ -356,7 +356,7 @@ namespace MimeKit.Tnef {
 					attachData = prop.ReadValueAsBytes ();
 					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
 					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
-					attachment.ContentObject = new ContentObject (new MemoryStream (attachData, false));
+					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
 					filter.Reset ();
 
 					builder.Attachments.Add (attachment);
@@ -410,11 +410,11 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <returns>A message representing the TNEF data in MIME format.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
+		/// The <see cref="MimeKit.MimePart.Content"/> property is <c>null</c>.
 		/// </exception>
 		public MimeMessage ConvertToMessage ()
 		{
-			if (ContentObject == null)
+			if (Content == null)
 				throw new InvalidOperationException ("Cannot parse TNEF data without a ContentObject.");
 
 			int codepage = 0;
@@ -424,7 +424,7 @@ namespace MimeKit.Tnef {
 					codepage = 0;
 			}
 
-			using (var reader = new TnefReader (ContentObject.Open (), codepage, TnefComplianceMode.Loose)) {
+			using (var reader = new TnefReader (Content.Open (), codepage, TnefComplianceMode.Loose)) {
 				return ExtractTnefMessage (reader);
 			}
 		}
@@ -437,7 +437,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <returns>The attachments.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="MimeKit.MimePart.ContentObject"/> property is <c>null</c>.
+		/// The <see cref="MimeKit.MimePart.Content"/> property is <c>null</c>.
 		/// </exception>
 		public IEnumerable<MimeEntity> ExtractAttachments ()
 		{

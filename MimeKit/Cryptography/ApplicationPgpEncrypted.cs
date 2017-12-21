@@ -68,7 +68,7 @@ namespace MimeKit.Cryptography {
 
 			var content = new MemoryStream (Encoding.UTF8.GetBytes ("Version: 1\n"), false);
 
-			ContentObject = new ContentObject (content);
+			Content = new MimeContent (content);
 		}
 
 		/// <summary>

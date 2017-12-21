@@ -105,7 +105,7 @@ namespace UnitTests {
 
 			Assert.AreEqual ("__Next_Part_123", multipart.Boundary);
 
-			var generic = new MimePart ("application", "octet-stream") { ContentObject = new ContentObject (new MemoryStream ()), IsAttachment = true };
+			var generic = new MimePart ("application", "octet-stream") { Content = new MimeContent (new MemoryStream ()), IsAttachment = true };
 			var plain = new TextPart ("plain") { Text = "This is some plain text." };
 
 			multipart.Add (generic);

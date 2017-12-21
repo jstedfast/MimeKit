@@ -82,7 +82,7 @@ namespace UnitTests {
 			mdn.Fields.Add ("Disposition", "manual-action/MDN-sent-manually; displayed");
 
 			using (var memory = new MemoryStream ()) {
-				mdn.ContentObject.DecodeTo (memory);
+				mdn.Content.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
 				Assert.AreEqual (expected, text);

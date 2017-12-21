@@ -467,7 +467,7 @@ namespace MimeKit {
 						part = msg.Message.Body as MimePart;
 					}
 
-					if ((part != null && part.ContentObject == null) ||
+					if ((part != null && part.Content == null) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -497,7 +497,7 @@ namespace MimeKit {
 						part = msg.Message.Body as MimePart;
 					}
 
-					if ((part != null && part.ContentObject == null) ||
+					if ((part != null && part.Content == null) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -577,7 +577,7 @@ namespace MimeKit {
 					part = msg.Message.Body as MimePart;
 				}
 
-				if ((part != null && part.ContentObject == null) ||
+				if ((part != null && part.Content == null) ||
 				    (multi != null && !multi.WriteEndBoundary))
 					continue;
 

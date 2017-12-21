@@ -314,7 +314,7 @@ namespace UnitTests
 			var expected = File.ReadAllBytes (path);
 
 			var part = new MimePart ("image", "jpeg") {
-				ContentObject = new ContentObject (new MemoryStream (expected, false)),
+				Content = new MimeContent (new MemoryStream (expected, false)),
 				ContentTransferEncoding = ContentEncoding.Base64,
 				FileName = "girl.jpg"
 			};
@@ -338,7 +338,7 @@ namespace UnitTests
 
 			// verify decoded content
 			using (var output = new MemoryStream ()) {
-				part.ContentObject.DecodeTo (output);
+				part.Content.DecodeTo (output);
 				output.Position = 0;
 
 				var actual = output.ToArray ();
@@ -356,7 +356,7 @@ namespace UnitTests
 			var expected = File.ReadAllBytes (path);
 
 			var part = new MimePart ("image", "jpeg") {
-				ContentObject = new ContentObject (new MemoryStream (expected, false)),
+				Content = new MimeContent (new MemoryStream (expected, false)),
 				ContentTransferEncoding = ContentEncoding.Base64,
 				FileName = "girl.jpg"
 			};
@@ -380,7 +380,7 @@ namespace UnitTests
 
 			// verify decoded content
 			using (var output = new MemoryStream ()) {
-				await part.ContentObject.DecodeToAsync (output);
+				await part.Content.DecodeToAsync (output);
 				output.Position = 0;
 
 				var actual = output.ToArray ();
@@ -409,7 +409,7 @@ namespace UnitTests
 				stream.Position = 0;
 
 				var multipart = (Multipart) MimeEntity.Load (stream);
-				using (var input = ((MimePart) multipart[0]).ContentObject.Open ()) {
+				using (var input = ((MimePart) multipart[0]).Content.Open ()) {
 					var buffer = new byte[1024];
 					int n;
 
@@ -440,7 +440,7 @@ namespace UnitTests
 				stream.Position = 0;
 
 				var multipart = (Multipart) await MimeEntity.LoadAsync (stream);
-				using (var input = ((MimePart) multipart[0]).ContentObject.Open ()) {
+				using (var input = ((MimePart) multipart[0]).Content.Open ()) {
 					var buffer = new byte[1024];
 					int n;
 

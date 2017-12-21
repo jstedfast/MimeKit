@@ -267,7 +267,7 @@ namespace MimeKit {
 			}
 
 			if (!results.IsEmpty)
-				part.ContentObject = new ContentObject (content, part.ContentTransferEncoding);
+				part.Content = new MimeContent (content, part.ContentTransferEncoding);
 
 			return results.Boundary;
 		}

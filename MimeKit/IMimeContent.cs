@@ -1,5 +1,5 @@
 ﻿//
-// IContentObject.cs
+// IMimeContent.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -26,21 +26,19 @@
 
 using System.IO;
 using System.Threading;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 
 namespace MimeKit {
 	/// <summary>
 	/// An interface for content stream encapsulation as used by <see cref="MimeKit.MimePart"/>.
 	/// </summary>
     /// <remarks>
-    /// Implemented by <see cref="ContentObject"/>.
+    /// Implemented by <see cref="MimeContent"/>.
     /// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 	/// </example>
-	public interface IContentObject
+	public interface IMimeContent
 	{
 		/// <summary>
 		/// Gets the content encoding.
@@ -96,7 +94,6 @@ namespace MimeKit {
 		/// </example>
 		void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously decodes the content stream into another stream.
 		/// </summary>
@@ -120,7 +117,6 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
-#endif
 
 		/// <summary>
 		/// Copies the content stream to the specified output stream.
@@ -144,7 +140,6 @@ namespace MimeKit {
 		/// </exception>
 		void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously copies the content stream to the specified output stream.
 		/// </summary>
@@ -166,6 +161,5 @@ namespace MimeKit {
 		/// An I/O error occurred.
 		/// </exception>
 		Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
-#endif
 	}
 }

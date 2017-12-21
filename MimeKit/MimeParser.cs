@@ -158,7 +158,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
@@ -181,7 +181,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
@@ -203,7 +203,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
@@ -228,7 +228,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
@@ -303,7 +303,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
@@ -361,7 +361,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
@@ -387,7 +387,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
@@ -411,7 +411,7 @@ namespace MimeKit {
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="ContentObject"/> to read the content.</para>
+		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
@@ -1216,7 +1216,7 @@ namespace MimeKit {
 			}
 
 			if (!empty)
-				part.ContentObject = new ContentObject (content, part.ContentTransferEncoding);
+				part.Content = new MimeContent (content, part.ContentTransferEncoding);
 
 			return found;
 		}

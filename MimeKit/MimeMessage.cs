@@ -3495,7 +3495,7 @@ namespace MimeKit {
 			item.ContentStream.CopyTo (stream);
 			stream.Position = 0;
 
-			part.ContentObject = new ContentObject (stream);
+			part.Content = new MimeContent (stream);
 
 			return part;
 		}

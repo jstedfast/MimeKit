@@ -278,13 +278,13 @@ namespace MimeKit {
 
 			var part = this[index] as MimePart;
 
-			if (part == null || part.ContentObject == null)
+			if (part == null || part.Content == null)
 				throw new FileNotFoundException ();
 
 			mimeType = part.ContentType.MimeType;
 			charset = part.ContentType.Charset;
 
-			return part.ContentObject.Open ();
+			return part.Content.Open ();
 		}
 
 		/// <summary>
@@ -313,10 +313,10 @@ namespace MimeKit {
 
 			var part = this[index] as MimePart;
 
-			if (part == null || part.ContentObject == null)
+			if (part == null || part.Content == null)
 				throw new FileNotFoundException ();
 
-			return part.ContentObject.Open ();
+			return part.Content.Open ();
 		}
 	}
 }

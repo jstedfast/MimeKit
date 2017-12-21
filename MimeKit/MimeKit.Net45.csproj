@@ -217,7 +217,6 @@
     <Compile Include="BodyBuilder.cs" />
     <Compile Include="ContentDisposition.cs" />
     <Compile Include="ContentEncoding.cs" />
-    <Compile Include="ContentObject.cs" />
     <Compile Include="ContentType.cs" />
     <Compile Include="DomainList.cs" />
     <Compile Include="EncodingConstraint.cs" />
@@ -228,7 +227,7 @@
     <Compile Include="HeaderList.cs" />
     <Compile Include="HeaderListChangedEventArgs.cs" />
     <Compile Include="HeaderListCollection.cs" />
-    <Compile Include="IContentObject.cs" />
+    <Compile Include="IMimeContent.cs" />
     <Compile Include="InternetAddress.cs" />
     <Compile Include="InternetAddressList.cs" />
     <Compile Include="MailboxAddress.cs" />
@@ -239,6 +238,7 @@
     <Compile Include="MessagePart.cs" />
     <Compile Include="MessagePartial.cs" />
     <Compile Include="MessagePriority.cs" />
+    <Compile Include="MimeContent.cs" />
     <Compile Include="MimeEntity.cs" />
     <Compile Include="MimeEntityConstructorArgs.cs" />
     <Compile Include="MimeFormat.cs" />

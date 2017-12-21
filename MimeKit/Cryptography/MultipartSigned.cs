@@ -420,7 +420,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ("The multipart/signed part did not contain the expected children.");
 
 			var signature = this[1] as MimePart;
-			if (signature == null || signature.ContentObject == null)
+			if (signature == null || signature.Content == null)
 				throw new FormatException ("The signature part could not be found.");
 
 			var ctype = signature.ContentType;
@@ -429,7 +429,7 @@ namespace MimeKit.Cryptography {
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
 			using (var signatureData = new MemoryBlockStream ()) {
-				signature.ContentObject.DecodeTo (signatureData, cancellationToken);
+				signature.Content.DecodeTo (signatureData, cancellationToken);
 				signatureData.Position = 0;
 
 				using (var cleartext = new MemoryBlockStream ()) {
@@ -485,7 +485,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ("The multipart/signed part did not contain the expected children.");
 
 			var signature = this[1] as MimePart;
-			if (signature == null || signature.ContentObject == null)
+			if (signature == null || signature.Content == null)
 				throw new FormatException ("The signature part could not be found.");
 
 			var ctype = signature.ContentType;
@@ -494,7 +494,7 @@ namespace MimeKit.Cryptography {
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
 			using (var signatureData = new MemoryBlockStream ()) {
-				await signature.ContentObject.DecodeToAsync (signatureData, cancellationToken).ConfigureAwait (false);
+				await signature.Content.DecodeToAsync (signatureData, cancellationToken).ConfigureAwait (false);
 				signatureData.Position = 0;
 
 				using (var cleartext = new MemoryBlockStream ()) {

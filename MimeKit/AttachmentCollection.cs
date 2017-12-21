@@ -142,7 +142,7 @@ namespace MimeKit {
 			content.Position = 0;
 
 			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-			attachment.ContentObject = new ContentObject (content);
+			attachment.Content = new MimeContent (content);
 		}
 
 		static ContentType GetMimeType (string fileName)

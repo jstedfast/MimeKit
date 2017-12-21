@@ -173,7 +173,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out signatures));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out entity));
 
-				entity = new MimePart { ContentObject = new ContentObject (stream) };
+				entity = new MimePart { Content = new MimeContent (stream) };
 
 				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((SecureMimeContext) null, signer, entity));
 				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (CmsSigner) null, entity));
@@ -555,7 +555,7 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
 				using (var stream = new MemoryStream ()) {
-					ctx.DecryptTo (encrypted.ContentObject.Open (), stream);
+					ctx.DecryptTo (encrypted.Content.Open (), stream);
 					stream.Position = 0;
 
 					var decrypted = MimeEntity.Load (stream);

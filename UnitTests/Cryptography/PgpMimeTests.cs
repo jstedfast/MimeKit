@@ -800,21 +800,21 @@ namespace UnitTests.Cryptography {
 				using (var stream = new MemoryStream ()) {
 					ctx.Export (new[] { self }, stream, true);
 
-					Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
+					Assert.AreEqual (exported.Content.Stream.Length, stream.Length);
 				}
 
 				foreach (var keyring in ctx.EnumeratePublicKeyRings (self)) {
 					using (var stream = new MemoryStream ()) {
 						ctx.Export (new[] { self }, stream, true);
 
-						Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
+						Assert.AreEqual (exported.Content.Stream.Length, stream.Length);
 					}
 				}
 
 				using (var stream = new MemoryStream ()) {
 					ctx.Export (keys, stream, true);
 
-					Assert.AreEqual (exported.ContentObject.Stream.Length, stream.Length);
+					Assert.AreEqual (exported.Content.Stream.Length, stream.Length);
 				}
 			}
 		}

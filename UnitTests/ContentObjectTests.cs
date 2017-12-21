@@ -41,9 +41,9 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var content = new ContentObject (new MemoryStream ());
+			var content = new MimeContent (new MemoryStream ());
 
-			Assert.Throws<ArgumentNullException> (() => new ContentObject (null));
+			Assert.Throws<ArgumentNullException> (() => new MimeContent (null));
 			Assert.Throws<ArgumentNullException> (() => content.WriteTo (null));
 			Assert.Throws<ArgumentNullException> (async () => await content.WriteToAsync (null));
 			Assert.Throws<ArgumentNullException> (() => content.DecodeTo (null));
@@ -53,7 +53,7 @@ namespace UnitTests {
 		[Test]
 		public void TestCancellation ()
 		{
-			var content = new ContentObject (new MemoryStream (new byte[1024], false));
+			var content = new MimeContent (new MemoryStream (new byte[1024], false));
 
 			using (var source = new CancellationTokenSource ()) {
 				source.Cancel ();
