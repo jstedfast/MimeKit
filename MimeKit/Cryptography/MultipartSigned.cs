@@ -25,6 +25,8 @@
 //
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -124,6 +126,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
@@ -292,9 +297,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
 		{
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature")) {
+			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature"))
 				return Create (ctx, signer, digestAlgo, entity);
-			}
 		}
 
 		/// <summary>
@@ -397,9 +401,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
 		{
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature"))
 				return Create (ctx, signer, entity);
-			}
 		}
 
 		/// <summary>
@@ -426,13 +429,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verifies the multipart/signed part.
+		/// Verify the multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// Verifies the multipart/signed part using the supplied cryptography context.
 		/// </remarks>
 		/// <returns>A signer info collection.</returns>
 		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -442,10 +446,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="ctx"/> does not support verifying the signature part.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (CryptographyContext ctx)
+		public DigitalSignatureCollection Verify (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -470,7 +477,7 @@ namespace MimeKit.Cryptography {
 				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
 
 			using (var signatureData = new MemoryBlockStream ()) {
-				signature.ContentObject.DecodeTo (signatureData);
+				signature.ContentObject.DecodeTo (signatureData, cancellationToken);
 				signatureData.Position = 0;
 
 				using (var cleartext = new MemoryBlockStream ()) {
@@ -481,18 +488,84 @@ namespace MimeKit.Cryptography {
 					this[0].WriteTo (options, cleartext);
 					cleartext.Position = 0;
 
-					return ctx.Verify (cleartext, signatureData);
+					return ctx.Verify (cleartext, signatureData, cancellationToken);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Verifies the multipart/signed part.
+		/// Verify the multipart/signed part.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the multipart/signed part using the supplied cryptography context.
+		/// </remarks>
+		/// <returns>A signer info collection.</returns>
+		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The multipart is malformed in some way.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <paramref name="ctx"/> does not support verifying the signature part.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public async Task<DigitalSignatureCollection> VerifyAsync (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			var protocol = ContentType.Parameters["protocol"];
+			if (string.IsNullOrEmpty (protocol))
+				throw new FormatException ("The multipart/signed part did not specify a protocol.");
+
+			if (!ctx.Supports (protocol.Trim ()))
+				throw new NotSupportedException ("The specified cryptography context does not support the signature protocol.");
+
+			if (Count < 2)
+				throw new FormatException ("The multipart/signed part did not contain the expected children.");
+
+			var signature = this[1] as MimePart;
+			if (signature == null || signature.ContentObject == null)
+				throw new FormatException ("The signature part could not be found.");
+
+			var ctype = signature.ContentType;
+			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
+			if (!ctx.Supports (value))
+				throw new NotSupportedException (string.Format ("The specified cryptography context does not support '{0}'.", value));
+
+			using (var signatureData = new MemoryBlockStream ()) {
+				await signature.ContentObject.DecodeToAsync (signatureData, cancellationToken).ConfigureAwait (false);
+				signatureData.Position = 0;
+
+				using (var cleartext = new MemoryBlockStream ()) {
+					// Note: see rfc2015 or rfc3156, section 5.1
+					var options = FormatOptions.CloneDefault ();
+					options.NewLineFormat = NewLineFormat.Dos;
+
+					await this[0].WriteToAsync (options, cleartext, cancellationToken);
+					cleartext.Position = 0;
+
+					return await ctx.VerifyAsync (cleartext, signatureData, cancellationToken).ConfigureAwait (false);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Verify the multipart/signed part.
 		/// </summary>
 		/// <remarks>
 		/// Verifies the multipart/signed part using the default cryptography context.
 		/// </remarks>
 		/// <returns>A signer info collection.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
 		/// <para>-or-</para>
@@ -501,10 +574,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for verifying the signature could not be found.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify ()
+		public DigitalSignatureCollection Verify (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			var protocol = ContentType.Parameters["protocol"];
 			if (string.IsNullOrEmpty (protocol))
@@ -512,9 +588,42 @@ namespace MimeKit.Cryptography {
 
 			protocol = protocol.Trim ().ToLowerInvariant ();
 
-			using (var ctx = CryptographyContext.Create (protocol)) {
-				return Verify (ctx);
-			}
+			using (var ctx = CryptographyContext.Create (protocol))
+				return Verify (ctx, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously verify the multipart/signed part.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the multipart/signed part using the default cryptography context.
+		/// </remarks>
+		/// <returns>A signer info collection.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.FormatException">
+		/// <para>The <c>protocol</c> parameter was not specified.</para>
+		/// <para>-or-</para>
+		/// <para>The multipart is malformed in some way.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A cryptography context suitable for verifying the signature could not be found.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default (CancellationToken))
+		{
+			var protocol = ContentType.Parameters["protocol"];
+			if (string.IsNullOrEmpty (protocol))
+				throw new FormatException ("The multipart/signed part did not specify a protocol.");
+
+			protocol = protocol.Trim ().ToLowerInvariant ();
+
+			using (var ctx = CryptographyContext.Create (protocol))
+				return VerifyAsync (ctx, cancellationToken);
 		}
 	}
 }

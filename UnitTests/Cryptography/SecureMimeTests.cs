@@ -27,6 +27,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
@@ -323,6 +325,80 @@ namespace UnitTests.Cryptography {
 				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
 				var signatures = multipart.Verify (ctx);
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+
+				var signature = signatures[0];
+
+				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
+				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
+				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						// AppVeyor gets an exception about the root certificate not being trusted
+						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
+
+		[Test]
+		public virtual async Task TestSecureMimeSigningAsync ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var message = new MimeMessage { Subject = "Test of signing with S/MIME" };
+
+			message.From.Add (self);
+			message.Body = body;
+
+			using (var ctx = CreateContext ()) {
+				Assert.IsTrue (ctx.CanSign (self));
+
+				message.Sign (ctx);
+
+				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
+
+				var multipart = (MultipartSigned) message.Body;
+
+				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.AreEqual (ctx.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
+
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+
+				var signatures = await multipart.VerifyAsync (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 
 				var signature = signatures[0];
@@ -806,6 +882,15 @@ namespace UnitTests.Cryptography {
 				return;
 
 			base.TestSecureMimeSigning ();
+		}
+
+		[Test]
+		public override async Task TestSecureMimeSigningAsync ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			await base.TestSecureMimeSigningAsync ();
 		}
 
 		[Test]

@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.X509;
@@ -557,13 +559,17 @@ namespace MimeKit.Cryptography {
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="entity">The extracted MIME entity.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The extracted content could not be parsed as a MIME entity.
 		/// </exception>
-		public abstract DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity);
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public abstract DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
 		/// Verify the digital signatures of the specified signed data and extract the original content.
@@ -574,13 +580,17 @@ namespace MimeKit.Cryptography {
 		/// <returns>The extracted content stream.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="signatures">The digital signatures.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public abstract Stream Verify (Stream signedData, out DigitalSignatureCollection signatures);
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public abstract Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
@@ -606,13 +616,13 @@ namespace MimeKit.Cryptography {
 		/// Decrypts the specified encryptedData to an output stream.
 		/// </remarks>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="output">The output stream.</param>
+		/// <param name="decryptedData">The stream to write the decrypted data to.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
 		/// </exception>
-		public abstract void DecryptTo (Stream encryptedData, Stream output);
+		public abstract void DecryptTo (Stream encryptedData, Stream decryptedData);
 
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.

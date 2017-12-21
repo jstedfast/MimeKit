@@ -27,6 +27,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -215,6 +217,53 @@ namespace UnitTests.Cryptography {
 				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
 
 				var signatures = multipart.Verify (ctx);
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async void TestMimeMessageSignAsync ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+
+			using (var ctx = new DummyOpenPgpContext ()) {
+				// throws because no Body is set
+				Assert.Throws<InvalidOperationException> (() => message.Sign (ctx));
+
+				message.Body = body;
+
+				// throws because no sender is set
+				Assert.Throws<InvalidOperationException> (() => message.Sign (ctx));
+
+				message.From.Add (self);
+
+				// ok, now we can sign
+				message.Sign (ctx);
+
+				Assert.IsInstanceOf<MultipartSigned> (message.Body);
+
+				var multipart = (MultipartSigned) message.Body;
+
+				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.AreEqual (ctx.SignatureProtocol, protocol, "The multipart/signed protocol does not match.");
+
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+
+				var signatures = await multipart.VerifyAsync (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 				foreach (var signature in signatures) {
 					try {
@@ -877,8 +926,13 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.GenerateKeyPair (mailboxes[0], null));
 				Assert.Throws<ArgumentException> (() => ctx.GenerateKeyPair (mailboxes[0], "password", DateTime.Now));
 
-				// GetDecryptedStream
-				Assert.Throws<ArgumentNullException> (() => ctx.GetDecryptedStream (null), "GetDecryptedStream");
+				// DecryptTo
+				Assert.Throws<ArgumentNullException> (() => ctx.DecryptTo (null, stream), "DecryptTo");
+				Assert.Throws<ArgumentNullException> (() => ctx.DecryptTo (stream, null), "DecryptTo");
+
+				// DecryptToAsync
+				Assert.Throws<ArgumentNullException> (async () => await ctx.DecryptToAsync (null, stream), "DecryptToAsync");
+				Assert.Throws<ArgumentNullException> (async () => await ctx.DecryptToAsync (stream, null), "DecryptToAsync");
 
 				// GetDigestAlgorithmName
 				Assert.Throws<ArgumentOutOfRangeException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.None), "GetDigestAlgorithmName");
@@ -926,6 +980,9 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, stream), "Verify");
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null), "Verify");
 
+				// Verify
+				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (null, stream), "VerifyAsync");
+				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (stream, null), "VerifyAsync");
 
 				// MultipartEncrypted
 
@@ -1017,6 +1074,25 @@ namespace UnitTests.Cryptography {
 
 				Assert.Throws<ArgumentNullException> (() => encrypted.Decrypt (null));
 				Assert.Throws<ArgumentNullException> (() => encrypted.Decrypt (null, out signatures));
+
+				// MultipartSigned
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (null, mailboxes[0], DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, mailboxes[0], DigestAlgorithm.Sha1, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (null, key, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, key, DigestAlgorithm.Sha1, null));
+
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (key, DigestAlgorithm.Sha1, null));
+
+				var signed = MultipartSigned.Create (key, DigestAlgorithm.Sha1, entity);
+
+				Assert.Throws<ArgumentNullException> (() => signed.Accept (null));
+
+				Assert.Throws<ArgumentNullException> (() => signed.Verify (null));
+				Assert.Throws<ArgumentNullException> (async () => await signed.VerifyAsync (null));
 			}
 		}
 

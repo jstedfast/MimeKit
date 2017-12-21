@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Cms;
@@ -543,7 +545,8 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The digital signatures.</returns>
 		/// <param name="parser">The CMS signed data parser.</param>
-		protected DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser)
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser, CancellationToken cancellationToken)
 		{
 			var certificates = parser.GetCertificates ("Collection");
 			var signatures = new List<IDigitalSignature> ();
@@ -627,6 +630,7 @@ namespace MimeKit.Cryptography
 		/// <returns>A list of the digital signatures.</returns>
 		/// <param name="content">The content.</param>
 		/// <param name="signatureData">The detached signature data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -635,7 +639,10 @@ namespace MimeKit.Cryptography
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -648,7 +655,33 @@ namespace MimeKit.Cryptography
 
 			signed.Drain ();
 
-			return GetDigitalSignatures (parser);
+			return GetDigitalSignatures (parser, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously verify the specified content using the detached signature data.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the specified content using the detached signature data.
+		/// </remarks>
+		/// <returns>A list of the digital signatures.</returns>
+		/// <param name="content">The content.</param>
+		/// <param name="signatureData">The detached signature data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public override Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Task.FromResult (Verify (content, signatureData, cancellationToken));
 		}
 
 		/// <summary>
@@ -660,6 +693,7 @@ namespace MimeKit.Cryptography
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="entity">The extracted MIME entity.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
@@ -669,7 +703,10 @@ namespace MimeKit.Cryptography
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
@@ -677,10 +714,10 @@ namespace MimeKit.Cryptography
 			var parser = new CmsSignedDataParser (signedData);
 			var signed = parser.GetSignedContent ();
 
-			entity = MimeEntity.Load (signed.ContentStream);
+			entity = MimeEntity.Load (signed.ContentStream, cancellationToken);
 			signed.Drain ();
 
-			return GetDigitalSignatures (parser);
+			return GetDigitalSignatures (parser, cancellationToken);
 		}
 
 		/// <summary>
@@ -692,13 +729,17 @@ namespace MimeKit.Cryptography
 		/// <returns>The extracted content stream.</returns>
 		/// <param name="signedData">The signed data.</param>
 		/// <param name="signatures">The digital signatures.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
@@ -711,7 +752,7 @@ namespace MimeKit.Cryptography
 			content.Position = 0;
 			signed.Drain ();
 
-			signatures = GetDigitalSignatures (parser);
+			signatures = GetDigitalSignatures (parser, cancellationToken);
 
 			return content;
 		}
@@ -910,13 +951,17 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
@@ -933,7 +978,7 @@ namespace MimeKit.Cryptography
 				var content = recipient.GetContent (key);
 				var memory = new MemoryStream (content, false);
 
-				return MimeEntity.Load (memory, true);
+				return MimeEntity.Load (memory, true, cancellationToken);
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");

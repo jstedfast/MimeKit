@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 
 using MimeKit.IO;
@@ -159,10 +160,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decompresses the content.
+		/// Decompress the compressed-data.
 		/// </summary>
 		/// <remarks>
-		/// Decompresses the content using the specified <see cref="SecureMimeContext"/>.
+		/// Decompresses the compressed-data using the specified <see cref="SecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
@@ -192,10 +193,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decompresses the content.
+		/// Decompress the compressed-data.
 		/// </summary>
 		/// <remarks>
-		/// Decompresses the content using the default <see cref="SecureMimeContext"/>.
+		/// Decompresses the compressed-data using the default <see cref="SecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <exception cref="System.InvalidOperationException">
@@ -209,29 +210,32 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.CompressedData)
 				throw new InvalidOperationException ();
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return Decompress (ctx);
-			}
 		}
 
 		/// <summary>
-		/// Decrypts the content.
+		/// Decrypt the enveloped-data.
 		/// </summary>
 		/// <remarks>
-		/// Decrypts the content using the specified <see cref="SecureMimeContext"/>.
+		/// Decrypts the enveloped-data using the specified <see cref="SecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decrypt (SecureMimeContext ctx)
+		public MimeEntity Decrypt (SecureMimeContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -243,35 +247,38 @@ namespace MimeKit.Cryptography {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Decrypt (memory);
+				return ctx.Decrypt (memory, cancellationToken);
 			}
 		}
 
 		/// <summary>
-		/// Decrypts the content.
+		/// Decrypt the enveloped-data.
 		/// </summary>
 		/// <remarks>
-		/// Decrypts the content using the default <see cref="SecureMimeContext"/>.
+		/// Decrypts the enveloped-data using the default <see cref="SecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public MimeEntity Decrypt ()
+		public MimeEntity Decrypt (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
-				return Decrypt (ctx);
-			}
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
+				return Decrypt (ctx, cancellationToken);
 		}
 
 		/// <summary>
-		/// Imports the certificates contained in the content.
+		/// Import the certificates contained in the application/pkcs7-mime content.
 		/// </summary>
 		/// <remarks>
-		/// Imports the certificates contained in the content.
+		/// Imports the certificates contained in the application/pkcs7-mime content.
 		/// </remarks>
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -300,7 +307,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Verifies the signed-data and returns the unencapsulated <see cref="MimeKit.MimeEntity"/>.
+		/// Verify the signed-data and return the unencapsulated <see cref="MimeKit.MimeEntity"/>.
 		/// </summary>
 		/// <remarks>
 		/// Verifies the signed-data and returns the unencapsulated <see cref="MimeKit.MimeEntity"/>.
@@ -308,6 +315,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="ctx">The S/MIME context to use for verifying the signature.</param>
 		/// <param name="entity">The unencapsulated entity.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -317,10 +325,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// The extracted content could not be parsed as a MIME entity.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity)
+		public DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -332,7 +343,7 @@ namespace MimeKit.Cryptography {
 				ContentObject.DecodeTo (memory);
 				memory.Position = 0;
 
-				return ctx.Verify (memory, out entity);
+				return ctx.Verify (memory, out entity, cancellationToken);
 			}
 		}
 
@@ -345,17 +356,20 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The list of digital signatures.</returns>
 		/// <param name="entity">The unencapsulated entity.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (out MimeEntity entity)
+		public DigitalSignatureCollection Verify (out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
-				return Verify (ctx, out entity);
-			}
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
+				return Verify (ctx, out entity, cancellationToken);
 		}
 
 		/// <summary>
@@ -417,9 +431,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return Compress (ctx, entity);
-			}
 		}
 
 		/// <summary>
@@ -489,9 +502,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return Encrypt (ctx, recipients, entity);
-			}
 		}
 
 		/// <summary>
@@ -573,9 +585,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return Encrypt (ctx, recipients, entity);
-			}
 		}
 
 		/// <summary>
@@ -653,9 +664,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return Sign (ctx, signer, entity);
-			}
 		}
 
 		/// <summary>
@@ -742,9 +752,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return Sign (ctx, signer, digestAlgo, entity);
-			}
 		}
 
 		/// <summary>
@@ -820,9 +829,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return SignAndEncrypt (ctx, signer, recipients, entity);
-			}
 		}
 
 		/// <summary>
@@ -910,9 +918,8 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime")) {
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
 				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity);
-			}
 		}
 	}
 }

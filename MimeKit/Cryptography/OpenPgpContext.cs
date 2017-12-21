@@ -26,15 +26,13 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Linq;
 using System.Text;
-#if USE_HTTP_CLIENT
 using System.Net.Http;
-#else
-using System.Net;
-#endif
 using System.Threading;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Bcpg;
@@ -85,9 +83,7 @@ namespace MimeKit.Cryptography {
 		};
 
 		EncryptionAlgorithm defaultAlgorithm;
-#if USE_HTTP_CLIENT
 		HttpClient client;
-#endif
 		Uri keyServer;
 
 		/// <summary>
@@ -111,9 +107,7 @@ namespace MimeKit.Cryptography {
 
 			defaultAlgorithm = EncryptionAlgorithm.Cast5;
 
-#if USE_HTTP_CLIENT
 			client = new HttpClient ();
-#endif
 		}
 
 #if PORTABLE
@@ -517,7 +511,7 @@ namespace MimeKit.Cryptography {
 			return false;
 		}
 
-		PgpPublicKeyRing RetrievePublicKeyRing (long keyId, CancellationToken cancellationToken)
+		async Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
 		{
 			var scheme = keyServer.Scheme.ToLowerInvariant ();
 			var uri = new UriBuilder ();
@@ -539,16 +533,17 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
 
-#if USE_HTTP_CLIENT
-					using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ())
-						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
-#else
-					var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
-					using (var response = request.GetResponse ()) {
-						var content = response.GetResponseStream ();
-						content.CopyTo (filtered, 4096);
+					if (doAsync) {
+						using (var response = await client.GetAsync (uri.ToString (), cancellationToken))
+							await response.Content.CopyToAsync (stream);
+					} else {
+						var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
+						using (var response = request.GetResponse ()) {
+							var content = response.GetResponseStream ();
+							content.CopyTo (filtered, 4096);
+						}
 					}
-#endif
+
 					filtered.Flush ();
 				}
 
@@ -564,36 +559,39 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		bool TryGetPublicKeyRing (long keyId, out PgpPublicKeyRing keyring, out PgpPublicKey pubkey, CancellationToken cancellationToken)
+		class KeyRetrievalResults
+		{
+			public readonly PgpPublicKeyRing KeyRing;
+			public readonly PgpPublicKey Key;
+
+			public KeyRetrievalResults (PgpPublicKeyRing keyring, PgpPublicKey pubkey)
+			{
+				KeyRing = keyring;
+				Key = pubkey;
+			}
+		}
+
+		async Task<KeyRetrievalResults> GetPublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
 		{
 			foreach (PgpPublicKeyRing ring in PublicKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
-					if (key.KeyId == keyId) {
-						keyring = ring;
-						pubkey = key;
-						return true;
-					}
+					if (key.KeyId == keyId)
+						return new KeyRetrievalResults (ring, key);
 				}
 			}
 
 			if (AutoKeyRetrieve && IsValidKeyServer) {
 				try {
-					if ((keyring = RetrievePublicKeyRing (keyId, cancellationToken)) != null)
-						pubkey = keyring.GetPublicKey (keyId);
-					else
-						pubkey = null;
+					var keyring = await RetrievePublicKeyRingAsync (keyId, doAsync, cancellationToken).ConfigureAwait (false);
+
+					return new KeyRetrievalResults (keyring, keyring.GetPublicKey (keyId));
 				} catch (OperationCanceledException) {
 					throw;
 				} catch {
-					keyring = null;
-					pubkey = null;
 				}
-			} else {
-				keyring = null;
-				pubkey = null;
 			}
 
-			return false;
+			return new KeyRetrievalResults (null, null);
 		}
 
 		/// <summary>
@@ -1465,7 +1463,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		DigitalSignatureCollection GetDigitalSignatures (PgpSignatureList signatureList, Stream content, CancellationToken cancellationToken)
+		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (PgpSignatureList signatureList, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			var signatures = new List<IDigitalSignature> ();
 			var buf = new byte[4096];
@@ -1473,19 +1471,21 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < signatureList.Count; i++) {
 				long keyId = signatureList[i].KeyId;
-				PgpPublicKeyRing keyring = null;
-				PgpPublicKey pubkey = null;
+				KeyRetrievalResults results;
 
-				TryGetPublicKeyRing (keyId, out keyring, out pubkey, cancellationToken);
+				if (doAsync)
+					results = await GetPublicKeyRingAsync (keyId, doAsync, cancellationToken).ConfigureAwait (false);
+				else
+					results = GetPublicKeyRingAsync (keyId, doAsync, cancellationToken).GetAwaiter ().GetResult (); 
 
-				var signature = new OpenPgpDigitalSignature (keyring, pubkey, signatureList[i]) {
+				var signature = new OpenPgpDigitalSignature (results.KeyRing, results.Key, signatureList[i]) {
 					PublicKeyAlgorithm = GetPublicKeyAlgorithm (signatureList[i].KeyAlgorithm),
 					DigestAlgorithm = GetDigestAlgorithm (signatureList[i].HashAlgorithm),
 					CreationDate = signatureList[i].CreationTime,
 				};
 
-				if (pubkey != null)
-					signatureList[i].InitVerify (pubkey);
+				if (results.Key != null)
+					signatureList[i].InitVerify (results.Key);
 
 				signatures.Add (signature);
 			}
@@ -1502,24 +1502,7 @@ namespace MimeKit.Cryptography {
 			return new DigitalSignatureCollection (signatures);
 		}
 
-		/// <summary>
-		/// Verifies the specified content using the detached signatureData.
-		/// </summary>
-		/// <remarks>
-		/// Verifies the specified content using the detached signatureData.
-		/// </remarks>
-		/// <returns>A list of digital signatures.</returns>
-		/// <param name="content">The content.</param>
-		/// <param name="signatureData">The signature data.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// <paramref name="signatureData"/> does not contain valid PGP signature data.
-		/// </exception>
-		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData)
+		Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1543,8 +1526,60 @@ namespace MimeKit.Cryptography {
 
 				signatureList = (PgpSignatureList) data;
 
-				return GetDigitalSignatures (signatureList, content, CancellationToken.None);
+				return GetDigitalSignaturesAsync (signatureList, content, doAsync, cancellationToken);
 			}
+		}
+
+		/// <summary>
+		/// Verify the specified content using the detached signatureData.
+		/// </summary>
+		/// <remarks>
+		/// <para>Verifies the specified content using the detached signatureData.</para>
+		/// <para>If any of the signatures were made with an unrecognized key and <see cref="AutoKeyRetrieve"/> is enabled,
+		/// an attempt will be made to retrieve said key(s). The <paramref name="cancellationToken"/> can be used to cancel
+		/// key retrieval.</para>
+		/// </remarks>
+		/// <returns>A list of digital signatures.</returns>
+		/// <param name="content">The content.</param>
+		/// <param name="signatureData">The signature data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="signatureData"/> does not contain valid PGP signature data.
+		/// </exception>
+		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return VerifyAsync (content, signatureData, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously verify the specified content using the detached signatureData.
+		/// </summary>
+		/// <remarks>
+		/// <para>Verifies the specified content using the detached signatureData.</para>
+		/// <para>If any of the signatures were made with an unrecognized key and <see cref="AutoKeyRetrieve"/> is enabled,
+		/// an attempt will be made to retrieve said key(s). The <paramref name="cancellationToken"/> can be used to cancel
+		/// key retrieval.</para>
+		/// </remarks>
+		/// <returns>A list of digital signatures.</returns>
+		/// <param name="content">The content.</param>
+		/// <param name="signatureData">The signature data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// <paramref name="signatureData"/> does not contain valid PGP signature data.
+		/// </exception>
+		public override Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return VerifyAsync (content, signatureData, true, cancellationToken);
 		}
 
 		static Stream Compress (Stream content)
@@ -2040,34 +2075,13 @@ namespace MimeKit.Cryptography {
 			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content);
 		}
 
-		/// <summary>
-		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
-		/// </summary>
-		/// <remarks>
-		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
-		/// </remarks>
-		/// <returns>The decrypted stream.</returns>
-		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encryptedData"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The private key could not be found to decrypt the stream.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
-		/// </exception>
-		/// <exception cref="System.UnauthorizedAccessException">
-		/// 3 bad attempts were made to unlock the secret key.
-		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
-		/// An OpenPGP error occurred.
-		/// </exception>
-		public Stream GetDecryptedStream (Stream encryptedData, out DigitalSignatureCollection signatures)
+		async Task<DigitalSignatureCollection> DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (decryptedData == null)
+				throw new ArgumentNullException (nameof (decryptedData));
 
 			using (var armored = new ArmoredInputStream (encryptedData)) {
 				var factory = new PgpObjectFactory (armored);
@@ -2111,9 +2125,11 @@ namespace MimeKit.Cryptography {
 
 				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (secret)));
 				List<IDigitalSignature> onepassList = null;
+				DigitalSignatureCollection signatures;
 				PgpSignatureList signatureList = null;
 				PgpCompressedData compressed = null;
-				var memory = new MemoryBlockStream ();
+				var position = decryptedData.Position;
+				long nwritten = 0;
 
 				obj = factory.NextPgpObject ();
 				while (obj != null) {
@@ -2124,25 +2140,25 @@ namespace MimeKit.Cryptography {
 						compressed = (PgpCompressedData) obj;
 						factory = new PgpObjectFactory (compressed.GetDataStream ());
 					} else if (obj is PgpOnePassSignatureList) {
-						if (memory.Length == 0) {
+						if (nwritten == 0) {
 							var onepasses = (PgpOnePassSignatureList) obj;
 
 							onepassList = new List<IDigitalSignature> ();
 
 							for (int i = 0; i < onepasses.Count; i++) {
 								var onepass = onepasses[i];
-								PgpPublicKeyRing keyring;
-								PgpPublicKey pubkey;
 
-								if (!TryGetPublicKeyRing (onepass.KeyId, out keyring, out pubkey, CancellationToken.None)) {
+								var results = await GetPublicKeyRingAsync (onepass.KeyId, doAsync, cancellationToken).ConfigureAwait (false);
+
+								if (results.KeyRing == null) {
 									// too messy, pretend we never found a one-pass signature list
 									onepassList = null;
 									break;
 								}
 
-								onepass.InitVerify (pubkey);
+								onepass.InitVerify (results.Key);
 
-								var signature = new OpenPgpDigitalSignature (keyring, pubkey, onepass) {
+								var signature = new OpenPgpDigitalSignature (results.KeyRing, results.Key, onepass) {
 									PublicKeyAlgorithm = GetPublicKeyAlgorithm (onepass.KeyAlgorithm),
 									DigestAlgorithm = GetDigestAlgorithm (onepass.HashAlgorithm),
 								};
@@ -2172,15 +2188,18 @@ namespace MimeKit.Cryptography {
 									}
 								}
 
-								memory.Write (buffer, 0, nread);
+								if (doAsync)
+									await decryptedData.WriteAsync (buffer, 0, nread, cancellationToken).ConfigureAwait (false);
+								else
+									decryptedData.Write (buffer, 0, nread);
+
+								nwritten += nread;
 							}
 						}
 					}
 
 					obj = factory.NextPgpObject ();
 				}
-
-				memory.Position = 0;
 
 				if (signatureList != null) {
 					if (onepassList != null && signatureList.Count == onepassList.Count) {
@@ -2192,33 +2211,43 @@ namespace MimeKit.Cryptography {
 
 						signatures = new DigitalSignatureCollection (onepassList);
 					} else {
-						signatures = GetDigitalSignatures (signatureList, memory, CancellationToken.None);
-						memory.Position = 0;
+						decryptedData.Position = position;
+						signatures = await GetDigitalSignaturesAsync (signatureList, decryptedData, doAsync, cancellationToken).ConfigureAwait (false);
+						decryptedData.Position = decryptedData.Length;
 					}
 				} else {
 					signatures = null;
 				}
 
-				return memory;
+				return signatures;
 			}
 		}
 
 		/// <summary>
-		/// Decrypts the specified encryptedData.
+		/// Decrypt an encrypted stream and extract the digital signers if the content was also signed.
 		/// </summary>
 		/// <remarks>
-		/// Decrypts the specified encryptedData.
+		/// <para>Decrypts an encrypted stream and extracts the digital signers if the content was also signed.</para>
+		/// <para>If any of the signatures were made with an unrecognized key and <see cref="AutoKeyRetrieve"/> is enabled,
+		/// an attempt will be made to retrieve said key(s). The <paramref name="cancellationToken"/> can be used to cancel
+		/// key retrieval.</para>
 		/// </remarks>
-		/// <returns>The decrypted stream.</returns>
+		/// <returns>The list of digital signatures if the data was both signed and encrypted; otherwise, <c>null</c>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="decryptedData">The stream to write the decrypted data to.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the stream.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was cancelled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -2226,11 +2255,46 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public Stream GetDecryptedStream (Stream encryptedData)
+		public DigitalSignatureCollection DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			DigitalSignatureCollection signatures;
+			return DecryptToAsync (encryptedData, decryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
 
-			return GetDecryptedStream (encryptedData, out signatures);
+		/// <summary>
+		/// Asynchronously decrypt an encrypted stream and extract the digital signers if the content was also signed.
+		/// </summary>
+		/// <remarks>
+		/// <para>Decrypts an encrypted stream and extracts the digital signers if the content was also signed.</para>
+		/// <para>If any of the signatures were made with an unrecognized key and <see cref="AutoKeyRetrieve"/> is enabled,
+		/// an attempt will be made to retrieve said key(s). The <paramref name="cancellationToken"/> can be used to cancel
+		/// key retrieval.</para>
+		/// </remarks>
+		/// <returns>The list of digital signatures if the data was both signed and encrypted; otherwise, <c>null</c>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="decryptedData">The stream to write the decrypted data to.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was cancelled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
+		public Task<DigitalSignatureCollection> DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return DecryptToAsync (encryptedData, decryptedData, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -2249,7 +2313,9 @@ namespace MimeKit.Cryptography {
 		/// The private key could not be found to decrypt the stream.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was cancelled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -2257,11 +2323,14 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures)
+		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var decrypted = GetDecryptedStream (encryptedData, out signatures);
+			var decryptedData = new MemoryBlockStream ();
 
-			return MimeEntity.Load (decrypted, true);
+			signatures = DecryptTo (encryptedData, decryptedData, cancellationToken);
+			decryptedData.Position = 0;
+
+			return MimeEntity.Load (decryptedData, true);
 		}
 
 		/// <summary>
@@ -2279,7 +2348,9 @@ namespace MimeKit.Cryptography {
 		/// The private key could not be found to decrypt the stream.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was cancelled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -2287,11 +2358,14 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData)
+		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			DigitalSignatureCollection signatures;
+			var decryptedData = new MemoryBlockStream ();
 
-			return Decrypt (encryptedData, out signatures);
+			DecryptTo (encryptedData, decryptedData, cancellationToken);
+			decryptedData.Position = 0;
+
+			return MimeEntity.Load (decryptedData, true);
 		}
 
 		/// <summary>
@@ -2713,7 +2787,6 @@ namespace MimeKit.Cryptography {
 			SaveSecretKeyRingBundle ();
 		}
 
-#if USE_HTTP_CLIENT
 		/// <summary>
 		/// Releases all resources used by the <see cref="OpenPgpContext"/> object.
 		/// </summary>
@@ -2730,6 +2803,5 @@ namespace MimeKit.Cryptography {
 
 			base.Dispose (disposing);
 		}
-#endif
 	}
 }
