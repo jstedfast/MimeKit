@@ -168,11 +168,12 @@ namespace UnitTests.Cryptography {
 		{
 			var locator = new DummyPublicKeyLocator (DkimKeys.Public);
 			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
-			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1);
 			var options = FormatOptions.Default;
 			var message = new MimeMessage ();
+			DkimSigner signer;
 
 			Assert.Throws<ArgumentNullException> (() => new DkimSigner ((AsymmetricKeyParameter) null, "domain", "selector"));
+			Assert.Throws<ArgumentException> (() => new DkimSigner (DkimKeys.Public, "domain", "selector"));
 			Assert.Throws<ArgumentNullException> (() => new DkimSigner (DkimKeys.Private, null, "selector"));
 			Assert.Throws<ArgumentNullException> (() => new DkimSigner (DkimKeys.Private, "domain", null));
 			Assert.Throws<ArgumentNullException> (() => new DkimSigner ((string) null, "domain", "selector"));
@@ -180,9 +181,15 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new DkimSigner ("fileName", "domain", null));
 			Assert.Throws<ArgumentException> (() => new DkimSigner (string.Empty, "domain", "selector"));
 			Assert.Throws<ArgumentNullException> (() => new DkimSigner ((Stream) null, "domain", "selector"));
-			using (var stream = new MemoryStream ()) {
+			using (var stream = File.OpenRead (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"))) {
 				Assert.Throws<ArgumentNullException> (() => new DkimSigner (stream, null, "selector"));
 				Assert.Throws<ArgumentNullException> (() => new DkimSigner (stream, "domain", null));
+
+				signer = new DkimSigner (stream, "example.com", "1433868189.example") {
+					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha1,
+					AgentOrUserIdentifier = "@eng.example.com",
+					QueryMethod = "dns/txt",
+				};
 			}
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));

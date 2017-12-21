@@ -109,6 +109,33 @@ namespace MimeKit.Cryptography {
 			Domain = domain;
 		}
 
+		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
+		{
+			AsymmetricKeyParameter key = null;
+
+			using (var reader = new StreamReader (stream)) {
+				var pem = new PemReader (reader);
+
+				var keyObject = pem.ReadObject ();
+
+				if (keyObject != null) {
+					key = keyObject as AsymmetricKeyParameter;
+
+					if (key == null) {
+						var pair = keyObject as AsymmetricCipherKeyPair;
+
+						if (pair != null)
+							key = pair.Private;
+					}
+				}
+			}
+
+			if (key == null || !key.IsPrivate)
+				throw new FormatException ("Private key not found.");
+
+			return key;
+		}
+
 #if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
@@ -161,32 +188,10 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException (nameof (selector));
 
-			AsymmetricKeyParameter key = null;
-
-			using (var stream = File.OpenRead (fileName)) {
-				using (var reader = new StreamReader (stream)) {
-					var pem = new PemReader (reader);
-
-					var keyObject = pem.ReadObject ();
-
-					if (keyObject != null) {
-						key = keyObject as AsymmetricKeyParameter;
-
-						if (key == null) {
-							var pair = keyObject as AsymmetricCipherKeyPair;
-
-							if (pair != null)
-								key = pair.Private;
-						}
-					}
-				}
-			}
-
-			if (key == null || !key.IsPrivate)
-				throw new FormatException ("Private key not found.");
+			using (var stream = File.OpenRead (fileName))
+				PrivateKey = LoadPrivateKey (stream);
 
 			SignatureAlgorithm = algorithm;
-			PrivateKey = key;
 			Selector = selector;
 			Domain = domain;
 		}
@@ -226,30 +231,8 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException (nameof (selector));
 
-			AsymmetricKeyParameter key = null;
-
-			using (var reader = new StreamReader (stream)) {
-				var pem = new PemReader (reader);
-
-				var keyObject = pem.ReadObject ();
-
-				if (keyObject != null) {
-					key = keyObject as AsymmetricKeyParameter;
-
-					if (key == null) {
-						var pair = keyObject as AsymmetricCipherKeyPair;
-
-						if (pair != null)
-							key = pair.Private;
-					}
-				}
-			}
-
-			if (key == null || !key.IsPrivate)
-				throw new FormatException ("Private key not found.");
-
-			SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256;
-			PrivateKey = key;
+			PrivateKey = LoadPrivateKey (stream);
+			SignatureAlgorithm = algorithm;
 			Selector = selector;
 			Domain = domain;
 		}
@@ -262,7 +245,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The private key.</value>
 		protected AsymmetricKeyParameter PrivateKey {
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
