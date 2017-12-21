@@ -415,7 +415,7 @@ namespace MimeKit.Tnef {
 		public MimeMessage ConvertToMessage ()
 		{
 			if (Content == null)
-				throw new InvalidOperationException ("Cannot parse TNEF data without a ContentObject.");
+				throw new InvalidOperationException ("Cannot parse null TNEF data.");
 
 			int codepage = 0;
 

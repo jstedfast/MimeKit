@@ -29,9 +29,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -721,7 +719,6 @@ namespace MimeKit {
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
@@ -767,7 +764,6 @@ namespace MimeKit {
 
 			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		/// <summary>
 		/// Write the <see cref="MimeKit.HeaderList"/> to the specified output stream.
@@ -791,7 +787,6 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.HeaderList"/> to the specified output stream.
 		/// </summary>
@@ -814,7 +809,6 @@ namespace MimeKit {
 		{
 			return WriteToAsync (FormatOptions.Default, stream, cancellationToken);
 		}
-#endif
 
 		#region ICollection implementation
 
@@ -1276,7 +1270,6 @@ namespace MimeKit {
 			return parser.ParseHeaders (cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="HeaderList"/> from the specified stream.
 		/// </summary>
@@ -1314,7 +1307,6 @@ namespace MimeKit {
 
 			return parser.ParseHeadersAsync (cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="HeaderList"/> from the specified stream.
@@ -1343,7 +1335,6 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="HeaderList"/> from the specified stream.
 		/// </summary>
@@ -1370,7 +1361,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, stream, cancellationToken);
 		}
-#endif
 
 #if !PORTABLE
 		/// <summary>
@@ -1424,7 +1414,6 @@ namespace MimeKit {
 				return Load (options, stream, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="HeaderList"/> from the specified file.
 		/// </summary>
@@ -1475,7 +1464,6 @@ namespace MimeKit {
 			using (var stream = File.OpenRead (fileName))
 				return await LoadAsync (options, stream, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="HeaderList"/> from the specified file.
@@ -1518,7 +1506,6 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, fileName, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="HeaderList"/> from the specified file.
 		/// </summary>
@@ -1559,7 +1546,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
-#endif
 #endif // !PORTABLE
 	}
 }

@@ -29,9 +29,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -374,7 +372,6 @@ namespace MimeKit {
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		static Task WriteBytesAsync (FormatOptions options, Stream stream, byte[] bytes, CancellationToken cancellationToken)
 		{
 			var filter = options.CreateNewLineFilter ();
@@ -384,7 +381,6 @@ namespace MimeKit {
 
 			return stream.WriteAsync (output, index, length, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Prepare the MIME entity for transport using the specified encoding constraints.
@@ -520,7 +516,6 @@ namespace MimeKit {
 				WriteBytes (options, stream, RawEpilogue, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
 		/// </summary>
@@ -595,7 +590,6 @@ namespace MimeKit {
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
 				await WriteBytesAsync (options, stream, RawEpilogue, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		#region ICollection implementation
 

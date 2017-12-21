@@ -27,9 +27,7 @@
 using System;
 using System.IO;
 using System.Threading;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 
 using MimeKit.IO;
 
@@ -224,7 +222,6 @@ namespace MimeKit {
 			Message.WriteTo (options, stream, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously writes the <see cref="MimeKit.MessagePart"/> to the output stream.
 		/// </summary>
@@ -260,6 +257,5 @@ namespace MimeKit {
 
 			await Message.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 	}
 }

@@ -26,10 +26,8 @@
 
 using System;
 using System.IO;
-#if !NET_3_5 && !NET_4_0
 using System.Threading;
 using System.Threading.Tasks;
-#endif
 using System.Collections.Generic;
 
 namespace MimeKit.IO {
@@ -302,7 +300,6 @@ namespace MimeKit.IO {
 			return nread;
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously reads a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
@@ -373,7 +370,6 @@ namespace MimeKit.IO {
 
 			return nread;
 		}
-#endif
 
 		/// <summary>
 		/// Writes a sequence of bytes to the stream and advances the current
@@ -439,7 +435,6 @@ namespace MimeKit.IO {
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously writes a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -504,7 +499,6 @@ namespace MimeKit.IO {
 				}
 			}
 		}
-#endif
 
 		/// <summary>
 		/// Sets the position within the current stream.
@@ -632,7 +626,6 @@ namespace MimeKit.IO {
 				streams[current].Flush ();
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously clears all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
@@ -663,7 +656,6 @@ namespace MimeKit.IO {
 			if (current < streams.Count)
 				await streams[current].FlushAsync (cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		/// <summary>
 		/// Sets the length of the stream.

@@ -29,9 +29,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -426,7 +424,6 @@ namespace MimeKit {
 				Headers.WriteTo (options, stream, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -462,7 +459,6 @@ namespace MimeKit {
 
 			return Task.FromResult (0);
 		}
-#endif
 
 		/// <summary>
 		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
@@ -490,7 +486,6 @@ namespace MimeKit {
 			WriteTo (options, stream, false, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -516,7 +511,6 @@ namespace MimeKit {
 		{
 			return WriteToAsync (options, stream, false, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
@@ -541,7 +535,6 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Adsynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -564,7 +557,6 @@ namespace MimeKit {
 		{
 			return WriteToAsync (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
@@ -588,7 +580,6 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
@@ -610,7 +601,6 @@ namespace MimeKit {
 		{
 			return WriteToAsync (FormatOptions.Default, stream, false, cancellationToken);
 		}
-#endif
 
 #if !PORTABLE
 		/// <summary>
@@ -660,7 +650,6 @@ namespace MimeKit {
 				WriteTo (options, stream, contentOnly, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -707,7 +696,6 @@ namespace MimeKit {
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				await WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		/// <summary>
 		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified file.
@@ -755,7 +743,6 @@ namespace MimeKit {
 				WriteTo (options, stream, false, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -801,7 +788,6 @@ namespace MimeKit {
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				await WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		/// <summary>
 		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified file.
@@ -840,7 +826,6 @@ namespace MimeKit {
 			WriteTo (FormatOptions.Default, fileName, contentOnly, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -877,7 +862,6 @@ namespace MimeKit {
 		{
 			return WriteToAsync (FormatOptions.Default, fileName, contentOnly, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
@@ -919,7 +903,6 @@ namespace MimeKit {
 				WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
@@ -959,7 +942,6 @@ namespace MimeKit {
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
 				await WriteToAsync (FormatOptions.Default, stream, false, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 #endif // !PORTABLE
 
 		/// <summary>
@@ -1186,7 +1168,6 @@ namespace MimeKit {
 			return parser.ParseEntity (cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
@@ -1230,7 +1211,6 @@ namespace MimeKit {
 
 			return parser.ParseEntityAsync (cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
@@ -1262,7 +1242,6 @@ namespace MimeKit {
 			return Load (options, stream, false, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
@@ -1292,7 +1271,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (options, stream, false, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
@@ -1327,7 +1305,6 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, persistent, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
@@ -1360,7 +1337,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, stream, persistent, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.
@@ -1389,7 +1365,6 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified stream.
 		/// </summary>
@@ -1416,7 +1391,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, stream, false, cancellationToken);
 		}
-#endif
 
 #if !PORTABLE
 		/// <summary>
@@ -1470,7 +1444,6 @@ namespace MimeKit {
 				return Load (options, stream, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
@@ -1521,7 +1494,6 @@ namespace MimeKit {
 			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
 				return await LoadAsync (options, stream, cancellationToken).ConfigureAwait (false);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
@@ -1564,7 +1536,6 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, fileName, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchroinously load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
@@ -1605,7 +1576,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
-#endif
 #endif // !PORTABLE
 
 		/// <summary>
@@ -1660,7 +1630,6 @@ namespace MimeKit {
 			return Load (options, chained, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified content stream.
 		/// </summary>
@@ -1712,7 +1681,6 @@ namespace MimeKit {
 
 			return LoadAsync (options, chained, cancellationToken);
 		}
-#endif
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified content stream.
@@ -1744,7 +1712,6 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, contentType, content, cancellationToken);
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously load a <see cref="MimeEntity"/> from the specified content stream.
 		/// </summary>
@@ -1774,6 +1741,5 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, contentType, content, cancellationToken);
 		}
-#endif
 	}
 }
