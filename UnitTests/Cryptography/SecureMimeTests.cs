@@ -172,6 +172,14 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out signatures));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out entity));
+
+				entity = new MimePart { ContentObject = new ContentObject (stream) };
+
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((SecureMimeContext) null, signer, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (CmsSigner) null, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, signer, null));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((CmsSigner) null, entity));
+				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (signer, null));
 			}
 		}
 
