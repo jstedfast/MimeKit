@@ -28,9 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
-#if !NET_3_5 && !NET_4_0
 using System.Threading.Tasks;
-#endif
 
 #if PORTABLE
 using Encoding = Portable.Text.Encoding;
@@ -344,6 +342,19 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the MIME content.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the MIME content.
+		/// </remarks>
+		/// <value>The MIME content.</value>
+		[Obsolete ("Use the Content property instead.")]
+		public IMimeContent ContentObject {
+			get { return Content; }
+			set { Content = value; }
+		}
+
+		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
@@ -626,7 +637,6 @@ namespace MimeKit {
 			}
 		}
 
-#if !NET_3_5 && !NET_4_0
 		/// <summary>
 		/// Asynchronously writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
@@ -693,7 +703,6 @@ namespace MimeKit {
 				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			}
 		}
-#endif
 
 		/// <summary>
 		/// Called when the headers change in some way.

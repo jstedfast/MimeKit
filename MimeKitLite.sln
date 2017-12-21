@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Net45", "MimeKit\MimeKitLite.Net45.csproj", "{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Net40", "MimeKit\MimeKitLite.Net40.csproj", "{87B25B2B-10E4-4A09-B682-7267CD3123BA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Android", "MimeKit\MimeKitLite.Android.csproj", "{D95A2734-2A81-4C75-985E-A33B15CC62BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.iOS", "MimeKit\MimeKitLite.iOS.csproj", "{5F211544-940D-46C9-98EB-4FD8F62506AD}"
@@ -31,10 +29,6 @@ Global
 		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87B25B2B-10E4-4A09-B682-7267CD3123BA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -72,28 +66,6 @@ Global
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = @\n${FileName}\n \nAuthor: ${AuthorName} <${AuthorEmail}>\n\nCopyright (c) ${Year} ${CopyrightHolder}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n
-		$1.IncludeInNewFiles = True
 		$0.TextStylePolicy = $4
-		$2.inheritsSet = null
-		$2.scope = text/x-csharp
-		$0.CSharpFormattingPolicy = $3
-		$3.NamespaceBraceStyle = EndOfLine
-		$3.StructBraceStyle = EndOfLine
-		$3.EnumBraceStyle = EndOfLine
-		$3.AfterDelegateDeclarationParameterComma = True
-		$3.BeforeSizeOfParentheses = True
-		$3.BeforeTypeOfParentheses = True
-		$3.SpacesBeforeBrackets = False
-		$3.SpacesAfterTypecast = True
-		$3.AlignToFirstIndexerArgument = True
-		$3.inheritsSet = Mono
-		$3.inheritsScope = text/x-csharp
-		$3.scope = text/x-csharp
-		$4.FileWidth = 120
-		$4.TabsToSpaces = False
-		$4.EolMarker = Unix
-		$4.inheritsSet = VisualStudio
-		$4.inheritsScope = text/plain
-		$4.scope = text/plain
 	EndGlobalSection
 EndGlobal

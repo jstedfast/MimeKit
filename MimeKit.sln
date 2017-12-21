@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net45", "MimeKit\Mi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{0225FDB7-CF63-4402-BB30-9B149AC06C2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net40", "MimeKit\MimeKit.Net40.csproj", "{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Android", "MimeKit\MimeKit.Android.csproj", "{004B4019-62B7-4A15-AF2C-C20968845C46}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.iOS", "MimeKit\MimeKit.iOS.csproj", "{4C1288AD-12C8-4BF7-AED7-6C4DC539C856}"
@@ -27,9 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding.Wind
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.WindowsUniversal81", "MimeKit\MimeKit.WindowsUniversal81.csproj", "{D9906B8C-7BBD-4CCE-AC7C-E9BCA020D20C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net35", "MimeKit\MimeKit.Net35.csproj", "{C8C90007-C877-4763-8F3E-5CCF307F7E93}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKit.NetStandard", "MimeKit\MimeKit.NetStandard.csproj", "{E8667DCE-A5BB-4D30-9815-FC8959E447F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.NetStandard", "MimeKit\MimeKit.NetStandard.csproj", "{E8667DCE-A5BB-4D30-9815-FC8959E447F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,10 +41,6 @@ Global
 		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0225FDB7-CF63-4402-BB30-9B149AC06C2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C909FC86-6084-41E5-B99C-DCDF2A5B7F82}.Release|Any CPU.Build.0 = Release|Any CPU
 		{004B4019-62B7-4A15-AF2C-C20968845C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{004B4019-62B7-4A15-AF2C-C20968845C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{004B4019-62B7-4A15-AF2C-C20968845C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,10 +77,6 @@ Global
 		{D9906B8C-7BBD-4CCE-AC7C-E9BCA020D20C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9906B8C-7BBD-4CCE-AC7C-E9BCA020D20C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9906B8C-7BBD-4CCE-AC7C-E9BCA020D20C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8C90007-C877-4763-8F3E-5CCF307F7E93}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E8667DCE-A5BB-4D30-9815-FC8959E447F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E8667DCE-A5BB-4D30-9815-FC8959E447F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8667DCE-A5BB-4D30-9815-FC8959E447F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -101,7 +89,6 @@ Global
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = @\n${FileName}\n \nAuthor: ${AuthorName} <${AuthorEmail}>\n\nCopyright (c) ${Year} ${CopyrightHolder}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n
-		$1.IncludeInNewFiles = True
 		$0.TextStylePolicy = $3
 		$3.FileWidth = 120
 		$3.TabsToSpaces = False
@@ -109,12 +96,21 @@ Global
 		$3.inheritsScope = text/plain
 		$3.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $4
-		$4.NewLineForMembersInObjectInit = True
-		$4.NewLineForMembersInAnonymousTypes = True
 		$4.SpaceAfterCast = True
-		$4.SpaceBeforeOpenSquareBracket = False
-		$4.inheritsSet = Mono
-		$4.inheritsScope = text/x-csharp
 		$4.scope = text/x-csharp
+		$4.IndentSwitchSection = False
+		$4.NewLinesForBracesInProperties = False
+		$4.NewLinesForBracesInAccessors = False
+		$4.NewLinesForBracesInAnonymousMethods = False
+		$4.NewLinesForBracesInControlBlocks = False
+		$4.NewLinesForBracesInAnonymousTypes = False
+		$4.NewLinesForBracesInObjectCollectionArrayInitializers = False
+		$4.NewLinesForBracesInLambdaExpressionBody = False
+		$4.NewLineForElse = False
+		$4.NewLineForCatch = False
+		$4.NewLineForFinally = False
+		$4.NewLineForClausesInQuery = False
+		$4.SpacingAfterMethodDeclarationName = True
+		$4.SpaceAfterMethodCallName = True
 	EndGlobalSection
 EndGlobal
