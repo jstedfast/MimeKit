@@ -63,8 +63,8 @@ namespace MessageReader.Android {
 
 				if (part != null) {
 					var mimeType = part.ContentType.MimeType;
-					var stream = part.ContentObject.Open ();
 					var charset = part.ContentType.Charset;
+					var stream = part.Content.Open ();
 
 					// construct our response containing the decoded content
 					return new WebResourceResponse (mimeType, charset, stream);

@@ -332,15 +332,15 @@ save the decoded content to a file:
 var fileName = part.FileName;
 
 using (var stream = File.Create (fileName)) {
-    part.ContentObject.DecodeTo (stream);
+    part.Content.DecodeTo (stream);
 }
 ```
 
-You can also get access to the original raw content by "opening" the `ContentObject`. This might be useful
+You can also get access to the original raw content by "opening" the `Content`. This might be useful
 if you want to pass the content off to a UI control that can do its own loading from a stream.
 
 ```csharp
-using (var stream = part.ContentObject.Open ()) {
+using (var stream = part.Content.Open ()) {
     // At this point, you can now read from the stream as if it were the original,
     // raw content. Assuming you have an image UI control that could load from a
     // stream, you could do something like this:
@@ -413,7 +413,7 @@ Will you be my +1?
 
 // create an image attachment for the file located at path
 var attachment = new MimePart ("image", "gif") {
-    ContentObject = new ContentObject (File.OpenRead (path), ContentEncoding.Default),
+    Content = new MimeContent (File.OpenRead (path), ContentEncoding.Default),
     ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
     ContentTransferEncoding = ContentEncoding.Base64,
     FileName = Path.GetFileName (path)

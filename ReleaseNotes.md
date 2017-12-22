@@ -1,5 +1,21 @@
 # Release Notes
 
+### MimeKit 2.0.0
+
+* Added IDkimPublicKeyLocator.LookupPublicKeyAsync() and MimeMessage.VerifyAsync() to support
+  asynchronous DNS lookups of DKIM public keys.
+* Fixed tokenization of unquoted HTML attributes containing entities.
+* Vastly improved the WindowsSecureMimeContext to do everything using System.Security
+  instead of a mix of System.Security and Bouncy Castle.
+* Refactored SecureMimeContext into a base SecureMimeContext and a
+  BouncyCastleSecureMimeContext that contained all of the Bouncy Castle-specific logic.
+* Added useful extension methods to facilitate conversion between System.Security and
+  Bouncy Castle crypto types (such as X509Certificates and AsymmetricAlgorithms).
+* Renamed the IContentObject interface to IMimeContent.
+* Renamed the ContentObject class to MimeContent.
+* Renamed the MimePart.ContentObject property to MimePart.Content.
+* Dropped support for .NET 3.5 and .NET 4.0.
+
 ### MimeKit 1.22.0
 
 * Fixed a buffering bug in MimeParser's header parser. (issue #358)

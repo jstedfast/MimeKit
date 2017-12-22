@@ -68,7 +68,7 @@ namespace MessageReader.iOS {
 					NSData data;
 
 					// create an NSData wrapper for the MIME part's decoded content stream
-					using (var content = part.ContentObject.Open ())
+					using (var content = part.Content.Open ())
 						data = NSData.FromStream (content);
 
 					// construct our response
