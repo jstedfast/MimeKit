@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.12
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.Net45", "MimeKit\MimeKit.Net45.csproj", "{D5F54A4F-D84B-430F-9271-F7861E285B3E}"
 EndProject
@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding.Wind
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.WindowsUniversal81", "MimeKit\MimeKit.WindowsUniversal81.csproj", "{D9906B8C-7BBD-4CCE-AC7C-E9BCA020D20C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKit.NetStandard", "MimeKit\MimeKit.NetStandard.csproj", "{E8667DCE-A5BB-4D30-9815-FC8959E447F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKit.NetStandard", "MimeKit\MimeKit.NetStandard.csproj", "{E8667DCE-A5BB-4D30-9815-FC8959E447F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +84,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {835CB316-68E1-4B7A-9392-920A18AD35CC}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

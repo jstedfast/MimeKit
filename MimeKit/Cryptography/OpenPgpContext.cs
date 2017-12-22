@@ -537,11 +537,16 @@ namespace MimeKit.Cryptography {
 						using (var response = await client.GetAsync (uri.ToString (), cancellationToken))
 							await response.Content.CopyToAsync (stream);
 					} else {
+#if !NETSTANDARD && !PORTABLE
 						var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
 						using (var response = request.GetResponse ()) {
 							var content = response.GetResponseStream ();
 							content.CopyTo (filtered, 4096);
 						}
+#else
+						using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ())
+							response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
+#endif
 					}
 
 					filtered.Flush ();
@@ -956,7 +961,7 @@ namespace MimeKit.Cryptography {
 			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
 		}
 
-		#if false
+#if false
 		/// <summary>
 		/// Gets the private key.
 		/// </summary>
@@ -997,7 +1002,7 @@ namespace MimeKit.Cryptography {
 			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
 			}
 		}
-		#endif
+#endif
 
 		void AddEncryptionKeyPair (PgpKeyRingGenerator keyRingGenerator, KeyGenerationParameters parameters, PublicKeyAlgorithmTag algorithm, DateTime now, long expirationTime, int[] encryptionAlgorithms, int[] digestAlgorithms)
 		{

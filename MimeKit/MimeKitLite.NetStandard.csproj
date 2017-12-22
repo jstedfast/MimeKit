@@ -10,7 +10,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AssemblyName>MimeKitLite</AssemblyName>
     <PackageId>MimeKitLite</PackageId>
-    <PackageTags>mime;mbox;email;parser;tnef;net45;netstandard;xamarin;android;ios;monodroid;monotouch;win8;wp81</PackageTags>
+    <PackageTags>mime;mbox;mail;email;parser;tnef;net45;netstandard;netstandard1.3;netstandard1.6;netstandard2.0;xamarin;android;ios;monodroid;monoandroid;win8;wp81</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
