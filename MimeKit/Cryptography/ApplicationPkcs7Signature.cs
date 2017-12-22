@@ -34,8 +34,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// <para>An application/pkcs7-signature part contains detatched pkcs7 signature data
 	/// and is typically contained within a <see cref="MultipartSigned"/> part.</para>
-	/// <para>To verify the signature, use the <see cref="MultipartSigned.Verify()"/>
-	/// method on the parent multipart/signed part.</para>
+	/// <para>To verify the signature, use one of the
+	/// <a href="Overload_MimeKit_Cryptography_MultipartSigned_Verify.htm">Verify</a>
+	/// methods on the parent multipart/signed part.</para>
 	/// </remarks>
 	public class ApplicationPkcs7Signature : MimePart
 	{

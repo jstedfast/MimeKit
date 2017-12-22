@@ -34,8 +34,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// <para>An application/pgp-signature part contains detatched pgp signature data
 	/// and is typically contained within a <see cref="MultipartSigned"/> part.</para>
-	/// <para>To verify the signature, use the <see cref="MultipartSigned.Verify()"/>
-	/// method on the parent multipart/signed part.</para>
+	/// <para>To verify the signature, use the one of the
+	/// <a href="Overload_MimeKit_Cryptography_MultipartSigned_Verify.htm">Verify</a>
+	/// methods on the parent multipart/signed part.</para>
 	/// </remarks>
 	public class ApplicationPgpSignature : MimePart
 	{

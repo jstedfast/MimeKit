@@ -771,7 +771,8 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
 		/// based on the encryption algorithms supported by each of the recipients, the
-		/// <see cref="EnabledEncryptionAlgorithms"/>, and the <see cref="EncryptionAlgorithmRank"/>.</para>
+		/// <see cref="CryptographyContext.EnabledEncryptionAlgorithms"/>, and the
+		/// <see cref="CryptographyContext.EncryptionAlgorithmRank"/>.</para>
 		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
 		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
 		/// </remarks>

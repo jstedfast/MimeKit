@@ -292,8 +292,8 @@ namespace MimeKit {
 		/// is set, it will be used in order to convert the raw content into unicode.
 		/// If that fails or if the charset parameter is not set, iso-8859-1 will be
 		/// used instead.</para>
-		/// <para>For more control, use <see cref="GetText(System.Text.Encoding)"/>
-		/// or <see cref="GetText(System.String)"/>.</para>
+		/// <para>For more control, use <see cref="GetText(Encoding)"/>
+		/// or <see cref="GetText(String)"/>.</para>
 		/// </remarks>
 		/// <value>The text.</value>
 		public string Text {

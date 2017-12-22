@@ -781,8 +781,8 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
 		/// based on the encryption algorithms supported by each of the recipients, the
-		/// <see cref="SecureMimeContext.EnabledEncryptionAlgorithms"/>, and the
-		/// <see cref="SecureMimeContext.EncryptionAlgorithmRank"/>.</para>
+		/// <see cref="CryptographyContext.EnabledEncryptionAlgorithms"/>, and the
+		/// <see cref="CryptographyContext.EncryptionAlgorithmRank"/>.</para>
 		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
 		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
 		/// </remarks>
@@ -989,7 +989,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.

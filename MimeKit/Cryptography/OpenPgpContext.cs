@@ -2322,6 +2322,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
@@ -2346,7 +2347,7 @@ namespace MimeKit.Cryptography {
 			signatures = DecryptTo (encryptedData, decryptedData, cancellationToken);
 			decryptedData.Position = 0;
 
-			return MimeEntity.Load (decryptedData, true);
+			return MimeEntity.Load (decryptedData, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -2357,6 +2358,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
@@ -2381,7 +2383,7 @@ namespace MimeKit.Cryptography {
 			DecryptTo (encryptedData, decryptedData, cancellationToken);
 			decryptedData.Position = 0;
 
-			return MimeEntity.Load (decryptedData, true);
+			return MimeEntity.Load (decryptedData, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -2668,7 +2670,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the public keyrings for the specified mailboxes.
 		/// </remarks>
-		/// <param name="keys">The public keys to export.</param>
+		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
