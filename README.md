@@ -136,11 +136,10 @@ directory and select **Git Sync...** in the menu. Once you do that, you'll need 
 
 In the top-level MimeKit directory, there are a number of solution files; they are:
 
-* **MimeKit.sln** - includes projects for .NET 3.5, .NET 4.0, .NET 4.5, PCL (Profile7 and Profile111),
-  .NETStandard 1.3, Xamarin.Android, and Xamarin.iOS as well as the unit tests.
+* **MimeKit.sln** - includes projects for .NET 4.5, .NETStandard, PCL (Profile7 and Profile111),
+  Xamarin.Android, and Xamarin.iOS as well as the unit tests.
 * **MimeKit.Mobile.sln** - includes only the Xamarin.Android and Xamarin.iOS projects.
 * **MimeKit.Net45.sln** - includes only the .NET 4.5 project and the unit tests.
-* **MimeKit.Net40.sln** - includes only the .NET 4.0 project.
 
 If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net45.sln instead of MimeKit.sln.
 
