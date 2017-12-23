@@ -206,7 +206,7 @@ to be interpreted as attachments.
 
 The `Content-Disposition` header will generally have one of two values: `inline` or `attachment`.
 
-The meaning of these value should be fairly obvious. If the value is `attachment`, then the content
+The meaning of these values should be fairly obvious. If the value is `attachment`, then the content
 of said MIME part is meant to be presented as a file attachment separate from the core message.
 However, if the value is `inline`, then the content of that MIME part is meant to be displayed inline
 within the mail client's rendering of the core message body. If the `Content-Disposition` header does
