@@ -43,6 +43,8 @@ namespace UnitTests.Tnef {
 		static void ExtractRecipientTable (TnefReader reader, MimeMessage message)
 		{
 			var prop = reader.TnefPropertyReader;
+			var chars = new char[1024];
+			var buf = new byte[1024];
 
 			// Note: The RecipientTable uses rows of properties...
 			while (prop.ReadNextRow ()) {
@@ -117,6 +119,27 @@ namespace UnitTests.Tnef {
 						value = prop.ReadValueAsBoolean ();
 						break;
 					default:
+						Assert.Throws<ArgumentNullException> (() => prop.ReadTextValue (null, 0, chars.Length));
+						Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (chars, -1, chars.Length));
+						Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (chars, 0, -1));
+
+						Assert.Throws<ArgumentNullException> (() => prop.ReadRawValue (null, 0, buf.Length));
+						Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadRawValue (buf, -1, buf.Length));
+						Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadRawValue (buf, 0, -1));
+
+						if (type == typeof (int) || type == typeof (long) || type == typeof (bool) || type == typeof (double) || type == typeof (float)) {
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsString ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsGuid ());
+						} else if (type == typeof (string)) {
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsBoolean ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsDouble ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsFloat ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt16 ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt32 ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt64 ());
+							Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsGuid ());
+						}
+
 						value = prop.ReadValue ();
 						//Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, value);
 						Assert.AreEqual (type, value.GetType (), "Unexpected value type for {0}: {1}", prop.PropertyTag, value.GetType ().Name);
@@ -135,6 +158,8 @@ namespace UnitTests.Tnef {
 		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
 		{
 			var prop = reader.TnefPropertyReader;
+			var chars = new char[1024];
+			var buf = new byte[1024];
 
 			while (prop.ReadNextProperty ()) {
 				var type = prop.ValueType;
@@ -331,6 +356,27 @@ namespace UnitTests.Tnef {
 					value = prop.ReadValueAsBytes ();
 					break;
 				default:
+					Assert.Throws<ArgumentNullException> (() => prop.ReadTextValue (null, 0, chars.Length));
+					Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (chars, -1, chars.Length));
+					Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (chars, 0, -1));
+
+					Assert.Throws<ArgumentNullException> (() => prop.ReadRawValue (null, 0, buf.Length));
+					Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadRawValue (buf, -1, buf.Length));
+					Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadRawValue (buf, 0, -1));
+
+					if (type == typeof (int) || type == typeof (long) || type == typeof (bool) || type == typeof (double) || type == typeof (float)) {
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsString ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsGuid ());
+					} else if (type == typeof (string)) {
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsBoolean ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsDouble ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsFloat ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt16 ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt32 ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt64 ());
+						Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsGuid ());
+					}
+
 					try {
 						value = prop.ReadValue ();
 					} catch (Exception ex) {
