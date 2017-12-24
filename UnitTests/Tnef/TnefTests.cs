@@ -50,6 +50,9 @@ namespace UnitTests.Tnef {
 				string name = null, addr = null;
 
 				while (prop.ReadNextProperty ()) {
+					var type = prop.ValueType;
+					object value;
+
 					switch (prop.PropertyTag.Id) {
 					case TnefPropertyId.RecipientType:
 						int recipientType = prop.ReadValueAsInt32 ();
@@ -89,8 +92,34 @@ namespace UnitTests.Tnef {
 						addr = prop.ReadValueAsString ();
 						//Console.WriteLine ("RecipientTable Property: {0} = {1}", prop.PropertyTag.Id, addr);
 						break;
+					case TnefPropertyId.Addrtype:
+						Assert.AreEqual (typeof (string), type);
+						value = prop.ReadValueAsString ();
+						break;
+					case TnefPropertyId.Rowid:
+						Assert.AreEqual (typeof (int), type);
+						value = prop.ReadValueAsInt64 ();
+						break;
+					case TnefPropertyId.SearchKey:
+						Assert.AreEqual (typeof (byte[]), type);
+						value = prop.ReadValueAsBytes ();
+						break;
+					case TnefPropertyId.SendRichInfo:
+						Assert.AreEqual (typeof (bool), type);
+						value = prop.ReadValueAsBoolean ();
+						break;
+					case TnefPropertyId.DisplayType:
+						Assert.AreEqual (typeof (int), type);
+						value = prop.ReadValueAsInt16 ();
+						break;
+					case TnefPropertyId.SendInternetEncoding:
+						Assert.AreEqual (typeof (int), type);
+						value = prop.ReadValueAsBoolean ();
+						break;
 					default:
-						//Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, prop.ReadValue ());
+						value = prop.ReadValue ();
+						//Console.WriteLine ("RecipientTable Property (unhandled): {0} = {1}", prop.PropertyTag.Id, value);
+						Assert.AreEqual (type, value.GetType (), "Unexpected value type for {0}: {1}", prop.PropertyTag, value.GetType ().Name);
 						break;
 					}
 				}
@@ -108,6 +137,9 @@ namespace UnitTests.Tnef {
 			var prop = reader.TnefPropertyReader;
 
 			while (prop.ReadNextProperty ()) {
+				var type = prop.ValueType;
+				object value;
+
 				switch (prop.PropertyTag.Id) {
 				case TnefPropertyId.InternetMessageId:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
@@ -186,9 +218,119 @@ namespace UnitTests.Tnef {
 						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
 					}
 					break;
+				case TnefPropertyId.AlternateRecipientAllowed:
+					Assert.AreEqual (typeof (bool), type);
+					value = prop.ReadValueAsBoolean ();
+					break;
+				case TnefPropertyId.MessageClass:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.Importance:
+					Assert.AreEqual (typeof (int), type);
+					value = prop.ReadValueAsInt16 ();
+					break;
+				case TnefPropertyId.Priority:
+					Assert.AreEqual (typeof (int), type);
+					value = prop.ReadValueAsInt16 ();
+					break;
+				case TnefPropertyId.Sensitivity:
+					Assert.AreEqual (typeof (int), type);
+					value = prop.ReadValueAsInt16 ();
+					break;
+				case TnefPropertyId.ClientSubmitTime:
+					Assert.AreEqual (typeof (DateTime), type);
+					value = prop.ReadValueAsDateTime ();
+					break;
+				case TnefPropertyId.SubjectPrefix:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.MessageSubmissionId:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.ConversationTopic:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.ConversationIndex:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsBytes ();
+					break;
+				case TnefPropertyId.SenderName:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.NormalizedSubject:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.CreationTime:
+					Assert.AreEqual (typeof (DateTime), type);
+					value = prop.ReadValueAsDateTime ();
+					break;
+				case TnefPropertyId.LastModificationTime:
+					Assert.AreEqual (typeof (DateTime), type);
+					value = prop.ReadValueAsDateTime ();
+					break;
+				case TnefPropertyId.InternetCPID:
+					Assert.AreEqual (typeof (int), type);
+					value = prop.ReadValueAsInt32 ();
+					break;
+				case TnefPropertyId.MessageCodepage:
+					Assert.AreEqual (typeof (int), type);
+					value = prop.ReadValueAsInt32 ();
+					break;
+				case TnefPropertyId.INetMailOverrideFormat:
+					Assert.AreEqual (typeof (int), type);
+					value = prop.ReadValueAsInt32 ();
+					break;
+				case TnefPropertyId.ReadReceiptRequested:
+					Assert.AreEqual (typeof (bool), type);
+					value = prop.ReadValueAsBoolean ();
+					break;
+				case TnefPropertyId.OriginatorDeliveryReportRequested:
+					Assert.AreEqual (typeof (bool), type);
+					value = prop.ReadValueAsBoolean ();
+					break;
+				case TnefPropertyId.TnefCorrelationKey:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.SenderSearchKey:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.DeleteAfterSubmit:
+					Assert.AreEqual (typeof (bool), type);
+					value = prop.ReadValueAsBoolean ();
+					break;
+				case TnefPropertyId.MessageDeliveryTime:
+					Assert.AreEqual (typeof (DateTime), type);
+					value = prop.ReadValueAsDateTime ();
+					break;
+				case TnefPropertyId.SentmailEntryId:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.RtfInSync:
+					Assert.AreEqual (typeof (bool), type);
+					value = prop.ReadValueAsBoolean ();
+					break;
+				case TnefPropertyId.MappingSignature:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsBytes ();
+					break;
+				case TnefPropertyId.StoreRecordKey:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsBytes ();
+					break;
+				case TnefPropertyId.StoreEntryId:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsBytes ();
+					break;
 				default:
-					object value;
-
 					try {
 						value = prop.ReadValue ();
 					} catch (Exception ex) {
@@ -197,6 +339,7 @@ namespace UnitTests.Tnef {
 					}
 
 					//Console.WriteLine ("Message Property (unhandled): {0} = {1}", prop.PropertyTag.Id, value);
+					Assert.AreEqual (type, value.GetType (), "Unexpected value type for {0}: {1}", prop.PropertyTag, value.GetType ().Name);
 					break;
 				}
 			}

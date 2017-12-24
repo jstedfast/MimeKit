@@ -198,6 +198,18 @@ namespace MimeKit.Tnef {
 						builder.Attachments.Add (plain);
 					}
 					break;
+				case TnefPropertyId.Importance:
+					switch (prop.ReadValueAsInt32 ()) {
+					case 2: message.Importance = MessageImportance.High; break;
+					case 0: message.Importance = MessageImportance.Low; break;
+					}
+					break;
+				case TnefPropertyId.Priority:
+					switch (prop.ReadValueAsInt32 ()) {
+					case 2: message.Priority = MessagePriority.Urgent; break;
+					case 0: message.Priority = MessagePriority.NonUrgent; break;
+					}
+					break;
 				}
 			}
 		}
