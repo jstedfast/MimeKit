@@ -109,10 +109,6 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlDecode (writer, null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlDecode (writer, text, -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlDecode (writer, text, 0, text.Length + 1));
-
-			// HtmlNamespaceExtensions
-			Assert.Throws<ArgumentOutOfRangeException> (() => ((HtmlNamespace) 500).ToNamespaceUrl ());
-			Assert.Throws<ArgumentNullException> (() => ((string) null).ToHtmlNamespace ());
 		}
 
 		static void AssertHtmlAttributeEncode (string text, string expected)
@@ -206,6 +202,35 @@ namespace UnitTests.Text {
 
 			AssertHtmlAttributeEncode (text, attributeValue);
 			AssertHtmlEncode (text, encoded);
+		}
+
+		[Test]
+		public void TestHtmlDecode ()
+		{
+			const string encoded = "&lt;&pound;&euro;&cent;&yen;&nbsp;&copy;&reg;&gt;";
+			const string expected = "<£€¢¥\u00a0©®>";
+
+			var decoded = HtmlUtils.HtmlDecode (encoded);
+
+			Assert.AreEqual (expected, decoded);
+		}
+
+		[Test]
+		public void TestHtmlNamespaces ()
+		{
+			string nullspace = null;
+
+			Assert.Throws<ArgumentNullException> (() => nullspace.ToHtmlNamespace ());
+
+			Assert.AreEqual (HtmlNamespace.Html, "does not exist".ToHtmlNamespace ());
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => ((HtmlNamespace) 500).ToNamespaceUrl ());
+
+			foreach (HtmlNamespace ns in Enum.GetValues (typeof (HtmlNamespace))) {
+				var value = ns.ToNamespaceUrl ().ToHtmlNamespace ();
+
+				Assert.AreEqual (ns, value);
+			}
 		}
 	}
 }

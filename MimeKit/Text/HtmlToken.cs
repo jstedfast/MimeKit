@@ -139,6 +139,10 @@ namespace MimeKit.Text {
 			get; private set;
 		}
 
+		internal bool IsBangComment {
+			get; set;
+		}
+
 		/// <summary>
 		/// Write the HTML comment to a <see cref="System.IO.TextWriter"/>.
 		/// </summary>
@@ -160,6 +164,8 @@ namespace MimeKit.Text {
 				output.Write ("-->");
 			} else {
 				output.Write ('<');
+				if (IsBangComment)
+					output.Write ('!');
 				output.Write (Comment);
 				output.Write ('>');
 			}

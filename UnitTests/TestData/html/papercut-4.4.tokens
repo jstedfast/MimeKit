@@ -81,7 +81,7 @@ Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l2 level1 lfo6">
-Comment: ![if !supportLists]
+Comment: [if !supportLists]
 Tag: <span style="font-family:Symbol">
 Tag: <span style="mso-list:Ignore">
 Data: ·
@@ -90,7 +90,7 @@ Data:         
 Tag: </span>
 Tag: </span>
 Tag: </span>
-Comment: ![endif]
+Comment: [endif]
 Data: Rewrote and improved the logic that renders the email HTML.
 Tag: <o:p>
 Tag: </o:p>
@@ -112,7 +112,7 @@ Tag: </o:p>
 Tag: </span>
 Tag: </p>
 Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l3 level1 lfo5">
-Comment: ![if !supportLists]
+Comment: [if !supportLists]
 Tag: <span style="font-family:Symbol">
 Tag: <span style="mso-list:Ignore">
 Data: ·
@@ -121,7 +121,7 @@ Data:         
 Tag: </span>
 Tag: </span>
 Tag: </span>
-Comment: ![endif]
+Comment: [endif]
 Tag: <span style="color:#253340">
 Data: Fixed: #9870 When Aero is disabled (on servers, for example), the windows didn’t have a drop shadow. Now they have a solid border
 Tag: </span>
@@ -129,7 +129,7 @@ Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l3 level1 lfo5">
-Comment: ![if !supportLists]
+Comment: [if !supportLists]
 Tag: <span style="font-family:Symbol">
 Tag: <span style="mso-list:Ignore">
 Data: ·
@@ -138,7 +138,7 @@ Data:         
 Tag: </span>
 Tag: </span>
 Tag: </span>
-Comment: ![endif]
+Comment: [endif]
 Tag: <span style="color:#253340">
 Data: Fixed: Mark of the Web “ActiveX” security warning on email display.
 Tag: </span>
@@ -146,7 +146,7 @@ Tag: <o:p>
 Tag: </o:p>
 Tag: </p>
 Tag: <p class="MsoListParagraph" style="text-indent:-.25in;mso-list:l3 level1 lfo5">
-Comment: ![if !supportLists]
+Comment: [if !supportLists]
 Tag: <span style="font-family:Symbol">
 Tag: <span style="mso-list:Ignore">
 Data: ·
@@ -155,7 +155,7 @@ Data:         
 Tag: </span>
 Tag: </span>
 Tag: </span>
-Comment: ![endif]
+Comment: [endif]
 Tag: <span style="color:#253340">
 Data: Improvement: Upgraded to Calburn Micro v2.0
 Tag: </span>
