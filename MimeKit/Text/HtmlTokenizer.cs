@@ -1556,7 +1556,7 @@ namespace MimeKit.Text {
 					quote = c;
 					return null;
 				case '&':
-					TokenizerState = HtmlTokenizerState.AttributeValueUnquoted;
+					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
 					return null;
 				case '/':
 					TokenizerState = HtmlTokenizerState.SelfClosingStartTag;
@@ -1671,7 +1671,6 @@ namespace MimeKit.Text {
 
 			if (nc == -1) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				data.Append ('&');
 				name.Length = 0;
 
 				return EmitDataToken (false);
@@ -1682,14 +1681,12 @@ namespace MimeKit.Text {
 			switch (c) {
 			case '\t': case '\r': case '\n': case '\f': case ' ': case '<': case '&':
 				// no character is consumed, emit '&'
-				data.Append ('&');
 				name.Append ('&');
 				consume = false;
 				break;
 			default:
 				if (c == additionalAllowedCharacter) {
 					// this is not a character reference, nothing is consumed
-					data.Append ('&');
 					name.Append ('&');
 					consume = false;
 					break;
@@ -1702,6 +1699,7 @@ namespace MimeKit.Text {
 
 					if ((nc = Peek ()) == -1) {
 						TokenizerState = HtmlTokenizerState.EndOfFile;
+						data.Length--;
 						data.Append (entity.GetPushedInput ());
 						entity.Reset ();
 
@@ -1719,6 +1717,7 @@ namespace MimeKit.Text {
 				else
 					value = entity.GetValue ();
 
+				data.Length--;
 				data.Append (pushed);
 				name.Append (value);
 				consume = c == ';';
@@ -2178,13 +2177,9 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.Data;
 					doctype.ForceQuirksMode = true;
 					return EmitDocType ();
-				case '\0':
-					TokenizerState = HtmlTokenizerState.DocTypeName;
-					name.Append ('\uFFFD');
-					return null;
 				default:
 					TokenizerState = HtmlTokenizerState.DocTypeName;
-					name.Append (c);
+					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
 				}
 			} while (true);
