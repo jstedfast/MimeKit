@@ -535,7 +535,7 @@ namespace MimeKit.Cryptography {
 
 					if (doAsync) {
 						using (var response = await client.GetAsync (uri.ToString (), cancellationToken))
-							await response.Content.CopyToAsync (stream);
+							await response.Content.CopyToAsync (filtered);
 					} else {
 #if !NETSTANDARD && !PORTABLE
 						var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
@@ -545,7 +545,7 @@ namespace MimeKit.Cryptography {
 						}
 #else
 						using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ())
-							response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
+							response.Content.CopyToAsync (filtered).GetAwaiter ().GetResult ();
 #endif
 					}
 
