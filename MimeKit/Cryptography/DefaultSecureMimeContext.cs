@@ -33,6 +33,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 
 namespace MimeKit.Cryptography {
@@ -322,6 +323,24 @@ namespace MimeKit.Cryptography {
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
 			return dbase.GetCrlStore ();
+		}
+
+		/// <summary>
+		/// Get the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
+		/// </summary>
+		/// <remarks>
+		/// Gets the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
+		/// </remarks>
+		/// <returns>The date &amp; time for the next update (in UTC).</returns>
+		/// <param name="issuer">The issuer.</param>
+		protected override DateTime GetNextCertificateRevocationListUpdate (X509Name issuer)
+		{
+			var nextUpdate = DateTime.MinValue.ToUniversalTime ();
+
+			foreach (var record in dbase.Find (issuer, X509CrlRecordFields.NextUpdate))
+				nextUpdate = record.NextUpdate > nextUpdate ? record.NextUpdate : nextUpdate;
+
+			return nextUpdate;
 		}
 
 		/// <summary>

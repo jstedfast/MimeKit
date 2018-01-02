@@ -31,8 +31,9 @@ using System.Collections.Generic;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
-using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -203,6 +204,28 @@ namespace MimeKit.Cryptography {
 		protected override IX509Store GetCertificateRevocationLists ()
 		{
 			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
+		}
+
+		/// <summary>
+		/// Get the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
+		/// </summary>
+		/// <remarks>
+		/// Gets the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
+		/// </remarks>
+		/// <returns>The date &amp; time for the next update.</returns>
+		/// <param name="issuer">The issuer.</param>
+		protected override DateTime GetNextCertificateRevocationListUpdate (X509Name issuer)
+		{
+			var nextUpdate = DateTime.MinValue.ToUniversalTime ();
+
+			foreach (var crl in crls) {
+				if (!crl.IssuerDN.Equals (issuer))
+					continue;
+
+				nextUpdate = crl.NextUpdate.Value > nextUpdate ? crl.NextUpdate.Value : nextUpdate;
+			}
+
+			return nextUpdate;
 		}
 
 		X509Certificate GetCmsRecipientCertificate (MailboxAddress mailbox)

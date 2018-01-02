@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -57,6 +59,8 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public abstract class BouncyCastleSecureMimeContext : SecureMimeContext
 	{
+		HttpClient client;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
 		/// </summary>
@@ -65,6 +69,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		protected BouncyCastleSecureMimeContext ()
 		{
+			client = new HttpClient ();
 		}
 
 		/// <summary>
@@ -125,6 +130,16 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
 		protected abstract IX509Store GetCertificateRevocationLists ();
+
+		/// <summary>
+		/// Get the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
+		/// </summary>
+		/// <remarks>
+		/// Gets the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
+		/// </remarks>
+		/// <returns>The date &amp; time for the next update (in UTC).</returns>
+		/// <param name="issuer">The issuer.</param>
+		protected abstract DateTime GetNextCertificateRevocationListUpdate (X509Name issuer);
 
 		/// <summary>
 		/// Get the <see cref="CmsRecipient"/> for the specified mailbox.
@@ -534,6 +549,62 @@ namespace MimeKit.Cryptography
 			//}
 		}
 
+		async Task DownloadCrlsAsync (X509Certificate certificate, bool doAsync, CancellationToken cancellationToken)
+		{
+			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
+			var now = DateTime.UtcNow;
+			Asn1OctetString cdp;
+
+			if (nextUpdate > now)
+				return;
+
+			if ((cdp = certificate.GetExtensionValue (X509Extensions.CrlDistributionPoints)) == null)
+				return;
+
+			var asn1 = Asn1Object.FromByteArray (cdp.GetOctets ());
+			var crlDistributionPoint = CrlDistPoint.GetInstance (asn1);
+			var points = crlDistributionPoint.GetDistributionPoints ();
+			string url = null;
+
+			for (int i = 0; i < points.Length; i++) {
+				var generalNames = GeneralNames.GetInstance (points[i].DistributionPointName.Name).GetNames ();
+				for (int j = 0; j < generalNames.Length; j++) {
+					var name = generalNames[j].Name.ToString ();
+					if (name.StartsWith ("http://", StringComparison.OrdinalIgnoreCase) || name.StartsWith ("http://", StringComparison.OrdinalIgnoreCase)) {
+						url = name;
+						break;
+					}
+				}
+			}
+
+			if (url == null)
+				return;
+
+			using (var stream = new MemoryBlockStream ()) {
+				if (doAsync) {
+					using (var response = await client.GetAsync (url, cancellationToken))
+						await response.Content.CopyToAsync (stream);
+				} else {
+#if !NETSTANDARD && !PORTABLE
+					var request = (HttpWebRequest) WebRequest.Create (url);
+					using (var response = request.GetResponse ()) {
+						var content = response.GetResponseStream ();
+						content.CopyTo (stream, 4096);
+					}
+#else
+					using (var response = client.GetAsync (url, cancellationToken).GetAwaiter ().GetResult ())
+						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
+#endif
+				}
+
+				stream.Position = 0;
+
+				var parser = new X509CrlParser ();
+				foreach (X509Crl crl in parser.ReadCrls (stream))
+					Import (crl);
+			}
+		}
+
 		/// <summary>
 		/// Get the list of digital signatures.
 		/// </summary>
@@ -546,19 +617,12 @@ namespace MimeKit.Cryptography
 		/// <returns>The digital signatures.</returns>
 		/// <param name="parser">The CMS signed data parser.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser, CancellationToken cancellationToken)
+		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, bool doAsync, CancellationToken cancellationToken)
 		{
 			var certificates = parser.GetCertificates ("Collection");
 			var signatures = new List<IDigitalSignature> ();
 			var crls = parser.GetCrls ("Collection");
 			var store = parser.GetSignerInfos ();
-
-			try {
-				// FIXME: we might not want to import these...
-				foreach (X509Crl crl in crls.GetMatches (null))
-					Import (crl);
-			} catch {
-			}
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
@@ -566,6 +630,8 @@ namespace MimeKit.Cryptography
 				var algorithms = new List<EncryptionAlgorithm> ();
 				DateTime? signedDate = null;
 				DigestAlgorithm digestAlgo;
+
+				await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
 
 				if (signerInfo.SignedAttributes != null) {
 					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
@@ -655,7 +721,7 @@ namespace MimeKit.Cryptography
 
 			signed.Drain ();
 
-			return GetDigitalSignatures (parser, cancellationToken);
+			return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
@@ -681,7 +747,18 @@ namespace MimeKit.Cryptography
 		/// </exception>
 		public override Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return Task.FromResult (Verify (content, signatureData, cancellationToken));
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			if (signatureData == null)
+				throw new ArgumentNullException (nameof (signatureData));
+
+			var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData);
+			var signed = parser.GetSignedContent ();
+
+			signed.Drain ();
+
+			return GetDigitalSignaturesAsync (parser, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -717,7 +794,7 @@ namespace MimeKit.Cryptography
 			entity = MimeEntity.Load (signed.ContentStream, cancellationToken);
 			signed.Drain ();
 
-			return GetDigitalSignatures (parser, cancellationToken);
+			return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
@@ -752,7 +829,7 @@ namespace MimeKit.Cryptography
 			content.Position = 0;
 			signed.Drain ();
 
-			signatures = GetDigitalSignatures (parser, cancellationToken);
+			signatures = GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
 
 			return content;
 		}
@@ -1073,6 +1150,23 @@ namespace MimeKit.Cryptography
 			memory.Position = 0;
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
+		}
+
+		/// <summary>
+		/// Releases all resources used by the <see cref="BouncyCastleSecureMimeContext"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="CryptographyContext.Dispose()"/> when you are finished using the <see cref="BouncyCastleSecureMimeContext"/>. The
+		/// <see cref="CryptographyContext.Dispose()"/> method leaves the <see cref="BouncyCastleSecureMimeContext"/> in an unusable state. After
+		/// calling <see cref="CryptographyContext.Dispose()"/>, you must release all references to the <see cref="BouncyCastleSecureMimeContext"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="BouncyCastleSecureMimeContext"/> was occupying.</remarks>
+		protected override void Dispose (bool disposing)
+		{
+			if (disposing && client != null) {
+				client.Dispose ();
+				client = null;
+			}
+
+			base.Dispose (disposing);
 		}
 	}
 }
