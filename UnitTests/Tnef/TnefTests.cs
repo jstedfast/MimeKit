@@ -577,8 +577,13 @@ namespace UnitTests.Tnef {
 
 					//Console.WriteLine ("Attachment Attribute: {0} = {1}", reader.AttributeTag, text);
 					break;
+				//case TnefAttributeTag.AttachMetaFile:
+				//	break;
 				default:
-					//Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());
+					var type = prop.ValueType;
+					var value = prop.ReadValue ();
+					//Console.WriteLine ("Attachment Attribute (unhandled): {0} = {1}", reader.AttributeTag, value);
+					Assert.AreEqual (type, value.GetType (), "Unexpected value type for {0}: {1}", reader.AttributeTag, value.GetType ().Name);
 					break;
 				}
 			} while (reader.ReadNextAttribute ());

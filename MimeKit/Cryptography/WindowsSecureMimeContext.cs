@@ -36,6 +36,7 @@ using System.Security.Cryptography.X509Certificates;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Smime;
 
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
 using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
@@ -73,6 +74,10 @@ namespace MimeKit.Cryptography {
 			Disable (EncryptionAlgorithm.Camellia256);
 			Disable (EncryptionAlgorithm.Camellia192);
 			Disable (EncryptionAlgorithm.Camellia192);
+
+			// or Blowfish/Twofish
+			Disable (EncryptionAlgorithm.Blowfish);
+			Disable (EncryptionAlgorithm.Twofish);
 
 			// ...or CAST5...
 			Disable (EncryptionAlgorithm.Cast5);
@@ -830,36 +835,46 @@ namespace MimeKit.Cryptography {
 			return chosen;
 		}
 
+		internal RealAlgorithmIdentifier GetAlgorithmIdentifier (EncryptionAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes256:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes256Cbc));
+			case EncryptionAlgorithm.Aes192:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Cbc));
+			case EncryptionAlgorithm.Aes128:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Cbc));
+			case EncryptionAlgorithm.Camellia256:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Camellia256Cbc));
+			case EncryptionAlgorithm.Camellia192:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Camellia192Cbc));
+			case EncryptionAlgorithm.Camellia128:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Camellia128Cbc));
+			case EncryptionAlgorithm.Cast5:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Cast5Cbc));
+			case EncryptionAlgorithm.Idea:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.IdeaCbc));
+			case EncryptionAlgorithm.TripleDes:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.DesEde3Cbc));
+			case EncryptionAlgorithm.Des:
+				return new RealAlgorithmIdentifier (new Oid (SmimeCapability.DesCbc.Id));
+			case EncryptionAlgorithm.RC2128:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 128);
+			case EncryptionAlgorithm.RC264:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 64);
+			case EncryptionAlgorithm.RC240:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 40);
+			default:
+				throw new NotSupportedException (string.Format ("The {0} encryption algorithm is not supported by the {1}.", algorithm, GetType ().Name));
+			}
+		}
+
 		Stream Envelope (RealCmsRecipientCollection recipients, Stream content, EncryptionAlgorithm encryptionAlgorithm)
 		{
 			var contentInfo = new ContentInfo (ReadAllBytes (content));
-			RealAlgorithmIdentifier algorithm;
-
-			switch (encryptionAlgorithm) {
-			case EncryptionAlgorithm.Aes256:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes256Cbc));
-				break;
-			case EncryptionAlgorithm.Aes192:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Cbc));
-				break;
-			case EncryptionAlgorithm.Aes128:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Cbc));
-				break;
-			case EncryptionAlgorithm.RC2128:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 128);
-				break;
-			case EncryptionAlgorithm.RC264:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 64);
-				break;
-			case EncryptionAlgorithm.RC240:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.RC2Cbc), 40);
-				break;
-			default:
-				algorithm = new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.DesEde3Cbc));
-				break;
-			}
-
+			var algorithm = GetAlgorithmIdentifier (encryptionAlgorithm);
 			var envelopedData = new EnvelopedCms (contentInfo, algorithm);
+
 			envelopedData.Encrypt (recipients);
 
 			return new MemoryStream (envelopedData.Encode (), false);

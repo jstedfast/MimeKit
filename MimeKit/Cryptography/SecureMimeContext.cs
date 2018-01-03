@@ -87,11 +87,11 @@ namespace MimeKit.Cryptography {
 			};
 
 			foreach (var algorithm in EncryptionAlgorithmRank) {
+				Enable (algorithm);
+
 				// Don't enable anything weaker than Triple-DES by default
 				if (algorithm == EncryptionAlgorithm.TripleDes)
 					break;
-
-				Enable (algorithm);
 			}
 
 			// TODO: Set a preferred digest algorithm rank and enable them.
