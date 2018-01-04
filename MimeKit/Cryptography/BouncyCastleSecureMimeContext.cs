@@ -575,6 +575,8 @@ namespace MimeKit.Cryptography
 						await response.Content.CopyToAsync (stream);
 				} else {
 #if !NETSTANDARD && !PORTABLE
+					cancellationToken.ThrowIfCancellationRequested ();
+
 					var request = (HttpWebRequest) WebRequest.Create (location);
 					using (var response = request.GetResponse ()) {
 						var content = response.GetResponseStream ();
@@ -592,9 +594,12 @@ namespace MimeKit.Cryptography
 			}
 		}
 
-		async Task<bool> DownloadCrlsOverLdapAsync (string location, Stream stream, bool doAsync, CancellationToken cancellationToken)
+		// https://msdn.microsoft.com/en-us/library/bb332056.aspx#sdspintro_topic3_lpadconn
+		bool DownloadCrlsOverLdap (string location, Stream stream, CancellationToken cancellationToken)
 		{
 			LdapUri uri;
+
+			cancellationToken.ThrowIfCancellationRequested ();
 
 			if (!LdapUri.TryParse (location, out uri) || string.IsNullOrEmpty (uri.Host) || string.IsNullOrEmpty (uri.DistinguishedName))
 				return false;
@@ -653,6 +658,7 @@ namespace MimeKit.Cryptography
 			var points = crlDistributionPoint.GetDistributionPoints ();
 
 			using (var stream = new MemoryBlockStream ()) {
+				var ldapLocations = new List<string> ();
 				bool downloaded = false;
 
 				for (int i = 0; i < points.Length; i++) {
@@ -674,11 +680,16 @@ namespace MimeKit.Cryptography
 							downloaded = await DownloadCrlsOverHttpAsync (location, stream, doAsync, cancellationToken).ConfigureAwait (false);
 							break;
 						case "ldaps": case "ldap":
-							downloaded = await DownloadCrlsOverLdapAsync (location, stream, doAsync, cancellationToken).ConfigureAwait (false);
+							// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
+							// won't be as reliable on Mono systems which do not implement the LDAP functionality.
+							ldapLocations.Add (location);
 							break;
 						}
 					}
 				}
+
+				for (int i = 0; i < ldapLocations.Count && !downloaded; i++)
+					downloaded = DownloadCrlsOverLdap (ldapLocations[i], stream, cancellationToken);
 
 				if (!downloaded)
 					return;
