@@ -76,6 +76,78 @@ namespace UnitTests.Cryptography
 		}
 
 		[Test]
+		public void TestParseLdapHostName ()
+		{
+			LdapUri uri;
+
+			Assert.IsTrue (LdapUri.TryParse ("ldap://ldap.itd.umich.edu", out uri));
+			Assert.AreEqual ("ldap", uri.Scheme, "Scheme");
+			Assert.AreEqual ("ldap.itd.umich.edu", uri.Host, "Host");
+			Assert.AreEqual (0, uri.Port, "Port");
+			Assert.AreEqual (string.Empty, uri.DistinguishedName, "DistinguishedName");
+			Assert.AreEqual ("*", uri.Attributes[0], "Attributes");
+			Assert.AreEqual (SearchScope.Base, uri.Scope, "Scope");
+			Assert.AreEqual ("(objectClass=*)", uri.Filter, "Filter");
+			Assert.AreEqual (null, uri.Extensions, "Extensions");
+		}
+
+		[Test]
+		public void TestParseLdapHostNameColon ()
+		{
+			LdapUri uri;
+
+			Assert.IsFalse (LdapUri.TryParse ("ldap://ldap.itd.umich.edu:", out uri));
+		}
+
+		[Test]
+		public void TestParseLdapInvalidPort1 ()
+		{
+			LdapUri uri;
+
+			Assert.IsFalse (LdapUri.TryParse ("ldap://ldap.itd.umich.edu:XYZ", out uri));
+		}
+
+		[Test]
+		public void TestParseLdapInvalidPort2 ()
+		{
+			LdapUri uri;
+
+			Assert.IsFalse (LdapUri.TryParse ("ldap://ldap.itd.umich.edu:65537", out uri));
+		}
+
+		[Test]
+		public void TestParseLdapHostNamePort ()
+		{
+			LdapUri uri;
+
+			Assert.IsTrue (LdapUri.TryParse ("ldap://ldap.itd.umich.edu:999", out uri));
+			Assert.AreEqual ("ldap", uri.Scheme, "Scheme");
+			Assert.AreEqual ("ldap.itd.umich.edu", uri.Host, "Host");
+			Assert.AreEqual (999, uri.Port, "Port");
+			Assert.AreEqual (string.Empty, uri.DistinguishedName, "DistinguishedName");
+			Assert.AreEqual ("*", uri.Attributes[0], "Attributes");
+			Assert.AreEqual (SearchScope.Base, uri.Scope, "Scope");
+			Assert.AreEqual ("(objectClass=*)", uri.Filter, "Filter");
+			Assert.AreEqual (null, uri.Extensions, "Extensions");
+		}
+
+		[Test]
+		public void TestParseLdapHostNamePortSlash ()
+		{
+			LdapUri uri;
+
+			Assert.IsTrue (LdapUri.TryParse ("ldap://ldap.itd.umich.edu:999/", out uri));
+			Assert.AreEqual ("ldap", uri.Scheme, "Scheme");
+			Assert.AreEqual ("ldap.itd.umich.edu", uri.Host, "Host");
+			Assert.AreEqual (999, uri.Port, "Port");
+			Assert.AreEqual (string.Empty, uri.DistinguishedName, "DistinguishedName");
+			Assert.AreEqual ("*", uri.Attributes[0], "Attributes");
+			Assert.AreEqual (SearchScope.Base, uri.Scope, "Scope");
+			Assert.AreEqual ("(objectClass=*)", uri.Filter, "Filter");
+			Assert.AreEqual (null, uri.Extensions, "Extensions");
+		}
+
+		[Test]
 		public void TestParseRfc2255Example1 ()
 		{
 			LdapUri uri;
