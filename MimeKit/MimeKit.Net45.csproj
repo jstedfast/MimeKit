@@ -56,6 +56,8 @@
       <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.Protocols" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Cryptography\IDigitalSignature.cs" />
     <Compile Include="Cryptography\IDkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
+    <Compile Include="Cryptography\LdapUri.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\NpgsqlCertificateDatabase.cs" />

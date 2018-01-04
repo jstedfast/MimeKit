@@ -30,7 +30,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.DirectoryServices;
 using System.Collections.Generic;
+using System.DirectoryServices.Protocols;
 
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
@@ -44,6 +46,7 @@ using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
 
+using SearchScope = System.DirectoryServices.Protocols.SearchScope;
 using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
 
 using MimeKit.IO;
@@ -69,7 +72,22 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		protected BouncyCastleSecureMimeContext ()
 		{
+			CheckCertificateRevocation = true;
 			client = new HttpClient ();
+		}
+
+		/// <summary>
+		/// Get or set whether or not certificate revocation should be checked when verifying signatures.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether or not certificate revocation should be checked when verifying signatures.</para>
+		/// <para>If enabled, the <see cref="BouncyCastleSecureMimeContext"/> will attempt to automatically download
+		/// Certificate Revocation Lists (CRLs) from the internet based on the CRL Distribution Point extension on
+		/// each certificate.</para>
+		/// </remarks>
+		/// <value><c>true</c> if certificate revocation should be checked; otherwise, <c>false</c>.</value>
+		public bool CheckCertificateRevocation {
+			get; set;
 		}
 
 		/// <summary>
@@ -410,7 +428,7 @@ namespace MimeKit.Cryptography
 			parameters.AddStore (localCrls);
 			parameters.AddStore (crls);
 
-			parameters.ValidityModel = PkixParameters.ChainValidityModel;
+			parameters.ValidityModel = PkixParameters.PkixValidityModel;
 			parameters.IsRevocationEnabled = false;
 
 			if (signingTime.HasValue)
@@ -549,6 +567,75 @@ namespace MimeKit.Cryptography
 			//}
 		}
 
+		async Task<bool> DownloadCrlsOverHttpAsync (string location, Stream stream, bool doAsync, CancellationToken cancellationToken)
+		{
+			try {
+				if (doAsync) {
+					using (var response = await client.GetAsync (location, cancellationToken))
+						await response.Content.CopyToAsync (stream);
+				} else {
+#if !NETSTANDARD && !PORTABLE
+					var request = (HttpWebRequest) WebRequest.Create (location);
+					using (var response = request.GetResponse ()) {
+						var content = response.GetResponseStream ();
+						content.CopyTo (stream, 4096);
+					}
+#else
+					using (var response = client.GetAsync (url, cancellationToken).GetAwaiter ().GetResult ())
+						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
+#endif
+				}
+
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		async Task<bool> DownloadCrlsOverLdapAsync (string location, Stream stream, bool doAsync, CancellationToken cancellationToken)
+		{
+			LdapUri uri;
+
+			if (!LdapUri.TryParse (location, out uri) || string.IsNullOrEmpty (uri.Host) || string.IsNullOrEmpty (uri.DistinguishedName))
+				return false;
+
+			try {
+				// Note: Mono doesn't support this...
+				LdapDirectoryIdentifier identifier;
+
+				if (uri.Port > 0)
+					identifier = new LdapDirectoryIdentifier (uri.Host, uri.Port, false, true);
+				else
+					identifier = new LdapDirectoryIdentifier (uri.Host, false, true);
+
+				using (var ldap = new LdapConnection (identifier)) {
+					if (uri.Scheme.Equals ("ldaps", StringComparison.OrdinalIgnoreCase))
+						ldap.SessionOptions.SecureSocketLayer = true;
+
+					ldap.Bind ();
+
+					var request = new SearchRequest (uri.DistinguishedName, uri.Filter, uri.Scope, uri.Attributes);
+					var response = (SearchResponse) ldap.SendRequest (request);
+
+					foreach (SearchResultEntry entry in response.Entries) {
+						foreach (DirectoryAttribute attribute in entry.Attributes) {
+							var values = attribute.GetValues (typeof (byte[]));
+
+							for (int i = 0; i < values.Length; i++) {
+								var buffer = (byte[]) values[i];
+
+								stream.Write (buffer, 0, buffer.Length);
+							}
+						}
+					}
+				}
+
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
 		async Task DownloadCrlsAsync (X509Certificate certificate, bool doAsync, CancellationToken cancellationToken)
 		{
 			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
@@ -564,38 +651,37 @@ namespace MimeKit.Cryptography
 			var asn1 = Asn1Object.FromByteArray (cdp.GetOctets ());
 			var crlDistributionPoint = CrlDistPoint.GetInstance (asn1);
 			var points = crlDistributionPoint.GetDistributionPoints ();
-			string url = null;
-
-			for (int i = 0; i < points.Length; i++) {
-				var generalNames = GeneralNames.GetInstance (points[i].DistributionPointName.Name).GetNames ();
-				for (int j = 0; j < generalNames.Length; j++) {
-					var name = generalNames[j].Name.ToString ();
-					if (name.StartsWith ("http://", StringComparison.OrdinalIgnoreCase) || name.StartsWith ("http://", StringComparison.OrdinalIgnoreCase)) {
-						url = name;
-						break;
-					}
-				}
-			}
-
-			if (url == null)
-				return;
 
 			using (var stream = new MemoryBlockStream ()) {
-				if (doAsync) {
-					using (var response = await client.GetAsync (url, cancellationToken))
-						await response.Content.CopyToAsync (stream);
-				} else {
-#if !NETSTANDARD && !PORTABLE
-					var request = (HttpWebRequest) WebRequest.Create (url);
-					using (var response = request.GetResponse ()) {
-						var content = response.GetResponseStream ();
-						content.CopyTo (stream, 4096);
+				bool downloaded = false;
+
+				for (int i = 0; i < points.Length; i++) {
+					var generalNames = GeneralNames.GetInstance (points[i].DistributionPointName.Name).GetNames ();
+					for (int j = 0; j < generalNames.Length && !downloaded; j++) {
+						if (generalNames[j].TagNo != GeneralName.UniformResourceIdentifier)
+							continue;
+
+						var location = DerIA5String.GetInstance (generalNames[j].Name).GetString ();
+						var colon = location.IndexOf (':');
+
+						if (colon == -1)
+							continue;
+
+						var protocol = location.Substring (0, colon).ToLowerInvariant ();
+
+						switch (protocol) {
+						case "https": case "http":
+							downloaded = await DownloadCrlsOverHttpAsync (location, stream, doAsync, cancellationToken).ConfigureAwait (false);
+							break;
+						case "ldaps": case "ldap":
+							downloaded = await DownloadCrlsOverLdapAsync (location, stream, doAsync, cancellationToken).ConfigureAwait (false);
+							break;
+						}
 					}
-#else
-					using (var response = client.GetAsync (url, cancellationToken).GetAwaiter ().GetResult ())
-						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
-#endif
 				}
+
+				if (!downloaded)
+					return;
 
 				stream.Position = 0;
 
@@ -631,7 +717,8 @@ namespace MimeKit.Cryptography
 				DateTime? signedDate = null;
 				DigestAlgorithm digestAlgo;
 
-				await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
+				if (CheckCertificateRevocation)
+					await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
 
 				if (signerInfo.SignedAttributes != null) {
 					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
