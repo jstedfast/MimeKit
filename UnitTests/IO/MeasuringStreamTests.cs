@@ -107,23 +107,27 @@ namespace UnitTests.IO {
 					Assert.AreEqual (expected, actual, "SeekOrigin.Begin");
 					Assert.AreEqual (expected, stream.Position, "Position");
 
-					// seek backwards from current position
-					offset = -1 * (random.Next () % offset);
-					expected += offset;
+					if (offset > 0) {
+						// seek backwards from current position
+						offset = -1 * (random.Next () % offset);
+						expected += offset;
 
-					actual = stream.Seek (offset, SeekOrigin.Current);
+						actual = stream.Seek (offset, SeekOrigin.Current);
 
-					Assert.AreEqual (expected, actual, "SeekOrigin.Current (-)");
-					Assert.AreEqual (expected, stream.Position, "Position");
+						Assert.AreEqual (expected, actual, "SeekOrigin.Current (-)");
+						Assert.AreEqual (expected, stream.Position, "Position");
+					}
 
-					// seek forwards from current position
-					offset = random.Next () % (stream.Length - actual);
-					expected += offset;
+					if (actual < stream.Length) {
+						// seek forwards from current position
+						offset = random.Next () % (stream.Length - actual);
+						expected += offset;
 
-					actual = stream.Seek (offset, SeekOrigin.Current);
+						actual = stream.Seek (offset, SeekOrigin.Current);
 
-					Assert.AreEqual (expected, actual, "SeekOrigin.Current (+)");
-					Assert.AreEqual (expected, stream.Position, "Position");
+						Assert.AreEqual (expected, actual, "SeekOrigin.Current (+)");
+						Assert.AreEqual (expected, stream.Position, "Position");
+					}
 
 					// seek backwards from the end of the stream
 					offset = -1 * (random.Next () % stream.Length);

@@ -1006,7 +1006,7 @@ namespace UnitTests.Cryptography {
 			if (Path.DirectorySeparatorChar != '\\')
 				return;
 
-			base.TestSecureMimeEncryption ();
+			base.TestSecureMimeEncryptionWithAlgorithm ();
 		}
 
 		[Test]
