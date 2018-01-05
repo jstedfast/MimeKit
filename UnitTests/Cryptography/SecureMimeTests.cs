@@ -619,6 +619,7 @@ namespace UnitTests.Cryptography {
 							case EncryptionAlgorithm.Camellia128:
 							case EncryptionAlgorithm.Camellia192:
 							case EncryptionAlgorithm.Camellia256:
+							case EncryptionAlgorithm.Cast5:
 								break;
 							default:
 								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);

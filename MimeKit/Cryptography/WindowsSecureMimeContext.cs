@@ -76,7 +76,7 @@ namespace MimeKit.Cryptography {
 			Disable (EncryptionAlgorithm.Camellia192);
 
 			// ...or CAST5...
-			//Disable (EncryptionAlgorithm.Cast5);
+			Disable (EncryptionAlgorithm.Cast5);
 
 			// ...or IDEA...
 			//Disable (EncryptionAlgorithm.Idea);
@@ -832,8 +832,6 @@ namespace MimeKit.Cryptography {
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Cbc));
 			case EncryptionAlgorithm.Aes128:
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Cbc));
-			case EncryptionAlgorithm.Cast5:
-				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Cast5Cbc));
 			case EncryptionAlgorithm.Idea:
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.IdeaCbc));
 			case EncryptionAlgorithm.TripleDes:
