@@ -598,13 +598,29 @@ namespace UnitTests.Cryptography {
 					foreach (var recipient in recipients)
 						recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
 
+					var enabled = ctx.IsEnabled (algorithm);
 					ApplicationPkcs7Mime encrypted;
+
+					switch (algorithm) {
+					case EncryptionAlgorithm.Des:
+					case EncryptionAlgorithm.RC2128:
+					case EncryptionAlgorithm.RC264:
+					case EncryptionAlgorithm.RC240:
+						ctx.Disable (EncryptionAlgorithm.TripleDes);
+						ctx.Enable (algorithm);
+						break;
+					}
 
 					try {
 						encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
 					} catch (Exception ex) {
 						Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
 						continue;
+					} finally {
+						if (!enabled) {
+							ctx.Enable (EncryptionAlgorithm.TripleDes);
+							ctx.Disable (algorithm);
+						}
 					}
 
 					Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");

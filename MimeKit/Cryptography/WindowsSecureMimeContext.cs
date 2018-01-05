@@ -71,19 +71,19 @@ namespace MimeKit.Cryptography {
 			StoreLocation = location;
 
 			// System.Security does not support Camellia...
-			Disable (EncryptionAlgorithm.Camellia256);
-			Disable (EncryptionAlgorithm.Camellia192);
-			Disable (EncryptionAlgorithm.Camellia192);
+			//Disable (EncryptionAlgorithm.Camellia256);
+			//Disable (EncryptionAlgorithm.Camellia192);
+			//Disable (EncryptionAlgorithm.Camellia192);
 
 			// or Blowfish/Twofish
 			Disable (EncryptionAlgorithm.Blowfish);
 			Disable (EncryptionAlgorithm.Twofish);
 
 			// ...or CAST5...
-			Disable (EncryptionAlgorithm.Cast5);
+			//Disable (EncryptionAlgorithm.Cast5);
 
 			// ...or IDEA...
-			Disable (EncryptionAlgorithm.Idea);
+			//Disable (EncryptionAlgorithm.Idea);
 		}
 
 		/// <summary>
@@ -796,15 +796,13 @@ namespace MimeKit.Cryptography {
 		protected virtual EncryptionAlgorithm GetPreferredEncryptionAlgorithm (RealCmsRecipientCollection recipients)
 		{
 			var votes = new int[EncryptionAlgorithmCount];
+			int need = recipients.Count;
 
 			foreach (var recipient in recipients) {
 				var supported = recipient.Certificate.GetEncryptionAlgorithms ();
-				int cast = EncryptionAlgorithmCount;
 
-				foreach (var algorithm in supported) {
-					votes[(int) algorithm] += cast;
-					cast--;
-				}
+				foreach (var algorithm in supported)
+					votes[(int) algorithm]++;
 			}
 
 			// Starting with S/MIME v3 (published in 1999), Triple-DES is a REQUIRED algorithm.
@@ -814,6 +812,8 @@ namespace MimeKit.Cryptography {
 			// not default to anything weaker than Triple-DES...
 			EncryptionAlgorithm chosen = EncryptionAlgorithm.TripleDes;
 			int nvotes = 0;
+
+			votes[(int) EncryptionAlgorithm.TripleDes] = need;
 
 			// iterate through the algorithms, from strongest to weakest, keeping track
 			// of the algorithm with the most amount of votes (between algorithms with
