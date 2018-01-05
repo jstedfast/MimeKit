@@ -30,9 +30,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.DirectoryServices;
 using System.Collections.Generic;
+
+#if ENABLE_LDAP
 using System.DirectoryServices.Protocols;
+using SearchScope = System.DirectoryServices.Protocols.SearchScope;
+#endif
 
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
@@ -46,7 +49,6 @@ using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
 
-using SearchScope = System.DirectoryServices.Protocols.SearchScope;
 using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
 
 using MimeKit.IO;
@@ -594,6 +596,7 @@ namespace MimeKit.Cryptography
 			}
 		}
 
+#if ENABLE_LDAP
 		// https://msdn.microsoft.com/en-us/library/bb332056.aspx#sdspintro_topic3_lpadconn
 		bool DownloadCrlsOverLdap (string location, Stream stream, CancellationToken cancellationToken)
 		{
@@ -640,6 +643,7 @@ namespace MimeKit.Cryptography
 				return false;
 			}
 		}
+#endif
 
 		async Task DownloadCrlsAsync (X509Certificate certificate, bool doAsync, CancellationToken cancellationToken)
 		{
@@ -658,7 +662,9 @@ namespace MimeKit.Cryptography
 			var points = crlDistributionPoint.GetDistributionPoints ();
 
 			using (var stream = new MemoryBlockStream ()) {
+#if ENABLE_LDAP
 				var ldapLocations = new List<string> ();
+#endif
 				bool downloaded = false;
 
 				for (int i = 0; i < points.Length; i++) {
@@ -679,17 +685,21 @@ namespace MimeKit.Cryptography
 						case "https": case "http":
 							downloaded = await DownloadCrlsOverHttpAsync (location, stream, doAsync, cancellationToken).ConfigureAwait (false);
 							break;
+#if ENABLE_LDAP
 						case "ldaps": case "ldap":
 							// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
 							// won't be as reliable on Mono systems which do not implement the LDAP functionality.
 							ldapLocations.Add (location);
 							break;
+#endif
 						}
 					}
 				}
 
+#if ENABLE_LDAP
 				for (int i = 0; i < ldapLocations.Count && !downloaded; i++)
 					downloaded = DownloadCrlsOverLdap (ldapLocations[i], stream, cancellationToken);
+#endif
 
 				if (!downloaded)
 					return;

@@ -56,7 +56,6 @@
       <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.Protocols" />
   </ItemGroup>
   <ItemGroup>
