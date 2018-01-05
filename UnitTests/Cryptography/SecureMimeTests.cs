@@ -172,6 +172,8 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out signatures));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out entity));
+				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (null, stream));
+				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (stream, null));
 
 				entity = new MimePart { Content = new MimeContent (stream) };
 
@@ -567,6 +569,60 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public virtual void TestSecureMimeEncryptionWithAlgorithm ()
+		{
+			var certificate = new X509Certificate2 (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			var recipients = new CmsRecipientCollection ();
+
+			recipients.Add (new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+			using (var ctx = CreateContext ()) {
+				var algorithms = new EncryptionAlgorithm[] {
+					EncryptionAlgorithm.Aes128,
+					EncryptionAlgorithm.Aes192,
+					EncryptionAlgorithm.Aes256,
+					EncryptionAlgorithm.Camellia128,
+					EncryptionAlgorithm.Camellia192,
+					EncryptionAlgorithm.Camellia256,
+					EncryptionAlgorithm.Cast5,
+					EncryptionAlgorithm.Idea,
+					EncryptionAlgorithm.TripleDes,
+					EncryptionAlgorithm.Des,
+					EncryptionAlgorithm.RC2128,
+					EncryptionAlgorithm.RC264,
+					EncryptionAlgorithm.RC240
+				};
+
+				foreach (var algorithm in algorithms) {
+					foreach (var recipient in recipients)
+						recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
+
+					ApplicationPkcs7Mime encrypted;
+
+					try {
+						encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					} catch (Exception ex) {
+						Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+						continue;
+					}
+
+					Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+
+					using (var stream = new MemoryStream ()) {
+						ctx.DecryptTo (encrypted.Content.Open (), stream);
+						stream.Position = 0;
+
+						var decrypted = MimeEntity.Load (stream);
+
+						Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+						Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+					}
+				}
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeDecryptThunderbird ()
 		{
 			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
@@ -921,6 +977,15 @@ namespace UnitTests.Cryptography {
 
 		[Test]
 		public override void TestSecureMimeEncryption ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeEncryption ();
+		}
+
+		[Test]
+		public override void TestSecureMimeEncryptionWithAlgorithm ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
 				return;
