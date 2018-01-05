@@ -102,12 +102,12 @@ namespace MimeKit.Cryptography {
 		Idea,
 
 		/// <summary>
-		/// The blowfish encryption algorithm (OpenPGP only).
+		/// The Blowfish encryption algorithm.
 		/// </summary>
 		Blowfish,
 
 		/// <summary>
-		/// The twofish encryption algorithm (OpenPGP only).
+		/// The Twofish encryption algorithm.
 		/// </summary>
 		Twofish,
 

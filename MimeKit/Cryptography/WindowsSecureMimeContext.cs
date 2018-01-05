@@ -75,6 +75,10 @@ namespace MimeKit.Cryptography {
 			Disable (EncryptionAlgorithm.Camellia192);
 			Disable (EncryptionAlgorithm.Camellia192);
 
+			// ... or Blowfish/Twofish
+			Disable (EncryptionAlgorithm.Blowfish);
+			Disable (EncryptionAlgorithm.Twofish);
+
 			// ...or CAST5...
 			Disable (EncryptionAlgorithm.Cast5);
 

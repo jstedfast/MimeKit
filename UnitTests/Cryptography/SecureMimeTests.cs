@@ -585,9 +585,11 @@ namespace UnitTests.Cryptography {
 					EncryptionAlgorithm.Camellia128,
 					EncryptionAlgorithm.Camellia192,
 					EncryptionAlgorithm.Camellia256,
+					EncryptionAlgorithm.Twofish,
+					EncryptionAlgorithm.Blowfish,
 					EncryptionAlgorithm.Cast5,
-					EncryptionAlgorithm.Idea,
 					EncryptionAlgorithm.TripleDes,
+					EncryptionAlgorithm.Idea,
 					EncryptionAlgorithm.Des,
 					EncryptionAlgorithm.RC2128,
 					EncryptionAlgorithm.RC264,
@@ -602,6 +604,7 @@ namespace UnitTests.Cryptography {
 					ApplicationPkcs7Mime encrypted;
 
 					switch (algorithm) {
+					case EncryptionAlgorithm.Idea:
 					case EncryptionAlgorithm.Des:
 					case EncryptionAlgorithm.RC2128:
 					case EncryptionAlgorithm.RC264:
@@ -619,6 +622,8 @@ namespace UnitTests.Cryptography {
 							case EncryptionAlgorithm.Camellia128:
 							case EncryptionAlgorithm.Camellia192:
 							case EncryptionAlgorithm.Camellia256:
+							case EncryptionAlgorithm.Twofish:
+							case EncryptionAlgorithm.Blowfish:
 							case EncryptionAlgorithm.Cast5:
 							case EncryptionAlgorithm.Idea:
 								break;

@@ -37,6 +37,7 @@ using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Nist;
+using Org.BouncyCastle.Asn1;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -51,6 +52,8 @@ namespace MimeKit.Cryptography {
 	{
 		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
 		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
+		internal static readonly DerObjectIdentifier Blowfish = new DerObjectIdentifier ("1.3.6.1.4.1.3029.1.2");
+		internal static readonly DerObjectIdentifier Twofish = new DerObjectIdentifier ("1.3.6.1.4.1.25258.3.3");
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
@@ -61,11 +64,10 @@ namespace MimeKit.Cryptography {
 		/// <item><term><see cref="EncryptionAlgorithm.Aes256"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Aes192"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Aes128"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Idea"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Camellia256"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Camellia192"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Camellia128"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.TripleDes"/></term></item>
 		/// </list>
 		/// </remarks>
@@ -75,12 +77,14 @@ namespace MimeKit.Cryptography {
 				EncryptionAlgorithm.Aes256,
 				EncryptionAlgorithm.Aes192,
 				EncryptionAlgorithm.Aes128,
-				EncryptionAlgorithm.Idea,
+				EncryptionAlgorithm.Twofish,
 				EncryptionAlgorithm.Cast5,
 				EncryptionAlgorithm.Camellia256,
 				EncryptionAlgorithm.Camellia192,
 				EncryptionAlgorithm.Camellia128,
+				EncryptionAlgorithm.Blowfish,
 				EncryptionAlgorithm.TripleDes,
+				EncryptionAlgorithm.Idea,
 				EncryptionAlgorithm.RC2128,
 				EncryptionAlgorithm.RC264,
 				EncryptionAlgorithm.Des,
@@ -94,6 +98,10 @@ namespace MimeKit.Cryptography {
 				if (algorithm == EncryptionAlgorithm.TripleDes)
 					break;
 			}
+
+			// Disable Blowfish and Twofish by default for now
+			Disable (EncryptionAlgorithm.Blowfish);
+			Disable (EncryptionAlgorithm.Twofish);
 
 			// TODO: Set a preferred digest algorithm rank and enable them.
 		}
@@ -502,47 +510,50 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				switch (algorithm) {
-				case EncryptionAlgorithm.Camellia256:
-					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia256Cbc);
-					break;
-				case EncryptionAlgorithm.Camellia192:
-					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia192Cbc);
-					break;
-				case EncryptionAlgorithm.Camellia128:
-					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia128Cbc);
-					break;
-				case EncryptionAlgorithm.Aes256:
-					capabilities.AddCapability (SmimeCapabilities.Aes256Cbc);
+				case EncryptionAlgorithm.Aes128:
+					capabilities.AddCapability (SmimeCapabilities.Aes128Cbc);
 					break;
 				case EncryptionAlgorithm.Aes192:
 					capabilities.AddCapability (SmimeCapabilities.Aes192Cbc);
 					break;
-				case EncryptionAlgorithm.Aes128:
-					capabilities.AddCapability (SmimeCapabilities.Aes128Cbc);
+				case EncryptionAlgorithm.Aes256:
+					capabilities.AddCapability (SmimeCapabilities.Aes256Cbc);
 					break;
-				case EncryptionAlgorithm.Idea:
-					capabilities.AddCapability (SmimeCapabilities.IdeaCbc);
+				case EncryptionAlgorithm.Blowfish:
+					capabilities.AddCapability (Blowfish);
+					break;
+				case EncryptionAlgorithm.Camellia128:
+					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia128Cbc);
+					break;
+				case EncryptionAlgorithm.Camellia192:
+					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia192Cbc);
+					break;
+				case EncryptionAlgorithm.Camellia256:
+					capabilities.AddCapability (NttObjectIdentifiers.IdCamellia256Cbc);
 					break;
 				case EncryptionAlgorithm.Cast5:
 					capabilities.AddCapability (SmimeCapabilities.Cast5Cbc);
 					break;
-				case EncryptionAlgorithm.TripleDes:
-					capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);
+				case EncryptionAlgorithm.Des:
+					capabilities.AddCapability (SmimeCapabilities.DesCbc);
 					break;
-				case EncryptionAlgorithm.RC2128:
-					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 128);
-					break;
-				case EncryptionAlgorithm.RC264:
-					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 64);
+				case EncryptionAlgorithm.Idea:
+					capabilities.AddCapability (SmimeCapabilities.IdeaCbc);
 					break;
 				case EncryptionAlgorithm.RC240:
 					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 40);
 					break;
-				case EncryptionAlgorithm.Des:
-					capabilities.AddCapability (SmimeCapabilities.DesCbc);
+				case EncryptionAlgorithm.RC264:
+					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 64);
 					break;
-				case EncryptionAlgorithm.Blowfish:
+				case EncryptionAlgorithm.RC2128:
+					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 128);
+					break;
+				case EncryptionAlgorithm.TripleDes:
+					capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);
+					break;
 				case EncryptionAlgorithm.Twofish:
+					capabilities.AddCapability (Twofish);
 					break;
 				}
 			}

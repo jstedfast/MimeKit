@@ -522,6 +522,16 @@ namespace MimeKit.Cryptography
 				return true;
 			}
 
+			if (identifier.Algorithm.Id == Blowfish.Id) {
+				algorithm = EncryptionAlgorithm.Blowfish;
+				return true;
+			}
+
+			if (identifier.Algorithm.Id == Twofish.Id) {
+				algorithm = EncryptionAlgorithm.Twofish;
+				return true;
+			}
+
 			if (identifier.Algorithm.Id == SmimeCapability.DesCbc.Id) {
 				algorithm = EncryptionAlgorithm.Des;
 				return true;
@@ -963,44 +973,50 @@ namespace MimeKit.Cryptography
 			CmsEnvelopedData envelopedData;
 
 			switch (algorithm) {
-			case EncryptionAlgorithm.Aes256:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Cbc);
+			case EncryptionAlgorithm.Aes128:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Cbc);
 				break;
 			case EncryptionAlgorithm.Aes192:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes192Cbc);
 				break;
-			case EncryptionAlgorithm.Aes128:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Cbc);
+			case EncryptionAlgorithm.Aes256:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Cbc);
 				break;
-			case EncryptionAlgorithm.Camellia256:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia256Cbc);
-				break;
-			case EncryptionAlgorithm.Camellia192:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia192Cbc);
+			case EncryptionAlgorithm.Blowfish:
+				envelopedData = cms.Generate (input, Blowfish.Id);
 				break;
 			case EncryptionAlgorithm.Camellia128:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia128Cbc);
 				break;
+			case EncryptionAlgorithm.Camellia192:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia192Cbc);
+				break;
+			case EncryptionAlgorithm.Camellia256:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia256Cbc);
+				break;
 			case EncryptionAlgorithm.Cast5:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Cast5Cbc);
-				break;
-			case EncryptionAlgorithm.Idea:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.IdeaCbc);
-				break;
-			case EncryptionAlgorithm.TripleDes:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
 				break;
 			case EncryptionAlgorithm.Des:
 				envelopedData = cms.Generate (input, SmimeCapability.DesCbc.Id);
 				break;
-			case EncryptionAlgorithm.RC2128:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 128);
+			case EncryptionAlgorithm.Idea:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.IdeaCbc);
+				break;
+			case EncryptionAlgorithm.RC240:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 40);
 				break;
 			case EncryptionAlgorithm.RC264:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 64);
 				break;
-			case EncryptionAlgorithm.RC240:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 40);
+			case EncryptionAlgorithm.RC2128:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 128);
+				break;
+			case EncryptionAlgorithm.TripleDes:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
+				break;
+			case EncryptionAlgorithm.Twofish:
+				envelopedData = cms.Generate (input, Twofish.Id);
 				break;
 			default:
 				throw new NotSupportedException (string.Format ("The {0} encryption algorithm is not supported by the {1}.", algorithm, GetType ().Name));
