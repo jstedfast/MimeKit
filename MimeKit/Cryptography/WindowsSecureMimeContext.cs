@@ -71,9 +71,9 @@ namespace MimeKit.Cryptography {
 			StoreLocation = location;
 
 			// System.Security does not support Camellia...
-			//Disable (EncryptionAlgorithm.Camellia256);
-			//Disable (EncryptionAlgorithm.Camellia192);
-			//Disable (EncryptionAlgorithm.Camellia192);
+			Disable (EncryptionAlgorithm.Camellia256);
+			Disable (EncryptionAlgorithm.Camellia192);
+			Disable (EncryptionAlgorithm.Camellia192);
 
 			// ...or CAST5...
 			//Disable (EncryptionAlgorithm.Cast5);
@@ -768,14 +768,6 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (signed.ContentInfo.Content, false);
 		}
 
-		class VoteComparer : IComparer<int>
-		{
-			public int Compare (int x, int y)
-			{
-				return y - x;
-			}
-		}
-
 		/// <summary>
 		/// Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
 		/// </summary>
@@ -840,12 +832,6 @@ namespace MimeKit.Cryptography {
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Cbc));
 			case EncryptionAlgorithm.Aes128:
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Cbc));
-			case EncryptionAlgorithm.Camellia256:
-				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Camellia256Cbc));
-			case EncryptionAlgorithm.Camellia192:
-				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Camellia192Cbc));
-			case EncryptionAlgorithm.Camellia128:
-				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Camellia128Cbc));
 			case EncryptionAlgorithm.Cast5:
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Cast5Cbc));
 			case EncryptionAlgorithm.Idea:

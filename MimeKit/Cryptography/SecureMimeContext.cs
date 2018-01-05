@@ -347,13 +347,13 @@ namespace MimeKit.Cryptography {
 			return false;
 		}
 
-		class VoteComparer : IComparer<int>
-		{
-			public int Compare (int x, int y)
-			{
-				return y - x;
-			}
-		}
+		//class VoteComparer : IComparer<int>
+		//{
+		//	public int Compare (int x, int y)
+		//	{
+		//		return y - x;
+		//	}
+		//}
 
 		/// <summary>
 		/// Get the preferred encryption algorithm to use for encrypting to the specified recipients.

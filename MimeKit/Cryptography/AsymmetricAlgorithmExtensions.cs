@@ -190,7 +190,7 @@ namespace MimeKit.Cryptography
 
 			var padded = new byte[length];
 
-			Buffer.BlockCopy (bytes, length - bytes.Length, padded, 0, bytes.Length);
+			Buffer.BlockCopy (bytes, 0, padded, length - bytes.Length, bytes.Length);
 
 			return padded;
 		}

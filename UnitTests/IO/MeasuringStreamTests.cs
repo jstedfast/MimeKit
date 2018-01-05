@@ -101,7 +101,9 @@ namespace UnitTests.IO {
 				for (int attempt = 0; attempt < 10; attempt++) {
 					long offset = random.Next () % stream.Length;
 
-					long actual = stream.Seek (offset, SeekOrigin.Begin);
+					stream.Position = offset;
+
+					long actual = stream.Position;
 					long expected = offset;
 
 					Assert.AreEqual (expected, actual, "SeekOrigin.Begin");
