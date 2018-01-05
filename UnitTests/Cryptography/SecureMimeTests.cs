@@ -613,6 +613,19 @@ namespace UnitTests.Cryptography {
 
 					try {
 						encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					} catch (NotSupportedException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							switch (algorithm) {
+							case EncryptionAlgorithm.Camellia128:
+							case EncryptionAlgorithm.Camellia192:
+							case EncryptionAlgorithm.Camellia256:
+								break;
+							default:
+								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+								break;
+							}
+						}
+						continue;
 					} catch (Exception ex) {
 						Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
 						continue;
