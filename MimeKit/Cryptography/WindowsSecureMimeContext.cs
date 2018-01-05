@@ -75,10 +75,6 @@ namespace MimeKit.Cryptography {
 			//Disable (EncryptionAlgorithm.Camellia192);
 			//Disable (EncryptionAlgorithm.Camellia192);
 
-			// or Blowfish/Twofish
-			Disable (EncryptionAlgorithm.Blowfish);
-			Disable (EncryptionAlgorithm.Twofish);
-
 			// ...or CAST5...
 			//Disable (EncryptionAlgorithm.Cast5);
 
@@ -889,7 +885,9 @@ namespace MimeKit.Cryptography {
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
 		{
-			return Envelope (GetCmsRecipients (recipients), content);
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return Envelope (GetCmsRecipients (recipients), content, algorithm);
 		}
 
 		/// <summary>

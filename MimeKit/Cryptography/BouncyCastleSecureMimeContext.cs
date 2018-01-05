@@ -932,69 +932,6 @@ namespace MimeKit.Cryptography
 			return content;
 		}
 
-		class VoteComparer : IComparer<int>
-		{
-			public int Compare (int x, int y)
-			{
-				return y - x;
-			}
-		}
-
-		/// <summary>
-		/// Get the preferred encryption algorithm to use for encrypting to the specified recipients.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
-		/// based on the encryption algorithms supported by each of the recipients, the
-		/// <see cref="CryptographyContext.EnabledEncryptionAlgorithms"/>, and the
-		/// <see cref="CryptographyContext.EncryptionAlgorithmRank"/>.</para>
-		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
-		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
-		/// </remarks>
-		/// <returns>The preferred encryption algorithm.</returns>
-		/// <param name="recipients">The recipients.</param>
-		protected virtual EncryptionAlgorithm GetPreferredEncryptionAlgorithm (CmsRecipientCollection recipients)
-		{
-			var votes = new int[EncryptionAlgorithmCount];
-			int need = recipients.Count;
-
-			foreach (var recipient in recipients) {
-				int cast = EncryptionAlgorithmCount;
-
-				foreach (var algorithm in recipient.EncryptionAlgorithms)
-					votes[(int) algorithm]++;
-			}
-
-			// Starting with S/MIME v3 (published in 1999), Triple-DES is a REQUIRED algorithm.
-			// S/MIME v2.x and older only required RC2/40, but SUGGESTED Triple-DES.
-			// Considering the fact that Bruce Schneier was able to write a
-			// screensaver that could crack RC2/40 back in the late 90's, let's
-			// not default to anything weaker than Triple-DES...
-			EncryptionAlgorithm chosen = EncryptionAlgorithm.TripleDes;
-			int nvotes = 0;
-
-			votes[(int) EncryptionAlgorithm.TripleDes] = need;
-
-			// iterate through the algorithms, from strongest to weakest, keeping track
-			// of the algorithm with the most amount of votes (between algorithms with
-			// the same number of votes, choose the strongest of the 2 - i.e. the one
-			// that we arrive at first).
-			var algorithms = EncryptionAlgorithmRank;
-			for (int i = 0; i < algorithms.Length; i++) {
-				var algorithm = algorithms[i];
-
-				if (!IsEnabled (algorithm))
-					continue;
-
-				if (votes[(int) algorithm] > nvotes) {
-					nvotes = votes[(int) algorithm];
-					chosen = algorithm;
-				}
-			}
-
-			return chosen;
-		}
-
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
 		{
 			var unique = new HashSet<X509Certificate> ();
