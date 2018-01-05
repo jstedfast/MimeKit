@@ -27,8 +27,12 @@
 using System;
 using System.IO;
 
+#if NETFX_CORE
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
+#else
+using System.Security.Cryptography;
+#endif
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -39,7 +43,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	class DkimHashStream : Stream
 	{
+#if NETFX_CORE
 		IDigest digest;
+#else
+		HashAlgorithm digest;
+#endif
 		bool disposed;
 		int length;
 		int max;
@@ -54,6 +62,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="maxLength">The max length of data to hash.</param>
 		public DkimHashStream (DkimSignatureAlgorithm algorithm, int maxLength = -1)
 		{
+#if NETFX_CORE
 			switch (algorithm) {
 			case DkimSignatureAlgorithm.RsaSha256:
 				digest = new Sha256Digest ();
@@ -62,6 +71,16 @@ namespace MimeKit.Cryptography {
 				digest = new Sha1Digest ();
 				break;
 			}
+#else
+			switch (algorithm) {
+			case DkimSignatureAlgorithm.RsaSha256:
+				digest = SHA256.Create ();
+				break;
+			default:
+				digest = SHA1.Create ();
+				break;
+			}
+#endif
 
 			max = maxLength;
 		}
@@ -75,11 +94,17 @@ namespace MimeKit.Cryptography {
 		/// <returns>The hash.</returns>
 		public byte[] GenerateHash ()
 		{
+#if NETFX_CORE
 			var hash = new byte[digest.GetDigestSize ()];
 
 			digest.DoFinal (hash, 0);
 
 			return hash;
+#else
+			digest.TransformFinalBlock (new byte[0], 0, 0);
+
+			return digest.Hash;
+#endif
 		}
 
 		void CheckDisposed ()
@@ -250,7 +275,11 @@ namespace MimeKit.Cryptography {
 
 			int n = max >= 0 && length + count > max ? max - length : count;
 
+#if NETFX_CORE
 			digest.BlockUpdate (buffer, offset, n);
+#else
+			digest.TransformBlock (buffer, offset, count, null, 0);
+#endif
 
 			length += n;
 		}

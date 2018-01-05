@@ -344,8 +344,16 @@ namespace MimeKit.Cryptography {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
+			if (disposing && !disposed) {
+				var sss = Signer as SystemSecuritySigner;
+
+				if (sss != null)
+					sss.Dispose ();
+
+				disposed = true;
+			}
+
 			base.Dispose (disposing);
-			disposed = true;
 		}
 	}
 }

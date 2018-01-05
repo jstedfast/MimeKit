@@ -1630,6 +1630,7 @@ namespace MimeKit {
 
 		static ISigner DkimGetDigestSigner (DkimSignatureAlgorithm algorithm, AsymmetricKeyParameter key)
 		{
+#if NETFX_CORE
 			DerObjectIdentifier id;
 
 			if (algorithm == DkimSignatureAlgorithm.RsaSha256)
@@ -1642,6 +1643,9 @@ namespace MimeKit {
 			signer.Init (key.IsPrivate, key);
 
 			return signer;
+#else
+			return new SystemSecuritySigner (algorithm, key.AsAsymmetricAlgorithm ());
+#endif
 		}
 
 		byte[] DkimHashBody (FormatOptions options, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm, int maxLength)

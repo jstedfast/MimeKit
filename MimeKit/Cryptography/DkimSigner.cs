@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Security.Cryptography;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
@@ -316,6 +317,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The digest signer.</returns>
 		public virtual ISigner DigestSigner {
 			get {
+#if NETFX_CORE
 				DerObjectIdentifier id;
 
 				if (SignatureAlgorithm == DkimSignatureAlgorithm.RsaSha256)
@@ -328,7 +330,80 @@ namespace MimeKit.Cryptography {
 				signer.Init (true, PrivateKey);
 
 				return signer;
+#else
+				return new SystemSecuritySigner (SignatureAlgorithm, PrivateKey.AsAsymmetricAlgorithm ());
+#endif
 			}
 		}
 	}
+
+#if !NETFX_CORE
+	class SystemSecuritySigner : ISigner
+	{
+		readonly RSACryptoServiceProvider rsa;
+		readonly HashAlgorithm hash;
+		readonly string oid;
+
+		public SystemSecuritySigner (DkimSignatureAlgorithm algorithm, AsymmetricAlgorithm key)
+		{
+			rsa = key as RSACryptoServiceProvider;
+
+			switch (algorithm) {
+			case DkimSignatureAlgorithm.RsaSha256:
+				oid = SecureMimeContext.GetDigestOid (DigestAlgorithm.Sha256);
+				AlgorithmName = "RSASHA256";
+				hash = SHA256.Create ();
+				break;
+			default:
+				oid = SecureMimeContext.GetDigestOid (DigestAlgorithm.Sha1);
+				AlgorithmName = "RSASHA1";
+				hash = SHA1.Create ();
+				break;
+			}
+		}
+
+		public string AlgorithmName {
+			get; private set;
+		}
+
+		public void BlockUpdate (byte[] input, int inOff, int length)
+		{
+			hash.TransformBlock (input, inOff, length, null, 0);
+		}
+
+		public byte[] GenerateSignature ()
+		{
+			hash.TransformFinalBlock (new byte[0], 0, 0);
+
+			return rsa.SignHash (hash.Hash, oid);
+		}
+
+		public void Init (bool forSigning, ICipherParameters parameters)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public void Reset ()
+		{
+			hash.Initialize ();
+		}
+
+		public void Update (byte input)
+		{
+			hash.TransformBlock (new byte[] { input }, 0, 1, null, 0);
+		}
+
+		public bool VerifySignature (byte[] signature)
+		{
+			hash.TransformFinalBlock (new byte[0], 0, 0);
+
+			return rsa.VerifyHash (hash.Hash, oid, signature);
+		}
+
+		public void Dispose ()
+		{
+			rsa.Dispose ();
+		}
+	}
+#endif
 }

@@ -126,10 +126,10 @@ namespace MimeKit.Cryptography {
 		public DateTime ThisUpdate { get; internal set; }
 
 		/// <summary>
-		/// Gets the end date and time where the certificate is valid.
+		/// Gets the date and time when the next CRL update will be published.
 		/// </summary>
 		/// <remarks>
-		/// Gets the end date and time where the certificate is valid.
+		/// Gets the date and time when the next CRL update will be published.
 		/// </remarks>
 		/// <value>The date and time.</value>
 		public DateTime NextUpdate { get; internal set; }
