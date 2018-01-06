@@ -75,7 +75,7 @@ namespace MimeKit.Cryptography {
 				EncryptionAlgorithm.Aes256,
 				EncryptionAlgorithm.Aes192,
 				EncryptionAlgorithm.Aes128,
-				EncryptionAlgorithm.Twofish,
+				//EncryptionAlgorithm.Twofish,
 				EncryptionAlgorithm.Seed,
 				EncryptionAlgorithm.Camellia256,
 				EncryptionAlgorithm.Camellia192,
@@ -554,9 +554,9 @@ namespace MimeKit.Cryptography {
 				case EncryptionAlgorithm.TripleDes:
 					capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);
 					break;
-				case EncryptionAlgorithm.Twofish:
-					capabilities.AddCapability (Twofish);
-					break;
+				//case EncryptionAlgorithm.Twofish:
+				//	capabilities.AddCapability (Twofish);
+				//	break;
 				}
 			}
 

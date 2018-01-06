@@ -599,8 +599,12 @@ namespace UnitTests.Cryptography {
 					case EncryptionAlgorithm.RC264:
 					case EncryptionAlgorithm.RC240:
 						ctx.Disable (EncryptionAlgorithm.TripleDes);
-						ctx.Enable (algorithm);
 						break;
+					}
+
+					if (!enabled) {
+						// make sure the algorithm is enabled
+						ctx.Enable (algorithm);
 					}
 
 					try {
@@ -621,6 +625,9 @@ namespace UnitTests.Cryptography {
 								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
 								break;
 							}
+						} else {
+							if (algorithm != EncryptionAlgorithm.Twofish)
+								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
 						}
 						continue;
 					} catch (Exception ex) {

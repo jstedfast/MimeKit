@@ -1023,9 +1023,9 @@ namespace MimeKit.Cryptography
 			case EncryptionAlgorithm.TripleDes:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
 				break;
-			case EncryptionAlgorithm.Twofish:
-				envelopedData = cms.Generate (input, Twofish.Id);
-				break;
+			//case EncryptionAlgorithm.Twofish:
+			//	envelopedData = cms.Generate (input, Twofish.Id);
+			//	break;
 			default:
 				throw new NotSupportedException (string.Format ("The {0} encryption algorithm is not supported by the {1}.", algorithm, GetType ().Name));
 			}
