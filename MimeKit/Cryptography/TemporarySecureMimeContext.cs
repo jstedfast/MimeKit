@@ -46,8 +46,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class TemporarySecureMimeContext : BouncyCastleSecureMimeContext
 	{
-		readonly Dictionary<X509Certificate, EncryptionAlgorithm[]> capabilities;
-		readonly Dictionary<X509Certificate, AsymmetricKeyParameter> keys;
+		readonly Dictionary<string, EncryptionAlgorithm[]> capabilities;
+		readonly Dictionary<string, AsymmetricKeyParameter> keys;
 		readonly List<X509Certificate> certificates;
 		readonly List<X509Crl> crls;
 
@@ -59,8 +59,8 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public TemporarySecureMimeContext ()
 		{
-			capabilities = new Dictionary<X509Certificate, EncryptionAlgorithm[]> ();
-			keys = new Dictionary<X509Certificate, AsymmetricKeyParameter> ();
+			capabilities = new Dictionary<string, EncryptionAlgorithm[]> ();
+			keys = new Dictionary<string, AsymmetricKeyParameter> ();
 			certificates = new List<X509Certificate> ();
 			crls = new List<X509Crl> ();
 		}
@@ -139,9 +139,10 @@ namespace MimeKit.Cryptography {
 		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
 		{
 			foreach (var certificate in certificates) {
+				var fingerprint = certificate.GetFingerprint ();
 				AsymmetricKeyParameter key;
 
-				if (!keys.TryGetValue (certificate, out key))
+				if (!keys.TryGetValue (fingerprint, out key))
 					continue;
 
 				if (selector != null && !selector.Match (certificate))
@@ -284,7 +285,7 @@ namespace MimeKit.Cryptography {
 			var recipient = new CmsRecipient (certificate);
 			EncryptionAlgorithm[] algorithms;
 
-			if (capabilities.TryGetValue (certificate, out algorithms))
+			if (capabilities.TryGetValue (certificate.GetFingerprint (), out algorithms))
 				recipient.EncryptionAlgorithms = algorithms;
 
 			return recipient;
@@ -303,12 +304,12 @@ namespace MimeKit.Cryptography {
 				if (keyUsage != 0 && (keyUsage & DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
-				if (!keys.TryGetValue (certificate, out key))
+				var fingerprint = certificate.GetFingerprint ();
+
+				if (!keys.TryGetValue (fingerprint, out key))
 					continue;
 
 				if (secure != null) {
-					var fingerprint = certificate.GetFingerprint ();
-
 					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
 						continue;
 				} else {
@@ -366,7 +367,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="timestamp">The timestamp.</param>
 		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			capabilities[certificate] = algorithms;
+			capabilities[certificate.GetFingerprint ()] = algorithms;
 		}
 
 		/// <summary>
@@ -400,7 +401,8 @@ namespace MimeKit.Cryptography {
 					for (int i = 0; i < chain.Length; i++)
 						certificates.Add (chain[i].Certificate);
 
-					keys.Add (chain[0].Certificate, entry.Key);
+					var fingerprint = chain[0].Certificate.GetFingerprint ();
+					keys.Add (fingerprint, entry.Key);
 				} else if (pkcs12.IsCertificateEntry (alias)) {
 					var entry = pkcs12.GetCertificate (alias);
 					certificates.Add (entry.Certificate);
