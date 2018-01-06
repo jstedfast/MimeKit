@@ -27,11 +27,11 @@
 using System;
 using System.IO;
 
-#if NETFX_CORE
+#if ENABLE_NATIVE_DKIM
+using System.Security.Cryptography;
+#else
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
-#else
-using System.Security.Cryptography;
 #endif
 
 namespace MimeKit.Cryptography {
@@ -43,10 +43,10 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	class DkimHashStream : Stream
 	{
-#if NETFX_CORE
-		IDigest digest;
-#else
+#if ENABLE_NATIVE_DKIM
 		HashAlgorithm digest;
+#else
+		IDigest digest;
 #endif
 		bool disposed;
 		int length;
@@ -62,22 +62,22 @@ namespace MimeKit.Cryptography {
 		/// <param name="maxLength">The max length of data to hash.</param>
 		public DkimHashStream (DkimSignatureAlgorithm algorithm, int maxLength = -1)
 		{
-#if NETFX_CORE
-			switch (algorithm) {
-			case DkimSignatureAlgorithm.RsaSha256:
-				digest = new Sha256Digest ();
-				break;
-			default:
-				digest = new Sha1Digest ();
-				break;
-			}
-#else
+#if ENABLE_NATIVE_DKIM
 			switch (algorithm) {
 			case DkimSignatureAlgorithm.RsaSha256:
 				digest = SHA256.Create ();
 				break;
 			default:
 				digest = SHA1.Create ();
+				break;
+			}
+#else
+			switch (algorithm) {
+			case DkimSignatureAlgorithm.RsaSha256:
+				digest = new Sha256Digest ();
+				break;
+			default:
+				digest = new Sha1Digest ();
 				break;
 			}
 #endif
@@ -94,16 +94,16 @@ namespace MimeKit.Cryptography {
 		/// <returns>The hash.</returns>
 		public byte[] GenerateHash ()
 		{
-#if NETFX_CORE
+#if ENABLE_NATIVE_DKIM
+			digest.TransformFinalBlock (new byte[0], 0, 0);
+
+			return digest.Hash;
+#else
 			var hash = new byte[digest.GetDigestSize ()];
 
 			digest.DoFinal (hash, 0);
 
 			return hash;
-#else
-			digest.TransformFinalBlock (new byte[0], 0, 0);
-
-			return digest.Hash;
 #endif
 		}
 
@@ -275,10 +275,10 @@ namespace MimeKit.Cryptography {
 
 			int n = max >= 0 && length + count > max ? max - length : count;
 
-#if NETFX_CORE
-			digest.BlockUpdate (buffer, offset, n);
-#else
+#if ENABLE_NATIVE_DKIM
 			digest.TransformBlock (buffer, offset, count, null, 0);
+#else
+			digest.BlockUpdate (buffer, offset, n);
 #endif
 
 			length += n;
@@ -354,8 +354,15 @@ namespace MimeKit.Cryptography {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
+			if (disposing && !disposed) {
+#if ENABLE_NATIVE_DKIM
+				digest.Dispose ();
+#endif
+
+				disposed = true;
+			}
+
 			base.Dispose (disposing);
-			disposed = true;
 		}
 	}
 }

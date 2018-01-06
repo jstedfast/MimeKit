@@ -345,10 +345,12 @@ namespace MimeKit.Cryptography {
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !disposed) {
+#if ENABLE_NATIVE_DKIM
 				var sss = Signer as SystemSecuritySigner;
 
 				if (sss != null)
 					sss.Dispose ();
+#endif
 
 				disposed = true;
 			}

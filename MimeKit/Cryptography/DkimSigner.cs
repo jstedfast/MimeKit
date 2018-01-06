@@ -26,7 +26,9 @@
 
 using System;
 using System.IO;
+#if ENABLE_NATIVE_DKIM
 using System.Security.Cryptography;
+#endif
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
@@ -317,7 +319,9 @@ namespace MimeKit.Cryptography {
 		/// <returns>The digest signer.</returns>
 		public virtual ISigner DigestSigner {
 			get {
-#if NETFX_CORE
+#if ENABLE_NATIVE_DKIM
+				return new SystemSecuritySigner (SignatureAlgorithm, PrivateKey.AsAsymmetricAlgorithm ());
+#else
 				DerObjectIdentifier id;
 
 				if (SignatureAlgorithm == DkimSignatureAlgorithm.RsaSha256)
@@ -330,14 +334,12 @@ namespace MimeKit.Cryptography {
 				signer.Init (true, PrivateKey);
 
 				return signer;
-#else
-				return new SystemSecuritySigner (SignatureAlgorithm, PrivateKey.AsAsymmetricAlgorithm ());
 #endif
 			}
 		}
 	}
 
-#if !NETFX_CORE
+#if ENABLE_NATIVE_DKIM
 	class SystemSecuritySigner : ISigner
 	{
 		readonly RSACryptoServiceProvider rsa;

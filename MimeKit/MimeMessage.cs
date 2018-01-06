@@ -1630,7 +1630,9 @@ namespace MimeKit {
 
 		static ISigner DkimGetDigestSigner (DkimSignatureAlgorithm algorithm, AsymmetricKeyParameter key)
 		{
-#if NETFX_CORE
+#if ENABLE_NATIVE_DKIM
+			return new SystemSecuritySigner (algorithm, key.AsAsymmetricAlgorithm ());
+#else
 			DerObjectIdentifier id;
 
 			if (algorithm == DkimSignatureAlgorithm.RsaSha256)
@@ -1643,8 +1645,6 @@ namespace MimeKit {
 			signer.Init (key.IsPrivate, key);
 
 			return signer;
-#else
-			return new SystemSecuritySigner (algorithm, key.AsAsymmetricAlgorithm ());
 #endif
 		}
 
