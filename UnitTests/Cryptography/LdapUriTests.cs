@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+#if ENABLE_LDAP
 using System.DirectoryServices.Protocols;
 
 using NUnit.Framework;
@@ -292,3 +293,4 @@ namespace UnitTests.Cryptography
 		}
 	}
 }
+#endif

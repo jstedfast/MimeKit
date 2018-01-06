@@ -1,5 +1,22 @@
 # Release Notes
 
+### MimeKit 2.0.1
+
+* Improved the HTML parser logic to better handle a number of edge cases.
+* MimeKit will now automatically download CRLs based on the CRL Distribution Point
+  certificate extension if any HTTP URLs are defined (LDAP and FTP are not yet supported)
+  when verifying S/MIME digital signatures using a derivative of the
+  BouncyCastleSecureMimeContext backend (the WindowsSecureMimeContext gets this for free
+  from System.Security's CMS implementation).
+* Fixed OpenPgpContext.RetrievePublicKeyRingAsync() to use the filtered stream.
+* Added support for using the Blowfish encryption algorithm with S/MIME (only supported
+  in the BouncyCastle backends).
+* Added support for using the SEED encryption algorithm with S/MIME (also only supported
+  in the BouncyCastle backends).
+* Added an optional 'algorithm' argument to OpenPgpContext.GenerateKeyPair() to allow
+  specifying the symmetric key algorithm to use in generating the key pair. This defaults
+  to AES-256, which is the same value used in older versions of MimeKit.
+
 ### MimeKit 2.0.0
 
 * Added IDkimPublicKeyLocator.LookupPublicKeyAsync() and MimeMessage.VerifyAsync() to support

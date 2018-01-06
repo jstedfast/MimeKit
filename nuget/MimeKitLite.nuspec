@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,11 +25,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed tokenization of unquoted HTML attributes containing entities.
-* Renamed the IContentObject interface to IMimeContent.
-* Renamed the ContentObject class to MimeContent.
-* Renamed the MimePart.ContentObject property to MimePart.Content.
-* Dropped support for .NET 4.0.
+* Improved the HTML parser logic to better handle a number of edge cases.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

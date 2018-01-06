@@ -753,7 +753,7 @@ namespace MimeKit.Cryptography
 				DateTime? signedDate = null;
 				DigestAlgorithm digestAlgo;
 
-				if (CheckCertificateRevocation)
+				if (CheckCertificateRevocation && certificate != null)
 					await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
 
 				if (signerInfo.SignedAttributes != null) {
