@@ -638,11 +638,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -675,11 +675,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override async Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -713,11 +713,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// The extracted content could not be parsed as a MIME entity.
 		/// </exception>
-		/// <exception cref="System.Security.Cryptography.CryptographicException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -754,11 +754,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signedData"/> is <c>null</c>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
+		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -1173,7 +1173,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
