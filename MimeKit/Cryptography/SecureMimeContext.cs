@@ -27,17 +27,14 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.Smime;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Kisa;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -69,6 +66,7 @@ namespace MimeKit.Cryptography {
 		/// <item><term><see cref="EncryptionAlgorithm.Camellia128"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
 		/// <item><term><see cref="EncryptionAlgorithm.TripleDes"/></term></item>
+		/// <item><term><see cref="EncryptionAlgorithm.Seed"/></term></item>
 		/// </list>
 		/// </remarks>
 		protected SecureMimeContext ()
@@ -78,10 +76,11 @@ namespace MimeKit.Cryptography {
 				EncryptionAlgorithm.Aes192,
 				EncryptionAlgorithm.Aes128,
 				EncryptionAlgorithm.Twofish,
-				EncryptionAlgorithm.Cast5,
+				EncryptionAlgorithm.Seed,
 				EncryptionAlgorithm.Camellia256,
 				EncryptionAlgorithm.Camellia192,
 				EncryptionAlgorithm.Camellia128,
+				EncryptionAlgorithm.Cast5,
 				EncryptionAlgorithm.Blowfish,
 				EncryptionAlgorithm.TripleDes,
 				EncryptionAlgorithm.Idea,
@@ -548,6 +547,9 @@ namespace MimeKit.Cryptography {
 					break;
 				case EncryptionAlgorithm.RC2128:
 					capabilities.AddCapability (SmimeCapabilities.RC2Cbc, 128);
+					break;
+				case EncryptionAlgorithm.Seed:
+					capabilities.AddCapability (KisaObjectIdentifiers.IdSeedCbc);
 					break;
 				case EncryptionAlgorithm.TripleDes:
 					capabilities.AddCapability (SmimeCapabilities.DesEde3Cbc);

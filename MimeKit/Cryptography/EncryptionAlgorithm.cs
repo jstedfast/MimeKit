@@ -133,5 +133,10 @@ namespace MimeKit.Cryptography {
 		/// The RC2 128-bit encryption algorithm (S/MIME only).
 		/// </summary>
 		RC2128,
+
+		/// <summary>
+		/// The SEED 128-bit encryption algorithm (S/MIME only).
+		/// </summary>
+		Seed
 	}
 }

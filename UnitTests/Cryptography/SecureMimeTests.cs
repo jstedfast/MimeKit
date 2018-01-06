@@ -288,17 +288,19 @@ namespace UnitTests.Cryptography {
 					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
 					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
 					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-						Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-						Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.AreEqual (EncryptionAlgorithm.Seed, algorithms[i++], "Expected SEED capability");
 					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
 						Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
 					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
 						Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
 					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
 						Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
 					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
 					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
 					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
@@ -350,17 +352,19 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
 				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
 				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+					Assert.AreEqual (EncryptionAlgorithm.Seed, algorithms[i++], "Expected SEED capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
 				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
 				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
 				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
 				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
@@ -424,17 +428,19 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
 				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
 				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+					Assert.AreEqual (EncryptionAlgorithm.Seed, algorithms[i++], "Expected SEED capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
 				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
 				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
 				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
 				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
@@ -578,31 +584,14 @@ namespace UnitTests.Cryptography {
 			recipients.Add (new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier));
 
 			using (var ctx = CreateContext ()) {
-				var algorithms = new EncryptionAlgorithm[] {
-					EncryptionAlgorithm.Aes128,
-					EncryptionAlgorithm.Aes192,
-					EncryptionAlgorithm.Aes256,
-					EncryptionAlgorithm.Camellia128,
-					EncryptionAlgorithm.Camellia192,
-					EncryptionAlgorithm.Camellia256,
-					EncryptionAlgorithm.Twofish,
-					EncryptionAlgorithm.Blowfish,
-					EncryptionAlgorithm.Cast5,
-					EncryptionAlgorithm.TripleDes,
-					EncryptionAlgorithm.Idea,
-					EncryptionAlgorithm.Des,
-					EncryptionAlgorithm.RC2128,
-					EncryptionAlgorithm.RC264,
-					EncryptionAlgorithm.RC240
-				};
-
-				foreach (var algorithm in algorithms) {
+				foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
 					foreach (var recipient in recipients)
 						recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
 
 					var enabled = ctx.IsEnabled (algorithm);
 					ApplicationPkcs7Mime encrypted;
 
+					// Note: these are considered weaker than 3DES and so we need to disable 3DES to use them
 					switch (algorithm) {
 					case EncryptionAlgorithm.Idea:
 					case EncryptionAlgorithm.Des:
@@ -622,10 +611,11 @@ namespace UnitTests.Cryptography {
 							case EncryptionAlgorithm.Camellia128:
 							case EncryptionAlgorithm.Camellia192:
 							case EncryptionAlgorithm.Camellia256:
-							case EncryptionAlgorithm.Twofish:
 							case EncryptionAlgorithm.Blowfish:
+							case EncryptionAlgorithm.Twofish:
 							case EncryptionAlgorithm.Cast5:
 							case EncryptionAlgorithm.Idea:
+							case EncryptionAlgorithm.Seed:
 								break;
 							default:
 								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
@@ -752,17 +742,19 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
 				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
 				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+					Assert.AreEqual (EncryptionAlgorithm.Seed, algorithms[i++], "Expected SEED capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
 				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
 					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
 				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
 				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
 				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
 				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");

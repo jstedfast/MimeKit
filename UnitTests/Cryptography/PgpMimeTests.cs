@@ -70,6 +70,19 @@ namespace UnitTests.Cryptography {
 			File.Copy (Path.Combine (dataDir, "gpg.conf"), "gpg.conf", true);
 		}
 
+		static bool IsSupported (EncryptionAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case EncryptionAlgorithm.RC2128:
+			case EncryptionAlgorithm.RC264:
+			case EncryptionAlgorithm.RC240:
+			case EncryptionAlgorithm.Seed:
+				return false;
+			default:
+				return true;
+			}
+		}
+
 		[Test]
 		public void TestPreferredAlgorithms ()
 		{
@@ -480,11 +493,9 @@ namespace UnitTests.Cryptography {
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-					if (algorithm == EncryptionAlgorithm.RC240 ||
-						algorithm == EncryptionAlgorithm.RC264 || 
-						algorithm == EncryptionAlgorithm.RC2128)
+					if (!IsSupported (algorithm))
 						continue;
-					
+
 					var encrypted = MultipartEncrypted.Encrypt (algorithm, new [] { self }, body);
 
 					//using (var file = File.Create ("pgp-encrypted.asc"))
@@ -510,9 +521,7 @@ namespace UnitTests.Cryptography {
 			}
 
 			foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-				if (algorithm == EncryptionAlgorithm.RC240 ||
-					algorithm == EncryptionAlgorithm.RC264 || 
-					algorithm == EncryptionAlgorithm.RC2128)
+				if (!IsSupported (algorithm))
 					continue;
 
 				var encrypted = MultipartEncrypted.Encrypt (algorithm, recipients, body);
@@ -824,9 +833,7 @@ namespace UnitTests.Cryptography {
 		{
 			using (var ctx = new DummyOpenPgpContext ()) {
 				foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-					if (algorithm == EncryptionAlgorithm.RC240 ||
-						algorithm == EncryptionAlgorithm.RC264 || 
-						algorithm == EncryptionAlgorithm.RC2128) {
+					if (!IsSupported (algorithm)) {
 						Assert.Throws<NotSupportedException> (() => ctx.DefaultEncryptionAlgorithm = algorithm);
 						continue;
 					}

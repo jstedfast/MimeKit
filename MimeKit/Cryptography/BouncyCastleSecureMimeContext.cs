@@ -532,6 +532,11 @@ namespace MimeKit.Cryptography
 				return true;
 			}
 
+			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.SeedCbc) {
+				algorithm = EncryptionAlgorithm.Seed;
+				return true;
+			}
+
 			if (identifier.Algorithm.Id == SmimeCapability.DesCbc.Id) {
 				algorithm = EncryptionAlgorithm.Des;
 				return true;
@@ -1011,6 +1016,9 @@ namespace MimeKit.Cryptography
 				break;
 			case EncryptionAlgorithm.RC2128:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 128);
+				break;
+			case EncryptionAlgorithm.Seed:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.SeedCbc);
 				break;
 			case EncryptionAlgorithm.TripleDes:
 				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
