@@ -228,8 +228,9 @@ namespace MimeKit.Cryptography
 		/// </summary>
 		/// <remarks>
 		/// <para>Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.</para>
-		/// <para>This method is called from <see cref="GetDigitalSignatures"/>, allowing custom implementations
-		/// to update the X.509 certificate records with the list of preferred encryption algorithms specified by the sending client.</para>
+		/// <para>This method is called when decoding digital signatures that include S/MIME capabilities in the metadata, allowing custom
+		/// implementations to update the X.509 certificate records with the list of preferred encryption algorithms specified by the
+		/// sending client.</para>
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
@@ -600,7 +601,7 @@ namespace MimeKit.Cryptography
 						content.CopyTo (stream, 4096);
 					}
 #else
-					using (var response = client.GetAsync (url, cancellationToken).GetAwaiter ().GetResult ())
+					using (var response = client.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
 						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
 #endif
 				}
@@ -738,6 +739,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The digital signatures.</returns>
 		/// <param name="parser">The CMS signed data parser.</param>
+		/// <param name="doAsync">Whether or not the operation should be done asynchronously.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, bool doAsync, CancellationToken cancellationToken)
 		{
