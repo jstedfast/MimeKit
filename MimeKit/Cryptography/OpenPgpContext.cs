@@ -1025,7 +1025,7 @@ namespace MimeKit.Cryptography {
 			keyRingGenerator.AddSubKey (keyPair, subpacketGenerator.Generate (), null);
 		}
 
-		PgpKeyRingGenerator CreateKeyRingGenerator (MailboxAddress mailbox, long expirationTime, string password, DateTime now)
+		PgpKeyRingGenerator CreateKeyRingGenerator (MailboxAddress mailbox, EncryptionAlgorithm algorithm, long expirationTime, string password, DateTime now)
 		{
 			var enabledEncryptionAlgorithms = EnabledEncryptionAlgorithms;
 			var enabledDigestAlgorithms = EnabledDigestAlgorithms;
@@ -1062,7 +1062,7 @@ namespace MimeKit.Cryptography {
 				PgpSignature.PositiveCertification,
 				signingKeyPair,
 				mailbox.ToString (false),
-				SymmetricKeyAlgorithmTag.Aes256,
+				GetSymmetricKeyAlgorithm (algorithm),
 				CharsetUtils.UTF8.GetBytes (password),
 				true,
 				subpacketGenerator.Generate (),
@@ -1084,6 +1084,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The mailbox to generate the key pair for.</param>
 		/// <param name="password">The password to be set on the secret key.</param>
 		/// <param name="expirationDate">The expiration date for the generated key pair.</param>
+		/// <param name="algorithm">The symmetric key algorithm to use.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailbox"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1092,7 +1093,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="expirationDate"/> is not a date in the future.
 		/// </exception>
-		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null)
+		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null, EncryptionAlgorithm algorithm = EncryptionAlgorithm.Aes256)
 		{
 			var now = DateTime.UtcNow;
 			long expirationTime = 0;
@@ -1113,7 +1114,7 @@ namespace MimeKit.Cryptography {
 					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
 			}
 
-			var generator = CreateKeyRingGenerator (mailbox, expirationTime, password, now);
+			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now);
 
 			Import (generator.GenerateSecretKeyRing ());
 			Import (generator.GeneratePublicKeyRing ());

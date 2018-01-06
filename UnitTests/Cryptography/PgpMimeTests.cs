@@ -138,7 +138,7 @@ namespace UnitTests.Cryptography {
 				int publicKeyRings = ctx.EnumeratePublicKeyRings ().Count ();
 				int secretKeyRings = ctx.EnumerateSecretKeyRings ().Count ();
 
-				ctx.GenerateKeyPair (mailbox, "password", DateTime.Now.AddYears (1));
+				ctx.GenerateKeyPair (mailbox, "password", DateTime.Now.AddYears (1), EncryptionAlgorithm.Cast5);
 
 				var pubring = ctx.EnumeratePublicKeyRings (mailbox).FirstOrDefault ();
 				Assert.IsNotNull (pubring, "Expected to find the generated public keyring");
@@ -161,7 +161,7 @@ namespace UnitTests.Cryptography {
 				var seckey = ctx.EnumerateSecretKeys (new MailboxAddress ("", "mimekit@example.com")).FirstOrDefault ();
 				var mailbox = new MailboxAddress ("Snarky McSnarkypants", "snarky@snarkypants.net");
 
-				ctx.GenerateKeyPair (mailbox, "password", DateTime.Now.AddYears (1));
+				ctx.GenerateKeyPair (mailbox, "password", DateTime.Now.AddYears (1), EncryptionAlgorithm.Cast5);
 
 				// delete the secret keyring, we don't need it
 				var secring = ctx.EnumerateSecretKeyRings (mailbox).FirstOrDefault ();
