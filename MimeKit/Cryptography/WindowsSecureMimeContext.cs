@@ -379,8 +379,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.</para>
-		/// <para>This method is called from <see cref="GetDigitalSignatures"/>, allowing custom implementations
-		/// to update the X.509 certificate records with the list of preferred encryption algorithms specified by the sending client.</para>
+		/// <para>This method is called when decoding digital signatures that include S/MIME capabilities in the metadata, allowing custom
+		/// implementations to update the X.509 certificate records with the list of preferred encryption algorithms specified by the
+		/// sending client.</para>
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
