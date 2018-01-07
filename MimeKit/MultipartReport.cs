@@ -34,6 +34,9 @@ namespace MimeKit {
 	/// A multipart/related MIME entity is a general container part for electronic mail
 	/// reports of any kind.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+	/// </example>
 	public class MultipartReport : Multipart
 	{
 		/// <summary>
@@ -100,6 +103,9 @@ namespace MimeKit {
 		/// <para>The report type should be the subtype of the second <see cref="MimeEntity"/>
 		/// of the multipart/report.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+		/// </example>
 		/// <value>The type of the report.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.

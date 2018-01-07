@@ -37,6 +37,9 @@ namespace MimeKit {
 	/// delivery status of a message and has a MIME-type of message/delivery-status.</para>
 	/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc3464">rfc3464</a>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+	/// </example>
 	public class MessageDeliveryStatus : MimePart
 	{
 		HeaderListCollection groups;
@@ -79,6 +82,9 @@ namespace MimeKit {
 		/// <a href="https://tools.ietf.org/html/rfc3464#section-2.3">Section 2.3</a> defines
 		/// the per-recipient fields.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+		/// </example>
 		/// <value>The fields.</value>
 		public HeaderListCollection StatusGroups {
 			get {
