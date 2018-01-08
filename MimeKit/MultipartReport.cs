@@ -37,7 +37,7 @@ namespace MimeKit {
 	/// <seealso cref="MimeKit.MessageDispositionNotification"/>
 	/// </remarks>
 	/// <example>
-	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 	/// </example>
 	public class MultipartReport : Multipart
 	{
@@ -106,7 +106,7 @@ namespace MimeKit {
 		/// of the multipart/report.</para>
 		/// </remarks>
 		/// <example>
-		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 		/// </example>
 		/// <value>The type of the report.</value>
 		/// <exception cref="System.ArgumentNullException">
