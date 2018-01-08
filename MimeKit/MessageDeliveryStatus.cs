@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// <seealso cref="MimeKit.MultipartReport"/>
 	/// </remarks>
 	/// <example>
-	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 	/// </example>
 	public class MessageDeliveryStatus : MimePart
 	{
@@ -84,7 +84,7 @@ namespace MimeKit {
 		/// the per-recipient fields.</para>
 		/// </remarks>
 		/// <example>
-		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />
+		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 		/// </example>
 		/// <value>The fields.</value>
 		public HeaderListCollection StatusGroups {
