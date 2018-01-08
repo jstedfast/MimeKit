@@ -36,6 +36,7 @@ namespace MimeKit {
 	/// A message disposition notification MIME part is a machine readable notification
 	/// denoting the disposition of a message once it has been successfully delivered 
 	/// and has a MIME-type of message/disposition-notification.
+	/// <seealso cref="MimeKit.MultipartReport"/>
 	/// </remarks>
 	public class MessageDispositionNotification : MimePart
 	{

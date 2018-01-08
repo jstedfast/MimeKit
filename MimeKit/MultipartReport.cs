@@ -33,6 +33,8 @@ namespace MimeKit {
 	/// <remarks>
 	/// A multipart/related MIME entity is a general container part for electronic mail
 	/// reports of any kind.
+	/// <seealso cref="MimeKit.MessageDeliveryStatus"/>
+	/// <seealso cref="MimeKit.MessageDispositionNotification"/>
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessMessageDeliveryStatus" />

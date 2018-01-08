@@ -38,6 +38,9 @@ namespace MimeKit {
 	/// A multipart/related MIME entity contains, as one might expect, inter-related MIME parts which
 	/// typically reference each other via URIs based on the Content-Id and/or Content-Location headers.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+	/// </example>
 	public class MultipartRelated : Multipart
 	{
 		/// <summary>
@@ -109,6 +112,9 @@ namespace MimeKit {
 		/// <para>When setting the root document MIME part, the Content-Type header of the multipart/related part is also
 		/// updated with a appropriate <c>"start"</c> and <c>"type"</c> parameters.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <value>The root MIME part.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -205,6 +211,9 @@ namespace MimeKit {
 		/// multipart/related part's Content-Base header in order to produce an absolute URI that can be
 		/// compared with the provided absolute URI.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
 		/// <returns>The index of the part matching the specified URI if found; otherwise <c>-1</c>.</returns>
 		/// <param name="uri">The URI of the MIME part.</param>
 		/// <exception cref="System.ArgumentNullException">

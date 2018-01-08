@@ -36,6 +36,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// Walks the MIME tree structure of a <see cref="MimeMessage"/> in depth-first order.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeIterator.cs" />
+	/// </example>
 	public class MimeIterator : IEnumerator<MimeEntity>
 	{
 		class MimeNode
@@ -62,6 +65,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new <see cref="MimeIterator"/> for the specified message.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeIterator.cs" />
+		/// </example>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="message"/> is <c>null</c>.
@@ -112,6 +118,9 @@ namespace MimeKit {
 		/// will be <c>null</c>; otherwise the parent will be either be a
 		/// <see cref="MessagePart"/> or a <see cref="Multipart"/>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeIterator.cs" />
+		/// </example>
 		/// <value>The parent entity.</value>
 		/// <exception cref="System.InvalidOperationException">
 		/// Either <see cref="MoveNext()"/> has not been called or <see cref="MoveNext()"/>
@@ -137,6 +146,9 @@ namespace MimeKit {
 		/// also throws a <see cref="System.InvalidOperationException"/> if the last call to
 		/// <see cref="MoveNext()"/> returned false, which indicates the end of the message.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeIterator.cs" />
+		/// </example>
 		/// <value>The current entity.</value>
 		/// <exception cref="System.InvalidOperationException">
 		/// Either <see cref="MoveNext()"/> has not been called or <see cref="MoveNext()"/>
@@ -265,6 +277,9 @@ namespace MimeKit {
 		/// When the iterator is at this position, subsequent calls to MoveNext also return
 		/// false until <see cref="Reset()"/> is called.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeIterator.cs" />
+		/// </example>
 		/// <returns><c>true</c> if the iterator was successfully advanced to the next entity; otherwise, <c>false</c>.</returns>
 		public bool MoveNext ()
 		{

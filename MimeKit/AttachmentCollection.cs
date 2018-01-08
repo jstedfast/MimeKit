@@ -39,6 +39,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// The <see cref="AttachmentCollection"/> is only used when building a message body with a <see cref="BodyBuilder"/>.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+	/// </example>
 	public class AttachmentCollection : IList<MimeEntity>
 	{
 		readonly List<MimeEntity> attachments;
@@ -406,6 +409,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Adds the specified file as an attachment.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <exception cref="System.ArgumentNullException">

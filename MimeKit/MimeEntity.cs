@@ -1689,6 +1689,9 @@ namespace MimeKit {
 		/// This method is mostly meant for use with APIs such as <see cref="System.Net.HttpWebResponse"/>
 		/// where the headers are parsed separately from the content.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MultipartFormDataExample.cs" region="ParseMultipartFormDataSimple" />
+		/// </example>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="contentType">The Content-Type of the stream.</param>
 		/// <param name="content">The content stream.</param>

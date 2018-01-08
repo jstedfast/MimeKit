@@ -33,6 +33,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// <see cref="BodyBuilder"/> is a helper class for building common MIME body structures.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+	/// </example>
 	public class BodyBuilder
 	{
 		/// <summary>
@@ -41,6 +44,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new <see cref="BodyBuilder"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		public BodyBuilder ()
 		{
 			LinkedResources = new AttachmentCollection (true);
@@ -53,6 +59,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Represents a collection of file attachments that will be included in the message.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		/// <value>The attachments.</value>
 		public AttachmentCollection Attachments {
 			get; private set;
@@ -64,6 +73,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Linked resources are a special type of attachment which are linked to from the <see cref="HtmlBody"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		/// <value>The linked resources.</value>
 		public AttachmentCollection LinkedResources {
 			get; private set;
@@ -75,6 +87,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Represents the plain-text formatted version of the message body.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		/// <value>The text body.</value>
 		public string TextBody {
 			get; set;
@@ -86,6 +101,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Represents the html formatted version of the message body and may link to any of the <see cref="LinkedResources"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		/// <value>The html body.</value>
 		public string HtmlBody {
 			get; set;
@@ -99,6 +117,9 @@ namespace MimeKit {
 		/// and <see cref="HtmlBody"/> into the proper MIME structure suitable for display in many common
 		/// mail clients.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
+		/// </example>
 		/// <returns>The message body.</returns>
 		public MimeEntity ToMessageBody ()
 		{

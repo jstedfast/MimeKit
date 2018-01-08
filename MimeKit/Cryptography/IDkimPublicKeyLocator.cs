@@ -37,11 +37,12 @@ namespace MimeKit.Cryptography {
 	/// <para>An interface for a service which locates and retrieves DKIM public keys (probably via DNS).</para>
 	/// <para>Since MimeKit itself does not implement DNS, it is up to the client to implement public key lookups
 	/// via DNS.</para>
-	/// <seealso cref="MimeKit.MimeMessage.Verify(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 	/// </example>
+	/// <seealso cref="MimeKit.MimeMessage.Verify(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
+	/// <seealso cref="MimeKit.MimeMessage.VerifyAsync(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 	public interface IDkimPublicKeyLocator
 	{
 		/// <summary>
@@ -49,11 +50,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Locates and retrieves the public key for the given domain and selector.</para>
-		/// <seealso cref="MimeKit.MimeMessage.Verify(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
+		/// <seealso cref="MimeKit.MimeMessage.Verify(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 		/// <returns>The public key.</returns>
 		/// <param name="methods">A colon-separated list of query methods used to retrieve the public key. The default is <c>"dns/txt"</c>.</param>
 		/// <param name="domain">The domain.</param>
@@ -66,11 +67,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Locates and retrieves the public key for the given domain and selector.</para>
-		/// <seealso cref="MimeKit.MimeMessage.VerifyAsync(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
+		/// <seealso cref="MimeKit.MimeMessage.VerifyAsync(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
 		/// <returns>The public key.</returns>
 		/// <param name="methods">A colon-separated list of query methods used to retrieve the public key. The default is <c>"dns/txt"</c>.</param>
 		/// <param name="domain">The domain.</param>
