@@ -65,11 +65,19 @@ namespace MimeKit.Cryptography {
 			DigestAlgorithm = DigestAlgorithm.Sha1;
 		}
 
-		static void CheckCertificateCanBeUsedForSigning (X509Certificate certificate)
+		static bool CanSign (X509Certificate certificate)
 		{
 			var flags = certificate.GetKeyUsageFlags ();
 
 			if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+				return false;
+
+			return true;
+		}
+
+		static void CheckCertificateCanBeUsedForSigning (X509Certificate certificate)
+		{
+			if (!CanSign (certificate))
 				throw new ArgumentException ("The certificate cannot be used for signing.");
 		}
 
@@ -161,6 +169,7 @@ namespace MimeKit.Cryptography {
 		void LoadPkcs12 (Stream stream, string password)
 		{
 			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
+			bool hasPrivateKey = false;
 
 			foreach (string alias in pkcs12.Aliases) {
 				if (!pkcs12.IsKeyEntry (alias))
@@ -169,15 +178,13 @@ namespace MimeKit.Cryptography {
 				var chain = pkcs12.GetCertificateChain (alias);
 				var key = pkcs12.GetKey (alias);
 
-				if (!key.Key.IsPrivate || chain.Length == 0)
+				if (!key.Key.IsPrivate)
 					continue;
 
-				var flags = chain[0].Certificate.GetKeyUsageFlags ();
+				hasPrivateKey = true;
 
-				if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+				if (chain.Length == 0 || !CanSign (chain[0].Certificate))
 					continue;
-
-				CheckCertificateCanBeUsedForSigning (chain[0].Certificate);
 
 				CertificateChain = new X509CertificateChain ();
 				Certificate = chain[0].Certificate;
@@ -186,11 +193,13 @@ namespace MimeKit.Cryptography {
 				foreach (var entry in chain)
 					CertificateChain.Add (entry.Certificate);
 
-				break;
+				return;
 			}
 
-			if (PrivateKey == null)
+			if (!hasPrivateKey)
 				throw new ArgumentException ("The stream did not contain a private key.", nameof (stream));
+
+			throw new ArgumentException ("The stream did not contain a certificate that could be used to create digital signatures.", nameof (stream));
 		}
 
 		/// <summary>
@@ -212,7 +221,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="stream"/> does not contain a private key.
+		/// <para><paramref name="stream"/> does not contain a private key.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> does not contain a certificate that could be used for signing.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -248,9 +259,13 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// <para><paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> does not contain a private key.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> does not contain a certificate that could be used for signing.</para>
 		/// </exception>
 		/// <exception cref="System.IO.DirectoryNotFoundException">
 		/// <paramref name="fileName"/> is an invalid file path.
