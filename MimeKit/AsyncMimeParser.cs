@@ -293,7 +293,11 @@ namespace MimeKit {
 						while (*inptr != (byte) '\n')
 							inptr++;
 
-						found = CheckBoundary (inputIndex, start, (int) (inptr - start));
+						// Compiling on Linux with XBuild generated a "Not implemented exception".
+						// The use of this temp variable fixes this.
+						int length = (int) (inptr - start);
+						found = CheckBoundary (inputIndex, start, length);
+						//found = CheckBoundary (inputIndex, start, (int) (inptr - start));
 
 						switch (found) {
 						case BoundaryType.ImmediateEndBoundary:
