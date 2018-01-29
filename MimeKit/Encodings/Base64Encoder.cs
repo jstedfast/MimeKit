@@ -277,7 +277,7 @@ namespace MimeKit.Encodings {
 				*outptr++ = (byte) '\n';
 
 			Reset ();
-			
+
 			return (int) (outptr - output);
 		}
 
