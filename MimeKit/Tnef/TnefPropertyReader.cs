@@ -487,7 +487,7 @@ namespace MimeKit.Tnef {
 
 			if (codepage != 0 && codepage != 1252) {
 				try {
-					return Encoding.GetEncoding (codepage, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+					return Encoding.GetEncoding (codepage);
 				} catch {
 					return DefaultEncoding;
 				}
