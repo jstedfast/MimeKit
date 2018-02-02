@@ -42,7 +42,7 @@ container which you'll then want to add the message body to first. Once you've a
 then add MIME parts to it that contain the content of the files you'd like to attach, being sure to set
 the `Content-Disposition` header value to attachment. You'll probably also want to set the `filename`
 parameter on the `Content-Disposition` header as well as the `name` parameter on the `Content-Type`
-header. The most convenient way to do this is to simply use the
+header. The most convenient way to do this is to use the
 [MimePart.FileName](http://www.mimekit.net/docs/html/P_MimeKit_MimePart_FileName.htm) property which
 will set both parameters for you as well as setting the `Content-Disposition` header value to `attachment`
 if it has not already been set to something else.
@@ -614,7 +614,7 @@ To: John Smith <john@smith.com>
 ```
 
 If you only care about getting a flattened list of the mailbox addresses in a `From`, `To`, or `Cc`
-header, you can simply do something like this:
+header, you can do something like this:
 
 ```csharp
 foreach (var mailbox in message.To.Mailboxes)
@@ -1102,7 +1102,7 @@ public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IE
 }
 ```
 
-To forward a message by simply inlining the original message's text content, you can do something like this:
+To forward a message by inlining the original message's text content, you can do something like this:
 
 ```csharp
 public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IEnumerable<InternetAddress> to)

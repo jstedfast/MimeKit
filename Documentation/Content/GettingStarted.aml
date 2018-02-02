@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <topic id="GettingStarted" revisionNumber="1">
   <developerConceptualDocument
     xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5"
@@ -22,7 +22,7 @@
           <externalLink>
             <linkText>Package Manager Console</linkText>
             <linkUri>http://docs.nuget.org/docs/start-here/using-the-package-manager-console</linkUri>
-          </externalLink>, simply enter the following command:
+          </externalLink>, enter the following command:
         </para>
         <para>
           <command>Install-Package MimeKit</command>
@@ -97,7 +97,7 @@
         <para>
           Once you've opened the appropriate <application>MimeKit</application> solution
           file in either <application>Xamarin Studio</application> or
-          <application>Visual Studio</application> (either will work), you can simply
+          <application>Visual Studio</application> (either will work), you can
           choose the Debug or Release build configuration and then build.
         </para>
       </content>
