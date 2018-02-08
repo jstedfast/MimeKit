@@ -761,8 +761,17 @@ namespace MimeKit {
 
 						if (inptr == inend) {
 							// we don't have enough input data
-							left = (int) (inend - start);
+							int available = (int) (inend - start);
+
 							inputIndex = (int) (start - inbuf);
+
+							if (left == available) {
+								state = MimeParserState.Error;
+								headerIndex = 0;
+								return false;
+							}
+
+							left = available;
 							needInput = true;
 							break;
 						}
