@@ -425,10 +425,10 @@ namespace MimeKit.Cryptography {
 			var signed = new SignedCms (contentInfo, detach);
 
 			try {
-				signed.ComputeSignature (signer);
+				signed.ComputeSignature (signer, false);
 			} catch (CryptographicException) {
 				signer.IncludeOption = X509IncludeOption.EndCertOnly;
-				signed.ComputeSignature (signer);
+				signed.ComputeSignature (signer, false);
 			}
 
 			var signedData = signed.Encode ();
