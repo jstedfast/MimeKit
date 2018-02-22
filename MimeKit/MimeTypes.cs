@@ -143,11 +143,12 @@ namespace MimeKit {
 			mimeTypes.Add ("dwg", "application/acad");
 			mimeTypes.Add ("dxf", "application/dxf");
 			mimeTypes.Add ("dxr", "application/x-director");
-			mimeTypes.Add ("elc", "application/x-elc");
 			mimeTypes.Add ("el", "text/x-script.elisp");
+			mimeTypes.Add ("elc", "application/x-elc");
 			mimeTypes.Add ("eml", "message/rfc822");
 			mimeTypes.Add ("eot", "application/vnd.bw-fontobject");
 			mimeTypes.Add ("eps", "application/postscript");
+			mimeTypes.Add ("epub", "application/epub+zip");
 			mimeTypes.Add ("es", "application/x-esrehber");
 			mimeTypes.Add ("etx", "text/x-setext");
 			mimeTypes.Add ("evy", "application/envoy");
