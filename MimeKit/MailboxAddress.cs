@@ -312,6 +312,9 @@ namespace MimeKit {
 				var domain = addrspec.Substring (at + 1);
 				var local = addrspec.Substring (0, at);
 
+				if (ParseUtils.IsInternational (local))
+					local = ParseUtils.IdnEncode (local);
+
 				if (ParseUtils.IsInternational (domain))
 					domain = ParseUtils.IdnEncode (domain);
 
@@ -360,6 +363,9 @@ namespace MimeKit {
 			if (at != -1) {
 				var domain = addrspec.Substring (at + 1);
 				var local = addrspec.Substring (0, at);
+
+				if (ParseUtils.IsIdnEncoded (local))
+					local = ParseUtils.IdnDecode (local);
 
 				if (ParseUtils.IsIdnEncoded (domain))
 					domain = ParseUtils.IdnDecode (domain);
