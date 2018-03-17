@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 2.0.2
+
+* IDN encode/decode the local part of mailbox addresses as well. (MailKit issue #649)
+* Added a record for .epub to the MimeTypes database. (issue #376)
+* Explicitly pass 'false' as the silent argument to SignedCms.ComputeSignature(). (issue #374)
+* Make sure the MimeParser does not hang if the last header line is truncated before CRLF.
+* Don't use Encoder/DecoderExceptionFallbacks in the TNEF reader. (issue #370)
+* Provide a better error message when the cert within a pkcs12 cannot digital sign. (issue #367)
+* Fixed TemporarySecureMimeContext to key off the certificate's fingerprint.
+
 ### MimeKit 2.0.1
 
 * Improved the HTML parser logic to better handle a number of edge cases.
