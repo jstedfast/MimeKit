@@ -414,7 +414,7 @@ namespace MimeKit.Text {
 					}
 
 					if (c > 255 && char.IsSurrogate (c)) {
-						if (index + 1 < endIndex && char.IsSurrogatePair (c, data[index])) {
+						if (index + 1 <= endIndex && char.IsSurrogatePair (c, data[index])) {
 							unichar = char.ConvertToUtf32 (c, data[index]);
 							index++;
 						} else {

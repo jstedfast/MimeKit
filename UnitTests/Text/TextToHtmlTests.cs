@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 
+using MimeKit.Encodings;
 using MimeKit.Text;
 
 using NUnit.Framework;
@@ -88,6 +89,22 @@ namespace UnitTests.Text {
 			};
 
 			var result = converter.Convert (input);
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestEmoji ()
+		{
+			var expected = "<html><body>&#128561;<br/></body></html>";
+			var buffer = Encoding.ASCII.GetBytes ("=F0=9F=98=B1");
+			var decoder = new QuotedPrintableDecoder ();
+			var length = decoder.EstimateOutputLength (buffer.Length);
+			var decoded = new byte[length];
+			var n = decoder.Decode (buffer, 0, buffer.Length, decoded);
+			var emoji = Encoding.UTF8.GetString (decoded, 0, n);
+			var converter = new TextToHtml ();
+			var result = converter.Convert (emoji);
+
 			Assert.AreEqual (expected, result);
 		}
 	}
