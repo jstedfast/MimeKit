@@ -126,7 +126,7 @@ namespace MimeKit {
 			MultipartAlternative alternative = null;
 			MimeEntity body = null;
 
-			if (!string.IsNullOrEmpty (TextBody)) {
+			if (TextBody != null) {
 				var text = new TextPart ("plain");
 				text.Text = TextBody;
 
@@ -139,7 +139,7 @@ namespace MimeKit {
 				}
 			}
 
-			if (!string.IsNullOrEmpty (HtmlBody)) {
+			if (HtmlBody != null) {
 				var text = new TextPart ("html");
 				MimeEntity html;
 
