@@ -155,27 +155,41 @@ namespace MimeKit {
 			return ContentType.Parse (mimeType);
 		}
 
-		MimePart CreateAttachment (ContentType contentType, string fileName, Stream stream)
+		MimeEntity CreateAttachment (ContentType contentType, string fileName, Stream stream)
 		{
-			MimePart attachment;
+			MimeEntity attachment;
 
-			if (contentType.IsMimeType ("text", "*")) {
-				attachment = new TextPart (contentType.MediaSubtype);
-				foreach (var param in contentType.Parameters)
-					attachment.ContentType.Parameters.Add (param);
+			if (contentType.IsMimeType ("message", "rfc822")) {
+				var message = MimeMessage.Load (stream);
+				var rfc822 = new MessagePart { Message = message };
 
-				// TODO: should we try to auto-detect charsets if no charset parameter is specified?
+				rfc822.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment);
+				rfc822.ContentDisposition.FileName = Path.GetFileName (fileName);
+				rfc822.ContentType.Name = Path.GetFileName (fileName);
+
+				attachment = rfc822;
 			} else {
-				attachment = new MimePart (contentType);
-			}
+				MimePart part;
 
-			attachment.FileName = Path.GetFileName (fileName);
-			attachment.IsAttachment = !linked;
+				if (contentType.IsMimeType ("text", "*")) {
+					part = new TextPart (contentType.MediaSubtype);
+					foreach (var param in contentType.Parameters)
+						part.ContentType.Parameters.Add (param);
+
+					// TODO: should we try to auto-detect charsets if no charset parameter is specified?
+				} else {
+					part = new MimePart (contentType);
+				}
+
+				part.FileName = Path.GetFileName (fileName);
+				part.IsAttachment = !linked;
+
+				LoadContent (part, stream);
+				attachment = part;
+			}
 
 			if (linked)
 				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
-
-			LoadContent (attachment, stream);
 
 			return attachment;
 		}
