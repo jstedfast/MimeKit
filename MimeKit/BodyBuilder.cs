@@ -108,6 +108,13 @@ namespace MimeKit {
 		public string HtmlBody {
 			get; set;
 		}
+		
+		/// <summary>
+        	/// Gets or sets the <see cref="ContentEncoding"/> for the <see cref="TextBody"/> and <see cref="HtmlBody"/> part (optional)
+        	/// </summary>
+        	public ContentEncoding? ContentTransferEncoding { 
+			get; set; 
+		}
 
 		/// <summary>
 		/// Constructs the message body based on the text-based bodies, the linked resources, and the attachments.
@@ -128,6 +135,11 @@ namespace MimeKit {
 
 			if (TextBody != null) {
 				var text = new TextPart ("plain");
+				
+				if (ContentTransferEncoding.HasValue) {
+				    text.ContentTransferEncoding = ContentTransferEncoding.Value;
+				}				
+				
 				text.Text = TextBody;
 
 				if (!string.IsNullOrEmpty (HtmlBody)) {
@@ -144,6 +156,11 @@ namespace MimeKit {
 				MimeEntity html;
 
 				text.ContentId = MimeUtils.GenerateMessageId ();
+				
+				if (ContentTransferEncoding.HasValue) {
+				    text.ContentTransferEncoding = ContentTransferEncoding.Value;
+				}					
+				
 				text.Text = HtmlBody;
 
 				if (LinkedResources.Count > 0) {
