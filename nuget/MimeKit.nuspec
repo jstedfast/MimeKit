@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,13 +25,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* IDN encode/decode the local part of mailbox addresses as well. (MailKit issue #649)
-* Added a record for .epub to the MimeTypes database. (issue #376)
-* Explicitly pass 'false' as the silent argument to SignedCms.ComputeSignature(). (issue #374)
-* Make sure the MimeParser does not hang if the last header line is truncated before CRLF.
-* Don't use Encoder/DecoderExceptionFallbacks in the TNEF reader. (issue #370)
-* Provide a better error message when the cert within a pkcs12 cannot digital sign. (issue #367)
-* Fixed TemporarySecureMimeContext to key off the certificate's fingerprint.
+* Allow empty TextBody and HtmlBody properties for BodyBuilder. (issue #391)
+* Fixed BodyBuilder.Attachments.Add() to properly handle message/rfc822 attachments.
+* Fixed HTML entity encoder logic when a surrogate pair is at the end of the input. (issue #385)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

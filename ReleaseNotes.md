@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 2.0.3
+
+* Allow empty TextBody and HtmlBody properties for BodyBuilder. (issue #391)
+* Fixed BodyBuilder.Attachments.Add() to properly handle message/rfc822 attachments.
+* Fixed HTML entity encoder logic when a surrogate pair is at the end of the input. (issue #385)
+
 ### MimeKit 2.0.2
 
 * IDN encode/decode the local part of mailbox addresses as well. (MailKit issue #649)

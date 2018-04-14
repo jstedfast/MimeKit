@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,10 +25,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* IDN encode/decode the local part of mailbox addresses as well. (MailKit issue #649)
-* Added a record for .epub to the MimeTypes database. (issue #376)
-* Make sure the MimeParser does not hang if the last header line is truncated before CRLF.
-* Don't use Encoder/DecoderExceptionFallbacks in the TNEF reader. (issue #370)
+* Allow empty TextBody and HtmlBody properties for BodyBuilder. (issue #391)
+* Fixed BodyBuilder.Attachments.Add() to properly handle message/rfc822 attachments.
+* Fixed HTML entity encoder logic when a surrogate pair is at the end of the input. (issue #385)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
