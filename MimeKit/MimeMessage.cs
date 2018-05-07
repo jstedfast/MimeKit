@@ -1109,7 +1109,7 @@ namespace MimeKit {
 
 				if (!headersOnly) {
 					try {
-						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
+						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
 						Body.WriteTo (options, stream, true, cancellationToken);
 					} finally {
 						Body.EnsureNewLine = false;
@@ -1174,7 +1174,7 @@ namespace MimeKit {
 
 				if (!headersOnly) {
 					try {
-						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
+						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
 						await Body.WriteToAsync (options, stream, true, cancellationToken).ConfigureAwait (false);
 					} finally {
 						Body.EnsureNewLine = false;
@@ -1664,7 +1664,7 @@ namespace MimeKit {
 
 					if (Body != null) {
 						try {
-							Body.EnsureNewLine = compliance == RfcComplianceMode.Strict;
+							Body.EnsureNewLine = compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
 							Body.WriteTo (options, filtered, true, CancellationToken.None);
 						} finally {
 							Body.EnsureNewLine = false;

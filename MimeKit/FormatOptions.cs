@@ -73,6 +73,7 @@ namespace MimeKit {
 		ParameterEncodingMethod parameterEncodingMethod;
 		bool allowMixedHeaderCharsets;
 		NewLineFormat newLineFormat;
+		bool ensureNewLine;
 		bool international;
 
 		/// <summary>
@@ -115,6 +116,31 @@ namespace MimeKit {
 					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
 				newLineFormat = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets whether the formatter should ensure that messages end with a new-line sequence.
+		/// </summary>
+		/// <remarks>
+		/// <para>By default, when writing a <see cref="MimeMessage"/> to a stream, the serializer attempts to
+		/// maintain byte-for-byte compatibility with the original stream that the message was parsed from.
+		/// This means that if the ogirinal message stream did not end with a new-line sequence, then the
+		/// output of writing the message back to a stream will also not end with a new-line sequence.</para>
+		/// <para>To override this behavior, you can set this property to <c>true</c> in order to ensure
+		/// that writing the message back to a stream will always end with a new-line sequence.</para>
+		/// </remarks>
+		/// <value><c>true</c> in order to ensure that the message will end with a new-line sequence; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.InvalidOperationException">
+		/// <see cref="Default"/> cannot be changed.
+		/// </exception>
+		public bool EnsureNewLine {
+			get { return ensureNewLine; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
+
+				ensureNewLine = value;
 			}
 		}
 
@@ -255,6 +281,7 @@ namespace MimeKit {
 			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
 			//maxLineLength = DefaultMaxLineLength;
 			allowMixedHeaderCharsets = false;
+			ensureNewLine = false;
 			international = false;
 
 			if (Environment.NewLine.Length == 1)
@@ -275,6 +302,7 @@ namespace MimeKit {
 			var options = new FormatOptions ();
 			//options.maxLineLength = maxLineLength;
 			options.newLineFormat = newLineFormat;
+			options.ensureNewLine = ensureNewLine;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
 			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
 			options.parameterEncodingMethod = parameterEncodingMethod;
