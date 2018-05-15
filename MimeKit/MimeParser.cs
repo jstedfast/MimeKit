@@ -135,8 +135,8 @@ namespace MimeKit {
 		long headerOffset;
 		int headerIndex;
 
-		readonly List<Boundary> bounds;
-		readonly List<Header> headers;
+		readonly List<Boundary> bounds = new List<Boundary> ();
+		readonly List<Header> headers = new List<Header> ();
 
 		MimeParserState state;
 		MimeFormat format;
@@ -241,9 +241,6 @@ namespace MimeKit {
 		/// </exception>
 		public MimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
 		{
-			bounds = new List<Boundary> ();
-			headers = new List<Header> ();
-
 			SetStream (options, stream, format, persistent);
 		}
 
