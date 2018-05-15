@@ -601,40 +601,53 @@ namespace UnitTests {
 			} while (true);
 		}
 
-		[Test]
-		public void TestJwzMbox ()
+		[TestCase(16)]
+		[TestCase(32)]
+		[TestCase(64)]
+		[TestCase(128)]
+		[TestCase(256)]
+		[TestCase(512)]
+		[TestCase(1024)]
+		[TestCase(2048)]
+		[TestCase(4096)]
+		[TestCase(8192)]
+        public void TestJwzMbox (int blockSize)
 		{
 			var options = FormatOptions.Default.Clone ();
-			var output = new MemoryBlockStream ();
-			var builder = new StringBuilder ();
-
 			options.NewLineFormat = NewLineFormat.Unix;
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
-				int count = 0;
+		    var builder = new StringBuilder();
+		    var output = new MemoryBlockStream();
 
-				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+		    using (var stream = File.OpenRead(Path.Combine(MboxDataDir, "jwz.mbox.txt")))
+		    {
+		        var parser = new MimeParser(stream, MimeFormat.Mbox);
+		        int count = 0;
 
-					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
-					if (message.From.Count > 0)
-						builder.AppendFormat ("From: {0}", message.From).Append ('\n');
-					if (message.To.Count > 0)
-						builder.AppendFormat ("To: {0}", message.To).Append ('\n');
-					builder.AppendFormat ("Subject: {0}", message.Subject).Append ('\n');
-					builder.AppendFormat ("Date: {0}", DateUtils.FormatDate (message.Date)).Append ('\n');
-					DumpMimeTree (builder, message);
-					builder.Append ('\n');
+                parser.SetBlockSize(blockSize);
 
-					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
-					output.Write (marker, 0, marker.Length);
-					message.WriteTo (options, output);
-					count++;
-				}
-			}
+		        while (!parser.IsEndOfStream)
+		        {
+		            var message = parser.ParseMessage();
 
-			AssertJwzMboxResults (builder.ToString (), output);
+		            builder.AppendFormat("{0}", parser.MboxMarker).Append('\n');
+		            if (message.From.Count > 0)
+		                builder.AppendFormat("From: {0}", message.From).Append('\n');
+		            if (message.To.Count > 0)
+		                builder.AppendFormat("To: {0}", message.To).Append('\n');
+		            builder.AppendFormat("Subject: {0}", message.Subject).Append('\n');
+		            builder.AppendFormat("Date: {0}", DateUtils.FormatDate(message.Date)).Append('\n');
+		            DumpMimeTree(builder, message);
+		            builder.Append('\n');
+
+		            var marker = Encoding.UTF8.GetBytes((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
+		            output.Write(marker, 0, marker.Length);
+		            message.WriteTo(options, output);
+		            count++;
+		        }
+		    }
+
+		    AssertJwzMboxResults(builder.ToString(), output);
 		}
 
 		[Test]

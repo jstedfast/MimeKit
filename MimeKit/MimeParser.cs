@@ -116,7 +116,7 @@ namespace MimeKit {
 		const int PadSize = 4;
 
 		// I/O buffering
-		readonly byte[] input = new byte[ReadAheadSize + BlockSize + PadSize];
+		byte[] input = new byte[ReadAheadSize + BlockSize + PadSize];
 		const int inputStart = ReadAheadSize;
 		int inputIndex = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
@@ -135,8 +135,8 @@ namespace MimeKit {
 		long headerOffset;
 		int headerIndex;
 
-		readonly List<Boundary> bounds;
-		readonly List<Header> headers;
+		readonly List<Boundary> bounds = new List<Boundary>();
+		readonly List<Header> headers = new List<Header>();
 
 		MimeParserState state;
 		MimeFormat format;
@@ -217,45 +217,42 @@ namespace MimeKit {
 		{
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
-		/// </summary>
-		/// <remarks>
-		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
-		/// </remarks>
-		/// <param name="options">The parser options.</param>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
-		/// </exception>
-		public MimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
-		{
-			bounds = new List<Boundary> ();
-			headers = new List<Header> ();
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MimeKit.MimeParser"/> class.
+        /// </summary>
+        /// <remarks>
+        /// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
+        /// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+        /// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+        /// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+        /// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+        /// performance.</para>
+        /// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
+        /// for <see cref="MimeContent"/> to read the content.</para>
+        /// </remarks>
+        /// <param name="options">The parser options.</param>
+        /// <param name="stream">The stream to parse.</param>
+        /// <param name="format">The format of the stream.</param>
+        /// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// <para><paramref name="options"/> is <c>null</c>.</para>
+        /// <para>-or-</para>
+        /// <para><paramref name="stream"/> is <c>null</c>.</para>
+        /// </exception>
+        public MimeParser(ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
+        {
+            SetStream(options, stream, format, persistent);
+        }
 
-			SetStream (options, stream, format, persistent);
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether the parser has reached the end of the input stream.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the parser has reached the end of the input stream.
-		/// </remarks>
-		/// <value><c>true</c> if this parser has reached the end of the input stream;
-		/// otherwise, <c>false</c>.</value>
-		public bool IsEndOfStream {
+        /// <summary>
+        /// Gets a value indicating whether the parser has reached the end of the input stream.
+        /// </summary>
+        /// <remarks>
+        /// Gets a value indicating whether the parser has reached the end of the input stream.
+        /// </remarks>
+        /// <value><c>true</c> if this parser has reached the end of the input stream;
+        /// otherwise, <c>false</c>.</value>
+        public bool IsEndOfStream {
 			get { return state == MimeParserState.Eos; }
 		}
 
@@ -422,6 +419,11 @@ namespace MimeKit {
 		{
 			SetStream (ParserOptions.Default, stream, MimeFormat.Default, persistent);
 		}
+
+	    internal void SetBlockSize(int size)
+	    {
+	        input = new byte[ReadAheadSize + size + PadSize];
+	    }
 
 #if DEBUG
 		static string ConvertToCString (byte[] buffer, int startIndex, int length)
