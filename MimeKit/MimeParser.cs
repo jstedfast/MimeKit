@@ -758,17 +758,8 @@ namespace MimeKit {
 
 						if (inptr == inend) {
 							// we don't have enough input data
-							int available = (int) (inend - start);
-
+							left = (int) (inend - start);
 							inputIndex = (int) (start - inbuf);
-
-							if (left == available) {
-								state = MimeParserState.Error;
-								headerIndex = 0;
-								return false;
-							}
-
-							left = available;
 							needInput = true;
 							break;
 						}
@@ -891,20 +882,32 @@ namespace MimeKit {
 
 				var available = ReadAhead (left + 1, 0, cancellationToken);
 
-				if (available == 0) {
+				if (available == left) {
 					// EOF reached before we reached the end of the headers...
-					if (left > 0) {
-						AppendRawHeaderData (inputIndex, left);
-						inputIndex = inputEnd;
+					if (scanningFieldName && left > 0) {
+						// EOF reached right in the middle of a header field name. Throw an error.
+						//
+						// See private email from Feb 8, 2018 which contained a sample message w/o
+						// any breaks between the header and message body. The file also did not
+						// end with a newline sequence.
+						state = MimeParserState.Error;
+					} else {
+						// EOF reached somewhere in the middle of the value.
+						//
+						// Append whatever data we've got left and pretend we found the end
+						// of the header value (and the header block).
+						//
+						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
+						// and https://github.com/jstedfast/MimeKit/issues/348
+						if (left > 0) {
+							AppendRawHeaderData (inputIndex, left);
+							inputIndex = inputEnd;
+						}
+
+						ParseAndAppendHeader ();
+
+						state = MimeParserState.Content;
 					}
-
-					ParseAndAppendHeader ();
-
-					// fail gracefully by pretending we found the end of the headers...
-					//
-					// For more details, see https://github.com/jstedfast/MimeKit/pull/51
-					// and https://github.com/jstedfast/MimeKit/issues/348
-					state = MimeParserState.Content;
 					return;
 				}
 			} while (true);

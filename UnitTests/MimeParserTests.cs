@@ -132,6 +132,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestTruncatedHeaderName ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = HeaderList.Load (memory);
+					Assert.Fail ("Parsing headers should fail.");
+				} catch (FormatException) {
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestTruncatedHeader ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
