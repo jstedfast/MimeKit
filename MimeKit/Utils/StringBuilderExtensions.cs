@@ -66,6 +66,10 @@ namespace MimeKit.Utils {
 							lwspIndex++;
 						}
 					}
+
+					// consume the end-quote
+					if (lwspIndex < value.Length)
+						lwspIndex++;
 				} else {
 					// normal word
 					while (lwspIndex < value.Length && !char.IsWhiteSpace (value[lwspIndex]))

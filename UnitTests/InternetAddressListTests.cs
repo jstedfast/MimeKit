@@ -30,6 +30,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -549,6 +550,28 @@ namespace UnitTests {
 
 			var encoded = list.ToString (options, true);
 			Assert.AreEqual (expectedEncoded, encoded, "Encoded value does not match the expected result: {0}", display);
+		}
+
+		[Test]
+		public void TestEncodingLongNameMixedQuotingAndEncoding ()
+		{
+			const string name = "Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx für xxxxxxxxxxxxx xxxx";
+			const string encodedName = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx xxxx";
+			const string encodedMailbox = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx\n xxxx <x.xxxxx@xxxxxxx-xxxxxx.xx>";
+			const string address = "x.xxxxx@xxxxxxx-xxxxxx.xx";
+			var buffer = Rfc2047.EncodePhrase (Encoding.UTF8, name);
+			var result = Encoding.UTF8.GetString (buffer);
+
+			Assert.AreEqual (encodedName, result);
+
+			var mailbox = new MailboxAddress (name, address);
+			var list = new InternetAddressList ();
+
+			list.Add (mailbox);
+
+			result = list.ToString (true);
+
+			Assert.AreEqual (encodedMailbox, result);
 		}
 
 		[Test]
