@@ -74,20 +74,24 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		protected BouncyCastleSecureMimeContext ()
 		{
-			CheckCertificateRevocation = true;
 			client = new HttpClient ();
 		}
 
 		/// <summary>
-		/// Get or set whether or not certificate revocation should be checked when verifying signatures.
+		/// Get or set whether or not certificate revocation lists should be downloaded when verifying signatures.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether or not certificate revocation should be checked when verifying signatures.</para>
+		/// <para>Gets or sets whether or not certificate revocation lists should be downloaded when verifying
+		/// signatures.</para>
 		/// <para>If enabled, the <see cref="BouncyCastleSecureMimeContext"/> will attempt to automatically download
 		/// Certificate Revocation Lists (CRLs) from the internet based on the CRL Distribution Point extension on
 		/// each certificate.</para>
+		/// <note type="security">Enabling this feature opens the client up to potential privacy risks. An attacker
+		/// can generate a custom X.509 certificate containing a CRL Distribution Point or OCSP URL pointing to an
+		/// attacker-controlled server, thereby getting a notification when the user decrypts the message or verifies
+		/// its digital signature.</note>
 		/// </remarks>
-		/// <value><c>true</c> if certificate revocation should be checked; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if CRLs should be downloaded automatically; otherwise, <c>false</c>.</value>
 		public bool CheckCertificateRevocation {
 			get; set;
 		}
