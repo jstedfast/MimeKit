@@ -1,4 +1,4 @@
-{
+﻿{
   "frameworks": {
     ".NETFramework,Version=v4.5": {}
   },
@@ -7,6 +7,6 @@
     "win": {}
   },
   "dependencies": {
-    "BouncyCastle": "1.8.1"
+    "BouncyCastle": "1.8.2"
   }
 }
