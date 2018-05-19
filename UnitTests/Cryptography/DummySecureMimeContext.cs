@@ -46,6 +46,11 @@ namespace UnitTests.Cryptography {
 		internal readonly List<X509Certificate> certificates = new List<X509Certificate> ();
 		internal readonly List<X509Crl> crls = new List<X509Crl> ();
 
+		public DummySecureMimeContext ()
+		{
+			CheckCertificateRevocation = true;
+		}
+
 		/// <summary>
 		/// Check whether or not a particular mailbox address can be used for signing.
 		/// </summary>
