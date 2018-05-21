@@ -25,7 +25,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* The default value of the `CheckCertificateRevocation` property located on the `BouncyCastleSecureMimeContext` has been changed to `false` due to privacy concerns noted in the <a href="https://efail.de">Efail</a> document published in May of 2018. Clients that wish to continue automatic downloads of S/MIME CRLs can manually set the property to `true`.
+* The default value of the `CheckCertificateRevocation` property located on the `BouncyCastleSecureMimeContext` has been changed to `false` due to privacy concerns noted in the Efail document published in May of 2018. Clients that wish to continue automatic downloads of S/MIME CRLs can manually set the property to `true`.
 * Properly wrap long mailbox names with quoted phrases.
 * Fixed parsing of header blocks that span across read boundaries. (issue #395)
 * Added FormatOptions.EnsureNewLine property (MailKit issue #251)
