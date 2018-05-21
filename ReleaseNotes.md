@@ -1,5 +1,16 @@
 # Release Notes
 
+### MimeKit 2.0.4
+
+* The default value of the `CheckCertificateRevocation` property located on the
+  `BouncyCastleSecureMimeContext` has been changed to `false` due to privacy concerns noted
+  in the <a href="https://efail.de">Efail</a> document published in May of 2018. Clients that
+  wish to continue automatic downloads of S/MIME CRLs can manually set the property to `true`.
+* Properly wrap long mailbox names with quoted phrases.
+* Fixed parsing of header blocks that span across read boundaries. (issue #395)
+* Added FormatOptions.EnsureNewLine property (MailKit issue #251)
+* Enable System.Net.Mail support for .NET Core 2.0. (issue #393)
+
 ### MimeKit 2.0.3
 
 * Allow empty TextBody and HtmlBody properties for BodyBuilder. (issue #391)

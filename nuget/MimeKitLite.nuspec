@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,9 +25,10 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Allow empty TextBody and HtmlBody properties for BodyBuilder. (issue #391)
-* Fixed BodyBuilder.Attachments.Add() to properly handle message/rfc822 attachments.
-* Fixed HTML entity encoder logic when a surrogate pair is at the end of the input. (issue #385)
+* Properly wrap long mailbox names with quoted phrases.
+* Fixed parsing of header blocks that span across read boundaries. (issue #395)
+* Added FormatOptions.EnsureNewLine property (MailKit issue #251)
+* Enable System.Net.Mail support for .NET Core 2.0. (issue #393)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
