@@ -3539,6 +3539,9 @@ namespace MimeKit {
 			else
 				msg.Subject = message.Subject ?? string.Empty;
 
+			if (!msg.Headers.Contains (HeaderId.Date))
+				msg.Date = DateTimeOffset.Now;
+
 			switch (message.Priority) {
 			case MailPriority.Normal:
 				msg.Headers.RemoveAll (HeaderId.XMSMailPriority);
