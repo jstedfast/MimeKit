@@ -1,16 +1,17 @@
-OUTDIR=MimeKit/bin/Release/lib/net40
+OUTDIR=MimeKit/bin/Release/lib/net45
 ASSEMBLY=$(OUTDIR)/MimeKit.dll
 XMLDOCS=$(OUTDIR)/MimeKit.xml
+SOLUTION=MimeKit.Net45.sln
 
 all:
-	xbuild /target:Build /p:Configuration=Release MimeKit.Net40.sln
+	msbuild /target:Build /p:Configuration=Release $(SOLUTION)
 
 debug:
-	xbuild /target:Build /p:Configuration=Debug MimeKit.Net40.sln
+	msbuild /target:Build /p:Configuration=Debug $(SOLUTION)
 
 clean:
-	xbuild /target:Clean /p:Configuration=Debug MimeKit.Net40.sln
-	xbuild /target:Clean /p:Configuration=Release MimeKit.Net40.sln
+	msbuild /target:Clean /p:Configuration=Debug $(SOLUTION)
+	msbuild /target:Clean /p:Configuration=Release $(SOLUTION)
 
 check-docs:
 	@find docs/en -name "*.xml" -exec grep -l "To be added." {} \;
