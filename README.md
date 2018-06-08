@@ -15,6 +15,17 @@
 MimeKit is a C# library which may be used for the creation and parsing of messages using the Multipurpose
 Internet Mail Extension (MIME), as defined by [numerous IETF specifications](https://github.com/jstedfast/MimeKit/blob/master/RFCs.md).
 
+## Donate
+
+MimeKit is a personal open source project that I have put thousands of hours into perfecting with the
+goal of making it the very best MIME parser framework for .NET. I need your help to achieve this.
+
+Donating helps pay for things such as web hosting, domain registration and licenses for developer tools
+such as a performance profiler, memory profiler, a static code analysis tool, and more. It also helps
+motivate me to continue working on the project.
+
+<a href="https://paypal.me/pools/c/857bnxBTXg" _target="blank"><img alt="Click here to lend your support to MimeKit by making a donation!" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif"></a>
+
 ## History
 
 As a developer and user of email clients, I had come to realize that the vast majority of email client
@@ -1056,16 +1067,6 @@ send me a **Pull Request** and I will try to review your changes in a timely man
 
 If you'd like to contribute but don't have any particular features in mind to work on, check out the issue
 tracker and look for something that might pique your interest!
-
-## Donate
-
-MimeKit is a personal open source project that I have put thousands of hours into perfecting with the
-goal of making it the very best MIME parser framework for .NET. I need your help to achieve this.
-
-Donating helps pay for things such as web hosting, domain registration and licenses for developer tools
-such as a performance profiler, memory profiler, a static code analysis tool, and more.
-
-<a href="https://liberapay.com/MimeKit/donate" _target="blank"><img alt="Click here to lend your support to MimeKit and MailKit by making a donation!" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
 ## Reporting Bugs
 
