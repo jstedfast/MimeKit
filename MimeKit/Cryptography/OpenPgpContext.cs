@@ -39,6 +39,7 @@ using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using Org.BouncyCastle.Crypto.Parameters;
 
@@ -1025,7 +1026,7 @@ namespace MimeKit.Cryptography {
 			keyRingGenerator.AddSubKey (keyPair, subpacketGenerator.Generate (), null);
 		}
 
-		PgpKeyRingGenerator CreateKeyRingGenerator (MailboxAddress mailbox, EncryptionAlgorithm algorithm, long expirationTime, string password, DateTime now)
+		PgpKeyRingGenerator CreateKeyRingGenerator (MailboxAddress mailbox, EncryptionAlgorithm algorithm, long expirationTime, string password, DateTime now, SecureRandom random)
 		{
 			var enabledEncryptionAlgorithms = EnabledEncryptionAlgorithms;
 			var enabledDigestAlgorithms = EnabledDigestAlgorithms;
@@ -1037,7 +1038,7 @@ namespace MimeKit.Cryptography {
 			for (int i = 0; i < enabledDigestAlgorithms.Length; i++)
 				digestAlgorithms[i] = (int) enabledDigestAlgorithms[i];
 
-			var parameters = new RsaKeyGenerationParameters (BigInteger.ValueOf (0x10001), new SecureRandom (), 2048, 12);
+			var parameters = new RsaKeyGenerationParameters (BigInteger.ValueOf (0x10001), random, 2048, 12);
 			var signingAlgorithm = PublicKeyAlgorithmTag.RsaSign;
 
 			var keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator ("RSA");
@@ -1067,7 +1068,7 @@ namespace MimeKit.Cryptography {
 				true,
 				subpacketGenerator.Generate (),
 				null,
-				new SecureRandom ());
+				random);
 
 			// Add the (optional) encryption subkey.
 			AddEncryptionKeyPair (keyRingGenerator, parameters, PublicKeyAlgorithmTag.RsaGeneral, now, expirationTime, encryptionAlgorithms, digestAlgorithms);
@@ -1085,6 +1086,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password to be set on the secret key.</param>
 		/// <param name="expirationDate">The expiration date for the generated key pair.</param>
 		/// <param name="algorithm">The symmetric key algorithm to use.</param>
+		/// <param name="random">The source of randomness to use when generating the key pair.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailbox"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1093,7 +1095,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="expirationDate"/> is not a date in the future.
 		/// </exception>
-		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null, EncryptionAlgorithm algorithm = EncryptionAlgorithm.Aes256)
+		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null, EncryptionAlgorithm algorithm = EncryptionAlgorithm.Aes256, SecureRandom random = null)
 		{
 			var now = DateTime.UtcNow;
 			long expirationTime = 0;
@@ -1114,7 +1116,10 @@ namespace MimeKit.Cryptography {
 					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
 			}
 
-			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now);
+			if (random == null)
+				random = new SecureRandom (new CryptoApiRandomGenerator ());
+
+			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now, random);
 
 			Import (generator.GenerateSecretKeyRing ());
 			Import (generator.GeneratePublicKeyRing ());
