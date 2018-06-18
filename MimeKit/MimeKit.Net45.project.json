@@ -7,6 +7,7 @@
     "win": {}
   },
   "dependencies": {
-    "BouncyCastle": "1.8.2"
+    "BouncyCastle": "1.8.2",
+    "System.Buffers": "4.5.0"
   }
 }

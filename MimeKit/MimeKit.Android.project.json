@@ -1,8 +1,11 @@
-{
+﻿{
   "frameworks": {
     "MonoAndroid,Version=v4.0.3": {}
   },
   "runtimes": {
     "win-anycpu": {}
+  },
+  "dependencies": {
+    "System.Buffers": "4.5.0"
   }
 }

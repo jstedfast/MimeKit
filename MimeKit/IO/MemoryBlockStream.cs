@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -48,6 +49,7 @@ namespace MimeKit.IO {
 		const long BlockSize = 2048;
 
 		readonly List<byte[]> blocks = new List<byte[]> ();
+		readonly ArrayPool<byte> pool;
 		long position, length;
 		bool disposed;
 
@@ -58,9 +60,28 @@ namespace MimeKit.IO {
 		/// Creates a new <see cref="MemoryBlockStream"/> with an initial memory block
 		/// of 2048 bytes.
 		/// </remarks>
-		public MemoryBlockStream ()
+		public MemoryBlockStream () : this (ArrayPool<byte>.Shared)
 		{
-			blocks.Add (new byte[BlockSize]);
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.IO.MemoryBlockStream"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MemoryBlockStream"/> with an initial memory block
+		/// of 2048 bytes.
+		/// </remarks>
+		/// <param name="pool">The memory pool to use for allocating blocks.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="pool"/> is <c>null</c>.
+		/// </exception>
+		public MemoryBlockStream (ArrayPool<byte> pool)
+		{
+			if (pool == null)
+				throw new ArgumentNullException (nameof (pool));
+
+			blocks.Add (pool.Rent ((int) BlockSize));
+			this.pool = pool;
 		}
 
 		/// <summary>
@@ -327,7 +348,7 @@ namespace MimeKit.IO {
 			int nwritten = 0;
 
 			while (capacity < position + count) {
-				blocks.Add (new byte[BlockSize]);
+				blocks.Add (pool.Rent ((int) BlockSize));
 				capacity += BlockSize;
 			}
 
@@ -501,12 +522,13 @@ namespace MimeKit.IO {
 
 			if (value > capacity) {
 				do {
-					blocks.Add (new byte[BlockSize]);
+					blocks.Add (pool.Rent ((int) BlockSize));
 					capacity += BlockSize;
 				} while (capacity < value);
 			} else if (value < length) {
 				// shed any blocks that are no longer needed
 				while (capacity - value > BlockSize) {
+					pool.Return (blocks[blocks.Count - 1], true);
 					blocks.RemoveAt (blocks.Count - 1);
 					capacity -= BlockSize;
 				}
@@ -533,8 +555,15 @@ namespace MimeKit.IO {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
+			if (disposing && !disposed) {
+				for (int i = 0; i < blocks.Count; i++)
+					pool.Return (blocks[i], true);
+
+				blocks.Clear ();
+				disposed = true;
+			}
+
 			base.Dispose (disposing);
-			disposed = true;
 		}
 	}
 }
