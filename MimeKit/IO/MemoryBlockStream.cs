@@ -48,6 +48,8 @@ namespace MimeKit.IO {
 		const long MaxCapacity = int.MaxValue * BlockSize;
 		const long BlockSize = 2048;
 
+		static readonly ArrayPool<byte> DefaultPool = ArrayPool<byte>.Create ((int) BlockSize, 200);
+
 		readonly List<byte[]> blocks = new List<byte[]> ();
 		readonly ArrayPool<byte> pool;
 		long position, length;
@@ -60,7 +62,7 @@ namespace MimeKit.IO {
 		/// Creates a new <see cref="MemoryBlockStream"/> with an initial memory block
 		/// of 2048 bytes.
 		/// </remarks>
-		public MemoryBlockStream () : this (ArrayPool<byte>.Shared)
+		public MemoryBlockStream () : this (DefaultPool)
 		{
 		}
 
