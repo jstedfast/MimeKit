@@ -24,6 +24,9 @@
 // THE SOFTWARE.
 //
 
+// Code based on Microsoft's System.Buffer.DefaultArrayPoolBucket class located at
+// https://github.com/dotnet/corefx/blob/master/src/System.Buffers/src/System/Buffers/DefaultArrayPoolBucket.cs
+
 using System;
 using System.Threading;
 using System.Diagnostics;
