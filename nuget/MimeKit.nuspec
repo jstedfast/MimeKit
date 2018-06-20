@@ -51,15 +51,10 @@
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="System.Buffers" version="4.5.0" />
         <dependency id="BouncyCastle" version="1.8.2" />
       </group>
-      <group targetFramework="monoandroid">
-        <dependency id="System.Buffers" version="4.5.0" />
-      </group>
-      <group targetFramework="xamarinios">
-        <dependency id="System.Buffers" version="4.5.0" />
-      </group>
+      <group targetFramework="monoandroid" />
+      <group targetFramework="xamarinios" />
       <group targetFramework="netstandard1.3">
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
@@ -70,7 +65,6 @@
         <dependency id="System.Net.NameResolution" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="System.Net.Http" version="4.3.0" />
-        <dependency id="System.Buffers" version="4.5.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.2" />
       </group>
       <group targetFramework="netstandard1.6">
@@ -83,7 +77,6 @@
         <dependency id="System.Net.NameResolution" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="System.Net.Http" version="4.3.0" />
-        <dependency id="System.Buffers" version="4.5.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.2" />
       </group>
       <group targetFramework="netstandard2.0">
@@ -96,15 +89,12 @@
         <dependency id="System.Net.NameResolution" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="System.Net.Http" version="4.3.0" />
-        <dependency id="System.Buffers" version="4.5.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.2" />
       </group>
       <group targetFramework="portable-net45+win8">
-        <dependency id="System.Buffers" version="4.5.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.2" />
       </group>
       <group targetFramework="portable-net45+win8+wpa81">
-        <dependency id="System.Buffers" version="4.5.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.2" />
       </group>
     </dependencies>

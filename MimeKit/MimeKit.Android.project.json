@@ -4,8 +4,5 @@
   },
   "runtimes": {
     "win-anycpu": {}
-  },
-  "dependencies": {
-    "System.Buffers": "4.5.0"
   }
 }
