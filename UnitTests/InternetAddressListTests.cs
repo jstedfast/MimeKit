@@ -559,7 +559,11 @@ namespace UnitTests {
 			const string encodedName = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx xxxx";
 			const string encodedMailbox = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx\n xxxx <x.xxxxx@xxxxxxx-xxxxxx.xx>";
 			const string address = "x.xxxxx@xxxxxxx-xxxxxx.xx";
-			var buffer = Rfc2047.EncodePhrase (Encoding.UTF8, name);
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			var buffer = Rfc2047.EncodePhrase (options, Encoding.UTF8, name);
 			var result = Encoding.UTF8.GetString (buffer);
 
 			Assert.AreEqual (encodedName, result);
