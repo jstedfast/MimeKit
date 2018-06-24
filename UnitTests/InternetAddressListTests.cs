@@ -573,7 +573,7 @@ namespace UnitTests {
 
 			list.Add (mailbox);
 
-			result = list.ToString (true);
+			result = list.ToString (options, true);
 
 			Assert.AreEqual (encodedMailbox, result);
 		}
