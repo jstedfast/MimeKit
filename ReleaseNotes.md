@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 2.0.5
+
+* Make sure messages created from System.Net.Mail.MailMessages have a Date header. (MailKit issue #710)
+* Allow developers to pass in their own SecureRandom when generating PGP key pairs. (issue #404)
+* Modified MemoryBlockStream to use a shared buffer pool to relieve pressure on the GC. (MailKit issue #725)
+
 ### MimeKit 2.0.4
 
 * The default value of the `CheckCertificateRevocation` property located on the

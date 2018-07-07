@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.0.4</version>
+    <version>2.0.5</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,10 +25,8 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Properly wrap long mailbox names with quoted phrases.
-* Fixed parsing of header blocks that span across read boundaries. (issue #395)
-* Added FormatOptions.EnsureNewLine property (MailKit issue #251)
-* Enable System.Net.Mail support for .NET Core 2.0. (issue #393)
+* Make sure messages created from System.Net.Mail.MailMessages have a Date header. (MailKit issue #710)
+* Modified MemoryBlockStream to use a shared buffer pool to relieve pressure on the GC. (MailKit issue #725)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
