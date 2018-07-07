@@ -1116,8 +1116,13 @@ namespace MimeKit.Cryptography {
 					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
 			}
 
-			if (random == null)
+			if (random == null) {
+#if (!NETSTANDARD || NETSTANDARD_2_0) && !PORTABLE
 				random = new SecureRandom (new CryptoApiRandomGenerator ());
+#else
+				random = new SecureRandom ();
+#endif
+			}
 
 			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now, random);
 
