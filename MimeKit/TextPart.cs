@@ -322,7 +322,14 @@ namespace MimeKit {
 
 					if (encoding == null) {
 						try {
-							return CharsetUtils.UTF8.GetString (content, 0, (int) memory.Length);
+							if (content.Length >= 2 && content[0] == 0xFF && content[1] == 0xFE)
+								encoding = Encoding.Unicode; // UTF-16LE
+							else if (content.Length >= 2 && content[0] == 0xFE && content[1] == 0xFF)
+								encoding = Encoding.BigEndianUnicode; // UTF-16BE
+							else
+								encoding = CharsetUtils.UTF8;
+
+							return encoding.GetString (content, 0, (int) memory.Length);
 						} catch (DecoderFallbackException) {
 							// fall back to iso-8859-1
 							encoding = CharsetUtils.Latin1;
