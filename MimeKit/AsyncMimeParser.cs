@@ -580,7 +580,7 @@ namespace MimeKit {
 				contentEnd = -1;
 
 				for (int i = 0; i < headers.Count; i++) {
-					if (!headers[i].Field.Equals ("Content-Length", StringComparison.OrdinalIgnoreCase))
+					if (headers[i].Id != HeaderId.ContentLength)
 						continue;
 
 					var value = headers[i].RawValue;
