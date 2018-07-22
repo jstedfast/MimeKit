@@ -216,7 +216,7 @@ namespace MimeKit {
 		internal static string EncodeInternationalizedPhrase (string phrase)
 		{
 			for (int i = 0; i < phrase.Length; i++) {
-				if (char.IsControl (phrase[i]) || AtomSpecials.IndexOf (phrase[i]) != -1)
+				if (AtomSpecials.IndexOf (phrase[i]) != -1)
 					return MimeUtils.Quote (phrase);
 			}
 
