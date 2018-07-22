@@ -58,7 +58,6 @@ namespace MimeKit {
 		public int FinalLength { get { return Marker.Length; } }
 		public int Length { get; private set; }
 		public int MaxLength { get; private set; }
-		public long ContentEnd { get; set; }
 
 		public Boundary (string boundary, int currentMaxLength)
 		{
@@ -66,7 +65,6 @@ namespace MimeKit {
 			Length = Marker.Length - 2;
 
 			MaxLength = Math.Max (currentMaxLength, Marker.Length);
-			ContentEnd = -1;
 		}
 
 		Boundary ()
@@ -77,7 +75,6 @@ namespace MimeKit {
 		{
 			var boundary = new Boundary ();
 			boundary.Marker = MboxFrom;
-			boundary.ContentEnd = -1;
 			boundary.MaxLength = 5;
 			boundary.Length = 5;
 			return boundary;
@@ -144,6 +141,7 @@ namespace MimeKit {
 		bool eos;
 
 		ParserOptions options;
+		long contentEnd;
 		Stream stream;
 		long offset;
 
@@ -1055,18 +1053,33 @@ namespace MimeKit {
 
 		unsafe BoundaryType CheckBoundary (int startIndex, byte* start, int length)
 		{
+			int count = bounds.Count;
+
 			if (!IsPossibleBoundary (start, length))
 				return BoundaryType.None;
 
-			long curOffset = GetOffset (startIndex);
-			for (int i = 0; i < bounds.Count; i++) {
+			if (format == MimeFormat.Mbox && options.RespectContentLength) {
+				// We'll need to special-case checking for the mbox From-marker when respecting Content-Length
+				count--;
+			}
+
+			for (int i = 0; i < count; i++) {
 				var boundary = bounds[i];
 
-				if (curOffset >= boundary.ContentEnd && IsBoundary (start, length, boundary.Marker, boundary.FinalLength))
+				if (IsBoundary (start, length, boundary.Marker, boundary.FinalLength))
 					return i == 0 ? BoundaryType.ImmediateEndBoundary : BoundaryType.ParentEndBoundary;
 
 				if (IsBoundary (start, length, boundary.Marker, boundary.Length))
 					return i == 0 ? BoundaryType.ImmediateBoundary : BoundaryType.ParentBoundary;
+			}
+
+			if (count < bounds.Count) {
+				// now it is time to check the mbox From-marker for the Content-Length case
+				long curOffset = GetOffset (startIndex);
+				var boundary = bounds[count];
+
+				if (curOffset >= contentEnd && IsBoundary (start, length, boundary.Marker, boundary.Length))
+					return BoundaryType.ImmediateEndBoundary;
 			}
 
 			return BoundaryType.None;
@@ -1533,7 +1546,7 @@ namespace MimeKit {
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
-				bounds[0].ContentEnd = -1;
+				contentEnd = -1;
 
 				for (int i = 0; i < headers.Count; i++) {
 					if (!headers[i].Field.Equals ("Content-Length", StringComparison.OrdinalIgnoreCase))
@@ -1542,12 +1555,15 @@ namespace MimeKit {
 					var value = headers[i].RawValue;
 					int length, index = 0;
 
+					if (!ParseUtils.SkipWhiteSpace (value, ref index, value.Length))
+						continue;
+
 					if (!ParseUtils.TryParseInt32 (value, ref index, value.Length, out length))
 						continue;
 
 					long endOffset = GetOffset (inputIndex) + length;
 
-					bounds[0].ContentEnd = endOffset;
+					contentEnd = endOffset;
 					break;
 				}
 			}

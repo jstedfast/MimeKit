@@ -577,7 +577,7 @@ namespace MimeKit {
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
-				bounds[0].ContentEnd = -1;
+				contentEnd = -1;
 
 				for (int i = 0; i < headers.Count; i++) {
 					if (!headers[i].Field.Equals ("Content-Length", StringComparison.OrdinalIgnoreCase))
@@ -586,12 +586,15 @@ namespace MimeKit {
 					var value = headers[i].RawValue;
 					int length, index = 0;
 
+					if (!ParseUtils.SkipWhiteSpace (value, ref index, value.Length))
+						continue;
+
 					if (!ParseUtils.TryParseInt32 (value, ref index, value.Length, out length))
 						continue;
 
 					long endOffset = GetOffset (inputIndex) + length;
 
-					bounds[0].ContentEnd = endOffset;
+					contentEnd = endOffset;
 					break;
 				}
 			}
