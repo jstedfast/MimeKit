@@ -145,27 +145,32 @@ namespace UnitTests {
 		{
 			var buffer = Encoding.UTF8.GetBytes (text);
 			InternetAddressList result;
+			bool success;
 
 			try {
-				Assert.IsFalse (InternetAddressList.TryParse (text, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				success = InternetAddressList.TryParse (text, out result);
+				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
 				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
 			}
 
 			try {
-				Assert.IsFalse (InternetAddressList.TryParse (buffer, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				success = InternetAddressList.TryParse (buffer, out result);
+				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
 				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
 			}
 
 			try {
-				Assert.IsFalse (InternetAddressList.TryParse (buffer, 0, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				success = InternetAddressList.TryParse (buffer, 0, out result);
+				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
 				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
 			}
 
 			try {
-				Assert.IsFalse (InternetAddressList.TryParse (buffer, 0, buffer.Length, out result), "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				success = InternetAddressList.TryParse (buffer, 0, buffer.Length, out result);
+				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
 				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
 			}
@@ -222,6 +227,13 @@ namespace UnitTests {
 		public void TestParseWhiteSpace ()
 		{
 			AssertParseAndTryParseFail ("   ");
+		}
+
+		[Test]
+		public void TestParseNameLessThan ()
+		{
+			AssertParseFails ("\"Name\" <");
+			AssertTryParse ("\"Name\" <", "", new InternetAddressList ());
 		}
 
 		[Test]
