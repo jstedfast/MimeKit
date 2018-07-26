@@ -577,7 +577,7 @@ namespace MimeKit {
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
-				contentEnd = -1;
+				contentEnd = 0;
 
 				for (int i = 0; i < headers.Count; i++) {
 					if (headers[i].Id != HeaderId.ContentLength)

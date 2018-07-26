@@ -327,6 +327,7 @@ namespace MimeKit {
 
 			mboxMarkerOffset = 0;
 			mboxMarkerLength = 0;
+			contentEnd = 0;
 
 			offset = stream.CanSeek ? stream.Position : 0;
 			headers.Clear ();
@@ -1058,7 +1059,7 @@ namespace MimeKit {
 			if (!IsPossibleBoundary (start, length))
 				return BoundaryType.None;
 
-			if (format == MimeFormat.Mbox && options.RespectContentLength) {
+			if (contentEnd > 0) {
 				// We'll need to special-case checking for the mbox From-marker when respecting Content-Length
 				count--;
 			}
@@ -1073,7 +1074,7 @@ namespace MimeKit {
 					return i == 0 ? BoundaryType.ImmediateBoundary : BoundaryType.ParentBoundary;
 			}
 
-			if (count < bounds.Count) {
+			if (contentEnd > 0) {
 				// now it is time to check the mbox From-marker for the Content-Length case
 				long curOffset = GetOffset (startIndex);
 				var boundary = bounds[count];
@@ -1546,7 +1547,7 @@ namespace MimeKit {
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
-				contentEnd = -1;
+				contentEnd = 0;
 
 				for (int i = 0; i < headers.Count; i++) {
 					if (headers[i].Id != HeaderId.ContentLength)
