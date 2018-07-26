@@ -425,15 +425,15 @@ namespace MimeKit {
 				} while (index < endIndex && text[index] == '<');
 			}
 
+			if (index < endIndex && !ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
 			if (index >= endIndex) {
 				if (throwOnError)
 					throw new ParseException (string.Format ("Incomplete mailbox at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-				return false;
 
 			if (text[index] == (byte) '@') {
 				// Note: we always pass 'false' as the throwOnError argument here so that we can throw a more informative exception on error
@@ -451,10 +451,18 @@ namespace MimeKit {
 					return false;
 				}
 
+				// skip over ':'
 				index++;
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
+
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete mailbox at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
 			}
 
 			// Note: The only syntactically correct sentinel token here is the '>', but alas... to deal with the first example
