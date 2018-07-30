@@ -47,7 +47,7 @@ namespace UnitTests.Cryptography {
 		const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
 		const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
 		const string ThunderbirdFingerprint = "354ea4dcf98166639b58ec5df06a65de0cd8a95c";
-		const string MimeKitFingerprint = "2c29c66e281c9c515cc16a91ac87c4da988dbadf";
+		const string MimeKitFingerprint = "4846fb5e27df6a23bb35a995443363e447d3426d";
 		const string ThunderbirdName = "fejj@gnome.org";
 
 		static readonly string[] CertificateAuthorities = {
