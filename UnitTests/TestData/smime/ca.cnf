@@ -1,0 +1,22 @@
+[ req_distinguished_name ]
+countryName			= US
+countryName_min			= 2
+countryName_max			= 2
+stateOrProvinceName		= Massachusetts
+localityName			= Boston
+0.organizationName		= Example Authority Inc.
+organizationalUnitName		= IT
+commonName			= Bruce Wayne
+commonName_max			= 64
+emailAddress			= bruce.wayne@example.com
+emailAddress_max		= 64
+
+[ req_attributes ]
+challengePassword		= no.secret
+challengePassword_min		= 4
+challengePassword_max		= 20
+
+[x509v3_CA]
+req_extensions = v3_req # The extensions to add to a certificate request
+keyUsage = keyCertSign, nonRepudiation, digitalSignature, keyEncipherment, dataEncipherment
+
