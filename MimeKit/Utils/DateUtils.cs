@@ -119,7 +119,7 @@ namespace MimeKit.Utils {
 
 		static DateUtils ()
 		{
-			timezones = new Dictionary<string, int> {
+			timezones = new Dictionary<string, int> (StringComparer.Ordinal) {
 				{ "UT",       0 }, { "UTC",      0 }, { "GMT",      0 },
 				{ "EDT",   -400 }, { "EST",   -500 },
 				{ "CDT",   -500 }, { "CST",   -600 },

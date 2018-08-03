@@ -70,7 +70,7 @@ namespace MimeKit.Text {
 		const string AtomCharacters = "!#$%&'*+-/=?^_`{|}~";
 		const string UrlSafeCharacters = "$-_.+!*'(),{}|\\^~[]`#%\";/?:@&=";
 
-		readonly Dictionary<string, UrlPattern> patterns = new Dictionary<string, UrlPattern> ();
+		readonly Dictionary<string, UrlPattern> patterns = new Dictionary<string, UrlPattern> (StringComparer.Ordinal);
 		readonly Trie trie = new Trie (true);
 
 		public UrlScanner ()

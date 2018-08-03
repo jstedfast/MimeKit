@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
 			Configuration = Path.Combine (gnupg, "gpg.conf");
 
-			EncryptionAlgorithms = new Dictionary<string, EncryptionAlgorithm> {
+			EncryptionAlgorithms = new Dictionary<string, EncryptionAlgorithm> (StringComparer.Ordinal) {
 				{ "AES", EncryptionAlgorithm.Aes128 },
 				{ "AES128", EncryptionAlgorithm.Aes128 },
 				{ "AES192", EncryptionAlgorithm.Aes192 },
@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography {
 			//	{ "RSA", PublicKeyAlgorithm.RsaGeneral }
 			//};
 
-			DigestAlgorithms = new Dictionary<string, DigestAlgorithm> {
+			DigestAlgorithms = new Dictionary<string, DigestAlgorithm> (StringComparer.Ordinal) {
 				{ "RIPEMD160", DigestAlgorithm.RipeMD160 },
 				{ "SHA1", DigestAlgorithm.Sha1 },
 				{ "SHA224", DigestAlgorithm.Sha224 },

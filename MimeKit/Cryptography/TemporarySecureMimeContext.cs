@@ -59,8 +59,8 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public TemporarySecureMimeContext ()
 		{
-			capabilities = new Dictionary<string, EncryptionAlgorithm[]> ();
-			keys = new Dictionary<string, AsymmetricKeyParameter> ();
+			capabilities = new Dictionary<string, EncryptionAlgorithm[]> (StringComparer.Ordinal);
+			keys = new Dictionary<string, AsymmetricKeyParameter> (StringComparer.Ordinal);
 			certificates = new List<X509Certificate> ();
 			crls = new List<X509Crl> ();
 		}

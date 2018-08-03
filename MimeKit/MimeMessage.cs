@@ -1683,7 +1683,7 @@ namespace MimeKit {
 
 		void DkimWriteHeaders (FormatOptions options, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, Stream stream)
 		{
-			var counts = new Dictionary<string, int> ();
+			var counts = new Dictionary<string, int> (StringComparer.Ordinal);
 
 			for (int i = 0; i < fields.Count; i++) {
 				var headers = fields[i].StartsWith ("Content-", StringComparison.OrdinalIgnoreCase) ? Body.Headers : Headers;
@@ -1981,7 +1981,7 @@ namespace MimeKit {
 
 		static IDictionary<string, string> ParseDkimSignature (string signature)
 		{
-			var parameters = new Dictionary<string, string> ();
+			var parameters = new Dictionary<string, string> (MimeUtils.OrdinalIgnoreCase);
 
 			foreach (var token in signature.Split (';')) {
 				var value = new StringBuilder ();
