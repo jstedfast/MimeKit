@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 2.0.6
+
+* Added more bounds checking for parsing mailbox addresses to fix IndexOutOfRangeExceptions
+  given an incomplete address like "Name <". (issue #421)
+* Fixed support for parsing mbox files using Content-Length.
+* Modified the TextPart.Text getter property to check for a UTF-16 BOM and use an appropriate
+  UTF-16 System.Text.Encoding if found instead of simply assuming UTF-8 and falling back to
+  iso-8859-1. (issue #417)
+* Minor optimizations.
+
 ### MimeKit 2.0.5
 
 * Make sure messages created from System.Net.Mail.MailMessages have a Date header. (MailKit issue #710)
