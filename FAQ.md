@@ -1162,6 +1162,6 @@ MimeEntity ParseMultipartFormData (HttpWebResponse response)
 {
     var contentType = ContentType.Parse (response.ContentType);
 
-    return MimeEntity.Parse (contentType, response.GetResponseStream ());
+    return MimeEntity.Load (contentType, response.GetResponseStream ());
 }
 ```
