@@ -183,7 +183,7 @@ namespace MimeKit.Cryptography {
 			SecretKeyRingPath = secring;
 
 			if (File.Exists (pubring)) {
-				using (var file = File.Open (pubring, FileMode.Open, FileAccess.Read)) {
+				using (var file = File.OpenRead (pubring)) {
 					PublicKeyRingBundle = new PgpPublicKeyRingBundle (file);
 				}
 			} else {
@@ -191,7 +191,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (secring)) {
-				using (var file = File.Open (secring, FileMode.Open, FileAccess.Read)) {
+				using (var file = File.OpenRead (secring)) {
 					SecretKeyRingBundle = new PgpSecretKeyRingBundle (file);
 				}
 			} else {

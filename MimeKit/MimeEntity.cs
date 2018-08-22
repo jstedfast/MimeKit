@@ -1440,7 +1440,7 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
+			using (var stream = File.OpenRead (fileName))
 				return Load (options, stream, cancellationToken);
 		}
 
@@ -1491,7 +1491,7 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Open, FileAccess.Read))
+			using (var stream = File.OpenRead (fileName))
 				return await LoadAsync (options, stream, cancellationToken).ConfigureAwait (false);
 		}
 
