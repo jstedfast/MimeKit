@@ -686,7 +686,22 @@ namespace UnitTests.Tnef {
 					bool found = false;
 
 					foreach (var part in attachments.OfType<MimePart> ()) {
-						if (part.FileName == name) {
+						if (part is TextPart && string.IsNullOrEmpty (part.FileName)) {
+							var basename = Path.GetFileNameWithoutExtension (name);
+							var extension = Path.GetExtension (name);
+							string subtype;
+
+							switch (extension) {
+							case ".html": subtype = "html"; break;
+							case ".rtf": subtype = "rtf"; break;
+							default: subtype = "plain"; break;
+							}
+
+							if (basename == "body" && part.ContentType.IsMimeType ("text", subtype)) {
+								found = true;
+								break;
+							}
+						} else if (part.FileName == name) {
 							found = true;
 							break;
 						}

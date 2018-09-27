@@ -142,7 +142,6 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var rtf = new TextPart ("rtf");
-						rtf.ContentType.Name = "body.rtf";
 
 						var converter = new RtfCompressedToRtf ();
 						var content = new MemoryBlockStream ();
@@ -167,7 +166,6 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var html = new TextPart ("html");
-						html.ContentType.Name = "body.html";
 						Encoding encoding;
 
 						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
@@ -185,7 +183,6 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var plain = new TextPart ("plain");
-						plain.ContentType.Name = "body.txt";
 						Encoding encoding;
 
 						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
