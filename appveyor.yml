@@ -36,4 +36,4 @@ test_script:
     	-output:opencover.xml `
     }
 
-    .\packages\coveralls.net.1.0.0\tools\netcoreapp2.1\any\csmacnz.Coveralls --opencover -i opencover.xml --repoToken $Env:COVERALLS_REPO_TOKEN --useRelativePaths --basePath .\UnitTests\bin\Debug --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_BUILD_NUMBER --serviceName appveyor
+    .\packages\coveralls.net.1.0.0\tools\netcoreapp2.1\any\csmacnz.Coveralls.dll --opencover -i opencover.xml --repoToken $Env:COVERALLS_REPO_TOKEN --useRelativePaths --basePath .\UnitTests\bin\Debug --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_BUILD_NUMBER --serviceName appveyor
