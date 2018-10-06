@@ -100,6 +100,20 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestGetText ()
+		{
+			const string text = "This is some Låtín1 text.";
+
+			var encoding = Encoding.GetEncoding ("iso-8859-1");
+			var part = new TextPart ("plain");
+
+			part.SetText ("iso-8859-1", text);
+
+			Assert.AreEqual (text, part.GetText ("iso-8859-1"), "charset");
+			Assert.AreEqual (text, part.GetText (encoding), "encoding");
+		}
+
+		[Test]
 		public void TestLatin1 ()
 		{
 			const string text = "This is some Låtín1 text.";
