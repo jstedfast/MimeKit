@@ -48,6 +48,14 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => report.Accept (null));
 		}
+
+		[Test]
+		public void TestParamCtor ()
+		{
+			var report = new MultipartReport ("disposition-notification", new MimePart ());
+
+			Assert.AreEqual (1, report.Count);
+		}
 	}
 }
 

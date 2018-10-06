@@ -52,6 +52,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new MessagePart ("rfc822", (object[]) null));
 			Assert.Throws<ArgumentException> (() => new MessagePart ("rfc822", message, null, message));
 			Assert.Throws<ArgumentException> (() => new MessagePart ("rfc822", 5));
+			Assert.DoesNotThrow (() => new MessagePart ("rfc822", message));
 
 			Assert.Throws<ArgumentNullException> (() => new MimePart ("text", "plain", (object[]) null));
 			Assert.Throws<ArgumentException> (() => new MimePart ("text", "plain", body.Content, body.Content.Stream));

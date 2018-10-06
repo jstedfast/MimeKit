@@ -172,11 +172,8 @@ namespace MimeKit {
 				MimePart part;
 
 				if (contentType.IsMimeType ("text", "*")) {
-					part = new TextPart (contentType.MediaSubtype);
-					foreach (var param in contentType.Parameters)
-						part.ContentType.Parameters.Add (param);
-
 					// TODO: should we try to auto-detect charsets if no charset parameter is specified?
+					part = new TextPart (contentType);
 				} else {
 					part = new MimePart (contentType);
 				}
