@@ -90,13 +90,13 @@ namespace MimeKit {
 		/// </exception>
 		public HeaderList this [int index] {
 			get {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				return groups[index];
 			}
 			set {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				if (value == null)

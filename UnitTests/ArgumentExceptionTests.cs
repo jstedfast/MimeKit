@@ -411,6 +411,7 @@ namespace UnitTests {
 
 			collection.Add (new HeaderList ());
 			Assert.Throws<ArgumentNullException> (() => collection[0] = null);
+			Assert.DoesNotThrow (() => collection[0] = new HeaderList ());
 		}
 
 		[Test]

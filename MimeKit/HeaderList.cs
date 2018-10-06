@@ -1077,7 +1077,7 @@ namespace MimeKit {
 		/// </exception>
 		public void RemoveAt (int index)
 		{
-			if (index < 0 || index > Count)
+			if (index < 0 || index >= Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
 			var header = headers[index];
@@ -1117,13 +1117,13 @@ namespace MimeKit {
 		/// </exception>
 		public Header this [int index] {
 			get {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				return headers[index];
 			}
 			set {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				if (value == null)

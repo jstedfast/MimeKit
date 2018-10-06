@@ -563,7 +563,7 @@ namespace MimeKit {
 				return parameters[index];
 			}
 			set {
-				if (index < 0 || index > Count)
+				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
 				if (value == null)
