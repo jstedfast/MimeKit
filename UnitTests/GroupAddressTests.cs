@@ -141,6 +141,28 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestClone ()
+		{
+			const string encoded = "Group Name: First Name <first@address.com>, Second Name <second@address.com>,\n Inner Group Name: First Inner Name <first-inner@address.com>, Second Inner Name\n\t<second-inner@address.com>;, Third Name <third@address.com>;";
+			var options = FormatOptions.Default.Clone ();
+			options.International = true;
+
+			var inner = new GroupAddress ("Inner Group Name");
+			inner.Members.Add (new MailboxAddress ("First Inner Name", "first-inner@address.com"));
+			inner.Members.Add (new MailboxAddress ("Second Inner Name", "second-inner@address.com"));
+
+			var group = new GroupAddress ("Group Name");
+			group.Members.Add (new MailboxAddress ("First Name", "first@address.com"));
+			group.Members.Add (new MailboxAddress ("Second Name", "second@address.com"));
+			group.Members.Add (inner);
+			group.Members.Add (new MailboxAddress ("Third Name", "third@address.com"));
+
+			var clone = group.Clone ();
+
+			Assert.AreEqual (encoded, clone.ToString (options, true));
+		}
+
+		[Test]
 		public void TestParseEmpty ()
 		{
 			AssertParseFailure (string.Empty, false, 0, 0);

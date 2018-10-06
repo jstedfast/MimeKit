@@ -132,12 +132,6 @@ namespace MimeKit {
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
-			if (builder == null)
-				throw new ArgumentNullException (nameof (builder));
-
-			if (lineLength < 0)
-				throw new ArgumentOutOfRangeException (nameof (lineLength));
-
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;
 
