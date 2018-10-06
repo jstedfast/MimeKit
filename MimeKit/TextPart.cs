@@ -220,7 +220,7 @@ namespace MimeKit {
 		/// predecessor, <c>text/richtext</c> (not to be confused with <c>text/rtf</c>).
 		/// </remarks>
 		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
-		bool IsEnriched {
+		public bool IsEnriched {
 			get { return ContentType.IsMimeType ("text", "enriched") || ContentType.IsMimeType ("text", "richtext"); }
 		}
 

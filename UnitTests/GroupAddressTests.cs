@@ -159,7 +159,8 @@ namespace UnitTests {
 
 			var clone = group.Clone ();
 
-			Assert.AreEqual (encoded, clone.ToString (options, true));
+			Assert.AreEqual (0, group.CompareTo (clone), "CompareTo");
+			Assert.AreEqual (encoded, clone.ToString (options, true), "Encode");
 		}
 
 		[Test]

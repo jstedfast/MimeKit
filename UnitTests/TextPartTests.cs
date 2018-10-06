@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Text;
 
 using NUnit.Framework;
@@ -66,25 +67,87 @@ namespace UnitTests
 			Assert.IsTrue (text.IsHtml, "IsHtml");
 			Assert.IsFalse (text.IsPlain, "IsPlain");
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
 
 			text = new TextPart (TextFormat.Plain);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
 			Assert.IsTrue (text.IsPlain, "IsPlain");
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
 
 			text = new TextPart (TextFormat.Flowed);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
 			Assert.IsTrue (text.IsPlain, "IsPlain");
 			Assert.IsTrue (text.IsFlowed, "IsFlowed");
+			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
 
 			text = new TextPart (TextFormat.RichText);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
 			Assert.IsFalse (text.IsPlain, "IsPlain");
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsTrue (text.IsRichText, "IsRichText");
+
+			text = new TextPart (TextFormat.Enriched);
+			Assert.IsFalse (text.IsHtml, "IsHtml");
+			Assert.IsFalse (text.IsPlain, "IsPlain");
+			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsTrue (text.IsEnriched, "IsEnriched");
+			Assert.IsFalse (text.IsRichText, "IsRichText");
+		}
+
+		[Test]
+		public void TestLatin1 ()
+		{
+			const string text = "This is some Låtín1 text.";
+
+			var memory = new MemoryStream ();
+			var buffer = Encoding.GetEncoding ("iso-8859-1").GetBytes (text);
+			memory.Write (buffer, 0, buffer.Length);
+			memory.Position = 0;
+
+			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
+
+			Assert.AreEqual (text, part.Text);
+		}
+
+		[Test]
+		public void TestUTF16BE ()
+		{
+			const string text = "This is some UTF-16BE text.";
+
+			var memory = new MemoryStream ();
+			memory.WriteByte (0xfe);
+			memory.WriteByte (0xff);
+
+			var buffer = Encoding.BigEndianUnicode.GetBytes (text);
+			memory.Write (buffer, 0, buffer.Length);
+			memory.Position = 0;
+
+			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
+
+			Assert.AreEqual (text, part.Text.Substring (1));
+		}
+
+		[Test]
+		public void TestUTF16LE ()
+		{
+			const string text = "This is some UTF-16LE text.";
+
+			var memory = new MemoryStream ();
+			memory.WriteByte (0xff);
+			memory.WriteByte (0xfe);
+
+			var buffer = Encoding.Unicode.GetBytes (text);
+			memory.Write (buffer, 0, buffer.Length);
+			memory.Position = 0;
+
+			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
+
+			Assert.AreEqual (text, part.Text.Substring (1));
 		}
 	}
 }
