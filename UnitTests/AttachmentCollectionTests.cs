@@ -101,8 +101,11 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 
 		[Test]
@@ -119,8 +122,11 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 
 		[Test]
@@ -136,8 +142,11 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 
 		[Test]
@@ -154,8 +163,11 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 
 		[Test]
@@ -173,8 +185,11 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 
 		[Test]
@@ -193,8 +208,11 @@ namespace UnitTests
 			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 
 		[Test]
@@ -210,8 +228,11 @@ namespace UnitTests
 			Assert.AreEqual ("message/rfc822", attachment.ContentType.MimeType);
 			Assert.AreEqual (1, attachments.Count);
 
-			Assert.IsTrue (attachments.Remove (attachment));
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
 		}
 	}
 }
