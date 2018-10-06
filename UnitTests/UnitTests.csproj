@@ -139,6 +139,7 @@
     <Compile Include="MimePartTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
     <Compile Include="MimeVisitorTests.cs" />
+    <Compile Include="MultipartAlternativeTests.cs" />
     <Compile Include="MultipartRelatedTests.cs" />
     <Compile Include="MultipartReportTests.cs" />
     <Compile Include="MultipartTests.cs" />
