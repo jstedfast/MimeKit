@@ -389,7 +389,7 @@ namespace MimeKit {
 				}
 			}
 
-			if (i == path.Count && indexes[i] < index)
+			if (!moveFirst && indexes.Length < path.Count)
 				Reset ();
 
 			if (moveFirst && !MoveNext ())
