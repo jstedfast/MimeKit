@@ -60,6 +60,11 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.Add ("name", null));
 			Assert.Throws<ArgumentNullException> (() => list.Add (null));
 
+			list.Add ("name", "x-value");
+			Assert.Throws<ArgumentException> (() => list.Add ("name", "value"));
+			Assert.Throws<ArgumentException> (() => list.Add (new Parameter ("name", "value")));
+			list.Clear ();
+
 			// Contains
 			Assert.Throws<ArgumentNullException> (() => list.Contains ((Parameter) null));
 			Assert.Throws<ArgumentNullException> (() => list.Contains ((string) null));
@@ -73,7 +78,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.IndexOf ((string) null));
 
 			// Insert
-			list.Add ("name", "value");
+			list.Add ("x-name", "value");
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, new Parameter ("name", "value")));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "field", "value"));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null, "value"));
@@ -81,6 +86,9 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => list.Insert (0, invalid, "value"));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, "name", null));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));
+			Assert.Throws<ArgumentException> (() => list.Insert (0, "x-name", "x-value"));
+			Assert.Throws<ArgumentException> (() => list.Insert (0, new Parameter ("x-name", "x-value")));
+			list.Clear ();
 
 			// Remove
 			Assert.Throws<ArgumentNullException> (() => list.Remove ((Parameter) null));
@@ -94,12 +102,16 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.TryGetValue (null, out value));
 
 			// Indexers
+			list.Add ("name", "value");
+			list.Add ("x-name", "x-value");
 			Assert.Throws<ArgumentOutOfRangeException> (() => list[-1] = new Parameter ("name", "value"));
 			Assert.Throws<ArgumentOutOfRangeException> (() => param = list[-1]);
 			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 			Assert.Throws<ArgumentNullException> (() => list[null] = "value");
 			Assert.Throws<ArgumentNullException> (() => value = list[null]);
 			Assert.Throws<ArgumentNullException> (() => list["name"] = null);
+			Assert.Throws<ArgumentException> (() => list[1] = new Parameter ("name", "value"));
+			list.Clear ();
 		}
 
 		[Test]
@@ -175,6 +187,14 @@ namespace UnitTests {
 			Assert.AreEqual (3, list.Count);
 
 			Assert.AreEqual ("; abc=\"0\"; def=\"1\"; ghi=\"2\"", list.ToString ());
+
+			list[0] = new Parameter ("abc", "replaced");
+
+			Assert.AreEqual ("; abc=\"replaced\"; def=\"1\"; ghi=\"2\"", list.ToString ());
+
+			list[0] = new Parameter ("xxx", "0");
+
+			Assert.AreEqual ("; xxx=\"0\"; def=\"1\"; ghi=\"2\"", list.ToString ());
 		}
 	}
 }
