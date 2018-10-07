@@ -241,6 +241,8 @@
     <None Include="TestData\tnef\missing-filenames.tnef" />
     <None Include="TestData\tnef\multi-name-property.list" />
     <None Include="TestData\tnef\multi-name-property.tnef" />
+    <None Include="TestData\tnef\multi-value-attribute.list" />
+    <None Include="TestData\tnef\multi-value-attribute.tnef" />
     <None Include="TestData\tnef\one-file.list" />
     <None Include="TestData\tnef\one-file.tnef" />
     <None Include="TestData\tnef\rtf.list" />
@@ -250,6 +252,10 @@
     <None Include="TestData\tnef\two-files.list" />
     <None Include="TestData\tnef\two-files.tnef" />
     <None Include="TestData\tnef\ukr.eml" />
+    <None Include="TestData\tnef\unicode-mapi-attr.list" />
+    <None Include="TestData\tnef\unicode-mapi-attr.tnef" />
+    <None Include="TestData\tnef\unicode-mapi-attr-name.list" />
+    <None Include="TestData\tnef\unicode-mapi-attr-name.tnef" />
     <None Include="TestData\tnef\winmail.tnef" />
     <None Include="TestData\tnef\winmail.list" />
     <None Include="TestData\yenc\00000020.ntx" />

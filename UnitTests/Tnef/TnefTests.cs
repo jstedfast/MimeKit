@@ -764,6 +764,12 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestMultiValueAttribute ()
+		{
+			TestTnefParser ("../../TestData/tnef/multi-value-attribute");
+		}
+
+		[Test]
 		public void TestOneFile ()
 		{
 			TestTnefParser ("../../TestData/tnef/one-file");
@@ -785,6 +791,18 @@ namespace UnitTests.Tnef {
 		public void TestTwoFiles ()
 		{
 			TestTnefParser ("../../TestData/tnef/two-files");
+		}
+
+		[Test]
+		public void TestUnicodeMapiAttrName ()
+		{
+			TestTnefParser ("../../TestData/tnef/unicode-mapi-attr-name");
+		}
+
+		[Test]
+		public void TestUnicodeMapiAttr ()
+		{
+			TestTnefParser ("../../TestData/tnef/unicode-mapi-attr");
 		}
 
 		[Test]
@@ -817,6 +835,36 @@ namespace UnitTests.Tnef {
 
 			Assert.AreEqual ("windows-1251", text.ContentType.Charset);
 			Assert.AreEqual (expected, html);
+		}
+
+		[Test]
+		public void TestTnefReaderStream ()
+		{
+			using (var stream = File.OpenRead ("../../TestData/tnef/winmail.tnef")) {
+				using (var reader = new TnefReader (stream)) {
+					var buffer = new byte[1024];
+
+					using (var tnef = new TnefReaderStream (reader, 0)) {
+						Assert.IsTrue (tnef.CanRead);
+						Assert.IsFalse (tnef.CanWrite);
+						Assert.IsFalse (tnef.CanSeek);
+						Assert.IsFalse (tnef.CanTimeout);
+
+						Assert.Throws<ArgumentNullException> (() => tnef.Read (null, 0, buffer.Length));
+						Assert.Throws<ArgumentOutOfRangeException> (() => tnef.Read (buffer, -1, buffer.Length));
+						Assert.Throws<ArgumentOutOfRangeException> (() => tnef.Read (buffer, 0, -1));
+
+						Assert.Throws<NotSupportedException> (() => tnef.Write (buffer, 0, buffer.Length));
+						Assert.Throws<NotSupportedException> (() => tnef.Seek (0, SeekOrigin.End));
+						Assert.Throws<NotSupportedException> (() => tnef.Flush ());
+						Assert.Throws<NotSupportedException> (() => tnef.SetLength (1024));
+
+						Assert.Throws<NotSupportedException> (() => { var x = tnef.Position; });
+						Assert.Throws<NotSupportedException> (() => { tnef.Position = 0; });
+						Assert.Throws<NotSupportedException> (() => { var x = tnef.Length; });
+					}
+				}
+			}
 		}
 	}
 }
