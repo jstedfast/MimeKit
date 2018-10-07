@@ -73,16 +73,6 @@ namespace MimeKit {
 			type = mediaType;
 		}
 
-		static bool IsToken (byte c)
-		{
-			return c.IsToken ();
-		}
-
-		static bool IsAsciiAtom (byte c)
-		{
-			return c.IsAsciiAtom ();
-		}
-
 		/// <summary>
 		/// Gets or sets the type of the media.
 		/// </summary>
