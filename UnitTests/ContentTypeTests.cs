@@ -552,10 +552,21 @@ namespace UnitTests {
 		[Test]
 		public void TestToStringEncode ()
 		{
-			const string expected = "Content-Type: text/plain; format=flowed; charset=utf-8;\n\tname*0*=utf-8''%D0%AD%D1%82%D0%BE%20%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%BE;\n\tname*1*=%D0%B5%20%D0%B8%D0%BC%D1%8F%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0.txt";
+			const string rfc2231 = "Content-Type: text/plain; format=flowed; charset=utf-8;\n\tname*0*=utf-8''%D0%AD%D1%82%D0%BE%20%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%BE;\n\tname*1*=%D0%B5%20%D0%B8%D0%BC%D1%8F%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0.txt";
+			const string rfc2047 = "Content-Type: text/plain; format=flowed; charset=utf-8;\n\tname=\"=?utf-8?b?0K3RgtC+INGA0YPRgdGB0LrQvtC1INC40LzRjyDRhNCw0LnQu9CwLnR4?=\n\t=?utf-8?q?t?=\"";
 			var type = new ContentType ("text", "plain") { Format = "flowed", Charset = "utf-8", Name = "Это русское имя файла.txt" };
 
-			Assert.AreEqual (expected, type.ToString (Encoding.UTF8, true));
+			Assert.AreEqual (rfc2231, type.ToString (Encoding.UTF8, true));
+
+			foreach (var parameter in type.Parameters)
+				parameter.EncodingMethod = ParameterEncodingMethod.Rfc2231;
+
+			Assert.AreEqual (rfc2231, type.ToString (Encoding.UTF8, true));
+
+			foreach (var parameter in type.Parameters)
+				parameter.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+
+			Assert.AreEqual (rfc2047, type.ToString (Encoding.UTF8, true));
 		}
 	}
 }
