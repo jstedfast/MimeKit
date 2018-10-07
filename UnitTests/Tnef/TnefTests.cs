@@ -192,6 +192,8 @@ namespace UnitTests.Tnef {
 						rtf.ContentType.Name = "body.rtf";
 
 						var converter = new RtfCompressedToRtf ();
+						converter.Reset ();
+
 						var content = new MemoryStream ();
 
 						using (var filtered = new FilteredStream (content)) {
