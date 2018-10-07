@@ -509,6 +509,69 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEmptyParameterName ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; =";
+
+			AssertParse (text, expected, false, 12, 12);
+		}
+
+		[Test]
+		public void TestIncompleteParameterName ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; name";
+
+			AssertParse (text, expected, false, 12, 16);
+		}
+
+		[Test]
+		public void TestIncompleteParameterNameWithStar ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; name*";
+
+			AssertParse (text, expected, false, 12, 17);
+		}
+
+		[Test]
+		public void TestIncompleteParameterNameWithPartId ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; name*0";
+
+			AssertParse (text, expected, false, 12, 18);
+		}
+
+		[Test]
+		public void TestIncompleteParameterNameWithPartIdStar ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; name*0*";
+
+			AssertParse (text, expected, false, 12, 19);
+		}
+
+		[Test]
+		public void TestInvalidParameterNameWithPartId ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; name*0*x";
+
+			AssertParse (text, expected, false, 12, 19);
+		}
+
+		[Test]
+		public void TestInncompleteParameterNameWithPartIdStarEqual ()
+		{
+			var expected = new ContentType ("text", "plain");
+			const string text = "text/plain; name*0*=";
+
+			AssertParse (text, expected, false, 12, 20);
+		}
+
+		[Test]
 		public void TestProperties ()
 		{
 			var type = new ContentType ("application", "octet-stream");
