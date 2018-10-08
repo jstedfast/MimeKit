@@ -57,17 +57,17 @@ namespace UnitTests {
 			alternative.Add (richtext);
 			alternative.Add (html);
 
-			Assert.AreEqual ("plain\n", alternative.TextBody, "TextBody");
-			Assert.AreEqual ("html\n", alternative.HtmlBody, "HtmlBody");
+			Assert.AreEqual ("plain\n", alternative.TextBody.Replace ("\r\n", "\n"), "TextBody");
+			Assert.AreEqual ("html\n", alternative.HtmlBody.Replace ("\r\n", "\n"), "HtmlBody");
 
 			alternative.Insert (1, flowed);
 
 			// Note: GetTextBody (Plain) returns Flowed because Flowed is also Plain and is listed after the text/plain part
-			Assert.AreEqual ("flowed\n", alternative.GetTextBody (TextFormat.Plain), "Plain");
-			Assert.AreEqual ("flowed\n", alternative.GetTextBody (TextFormat.Flowed), "Flowed");
-			Assert.AreEqual ("rtf\n", alternative.GetTextBody (TextFormat.RichText), "RichText");
-			Assert.AreEqual ("html\n", alternative.GetTextBody (TextFormat.Html), "Html");
-			Assert.IsNull (alternative.GetTextBody (TextFormat.Enriched), "Enriched");
+			Assert.AreEqual ("flowed\n", alternative.GetTextBody (TextFormat.Plain).Replace ("\r\n", "\n"), "Plain");
+			Assert.AreEqual ("flowed\n", alternative.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n"), "Flowed");
+			Assert.AreEqual ("rtf\n", alternative.GetTextBody (TextFormat.RichText).Replace ("\r\n", "\n"), "RichText");
+			Assert.AreEqual ("html\n", alternative.GetTextBody (TextFormat.Html).Replace ("\r\n", "\n"), "Html");
+			Assert.IsNull (alternative.GetTextBody (TextFormat.Enriched).Replace ("\r\n", "\n"), "Enriched");
 		}
 	}
 }

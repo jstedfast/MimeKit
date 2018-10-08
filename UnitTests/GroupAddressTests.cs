@@ -145,6 +145,7 @@ namespace UnitTests {
 		{
 			const string encoded = "Group Name: First Name <first@address.com>, Second Name <second@address.com>,\n Inner Group Name: First Inner Name <first-inner@address.com>, Second Inner Name\n\t<second-inner@address.com>;, Third Name <third@address.com>;";
 			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
 			options.International = true;
 
 			var inner = new GroupAddress ("Inner Group Name");
