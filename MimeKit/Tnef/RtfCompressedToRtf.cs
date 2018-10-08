@@ -112,6 +112,11 @@ namespace MimeKit.Tnef {
 
 		bool TryReadInt32 (byte[] buffer, ref int index, int endIndex, out int value)
 		{
+			if (index == endIndex) {
+				value = saved;
+				return false;
+			}
+
 			int nread = (saved >> 24) & 0xFF;
 
 			saved &= 0x00FFFFFF;
