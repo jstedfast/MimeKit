@@ -67,7 +67,7 @@ namespace UnitTests {
 			Assert.AreEqual ("flowed\n", alternative.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n"), "Flowed");
 			Assert.AreEqual ("rtf\n", alternative.GetTextBody (TextFormat.RichText).Replace ("\r\n", "\n"), "RichText");
 			Assert.AreEqual ("html\n", alternative.GetTextBody (TextFormat.Html).Replace ("\r\n", "\n"), "Html");
-			Assert.IsNull (alternative.GetTextBody (TextFormat.Enriched).Replace ("\r\n", "\n"), "Enriched");
+			Assert.IsNull (alternative.GetTextBody (TextFormat.Enriched), "Enriched");
 		}
 	}
 }
