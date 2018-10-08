@@ -942,5 +942,32 @@ namespace UnitTests.Tnef {
 
 			Assert.AreEqual (expected, text);
 		}
+
+		[Test]
+		public void TestTnefNameId ()
+		{
+			var guid = Guid.NewGuid ();
+			var tnef1 = new TnefNameId (guid, 17);
+			var tnef2 = new TnefNameId (guid, 17);
+
+			Assert.AreEqual (TnefNameIdKind.Id, tnef1.Kind, "Kind Id");
+			Assert.AreEqual (guid, tnef1.PropertySetGuid, "PropertySetGuid Id");
+			Assert.AreEqual (17, tnef1.Id, "Id");
+
+			Assert.AreEqual (tnef1.GetHashCode (), tnef2.GetHashCode (), "GetHashCode Id");
+			Assert.AreEqual (tnef1, tnef2, "Equal Id");
+
+			tnef1 = new TnefNameId (guid, "name");
+			Assert.AreEqual (TnefNameIdKind.Name, tnef1.Kind, "Kind Name");
+			Assert.AreEqual (guid, tnef1.PropertySetGuid, "PropertySetGuid");
+			Assert.AreEqual ("name", tnef1.Name, "Name");
+
+			Assert.AreNotEqual (tnef1.GetHashCode (), tnef2.GetHashCode (), "GetHashCode Name vs Id");
+			Assert.AreNotEqual (tnef1, tnef2, "Equal Name vs Id");
+
+			tnef2 = new TnefNameId (guid, "name");
+			Assert.AreEqual (tnef1.GetHashCode (), tnef2.GetHashCode (), "GetHashCode Name");
+			Assert.AreEqual (tnef1, tnef2, "Equal Name");
+		}
 	}
 }
