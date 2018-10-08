@@ -250,7 +250,7 @@ namespace MimeKit.Cryptography {
 				} else {
 					var address = certificate.GetSubjectEmailAddress ();
 
-					if (address == null || !address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+					if (!address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
 						continue;
 				}
 
@@ -315,7 +315,7 @@ namespace MimeKit.Cryptography {
 				} else {
 					var address = certificate.GetSubjectEmailAddress ();
 
-					if (address == null || !address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+					if (!address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
 						continue;
 				}
 

@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 			// FIXME: GetValueList() should be fixed to return IList<string>
 			var list = certificate.IssuerDN.GetValueList (identifier);
 			if (list.Count == 0)
-				return null;
+				return string.Empty;
 
 			return (string) list[0];
 		}
@@ -114,7 +114,7 @@ namespace MimeKit.Cryptography {
 			// FIXME: GetValueList() should be fixed to return IList<string>
 			var list = certificate.SubjectDN.GetValueList (identifier);
 			if (list.Count == 0)
-				return null;
+				return string.Empty;
 
 			return (string) list[0];
 		}
@@ -168,13 +168,13 @@ namespace MimeKit.Cryptography {
 		{
 			var address = certificate.GetSubjectNameInfo (X509Name.EmailAddress);
 
-			if (address != null)
+			if (!string.IsNullOrEmpty (address))
 				return address;
 
 			var alt = certificate.GetExtensionValue (X509Extensions.SubjectAlternativeName);
 
 			if (alt == null)
-				return null;
+				return string.Empty;
 
 			var seq = Asn1Sequence.GetInstance (Asn1Object.FromByteArray (alt.GetOctets ()));
 

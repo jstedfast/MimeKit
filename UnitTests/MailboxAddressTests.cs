@@ -100,6 +100,13 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (null, "ffff"));
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("johnny@example.com", null));
 			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("johnny@example.com", "not hex encoded"));
+
+			Assert.DoesNotThrow (() => new SecureMailboxAddress ("user@domain.com", "ffff"));
+			Assert.DoesNotThrow (() => new SecureMailboxAddress ("Mailbox Address", "user@domain.com", "ffff"));
+			Assert.DoesNotThrow (() => new SecureMailboxAddress (Encoding.UTF8, "Mailbox Address", "user@domain.com", "ffff"));
+			Assert.DoesNotThrow (() => new SecureMailboxAddress (new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
+			Assert.DoesNotThrow (() => new SecureMailboxAddress ("Routed Address", new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
+			Assert.DoesNotThrow (() => new SecureMailboxAddress (Encoding.UTF8, "Routed Address", new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
 		}
 
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
