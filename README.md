@@ -154,9 +154,8 @@ In the top-level MimeKit directory, there are a number of solution files; they a
 
 If you don't have the Xamarin products, you'll probably want to open the MimeKit.Net45.sln instead of MimeKit.sln.
 
-Once you've opened the appropriate MimeKit solution file in either [Xamarin Studio](https://www.xamarin.com/download)
-or [Visual Studio 2017](https://www.visualstudio.com/downloads/), you can choose the **Debug** or **Release**
-build configuration and then build.
+Once you've opened the appropriate MimeKit solution file in [Visual Studio](https://www.visualstudio.com/downloads/),
+you can choose the **Debug** or **Release** build configuration and then build.
 
 Note: The **Release** build will generate the xml API documentation, but the **Debug** build will not.
 
@@ -1058,9 +1057,9 @@ namespace DkimVerifier
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. For instructions on how to
 do that, see the section titled **Getting the Source Code**.
 
-If you use [Xamarin Studio](http://xamarin.com/studio) or [MonoDevelop](http://monodevelop.com), all of the
-solution files are configured with the coding style used by MimeKit. If you use Visual Studio or some
-other editor, please try to maintain the existing coding style as best as you can.
+If you use [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) or [MonoDevelop](http://monodevelop.com),
+all of the solution files are configured with the coding style used by MimeKit. If you use Visual Studio on Windows or
+some other editor, please try to maintain the existing coding style as best as you can.
 
 Once you've got some changes that you'd like to submit upstream to the official MimeKit repository,
 send me a **Pull Request** and I will try to review your changes in a timely manner.
