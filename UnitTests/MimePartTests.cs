@@ -98,6 +98,7 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (Stream) null, false));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, "fileName", false));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (string) null, false));
+			Assert.Throws<ArgumentException> (() => part.ContentId = "this is some text and stuff");
 
 			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((string) null));
 			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null));
@@ -111,6 +112,20 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null, false));
 			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName", false));
 			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null, false));
+		}
+
+		[Test]
+		public void TestParameterizedCtor ()
+		{
+			const string expected = "Content-Type: text/plain\nContent-Transfer-Encoding: base64\nContent-Id: <id@localhost.com>\n\n\n";
+			var headers = new [] { new Header ("Content-Id", "<id@localhost.com>") };
+			var part = new MimePart ("text", "plain", new Header ("Content-Transfer-Encoding", "base64"), headers) {
+				Content = new MimeContent (new MemoryStream ())
+			};
+
+			Assert.AreEqual ("id@localhost.com", part.ContentId, "Content-Id");
+			Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Content-Transfer-Encoding");
+			Assert.AreEqual (expected, part.ToString ().Replace ("\r\n", "\n"), "ToString");
 		}
 
 		[Test]
@@ -450,6 +465,40 @@ namespace UnitTests
 
 					Assert.AreEqual (text, content);
 				}
+			}
+		}
+
+		[Test]
+		public void TestLoadHttpWebResponse ()
+		{
+			var text = "This is some text and stuff.\r\n";
+			var contentType = new ContentType ("text", "plain");
+
+			using (var content = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var entity = MimeEntity.Load (contentType, content);
+
+				Assert.IsInstanceOf<TextPart> (entity);
+
+				var part = (TextPart) entity;
+
+				Assert.AreEqual (text, part.Text);
+			}
+		}
+
+		[Test]
+		public async void TestLoadHttpWebResponseAsync ()
+		{
+			var text = "This is some text and stuff.\r\n";
+			var contentType = new ContentType ("text", "plain");
+
+			using (var content = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var entity = await MimeEntity.LoadAsync (contentType, content);
+
+				Assert.IsInstanceOf<TextPart> (entity);
+
+				var part = (TextPart) entity;
+
+				Assert.AreEqual (text, part.Text);
 			}
 		}
 	}
