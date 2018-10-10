@@ -314,6 +314,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseIncompleteRoutedMailbox ()
+		{
+			const string text = "Name <@route:";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseIncompleteRoutedMailboxSpace ()
+		{
+			const string text = "Name <@route: ";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseIdnAddress ()
 		{
 			const string encoded = "user@xn--v8jxj3d1dzdz08w.com";
@@ -330,6 +350,40 @@ namespace UnitTests {
 			const string text = "jeff";
 
 			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseAddrspecNoAtDomainGreaterThan ()
+		{
+			const string text = "jeff>";
+			int tokenIndex = 0;
+			int errorIndex = text.Length - 1;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex, RfcComplianceMode.Strict);
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseAddrspecNoAtDomainWithIncompleteComment ()
+		{
+			const string text = "jeff (Jeffrey Stedfast";
+			int tokenIndex = 5;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseAddrspecNoAtDomainWithComment ()
+		{
+			const string text = "jeff (Jeffrey Stedfast)";
+
+			AssertParse (text);
+
+			var mailbox = MailboxAddress.Parse (text);
+
+			Assert.AreEqual ("Jeffrey Stedfast", mailbox.Name);
+			Assert.AreEqual ("jeff", mailbox.Address);
 		}
 
 		[Test]

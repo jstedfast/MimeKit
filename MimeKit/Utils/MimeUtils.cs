@@ -178,7 +178,7 @@ namespace MimeKit.Utils {
 						break;
 
 					string localpart;
-					if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, false, out localpart))
+					if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, true, false, out localpart))
 						continue;
 
 					if (index >= endIndex)
@@ -311,7 +311,7 @@ namespace MimeKit.Utils {
 			}
 
 			string localpart;
-			if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, false, out localpart))
+			if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, true, false, out localpart))
 				return null;
 
 			if (index >= endIndex)

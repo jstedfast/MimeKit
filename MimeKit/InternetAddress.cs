@@ -286,7 +286,7 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, bool throwOnError, out string localpart)
+		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, bool skipTrailingCfws, bool throwOnError, out string localpart)
 		{
 			var token = new StringBuilder ();
 			int startIndex = index;
@@ -314,11 +314,15 @@ namespace MimeKit {
 					return false;
 				}
 
+				int cfws = index;
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				if (index >= endIndex || text[index] != (byte) '.')
+				if (index >= endIndex || text[index] != (byte) '.') {
+					if (!skipTrailingCfws)
+						index = cfws;
 					break;
+				}
 
 				token.Append ('.');
 				index++;
@@ -349,7 +353,7 @@ namespace MimeKit {
 			at = -1;
 
 			string localpart;
-			if (!TryParseLocalPart (text, ref index, endIndex, throwOnError, out localpart))
+			if (!TryParseLocalPart (text, ref index, endIndex, true, throwOnError, out localpart))
 				return false;
 
 			if (index >= endIndex || ParseUtils.IsSentinel (text[index], sentinels)) {
@@ -444,7 +448,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				if (index + 1 >= endIndex || text[index] != (byte) ':') {
+				if (index >= endIndex || text[index] != (byte) ':') {
 					if (throwOnError)
 						throw new ParseException (string.Format ("Incomplete route in mailbox at offset {0}", startIndex), startIndex, index);
 
@@ -651,7 +655,6 @@ namespace MimeKit {
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
 				var sentinels = new byte [] { sentinel };
 				string name, addrspec;
-				int at;
 
 				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 					if (throwOnError)
@@ -663,7 +666,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, sentinels, throwOnError, out addrspec, out at))
+				if (!TryParseLocalPart (text, ref index, endIndex, false, throwOnError, out addrspec))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -696,7 +699,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
+				address = new MailboxAddress (Encoding.UTF8, name, addrspec, -1);
 
 				return true;
 			}
