@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -645,6 +646,84 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestBasicFunctionality ()
+		{
+			var user0 = new MailboxAddress ("Name Zero", "user0@address.com");
+			var user1 = new MailboxAddress ("Name One", "user1@address.com");
+			var user2 = new MailboxAddress ("Name Two", "user2@address.com");
+			var list = new InternetAddressList ();
+
+			Assert.IsFalse (list.IsReadOnly, "IsReadOnly");
+
+			list.Add (user1);
+			list.Add (user2);
+
+			Assert.AreEqual (2, list.Count, "Count");
+			Assert.IsTrue (list.Contains (user1), "Contains");
+			Assert.IsTrue (list.Contains (user2), "Contains");
+			Assert.IsFalse (list.Contains (new MailboxAddress ("Unknown", "unknown@address.com")), "Contains");
+			Assert.AreEqual (0, list.IndexOf (user1), "IndexOf");
+			Assert.AreEqual (1, list.IndexOf (user2), "IndexOf");
+
+			list.Insert (0, user0);
+			Assert.AreEqual (3, list.Count, "Count");
+			Assert.IsTrue (list.Contains (user0), "Contains");
+			Assert.AreEqual (0, list.IndexOf (user0), "IndexOf");
+			Assert.AreEqual (user0.Name, list[0].Name, "Name");
+
+			list.RemoveAt (0);
+			Assert.AreEqual (2, list.Count, "Count");
+			Assert.IsFalse (list.Contains (user0), "Contains");
+			Assert.AreEqual (-1, list.IndexOf (user0), "IndexOf");
+
+			Assert.IsFalse (list.Remove (user0), "Remove");
+
+			Assert.IsTrue (list.Remove (user2), "Remove");
+			Assert.AreEqual (1, list.Count, "Count");
+			Assert.IsFalse (list.Contains (user2), "Contains");
+			Assert.AreEqual (-1, list.IndexOf (user0), "IndexOf");
+
+			list[0] = user0;
+			Assert.AreEqual (1, list.Count, "Count");
+			Assert.IsTrue (list.Contains (user0), "Contains");
+			Assert.IsFalse (list.Contains (user1), "Contains");
+			Assert.AreEqual (0, list.IndexOf (user0), "IndexOf");
+			Assert.AreEqual (-1, list.IndexOf (user1), "IndexOf");
+		}
+
+		[Test]
+		public void TestEnumeratingMailboxes ()
+		{
+			var innerGroup = new GroupAddress ("Inner");
+			innerGroup.Members.Add (new MailboxAddress ("Inner1", "inner1@address.com"));
+			innerGroup.Members.Add (new MailboxAddress ("Inner2", "inner2@address.com"));
+
+			var outerGroup = new GroupAddress ("Outer");
+			outerGroup.Members.Add (new MailboxAddress ("Outer1", "outer1@address.com"));
+			outerGroup.Members.Add (innerGroup);
+			outerGroup.Members.Add (new MailboxAddress ("Outer2", "outer2@address.com"));
+
+			var list = new InternetAddressList ();
+			list.Add (new MailboxAddress ("Before", "before@address.com"));
+			list.Add (outerGroup);
+			list.Add (new MailboxAddress ("After", "after@address.com"));
+
+			var expected = new List<InternetAddress> ();
+			expected.Add (list[0]);
+			expected.Add (outerGroup.Members[0]);
+			expected.Add (innerGroup.Members[0]);
+			expected.Add (innerGroup.Members[1]);
+			expected.Add (outerGroup.Members[2]);
+			expected.Add (list[2]);
+			int i = 0;
+
+			foreach (var mailbox in list.Mailboxes) {
+				Assert.AreEqual (expected[i], mailbox, "Mailbox #{0}", i);
+				i++;
+			}
+		}
+
+		[Test]
 		public void TestEquality ()
 		{
 			var list1 = new InternetAddressList ();
@@ -669,6 +748,8 @@ namespace UnitTests {
 			}));
 			list2.Add (new MailboxAddress ("Joey", "joey@friends.com"));
 
+			Assert.IsFalse (list1.Equals (null), "Equals null");
+			Assert.IsFalse (list1.Equals (new InternetAddressList ()), "Equals empty list");
 			Assert.IsTrue (list1.Equals (list2), "The 2 lists should be equal.");
 		}
 

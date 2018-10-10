@@ -147,6 +147,9 @@ namespace MimeKit {
 		/// </exception>
 		public void Insert (int index, InternetAddress address)
 		{
+			if (index < 0 || index >= list.Count)
+				throw new ArgumentOutOfRangeException (nameof (index));
+
 			if (address == null)
 				throw new ArgumentNullException (nameof (address));
 
@@ -192,12 +195,17 @@ namespace MimeKit {
 		public InternetAddress this [int index] {
 			get { return list[index]; }
 			set {
+				if (index < 0 || index >= list.Count)
+					throw new ArgumentOutOfRangeException (nameof (index));
+
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (list[index] == value)
 					return;
 
+				list[index].Changed -= AddressChanged;
+				value.Changed += AddressChanged;
 				list[index] = value;
 				OnChanged ();
 			}
