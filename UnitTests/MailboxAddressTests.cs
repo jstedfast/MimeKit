@@ -324,6 +324,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseIncompleteRoutedMailboxAt ()
+		{
+			const string text = "Name <@";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseIncompleteRoutedMailbox ()
 		{
 			const string text = "Name <@route:";
@@ -339,6 +349,26 @@ namespace UnitTests {
 			const string text = "Name <@route: ";
 			const int tokenIndex = 0;
 			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseIncompleteCommentInRoute ()
+		{
+			const string text = "Name <@route,(comment";
+			const int tokenIndex = 0;
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseInvalidRouteInMailbox ()
+		{
+			const string text = "Name <@route,invalid:user@example.com>";
+			const int tokenIndex = 0;
+			int errorIndex = text.IndexOf (',') + 1;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
