@@ -294,6 +294,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithIncompleteCommentAfterDomainLiteralAddrspec ()
+		{
+			const string text = "jeff@[127.0.0.1] (incomplete comment";
+			int tokenIndex = text.IndexOf ('(');
+			int errorIndex = text.Length;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
 		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
 		{
 			const string text = "<jeff@xamarin.com> (incomplete comment";
