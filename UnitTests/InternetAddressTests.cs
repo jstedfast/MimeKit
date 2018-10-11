@@ -297,6 +297,14 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithInternationalRoute ()
+		{
+			const string text = "User Name <@route,@伊昭傑@郵件.商務:user@domain.com>";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseAddrspecNoAtDomain ()
 		{
 			const string text = "jeff";

@@ -111,6 +111,7 @@ namespace UnitTests {
 
 			Assert.AreEqual (array.Length, list.Count);
 
+			Assert.IsFalse (list.Remove ("not-in-the-list"));
 			Assert.IsTrue (list.Remove ("domain2"));
 			Assert.AreEqual (2, list.Count);
 			Assert.AreEqual ("domain0", list[0]);
@@ -169,6 +170,17 @@ namespace UnitTests {
 			var expected = new DomainList (new [] { "domain1", "domain2" });
 
 			AssertParse ("@domain1,,@domain2", expected);
+		}
+
+		[Test]
+		public void TestToString ()
+		{
+			var route = new DomainList ();
+			route.Add ("route1");
+			route.Add ("  \t\t ");
+			route.Add ("route2");
+
+			Assert.AreEqual ("@route1,@route2", route.ToString ());
 		}
 	}
 }

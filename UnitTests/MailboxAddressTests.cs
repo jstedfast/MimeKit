@@ -374,6 +374,14 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithInternationalRoute ()
+		{
+			const string text = "User Name <@route,@伊昭傑@郵件.商務:user@domain.com>";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseIdnAddress ()
 		{
 			const string encoded = "user@xn--v8jxj3d1dzdz08w.com";
@@ -572,7 +580,8 @@ namespace UnitTests {
 
 			Assert.IsFalse (mailbox.IsInternational, "IsInternational");
 
-			mailbox.Route.Add ("brånemyr");
+			mailbox.Route.Add ("kristoffer"); // non-international route
+			mailbox.Route.Add ("brånemyr");   // international route
 
 			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
 		}
@@ -623,6 +632,22 @@ namespace UnitTests {
 			encoded = mailbox.ToString (false);
 
 			Assert.AreEqual (expectedNoName, encoded, "ToString mailbox does not match after setting Name to null.");
+		}
+
+		[Test]
+		public void TestInternationalRoutedMailbox ()
+		{
+			const string expectedIdn = "User Name <@route,@xn--@-216a8b89fj88ctw7c.xn--lhr59c:user@domain.com>";
+			const string expected = "User Name <@route,@伊昭傑@郵件.商務:user@domain.com>";
+			var route = new[] { "route", "伊昭傑@郵件.商務" };
+			var mailbox = new MailboxAddress ("User Name", route, "user@domain.com");
+			var options = FormatOptions.Default.Clone ();
+
+			Assert.AreEqual (expectedIdn, mailbox.ToString (options, true));
+
+			options.International = true;
+
+			Assert.AreEqual (expected, mailbox.ToString (options, true));
 		}
 
 		#region Rfc7103

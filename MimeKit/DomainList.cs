@@ -333,14 +333,11 @@ namespace MimeKit {
 			var builder = new StringBuilder ();
 
 			for (int i = 0; i < domains.Count; i++) {
-				if (IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
+				if (IsNullOrWhiteSpace (domains[i]))
 					continue;
 
 				if (builder.Length > 0)
 					builder.Append (',');
-
-				if (IsNullOrWhiteSpace (domains[i]))
-					continue;
 
 				builder.Append ('@');
 
@@ -369,14 +366,13 @@ namespace MimeKit {
 			var builder = new StringBuilder ();
 
 			for (int i = 0; i < domains.Count; i++) {
-				if (IsNullOrWhiteSpace (domains[i]) && builder.Length == 0)
+				if (IsNullOrWhiteSpace (domains[i]))
 					continue;
 
 				if (builder.Length > 0)
 					builder.Append (',');
 
-				if (!IsNullOrWhiteSpace (domains[i]))
-					builder.Append ('@');
+				builder.Append ('@');
 
 				builder.Append (domains[i]);
 			}
