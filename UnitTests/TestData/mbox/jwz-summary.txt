@@ -1,5 +1,5 @@
 From - 
-From: nsb
+From: "Nathaniel Borenstein" <nsb>
 To: abel, bianchi, braun, cameron, carmen, jfp, jxr, kraut, lamb, lowery, lynn, mlittman, nancyg, sau, shoshi, slr, stornett@flash, tkl
 Subject: Star Trek Party!
 Date: Thu, 19 Sep 1991 12:41:43 -0400
@@ -540,7 +540,7 @@ Content-Type: multipart/alternative
       Content-Type: text/richtext
 
 From - 
-From: nsb
+From: "Nathaniel Borenstein" <nsb>
 To: dnd
 Subject: Re: Happy New Year
 Date: Tue, 29 Sep 1992 10:19:23 -0400
@@ -739,7 +739,7 @@ Content-Type: multipart/mixed
    Content-Type: text/plain
 
 From - 
-From: devetzis
+From: "Taso N. Devetzis" <devetzis>
 To: nsb
 Subject: greek mail
 Date: Tue, 16 Jun 1992 20:33:31 -0400
@@ -1195,7 +1195,7 @@ Content-Type: MESSAGE/RFC822
    Content-Type: TEXT/PLAIN
 
 From - 
-From: nsb
+From: "Nathaniel Borenstein" <nsb>
 To: "David A. Braun" <braun>, "John Lamb" <lamb>, "Michael Littman" <mlittman>
 Subject: Singing today?
 Date: Thu, 12 Dec 1991 11:38:21 -0500

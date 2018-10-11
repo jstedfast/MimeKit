@@ -573,7 +573,7 @@ namespace MimeKit {
 			if (throwOnError)
 				flags |= AddressParserFlags.ThrowOnError;
 
-			if (!InternetAddress.TryParse (options, text, ref index, endIndex, 0, flags, out address)) {
+			if (!TryParse (options, text, ref index, endIndex, 0, flags, out address)) {
 				mailbox = null;
 				return false;
 			}

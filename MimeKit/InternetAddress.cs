@@ -653,7 +653,6 @@ namespace MimeKit {
 			if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) '>' || text[index] == ';') {
 				// we've completely gobbled up an addr-spec w/o a domain
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
-				var sentinels = new byte [] { sentinel };
 				string name, addrspec;
 
 				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
@@ -684,6 +683,8 @@ namespace MimeKit {
 					comment++;
 
 					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
+
+					ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
 				} else {
 					name = string.Empty;
 				}
@@ -697,6 +698,13 @@ namespace MimeKit {
 					}
 
 					index++;
+				}
+
+				if (index < endIndex && text[index] != sentinel) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Unexpected token at offset {0}", index), startIndex, index);
+
+					return false;
 				}
 
 				address = new MailboxAddress (Encoding.UTF8, name, addrspec, -1);
