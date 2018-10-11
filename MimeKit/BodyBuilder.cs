@@ -166,6 +166,9 @@ namespace MimeKit {
 			}
 
 			if (Attachments.Count > 0) {
+				if (body == null && Attachments.Count == 1)
+					return Attachments[0];
+
 				var mixed = new Multipart ("mixed");
 
 				if (body != null)
