@@ -764,7 +764,7 @@ namespace MimeKit {
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
 
 				if (index < endIndex && text[index] == '(') {
-					int comment = index + 1;
+					int comment = index;
 
 					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
 						if (throwOnError)
@@ -772,6 +772,8 @@ namespace MimeKit {
 
 						return false;
 					}
+
+					comment++;
 
 					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
 				} else {
