@@ -671,20 +671,14 @@ namespace MimeKit {
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
 
 				if (index < endIndex && text[index] == '(') {
-					int comment = index;
+					int comment = index + 1;
 
-					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
-						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete comment token at offset {0}", comment), comment, index);
-
-						return false;
-					}
-
-					comment++;
+					// Note: this can't fail because it has already been skipped in TryParseLocalPart() above.
+					ParseUtils.SkipComment (text, ref index, endIndex);
 
 					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
 
-					ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+					ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError);
 				} else {
 					name = string.Empty;
 				}
