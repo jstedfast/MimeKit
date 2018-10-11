@@ -413,6 +413,7 @@ namespace UnitTests
 			var builder = new BodyBuilder ();
 
 			builder.Attachments.Add ("filename", new MemoryStream (Encoding.UTF8.GetBytes (text)));
+			builder.TextBody = "This is the text body.";
 
 			var body = builder.ToMessageBody ();
 
@@ -424,7 +425,7 @@ namespace UnitTests
 				stream.Position = 0;
 
 				var multipart = (Multipart) MimeEntity.Load (stream);
-				using (var input = ((MimePart) multipart[0]).Content.Open ()) {
+				using (var input = ((MimePart) multipart[1]).Content.Open ()) {
 					var buffer = new byte[1024];
 					int n;
 
@@ -444,6 +445,7 @@ namespace UnitTests
 			var builder = new BodyBuilder ();
 
 			builder.Attachments.Add ("filename", new MemoryStream (Encoding.UTF8.GetBytes (text)));
+			builder.TextBody = "This is the text body.";
 
 			var body = builder.ToMessageBody ();
 
@@ -455,7 +457,7 @@ namespace UnitTests
 				stream.Position = 0;
 
 				var multipart = (Multipart) await MimeEntity.LoadAsync (stream);
-				using (var input = ((MimePart) multipart[0]).Content.Open ()) {
+				using (var input = ((MimePart) multipart[1]).Content.Open ()) {
 					var buffer = new byte[1024];
 					int n;
 

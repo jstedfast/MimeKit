@@ -822,14 +822,9 @@ namespace UnitTests.Tnef {
 
 			message = tnef.ConvertToMessage ();
 
-			Assert.IsInstanceOf (typeof (Multipart), message.Body);
+			Assert.IsInstanceOf (typeof (TextPart), message.Body);
 
-			var mixed = (Multipart) message.Body;
-
-			Assert.AreEqual (1, mixed.Count);
-			Assert.IsInstanceOf (typeof (TextPart), mixed[0]);
-
-			var text = (TextPart) mixed[0];
+			var text = (TextPart) message.Body;
 
 			Assert.IsTrue (text.IsHtml);
 
