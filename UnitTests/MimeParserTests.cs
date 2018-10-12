@@ -568,22 +568,26 @@ namespace UnitTests {
 			}
 		}
 
-		static void AssertJwzMboxResults (string actual, Stream output)
+		static void AssertMboxResults (string baseName, string actual, Stream output)
 		{
-			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
-			var original = new MemoryBlockStream ();
-			var expected = new byte[4096];
-			var buffer = new byte[4096];
-			int nx, n;
-
 			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
 			string iso2022jp = Encoding.GetEncoding ("iso-2022-jp").GetString (Convert.FromBase64String ("GyRAOjRGI0stGyhK"));
 			if (iso2022jp != "佐藤豊")
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
-			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+			var path = Path.Combine (MboxDataDir, baseName + "-summary.txt");
+			if (!File.Exists (path))
+				File.WriteAllText (path, actual);
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+			var summary = File.ReadAllText (path).Replace ("\r\n", "\n");
+			var original = new MemoryBlockStream ();
+			var expected = new byte[4096];
+			var buffer = new byte[4096];
+			int nx, n;
+
+			Assert.AreEqual (summary, actual, "Summaries do not match for {0}.mbox", baseName);
+
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
 				using (var filtered = new FilteredStream (original)) {
 					filtered.Add (new Dos2UnixFilter ());
 					stream.CopyTo (filtered);
@@ -617,17 +621,16 @@ namespace UnitTests {
 			} while (true);
 		}
 
-		[Test]
-		public void TestJwzMbox ()
+		void TestMbox (ParserOptions options, string baseName)
 		{
-			var options = FormatOptions.Default.Clone ();
+			var format = FormatOptions.Default.Clone ();
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 
-			options.NewLineFormat = NewLineFormat.Unix;
+			format.NewLineFormat = NewLineFormat.Unix;
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+				var parser = options != null ? new MimeParser (options, stream, MimeFormat.Mbox) : new MimeParser (stream, MimeFormat.Mbox);
 				int count = 0;
 
 				while (!parser.IsEndOfStream) {
@@ -645,25 +648,24 @@ namespace UnitTests {
 
 					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
 					output.Write (marker, 0, marker.Length);
-					message.WriteTo (options, output);
+					message.WriteTo (format, output);
 					count++;
 				}
 			}
 
-			AssertJwzMboxResults (builder.ToString (), output);
+			AssertMboxResults (baseName, builder.ToString (), output);
 		}
 
-		[Test]
-		public async void TestJwzMboxAsync ()
+		async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
-			var options = FormatOptions.Default.Clone ();
+			var format = FormatOptions.Default.Clone ();
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 
-			options.NewLineFormat = NewLineFormat.Unix;
+			format.NewLineFormat = NewLineFormat.Unix;
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
+			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+				var parser = options != null ? new MimeParser (options, stream, MimeFormat.Mbox) : new MimeParser (stream, MimeFormat.Mbox);
 				int count = 0;
 
 				while (!parser.IsEndOfStream) {
@@ -681,12 +683,42 @@ namespace UnitTests {
 
 					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
 					await output.WriteAsync (marker, 0, marker.Length);
-					await message.WriteToAsync (options, output);
+					await message.WriteToAsync (format, output);
 					count++;
 				}
 			}
 
-			AssertJwzMboxResults (builder.ToString (), output);
+			AssertMboxResults (baseName, builder.ToString (), output);
+		}
+
+		[Test]
+		public void TestContentLengthMbox ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.RespectContentLength = true;
+
+			TestMbox (options, "content-length");
+		}
+
+		[Test]
+		public async void TestContentLengthMboxAsync ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.RespectContentLength = true;
+
+			await TestMboxAsync (options, "content-length");
+		}
+
+		[Test]
+		public void TestJwzMbox ()
+		{
+			TestMbox (null, "jwz");
+		}
+
+		[Test]
+		public async void TestJwzMboxAsync ()
+		{
+			await TestMboxAsync (null, "jwz");
 		}
 
 		[Test]
@@ -753,7 +785,7 @@ namespace UnitTests {
 					// Force the various MimePart objects to write their content streams.
 					// The idea is that by forcing the MimeParts to seek in their content,
 					// we will test to make sure that the parser correctly deals with it.
-					message.WriteTo (Stream.Null);
+					await message.WriteToAsync (Stream.Null);
 				}
 			}
 

@@ -1,0 +1,278 @@
+From - 
+From: mailusr1@navstar1.mcom.com
+To: atzet@netscape.com
+Subject: Re: mailusr1@navstar1 3.0b6gold #1
+Date: Sun, 21 Jul 1996 17:02:55 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+
+From - 
+From: "Jamie Zawinski" <jwz@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: attached image cache test (test 2: inline disposition)
+Date: Thu, 13 Jun 1996 23:25:49 -0700
+Content-Type: multipart/mixed
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: message/rfc822
+         Content-Type: message/rfc822
+            Content-Type: text/plain
+   Content-Type: text/html
+
+From - 
+From: "Jamie Zawinski" <jwz@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: attached image cache test (test 1: attachment disposition)
+Date: Thu, 13 Jun 1996 23:25:49 -0700
+Content-Type: multipart/mixed
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: message/rfc822
+         Content-Type: message/rfc822
+            Content-Type: text/plain
+   Content-Type: text/html
+
+From - Mon Jun  3 12:50:27 1996
+From: izzy@nugget.scr.atm.com
+To: jwz@netscape.com
+Subject: RE[4]: your generated HTML
+Date: Mon, 03 Jun 1996 09:42:32 -0700
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/gif
+
+From - Mon Aug 18 21:13:21 1997
+From: "Chuck Simmons" <chrlsim@futureone.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: 3.01 MIME prob message [Fwd: communicator 4.01  a conference problem]
+Date: Mon, 18 Aug 1997 21:07:07 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: multipart/alternative
+         Content-Type: text/plain
+         Content-Type: multipart/related
+            Content-Type: text/html
+            Content-Type: image/tiff
+
+From - Thu Feb  8 18:49:08 1996
+From: "Dr. Mark K. Joseph" <izzy@scr.atm.com>
+To: jwz@netscape.com
+Subject: Example of CID linking in a multipart/related MIME message
+Date: Thu, 08 Feb 1996 17:33:10 -0800
+Content-Type: multipart/related
+   Content-Type: text/html
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+   Content-Type: image/gif
+
+From - 
+From: develop!nextmime@ebony
+Subject: More richtext questions/comments
+Date: Fri, 25 Sep 1992 14:13:02 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/richtext
+
+From - Thu Apr 25 10:19:58 1996
+From: "Raph Levien" <raph@callisto.hip.berkeley.edu>
+To: smime-dev@RSA.COM
+Subject: Multipart/signed message format
+Date: Thu, 25 Apr 1996 03:26:57 -0700
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Fri Nov  8 18:21:51 1996
+From: "Eric Rosenquist" <rosenqui@strataware.com>
+To: "Lisa Repka" <repka@netscape.com>, "Jamie Zawinski" <jwz@netscape.com>
+Subject: My encryption certificate for S/MIME testing
+Date: Fri, 08 Nov 1996 14:45:18 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-mime
+
+From - Thu Nov 21 13:20:54 1996
+From: "Eric Rosenquist" <rosenqui@strataware.com>
+To: "S/MIME Developers" <smime-dev@RSA.COM>
+Subject: My encryption certificate for S/MIME testing
+Date: Thu, 21 Nov 1996 16:10:23 -0500
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-mime
+
+From - Wed Dec 11 18:06:10 1996
+From: "Jamie Zawinski" <jwz@netscape.com>
+To: jwz@urchin.mcom.com
+Subject: signed frog
+Date: Wed, 11 Dec 1996 18:05:56 -0800
+Content-Type: multipart/signed
+   Content-Type: image/jpeg
+   Content-Type: application/x-pkcs7-signature
+
+From - Fri Dec 13 15:01:21 1996
+From: "Blake Ramsdell" <blaker@craswell.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: Re: can you send me an encrypted message?
+Date: Fri, 13 Dec 1996 15:09:42 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Fri Dec 13 15:01:22 1996
+From: "Blake Ramsdell" <blaker@craswell.com>
+To: jwz@netscape.com
+Subject: Encrypted message
+Date: Fri, 13 Dec 1996 15:10:21 -0800
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Apr 22 18:36:56 1996
+From: "Arjun J Taneja" <arjun@connectsoft.com>
+To: "smime-dev@rsa.com" <smime-dev@RSA.COM>
+Subject: Ready for interoperability testing.
+Date: Mon, 22 Apr 1996 18:20:32 -0500
+Content-Type: application/x-pkcs7-mime
+
+From - Thu Dec 19 13:29:25 1996
+From: "Lisa Repka" <repka@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: very cool
+Date: Thu, 19 Dec 1996 09:38:50 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Fri Mar  7 02:51:22 1997
+From: "Jamie Zawinski" <jwz@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: forwarded encrypted message
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+Content-Type: message/rfc822
+   Content-Type: application/x-pkcs7-mime
+
+From - Fri Mar  7 02:51:23 1997
+From: "Jamie Zawinski" <jwz@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: forwarded encrypted message (mult/mixed)
+Date: Fri, 07 Mar 1997 02:51:07 -0800
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: message/rfc822
+      Content-Type: application/x-pkcs7-mime
+
+From - Mon Mar 17 17:19:30 1997
+From: "Dan Hugo" <dhugo@netscape.com>
+To: jwz@netscape.com
+Subject: This is signed
+Date: Mon, 17 Mar 1997 17:17:35 -0800
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Mar 24 00:03:37 1997
+From: "Lisa Repka" <repka@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>, "Dan Hugo" <dhugo@netscape.com>
+Subject: testing out some new stuff
+Date: Sun, 23 Mar 1997 23:11:56 -0800
+Content-Type: application/x-pkcs7-mime
+
+From - Tue Apr 15 10:42:13 1997
+From: "Dan Werbel" <danw@ayce.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: Re: Obtaining other people's certificates
+Date: Tue, 15 Apr 1997 08:05:56 -0400
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Wed Apr 16 16:57:13 1997
+From: "Jamie Zawinski" <jwz@netscape.com>
+To: "Jamie Zawinski" <jwz@netscape.com>
+Subject: encrypted
+Date: Wed, 16 Apr 1997 16:57:13 -0700
+Content-Type: application/x-pkcs7-mime
+
+From - Sun Apr 28 13:05:40 1996
+From: "Blake Ramsdell" <BlakeR@deming.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: Deming Software -- ready to go!
+Date: Sat, 27 Apr 1996 01:08:58 -0700
+Content-Type: application/x-pkcs7-mime
+
+From - Tue May 28 11:02:16 1996
+From: Ray2@FrontierTech.com
+To: smime-dev@RSA.COM
+Subject: Frontier Technologies testing, here's my cert
+Date: Tue, 28 May 1996 12:24:23 +0000
+Content-Type: Application/x-pkcs7-mime
+
+From - Mon Jun 10 11:45:25 1996
+From: "John T. Gildred" <jgildred@opensoft.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: Signed Confirmation
+Date: Mon, 10 Jun 1996 14:37:52 -0500
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Wed Sep 11 08:47:00 1996
+From: "Peter Williams" <peter@verisign.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: plase help by returning what gets delivered...
+Date: Mon, 09 Sep 1996 12:52:38 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: text/html
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Sep 23 13:04:41 1996
+From: "Ron Craswell" <ronc@deming.com>
+To: "S-MIME DEV" <smime-dev@RSA.COM>
+Subject: multipart/signed test
+Date: Mon, 23 Sep 1996 09:20:00 -0700
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Sat Nov  2 21:56:58 1996
+From: "John T. Gildred" <jgildred@opensoft.com>
+To: "'smime-dev@rsa.com'" <smime-dev@RSA.COM>
+Subject: Signed SHA1 with VeriSign certification
+Date: Tue, 29 Oct 1996 15:12:00 -0500
+Content-Type: multipart/signed
+   Content-Type: text/plain
+   Content-Type: application/x-pkcs7-signature
+
+From - Mon Jul 29 02:26:23 1996
+From: "The Post Office" <postmaster@mm1.sprynet.com>
+To: unlisted-recipients: ;
+Subject: email delivery error
+Date: Mon, 29 Jul 1996 02:13:08 -0700
+Content-Type: multipart/report
+   Content-Type: message/delivery-status
+   Content-Type: message/rfc822
+      Content-Type: text/plain
+
+From - Fri Sep 27 12:03:19 1996
+From: "Dr. Mark K. Joseph" <izzy@nugget.scr.atm.com>
+To: lewisg@Exchange.Microsoft.com
+Subject: RE: problem with relative urls and applets
+Date: Fri, 27 Sep 1996 09:36:54 -0700
+Content-Type: multipart/mixed
+   Content-Type: text/plain
+   Content-Type: application/vcard
+
