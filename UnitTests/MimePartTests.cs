@@ -292,6 +292,25 @@ namespace UnitTests
 
 			Assert.Throws<InvalidOperationException> (() => part.ComputeContentMd5 ());
 			Assert.IsFalse (part.VerifyContentMd5 ());
+
+			part = new TextPart ("plain") { Text = "Hello, World.\n\nLet's check the MD5 sum of this text!\n" };
+
+			var md5sum = part.ComputeContentMd5 ();
+
+			Assert.AreEqual ("8criUiOQmpfifOuOmYFtEQ==", md5sum, "ComputeContentMd5 text/*");
+
+			// re-encode the base64'd md5sum using a hex encoding so we can easily compare to the output of `md5sum` command-line tools
+			var decoded = Convert.FromBase64String (md5sum);
+			var encoded = new StringBuilder ();
+
+			for (int i = 0; i < decoded.Length; i++)
+				encoded.Append (decoded[i].ToString ("x2"));
+
+			Assert.AreEqual ("f1cae25223909a97e27ceb8e99816d11", encoded.ToString (), "md5sum text/*");
+
+			part.ContentMd5 = md5sum;
+
+			Assert.IsTrue (part.VerifyContentMd5 (), "VerifyContentMd5");
 		}
 
 		[Test]
@@ -320,6 +339,39 @@ namespace UnitTests
 			part.ContentTransferEncoding = ContentEncoding.UUEncode;
 			part.Headers.Clear ();
 			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
+		}
+
+		[Test]
+		public void TestPrepare ()
+		{
+			using (var content = new MemoryStream (new byte[64], false)) {
+				var part = new MimePart ("application/octet-stream") {
+					Content = new MimeContent (content)
+				};
+
+				var encoding = part.GetBestEncoding (EncodingConstraint.SevenBit);
+
+				Assert.AreEqual (ContentEncoding.Base64, encoding, "GetBestEncoding");
+
+				part.Prepare (EncodingConstraint.SevenBit);
+
+				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #1");
+
+				// now make sure that calling Prepare() again doesn't change anything
+
+				part.Prepare (EncodingConstraint.SevenBit);
+
+				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #2");
+
+				part.ContentTransferEncoding = ContentEncoding.Binary;
+				part.Prepare (EncodingConstraint.None);
+
+				Assert.AreEqual (ContentEncoding.Binary, part.ContentTransferEncoding, "Prepare #3");
+
+				part.Prepare (EncodingConstraint.SevenBit);
+
+				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #4");
+			}
 		}
 
 		[Test]

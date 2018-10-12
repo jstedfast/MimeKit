@@ -504,18 +504,6 @@ namespace MimeKit {
 			return md5sum == ComputeContentMd5 ();
 		}
 
-		static bool NeedsEncoding (ContentEncoding encoding)
-		{
-			switch (encoding) {
-			case ContentEncoding.EightBit:
-			case ContentEncoding.Binary:
-			case ContentEncoding.Default:
-				return true;
-			default:
-				return false;
-			}
-		}
-
 		/// <summary>
 		/// Prepare the MIME entity for transport using the specified encoding constraints.
 		/// </summary>
