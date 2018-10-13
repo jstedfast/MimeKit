@@ -83,9 +83,44 @@ namespace UnitTests.Encodings {
 			"fo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8AAQ=="
 		};
 
-		void TestEncoder (ContentEncoding encoding, string rawFile, string encodedFile, int bufferSize)
+		static readonly string dataDir = Path.Combine ("..", "..", "TestData", "encoders");
+		static readonly byte[] wikipedia_unix;
+		static readonly byte[] wikipedia_dos;
+		static readonly byte[] photo;
+
+		static EncoderTests ()
 		{
-			var dataDir = Path.Combine ("..", "..", "TestData", "encoders");
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (new Dos2UnixFilter ());
+
+					using (var file = File.OpenRead (Path.Combine (dataDir, "wikipedia.txt")))
+						file.CopyTo (filtered, 4096);
+
+					filtered.Flush ();
+				}
+
+				wikipedia_unix = memory.ToArray ();
+			}
+
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (new Unix2DosFilter ());
+
+					using (var file = File.OpenRead (Path.Combine (dataDir, "wikipedia.txt")))
+						file.CopyTo (filtered, 4096);
+
+					filtered.Flush ();
+				}
+
+				wikipedia_dos = memory.ToArray ();
+			}
+
+			photo = File.ReadAllBytes (Path.Combine (dataDir, "photo.jpg"));
+		}
+
+		void TestEncoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
+		{
 			int n;
 
 			using (var original = new MemoryStream ()) {
@@ -106,10 +141,10 @@ namespace UnitTests.Encodings {
 					using (var filtered = new FilteredStream (encoded)) {
 						filtered.Add (EncoderFilter.Create (encoding));
 
-						using (var file = File.OpenRead (Path.Combine (dataDir, rawFile))) {
+						using (var memory = new MemoryStream (rawData, false)) {
 							var buffer = new byte[bufferSize];
 
-							while ((n = file.Read (buffer, 0, bufferSize)) > 0)
+							while ((n = memory.Read (buffer, 0, bufferSize)) > 0)
 								filtered.Write (buffer, 0, n);
 						}
 
@@ -133,15 +168,11 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		void TestDecoder (ContentEncoding encoding, string rawFile, string encodedFile, int bufferSize)
+		void TestDecoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
 		{
-			var dataDir = Path.Combine ("..", "..", "TestData", "encoders");
 			int n;
 
-			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead (Path.Combine (dataDir, rawFile)))
-					file.CopyTo (original, 4096);
-
+			using (var original = new MemoryStream (rawData, false)) {
 				using (var decoded = new MemoryStream ()) {
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (DecoderFilter.Create (encoding));
@@ -156,14 +187,13 @@ namespace UnitTests.Encodings {
 						filtered.Flush ();
 					}
 
-					var buf0 = original.GetBuffer ();
-					var buf1 = decoded.GetBuffer ();
-					n = (int) original.Length;
+					var buf = decoded.GetBuffer ();
+					n = rawData.Length;
 
-					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
+					Assert.AreEqual (rawData.Length, decoded.Length, "Decoded length is incorrect.");
 
 					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+						Assert.AreEqual (rawData[i], buf[i], "The byte at offset {0} does not match.", i);
 				}
 			}
 		}
@@ -200,7 +230,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestBase64Encode (int bufferSize)
 		{
-			TestEncoder (ContentEncoding.Base64, "photo.jpg", "photo.b64", bufferSize);
+			TestEncoder (ContentEncoding.Base64, photo, "photo.b64", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -209,7 +239,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestBase64Decode (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.Base64, "photo.jpg", "photo.b64", bufferSize);
+			TestDecoder (ContentEncoding.Base64, photo, "photo.b64", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -218,7 +248,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUEncode (int bufferSize)
 		{
-			TestEncoder (ContentEncoding.UUEncode, "photo.jpg", "photo.uu", bufferSize);
+			TestEncoder (ContentEncoding.UUEncode, photo, "photo.uu", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -227,7 +257,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUDecode (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.UUEncode, "photo.jpg", "photo.uu", bufferSize);
+			TestDecoder (ContentEncoding.UUEncode, photo, "photo.uu", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -236,7 +266,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUDecodeBeginStateChanges (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.UUEncode, "photo.jpg", "photo.uu-states", bufferSize);
+			TestDecoder (ContentEncoding.UUEncode, photo, "photo.uu-states", bufferSize);
 		}
 
 		static readonly string[] qpEncodedPatterns = {
@@ -258,7 +288,53 @@ namespace UnitTests.Encodings {
 		};
 
 		[Test]
-		public void TestQuotedPrintableDecode ()
+		public void TestQuotedPrintableDecodePatterns ()
+		{
+			var decoder = new QuotedPrintableDecoder ();
+			var encoding = CharsetUtils.Latin1;
+			var output = new byte[4096];
+			string actual;
+			byte[] buf;
+			int n;
+
+			for (int i = 0; i < qpEncodedPatterns.Length; i++) {
+				decoder.Reset ();
+				buf = encoding.GetBytes (qpEncodedPatterns[i]);
+				n = decoder.Decode (buf, 0, buf.Length, output);
+				actual = encoding.GetString (output, 0, n);
+				Assert.AreEqual (qpDecodedPatterns[i], actual, "Failed to decode qpEncodedPatterns[{0}]", i);
+			}
+		}
+
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestQuotedPrintableEncodeDos (int bufferSize)
+		{
+			TestEncoder (ContentEncoding.QuotedPrintable, wikipedia_dos, "wikipedia.qp", bufferSize);
+		}
+
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestQuotedPrintableEncodeUnix (int bufferSize)
+		{
+			TestEncoder (ContentEncoding.QuotedPrintable, wikipedia_unix, "wikipedia.qp", bufferSize);
+		}
+
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestQuotedPrintableDecode (int bufferSize)
+		{
+			TestDecoder (ContentEncoding.QuotedPrintable, wikipedia_unix, "wikipedia.qp", bufferSize);
+		}
+
+		[Test]
+		public void TestQuotedPrintableDecode2 ()
 		{
 			const string input = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1 =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).";
 			const string expected = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).";
@@ -275,20 +351,10 @@ namespace UnitTests.Encodings {
 			n = decoder.Decode (buf, 0, buf.Length, output);
 			actual = encoding.GetString (output, 0, n);
 			Assert.AreEqual (expected, actual);
-
-			encoding = CharsetUtils.Latin1;
-
-			for (int i = 0; i < qpEncodedPatterns.Length; i++) {
-				decoder.Reset ();
-				buf = encoding.GetBytes (qpEncodedPatterns[i]);
-				n = decoder.Decode (buf, 0, buf.Length, output);
-				actual = encoding.GetString (output, 0, n);
-				Assert.AreEqual (qpDecodedPatterns[i], actual, "Failed to decode qpEncodedPatterns[{0}]", i);
-			}
 		}
 
 		[Test]
-		public void TestQuotedPrintableEncode ()
+		public void TestQuotedPrintableEncode2 ()
 		{
 			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1=\n =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).\n";
 			const string input = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).\n";
