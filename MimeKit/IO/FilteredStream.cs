@@ -522,6 +522,9 @@ namespace MimeKit.IO {
 			foreach (var filter in filters)
 				filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
 
+			if (filteredLength == 0)
+				return;
+
 			var cancellable = Source as ICancellableStream;
 
 			if (cancellable != null) {

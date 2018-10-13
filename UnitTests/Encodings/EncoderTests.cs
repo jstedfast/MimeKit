@@ -83,24 +83,82 @@ namespace UnitTests.Encodings {
 			+ "fo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8AAQ=="
 		};
 
-		[Test]
-		public void TestBase64Decode ()
+		void TestEncoder (ContentEncoding encoding, string rawFile, string encodedFile, int bufferSize)
 		{
+			var dataDir = Path.Combine ("..", "..", "TestData", "encoders");
+			int n;
+
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
+				using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
+					using (var filtered = new FilteredStream (original)) {
+						filtered.Add (new Dos2UnixFilter ());
+						file.CopyTo (filtered, 4096);
+						filtered.Flush ();
+					}
+				}
+
+				using (var encoded = new MemoryStream ()) {
+					if (encoding == ContentEncoding.UUEncode) {
+						var begin = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\n");
+						encoded.Write (begin, 0, begin.Length);
+					}
+
+					using (var filtered = new FilteredStream (encoded)) {
+						filtered.Add (EncoderFilter.Create (encoding));
+
+						using (var file = File.OpenRead (Path.Combine (dataDir, rawFile))) {
+							var buffer = new byte[bufferSize];
+
+							while ((n = file.Read (buffer, 0, bufferSize)) > 0)
+								filtered.Write (buffer, 0, n);
+						}
+
+						filtered.Flush ();
+					}
+
+					if (encoding == ContentEncoding.UUEncode) {
+						var end = Encoding.ASCII.GetBytes ("end\n");
+						encoded.Write (end, 0, end.Length);
+					}
+
+					var buf0 = original.GetBuffer ();
+					var buf1 = encoded.GetBuffer ();
+					n = (int) original.Length;
+
+					Assert.AreEqual (original.Length, encoded.Length, "Encoded length is incorrect.");
+
+					for (int i = 0; i < n; i++)
+						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+				}
+			}
+		}
+
+		void TestDecoder (ContentEncoding encoding, string rawFile, string encodedFile, int bufferSize)
+		{
+			var dataDir = Path.Combine ("..", "..", "TestData", "encoders");
+			int n;
+
+			using (var original = new MemoryStream ()) {
+				using (var file = File.OpenRead (Path.Combine (dataDir, rawFile)))
 					file.CopyTo (original, 4096);
 
 				using (var decoded = new MemoryStream ()) {
-					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
-						using (var filtered = new FilteredStream (file)) {
-							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
-							filtered.CopyTo (decoded, 4096);
+					using (var filtered = new FilteredStream (decoded)) {
+						filtered.Add (DecoderFilter.Create (encoding));
+
+						using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
+							var buffer = new byte[bufferSize];
+
+							while ((n = file.Read (buffer, 0, bufferSize)) > 0)
+								filtered.Write (buffer, 0, n);
 						}
+
+						filtered.Flush ();
 					}
 
 					var buf0 = original.GetBuffer ();
 					var buf1 = decoded.GetBuffer ();
-					int n = (int) original.Length;
+					n = (int) original.Length;
 
 					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
 
@@ -108,7 +166,11 @@ namespace UnitTests.Encodings {
 						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
 				}
 			}
+		}
 
+		[Test]
+		public void TestBase64DecodePatterns ()
+		{
 			var decoder = new Base64Decoder ();
 			var output = new byte[4096];
 
@@ -132,106 +194,40 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		[Test]
-		public void TestBase64Encode ()
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestBase64Encode (int bufferSize)
 		{
-			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
-					using (var filtered = new FilteredStream (original)) {
-						filtered.Add (new Dos2UnixFilter ());
-						file.CopyTo (filtered, 4096);
-						filtered.Flush ();
-					}
-				}
-
-				using (var encoded = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (ContentEncoding.Base64));
-
-						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
-							file.CopyTo (filtered, 4096);
-
-						filtered.Flush ();
-					}
-
-					var buf0 = original.GetBuffer ();
-					var buf1 = encoded.GetBuffer ();
-					int n = (int) original.Length;
-
-					Assert.AreEqual (original.Length, encoded.Length, "Encoded length is incorrect.");
-
-					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
-				}
-			}
+			TestEncoder (ContentEncoding.Base64, "photo.jpg", "photo.b64", bufferSize);
 		}
 
-		[Test]
-		public void TestUUDecode ()
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestBase64Decode (int bufferSize)
 		{
-			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
-					file.CopyTo (original, 4096);
-
-				using (var decoded = new MemoryStream ()) {
-					using (var file = File.OpenRead ("../../TestData/encoders/photo.uu")) {
-						using (var filtered = new FilteredStream (file)) {
-							filtered.Add (DecoderFilter.Create (ContentEncoding.UUEncode));
-							filtered.CopyTo (decoded, 4096);
-						}
-					}
-
-					var buf0 = original.GetBuffer ();
-					var buf1 = decoded.GetBuffer ();
-					int n = (int) original.Length;
-
-					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
-
-					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
-				}
-			}
+			TestDecoder (ContentEncoding.Base64, "photo.jpg", "photo.b64", bufferSize);
 		}
 
-		[Test]
-		public void TestUUEncode ()
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestUUEncode (int bufferSize)
 		{
-			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.uu")) {
-					using (var filtered = new FilteredStream (original)) {
-						filtered.Add (new Dos2UnixFilter ());
-						file.CopyTo (filtered, 4096);
-						filtered.Flush ();
-					}
-				}
+			TestEncoder (ContentEncoding.UUEncode, "photo.jpg", "photo.uu", bufferSize);
+		}
 
-				using (var encoded = new MemoryStream ()) {
-					var begin = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\n");
-					var end = Encoding.ASCII.GetBytes ("end\n");
-
-					encoded.Write (begin, 0, begin.Length);
-
-					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (ContentEncoding.UUEncode));
-
-						using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
-							file.CopyTo (filtered, 4096);
-
-						filtered.Flush ();
-					}
-
-					encoded.Write (end, 0, end.Length);
-
-					var buf0 = original.GetBuffer ();
-					var buf1 = encoded.GetBuffer ();
-					int n = (int) original.Length;
-
-					Assert.AreEqual (original.Length, encoded.Length, "Encoded length is incorrect.");
-
-					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
-				}
-			}
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestUUDecode (int bufferSize)
+		{
+			TestDecoder (ContentEncoding.UUEncode, "photo.jpg", "photo.uu", bufferSize);
 		}
 
 		static readonly string[] qpEncodedPatterns = {
