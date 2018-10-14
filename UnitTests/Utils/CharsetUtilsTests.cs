@@ -96,9 +96,11 @@ namespace UnitTests.Utils {
 
 			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-8859"));
 			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-BB59"));
+			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-8859-"));
 			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-8859-A"));
 			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-2022-US"));
 			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-4999-1"));
+			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-abcd-1"));
 		}
 
 		[Test]
