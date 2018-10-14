@@ -92,6 +92,7 @@ namespace UnitTests.Utils {
 			"<local-part@ (unterminated comment...",
 			"<local-part@",
 			"<local-part @ bad-domain (comment) . (comment com",
+			"<local-part@[127.0"
 		};
 
 		[Test]
@@ -106,6 +107,27 @@ namespace UnitTests.Utils {
 
 				Assert.IsNull (reference, "MimeUtils.ParseMessageId (\"{0}\")", BadReferences[i]);
 			}
+		}
+
+		[Test]
+		public void TestTryParseVersion ()
+		{
+			Version version;
+
+			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n", out version), "1.0");
+			Assert.AreEqual ("1.0", version.ToString ());
+
+			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0\r\n", out version), "1.0.0");
+			Assert.AreEqual ("1.0.0", version.ToString ());
+
+			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0.0\r\n", out version), "1.0.0.0");
+			Assert.AreEqual ("1.0.0.0", version.ToString ());
+
+			Assert.IsFalse (MimeUtils.TryParse ("1", out version), "1");
+			Assert.IsFalse (MimeUtils.TryParse ("1.2.3.4.5", out version), "1.2.3.4.5");
+			Assert.IsFalse (MimeUtils.TryParse ("1x2.3", out version), "1x2.3");
+			Assert.IsFalse (MimeUtils.TryParse ("(unterminated comment", out version), "unterminated comment");
+			Assert.IsFalse (MimeUtils.TryParse ("1 (unterminated comment", out version), "1 + unterminated comment");
 		}
 	}
 }
