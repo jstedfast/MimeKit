@@ -233,6 +233,17 @@ namespace UnitTests {
 			AssertParseArguments (typeof (MimeUtils));
 		}
 
+		[Test]
+		public void TestBufferPoolArguments ()
+		{
+			Assert.Throws<ArgumentOutOfRangeException> (() => new BufferPool (-1, 16));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new BufferPool (1024, -1));
+
+			var pool = new BufferPool (16, 2);
+			Assert.Throws<ArgumentNullException> (() => pool.Return (null));
+			Assert.Throws<ArgumentException> (() => pool.Return (new byte[8]));
+		}
+
 		static void AssertStreamArguments (Stream stream)
 		{
 			var buffer = new byte[1024];

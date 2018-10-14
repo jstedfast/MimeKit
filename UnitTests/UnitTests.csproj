@@ -111,8 +111,10 @@
     <Compile Include="Utils\CharsetUtilsTests.cs" />
     <Compile Include="Utils\DateParserTests.cs" />
     <Compile Include="Utils\MimeUtilsTests.cs" />
+    <Compile Include="Utils\PackedByteArrayTests.cs" />
     <Compile Include="Utils\ParseUtilsTests.cs" />
     <Compile Include="Utils\Rfc2047Tests.cs" />
+    <Compile Include="Utils\StringBuilderExtensionTests.cs" />
     <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="AssortedTests.cs" />
     <Compile Include="AttachmentCollectionTests.cs" />
