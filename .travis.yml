@@ -1,2 +1,6 @@
 language: csharp
 solution: MimeKit.Net45.sln
+install:
+  - nuget restore MimeKit.Net45.sln
+script:
+  - msbuild /p:Configuration=Debug MimeKit.Net45.sln
