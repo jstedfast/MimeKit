@@ -42,6 +42,7 @@ using Encoder = Portable.Text.Encoder;
 using Decoder = Portable.Text.Decoder;
 #endif
 
+using MimeKit.IO;
 using MimeKit.Text;
 using MimeKit.Utils;
 
@@ -304,7 +305,11 @@ namespace MimeKit {
 				var charset = ContentType.Parameters["charset"];
 
 				using (var memory = new MemoryStream ()) {
-					Content.DecodeTo (memory);
+					using (var filtered = new FilteredStream (memory)) {
+						filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
+						Content.DecodeTo (filtered);
+						filtered.Flush ();
+					}
 
 #if !PORTABLE && !NETSTANDARD
 					var content = memory.GetBuffer ();
@@ -410,7 +415,11 @@ namespace MimeKit {
 				return string.Empty;
 
 			using (var memory = new MemoryStream ()) {
-				Content.DecodeTo (memory);
+				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
+					Content.DecodeTo (filtered);
+					filtered.Flush ();
+				}
 
 #if !PORTABLE && !NETSTANDARD
 				var buffer = memory.GetBuffer ();

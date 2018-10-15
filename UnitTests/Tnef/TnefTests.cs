@@ -831,7 +831,7 @@ namespace UnitTests.Tnef {
 			var html = text.Text;
 
 			Assert.AreEqual ("windows-1251", text.ContentType.Charset);
-			Assert.AreEqual (expected, html);
+			Assert.AreEqual (expected.Replace ("\r\n", Environment.NewLine), html);
 		}
 
 		[Test]

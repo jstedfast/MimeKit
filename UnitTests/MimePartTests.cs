@@ -525,7 +525,7 @@ namespace UnitTests
 		[Test]
 		public void TestLoadHttpWebResponse ()
 		{
-			var text = "This is some text and stuff.\r\n";
+			var text = "This is some text and stuff." + Environment.NewLine;
 			var contentType = new ContentType ("text", "plain");
 
 			using (var content = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
@@ -542,7 +542,7 @@ namespace UnitTests
 		[Test]
 		public async void TestLoadHttpWebResponseAsync ()
 		{
-			var text = "This is some text and stuff.\r\n";
+			var text = "This is some text and stuff." + Environment.NewLine;
 			var contentType = new ContentType ("text", "plain");
 
 			using (var content = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {

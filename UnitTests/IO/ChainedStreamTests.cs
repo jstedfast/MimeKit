@@ -388,7 +388,7 @@ namespace UnitTests.IO {
 
 				var entity = MimeEntity.Load (chained, true) as TextPart;
 
-				Assert.AreEqual ("Hello, world!\r\n", entity.Text);
+				Assert.AreEqual ("Hello, world!" + Environment.NewLine, entity.Text);
 			}
 		}
 
