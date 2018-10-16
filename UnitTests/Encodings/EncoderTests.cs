@@ -334,6 +334,88 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
+		public void TestQuotedPrintableEncodeSpaceDosLineBreak ()
+		{
+			const string input = "This line ends with a space \r\nbefore a line break.";
+			const string expected = "This line ends with a space=20\nbefore a line break.";
+			var encoder = new QuotedPrintableEncoder ();
+			var output = new byte[1024];
+			string actual;
+			byte[] buf;
+			int n;
+
+			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+
+			buf = Encoding.ASCII.GetBytes (input);
+			n = encoder.Flush (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestQuotedPrintableEncodeSpaceUnixLineBreak ()
+		{
+			const string input = "This line ends with a space \nbefore a line break.";
+			const string expected = "This line ends with a space=20\nbefore a line break.";
+			var encoder = new QuotedPrintableEncoder ();
+			var output = new byte[1024];
+			string actual;
+			byte[] buf;
+			int n;
+
+			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+
+			buf = Encoding.ASCII.GetBytes (input);
+			n = encoder.Flush (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestQuotedPrintableEncodeFlush ()
+		{
+			const string input = "This line ends with a space ";
+			const string expected = "This line ends with a space=20=\n";
+			var encoder = new QuotedPrintableEncoder ();
+			var decoder = new QuotedPrintableDecoder ();
+			var output = new byte[1024];
+			string actual;
+			byte[] buf;
+			int n;
+
+			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+
+			buf = Encoding.ASCII.GetBytes (input);
+			n = encoder.Flush (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+			Assert.AreEqual (expected, actual);
+
+			buf = Encoding.ASCII.GetBytes (expected);
+			n = decoder.Decode (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+			Assert.AreEqual (input, actual);
+		}
+
+		[Test]
+		public void TestQuotedPrintableDecodeInvalidSoftBreak ()
+		{
+			const string input = "This is an invalid=\rsoft break.";
+			const string expected = "This is an invalid=\rsoft break.";
+			var decoder = new QuotedPrintableDecoder ();
+			var output = new byte[1024];
+			string actual;
+			byte[] buf;
+			int n;
+
+			Assert.AreEqual (ContentEncoding.QuotedPrintable, decoder.Encoding);
+
+			buf = Encoding.ASCII.GetBytes (input);
+			n = decoder.Decode (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
 		public void TestQuotedPrintableDecode2 ()
 		{
 			const string input = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1 =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).";
@@ -360,13 +442,31 @@ namespace UnitTests.Encodings {
 			const string input = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).\n";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
 			var encoder = new QuotedPrintableEncoder ();
-			var output = new byte[4096];
+			var output = new byte[1024];
 
 			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
 
 			var buf = encoding.GetBytes (input);
 			int n = encoder.Flush (buf, 0, buf.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestHexDecoder ()
+		{
+			const string input = "This should decode: (%ED%E5%EC%F9 %EF%E1 %E9%EC%E8%F4%F0) while %X1%S1%Z1 should not";
+			const string expected = "This should decode: (םולש ןב ילטפנ) while %X1%S1%Z1 should not";
+			var encoding = Encoding.GetEncoding ("iso-8859-8");
+			var decoder = new HexDecoder ();
+			var output = new byte[1024];
+
+			Assert.AreEqual (ContentEncoding.Default, decoder.Encoding);
+
+			var buf = Encoding.ASCII.GetBytes (input);
+			int n = decoder.Decode (buf, 0, buf.Length, output);
+			var actual = encoding.GetString (output, 0, n);
 
 			Assert.AreEqual (expected, actual);
 		}
