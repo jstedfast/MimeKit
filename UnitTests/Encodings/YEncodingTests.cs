@@ -166,5 +166,49 @@ namespace UnitTests.Encodings {
 				}
 			}
 		}
+
+		static readonly string[] YPartTransitionInputs = {
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=xcontent",
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=yxcontent",
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=ypxcontent",
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=ypaxcontent",
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=yparxcontent",
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=ypartxcontent",
+			"=ybegin part=1 line=128 size=19338 name=joystick.jpg\n=ypart begin=1 end=11250\ncontent",
+		};
+
+		static readonly string[] YPartTransitionOutputs = {
+			"xcontent",
+			string.Empty,
+			string.Empty,
+			string.Empty,
+			string.Empty,
+			string.Empty,
+			"content"
+		};
+
+		[Test]
+		public void TestYDecodeYPartStateTransitions ()
+		{
+			var ydec = new YDecoder ();
+			var decoded = new byte[1024];
+
+			for (int i = 0; i < YPartTransitionInputs.Length; i++) {
+				var input = Encoding.ASCII.GetBytes (YPartTransitionInputs[i]);
+				var chars = YPartTransitionOutputs[i].ToCharArray ();
+
+				for (int j = 0; j < chars.Length; j++)
+					chars[j] -= (char) 42;
+
+				var expected = new string (chars);
+
+				int n = ydec.Decode (input, 0, input.Length, decoded);
+				var actual = Encoding.ASCII.GetString (decoded, 0, n);
+
+				Assert.AreEqual (expected, actual, YPartTransitionInputs[i]);
+
+				ydec.Reset ();
+			}
+		}
 	}
 }
