@@ -720,6 +720,55 @@ namespace MimeKit.Cryptography {
 		public abstract void Import (Stream stream, string password);
 
 		/// <summary>
+		/// Imports certificates and keys from a pkcs12 file.
+		/// </summary>
+		/// <remarks>
+		/// Imports certificates and keys from a pkcs12 file.
+		/// </remarks>
+		/// <param name="fileName">The raw certificate and key data in pkcs12 format.</param>
+		/// <param name="password">The password to unlock the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> does not contain a private key.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="fileName"/> does not contain a certificate that could be used for signing.</para>
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Importing keys is not supported by this cryptography context.
+		/// </exception>
+		public virtual void Import (string fileName, string password)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			if (password == null)
+				throw new ArgumentNullException (nameof (password));
+
+			using (var stream = File.OpenRead (fileName))
+				Import (stream, password);
+		}
+
+		/// <summary>
 		/// Imports the specified certificate.
 		/// </summary>
 		/// <remarks>

@@ -104,8 +104,7 @@ namespace UnitTests.Cryptography {
 
 				path = Path.Combine (dataDir, "smime.p12");
 
-				using (var file = File.OpenRead (path))
-					ctx.Import (file, "no.secret");
+				ctx.Import (path, "no.secret");
 			}
 		}
 
@@ -161,7 +160,10 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Export (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.GetDigestAlgorithm (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null, "password"));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import (stream, null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((string) null, "password"));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ("fileName", null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Crl) null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Certificate) null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Sign (null, stream));

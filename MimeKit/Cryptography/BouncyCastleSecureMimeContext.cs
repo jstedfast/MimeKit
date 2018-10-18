@@ -1151,22 +1151,22 @@ namespace MimeKit.Cryptography
 		/// Decrypts the specified encryptedData to an output stream.
 		/// </remarks>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="output">The output stream.</param>
+		/// <param name="decryptedData">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override void DecryptTo (Stream encryptedData, Stream output)
+		public override void DecryptTo (Stream encryptedData, Stream decryptedData)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
 
-			if (output == null)
-				throw new ArgumentNullException (nameof (output));
+			if (decryptedData == null)
+				throw new ArgumentNullException (nameof (decryptedData));
 
 			var parser = new CmsEnvelopedDataParser (encryptedData);
 			var recipients = parser.GetRecipientInfos ();
@@ -1179,7 +1179,7 @@ namespace MimeKit.Cryptography
 
 				var content = recipient.GetContentStream (key);
 
-				content.ContentStream.CopyTo (output, 4096);
+				content.ContentStream.CopyTo (decryptedData, 4096);
 				return;
 			}
 

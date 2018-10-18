@@ -52,8 +52,7 @@ namespace UnitTests.Cryptography {
 			recipients.Add (new CmsRecipient (signer.Certificate));
 
 			using (var ctx = new TemporarySecureMimeContext ()) {
-				using (var file = File.OpenRead (path))
-					ctx.Import (file, "no.secret");
+				ctx.Import (path, "no.secret");
 
 				// Compress
 				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Compress (null, entity));
