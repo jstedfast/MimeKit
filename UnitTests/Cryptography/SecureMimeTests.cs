@@ -282,10 +282,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigning ()
 		{
+			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-
-			var cleartext = new TextPart ("plain");
-			cleartext.Text = "This is some text that we'll end up signing...";
 
 			var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
 			MimeEntity extracted;
@@ -368,10 +366,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithContext ()
 		{
+			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-
-			var cleartext = new TextPart ("plain");
-			cleartext.Text = "This is some text that we'll end up signing...";
 
 			using (var ctx = CreateContext ()) {
 				var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);

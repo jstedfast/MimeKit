@@ -725,10 +725,10 @@ namespace MimeKit.Cryptography {
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
 
-			var contentInfo = new ContentInfo (ReadAllBytes (signedData));
+			var content = ReadAllBytes (signedData);
 			var signed = new SignedCms ();
 
-			signed.Decode (ReadAllBytes (signedData));
+			signed.Decode (content);
 
 			var memory = new MemoryStream (signed.ContentInfo.Content, false);
 
@@ -766,10 +766,10 @@ namespace MimeKit.Cryptography {
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
 
-			var contentInfo = new ContentInfo (ReadAllBytes (signedData));
+			var content = ReadAllBytes (signedData);
 			var signed = new SignedCms ();
 
-			signed.Decode (ReadAllBytes (signedData));
+			signed.Decode (content);
 
 			signatures = GetDigitalSignatures (signed);
 
