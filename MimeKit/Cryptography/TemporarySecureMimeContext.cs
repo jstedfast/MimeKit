@@ -47,8 +47,9 @@ namespace MimeKit.Cryptography {
 	public class TemporarySecureMimeContext : BouncyCastleSecureMimeContext
 	{
 		readonly Dictionary<string, EncryptionAlgorithm[]> capabilities;
-		readonly Dictionary<string, AsymmetricKeyParameter> keys;
-		readonly List<X509Certificate> certificates;
+		internal readonly Dictionary<string, AsymmetricKeyParameter> keys;
+		internal readonly List<X509Certificate> certificates;
+		readonly HashSet<string> fingerprints;
 		readonly List<X509Crl> crls;
 
 		/// <summary>
@@ -62,6 +63,7 @@ namespace MimeKit.Cryptography {
 			capabilities = new Dictionary<string, EncryptionAlgorithm[]> (StringComparer.Ordinal);
 			keys = new Dictionary<string, AsymmetricKeyParameter> (StringComparer.Ordinal);
 			certificates = new List<X509Certificate> ();
+			fingerprints = new HashSet<string> ();
 			crls = new List<X509Crl> ();
 		}
 
@@ -166,9 +168,8 @@ namespace MimeKit.Cryptography {
 		{
 			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
 
-			foreach (var certificate in certificates) {
+			foreach (var certificate in certificates)
 				anchors.Add (new TrustAnchor (certificate, null));
-			}
 
 			return anchors;
 		}
@@ -186,9 +187,8 @@ namespace MimeKit.Cryptography {
 		{
 			var store = new X509CertificateStore ();
 
-			foreach (var certificate in certificates) {
+			foreach (var certificate in certificates)
 				store.Add (certificate);
-			}
 
 			return store;
 		}
@@ -399,13 +399,15 @@ namespace MimeKit.Cryptography {
 					var entry = pkcs12.GetKey (alias);
 
 					for (int i = 0; i < chain.Length; i++)
-						certificates.Add (chain[i].Certificate);
+						Import (chain[i].Certificate);
 
 					var fingerprint = chain[0].Certificate.GetFingerprint ();
-					keys.Add (fingerprint, entry.Key);
+					if (!keys.ContainsKey (fingerprint))
+						keys.Add (fingerprint, entry.Key);
 				} else if (pkcs12.IsCertificateEntry (alias)) {
 					var entry = pkcs12.GetCertificate (alias);
-					certificates.Add (entry.Certificate);
+
+					Import (entry.Certificate);
 				}
 			}
 		}
@@ -425,7 +427,8 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			certificates.Add (certificate);
+			if (fingerprints.Add (certificate.GetFingerprint ()))
+				certificates.Add (certificate);
 		}
 
 		/// <summary>

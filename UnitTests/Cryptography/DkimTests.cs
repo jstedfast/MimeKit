@@ -127,6 +127,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
 
+				Assert.AreEqual (0, stream.Position);
 				Assert.AreEqual (0, stream.Length);
 
 				Assert.Throws<NotSupportedException> (() => stream.Position = 64);
@@ -156,6 +157,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
 
+				Assert.AreEqual (0, stream.Position);
 				Assert.AreEqual (0, stream.Length);
 
 				Assert.Throws<NotSupportedException> (() => stream.Position = 64);

@@ -78,7 +78,6 @@
     <Compile Include="Cryptography\DkimRelaxedBodyFilterTests.cs" />
     <Compile Include="Cryptography\DkimTests.cs" />
     <Compile Include="Cryptography\DummyOpenPgpContext.cs" />
-    <Compile Include="Cryptography\DummySecureMimeContext.cs" />
     <Compile Include="Cryptography\LdapUriTests.cs" />
     <Compile Include="Cryptography\PgpMimeTests.cs" />
     <Compile Include="Cryptography\SecureMimeTests.cs" />

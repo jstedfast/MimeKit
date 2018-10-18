@@ -108,6 +108,9 @@ namespace UnitTests.Cryptography {
 				path = Path.Combine (dataDir, "smime.p12");
 
 				ctx.Import (path, "no.secret");
+
+				// import a second time to cover the case where the certificate & private key already exist
+				Assert.DoesNotThrow (() => ctx.Import (path, "no.secret"));
 			}
 		}
 
@@ -313,6 +316,48 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		void AssertValidSignatures (SecureMimeContext ctx, DigitalSignatureCollection signatures)
+		{
+			foreach (var signature in signatures) {
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						// AppVeyor gets an exception about the root certificate not being trusted
+						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+					Assert.AreEqual (EncryptionAlgorithm.Seed, algorithms[i++], "Expected SEED capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+					Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+					Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
+				Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
+				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+					Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
+				//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
+				//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
+			}
+		}
+
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithContext ()
 		{
@@ -333,43 +378,17 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
 
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
+				AssertValidSignatures (ctx, signatures);
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
-						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
-						}
-					}
+				using (var signedData = signed.Content.Open ()) {
+					using (var stream = ctx.Verify (signedData, out signatures))
+						extracted = MimeEntity.Load (stream);
 
-					var algorithms = GetEncryptionAlgorithms (signature);
-					int i = 0;
+					Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+					Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
 
-					Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-					Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-						Assert.AreEqual (EncryptionAlgorithm.Seed, algorithms[i++], "Expected SEED capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia256, algorithms[i++], "Expected Camellia-256 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia192, algorithms[i++], "Expected Camellia-192 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-						Assert.AreEqual (EncryptionAlgorithm.Camellia128, algorithms[i++], "Expected Camellia-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-						Assert.AreEqual (EncryptionAlgorithm.Cast5, algorithms[i++], "Expected Cast5 capability");
-					Assert.AreEqual (EncryptionAlgorithm.TripleDes, algorithms[i++], "Expected Triple-DES capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-						Assert.AreEqual (EncryptionAlgorithm.Idea, algorithms[i++], "Expected IDEA capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC2128, algorithms[i++], "Expected RC2-128 capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC264, algorithms[i++], "Expected RC2-64 capability");
-					//Assert.AreEqual (EncryptionAlgorithm.Des, algorithms[i++], "Expected DES capability");
-					//Assert.AreEqual (EncryptionAlgorithm.RC240, algorithms[i++], "Expected RC2-40 capability");
+					Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+					AssertValidSignatures (ctx, signatures);
 				}
 			}
 		}
@@ -970,7 +989,7 @@ namespace UnitTests.Cryptography {
 
 				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7mime.SecureMimeType, "S/MIME type did not match.");
 
-				using (var imported = new DummySecureMimeContext ()) {
+				using (var imported = new TemporarySecureMimeContext ()) {
 					pkcs7mime.Import (imported);
 
 					Assert.AreEqual (1, imported.certificates.Count, "Unexpected number of imported certificates.");
@@ -1005,6 +1024,12 @@ namespace UnitTests.Cryptography {
 		protected override SecureMimeContext CreateContext ()
 		{
 			return new MySecureMimeContext ();
+		}
+
+		static SecureMimeSqliteTests ()
+		{
+			if (File.Exists ("smime.db"))
+				File.Delete ("smime.db");
 		}
 	}
 
