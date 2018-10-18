@@ -454,8 +454,20 @@ namespace UnitTests.Cryptography {
 
 			var encrypted = MultipartEncrypted.Encrypt (new [] { self }, body);
 
-			//using (var file = File.Create ("pgp-encrypted.asc"))
-			//	encrypted.WriteTo (file);
+			using (var stream = new MemoryStream ()) {
+				encrypted.WriteTo (stream);
+				stream.Position = 0;
+
+				var entity = MimeEntity.Load (stream);
+
+				Assert.IsInstanceOf<MultipartEncrypted> (entity, "Encrypted part is not the expected type");
+
+				encrypted = (MultipartEncrypted) entity;
+
+				Assert.IsInstanceOf<ApplicationPgpEncrypted> (encrypted[0], "First child of multipart/encrypted is not the expected type");
+				Assert.IsInstanceOf<MimePart> (encrypted[1], "Second child of multipart/encrypted is not the expected type");
+				Assert.AreEqual ("application/octet-stream", encrypted[1].ContentType.MimeType, "Second child of multipart/encrypted is not the expected mime-type");
+			}
 
 			var decrypted = encrypted.Decrypt ();
 

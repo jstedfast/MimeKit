@@ -62,7 +62,7 @@ namespace UnitTests.Cryptography {
 				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
 				string path;
 
-				CryptographyContext.Register (ctx.GetType ());
+				CryptographyContext.Register (() => CreateContext ());
 
 				if (ctx is WindowsSecureMimeContext) {
 					var windows = (WindowsSecureMimeContext) ctx;
@@ -233,6 +233,22 @@ namespace UnitTests.Cryptography {
 			var original = new TextPart ("plain");
 			original.Text = "This is some text that we'll end up compressing...";
 
+			var compressed = ApplicationPkcs7Mime.Compress (original);
+
+			Assert.AreEqual (SecureMimeType.CompressedData, compressed.SecureMimeType, "S/MIME type did not match.");
+
+			var decompressed = compressed.Decompress ();
+
+			Assert.IsInstanceOf<TextPart> (decompressed, "Decompressed part is not the expected type.");
+			Assert.AreEqual (original.Text, ((TextPart) decompressed).Text, "Decompressed content is not the same as the original.");
+		}
+
+		[Test]
+		public void TestSecureMimeCompressionWithContext ()
+		{
+			var original = new TextPart ("plain");
+			original.Text = "This is some text that we'll end up compressing...";
+
 			using (var ctx = CreateContext ()) {
 				var compressed = ApplicationPkcs7Mime.Compress (ctx, original);
 
@@ -252,6 +268,50 @@ namespace UnitTests.Cryptography {
 
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigning ()
+		{
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			var cleartext = new TextPart ("plain");
+			cleartext.Text = "This is some text that we'll end up signing...";
+
+			var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
+			MimeEntity extracted;
+
+			Assert.AreEqual (SecureMimeType.SignedData, signed.SecureMimeType, "S/MIME type did not match.");
+
+			var signatures = signed.Verify (out extracted);
+
+			Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+			Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
+
+			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+			foreach (var signature in signatures) {
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					using (var ctx = CreateContext ()) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						} else {
+							Assert.Fail ("Failed to verify signature: {0}", ex);
+						}
+					}
+				}
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+			}
+		}
+
+		[Test]
+		public virtual void TestSecureMimeEncapsulatedSigningWithContext ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
@@ -312,7 +372,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public virtual void TestSecureMimeSigning ()
+		public virtual void TestSecureMimeMessageSigning ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -388,7 +448,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public virtual async Task TestSecureMimeSigningAsync ()
+		public virtual async Task TestSecureMimeMessageSigningAsync ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -552,6 +612,25 @@ namespace UnitTests.Cryptography {
 
 		[Test]
 		public virtual void TestSecureMimeEncryption ()
+		{
+			var certificate = new X509Certificate2 (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			var recipients = new CmsRecipientCollection ();
+
+			recipients.Add (new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+			var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, body);
+
+			Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+
+			var decrypted = encrypted.Decrypt ();
+
+			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+		}
+
+		[Test]
+		public virtual void TestSecureMimeEncryptionWithContext ()
 		{
 			var certificate = new X509Certificate2 (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
@@ -978,21 +1057,21 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public override void TestSecureMimeSigning ()
+		public override void TestSecureMimeMessageSigning ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
 				return;
 
-			base.TestSecureMimeSigning ();
+			base.TestSecureMimeMessageSigning ();
 		}
 
 		[Test]
-		public override async Task TestSecureMimeSigningAsync ()
+		public override async Task TestSecureMimeMessageSigningAsync ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
 				return;
 
-			await base.TestSecureMimeSigningAsync ();
+			await base.TestSecureMimeMessageSigningAsync ();
 		}
 
 		[Test]
