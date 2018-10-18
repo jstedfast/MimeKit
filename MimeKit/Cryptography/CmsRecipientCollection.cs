@@ -74,7 +74,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
-			get; private set;
+			get { return false; }
 		}
 
 		/// <summary>

@@ -49,6 +49,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((string) null));
 
 			var recipients = new CmsRecipientCollection ();
+
 			Assert.AreEqual (0, recipients.Count);
 			Assert.IsFalse (recipients.IsReadOnly);
 			Assert.Throws<ArgumentNullException> (() => recipients.Add (null));
@@ -88,6 +89,32 @@ namespace UnitTests.Cryptography {
 			recipient = new CmsRecipient (new X509Certificate2 (path));
 
 			AssertDefaultValues (recipient, certificate);
+		}
+
+		[Test]
+		public void TestCollectionAddRemove ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "smime", "certificate-authority.crt");
+			var recipients = new CmsRecipientCollection ();
+			var recipient = new CmsRecipient (path);
+			var array = new CmsRecipient[1];
+
+			Assert.IsFalse (recipients.Contains (recipient), "Contains: False");
+			Assert.IsFalse (recipients.Remove (recipient), "Remove: False");
+
+			recipients.Add (recipient);
+
+			Assert.AreEqual (1, recipients.Count, "Count");
+			Assert.IsTrue (recipients.Contains (recipient), "Contains: True");
+
+			recipients.CopyTo (array, 0);
+			Assert.AreEqual (recipient, array[0], "CopyTo");
+
+			Assert.IsTrue (recipients.Remove (recipient), "Remove: True");
+
+			Assert.AreEqual (0, recipients.Count, "Count");
+
+			recipients.Clear ();
 		}
 	}
 }

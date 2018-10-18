@@ -62,7 +62,10 @@ namespace UnitTests.Cryptography {
 				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
 				string path;
 
-				CryptographyContext.Register (() => CreateContext ());
+				if (ctx is TemporarySecureMimeContext)
+					CryptographyContext.Register (() => CreateContext ());
+				else
+					CryptographyContext.Register (ctx.GetType ());
 
 				if (ctx is WindowsSecureMimeContext) {
 					var windows = (WindowsSecureMimeContext) ctx;
@@ -1057,6 +1060,15 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public override void TestSecureMimeEncapsulatedSigningWithContext ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeEncapsulatedSigningWithContext ();
+		}
+
+		[Test]
 		public override void TestSecureMimeMessageSigning ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
@@ -1094,6 +1106,15 @@ namespace UnitTests.Cryptography {
 
 		[Test]
 		public override void TestSecureMimeEncryption ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeEncryption ();
+		}
+
+		[Test]
+		public override void TestSecureMimeEncryptionWithContext ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
 				return;

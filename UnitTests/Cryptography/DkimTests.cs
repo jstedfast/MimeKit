@@ -86,8 +86,54 @@ namespace UnitTests.Cryptography {
 			return new DkimSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
 				SignatureAlgorithm = algorithm,
 				AgentOrUserIdentifier = "@eng.example.com",
-				QueryMethod = "dns/txt",
+				QueryMethod = "dns/txt"
 			};
+		}
+
+		[Test]
+		public void TestDkimSignerCtors ()
+		{
+			Assert.DoesNotThrow (() => {
+				var signer = new DkimSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256,
+					AgentOrUserIdentifier = "@eng.example.com",
+					QueryMethod = "dns/txt"
+				};
+			});
+
+			Assert.DoesNotThrow (() => {
+				var signer = new DkimSigner (DkimKeys.Private, "example.com", "1433868189.example") {
+					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256,
+					AgentOrUserIdentifier = "@eng.example.com",
+					QueryMethod = "dns/txt"
+				};
+			});
+		}
+
+		[Test]
+		public void TestDkimHashStream ()
+		{
+			var buffer = new byte[128];
+
+			using (var stream = new DkimHashStream (DkimSignatureAlgorithm.RsaSha1)) {
+				Assert.IsFalse (stream.CanRead);
+				Assert.IsTrue (stream.CanWrite);
+				Assert.IsFalse (stream.CanSeek);
+				Assert.IsFalse (stream.CanTimeout);
+
+				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
+
+				Assert.Throws<ArgumentNullException> (() => stream.Write (null, 0, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
+
+				Assert.AreEqual (0, stream.Length);
+
+				Assert.Throws<NotSupportedException> (() => stream.Position = 64);
+
+				Assert.Throws<NotSupportedException> (() => stream.Seek (64, SeekOrigin.Begin));
+				Assert.Throws<NotSupportedException> (() => stream.SetLength (256));
+			}
 		}
 
 		[Test]
