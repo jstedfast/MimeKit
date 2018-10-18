@@ -163,6 +163,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (recipients, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((IEnumerable<MailboxAddress>) null, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (new MailboxAddress[0], null));
+				Assert.Throws<ArgumentException> (() => ctx.Encrypt (new MailboxAddress[0], stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Export (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.GetDigestAlgorithm (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null));
@@ -205,6 +206,12 @@ namespace UnitTests.Cryptography {
 
 				Assert.IsTrue (ctx.CanSign (valid), "{0} should be able to sign.", valid);
 				Assert.IsTrue (ctx.CanEncrypt (valid), "{0} should be able to encrypt.", valid);
+
+				using (var content = new MemoryStream ()) {
+					Assert.Throws<CertificateNotFoundException> (() => ctx.Encrypt (new[] { invalid }, content));
+					Assert.Throws<CertificateNotFoundException> (() => ctx.Sign (invalid, DigestAlgorithm.Sha1, content));
+					Assert.Throws<CertificateNotFoundException> (() => ctx.EncapsulatedSign (invalid, DigestAlgorithm.Sha1, content));
+				}
 			}
 		}
 
