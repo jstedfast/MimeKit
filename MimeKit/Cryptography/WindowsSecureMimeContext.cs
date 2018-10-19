@@ -464,7 +464,7 @@ namespace MimeKit.Cryptography {
 
 			var real = GetRealCmsSigner (signer);
 
-			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (real, content, true));
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (real, content, false));
 		}
 
 		/// <summary>
