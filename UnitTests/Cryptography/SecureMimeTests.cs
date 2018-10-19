@@ -305,7 +305,7 @@ namespace UnitTests.Cryptography {
 					using (var ctx = CreateContext ()) {
 						if (ctx is WindowsSecureMimeContext) {
 							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+							Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 						} else {
 							Assert.Fail ("Failed to verify signature: {0}", ex);
 						}
@@ -331,7 +331,7 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
 						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
@@ -422,7 +422,7 @@ namespace UnitTests.Cryptography {
 					using (var ctx = CreateContext ()) {
 						if (ctx is WindowsSecureMimeContext) {
 							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+							Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 						} else {
 							Assert.Fail ("Failed to verify signature: {0}", ex);
 						}
@@ -512,7 +512,7 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
 						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
@@ -578,7 +578,7 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
 						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
@@ -654,7 +654,7 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
 						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
@@ -730,7 +730,7 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
 						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
@@ -1070,7 +1070,7 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
 						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.AreEqual (ex.InnerException.Message, UntrustedRootCertificateMessage);
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
