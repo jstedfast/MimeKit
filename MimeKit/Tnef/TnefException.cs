@@ -106,12 +106,9 @@ namespace MimeKit.Tnef {
 		[SecurityCritical]
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
 		{
-			if (info == null)
-				throw new ArgumentNullException (nameof (info));
+			base.GetObjectData (info, context);
 
 			info.AddValue ("Error", Error);
-
-			base.GetObjectData (info, context);
 		}
 #endif
 

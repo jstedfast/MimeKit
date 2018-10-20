@@ -132,12 +132,9 @@ namespace MimeKit.Cryptography {
 		[SecurityCritical]
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
 		{
-			if (info == null)
-				throw new ArgumentNullException (nameof (info));
+			base.GetObjectData (info, context);
 
 			info.AddValue ("KeyId", KeyId);
-
-			base.GetObjectData (info, context);
 		}
 #endif
 
