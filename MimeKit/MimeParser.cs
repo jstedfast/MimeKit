@@ -779,10 +779,17 @@ namespace MimeKit {
 							return false;
 						}
 
-						if (state == MimeParserState.MessageHeaders && headers.Count == 0) {
-							// ignore From-lines that might appear at the start of a message
-							if (length < 5 || !IsMboxMarker (start, true)) {
-								// not a From-line...
+						if (headers.Count == 0) {
+							if (state == MimeParserState.MessageHeaders) {
+								// ignore From-lines that might appear at the start of a message
+								if (length < 5 || !IsMboxMarker (start, true)) {
+									// not a From-line...
+									inputIndex = (int) (start - inbuf);
+									state = MimeParserState.Error;
+									headerIndex = 0;
+									return false;
+								}
+							} else if (state == MimeParserState.Headers) {
 								inputIndex = (int) (start - inbuf);
 								state = MimeParserState.Error;
 								headerIndex = 0;
@@ -832,7 +839,7 @@ namespace MimeKit {
 
 				length = (inptr + 1) - start;
 
-				if (!valid && headers.Count == 0 && length > 5 && IsMboxMarker (start, true)) {
+				if (!valid && headers.Count == 0 && length >= 5 && IsMboxMarker (start, true)) {
 					if (inptr[-1] == (byte) '\r')
 						length--;
 					length--;
@@ -1279,7 +1286,7 @@ namespace MimeKit {
 			}
 
 			// parse the headers...
-			state = MimeParserState.Headers;
+			state = MimeParserState.MessageHeaders;
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error) {
 				// Note: this either means that StepHeaders() found the end of the stream
 				// or an invalid header field name at the start of the message headers,

@@ -323,7 +323,7 @@ namespace MimeKit {
 			}
 
 			// parse the headers...
-			state = MimeParserState.Headers;
+			state = MimeParserState.MessageHeaders;
 			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
 				// Note: this either means that StepHeaders() found the end of the stream
 				// or an invalid header field name at the start of the message headers,
