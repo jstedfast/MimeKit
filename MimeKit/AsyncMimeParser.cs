@@ -195,6 +195,7 @@ namespace MimeKit {
 			case MimeParserState.MessageHeaders:
 			case MimeParserState.Headers:
 				await StepHeadersAsync (cancellationToken).ConfigureAwait (false);
+				toplevel = false;
 				break;
 			}
 
@@ -509,6 +510,8 @@ namespace MimeKit {
 				stream.Seek (offset, SeekOrigin.Begin);
 
 			state = MimeParserState.Headers;
+			toplevel = true;
+
 			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse entity headers.");
 
@@ -569,6 +572,8 @@ namespace MimeKit {
 					throw new FormatException ("End of stream.");
 				}
 			}
+
+			toplevel = true;
 
 			// parse the headers
 			if (state < MimeParserState.Content && await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)

@@ -138,6 +138,7 @@ namespace MimeKit {
 		MimeParserState state;
 		MimeFormat format;
 		bool persistent;
+		bool toplevel;
 		bool eos;
 
 		ParserOptions options;
@@ -330,9 +331,11 @@ namespace MimeKit {
 			contentEnd = 0;
 
 			offset = stream.CanSeek ? stream.Position : 0;
+			preHeaderLength = 0;
 			headers.Clear ();
 			headerOffset = 0;
 			headerIndex = 0;
+			toplevel = false;
 			eos = false;
 
 			bounds.Clear ();
@@ -748,6 +751,7 @@ namespace MimeKit {
 							if (IsBlank (*inptr)) {
 								blank = true;
 							} else if (blank || IsControl (*inptr)) {
+								char c = (char) *inptr;
 								valid = false;
 								break;
 							}
@@ -771,7 +775,7 @@ namespace MimeKit {
 					if (!valid) {
 						length = inptr - start;
 
-						if (format == MimeFormat.Mbox && length >= 5 && IsMboxMarker (start)) {
+						if (format == MimeFormat.Mbox && inputIndex >= contentEnd && length >= 5 && IsMboxMarker (start)) {
 							// we've found the start of the next message...
 							inputIndex = (int) (start - inbuf);
 							state = MimeParserState.Complete;
@@ -782,14 +786,14 @@ namespace MimeKit {
 						if (headers.Count == 0) {
 							if (state == MimeParserState.MessageHeaders) {
 								// ignore From-lines that might appear at the start of a message
-								if (length < 5 || !IsMboxMarker (start, true)) {
+								if (toplevel && (length < 5 || !IsMboxMarker (start, true))) {
 									// not a From-line...
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Error;
 									headerIndex = 0;
 									return false;
 								}
-							} else if (state == MimeParserState.Headers) {
+							} else if (toplevel && state == MimeParserState.Headers) {
 								inputIndex = (int) (start - inbuf);
 								state = MimeParserState.Error;
 								headerIndex = 0;
@@ -839,18 +843,23 @@ namespace MimeKit {
 
 				length = (inptr + 1) - start;
 
-				if (!valid && headers.Count == 0 && length >= 5 && IsMboxMarker (start, true)) {
-					if (inptr[-1] == (byte) '\r')
+				if (!valid && headers.Count == 0) {
+					if (length > 0 && preHeaderLength == 0) {
+						if (inptr[-1] == (byte) '\r')
+							length--;
 						length--;
-					length--;
 
-					preHeaderLength = (int) length;
+						preHeaderLength = (int) length;
 
-					if (preHeaderLength > preHeaderBuffer.Length)
-						Array.Resize (ref preHeaderBuffer, NextAllocSize (preHeaderLength));
+						if (preHeaderLength > preHeaderBuffer.Length)
+							Array.Resize (ref preHeaderBuffer, NextAllocSize (preHeaderLength));
 
-					Buffer.BlockCopy (input, (int) (start - inbuf), preHeaderBuffer, 0, preHeaderLength);
+						Buffer.BlockCopy (input, (int) (start - inbuf), preHeaderBuffer, 0, preHeaderLength);
+					}
+					scanningFieldName = true;
 					checkFolded = false;
+					blank = false;
+					valid = true;
 				} else {
 					AppendRawHeaderData ((int) (start - inbuf), (int) length);
 					checkFolded = true;
@@ -974,6 +983,7 @@ namespace MimeKit {
 			case MimeParserState.MessageHeaders:
 			case MimeParserState.Headers:
 				StepHeaders (inbuf, cancellationToken);
+				toplevel = false;
 				break;
 			}
 
@@ -1477,6 +1487,8 @@ namespace MimeKit {
 				stream.Seek (offset, SeekOrigin.Begin);
 
 			state = MimeParserState.Headers;
+			toplevel = true;
+
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse entity headers.");
 
@@ -1546,6 +1558,8 @@ namespace MimeKit {
 					throw new FormatException ("End of stream.");
 				}
 			}
+
+			toplevel = true;
 
 			// parse the headers
 			if (state < MimeParserState.Content && Step (inbuf, cancellationToken) == MimeParserState.Error)
