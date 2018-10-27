@@ -334,6 +334,7 @@ namespace MimeKit {
 				case "external-body":
 				case "rfc2822":
 				case "rfc822":
+				case "global":
 				case "news":
 					if (!IsEncoded (headers))
 						return new MessagePart (args);
