@@ -73,6 +73,7 @@ namespace UnitTests.Utils {
 			Assert.AreEqual (40, lineLength);
 		}
 
+#if DEBUG
 		[Test]
 		public void TestAppendCStringByte ()
 		{
@@ -84,5 +85,6 @@ namespace UnitTests.Utils {
 
 			Assert.AreEqual (expected, builder.ToString ());
 		}
+#endif
 	}
 }
