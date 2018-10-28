@@ -1,5 +1,25 @@
 # Release Notes
 
+### MimeKit 2.0.7
+
+* Fixed a bug in the UUEncoder.
+* Fixed a bug in MimeIterator.MoveTo().
+* Modified BodyBuilder.ToMessageBody() to avoid returning a multipart/mixed with only a single
+  child. (issue #441)
+* Modified TnefPart to no longer set the name parameter on the Content-Type header of
+  extracted message bodies. (issue #435)
+* Fixed various locations that loaded content from files to use FileShare.Read so as to avoid file
+  sharing violations if the application already has that file opened elsewhere. (issue #426)
+* Improved address parser to handle "local-part (User Name)" style addresses.
+* Updated the iOS and Android BouncyCastle dependency to 1.8.3.
+* Modified TextPart.Text and GetText() to canonicalize the newlines. (issue #442)
+* Fixed WindowsSecureMimeContext.EncapsulatedSign (CmsSigner, ...) and Sign (CmsSigner, ...).
+* Added SecureMimeContext.Import(string, string) to import passworded pk12 files.
+* Improved MimeParser's support of Content-Length.
+* Fixed MimeParser.ParseEntity() and MimeEntity.Load() to throw a FormatException if the
+  stream does not have properly formatted headers. (issue #443)
+* Added support for message/global.
+
 ### MimeKit 2.0.6
 
 * Added more bounds checking for parsing mailbox addresses to fix IndexOutOfRangeExceptions

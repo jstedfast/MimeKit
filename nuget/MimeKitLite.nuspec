@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.0.6</version>
+    <version>2.0.7</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,10 +25,17 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added more bounds checking for parsing mailbox addresses to fix IndexOutOfRangeExceptions given an incomplete address like "Name &lt;". (issue #421)
-* Fixed support for parsing mbox files using Content-Length.
-* Modified the TextPart.Text getter property to check for a UTF-16 BOM and use an appropriate UTF-16 System.Text.Encoding if found instead of simply assuming UTF-8 and falling back to iso-8859-1. (issue #417)
-* Minor optimizations.
+* Fixed a bug in the UUEncoder.
+* Fixed a bug in MimeIterator.MoveTo().
+* Modified BodyBuilder.ToMessageBody() to avoid returning a multipart/mixed with only a single child. (issue #441)
+* Modified TnefPart to no longer set the name parameter on the Content-Type header of extracted message bodies. (issue #435)
+* Fixed various locations that loaded content from files to use FileShare.Read so as to avoid file sharing violations if the application already has that file opened elsewhere. (issue #426)
+* Improved address parser to handle "local-part (User Name)" style addresses.
+* Modified TextPart.Text and GetText() to canonicalize the newlines. (issue #442)
+* Improved MimeParser's support of Content-Length.
+* Fixed MimeParser.ParseEntity() and MimeEntity.Load() to throw a FormatException if the
+  stream does not have properly formatted headers. (issue #443)
+* Added support for message/global.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
