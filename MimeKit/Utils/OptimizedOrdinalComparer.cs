@@ -50,10 +50,8 @@ namespace MimeKit.Utils {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static int ToUpper (int c)
 		{
-			const uint range = 0x7A - 0x61;
-
 			// check if the char is within the lowercase range
-			if ((uint) (c - 0x61) <= range)
+			if ((uint) (c - 'a') <= 'z' - 'a')
 				return c - 0x20;
 
 			return c;
