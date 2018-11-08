@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -34,7 +35,7 @@ namespace MimeKit.Utils {
 	/// <remarks>
 	/// An optimized version of <see cref="StringComparer.OrdinalIgnoreCase">StringComparer.OrdinalIgnoreCase</see>.
 	/// </remarks>
-	class OptimizedOrdinalIgnoreCaseComparer : IEqualityComparer<string>
+	sealed class OptimizedOrdinalIgnoreCaseComparer : IEqualityComparer<string>
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Utils.OptimizedOrdinalIgnoreCaseComparer"/> class.
@@ -46,6 +47,7 @@ namespace MimeKit.Utils {
 		{
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static int ToUpper (int c)
 		{
 			if (c >= 0x61 && c <= 0x7A)
@@ -85,7 +87,8 @@ namespace MimeKit.Utils {
 			if (x.Length != y.Length)
 				return false;
 
-			for (int i = 0; i < x.Length; i++) {
+			int length = x.Length;
+			for (int i = 0; i < length; i++) {
 				if (ToUpper (x[i]) != ToUpper (y[i]))
 					return false;
 			}
