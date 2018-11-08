@@ -231,14 +231,22 @@ namespace UnitTests.Cryptography {
 
 				var signatures = multipart.Verify (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
-					}
+				var signature = signatures[0];
+
+				Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
+				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
+				Assert.AreEqual ("44CD48EEC90D8849961F36BA50DCD107AB0821A2", signature.SignerCertificate.Fingerprint);
+				Assert.AreEqual (new DateTime (2013, 11, 3, 18, 32, 27), signature.SignerCertificate.CreationDate, "CreationDate");
+				Assert.AreEqual (DateTime.MaxValue, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
+				Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					Assert.Fail ("Failed to verify signature: {0}", ex);
 				}
 			}
 		}
@@ -278,14 +286,22 @@ namespace UnitTests.Cryptography {
 
 				var signatures = await multipart.VerifyAsync (ctx);
 				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
 
-						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
-					}
+				var signature = signatures[0];
+
+				Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
+				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
+				Assert.AreEqual ("44CD48EEC90D8849961F36BA50DCD107AB0821A2", signature.SignerCertificate.Fingerprint);
+				Assert.AreEqual (new DateTime (2013, 11, 3, 18, 32, 27), signature.SignerCertificate.CreationDate, "CreationDate");
+				Assert.AreEqual (DateTime.MaxValue, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
+				Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					Assert.Fail ("Failed to verify signature: {0}", ex);
 				}
 			}
 		}

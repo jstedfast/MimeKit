@@ -139,7 +139,11 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The expiration date.</value>
 		public DateTime ExpirationDate {
-			get { return CreationDate.AddSeconds ((double) PublicKey.GetValidSeconds ()); }
+			get {
+				long seconds = PublicKey.GetValidSeconds ();
+
+				return seconds > 0 ? CreationDate.AddSeconds ((double) seconds) : DateTime.MaxValue;
+			}
 		}
 
 		/// <summary>
