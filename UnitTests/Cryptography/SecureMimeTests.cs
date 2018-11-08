@@ -140,6 +140,7 @@ namespace UnitTests.Cryptography {
 				MimeEntity entity;
 
 				Assert.IsFalse (ctx.Supports ("text/plain"), "Should not support text/plain");
+				Assert.IsFalse (ctx.Supports ("application/octet-stream"), "Should not support application/octet-stream");
 				Assert.IsTrue (ctx.Supports ("application/pkcs7-mime"), "Should support application/pkcs7-mime");
 				Assert.IsTrue (ctx.Supports ("application/x-pkcs7-mime"), "Should support application/x-pkcs7-mime");
 				Assert.IsTrue (ctx.Supports ("application/pkcs7-signature"), "Should support application/pkcs7-signature");
@@ -237,6 +238,11 @@ namespace UnitTests.Cryptography {
 					} catch (NotSupportedException) {
 					}
 				}
+
+				Assert.Throws<NotSupportedException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.DoubleSha));
+				Assert.Throws<ArgumentOutOfRangeException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.None));
+
+				Assert.AreEqual (DigestAlgorithm.None, ctx.GetDigestAlgorithm ("blahblahblah"));
 			}
 		}
 
