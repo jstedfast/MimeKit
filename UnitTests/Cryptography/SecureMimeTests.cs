@@ -243,6 +243,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentOutOfRangeException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.None));
 
 				Assert.AreEqual (DigestAlgorithm.None, ctx.GetDigestAlgorithm ("blahblahblah"));
+				Assert.IsFalse (SecureMimeContext.TryGetDigestAlgorithm ("blahblahblah", out DigestAlgorithm algo));
 			}
 		}
 
@@ -277,6 +278,20 @@ namespace UnitTests.Cryptography {
 
 				Assert.IsInstanceOf<TextPart> (decompressed, "Decompressed part is not the expected type.");
 				Assert.AreEqual (original.Text, ((TextPart) decompressed).Text, "Decompressed content is not the same as the original.");
+
+				using (var stream = new MemoryStream ()) {
+					using (var decoded = new MemoryStream ()) {
+						compressed.Content.DecodeTo (decoded);
+						decoded.Position = 0;
+						ctx.DecompressTo (decoded, stream);
+					}
+
+					stream.Position = 0;
+					decompressed = MimeEntity.Load (stream);
+
+					Assert.IsInstanceOf<TextPart> (decompressed, "Decompressed part is not the expected type.");
+					Assert.AreEqual (original.Text, ((TextPart) decompressed).Text, "Decompressed content is not the same as the original.");
+				}
 			}
 		}
 
