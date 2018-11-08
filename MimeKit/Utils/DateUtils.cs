@@ -177,10 +177,7 @@ namespace MimeKit.Utils {
 			if (!token.IsWeekday || token.Length < 3)
 				return false;
 
-			var name = Encoding.ASCII.GetString (text, token.StartIndex, token.Length);
-
-			if (name.Length > 3)
-				name = name.Substring (0, 3);
+			var name = Encoding.ASCII.GetString (text, token.StartIndex, 3);
 
 			for (int day = 0; day < WeekDays.Length; day++) {
 				if (WeekDays[day].Equals (name, StringComparison.OrdinalIgnoreCase)) {
@@ -218,10 +215,7 @@ namespace MimeKit.Utils {
 			if (!token.IsMonth || token.Length < 3)
 				return false;
 
-			var name = Encoding.ASCII.GetString (text, token.StartIndex, token.Length);
-
-			if (name.Length > 3)
-				name = name.Substring (0, 3);
+			var name = Encoding.ASCII.GetString (text, token.StartIndex, 3);
 
 			for (int i = 0; i < Months.Length; i++) {
 				if (Months[i].Equals (name, StringComparison.OrdinalIgnoreCase)) {
