@@ -40,6 +40,7 @@ namespace MimeKit.Cryptography {
 		static readonly Dictionary<string, EncryptionAlgorithm> EncryptionAlgorithms;
 		//static readonly Dictionary<string, PublicKeyAlgorithm> PublicKeyAlgorithms;
 		static readonly Dictionary<string, DigestAlgorithm> DigestAlgorithms;
+		static readonly char[] Whitespace = { ' ', '\t' };
 		static readonly string PublicKeyRing;
 		static readonly string SecretKeyRing;
 		static readonly string Configuration;
@@ -135,7 +136,7 @@ namespace MimeKit.Cryptography {
 			if (string.IsNullOrEmpty (value))
 				return;
 
-			var options = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+			var options = value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < options.Length; i++) {
 				switch (options[i]) {
 				case "auto-key-retrieve":
@@ -147,7 +148,7 @@ namespace MimeKit.Cryptography {
 
 		static EncryptionAlgorithm[] ParseEncryptionAlgorithms (string value)
 		{
-			var names = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+			var names = value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries);
 			var algorithms = new List<EncryptionAlgorithm> ();
 			var seen = new HashSet<EncryptionAlgorithm> ();
 
@@ -187,7 +188,7 @@ namespace MimeKit.Cryptography {
 
 		static DigestAlgorithm[] ParseDigestAlgorithms (string value)
 		{
-			var names = value.Split (new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+			var names = value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries);
 			var algorithms = new List<DigestAlgorithm> ();
 			var seen = new HashSet<DigestAlgorithm> ();
 
