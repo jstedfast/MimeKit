@@ -369,7 +369,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (param));
 
 			if (table.ContainsKey (param.Name))
-				throw new ArgumentException ("A parameter of that name already exists.");
+				throw new ArgumentException ("A parameter of that name already exists.", nameof (param));
 
 			param.Changed += OnParamChanged;
 			table.Add (param.Name, param);
@@ -507,7 +507,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (param));
 
 			if (table.ContainsKey (param.Name))
-				throw new ArgumentException ("A parameter of that name already exists.");
+				throw new ArgumentException ("A parameter of that name already exists.", nameof (param));
 
 			parameters.Insert (index, param);
 			table.Add (param.Name, param);
@@ -579,7 +579,7 @@ namespace MimeKit {
 					if (table[param.Name] == param)
 						table[param.Name] = value;
 				} else if (table.ContainsKey (value.Name)) {
-					throw new ArgumentException ("A parameter of that name already exists.");
+					throw new ArgumentException ("A parameter of that name already exists.", nameof (value));
 				} else {
 					table.Add (value.Name, value);
 					table.Remove (param.Name);

@@ -113,7 +113,7 @@ namespace MimeKit {
 				var co = obj as IMimeContent;
 				if (co != null) {
 					if (content != null)
-						throw new ArgumentException ("ContentObject should not be specified more than once.");
+						throw new ArgumentException ("IMimeContent should not be specified more than once.");
 
 					content = co;
 					continue;

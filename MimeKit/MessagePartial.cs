@@ -262,7 +262,7 @@ namespace MimeKit {
 		static int PartialCompare (MessagePartial partial1, MessagePartial partial2)
 		{
 			if (!partial1.Number.HasValue || !partial2.Number.HasValue || partial1.Id != partial2.Id)
-				throw new ArgumentException ("partial");
+				throw new ArgumentException ("Partial messages have mismatching identifiers.", "partials");
 
 			return partial1.Number.Value - partial2.Number.Value;
 		}

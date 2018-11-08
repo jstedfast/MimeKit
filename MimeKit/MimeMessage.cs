@@ -1844,14 +1844,14 @@ namespace MimeKit {
 				fields[i] = headers[i].ToLowerInvariant ();
 
 				if (DkimShouldNotInclude.Contains (fields[i]))
-					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i]));
+					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i]), nameof (headers));
 
 				if (fields[i] == "from")
 					containsFrom = true;
 			}
 
 			if (!containsFrom)
-				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.");
+				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
 
 			DkimSign (options, signer, fields, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}
@@ -1928,19 +1928,19 @@ namespace MimeKit {
 
 			for (int i = 0; i < headers.Count; i++) {
 				if (headers[i] == HeaderId.Unknown)
-					throw new ArgumentException ("The list of headers to sign cannot include the 'Unknown' header.");
+					throw new ArgumentException ("The list of headers to sign cannot include the 'Unknown' header.", nameof (headers));
 
 				fields[i] = headers[i].ToHeaderName ().ToLowerInvariant ();
 
 				if (DkimShouldNotInclude.Contains (fields[i]))
-					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i].ToHeaderName ()));
+					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i].ToHeaderName ()), nameof (headers));
 
 				if (headers[i] == HeaderId.From)
 					containsFrom = true;
 			}
 
 			if (!containsFrom)
-				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.");
+				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
 
 			DkimSign (options, signer, fields, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}

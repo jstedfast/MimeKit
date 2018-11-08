@@ -413,7 +413,7 @@ namespace MimeKit.Tnef {
 		{
 			// The check done this way will take care of NaN
 			if (!(value < OADateMaxAsDouble) || !(value > OADateMinAsDouble))
-				throw new ArgumentException ("Invalid OLE Automation Date.");
+				throw new ArgumentException ("Invalid OLE Automation Date.", nameof (value));
 
 			long millis = (long) (value * MillisPerDay + (value >= 0 ? 0.5 : -0.5));
 
@@ -423,7 +423,7 @@ namespace MimeKit.Tnef {
 			millis += DoubleDateOffset / TicksPerMillisecond;
 
 			if (millis < 0 || millis >= MaxMillis)
-				throw new ArgumentException ("Invalid OLE Automation Date.");
+				throw new ArgumentException ("Invalid OLE Automation Date.", nameof (value));
 
 			return millis * TicksPerMillisecond;
 		}

@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 		static void CheckCertificateCanBeUsedForSigning (X509Certificate certificate)
 		{
 			if (!CanSign (certificate))
-				throw new ArgumentException ("The certificate cannot be used for signing.");
+				throw new ArgumentException ("The certificate cannot be used for signing.", nameof (certificate));
 		}
 
 		/// <summary>

@@ -1118,10 +1118,10 @@ namespace MimeKit.Cryptography {
 				var utc = expirationDate.Value.ToUniversalTime ();
 
 				if (utc <= now)
-					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
+					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now", nameof (expirationDate));
 
 				if ((expirationTime = Convert.ToInt64 (utc.Subtract (now).TotalSeconds)) <= 0)
-					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now");
+					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now", nameof (expirationDate));
 			}
 
 			if (random == null) {

@@ -298,7 +298,7 @@ namespace MimeKit {
 				int index = 0;
 
 				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
-					throw new ArgumentException ("Invalid Content-Id format.");
+					throw new ArgumentException ("Invalid Content-Id format.", nameof (value));
 
 				contentId = mailbox.Address;
 
