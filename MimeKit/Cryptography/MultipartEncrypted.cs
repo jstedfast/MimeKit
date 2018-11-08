@@ -1133,11 +1133,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt (out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var protocol = ContentType.Parameters["protocol"];
+			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ();
-
-			protocol = protocol.Trim ().ToLowerInvariant ();
 
 			if (Count < 2)
 				throw new FormatException ();
@@ -1148,7 +1146,7 @@ namespace MimeKit.Cryptography {
 
 			var ctype = version.ContentType;
 			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
-			if (value.ToLowerInvariant () != protocol)
+			if (!value.Equals (protocol, StringComparison.OrdinalIgnoreCase))
 				throw new FormatException ();
 
 			var encrypted = this[1] as MimePart;

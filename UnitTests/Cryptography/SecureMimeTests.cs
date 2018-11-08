@@ -149,6 +149,10 @@ namespace UnitTests.Cryptography {
 				Assert.IsTrue (ctx.Supports ("application/pkcs7-signature"), "Should support application/pkcs7-signature");
 				Assert.IsTrue (ctx.Supports ("application/x-pkcs7-signature"), "Should support application/x-pkcs7-signature");
 
+				Assert.AreEqual ("application/pkcs7-signature", ctx.SignatureProtocol);
+				Assert.AreEqual ("application/pkcs7-mime", ctx.EncryptionProtocol);
+				Assert.AreEqual ("application/pkcs7-mime", ctx.KeyExchangeProtocol);
+
 				Assert.Throws<ArgumentNullException> (() => ctx.Supports (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.CanSign (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.CanEncrypt (null));

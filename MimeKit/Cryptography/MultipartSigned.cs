@@ -534,11 +534,10 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public DigitalSignatureCollection Verify (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var protocol = ContentType.Parameters["protocol"];
+			var protocol = ContentType.Parameters["protocol"]?.Trim ();
+
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
-
-			protocol = protocol.Trim ().ToLowerInvariant ();
 
 			using (var ctx = CryptographyContext.Create (protocol))
 				return Verify (ctx, cancellationToken);
@@ -568,11 +567,10 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var protocol = ContentType.Parameters["protocol"];
+			var protocol = ContentType.Parameters["protocol"]?.Trim ();
+
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
-
-			protocol = protocol.Trim ().ToLowerInvariant ();
 
 			using (var ctx = CryptographyContext.Create (protocol))
 				return VerifyAsync (ctx, cancellationToken);
