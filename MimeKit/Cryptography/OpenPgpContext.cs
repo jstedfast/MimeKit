@@ -57,6 +57,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class OpenPgpContext : CryptographyContext
 	{
+		static readonly string[] ProtocolSubtypes = { "pgp-signature", "pgp-encrypted", "pgp-keys", "x-pgp-signature", "x-pgp-encrypted", "x-pgp-keys" };
 		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
 		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
 
@@ -387,14 +388,21 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException (nameof (protocol));
 
-			var type = protocol.ToLowerInvariant ().Split ('/');
-			if (type.Length != 2 || type[0] != "application")
+			if (!protocol.StartsWith ("application/", StringComparison.OrdinalIgnoreCase))
 				return false;
 
-			if (type[1].StartsWith ("x-", StringComparison.Ordinal))
-				type[1] = type[1].Substring (2);
+			int startIndex = "application/".Length;
+			int subtypeLength = protocol.Length - startIndex;
 
-			return type[1] == "pgp-signature" || type[1] == "pgp-encrypted" || type[1] == "pgp-keys";
+			for (int i = 0; i < ProtocolSubtypes.Length; i++) {
+				if (subtypeLength != ProtocolSubtypes[i].Length)
+					continue;
+
+				if (string.Compare (protocol, startIndex, ProtocolSubtypes[i], 0, subtypeLength, StringComparison.OrdinalIgnoreCase) == 0)
+					return true;
+			}
+
+			return false;
 		}
 
 		/// <summary>

@@ -1029,11 +1029,10 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			var protocol = ContentType.Parameters["protocol"];
+			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ();
 
-			protocol = protocol.Trim ().ToLowerInvariant ();
 			if (!ctx.Supports (protocol))
 				throw new NotSupportedException ();
 
@@ -1046,7 +1045,7 @@ namespace MimeKit.Cryptography {
 
 			var ctype = version.ContentType;
 			var value = string.Format ("{0}/{1}", ctype.MediaType, ctype.MediaSubtype);
-			if (value.ToLowerInvariant () != protocol)
+			if (!value.Equals (protocol, StringComparison.OrdinalIgnoreCase))
 				throw new FormatException ();
 
 			var encrypted = this[1] as MimePart;

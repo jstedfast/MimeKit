@@ -409,11 +409,11 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			var protocol = ContentType.Parameters["protocol"];
+			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
 
-			if (!ctx.Supports (protocol.Trim ()))
+			if (!ctx.Supports (protocol))
 				throw new NotSupportedException ("The specified cryptography context does not support the signature protocol.");
 
 			if (Count < 2)
@@ -474,11 +474,11 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			var protocol = ContentType.Parameters["protocol"];
+			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
 
-			if (!ctx.Supports (protocol.Trim ()))
+			if (!ctx.Supports (protocol))
 				throw new NotSupportedException ("The specified cryptography context does not support the signature protocol.");
 
 			if (Count < 2)

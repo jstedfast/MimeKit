@@ -47,6 +47,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SecureMimeContext : CryptographyContext
 	{
+		static readonly string[] ProtocolSubtypes = { "pkcs7-signature", "pkcs7-mime", "pkcs7-keys", "x-pkcs7-signature", "x-pkcs7-mime", "x-pkcs7-keys" };
 		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
 		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
 		internal static readonly DerObjectIdentifier Blowfish = new DerObjectIdentifier ("1.3.6.1.4.1.3029.1.2");
@@ -159,14 +160,21 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException (nameof (protocol));
 
-			var type = protocol.ToLowerInvariant ().Split (new [] { '/' });
-			if (type.Length != 2 || type[0] != "application")
+			if (!protocol.StartsWith ("application/", StringComparison.OrdinalIgnoreCase))
 				return false;
 
-			if (type[1].StartsWith ("x-", StringComparison.Ordinal))
-				type[1] = type[1].Substring (2);
+			int startIndex = "application/".Length;
+			int subtypeLength = protocol.Length - startIndex;
 
-			return type[1] == "pkcs7-signature" || type[1] == "pkcs7-mime" || type[1] == "pkcs7-keys";
+			for (int i = 0; i < ProtocolSubtypes.Length; i++) {
+				if (subtypeLength != ProtocolSubtypes[i].Length)
+					continue;
+
+				if (string.Compare (protocol, startIndex, ProtocolSubtypes[i], 0, subtypeLength, StringComparison.OrdinalIgnoreCase) == 0)
+					return true;
+			}
+
+			return false;
 		}
 
 		/// <summary>

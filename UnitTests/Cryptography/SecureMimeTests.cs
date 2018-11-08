@@ -753,7 +753,7 @@ namespace UnitTests.Cryptography {
 
 				var multipart = (MultipartSigned) message.Body;
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
+				var protocol = multipart.ContentType.Parameters["protocol"]?.Trim ();
 				Assert.IsTrue (ctx.Supports (protocol), "The multipart/signed protocol is not supported.");
 
 				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
