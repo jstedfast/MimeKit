@@ -50,6 +50,9 @@ namespace UnitTests.Cryptography {
 		const string MimeKitFingerprint = "4846fb5e27df6a23bb35a995443363e447d3426d";
 		const string ThunderbirdName = "fejj@gnome.org";
 
+		static readonly DateTime MimeKitCreationDate = new DateTime (2018, 07, 30, 13, 13, 19);
+		static readonly DateTime MimeKitExpirationDate = new DateTime (2019, 07, 30, 13, 13, 19);
+
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
@@ -317,29 +320,37 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
 
 			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-			foreach (var signature in signatures) {
-				try {
-					bool valid = signature.Verify ();
 
-					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
-				} catch (DigitalSignatureVerifyException ex) {
-					using (var ctx = CreateContext ()) {
-						if (ctx is WindowsSecureMimeContext) {
-							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
-						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
-						}
+			var signature = signatures[0];
+
+			Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
+			Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
+			Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint);
+			Assert.AreEqual (MimeKitCreationDate, signature.SignerCertificate.CreationDate, "CreationDate");
+			Assert.AreEqual (MimeKitExpirationDate, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
+			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
+
+			try {
+				bool valid = signature.Verify ();
+
+				Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+			} catch (DigitalSignatureVerifyException ex) {
+				using (var ctx = CreateContext ()) {
+					if (ctx is WindowsSecureMimeContext) {
+						// AppVeyor gets an exception about the root certificate not being trusted
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
 				}
-
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
-
-				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
 			}
+
+			var algorithms = GetEncryptionAlgorithms (signature);
+			int i = 0;
+
+			Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+			Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+			Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
 		}
 
 		void AssertValidSignatures (SecureMimeContext ctx, DigitalSignatureCollection signatures)
