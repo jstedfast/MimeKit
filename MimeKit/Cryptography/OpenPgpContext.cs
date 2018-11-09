@@ -2346,12 +2346,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var decryptedData = new MemoryBlockStream ();
+			using (var decryptedData = new MemoryBlockStream ()) {
+				signatures = DecryptTo (encryptedData, decryptedData, cancellationToken);
+				decryptedData.Position = 0;
 
-			signatures = DecryptTo (encryptedData, decryptedData, cancellationToken);
-			decryptedData.Position = 0;
-
-			return MimeEntity.Load (decryptedData, true, cancellationToken);
+				return MimeEntity.Load (decryptedData, cancellationToken);
+			}
 		}
 
 		/// <summary>
@@ -2382,12 +2382,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var decryptedData = new MemoryBlockStream ();
+			using (var decryptedData = new MemoryBlockStream ()) {
+				DecryptTo (encryptedData, decryptedData, cancellationToken);
+				decryptedData.Position = 0;
 
-			DecryptTo (encryptedData, decryptedData, cancellationToken);
-			decryptedData.Position = 0;
-
-			return MimeEntity.Load (decryptedData, true, cancellationToken);
+				return MimeEntity.Load (decryptedData, cancellationToken);
+			}
 		}
 
 		/// <summary>
