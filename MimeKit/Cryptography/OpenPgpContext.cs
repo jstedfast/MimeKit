@@ -543,8 +543,8 @@ namespace MimeKit.Cryptography {
 					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
 
 					if (doAsync) {
-						using (var response = await client.GetAsync (uri.ToString (), cancellationToken))
-							await response.Content.CopyToAsync (filtered);
+						using (var response = await client.GetAsync (uri.ToString (), cancellationToken).ConfigureAwait (false))
+							await response.Content.CopyToAsync (filtered).ConfigureAwait (false);
 					} else {
 #if !NETSTANDARD && !PORTABLE
 						var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
@@ -762,6 +762,19 @@ namespace MimeKit.Cryptography {
 			yield break;
 		}
 
+		static bool IsExpired (PgpPublicKey pubkey)
+		{
+			long seconds = pubkey.GetValidSeconds ();
+
+			if (seconds != 0) {
+				var expires = pubkey.CreationTime.AddSeconds ((double) seconds);
+				if (expires <= DateTime.Now)
+					return true;
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Get the public key associated with the mailbox address.
 		/// </summary>
@@ -779,15 +792,8 @@ namespace MimeKit.Cryptography {
 		protected virtual PgpPublicKey GetPublicKey (MailboxAddress mailbox)
 		{
 			foreach (var key in EnumeratePublicKeys (mailbox)) {
-				if (!key.IsEncryptionKey || key.IsRevoked ())
+				if (!key.IsEncryptionKey || key.IsRevoked () || IsExpired (key))
 					continue;
-
-				long seconds = key.GetValidSeconds ();
-				if (seconds != 0) {
-					var expires = key.CreationTime.AddSeconds ((double) seconds);
-					if (expires <= DateTime.Now)
-						continue;
-				}
 
 				return key;
 			}
@@ -879,15 +885,8 @@ namespace MimeKit.Cryptography {
 						continue;
 
 					var pubkey = key.PublicKey;
-					if (pubkey.IsRevoked ())
+					if (pubkey.IsRevoked () || IsExpired (pubkey))
 						continue;
-
-					long seconds = pubkey.GetValidSeconds ();
-					if (seconds != 0) {
-						var expires = pubkey.CreationTime.AddSeconds ((double) seconds);
-						if (expires <= DateTime.Now)
-							continue;
-					}
 
 					return key;
 				}
@@ -1254,15 +1253,8 @@ namespace MimeKit.Cryptography {
 						continue;
 
 					var pubkey = key.PublicKey;
-					if (pubkey.IsRevoked ())
+					if (pubkey.IsRevoked () || IsExpired (pubkey))
 						continue;
-
-					long seconds = pubkey.GetValidSeconds ();
-					if (seconds != 0) {
-						var expires = pubkey.CreationTime.AddSeconds ((double) seconds);
-						if (expires <= DateTime.Now)
-							continue;
-					}
 
 					return true;
 				}
@@ -1288,15 +1280,8 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (var key in EnumeratePublicKeys (mailbox)) {
-				if (!key.IsEncryptionKey || key.IsRevoked ())
+				if (!key.IsEncryptionKey || key.IsRevoked () || IsExpired (key))
 					continue;
-
-				long seconds = key.GetValidSeconds ();
-				if (seconds != 0) {
-					var expires = key.CreationTime.AddSeconds ((double) seconds);
-					if (expires <= DateTime.Now)
-						continue;
-				}
 
 				return true;
 			}
