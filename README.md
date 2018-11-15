@@ -2,9 +2,6 @@
 
 [![Join the chat at https://gitter.im/jstedfast/MimeKit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jstedfast/MimeKit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Issue Stats](http://www.issuestats.com/github/jstedfast/MimeKit/badge/pr)](http://www.issuestats.com/github/jstedfast/MimeKit)
-[![Issue Stats](http://www.issuestats.com/github/jstedfast/MimeKit/badge/issue)](http://www.issuestats.com/github/jstedfast/MimeKit)
-
 |             |Build Status|Code Coverage|Static Analysis|
 |-------------|:----------:|:-----------:|:-------------:|
 |**Linux/Mac**|[![Build Status](https://travis-ci.org/jstedfast/MimeKit.svg)](https://travis-ci.org/jstedfast/MimeKit)|[![Code Coverage](https://coveralls.io/repos/jstedfast/MimeKit/badge.svg?branch=master)](https://coveralls.io/r/jstedfast/MimeKit?branch=master)|[![Static Analysis](https://scan.coverity.com/projects/3201/badge.svg)](https://scan.coverity.com/projects/3201)|
