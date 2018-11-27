@@ -348,11 +348,11 @@ namespace MimeKit {
 		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string addrspec, out int at)
 		{
 			int startIndex = index;
+			string localpart;
 
 			addrspec = null;
 			at = -1;
 
-			string localpart;
 			if (!TryParseLocalPart (text, ref index, endIndex, true, throwOnError, out localpart))
 				return false;
 
@@ -429,7 +429,7 @@ namespace MimeKit {
 				} while (index < endIndex && text[index] == '<');
 			}
 
-			if (index < endIndex && !ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
 			if (index >= endIndex) {
