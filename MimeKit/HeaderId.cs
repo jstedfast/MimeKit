@@ -42,9 +42,19 @@ namespace MimeKit {
 	/// </remarks>
 	public enum HeaderId {
 		/// <summary>
+		/// The Accept-Language header field.
+		/// </summary>
+		AcceptLanguage,
+
+		/// <summary>
 		/// The Ad-Hoc header field.
 		/// </summary>
 		AdHoc,
+
+		/// <summary>
+		/// The Alternate-Recipient header field.
+		/// </summary>
+		AlternateRecipient,
 
 		/// <summary>
 		/// The Apparently-To header field.
@@ -57,14 +67,87 @@ namespace MimeKit {
 		Approved,
 
 		/// <summary>
+		/// The ARC-Authentication-Results header field.
+		/// </summary>
+		[HeaderName ("ARC-Authentication-Results")]
+		ArcAuthenticationResults,
+
+		/// <summary>
+		/// The ARC-Message-Signature header field.
+		/// </summary>
+		[HeaderName ("ARC-Message-Signature")]
+		ArcMessageSignature,
+
+		/// <summary>
+		/// The ARC-Seal header field.
+		/// </summary>
+		[HeaderName ("ARC-Seal")]
+		ArcSeal,
+
+		/// <summary>
+		/// The Archive header field.
+		/// </summary>
+		Archive,
+
+		/// <summary>
+		/// The Archived-At header field.
+		/// </summary>
+		ArchivedAt,
+
+		/// <summary>
 		/// The Article header field.
 		/// </summary>
 		Article,
 
 		/// <summary>
+		/// The Authentication-Results header field.
+		/// </summary>
+		AuthenticationResults,
+
+		/// <summary>
+		/// The Autocrypt header field.
+		/// </summary>
+		Autocrypt,
+
+		/// <summary>
+		/// The Autocrypt-Gossip header field.
+		/// </summary>
+		AutocryptGossip,
+
+		/// <summary>
+		/// The Autocrypt-Setup-Message header field.
+		/// </summary>
+		AutocryptSetupMessage,
+
+		/// <summary>
+		/// The Autoforwarded header field.
+		/// </summary>
+		Autoforwarded,
+
+		/// <summary>
+		/// The Auto-Submitted header field.
+		/// </summary>
+		AutoSubmitted,
+
+		/// <summary>
+		/// The Autosubmitted header field.
+		/// </summary>
+		Autosubmitted,
+
+		/// <summary>
+		/// The Base header field.
+		/// </summary>
+		Base,
+
+		/// <summary>
 		/// The Bcc header field.
 		/// </summary>
 		Bcc,
+
+		/// <summary>
+		/// The Body header field.
+		/// </summary>
+		Body,
 
 		/// <summary>
 		/// The Bytes header field.
@@ -80,6 +163,11 @@ namespace MimeKit {
 		/// The Comments header field.
 		/// </summary>
 		Comments,
+
+		/// <summary>
+		/// The Content-Alternative header field.
+		/// </summary>
+		ContentAlternative,
 
 		/// <summary>
 		/// The Content-Base header field.
@@ -107,9 +195,19 @@ namespace MimeKit {
 		ContentDuration,
 
 		/// <summary>
+		/// The Content-Features header field.
+		/// </summary>
+		ContentFeatures,
+
+		/// <summary>
 		/// The Content-Id header field.
 		/// </summary>
 		ContentId,
+
+		/// <summary>
+		/// The Content-Identifier header field.
+		/// </summary>
+		ContentIdentifier,
 
 		/// <summary>
 		/// The Content-Language header field.
@@ -132,9 +230,19 @@ namespace MimeKit {
 		ContentMd5,
 
 		/// <summary>
+		/// The Content-Return header field.
+		/// </summary>
+		ContentReturn,
+
+		/// <summary>
 		/// The Content-Transfer-Encoding header field.
 		/// </summary>
 		ContentTransferEncoding,
+
+		/// <summary>
+		/// The Content-Translation-Type header field.
+		/// </summary>
+		ContentTranslationType,
 
 		/// <summary>
 		/// The Content-Type header field.
@@ -147,14 +255,39 @@ namespace MimeKit {
 		Control,
 
 		/// <summary>
+		/// The Conversion header field.
+		/// </summary>
+		Conversion,
+
+		/// <summary>
+		/// The Conversion-With-Loss header field.
+		/// </summary>
+		ConversionWithLoss,
+
+		/// <summary>
 		/// The Date header field.
 		/// </summary>
 		Date,
 
 		/// <summary>
+		/// The Date-Received header field.
+		/// </summary>
+		DateReceived,
+
+		/// <summary>
 		/// The Deferred-Delivery header field.
 		/// </summary>
 		DeferredDelivery,
+
+		/// <summary>
+		/// The Delivery-Date header field.
+		/// </summary>
+		DeliveryDate,
+
+		/// <summary>
+		/// The Disclose-Recipients header field.
+		/// </summary>
+		DiscloseRecipients,
 
 		/// <summary>
 		/// The Disposition-Notification-Options header field.
@@ -214,9 +347,24 @@ namespace MimeKit {
 		From,
 
 		/// <summary>
+		/// The Generate-Delivery-Report header field.
+		/// </summary>
+		GenerateDeliveryReport,
+
+		/// <summary>
 		/// The Importance header field.
 		/// </summary>
 		Importance,
+
+		/// <summary>
+		/// The Injection-Date header field.
+		/// </summary>
+		InjectionDate,
+
+		/// <summary>
+		/// The Injection-Info header field.
+		/// </summary>
+		InjectionInfo,
 
 		/// <summary>
 		/// The In-Reply-To header field.
@@ -229,14 +377,44 @@ namespace MimeKit {
 		Keywords,
 
 		/// <summary>
+		/// The Language header.
+		/// </summary>
+		Language,
+
+		/// <summary>
+		/// The Latest-Delivery-Time header.
+		/// </summary>
+		LatestDeliveryTime,
+
+		/// <summary>
 		/// The Lines header field.
 		/// </summary>
 		Lines,
 
 		/// <summary>
+		/// THe List-Archive header field.
+		/// </summary>
+		ListArchive,
+
+		/// <summary>
 		/// The List-Help header field.
 		/// </summary>
 		ListHelp,
+
+		/// <summary>
+		/// The List-Id header field.
+		/// </summary>
+		ListId,
+
+		/// <summary>
+		/// The List-Owner header field.
+		/// </summary>
+		ListOwner,
+
+		/// <summary>
+		/// The List-Post header field.
+		/// </summary>
+		ListPost,
 
 		/// <summary>
 		/// The List-Subscribe header field.
@@ -247,6 +425,11 @@ namespace MimeKit {
 		/// The List-Unsubscribe header field.
 		/// </summary>
 		ListUnsubscribe,
+
+		/// <summary>
+		/// The List-Unsubscribe-Post header field.
+		/// </summary>
+		ListUnsubscribePost,
 
 		/// <summary>
 		/// The Message-Id header field.
@@ -275,9 +458,29 @@ namespace MimeKit {
 		Organization,
 
 		/// <summary>
+		/// The Original-From header field.
+		/// </summary>
+		OriginalFrom,
+
+		/// <summary>
+		/// The Original-Message-Id header field.
+		/// </summary>
+		OriginalMessageId,
+
+		/// <summary>
 		/// The Original-Recipient header field.
 		/// </summary>
 		OriginalRecipient,
+
+		/// <summary>
+		/// The Original-Return-Address header field.
+		/// </summary>
+		OriginalReturnAddress,
+
+		/// <summary>
+		/// The Original-Subject header field.
+		/// </summary>
+		OriginalSubject,
 
 		/// <summary>
 		/// The Path header field.
@@ -290,6 +493,12 @@ namespace MimeKit {
 		Precedence,
 
 		/// <summary>
+		/// The Prevent-NonDelivery-Report header field.
+		/// </summary>
+		[HeaderName ("Prevent-NonDelivery-Report")]
+		PreventNonDeliveryReport,
+
+		/// <summary>
 		/// The Priority header field.
 		/// </summary>
 		Priority,
@@ -300,9 +509,20 @@ namespace MimeKit {
 		Received,
 
 		/// <summary>
+		/// The Received-SPF header field.
+		/// </summary>
+		[HeaderName ("Received-SPF")]
+		ReceivedSPF,
+
+		/// <summary>
 		/// The References header field.
 		/// </summary>
 		References,
+
+		/// <summary>
+		/// The Relay-Version header field.
+		/// </summary>
+		RelayVersion,
 
 		/// <summary>
 		/// The Reply-By header field.
@@ -313,6 +533,11 @@ namespace MimeKit {
 		/// The Reply-To header field.
 		/// </summary>
 		ReplyTo,
+
+		/// <summary>
+		/// The Require-Recipient-Valid-Since header field.
+		/// </summary>
+		RequireRecipientValidSince,
 
 		/// <summary>
 		/// The Resent-Bcc header field.
@@ -365,6 +590,11 @@ namespace MimeKit {
 		ReturnReceiptTo,
 
 		/// <summary>
+		/// The See-Also header field.
+		/// </summary>
+		SeeAlso,
+
+		/// <summary>
 		/// The Sender header field.
 		/// </summary>
 		Sender,
@@ -373,6 +603,11 @@ namespace MimeKit {
 		/// The Sensitivity header field.
 		/// </summary>
 		Sensitivity,
+
+		/// <summary>
+		/// The Solicitation header field.
+		/// </summary>
+		Solicitation,
 
 		/// <summary>
 		/// The Status header field.
@@ -403,6 +638,54 @@ namespace MimeKit {
 		/// The User-Agent header field.
 		/// </summary>
 		UserAgent,
+
+		/// <summary>
+		/// The X400-Content-Identifier header field.
+		/// </summary>
+		[HeaderName ("X400-Content-Identifier")]
+		X400ContentIdentifier,
+
+		/// <summary>
+		/// The X400-Content-Return header field.
+		/// </summary>
+		[HeaderName ("X400-Content-Return")]
+		X400ContentReturn,
+
+		/// <summary>
+		/// The X400-Content-Type header field.
+		/// </summary>
+		[HeaderName ("X400-Content-Type")]
+		X400ContentType,
+
+		/// <summary>
+		/// The X400-MTS-Identifier header field.
+		/// </summary>
+		[HeaderName ("X400-MTS-Identifier")]
+		X400MTSIdentifier,
+
+		/// <summary>
+		/// The X400-Originator header field.
+		/// </summary>
+		[HeaderName ("X400-Originator")]
+		X400Originator,
+
+		/// <summary>
+		/// The X400-Received header field.
+		/// </summary>
+		[HeaderName ("X400-Received")]
+		X400Received,
+
+		/// <summary>
+		/// The X400-Recipients header field.
+		/// </summary>
+		[HeaderName ("X400-Recipients")]
+		X400Recipients,
+
+		/// <summary>
+		/// The X400-Trace header field.
+		/// </summary>
+		[HeaderName ("X400-Trace")]
+		X400Trace,
 
 		/// <summary>
 		/// The X-Mailer header field.
