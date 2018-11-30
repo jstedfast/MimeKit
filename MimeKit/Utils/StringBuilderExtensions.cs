@@ -44,7 +44,7 @@ namespace MimeKit.Utils {
 			return text;
 		}
 
-		public static StringBuilder AppendFolded (this StringBuilder text, FormatOptions options, string value, ref int lineLength)
+		public static StringBuilder AppendFolded (this StringBuilder text, FormatOptions options, bool firstToken, string value, ref int lineLength)
 		{
 			int wordIndex = 0;
 			int lwspIndex;
@@ -77,13 +77,14 @@ namespace MimeKit.Utils {
 				}
 
 				int length = lwspIndex - wordIndex;
-				if (lineLength > 1 && (lineLength + length) > options.MaxLineLength) {
+				if (!firstToken && lineLength > 1 && (lineLength + length) > options.MaxLineLength) {
 					text.LineWrap (options);
 					lineLength = 1;
 				}
 
 				text.Append (value, wordIndex, length);
 				lineLength += length;
+				firstToken = false;
 
 				wordIndex = lwspIndex;
 				while (wordIndex < value.Length && char.IsWhiteSpace (value[wordIndex]))

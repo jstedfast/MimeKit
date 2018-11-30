@@ -223,7 +223,7 @@ namespace MimeKit {
 			return phrase;
 		}
 
-		internal abstract void Encode (FormatOptions options, StringBuilder builder, ref int lineLength);
+		internal abstract void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength);
 
 		/// <summary>
 		/// Returns a string representation of the <see cref="InternetAddress"/>,

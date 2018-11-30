@@ -409,7 +409,7 @@ namespace MimeKit {
 #endif
 		}
 
-		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
+		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
 		{
 			var route = Route.Encode (options);
 			if (!string.IsNullOrEmpty (route))
@@ -434,11 +434,11 @@ namespace MimeKit {
 				if (lineLength + name.Length > options.MaxLineLength) {
 					if (name.Length > options.MaxLineLength) {
 						// we need to break up the name...
-						builder.AppendFolded (options, name, ref lineLength);
+						builder.AppendFolded (options, firstToken, name, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
-						if (lineLength > 1) {
+						if (!firstToken && lineLength > 1) {
 							builder.LineWrap (options);
 							lineLength = 1;
 						}
@@ -468,7 +468,7 @@ namespace MimeKit {
 				builder.Append (addrspec);
 				builder.Append ('>');
 			} else if (!string.IsNullOrEmpty (route)) {
-				if ((lineLength + route.Length + addrspec.Length + 2) > options.MaxLineLength) {
+				if (!firstToken && (lineLength + route.Length + addrspec.Length + 2) > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ("\t<");
 					lineLength = 2;
@@ -484,7 +484,7 @@ namespace MimeKit {
 				builder.Append (addrspec);
 				builder.Append ('>');
 			} else {
-				if ((lineLength + addrspec.Length) > options.MaxLineLength) {
+				if (!firstToken && (lineLength + addrspec.Length) > options.MaxLineLength) {
 					builder.LineWrap (options);
 					lineLength = 1;
 				}
@@ -519,7 +519,7 @@ namespace MimeKit {
 				var builder = new StringBuilder ();
 				int lineLength = 0;
 
-				Encode (options, builder, ref lineLength);
+				Encode (options, builder, true, ref lineLength);
 
 				return builder.ToString ();
 			}

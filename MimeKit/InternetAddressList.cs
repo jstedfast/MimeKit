@@ -466,13 +466,15 @@ namespace MimeKit {
 
 		#endregion
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
+		internal void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
 		{
 			for (int i = 0; i < list.Count; i++) {
-				if (i > 0)
+				if (i > 0) {
 					builder.Append (", ");
+					lineLength += 2;
+				}
 
-				list[i].Encode (options, builder, ref lineLength);
+				list[i].Encode (options, builder, firstToken && i == 0, ref lineLength);
 			}
 		}
 
@@ -495,7 +497,7 @@ namespace MimeKit {
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (options, builder, ref lineLength);
+				Encode (options, builder, true, ref lineLength);
 
 				return builder.ToString ();
 			}

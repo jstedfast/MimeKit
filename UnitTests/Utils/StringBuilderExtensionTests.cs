@@ -67,7 +67,7 @@ namespace UnitTests.Utils {
 
 			format.NewLineFormat = NewLineFormat.Unix;
 
-			builder.AppendFolded (format, "to it: \"and this is a \\\"quoted string\\\" that must not get broken up!\" Got it? Good. There should be another wrap in here...", ref lineLength);
+			builder.AppendFolded (format, false, "to it: \"and this is a \\\"quoted string\\\" that must not get broken up!\" Got it? Good. There should be another wrap in here...", ref lineLength);
 
 			Assert.AreEqual (expected, builder.ToString ());
 			Assert.AreEqual (40, lineLength);

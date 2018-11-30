@@ -130,7 +130,7 @@ namespace MimeKit {
 			get; private set;
 		}
 
-		internal override void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
+		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
 		{
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;
@@ -145,11 +145,11 @@ namespace MimeKit {
 				if (lineLength + name.Length > options.MaxLineLength) {
 					if (name.Length > options.MaxLineLength) {
 						// we need to break up the name...
-						builder.AppendFolded (options, name, ref lineLength);
+						builder.AppendFolded (options, firstToken, name, ref lineLength);
 					} else {
 						// the name itself is short enough to fit on a single line,
 						// but only if we write it on a line by itself
-						if (lineLength > 1) {
+						if (!firstToken && lineLength > 1) {
 							builder.LineWrap (options);
 							lineLength = 1;
 						}
@@ -167,7 +167,7 @@ namespace MimeKit {
 			builder.Append (": ");
 			lineLength += 2;
 
-			Members.Encode (options, builder, ref lineLength);
+			Members.Encode (options, builder, false, ref lineLength);
 
 			builder.Append (';');
 			lineLength++;
@@ -199,7 +199,7 @@ namespace MimeKit {
 			if (encode) {
 				int lineLength = 0;
 
-				Encode (options, builder, ref lineLength);
+				Encode (options, builder, true, ref lineLength);
 			} else {
 				builder.Append (Name);
 				builder.Append (':');

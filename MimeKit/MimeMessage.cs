@@ -408,7 +408,7 @@ namespace MimeKit {
 				var builder = new StringBuilder (" ");
 				int len = "Sender: ".Length;
 
-				value.Encode (options, builder, ref len);
+				value.Encode (options, builder, true, ref len);
 				builder.Append (options.NewLine);
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
@@ -443,7 +443,7 @@ namespace MimeKit {
 				var builder = new StringBuilder (" ");
 				int len = "Resent-Sender: ".Length;
 
-				value.Encode (options, builder, ref len);
+				value.Encode (options, builder, true, ref len);
 				builder.Append (options.NewLine);
 
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
@@ -2674,7 +2674,7 @@ namespace MimeKit {
 			var options = FormatOptions.Default;
 			int lineLength = field.Length + 2;
 
-			list.Encode (options, builder, ref lineLength);
+			list.Encode (options, builder, true, ref lineLength);
 			builder.Append (options.NewLine);
 
 			var raw = Encoding.UTF8.GetBytes (builder.ToString ());

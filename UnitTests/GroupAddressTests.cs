@@ -143,7 +143,7 @@ namespace UnitTests {
 		[Test]
 		public void TestClone ()
 		{
-			const string encoded = "Group Name: First Name <first@address.com>, Second Name <second@address.com>,\n Inner Group Name: First Inner Name <first-inner@address.com>, Second Inner Name\n\t<second-inner@address.com>;, Third Name <third@address.com>;";
+			const string encoded = "Group Name: First Name <first@address.com>, Second Name <second@address.com>,\n Inner Group Name: First Inner Name <first-inner@address.com>,\n Second Inner Name <second-inner@address.com>;, Third Name <third@address.com>;";
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
 			options.International = true;
@@ -161,7 +161,10 @@ namespace UnitTests {
 			var clone = group.Clone ();
 
 			Assert.AreEqual (0, group.CompareTo (clone), "CompareTo");
-			Assert.AreEqual (encoded, clone.ToString (options, true), "Encode");
+
+			var actual = clone.ToString (options, true);
+
+			Assert.AreEqual (encoded, actual, "Encode");
 		}
 
 		[Test]

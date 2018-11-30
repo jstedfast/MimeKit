@@ -468,7 +468,7 @@ namespace MimeKit {
 			if (!InternetAddressList.TryParse (options, value, out list))
 				return (byte[]) format.NewLineBytes.Clone ();
 
-			list.Encode (format, encoded, ref lineLength);
+			list.Encode (format, encoded, true, ref lineLength);
 			encoded.Append (format.NewLine);
 
 			if (format.International)
