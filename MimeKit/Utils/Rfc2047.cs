@@ -813,8 +813,9 @@ namespace MimeKit.Utils {
 
 		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input)
 		{
-			var output = new StringBuilder (input.Length + 2);
+			var output = new StringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
 			int lineLength = field.Length + 2;
+			var firstToken = true;
 			int lwsp = 0, tab = 0;
 			Token token;
 
@@ -845,6 +846,8 @@ namespace MimeKit.Utils {
 						output.Append (' ');
 						lineLength = 1;
 					}
+
+					firstToken = false;
 				} else if (token.Encoding != ContentEncoding.Default) {
 					string charset = token.CharsetCulture;
 
@@ -857,7 +860,7 @@ namespace MimeKit.Utils {
 							// break just before the last lwsp character
 							output.Insert (lwsp, options.NewLine);
 							lineLength = 1;
-						} else if (lineLength > 1) {
+						} else if (lineLength > 1 && !firstToken) {
 							// force a line break...
 							output.Append (options.NewLine);
 							output.Append (' ');
@@ -875,6 +878,7 @@ namespace MimeKit.Utils {
 					output.Append ("?=");
 
 					lineLength += token.Length + charset.Length + 7;
+					firstToken = false;
 					lwsp = 0;
 					tab = 0;
 				} else if (lineLength + token.Length > options.MaxLineLength) {
@@ -886,7 +890,7 @@ namespace MimeKit.Utils {
 						// break just before the last lwsp character
 						output.Insert (lwsp, options.NewLine);
 						lineLength = 1;
-					} else if (lineLength > 1) {
+					} else if (lineLength > 1 && !firstToken) {
 						// force a line break...
 						output.Append (options.NewLine);
 						output.Append (' ');
@@ -913,6 +917,7 @@ namespace MimeKit.Utils {
 						lineLength += token.Length;
 					}
 
+					firstToken = false;
 					lwsp = 0;
 					tab = 0;
 				} else {
@@ -920,6 +925,7 @@ namespace MimeKit.Utils {
 						output.Append ((char) input[n]);
 
 					lineLength += token.Length;
+					firstToken = false;
 					lwsp = 0;
 					tab = 0;
 				}

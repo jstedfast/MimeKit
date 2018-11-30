@@ -147,6 +147,16 @@ namespace UnitTests {
 			Assert.AreEqual (expected, raw, "The folded Message-Id header does not match the expected value.");
 		}
 
+		[Test]
+		public void TestSubjectHeaderFolding ()
+		{
+			const string expected = " =?utf-8?b?0KLQtdGB0YLQvtCy0YvQuSDQt9Cw0LPQvtC70L7QstC+0Log0L/QuNGB0YzQvNCw?=\n";
+			var header = new Header ("Subject", "Тестовый заголовок письма");
+			var actual = ByteArrayToString (header.RawValue).Replace ("\r", "");
+
+			Assert.AreEqual (expected, actual);
+		}
+
 		static readonly string[] ReceivedHeaderValues = {
 			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for nsb; Fri, 29 Nov 91 07:13:33 EST",
 			" from joyce.cs.su.oz.au by thumper.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA11898> for nsb@greenbush; Fri, 29 Nov 91 07:11:57 EST",
