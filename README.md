@@ -1,6 +1,8 @@
 # MimeKit
 
 [![Join the chat at https://gitter.im/jstedfast/MimeKit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jstedfast/MimeKit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![NuGet Badge MimeKit](https://buildstats.info/nuget/MimeKit)](https://www.nuget.org/packages/MimeKit)
+[![NuGet Badge MimeKitLite](https://buildstats.info/nuget/MimeKitLite)](https://www.nuget.org/packages/MimeKitLite)
 
 |             |Build Status|Code Coverage|Static Analysis|
 |-------------|:----------:|:-----------:|:-------------:|
