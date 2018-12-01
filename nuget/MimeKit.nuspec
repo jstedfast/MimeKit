@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.0.7</version>
+    <version>2.1.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,20 +25,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed a bug in the UUEncoder.
-* Fixed a bug in MimeIterator.MoveTo().
-* Modified BodyBuilder.ToMessageBody() to avoid returning a multipart/mixed with only a single child. (issue #441)
-* Modified TnefPart to no longer set the name parameter on the Content-Type header of extracted message bodies. (issue #435)
-* Fixed various locations that loaded content from files to use FileShare.Read so as to avoid file sharing violations if the application already has that file opened elsewhere. (issue #426)
-* Improved address parser to handle "local-part (User Name)" style addresses.
-* Updated the iOS and Android BouncyCastle dependency to 1.8.3.
-* Modified TextPart.Text and GetText() to canonicalize the newlines. (issue #442)
-* Fixed WindowsSecureMimeContext.EncapsulatedSign (CmsSigner, ...) and Sign (CmsSigner, ...).
-* Added SecureMimeContext.Import(string, string) to import passworded pk12 files.
-* Improved MimeParser's support of Content-Length.
-* Fixed MimeParser.ParseEntity() and MimeEntity.Load() to throw a FormatException if the
-  stream does not have properly formatted headers. (issue #443)
-* Added support for message/global.
+* Optimized SecureMimeCryptographyContext.Supports() and OpenPgpCryptographyContext.Supports() implementations.
+* Optimized the OptimizedOrdinalIgnoreCaseComparer even more.
+* Fixed OpenPgpDigitalCertificate.ExpirationDate for PGP keys that never expire.
+* Reduced string allocations in MultipartSigned.Verify() and MultipartEncrypted.Decrypt().
+* Fixed OpenPgpContext.Decrypt() to make sure to always clean up MemoryBlockStreams.
+* Added a bunch more HeaderId enum values.
+* Improved header folding logic for headers with long words. (issue #451)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

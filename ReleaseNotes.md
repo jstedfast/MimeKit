@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 2.1.0
+
+* Optimized SecureMimeCryptographyContext.Supports() and OpenPgpCryptographyContext.Supports()
+  implementations.
+* Optimized the OptimizedOrdinalIgnoreCaseComparer even more.
+* Fixed OpenPgpDigitalCertificate.ExpirationDate for PGP keys that never expire.
+* Reduced string allocations in MultipartSigned.Verify() and MultipartEncrypted.Decrypt().
+* Fixed OpenPgpContext.Decrypt() to make sure to always clean up MemoryBlockStreams.
+* Added a bunch more HeaderId enum values.
+* Improved header folding logic for headers with long words.
+  (issue [#451](https://github.com/jstedfast/MimeKit/issues/451))
+
 ### MimeKit 2.0.7
 
 * Fixed a bug in the UUEncoder.
