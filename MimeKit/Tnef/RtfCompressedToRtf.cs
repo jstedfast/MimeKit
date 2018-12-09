@@ -247,7 +247,7 @@ namespace MimeKit.Tnef {
 			outputLength = 0;
 			outputIndex = 0;
 
-			while (index < endIndex) {
+			while (index < endIndex && state != FilterState.Complete) {
 				byte value = input[index++];
 
 				crc32.Update (value);
@@ -318,8 +318,6 @@ namespace MimeKit.Tnef {
 					} else {
 						state = FilterState.BeginControlRun;
 					}
-					break;
-				case FilterState.Complete:
 					break;
 				}
 			}
