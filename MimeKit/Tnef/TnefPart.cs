@@ -309,15 +309,10 @@ namespace MimeKit.Tnef {
 								attachment.FileName = prop.ReadValueAsString ();
 							break;
 						case TnefPropertyId.AttachContentLocation:
-							text = prop.ReadValueAsString ();
-							if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
-								attachment.ContentLocation = new Uri (text, UriKind.Absolute);
-							else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
-								attachment.ContentLocation = new Uri (text, UriKind.Relative);
+							attachment.ContentLocation = prop.ReadValueAsUri ();
 							break;
 						case TnefPropertyId.AttachContentBase:
-							text = prop.ReadValueAsString ();
-							attachment.ContentBase = new Uri (text, UriKind.Absolute);
+							attachment.ContentBase = prop.ReadValueAsUri ();
 							break;
 						case TnefPropertyId.AttachContentId:
 							attachment.ContentId = prop.ReadValueAsString ();

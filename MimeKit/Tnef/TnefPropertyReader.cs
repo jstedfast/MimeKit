@@ -1524,6 +1524,32 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
+		/// Reads the value as a Uri.
+		/// </summary>
+		/// <remarks>
+		/// Reads any string or binary blob values as a Uri.
+		/// </remarks>
+		/// <returns>The value as a Uri.</returns>
+		/// <exception cref="System.InvalidOperationException">
+		/// There are no more values to read or the value could not be read as a string.
+		/// </exception>
+		/// <exception cref="System.IO.EndOfStreamException">
+		/// The TNEF stream is truncated and the value could not be read.
+		/// </exception>
+		internal Uri ReadValueAsUri ()
+		{
+			var value = ReadValueAsString ();
+
+			if (Uri.IsWellFormedUriString (value, UriKind.Absolute))
+				return new Uri (value, UriKind.Absolute);
+
+			if (Uri.IsWellFormedUriString (value, UriKind.Relative))
+				return new Uri (value, UriKind.Relative);
+
+			return null;
+		}
+
+		/// <summary>
 		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyReader"/> object.
 		/// </summary>
 		/// <remarks>
