@@ -91,7 +91,6 @@ namespace UnitTests.Tnef {
 
 				stream.Write (invalidSignature, 0, invalidSignature.Length);
 				stream.WriteByte (0);
-				stream.WriteByte (0);
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
@@ -108,12 +107,98 @@ namespace UnitTests.Tnef {
 				stream.Write (invalidSignature, 0, invalidSignature.Length);
 				stream.WriteByte (0);
 				stream.WriteByte (0);
-				stream.WriteByte (0);
-				stream.WriteByte (0);
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestReadInt32 ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var signature = BitConverter.GetBytes (0x223e9f78);
+
+				stream.Write (signature, 0, signature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+
+				var buffer = BitConverter.GetBytes (1060);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					var value = reader.ReadInt32 ();
+
+					Assert.AreEqual (1060, value);
+				}
+			}
+		}
+
+		[Test]
+		public void TestReadInt64 ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var signature = BitConverter.GetBytes (0x223e9f78);
+
+				stream.Write (signature, 0, signature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+
+				var buffer = BitConverter.GetBytes ((long) 1060);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					var value = reader.ReadInt64 ();
+
+					Assert.AreEqual (1060, value);
+				}
+			}
+		}
+
+		[Test]
+		public void TestReadDouble ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var signature = BitConverter.GetBytes (0x223e9f78);
+
+				stream.Write (signature, 0, signature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+
+				var buffer = BitConverter.GetBytes (1024.1024);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					var value = reader.ReadDouble ();
+
+					Assert.AreEqual (1024.1024, value);
+				}
+			}
+		}
+
+		[Test]
+		public void TestReadSingle ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var signature = BitConverter.GetBytes (0x223e9f78);
+
+				stream.Write (signature, 0, signature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+
+				var buffer = BitConverter.GetBytes ((float) 1024.1024);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					var value = reader.ReadSingle ();
+
+					Assert.AreEqual ((float) 1024.1024, value);
 				}
 			}
 		}

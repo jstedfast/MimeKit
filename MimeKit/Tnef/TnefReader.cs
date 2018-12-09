@@ -454,32 +454,6 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		static unsafe void Load32BitValue (byte *dest, byte[] src, int startIndex)
-		{
-			if (BitConverter.IsLittleEndian) {
-				dest[0] = src[startIndex];
-				dest[1] = src[startIndex + 1];
-				dest[2] = src[startIndex + 2];
-				dest[3] = src[startIndex + 3];
-			} else {
-				dest[0] = src[startIndex + 3];
-				dest[1] = src[startIndex + 2];
-				dest[2] = src[startIndex + 1];
-				dest[3] = src[startIndex];
-			}
-		}
-
-		static unsafe void Load64BitValue (byte *dest, byte[] src, int startIndex)
-		{
-			if (BitConverter.IsLittleEndian) {
-				for (int i = 0; i < 8; i++)
-					dest[i] = src[startIndex + i];
-			} else {
-				for (int i = 0; i < 8; i++)
-					dest[i] = src[startIndex + (7 - i)];
-			}
-		}
-
 		internal byte ReadByte ()
 		{
 			if (ReadAhead (1) < 1)
@@ -520,46 +494,41 @@ namespace MimeKit.Tnef {
 				(input[inputIndex + 2] << 16) | (input[inputIndex + 3] << 24);
 		}
 
-		internal unsafe long ReadInt64 ()
+		internal long ReadInt64 ()
 		{
 			if (ReadAhead (8) < 8)
 				throw new EndOfStreamException ();
 
-			long value;
-
-			Load32BitValue ((byte *) &value, input, inputIndex);
 			UpdateChecksum (input, inputIndex, 8);
-			inputIndex += 8;
 
-			return value;
+			return (long) input[inputIndex++] | ((long) input[inputIndex++] << 8) |
+				((long) input[inputIndex++] << 16) | ((long) input[inputIndex++] << 24) |
+				((long) input[inputIndex++] << 32) | ((long) input[inputIndex++] << 40) |
+				((long) input[inputIndex++] << 48) | ((long) input[inputIndex++] << 56);
 		}
 
-		internal unsafe float ReadSingle ()
+		static unsafe float Int32BitsToSingle (int value)
 		{
-			if (ReadAhead (4) < 4)
-				throw new EndOfStreamException ();
-
-			float value;
-
-			Load32BitValue ((byte *) &value, input, inputIndex);
-			UpdateChecksum (input, inputIndex, 4);
-			inputIndex += 4;
-
-			return value;
+			return *((float*) &value);
 		}
 
-		internal unsafe double ReadDouble ()
+		internal float ReadSingle ()
 		{
-			if (ReadAhead (8) < 8)
-				throw new EndOfStreamException ();
+			var value = ReadInt32 ();
 
-			double value;
+			return Int32BitsToSingle (value);
+		}
 
-			Load64BitValue ((byte *) &value, input, inputIndex);
-			UpdateChecksum (input, inputIndex, 8);
-			inputIndex += 8;
+		static unsafe double Int64BitsToDouble (long value)
+		{
+			return *((double*) &value);
+		}
 
-			return value;
+		internal double ReadDouble ()
+		{
+			var value = ReadInt64 ();
+
+			return Int64BitsToDouble (value);
 		}
 
 		internal bool Seek (int offset)
