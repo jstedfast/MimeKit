@@ -489,7 +489,6 @@ namespace UnitTests.Tnef {
 						case TnefPropertyId.AttachData:
 							var stream = prop.GetRawValueReadStream ();
 							var content = new MemoryStream ();
-							var guid = new byte[16];
 
 							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								var tnef = new TnefPart ();
@@ -502,8 +501,6 @@ namespace UnitTests.Tnef {
 
 								attachment = tnef;
 							}
-
-							stream.Read (guid, 0, 16);
 
 							stream.CopyTo (content, 4096);
 

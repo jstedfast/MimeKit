@@ -269,7 +269,6 @@ namespace MimeKit.Tnef {
 						case TnefPropertyId.AttachData:
 							var stream = prop.GetRawValueReadStream ();
 							var content = new MemoryStream ();
-							var guid = new byte[16];
 
 							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								var tnef = new TnefPart ();
@@ -282,9 +281,6 @@ namespace MimeKit.Tnef {
 
 								attachment = tnef;
 							}
-
-							// read the GUID
-							stream.Read (guid, 0, 16);
 
 							// the rest is content
 							using (var filtered = new FilteredStream (content)) {
