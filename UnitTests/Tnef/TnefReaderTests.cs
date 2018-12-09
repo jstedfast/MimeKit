@@ -74,8 +74,47 @@ namespace UnitTests.Tnef {
 			using (var stream = new MemoryStream ()) {
 				Assert.Throws<TnefException> (() => new TnefReader (stream, 0, TnefComplianceMode.Strict));
 
-				var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
-				Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+
+					reader.ResetComplianceStatus ();
+					Assert.AreEqual (TnefComplianceStatus.Compliant, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestTruncatedHeaderAfterSignature ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var invalidSignature = BitConverter.GetBytes (0x223e9f78);
+
+				stream.Write (invalidSignature, 0, invalidSignature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidSignature ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var invalidSignature = BitConverter.GetBytes (0x223e9f79);
+
+				stream.Write (invalidSignature, 0, invalidSignature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, reader.ComplianceStatus);
+				}
 			}
 		}
 	}

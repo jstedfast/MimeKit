@@ -639,6 +639,9 @@ namespace UnitTests.Tnef {
 					break;
 				case TnefAttributeTag.TnefVersion:
 					//Console.WriteLine ("Message Attribute: {0} = {1}", reader.AttributeTag, prop.ReadValueAsInt32 ());
+					var version = prop.ReadValueAsInt32 ();
+					Assert.AreEqual (65536, version, "version");
+					Assert.AreEqual (65536, reader.TnefVersion, "TnefVersion");
 					break;
 				case TnefAttributeTag.OemCodepage:
 					int codepage = prop.ReadValueAsInt32 ();
