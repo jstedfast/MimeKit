@@ -384,7 +384,6 @@ namespace MimeKit.Tnef {
 				AttachmentKey = ReadInt16 ();
 			} catch (EndOfStreamException) {
 				SetComplianceError (TnefComplianceStatus.StreamTruncated);
-				throw;
 			}
 		}
 
