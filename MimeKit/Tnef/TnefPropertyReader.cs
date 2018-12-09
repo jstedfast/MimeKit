@@ -329,7 +329,8 @@ namespace MimeKit.Tnef {
 			if (valueIndex >= valueCount)
 				throw new InvalidOperationException ();
 
-			int end = RawValueStreamOffset + RawValueLength;
+			int startOffset = RawValueStreamOffset;
+			int length = RawValueLength;
 
 			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
@@ -337,14 +338,19 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
-					ReadInt32 ();
+					int n = ReadInt32 ();
+					if (n >= 0 && n + 4 < length)
+						length = n + 4;
 					break;
 				}
 			}
 
 			valueIndex++;
 
-			return new TnefReaderStream (reader, end);
+			int valueEndOffset = startOffset + RawValueLength;
+			int dataEndOffset = startOffset + length;
+
+			return new TnefReaderStream (reader, dataEndOffset, valueEndOffset);
 		}
 
 		bool CheckRawValueLength ()

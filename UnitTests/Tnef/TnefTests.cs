@@ -657,9 +657,24 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		static byte[] ReadAllBytes (Stream stream, bool text)
+		{
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					if (text)
+						filtered.Add (new Dos2UnixFilter (true));
+					stream.CopyTo (filtered, 4096);
+					filtered.Flush ();
+
+					return memory.ToArray ();
+				}
+			}
+		}
+
 		static void TestTnefParser (string path, TnefComplianceStatus expected = TnefComplianceStatus.Compliant)
 		{
 			var message = ParseTnefMessage (path + ".tnef", expected);
+			var tnefName = Path.GetFileName (path + ".tnef");
 			var names = File.ReadAllLines (path + ".list");
 
 			foreach (var name in names) {
@@ -681,6 +696,7 @@ namespace UnitTests.Tnef {
 				var tnef = new TnefPart { Content = new MimeContent (content) };
 				var attachments = tnef.ExtractAttachments ().ToList ();
 
+				// Step 1: make sure we've extracted the body and all of the attachments
 				foreach (var name in names) {
 					bool found = false;
 
@@ -708,6 +724,57 @@ namespace UnitTests.Tnef {
 
 					if (!found)
 						Assert.Fail ("Failed to locate attachment in TnefPart: {0}", name);
+				}
+
+				// Step 2: verify that the content of the extracted attachments matches up with the expected content
+				int untitled = 1;
+				foreach (var part in attachments.OfType<MimePart> ()) {
+					var isText = false;
+					string fileName;
+
+					if (part is TextPart text && string.IsNullOrEmpty (part.FileName)) {
+						if (text.IsHtml)
+							fileName = "message.html";
+						else if (text.IsRichText)
+							fileName = "message.rtf";
+						else
+							fileName = "message.txt";
+
+						isText = true;
+					} else if (part.FileName == "Untitled Attachment") {
+						// special case for winmail.tnef
+						fileName = string.Format ("Untitled Attachment.{0}", untitled++);
+					} else {
+						var extension = Path.GetExtension (part.FileName);
+
+						switch (extension) {
+						case ".cfg":
+						case ".dat":
+						case ".htm":
+						case ".ini":
+							isText = true;
+							break;
+						}
+
+						fileName = part.FileName;
+					}
+
+					var file = Path.Combine (path, fileName);
+
+					if (!File.Exists (file))
+						continue;
+
+					byte[] expectedData, actualData;
+
+					using (var stream = File.OpenRead (file))
+						expectedData = ReadAllBytes (stream, isText);
+
+					using (var stream = part.Content.Open ())
+						actualData = ReadAllBytes (stream, isText);
+
+					Assert.AreEqual (expectedData.Length, actualData.Length, $"{tnefName}: {fileName} content length does not match");
+					for (int i = 0; i < expectedData.Length; i++)
+						Assert.AreEqual (expectedData[i], actualData[i], $"{tnefName}: {fileName} content differs at index {i}");
 				}
 			}
 		}
@@ -838,7 +905,7 @@ namespace UnitTests.Tnef {
 				using (var reader = new TnefReader (stream)) {
 					var buffer = new byte[1024];
 
-					using (var tnef = new TnefReaderStream (reader, 0)) {
+					using (var tnef = new TnefReaderStream (reader, 0, 0)) {
 						Assert.IsTrue (tnef.CanRead);
 						Assert.IsFalse (tnef.CanWrite);
 						Assert.IsFalse (tnef.CanSeek);
