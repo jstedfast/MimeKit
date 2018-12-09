@@ -162,7 +162,7 @@ namespace MimeKit.Tnef {
 				try {
 					var encoding = Encoding.GetEncoding (value);
 					codepage = encoding.CodePage;
-				} catch (ArgumentOutOfRangeException ex) {
+				} catch (ArgumentException ex) {
 					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
 					if (ComplianceMode == TnefComplianceMode.Strict)
 						throw new TnefException (TnefComplianceStatus.InvalidMessageCodepage, string.Format ("Invalid message codepage: {0}", value), ex);

@@ -99,7 +99,7 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		public void TestInvalidSignature ()
+		public void TestInvalidSignatureLoose ()
 		{
 			using (var stream = new MemoryStream ()) {
 				var invalidSignature = BitConverter.GetBytes (0x223e9f79);
@@ -111,6 +111,129 @@ namespace UnitTests.Tnef {
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidSignatureStrict ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var invalidSignature = BitConverter.GetBytes (0x223e9f79);
+				TnefReader reader;
+
+				stream.Write (invalidSignature, 0, invalidSignature.Length);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.Position = 0;
+
+				try {
+					reader = new TnefReader (stream, 0, TnefComplianceMode.Strict);
+					Assert.Fail ("new TnefReader should have thrown TnefException");
+				} catch (TnefException ex) {
+					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, ex.Error, "Error");
+				} catch (Exception ex) {
+					Assert.Fail ("new TnefReader should have thrown TnefException, not {0}", ex);
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidOemCodepageLoose ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.OemCodepage), 0, 4);
+				stream.Write (BitConverter.GetBytes (4), 0, 4);
+				stream.Write (BitConverter.GetBytes (1), 0, 4);
+
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
+					Assert.AreEqual (TnefAttributeTag.OemCodepage, reader.AttributeTag, "AttributeTag");
+					Assert.AreEqual (TnefComplianceStatus.InvalidMessageCodepage, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidOemCodepageStrict ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.OemCodepage), 0, 4);
+				stream.Write (BitConverter.GetBytes (4), 0, 4);
+				stream.Write (BitConverter.GetBytes (1), 0, 4);
+
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
+					try {
+						reader.ReadNextAttribute ();
+						Assert.Fail ("ReadNextAttribute should have thrown TnefException");
+					} catch (TnefException ex) {
+						Assert.AreEqual (TnefComplianceStatus.InvalidMessageCodepage, ex.Error, "Error");
+					} catch (Exception ex) {
+						Assert.Fail ("ReadNextAttribute should have thrown TnefException, not {0}", ex);
+					}
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidTnefVersionLoose ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.TnefVersion), 0, 4);
+				stream.Write (BitConverter.GetBytes (4), 0, 4);
+				stream.Write (BitConverter.GetBytes (1), 0, 4);
+
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
+					Assert.AreEqual (TnefAttributeTag.TnefVersion, reader.AttributeTag, "AttributeTag");
+					reader.TnefPropertyReader.ReadValueAsInt32 ();
+					Assert.AreEqual (1, reader.TnefVersion, "TnefVersion");
+					Assert.AreEqual (TnefComplianceStatus.InvalidTnefVersion, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidTnefVersionStrict ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.TnefVersion), 0, 4);
+				stream.Write (BitConverter.GetBytes (4), 0, 4);
+				stream.Write (BitConverter.GetBytes (1), 0, 4);
+
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
+					try {
+						reader.ReadNextAttribute ();
+						Assert.Fail ("ReadNextAttribute should have thrown TnefException");
+					} catch (TnefException ex) {
+						Assert.AreEqual (TnefComplianceStatus.InvalidTnefVersion, ex.Error, "Error");
+					} catch (Exception ex) {
+						Assert.Fail ("ReadNextAttribute should have thrown TnefException, not {0}", ex);
+					}
 				}
 			}
 		}
