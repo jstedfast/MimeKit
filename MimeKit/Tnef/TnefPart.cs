@@ -122,6 +122,8 @@ namespace MimeKit.Tnef {
 		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
 		{
 			var prop = reader.TnefPropertyReader;
+			string normalizedSubject = null;
+			string subjectPrefix = null;
 
 			while (prop.ReadNextProperty ()) {
 				switch (prop.PropertyTag.Id) {
@@ -135,6 +137,18 @@ namespace MimeKit.Tnef {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.Subject = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.SubjectPrefix:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						subjectPrefix = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.NormalizedSubject:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						normalizedSubject = prop.ReadValueAsString ();
 					}
 					break;
 				case TnefPropertyId.RtfCompressed:
@@ -208,6 +222,13 @@ namespace MimeKit.Tnef {
 					}
 					break;
 				}
+			}
+
+			if (string.IsNullOrEmpty (message.Subject) && !string.IsNullOrEmpty (normalizedSubject)) {
+				if (!string.IsNullOrEmpty (subjectPrefix))
+					message.Subject = subjectPrefix + normalizedSubject;
+				else
+					message.Subject = normalizedSubject;
 			}
 		}
 

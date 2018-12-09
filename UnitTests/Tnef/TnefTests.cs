@@ -157,6 +157,7 @@ namespace UnitTests.Tnef {
 
 		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
 		{
+			string normalizedSubject = null, subjectPrefix = null;
 			var prop = reader.TnefPropertyReader;
 			var chars = new char[1024];
 			var buf = new byte[1024];
@@ -271,7 +272,7 @@ namespace UnitTests.Tnef {
 					break;
 				case TnefPropertyId.SubjectPrefix:
 					Assert.AreEqual (typeof (string), type);
-					value = prop.ReadValueAsString ();
+					subjectPrefix = prop.ReadValueAsString ();
 					break;
 				case TnefPropertyId.MessageSubmissionId:
 					Assert.AreEqual (typeof (byte[]), type);
@@ -291,7 +292,7 @@ namespace UnitTests.Tnef {
 					break;
 				case TnefPropertyId.NormalizedSubject:
 					Assert.AreEqual (typeof (string), type);
-					value = prop.ReadValueAsString ();
+					normalizedSubject = prop.ReadValueAsString ();
 					break;
 				case TnefPropertyId.CreationTime:
 					Assert.AreEqual (typeof (DateTime), type);
@@ -390,6 +391,13 @@ namespace UnitTests.Tnef {
 					Assert.AreEqual (type, value.GetType (), "Unexpected value type for {0}: {1}", prop.PropertyTag, value.GetType ().Name);
 					break;
 				}
+			}
+
+			if (string.IsNullOrEmpty (message.Subject) && !string.IsNullOrEmpty (normalizedSubject)) {
+				if (!string.IsNullOrEmpty (subjectPrefix))
+					message.Subject = subjectPrefix + normalizedSubject;
+				else
+					message.Subject = normalizedSubject;
 			}
 		}
 
