@@ -1,0 +1,1691 @@
+*PROC CIRREQ01
+*-----------------------------------------------------------------------------
+*
+* Title:         Patron Request Report
+* File:          PATRQT01.PRC
+* Author:        Information Dimensions, Inc.  (TD)
+*
+* Description:   A list of patron requests
+*
+* Input Parameters:
+*                OUTPUT - may be 'REVIEW','PRINT'.  Review displays report
+*                         on screen, print outputs to file for printing.
+*
+*                START_DATE/END_DATE - find where CIRC_REQUEST.ADD_DT
+*                                      is in range
+*
+*                CIRC_SORT_KEY - option to sort by title, patron name,
+*                                or patron id
+*
+*                HOLD_SORT_KEY - option to sort by title, patron id,
+*                                patron name, or call number.
+*
+* Other Selection Criteria:
+*                LIBR_KEY - Restrict to certain libraries.
+*
+*                ALL - Boolean value; set true by Slang if no params entered
+*
+* Output File:   patrqt01.rpt
+*
+* Record Types Referenced:
+*                TEMPLATE, COPY, CAT, CIRC_REQUEST
+* Buffers:       @A    @B    @C    @D
+*
+* Report Name:   Cairculation Requests
+*
+* Report No.:    PATRQT01
+*
+* Menu Access:   CATALOG REPORTS
+*
+* Parameter
+* Input Screen:  CATRPT12
+*
+* Templates:     REPORT_HDR, BIB_PATRON, COPY_NOCIRC, COPY_NOCIRC_S,
+*                PATRON_REQUEST.
+*
+*------------------------------------------------------------------------------
+*
+* Revision History:
+*
+*          Date          Revised By        Description
+*        --------        ----------        -----------
+*        11/20/89        DeFrench          Initial Version
+*        03/28/91        Sandstrom         Add LIBR_KEY to find commands.
+*        04/25/91        Sandstrom         Add MATERIAL_TYPE to FIND commands.
+*        07/03/91        MChung            Substitute tabs with 8 spaces and
+*                                          spelling checks
+*
+*------------------------------------------------------------------------------
+*
+START:
+        ACQUIRE/PV MESSAGE 46707, C2=MSG
+        TELL MSG,$B
+        ON/BREAK BREAKERR
+        ON/EXCEPTION EXCEPTION
+        ON/SYNTAX SYNTAXERR
+        SET/DEFAULT RESULT   = N
+        SET/PV      PV_TODAY = $YYYYMMDD
+        SET/PV      PRINTTOP = 1
+        SET/PV      RPTNM    = 'PATRQT01'
+        SET/PV      RPTTTL   = 'Circulation/Holds report'
+        SET/PV      PGNO     = 0
+* Set up for desired output method
+        SELECT (OUTPUT)
+            CASE 'REVIEW'
+                SET/PV MAXLINES  = 20
+                SET/PV PV_FILEID = ''
+            CASE 'PRINT'
+                SET/PV MAXLINES  = 60
+                OPEN/F patrqt01.rpt, FID=A, INTENT=WRITE, +
+                       CARRIAGE=YES, ERR=OPENERR
+                SET/PV PV_FILEID = ',FID=A'
+        END_SELECT
+*
+        GET/VIEW [TEMPLATE_KEY = 'REPORT_HDR']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV HEADER       = TEXT@A
+        GET/VIEW [TEMPLATE_KEY='REQ_HDR']TEMPLATE@A, ERR=VIEWERR
+        ASSIGN/PV REQ_HDR = TEXT@A
+        GET/VIEW [TEMPLATE_KEY = 'PATRON_REQUEST']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV RQTINFO     = TEXT@A
+        GET/VIEW [TEMPLATE_KEY = 'BIB_PATRON']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV CATINFO     = TEXT@A
+        GET/VIEW [TEMPLATE_KEY = 'COPY_NOCIRC']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV COPYINFO     = TEXT@A
+        GET/VIEW [TEMPLATE_KEY = 'COPY_NOCIRC_S']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV SCOPYINFO     = TEXT@A
+        SET/PV CALLOC = 'CATR'
+*
+* Begin construction of FIND command.
+*
+        SET/PV PV_FINDCMD = 'FIND CIRC_REQUEST,CATR,COPY,material_type ' //+
+                'WHERE CIRC_REQUEST.CATNO:=CATR.CATNO ' //+
+                'AND CIRC_REQUEST.ITEMID:=COPY.ITEMID ' //+
+                'AND MATERIAL_TYPE.TYPE:=CATR.MTYPE '//+
+                'AND CIRC_REQUEST.REQUEST_TYPE=''C'' '
+*
+* Add Library to find.
+*
+        DELETE/GV OUTLC
+        DELETE/GV OUTSTR
+        DELETE/GV INSTR
+        SET/GV INSTR = LIBR_KEY
+        @/PL='$TLP_PROC/generpts' QTBLKS01, VFLDNM='COPY.LIBR_KEY'
+        SET/PV SAVE_OUTSTR = '(' //OUTSTR
+        SET/PV PV_FINDCMD  = PV_FINDCMD // 'AND (' // OUTSTR //' '
+*
+        DELETE/GV OUTLC
+        DELETE/GV OUTSTR
+        DELETE/GV INSTR
+        SET/GV INSTR = LIBR_KEY
+        @/PL='$TLP_PROC/generpts' QTBLKS01, +
+             VFLDNM='CIRC_REQUEST.PLACED_LIBR_KEY'
+        SET/PV SAVE_OUTSTR = SAVE_OUTSTR// ' OR ' //OUTSTR //') '
+        SET/PV PV_FINDCMD  = PV_FINDCMD // 'OR ' // OUTSTR //') '
+*
+* Add the date fields if they were passed.
+*
+        IF (START_DATE <> '')
+                SET/PV PV_FINDCMD = PV_FINDCMD //+
+                ' AND CIRC_REQUEST.ADD_DT = '//START_DATE//':'//END_DATE//' '
+        END_IF
+*
+* Append FIND for sort options.
+*
+        SET/PV PV_FINDCMD = PV_FINDCMD //+
+            ' ORDER BY !CIRC_SORT_KEY!, CATR.TI,CATR.PUBL, COPY.YEAR, ' //+
+                'COPY.LIBR_KEY, COPY.ITEMID, COPY.COPY'
+*
+* If output option is equal to 'PRINT', then delete the records
+* as they are printed.
+*
+        IF OUTPUT = 'PRINT'
+            START/TRANS SW=CIRC_REQUEST
+        END_IF
+*
+* Execute Find and set up for report generation
+*
+        !PV_FINDCMD! END REF=NO
+        ACQUIRE/PV MEMBERS, N1 = PV_NUMMEM
+        ACQUIRE/PV LASTSET, N1 = PV_FOUNDSET
+        JUMPIF (PV_NUMMEM = 0), DO_HOLDS
+*
+* Write initial header.
+*
+        IF OUTPUT = 'REVIEW'
+            CLEAR/SCREEN
+            SET/PV LINE_CNT =2
+        ELSE
+            TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+        END_IF
+*
+        SET/PV PGNO = PGNO + 1
+        TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+            SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+        TYPE !REQ_HDR!, $S2, LABELS = N, SKIP = 0, +
+            SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+        SET/PV LINE_CNT = 8
+*
+* Step through members of set, generating correct output for each.
+*
+        FOR PV_Q = 1, PV_NUMMEM
+*
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]CIRC_REQUEST@D, ERR = VIEWERR
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]CATR@B, ERR = VIEWERR
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]COPY@C, ERR = VIEWERR
+*
+            ASSIGN/PV CATDOC = CATR.DOC@B
+            IF CATDOC = 'SER'
+               TYPE !CATINFO!,!SCOPYINFO!,!RQTINFO!,LABELS=NO, SKIP=1, +
+                        SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+               SET/PV LINE_CNT = LINE_CNT + 12
+            ELSE
+               TYPE !CATINFO!,!COPYINFO!,!RQTINFO!,LABELS=NO, SKIP=1, +
+                        SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+               SET/PV LINE_CNT = LINE_CNT + 12
+            END_IF
+            IF OUTPUT = 'PRINT'
+                 DELETE [!PV_FOUNDSET!,!PV_Q!]CIRC_REQUEST
+            END_IF
+*
+* Check for a page break.
+*
+            IF LINE_CNT > MAXLINES
+                IF OUTPUT = 'REVIEW'
+                    ACQUIRE/PV MESSAGE 46710, C2=MSG
+                    INQUIRE/PV PV_QUIT, '!MSG!'
+                    JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                     CLEAR/SCREEN
+                    SET/PV LINE_CNT =2
+                ELSE
+                    TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+                END_IF
+*
+                SET/PV PGNO = PGNO + 1
+                TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+                    SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+                SET/PV LINE_CNT = 7
+            END_IF
+*
+        END_FOR
+*****************************************************
+*****************************************************
+DO_HOLDS:
+*
+* Begin construction of the HOLDS FIND command.
+*
+        SET/PV PV_FINDCMD = 'FIND CIRC_REQUEST,CATR,COPY,MATERIAL_TYPE ' //+
+                'WHERE CIRC_REQUEST.CATNO:=CATR.CATNO ' //+
+                'AND CIRC_REQUEST.ITEMID:=COPY.ITEMID ' //+
+                'AND MATERIAL_TYPE.TYPE:=CATR.MTYPE '//+
+                'AND CIRC_REQUEST.REQUEST_TYPE=''H'' '//+
+                'AND ' // SAVE_OUTSTR // ' '
+*
+* Add the date fields if they were passed.
+*
+        IF (START_DATE <> '')
+                SET/PV PV_FINDCMD = PV_FINDCMD //+
+                ' AND CIRC_REQUEST.ADD_DT = '//START_DATE//':'//END_DATE//' '
+        END_IF
+*
+* Append FIND for sort options.
+*
+        SET/PV PV_FINDCMD = PV_FINDCMD //+
+            ' ORDER BY !HOLD_SORT_KEY!, CATR.TI,CATR.PUBL, COPY.YEAR, ' //+
+                'COPY.LIBR_KEY, COPY.ITEMID, COPY.COPY'
+*
+* Execute Find and set up for report generation
+*
+        !PV_FINDCMD! END REF=NO
+        ACQUIRE/PV MEMBERS, N1 = PV_NUMMEM
+        ACQUIRE/PV LASTSET, N1 = PV_FOUNDSET
+        JUMPIF (PV_NUMMEM = 0), CLEANUP
+*
+* Write initial header.
+*
+        IF OUTPUT = 'REVIEW'
+            ACQUIRE/PV MESSAGE 46710, C2=MSG
+            INQUIRE/PV PV_QUIT, '!MSG!'
+            JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+            CLEAR/SCREEN
+            SET/PV LINE_CNT =2
+        ELSE
+            TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+        END_IF
+*
+        SET/PV PGNO = PGNO + 1
+        TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+            SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+        SET/PV LINE_CNT = 7
+*
+* Step through members of set, generating correct output for each.
+*
+        FOR PV_Q = 1, PV_NUMMEM
+*
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]CIRC_REQUEST@D, ERR = VIEWERR
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]CATR@B, ERR = VIEWERR
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]COPY@C, ERR = VIEWERR
+*
+            ASSIGN/PV HOLDTYPE = CIRC_REQUEST.HOLD_TYPE@D
+            SET/PV RHOLDTYPE = $RAISE(HOLDTYPE)
+            IF RHOLDTYPE = 'COPY'
+                 TYPE $S2, 'COPY level hold for:' +
+                    SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+            ELSE
+                 TYPE $S2, 'CAT level hold for:' +
+                    SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+            END_IF
+*
+* Choose the serials copy info if item is a serial.
+*
+            ASSIGN/PV CATDOC = CATR.DOC@B
+            IF CATDOC = 'SER'
+               TYPE !CATINFO!,!SCOPYINFO!,!RQTINFO!,LABELS=NO, SKIP=1, +
+                        SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+               SET/PV LINE_CNT = LINE_CNT + 12
+            ELSE
+               TYPE !CATINFO!,!COPYINFO!,!RQTINFO!,LABELS=NO, SKIP=1, +
+                        SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+               SET/PV LINE_CNT = LINE_CNT + 12
+            END_IF
+*
+* Delete the occurrence if print is selected
+*
+            IF OUTPUT = 'PRINT'
+                 DELETE [!PV_FOUNDSET!,!PV_Q!]CIRC_REQUEST
+            END_IF
+*
+* Check for a page break.
+*
+            IF LINE_CNT > MAXLINES
+                IF OUTPUT = 'REVIEW'
+                    ACQUIRE/PV MESSAGE 46710, C2=MSG
+                    INQUIRE/PV PV_QUIT, '!MSG!'
+                    JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                    CLEAR/SCREEN
+                    SET/PV LINE_CNT =2
+                ELSE
+                    TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+                END_IF
+*
+                SET/PV PGNO = PGNO + 1
+                TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+                    SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+                SET/PV LINE_CNT = 7
+            END_IF
+*
+        END_FOR
+*
+* Cleanup - close files and discard result sets.
+*
+CLEANUP:
+        ACQUIRE/PV MESSAGE 46708, C2=MSG
+        TELL MSG
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+QUIT:        ACQUIRE/PV LASTSET, N1 = PV_LASTSET
+        DISCARD !PV_FOUNDSET!:!PV_LASTSET!
+        SET/DEF RESULT = Y
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+                FINISH/TRANS
+        END_IF
+*
+* DONE - successful report generation; return to caller
+*
+DONE:
+        RETURN_TO_SCREEN
+*
+* Error - inform user and close file, if necessary.
+*
+SYNTAXERR:
+EXCEPTION:
+OPENERR:
+VIEWERR:
+        SHOW/MESSAGE !DMSTAT!
+        JUMP ERROR
+BREAKERR:
+        SHOW/MESSAGE 46700
+ERROR:
+        SHOW/MESSAGE 46703
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/FILE FID = A,ERR=$CONTINUE
+                ABORT/TRANSACTION, ERR=$CONTINUE
+        END_IF
+        SET/DEF RESULT = Y
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+        RETURN_TO_SCREEN
+*PROC FILOPN01
+*-----------------------------------------------------------------------------
+*
+* Title:        Generic File Open
+* File:         FILOPN01.PRC
+* Author:       Information Dimensions, Inc.  (BPM)
+*
+* Description:  This proc is designed as a subroutine that is called from
+*               other TLP procs to correctly open files in cases where the
+*               file may already exist.
+*
+* Input Parameters:
+*               FIL      The file descriptor to be opened.
+*               ID       The file ID to be assigned to this file.
+* Called by:    Any report that has an OPEN/FILE.
+* Call:         @/PL='$TLP_PROC/generpts' FILOPN01 FIL=!A!, ID=!B!
+*------------------------------------------------------------------------------
+* Revision History
+*
+*      Date Rev.      Revised By      Description
+*      ---------      ----------      --------------------------------
+*      04/07/93       BMOORE          Initial version
+*-----------------------------------------------------------------------------
+*
+START:
+*
+* Open the file.
+*
+OPEN/FILE  FD=!FIL! FID=!ID! INTENT=WRITE CARRIAGE=NO ERR=OPENERR
+SET/GV FILE_STATUS = 'OK'
+RETURN
+*
+* If error occurs, attempt to delete existing file and then open the file.
+*
+OPENERR:
+*
+DELETE/FILE !FIL!
+OPEN/FILE  FD=!FIL! FID=!ID! INTENT=WRITE CARRIAGE=NO ERR=OPENER2
+SET/GV FILE_STATUS = 'OK'
+RETURN
+*
+* If still unable to open the file, display message and return.
+*
+OPENER2:
+*
+SET/GV FILE_STATUS = 'OPEN_ERROR'
+TELL 'File cannot be opened.  Contact your DBA'
+RETURN
+*PROC GENPRT01
+*-----------------------------------------------------------------------------
+*
+* Title:        Generic Print Routine
+* File:         GENPRT01.PRC
+* Author:       Information Dimensions, Inc.  (BPM)
+*
+* Description:  This proc is designed as a subroutine that is called from
+*               other TLP procs to allow custom printing of reports.
+*               The proc uses the ROUTE/FILE command to route a file to the
+*	        printer of chice.  Consult the BASISplus Command Procedures
+*               manual for additional parameters.  Optionally, you can use
+*               a SPAWN command to call local procedures for printing.
+*
+* Input Parameters:
+*               FIL       The file descriptor to be sent to the printer.
+*               ERROR_FLG is 'Y' if called from within error branch of
+*                         the calling proc.
+*
+* Called by:    Any report that generates a printable file.
+*
+* Call:         @/PL=TLP$PROC:GENERPTS.LIB GENPRT01 FIL=!A! ERROR_FLG='N'
+*------------------------------------------------------------------------------
+* Revision History
+*
+*      Date Rev.      Revised By      Description
+*      ---------      ----------      --------------------------------
+*      04/08/93       BMOORE          Initial version
+*-----------------------------------------------------------------------------
+*
+ON/EXCEPTION $RETURN
+START:
+*
+****   ROUTE/FILE FD=!FIL!
+RETURN
+*PROC MAROUT01
+*-----------------------------------------------------------------------------
+*
+* Title:         Marc Output
+* File:          MAROUT01.PRC
+* Author:        Information Dimensions, Inc.  (HB)
+*
+* Description:   Create Marc Input file records that can be run using the Marc
+*                program
+*
+* Input Parameters:
+*                OUTPUT - may be 'REVIEW','PRINT'.  Review displays report
+*                         on screen, print outputs to file.
+*
+*                FORMAT - may be set to OCLC, LC, or PC
+*
+*                BLOCKSIZE - the length of each line in output file
+*
+*                FIND_CAT - where part of find command for cat record
+*
+*                FIND_COPY - where part of find command for copy record
+*
+*                CATNO - a string of CATNO's to search on
+*
+* Valid Combinations:
+*                OUTPUT, FORMAT, and BLOCKSIZE are required.
+*                User may enter one of: FIND_CAT OR FIND_COPY OR CATNO
+*
+* Output File:   marout01.rpt
+*                marout01.log
+*
+* Record Types Referenced:
+*                MARC
+* Buffers:       @A
+*
+* Report Name:   MARC OUTPUT
+*
+* Report No.:    MAROUT01
+*
+* Menu Access:   CATRPT01
+*
+* Parameter
+* Input Screen:  MARRPT10
+*
+* Templates:     none
+*
+*------------------------------------------------------------------------------
+*
+* Revision History:
+*
+*          Date          Revised By        Description
+*        --------        ----------        -----------
+*        04/25/90        Berger            Initial version
+*        04/26/90        Sandstrom         Added PC format code
+*        05/10/90        Sandstrom         Added LC format code
+*        05/11/90        Berger            Revisions to FIND_CAT and FIND_COPY
+*        07/03/91        MChung            Substitute tabs with 8 spaces and
+*                                          spelling checks
+*        12/02/91        Sandstrom         Changed log file open to handle
+*                                          error if log file already exists.
+*
+*------------------------------------------------------------------------------
+*
+START:
+        ACQUIRE/PV MESSAGE 46707, C2=MSG
+        TELL MSG,$B
+        ON/BREAK BREAKERR
+        ON/EXCEPTION EXCEPTION
+        ON/SYNTAX SYNTAXERR
+        SET/DEFAULT RESULT  = N
+        SET/PV LINE_CNT     = 1
+* Check for bad blocksize
+        IF BLOCKSIZE < 80
+            SET/PV BLOCKSIZE = 80
+        ELSE_IF BLOCKSIZE > 2048
+            SET/PV BLOCKSIZE = 2048
+        END_IF
+* Set up for desired output method
+        SELECT (OUTPUT)
+            CASE 'REVIEW'
+                SET/PV BLOCKSIZE = 80
+            CASE 'PRINT'
+                OPEN/FILE marout01.rpt, FID=A, +
+                        INTENT=WRITE,ERR=OPENERR, RECORDLC=!BLOCKSIZE!
+                SET/PV PV_FILEID = ',FID=A'
+        END_SELECT
+*
+* Construct find command for search on CAT record
+*
+        IF FIND_CAT <> NULL
+            SET/PV PV_FINDCMD = 'FIND CAT,MARC ' //+
+                'WHERE CAT.CATNO:=MARC.CATNO AND '
+            SET/PV FIND_CAT = $RAISE(FIND_CAT)
+*
+* Add CAT. to ambiguous fields in find command where it is not specified
+*
+            SET/PV PV_ADD = $MATCH('ADD_DT',FIND_CAT)
+            SET/PV PV_EXISTS = $MATCH('.ADD_DT',FIND_CAT)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_CAT = FIND_CAT[1:(PV_ADD-1)] // 'CAT.' //+
+                                  FIND_CAT[PV_ADD:*]
+            END_IF
+*
+            SET/PV PV_ADD = $MATCH('CATNO',FIND_CAT)
+            SET/PV PV_EXISTS = $MATCH('.CATNO',FIND_CAT)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_CAT = FIND_CAT[1:(PV_ADD-1)] // 'CAT.' //+
+                                  FIND_CAT[PV_ADD:*]
+            END_IF
+*
+            SET/PV PV_ADD = $MATCH('REV_DT',FIND_CAT)
+            SET/PV PV_EXISTS = $MATCH('.REV_DT',FIND_CAT)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_CAT = FIND_CAT[1:(PV_ADD-1)] // 'CAT.' //+
+                                  FIND_CAT[PV_ADD:*]
+            END_IF
+*
+            SET/PV PV_ADD = $MATCH('REV_UID',FIND_CAT)
+            SET/PV PV_EXISTS = $MATCH('.REV_UID',FIND_CAT)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_CAT = FIND_CAT[1:(PV_ADD-1)] // 'CAT.' //+
+                                  FIND_CAT[PV_ADD:*]
+            END_IF
+* Append restrictive condition to find command
+            SET/PV PV_FINDCMD = PV_FINDCMD // FIND_CAT
+*
+* Construct find command for search on COPY record
+*
+        ELSE_IF FIND_COPY <> NULL
+            SET/PV PV_FINDCMD = 'FIND COPY,MARC ' //+
+                'WHERE COPY.CATNO:=MARC.CATNO AND '
+            SET/PV FIND_COPY = $RAISE(FIND_COPY)
+*
+* Add COPY. to ambiguous fields in find command where it is not specified
+*
+            SET/PV PV_ADD = $MATCH('ADD_DT',FIND_COPY)
+            SET/PV PV_EXISTS = $MATCH('.ADD_DT',FIND_COPY)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_COPY = FIND_COPY[1:(PV_ADD-1)] // 'COPY.' //+
+                                  FIND_COPY[PV_ADD:*]
+            END_IF
+*
+            SET/PV PV_ADD = $MATCH('CATNO',FIND_COPY)
+            SET/PV PV_EXISTS = $MATCH('.CATNO',FIND_COPY)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_COPY = FIND_COPY[1:(PV_ADD-1)] // 'COPY.' //+
+                                  FIND_COPY[PV_ADD:*]
+            END_IF
+*
+            SET/PV PV_ADD = $MATCH('REV_DT',FIND_COPY)
+            SET/PV PV_EXISTS = $MATCH('.REV_DT',FIND_COPY)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_COPY = FIND_COPY[1:(PV_ADD-1)] // 'COPY.' //+
+                                  FIND_COPY[PV_ADD:*]
+            END_IF
+*
+            SET/PV PV_ADD = $MATCH('REV_UID',FIND_COPY)
+            SET/PV PV_EXISTS = $MATCH('.REV_UID',FIND_COPY)
+            IF (PV_ADD > 0) AND (PV_EXISTS = 0)
+                SET/PV FIND_COPY = FIND_COPY[1:(PV_ADD-1)] // 'COPY.' //+
+                                  FIND_COPY[PV_ADD:*]
+            END_IF
+* Append restrictive condition to find command
+            SET/PV PV_FINDCMD = PV_FINDCMD // FIND_COPY
+*
+* Construct find command for search on selected CATNO's
+*
+        ELSE_IF CATNO <> NULL
+            SET/PV PV_FINDCMD = 'FIND MARC WHERE MARC.CATNO =' //!CATNO!
+*
+* Construct default find command for no selected search criteria
+*
+        ELSE
+            SET/PV PV_FINDCMD = 'FIND MARC'
+        END_IF
+*
+* Add sort to the find command
+*
+        SET/PV PV_FINDCMD = PV_FINDCMD // ' ORDER BY MARC.CATNO END REF=NO'
+*
+* Write find command to log file
+*
+*        OPEN/FILE marout01.log,FID=B,INTENT=WRITE,CREATE=YES, +
+*                  CARRIAGE=YES, ERR=OPENERR
+*       smls19911202 changed error branch on log file open to $continue
+*                    and added test for dmstat.
+        OPEN/FILE marout01.log,FID=B,INTENT=WRITE,CREATE=YES, +
+                 ERR=$CONTINUE
+        IF DMSTAT <> 0
+           OPEN/FILE marout01.log,FID=B,INTENT=UPDATE,ERR=OPENERR
+        END_IF
+        PUT/FILE '                        Log File for MAROUT01',FID=B
+        PUT/FILE '                        ---------------------',FID=B
+        PUT/FILE $S2,'FIND COMMAND',$B,'------------',FID=B
+        SET/PV PV_FINDLEN = $LC(PV_FINDCMD)
+        SET/PV PV_POINT = 1
+        WHILE (PV_POINT <= PV_FINDLEN)
+            PUT/FILE PV_FINDCMD[PV_POINT:(PV_POINT+79)],FID=B
+            SET/PV PV_POINT = PV_POINT + 80
+        END_WHILE
+*
+* Execute find, store members and set in variables
+*
+        !PV_FINDCMD!,ERR=FNDERR
+        ACQUIRE/PV MEMBERS, N1 = PV_NUMMEM
+        ACQUIRE/PV LASTSET, N1 = PV_SET
+*
+* Write members to log file and close file
+*
+        PUT/FILE $S2,'NUMBER OF MEMBERS = ',PV_NUMMEM,FID=B
+        CLOSE/FILE FID=B
+*
+* Check for no hits
+*
+        IF (PV_NUMMEM <= 0)
+            SHOW/MESSAGE 46705
+            JUMP CLEANUP
+        END_IF
+*
+* Type output for specified formats
+*
+        SELECT (FORMAT)
+            CASE 'OCLC'
+*
+* Step through members of set, generating correct output for each.
+*
+                FOR PV_MEM = 1, PV_NUMMEM
+                    GET/VIEW[!PV_SET!,!PV_MEM!]MARC@A
+                    ASSIGN/PV PV_OUTDATA = MARC_DATA@A
+                    SET/PV PV_LENGTH     = $LC(PV_OUTDATA)
+                    SET/PV PV_POINT      = 1
+****** Loop through printing one record at a time ******
+                    WHILE (PV_POINT <= PV_LENGTH)
+                        IF OUTPUT = 'REVIEW'
+                            SET/PV LINE_CNT = LINE_CNT + 1
+******* Check for page break ********
+                            IF LINE_CNT >= 20
+                                ACQUIRE/PV MESSAGE 46710, C2=MSG
+                                INQUIRE/PV PV_QUIT, '!MSG!'
+                                JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                                CLEAR/SCREEN
+                                SET/PV LINE_CNT = 1
+                            END_IF
+                            TELL PV_OUTDATA[PV_POINT:(PV_POINT+BLOCKSIZE-1)]
+                        ELSE
+                            PUT/F PV_OUTDATA[PV_POINT:(PV_POINT+BLOCKSIZE-1)] +
+                                ,FID=A
+                        END_IF
+                        SET/PV PV_POINT = PV_POINT + BLOCKSIZE
+                    END_WHILE
+                END_FOR
+*
+            CASE 'PC'
+*
+*
+                    SET/PV PV_MEM       = 1
+                    SET/PV PV_POINT_OUT = 1
+GETPC:
+                    WHILE PV_MEM LE PV_NUMMEM
+*
+*  Get record
+*
+                    GET/VIEW[!PV_SET!,!PV_MEM!]MARC@A
+                    ASSIGN/PV PV_MARCDATA = MARC_DATA@A
+                    SET/PV PV_MARCDATA    = $TRIM (PV_MARCDATA)
+                    SET/PV PV_MEM         = PV_MEM + 1
+                    SET/PV PV_LENGTH      = PV_MARCDATA[1:5]
+                    SET/PV PV_SEGLEN      = PV_LENGTH
+                    SET/PV PV_POINT_IN    = 1
+*
+* Loop to build and write buffer
+*
+BLDPC:
+*
+*  Record will begin and end in this block....
+                    IF (PV_SEGLEN EQ PV_LENGTH) AND +
+                        PV_SEGLEN LE (BLOCKSIZE - PV_POINT_OUT + 1) THEN
+                       SET/PV PV_BUFFER[PV_POINT_OUT:PV_POINT_OUT+PV_SEGLEN-1]=+
+                              PV_MARCDATA[1:PV_LENGTH]
+                       SET/PV PV_POINT_OUT = PV_POINT_OUT + PV_SEGLEN
+                       SET/PV PV_SEGLEN = 0
+                       IF PV_POINT_OUT GT BLOCKSIZE THEN
+                          SET/PV PV_POINT_OUT = 1
+                          JUMP OUTPC
+                       END_IF
+                       JUMP GETPC
+                    END_IF
+*  Record will begin but not end in this block....
+                    IF (PV_SEGLEN EQ PV_LENGTH) AND +
+                        PV_SEGLEN GT (BLOCKSIZE - PV_POINT_OUT + 1) THEN
+                       SET/PV PV_BUFFER[PV_POINT_OUT:BLOCKSIZE] = +
+                              PV_MARCDATA[1:BLOCKSIZE-PV_POINT_OUT+1]
+                       SET/PV PV_SEGLEN = PV_SEGLEN - (BLOCKSIZE-PV_POINT_OUT+1)
+                       SET/PV PV_POINT_IN = PV_POINT_IN+BLOCKSIZE-PV_POINT_OUT+1
+                       SET/PV PV_POINT_OUT = 1
+                       JUMP OUTPC
+                    END_IF
+*  Record will end but not begin in this block....
+                    IF (PV_SEGLEN NE PV_LENGTH) AND +
+                        PV_SEGLEN LE (BLOCKSIZE - PV_POINT_OUT + 1) THEN
+                       SET/PV PV_BUFFER[PV_POINT_OUT:*] = +
+                              PV_MARCDATA[PV_POINT_IN:PV_POINT_IN+PV_SEGLEN-1]
+                       SET/PV PV_POINT_OUT = PV_SEGLEN + 1
+                       IF PV_POINT_OUT GT BLOCKSIZE THEN
+                          SET/PV PV_POINT_OUT = 1
+                          SET/PV PV_SEGLEN = 0
+                          JUMP OUTPC
+                       END_IF
+                       JUMP GETPC
+                    END_IF
+*  Record will not begin or end in this block....
+                    IF (PV_SEGLEN NE PV_LENGTH) AND +
+                        PV_SEGLEN GT (BLOCKSIZE - PV_POINT_OUT + 1) THEN
+                       SET/PV PV_BUFFER[PV_POINT_OUT:BLOCKSIZE] = +
+                              PV_MARCDATA[PV_POINT_IN:PV_POINT_IN+BLOCKSIZE-1]
+                       SET/PV PV_SEGLEN = PV_SEGLEN - BLOCKSIZE
+                       SET/PV PV_POINT_IN = PV_POINT_IN + BLOCKSIZE
+                       JUMP OUTPC
+                    END_IF
+OUTPC:
+                    IF OUTPUT = 'REVIEW'
+                         SET/PV LINE_CNT = LINE_CNT + 1
+******* Check for page break ********
+                       IF LINE_CNT >= 20
+                          ACQUIRE/PV MESSAGE 46710, C2=MSG
+                          INQUIRE/PV PV_QUIT, '!MSG!'
+                          JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                          CLEAR/SCREEN
+                          SET/PV LINE_CNT = 1
+                       END_IF
+                         TELL PV_BUFFER[1:BLOCKSIZE]
+                      ELSE
+                         PUT/F PV_BUFFER[1:BLOCKSIZE] ,FID=A
+                     END_IF
+*
+                    IF PV_SEGLEN EQ 0 THEN
+                       JUMP GETPC
+                    ELSE
+                       JUMP BLDPC
+                    END_IF
+                 END_WHILE
+* "Put" last line
+                 IF OUTPUT = 'REVIEW'
+                       TELL PV_BUFFER[1:BLOCKSIZE]
+                ELSE
+                          PUT/F PV_BUFFER[1:BLOCKSIZE] ,FID=A
+                END_IF
+*
+*
+            CASE 'LC'
+*
+                    SET/PV PV_MEM = 1
+                    SET/PV PV_POINT_OUT = 1
+GETLC:
+                    WHILE PV_MEM LE PV_NUMMEM
+*
+*  Get record
+*
+                    GET/VIEW[!PV_SET!,!PV_MEM!]MARC@A
+                    ASSIGN/PV PV_MARCDATA = MARC_DATA@A
+                    SET/PV PV_MARCDATA    = $TRIM (PV_MARCDATA)
+                    SET/PV PV_MEM         = PV_MEM + 1
+                    SET/PV PV_LENGTH      = PV_MARCDATA[1:5]
+                    SET/PV PV_SEGLEN      = PV_LENGTH
+                    SET/PV PV_POINT_IN    = 1
+*
+* Loop to build and write buffer
+*
+BLDLC:
+*
+*  Record will begin and end in this block....0
+                    IF (PV_SEGLEN EQ PV_LENGTH) AND +
+                        PV_SEGLEN LE (BLOCKSIZE - PV_POINT_OUT + 1 - 5) THEN
+*  Set segment control word
+                       SET/PV PV_BUFFER[PV_POINT_OUT:PV_POINT_OUT] = '0'
+                       SET/PV PV_SCW_I      = PV_SEGLEN + 5
+                       SET/PV PV_SCW_S[1:4] = $PADZ(PV_SCW_I,4)
+                       SET/PV PV_BUFFER[PV_POINT_OUT+1:PV_POINT_OUT+4] = +
+                              PV_SCW_S[1:4]
+*  Add record segment
+                       SET/PV PV_POINT_OUT  = PV_POINT_OUT + 5
+                       SET/PV PV_BUFFER[PV_POINT_OUT:PV_POINT_OUT+PV_SEGLEN-1]=+
+                              PV_MARCDATA[1:PV_LENGTH]
+                       SET/PV PV_POINT_OUT  = PV_POINT_OUT + PV_SEGLEN
+                       SET/PV PV_SEGLEN     = 0
+                       IF PV_POINT_OUT GE (BLOCKSIZE-5) THEN
+                          SET/PV PV_POINT_OUT = 1
+                          JUMP OUTLC
+                       END_IF
+                       JUMP GETLC
+                    END_IF
+*  Record will begin but not end in this block....1
+                    IF (PV_SEGLEN EQ PV_LENGTH) AND +
+                        PV_SEGLEN GT (BLOCKSIZE - PV_POINT_OUT + 1 - 5) THEN
+*  Set segment control word
+                       SET/PV PV_BUFFER[PV_POINT_OUT:PV_POINT_OUT] = '1'
+                       SET/PV PV_SCW_I = BLOCKSIZE - PV_POINT_OUT + 1
+                       SET/PV PV_SCW_S[1:4] = $PADZ(PV_SCW_I,4)
+                       SET/PV PV_BUFFER[PV_POINT_OUT+1:PV_POINT_OUT+4] = +
+                              PV_SCW_S[1:4]
+*  Add record segment
+                       SET/PV PV_POINT_OUT = PV_POINT_OUT + 5
+                       SET/PV PV_BUFFER[PV_POINT_OUT:BLOCKSIZE] = +
+                              PV_MARCDATA[1:BLOCKSIZE-PV_POINT_OUT+1]
+                       SET/PV PV_SEGLEN = PV_SEGLEN - (BLOCKSIZE-PV_POINT_OUT+1)
+                       SET/PV PV_POINT_IN = PV_POINT_IN+BLOCKSIZE-PV_POINT_OUT+1
+                       SET/PV PV_POINT_OUT = 1
+                       JUMP OUTLC
+                    END_IF
+*  Record will end but not begin in this block....3
+                    IF (PV_SEGLEN NE PV_LENGTH) AND +
+                        PV_SEGLEN LE (BLOCKSIZE - PV_POINT_OUT + 1 - 5) THEN
+*  Set segment control word
+                       SET/PV PV_BUFFER[PV_POINT_OUT:PV_POINT_OUT] = '3'
+                       SET/PV PV_SCW_I = PV_SEGLEN + 5
+                       SET/PV PV_SCW_S[1:4] = $PADZ(PV_SCW_I,4)
+                       SET/PV PV_BUFFER[PV_POINT_OUT+1:PV_POINT_OUT+4] = +
+                              PV_SCW_S[1:4]
+*  Add record segment
+                       SET/PV PV_POINT_OUT = PV_POINT_OUT + 5
+                       SET/PV PV_BUFFER[PV_POINT_OUT:*] = +
+                              PV_MARCDATA[PV_POINT_IN:PV_POINT_IN+PV_SEGLEN-1]
+                       SET/PV PV_POINT_OUT = PV_SEGLEN + 1 + 5
+                       IF PV_POINT_OUT GE (BLOCKSIZE-5) THEN
+                          SET/PV PV_POINT_OUT = 1
+                          SET/PV PV_SEGLEN = 0
+                          JUMP OUTLC
+                       END_IF
+                       JUMP GETLC
+                    END_IF
+*  Record will not begin or end in this block....2
+                    IF (PV_SEGLEN NE PV_LENGTH) AND +
+                        PV_SEGLEN GT (BLOCKSIZE - PV_POINT_OUT + 1 - 5) THEN
+*  Set segment control word
+                       SET/PV PV_BUFFER[PV_POINT_OUT:PV_POINT_OUT] = '2'
+                       SET/PV PV_SCW_I = BLOCKSIZE
+                       SET/PV PV_SCW_S[1:4] = $PADZ(PV_SCW_I,4)
+                       SET/PV PV_BUFFER[PV_POINT_OUT+1:PV_POINT_OUT+4] = +
+                              PV_SCW_S[1:4]
+*  Add record segment
+                       SET/PV PV_POINT_OUT = PV_POINT_OUT + 5
+                       SET/PV PV_BUFFER[PV_POINT_OUT:BLOCKSIZE] = +
+                              PV_MARCDATA[PV_POINT_IN:PV_POINT_IN+BLOCKSIZE-6]
+                       SET/PV PV_SEGLEN = PV_SEGLEN - (BLOCKSIZE - 5)
+                       SET/PV PV_POINT_IN = PV_POINT_IN + (BLOCKSIZE - 5)
+                       SET/PV PV_POINT_OUT = 1
+                       JUMP OUTLC
+                    END_IF
+OUTLC:
+                    IF OUTPUT = 'REVIEW'
+                         SET/PV LINE_CNT = LINE_CNT + 1
+******* Check for page break ********
+                       IF LINE_CNT >= 20
+                          ACQUIRE/PV MESSAGE 46710, C2=MSG
+                          INQUIRE/PV PV_QUIT, '!MSG!'
+                          JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                          CLEAR/SCREEN
+                          SET/PV LINE_CNT = 1
+                       END_IF
+                         TELL PV_BUFFER[1:BLOCKSIZE]
+                      ELSE
+                         PUT/F PV_BUFFER[1:BLOCKSIZE] ,FID=A
+                     END_IF
+*
+                    IF PV_SEGLEN EQ 0 THEN
+                       JUMP GETLC
+                    ELSE
+                       JUMP BLDLC
+                    END_IF
+                 END_WHILE
+* "Put" last line
+                 IF OUTPUT = 'REVIEW'
+                       TELL PV_BUFFER[1:BLOCKSIZE]
+                ELSE
+                          PUT/F PV_BUFFER[1:BLOCKSIZE] ,FID=A
+                END_IF
+*
+        END_SELECT
+*
+* Cleanup - close files and discard result sets.
+*
+CLEANUP:
+        ACQUIRE/PV MESSAGE 46708, C2=MSG
+        TELL MSG
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+QUIT:        ACQUIRE/PV LASTSET, N1 = PV_LASTSET
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+        END_IF
+        DISCARD !PV_SET!:!PV_LASTSET!
+        SET/DEF RESULT = Y
+*
+* DONE - successful report generation; return to caller
+*
+DONE:
+        RETURN_TO_SCREEN
+*
+* Error - inform user and close file, if necessary.
+*
+SYNTAXERR:
+EXCEPTION:
+OPENERR:
+VIEWERR:
+        SHOW/MESSAGE !DMSTAT!
+        JUMP ERROR
+FNDERR:
+        SHOW/MESSAGE 46702
+        JUMP ERROR
+BREAKERR:
+        SHOW/MESSAGE 46700
+ERROR:
+        SHOW/MESSAGE 46703
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+                CLOSE/F FID = B,ERR=$CONTINUE
+        END_IF
+        SET/DEF RESULT = Y
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+        RETURN_TO_SCREEN
+*PROC MRT
+tell 'TLP ENU 920430 L1F P004 TLPV3.3'
+return
+*PROC NWBLST01
+*-----------------------------------------------------------------------------
+*
+* Title:         New Books List
+* File:          NWBLST01.PRC
+* Author:        Information Dimensions, Inc.  (HB)
+*
+* Description:   List of Titles newly received in the library
+*
+* Input Parameters:
+*                OUTPUT - may be 'REVIEW','PRINT'.  Review displays report
+*                         on screen, print outputs to file for printing.
+*
+*                START_DT/END_DT - find where COPY.ADD_DT is in range
+*
+*                SUBJECT - restrict to certain CAT.SUBJs
+*
+*                SORT_KEY - option to sort by title or subject
+*
+*                MONTH_YEAR - Inputted month and year for heading
+*
+*                LOGIN_LIBR - User's login library
+*
+* Other Selection Criteria:
+*                LIBR_KEY - Restrict to certain libraries.
+*
+*                ALL - Boolean value; set true by Slang if no params entered
+*
+* Valid Combinations:
+*                Presence or absence of SUBJECT. Subject must be present for
+*                sort_key = 'SUBJECT'.  All other parameters are required to
+*                be inputted to the proc.
+*
+* Output File:   nwblst01.rpt
+*
+* Record Types Referenced:
+*                TEMPLATE, LIBR, COPY, CATR, SUB
+* Buffers:       @A    @B    @C    @D
+*
+* Report Name:   New Books List
+*
+* Report No.:    NWBLST01
+*
+* Menu Access:   ???
+*
+* Parameter
+* Input Screen:  CATRPT10
+*
+* Templates:     REPORT_HDR, UNION_CAT, COPY_NEWBOOK
+*
+*------------------------------------------------------------------------------
+*
+* Revision History:
+*
+*          Date          Revised By        Description
+*        --------        ----------        -----------
+*        11/16/89        Berger            Initial version
+*        09/27/90        Berger            Fix paging problem, problem with type
+*        01/07/91        Sandstrom         20 libs fix
+*        05/08/91        Sandstrom         Moved file opens and template gets
+*                                          to be after the find command.
+*        07/03/91        MChung            Substitute tabs with 8 spaces and
+*                                          spelling check
+*
+*------------------------------------------------------------------------------
+*
+START:
+        ACQUIRE/PV MESSAGE 46707, C2=MSG
+        TELL MSG,$B
+        ON/BREAK BREAKERR
+        ON/EXCEPTION EXCEPTION
+        ON/SYNTAX SYNTAXERR
+        SET/DEFAULT RESULT   = N
+        SET/PV      PV_TODAY = $YYYYMMDD
+        SET/PV      PRINTTOP = 1
+        SET/PV      RPTNM    = 'NWBLST01'
+        SET/PV      RPTTTL   = 'New Books list for '// MONTH_YEAR
+        SET/PV      PGNO     = 0
+*
+*set/mode echoproc=yes
+* Begin construction of FIND command.
+*
+* 910107smls added 20 libs fix
+        DELETE/GV OUTSTR
+        DELETE/GV OUTLC
+        DELETE/GV INSTR
+        SET/GV INSTR = LIBR_KEY
+        @/PL='$TLP_PROC/generpts' QTBLKS01, VFLDNM='COPY.LIBR_KEY'
+        SET/PV PV_FINDCMD = 'FIND SUB,RCAT,COPY,LIBR ' //+
+                'WHERE RCAT.CATNO:=>>SUB.CATNO ' //+
+                'AND RCAT.CATNO:=>>COPY.CATNO ' //+
+                'AND LIBR.LIBR_KEY:=COPY.LIBR_KEY ' //+
+                ' AND ((RCAT.ADD_DT = '//START_DT//':'//END_DT// +
+                ' ) '// +
+                'OR (SUB.ADD_DT = '//START_DT//':'//END_DT// +
+                ' AND DOC inc ''SER''* AND RNUM=0)) '
+*
+* Append FIND command based on options.
+*
+*        IF (SUBJECT <> '')
+*            SET/PV PV_FINDCMD = PV_FINDCMD //+
+*                'AND RCAT.SHELF INC ' // SUBJECT
+*        END_IF
+*
+* Append FIND for sort options.
+*
+* Removed copy.libr_key from order by
+*        SET/PV PV_FINDCMD = PV_FINDCMD //+
+*            ' ORDER BY !SORT_KEY! RCAT.TI, RCAT.PUBL, ' //+
+*                'COPY.YEAR, COPY.ITEMID, COPY.COPY'
+        SET/PV PV_FINDCMD = PV_FINDCMD //+
+            ' ORDER BY rcat.shelf'
+*
+* Execute Find and set up for report generation
+*
+        !PV_FINDCMD! END REF=NO
+        ACQUIRE/PV MEMBERS, N1 = PV_NUMMEM
+        ACQUIRE/PV LASTSET, N1 = PV_FOUNDSET
+        IF (PV_NUMMEM <= 0)
+            SHOW/MESSAGE 46705
+            JUMP CLEANUP
+        END_IF
+* smls 910508 moved this to be after the FIND command.
+* Set up for desired output method
+        SELECT (OUTPUT)
+            CASE 'REVIEW'
+                SET/PV MAXLINES  = 20
+                SET/PV PV_FILEID = ''
+            CASE 'PRINT'
+                SET/PV MAXLINES  = 60
+                spawn rm -f nwblst01.rpt
+                OPEN/F nwblst01.rpt, FID=A, INTENT=WRITE,ERR=OPENERR
+                put/f fid=a $t20,rptttl
+                SET/PV PV_FILEID = ',FID=A'
+        END_SELECT
+*
+*        GET/VIEW [TEMPLATE_KEY = 'REPORT_HDR']TEMPLATE@A, ERR = VIEWERR
+*        ASSIGN/PV HEADER       = TEXT@A
+        GET/VIEW [TEMPLATE_KEY = 'UNION_CAT']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV CATINFO      = TEXT@A
+*        GET/VIEW [TEMPLATE_KEY = 'COPY_NEWBOOK']TEMPLATE@A, ERR = VIEWERR
+*        ASSIGN/PV COPYINFO     = TEXT@A
+*
+* Step through members of set, generating correct output for each.
+        FOR PV_Q = 1, PV_NUMMEM
+*
+            GET/VIEW [!PV_FOUNDSET!,!PV_Q!]LIBR@B, ERR = VIEWERR
+            ASSIGN/PV LIBR_NAME = LIBR_NAME@B
+            ASSIGN/PV LOC_NAME  = LOC_NAME@B
+            ASSIGN/PV CALLOC    = CALL_NUM_LOC@B
+            IF CALLOC = 'CAT' OR CALLOC = NULL THEN
+                SET/PV CALLOC   = 'RCAT'
+            END_IF
+*
+* Generate report header, then data for each item
+*
+*            IF LIBR_NAME <> PV_OLD_LIBR_NAME OR PV_Q = 1
+             IF PV_Q = 1
+                IF OUTPUT = 'REVIEW'
+                    IF PV_Q <> 1
+                        ACQUIRE/PV MESSAGE 46710, C2=MSG
+                        INQUIRE/PV PV_QUIT, '!MSG!'
+                        JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                    END_IF
+                    CLEAR/SCREEN
+                    SET/PV LINE_CNT = 2
+*                ELSE_IF PV_Q <> 1
+*                    TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+                END_IF
+*
+                SET/PV PGNO = 1
+*                TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+*                    SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+                SET/PV LINE_CNT = 1
+            END_IF
+            SET/PV PV_OLD_LIBR_NAME = LIBR_NAME
+*
+* Check for new Subject (if subject is entered)
+*
+            IF SUBJECT <> ''
+                GET/VIEW [PV_FOUNDSET,PV_Q]RCAT@D,ERR=VIEWERR
+                ASSIGN/PV PV_CURSUBJ = SUBJ@D
+                IF PV_CURSUBJ <> PV_OLDSUBJ
+                    SET/PV PV_OLDSUBJ = PV_CURSUBJ
+* Check for page break
+                    SET/PV LINE_CNT = LINE_CNT + 2
+                    IF LINE_CNT > MAXLINES
+                        IF OUTPUT = 'REVIEW'
+                            ACQUIRE/PV MESSAGE 46710, C2=MSG
+                            INQUIRE/PV PV_QUIT, '!MSG!'
+                            JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                            CLEAR/SCREEN
+                            SET/PV LINE_CNT = 2
+                        ELSE
+*                            TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+                            SET/PV PGNO = PGNO + 1
+*                            TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+*                                SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+                            SET/PV LINE_CNT =1
+                        END_IF
+                    END_IF
+*                    TYPE $S2, RCAT.SUBJ, LABELS = N, SKIP = 0, +
+*                        SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+                END_IF
+            END_IF
+*
+            GET/VIEW [PV_FOUNDSET,PV_Q]COPY@C, ERR = VIEWERR
+            ASSIGN/PV PV_CURCATNO  = CATNO@C
+            IF PV_CURCATNO = NULL
+                GET/VIEW [PV_FOUNDSET,PV_Q]RCAT@D, ERR = VIEWERR
+                ASSIGN/PV PV_CURCATNO  = CATNO@D
+            END_IF
+            ASSIGN/PV PV_CURITEMID = ITEMID@C
+* If new catno, print catalog info
+            IF (PV_CURCATNO <> PV_LSTCATNO)
+                SET/PV LINE_CNT = LINE_CNT + 7
+* Check for page break
+                IF LINE_CNT > MAXLINES
+                    IF OUTPUT = 'REVIEW'
+                        ACQUIRE/PV MESSAGE 46710, C2=MSG
+                        INQUIRE/PV PV_QUIT, '!MSG!'
+                        JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                        CLEAR/SCREEN
+                        SET/PV LINE_CNT = 2
+                    ELSE
+*                        TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+                        SET/PV PGNO = PGNO + 1
+*                        TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+*                            SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+                        SET/PV LINE_CNT = 1
+                    END_IF
+                END_IF
+                TYPE $S2, !CATINFO!, LABELS = N, SKIP = 0, +
+                    SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+                SET/PV PV_LSTCATNO = PV_CURCATNO
+                set/pv line_cnt=line_cnt+dm_lines
+            END_IF
+* Aviod duplicates from FIND command
+            IF (PV_CURITEMID <> PV_LSTITEMID)
+                SET/PV LINE_CNT = LINE_CNT + 1
+* Check for page break
+                IF LINE_CNT > MAXLINES
+                    IF OUTPUT = 'REVIEW'
+                        ACQUIRE/PV MESSAGE 46710, C2=MSG
+                        INQUIRE/PV PV_QUIT, '!MSG!'
+                        JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                        CLEAR/SCREEN
+                        SET/PV LINE_CNT = 2
+                    ELSE
+*                        TYPE $P, MEMBERS=1, SET=!PV_FOUNDSET! !PV_FILEID!
+                        SET/PV PGNO = PGNO + 1
+*                        TYPE !HEADER!, $S2, LABELS = N, SKIP = 0, +
+*                            SET = !PV_FOUNDSET!, MEMBERS = 1 !PV_FILEID!
+                        SET/PV LINE_CNT = 1
+                    END_IF
+                END_IF
+                TYPE !COPYINFO!, LABELS = N, SKIP = 0, +
+                    SET = !PV_FOUNDSET!, MEMBERS = !PV_Q! !PV_FILEID!
+                SET/PV PV_LSTITEMID = PV_CURITEMID
+                set/pv line_cnt=line_cnt+dm_lines
+            END_IF
+*
+        END_FOR
+*
+* Cleanup - close files and discard result sets.
+*
+CLEANUP:
+        ACQUIRE/PV MESSAGE 46708, C2=MSG
+        TELL MSG
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+QUIT:        ACQUIRE/PV LASTSET, N1 = PV_LASTSET
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+        END_IF
+        DISCARD !PV_FOUNDSET!:!PV_LASTSET!
+        SET/DEF RESULT = Y
+*
+* DONE - successful report generation; return to caller
+*
+DONE:
+        RETURN_TO_SCREEN
+*
+* Error - inform user and close file, if necessary.
+*
+SYNTAXERR:
+EXCEPTION:
+OPENERR:
+VIEWERR:
+        SHOW/MESSAGE !DMSTAT!
+        JUMP ERROR
+BREAKERR:
+        SHOW/MESSAGE 46700
+ERROR:
+        SHOW/MESSAGE 46703
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+        END_IF
+        SET/DEF RESULT = Y
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+        RETURN_TO_SCREEN
+*PROC QTBLKS01
+*-----------------------------------------------------------------------------
+*
+* Title:         Build Library Key String
+* File:          QTBLKS01
+* Author:        Information Dimensions, Inc.  (BB/SMLS)
+*
+* Description:   This proc is called to build a string of library keys that
+*                can be used within a find command.  This routine handles the
+*                >20 terms/field limit.
+*
+* Directions:
+*
+* Input:
+*                Passed as a global variable:
+*                INSTR[*]  - Input character string that contains the list of
+*                            library keys with single quotes around each key.
+*                            Multiple keys are separated by commas.
+*                Passed on call:
+*                VFLDNM[*] - Contains the name of the view field with a source
+*                            of the library key to be used in the find command.
+* Output:
+*                The following global variables are set:
+*                OUTSTR[*] - The product of this routine, the field test.
+*                OUTLC     - The length of the field test value.
+*                BSTAT     - Return status....0=ok, -1=error.
+*
+*------------------------------------------------------------------------------
+*
+* Revision History:
+*
+*          Date          Revised By        Description
+*        --------        ----------        -----------
+*        12/20/90        Beaber            Initial Version
+*        01/03/91        Sandstrom         Revisions
+*        07/08/91        MChung            Substitute tabs with 8 spaces &
+*                                          spelling checks
+*
+*------------------------------------------------------------------------------
+*
+*
+* Initialize variables.
+*
+        SET/PV VFNSC = 1
+        SET/PV VFNEC = $LC(VFLDNM)
+        SET/PV INEC  = $LC(INSTR)
+        SET/PV INSC  = 1
+        SET/PV OUTSC = 1
+        SET/PV SC    = 1
+        SET/PV SC20  = 1
+        SET/PV COUNT = 0
+        SET/GV BSTAT = 0
+*
+* Begin building output string by adding on '(', field name, '='.
+*
+        SET/GV OUTSTR[*] = '(' // VFLDNM[VFNSC:VFNEC] // '='
+        SET/PV OUTSC = OUTSC + VFNEC - VFNSC + 4
+*
+* Loop through input string searching for commas.
+*
+        SET/PV COMMA = $MATCH(',',INSTR[SC:INEC])
+        WHILE (COMMA NE 0)
+           SET/PV COUNT = COUNT + 1
+*
+* Continue building the string as every 20th comma is found.
+*
+           IF ($MOD(COUNT,20) EQ 0) THEN
+*
+* Add on "OR Field_name=", if necessary.
+*
+              IF (OUTSTR[OUTSC-2] <> '=') THEN
+                 SET/GV OUTSTR[OUTSC+1:OUTSC+VFNEC-VFNSC+7] = +
+                        ' OR ' // VFLDNM[VFNSC:VFNEC] // '='
+                 SET/PV OUTSC = OUTSC + VFNEC - VFNSC + 7
+              END_IF
+*
+* Add on next 20 keys.
+*
+              IF SC20 = INSC THEN
+                    SET/GV OUTSTR[OUTSC:OUTSC+SC+COMMA-SC20-2] = +
+                     INSTR[SC20:SC+COMMA-2]
+              ELSE
+                    SET/GV OUTSTR[OUTSC:OUTSC+SC+COMMA-SC20-2] = +
+                     INSTR[SC20+1:SC+COMMA-2]
+              END_IF
+*
+* Increment index (SC) and continue looking for commas.
+*
+              SET/PV OUTSC = OUTSC + SC + COMMA - SC20 - 2
+              SET/PV SC20  = SC + COMMA
+           END_IF
+*
+* Increment index (SC) and continue looking for commas.
+*
+           SET/PV SC = SC + COMMA
+           BREAK_IF (SC GT INEC)
+           SET/PV COMMA = $MATCH(',',INSTR[SC:INEC])
+        END_WHILE
+*
+* Add on "OR Field_name=", if necessary.
+*
+        IF (OUTSTR[OUTSC-2] <> '=') THEN
+           SET/GV OUTSTR[OUTSC+1:OUTSC+VFNEC-VFNSC+7] = +
+                  ' OR ' // VFLDNM[VFNSC:VFNEC] // '='
+           SET/PV OUTSC = OUTSC + VFNEC - VFNSC + 7
+        END_IF
+*
+* Add on last set of characters.
+*
+        SET/PV OUTEC = OUTSC + INEC - SC20 + 2
+        SET/GV OUTSTR[OUTSC:OUTEC] = INSTR[SC20:INEC] // ')'
+*
+        SET/GV OUTLC = OUTEC
+        RETURN
+*PROC SPILAB01
+*-----------------------------------------------------------------------------
+*
+* Title:         Spine Labels
+* File:          SPILAB01.PRC
+* Author:        Information Dimensions, Inc.  (HB)
+*
+* Description:   Spine labels for cataloged books
+*
+* Input Parameters:
+*                OUTPUT - may be 'REVIEW','PRINT'.  Review displays report
+*                         on screen, print outputs to file for printing.
+*
+*                START_DT/END_DT - find where COPY.ADD_DT is in range
+*
+*                CALL - restrict to certain CATR.CALLs
+*
+*                ITEMID - restrict to certain COPY.ITEMIDs
+*
+*                LOGIN_LIBR - User's login library
+*
+* Other Selection Criteria:
+*                LIBR_KEY - Restrict to certain libraries.
+*
+*                ALL - Boolean value; set true by Slang if no params entered
+*
+* Valid Combinations:
+*                START AND END DT REQUIRED. CALL and ITEMID are optional.
+*
+* Output File:   spilab01.rpt
+*
+* Record Types Referenced:
+*                TEMPLATE, LIBR, SYS_PARM, COPY, CATR, SUB
+* Buffers:       @A    @C    @B    @E    @D
+*
+* Report Name:   Spine Labels
+*
+* Report No.:    SPILAB01
+*
+* Menu Access:   ???
+*
+* Parameter
+* Input Screen:  CATRPT11
+*
+* Templates:
+*
+*------------------------------------------------------------------------------
+*
+* Revision History:
+*
+*          Date          Revised By        Description
+*        --------        ----------        -----------
+*        10/16/89        Berger            Initial version
+*        11/14/90        Berger            Fixed bug in dewey form on the
+*                                             line counter
+*        01/07/91        Sandstrom         20 libs fix
+*        05/08/91        Sandstrom         Moved file opens and template gets to
+*                                          after the find command.
+*        07/03/91        MChung            Substitute tabs with 8 spaces and
+*                                          spelling check
+*        04/14/92        Sandstrom         Fix for TLP-1291-7.  Output for
+*                                          call number was not correct.
+*
+*------------------------------------------------------------------------------
+*
+START:
+        ACQUIRE/PV MESSAGE 46707, C2=MSG
+        TELL MSG,$B
+        ON/BREAK BREAKERR
+        ON/EXCEPTION EXCEPTION
+        ON/SYNTAX SYNTAXERR
+        SET/DEFAULT RESULT   = N
+        SET/PV      PV_TODAY = $YYYYMMDD
+*
+* Begin construction of FIND command.
+*
+* 910107smls added 20 libs fix
+        DELETE/GV OUTSTR
+        DELETE/GV OUTLC
+        DELETE/GV INSTR
+        SET/GV INSTR = LIBR_KEY
+        @/PL='$TLP_PROC/generpts' QTBLKS01, VFLDNM='COPY.LIBR_KEY'
+        SET/PV PV_FINDCMD = 'FIND CATR,COPY,LIBR ' //+
+                'WHERE COPY.CATNO:=CATR.CATNO ' //+
+                'AND LIBR.LIBR_KEY:=COPY.LIBR_KEY AND ' //+
+                OUTSTR[1:OUTLC]//' '
+        IF START_DT <> '' THEN
+            SET/PV PV_FINDCMD = PV_FINDCMD//+
+                    'AND COPY.ADD_DT = '//START_DT//':'//END_DT//' '
+        END_IF
+*
+        GET/VIEW [ID=1]SYS_PARM@B,ERR=VIEWERR
+        ASSIGN/PV RPT_MULT_ENT  = RPT_MULT_ENTITY@B
+        ASSIGN/PV COPY_RPT_SORT = COPY_RPT_SORT@B
+        GET/VIEW[LIBR_KEY=!LOGIN_LIBR!]LIBR@C,ERR=VIEWERR
+        ASSIGN/PV CALLOC = CALL_NUM_LOC@C
+        IF CALLOC = 'CAT' OR CALLOC = NULL
+            SET/PV CALLOC = 'CATR'
+        END_IF
+*
+* Append FIND command based on options.
+*
+        IF (ITEMID <> '')
+            SET/PV PV_FINDCMD = PV_FINDCMD //+
+                'AND COPY.ITEMID = ' // ITEMID
+        ELSE_IF (CALL <> '')
+            SET/PV PV_FINDCMD = PV_FINDCMD //+
+                'AND !CALLOC!.CALL = ' // CALL
+        END_IF
+*
+* Build sortkey to reflect correct call no. field, depending on
+*    SYS_PARM and LIBR flags
+*
+        GET/VIEW [ID=1]SYS_PARM@B,ERR=VIEWERR
+        ASSIGN/PV RPT_MULT_ENT  = RPT_MULT_ENTITY@B
+        ASSIGN/PV COPY_RPT_SORT = COPY_RPT_SORT@B
+            IF (RPT_MULT_ENTITY = 'N')
+                ASSIGN/PV CAT_LC = CAT_LC_FLG@B
+                IF (CAT_LC = 'Y')
+                    SET/PV LCADD = '_LC_SORT'
+                ELSE
+                    SET/PV CATRADD = '(1)'
+                END_IF
+            ELSE
+                GET/VIEW[LIBR_KEY=!LOGIN_LIBR!]LIBR@C,ERR=VIEWERR
+                ASSIGN/PV CAT_LC  = CAT_LC_FLG@C
+                ASSIGN/PV COPY_LC = COPY_LC_FLG@C
+                IF (CALLOC = 'CATR') AND (CAT_LC = 'Y')
+                    SET/PV LCADD   = '_LC_SORT'
+                    SET/PV CATRADD = ''
+                ELSE_IF (CALLOC = 'CATR')
+                    SET/PV LCADD   = ''
+                    SET/PV CATRADD = '(1)'
+                ELSE_IF (CALLOC = 'COPY') AND (COPY_LC = 'Y')
+                    SET/PV LCADD   = '_LC_SORT'
+                    SET/PV CATRADD = ''
+                ELSE
+                    SET/PV LCADD   = ''
+                    SET/PV CATRADD = ''
+                END_IF
+            END_IF
+            SET/PV SORTKEY = '!CALLOC!.CALL!LCADD!' // '!CATRADD!'
+*
+        SET/PV PV_FINDCMD = PV_FINDCMD //+
+            ' ORDER BY COPY.LIBR_KEY, !SORTKEY! '
+        IF (COPY_RPT_SORT <> '')
+            SET/PV PV_FINDCMD = PV_FINDCMD // ', !COPY_RPT_SORT! '
+        END_IF
+*
+* Execute Find and set up for report generation
+*
+        !PV_FINDCMD! END REF=NO
+        ACQUIRE/PV MEMBERS, N1 = PV_NUMMEM
+        ACQUIRE/PV LASTSET, N1 = PV_FOUNDSET
+        IF (PV_NUMMEM <= 0)
+            SHOW/MESSAGE 46705
+            JUMP CLEANUP
+        END_IF
+* smls moved file opens and template get.
+* Set up for desired output method
+        SELECT (OUTPUT)
+            CASE 'REVIEW'
+                SET/PV PV_FILEID = ''
+            CASE 'PRINT'
+                OPEN/F spilab01.rpt, FID=A, INTENT=WRITE, +
+                       CARRIAGE=YES, ERR=OPENERR
+                SET/PV PV_FILEID = ',FID=A'
+        END_SELECT
+*
+        GET/VIEW [TEMPLATE_KEY = 'SPINE_LABEL']TEMPLATE@A, ERR = VIEWERR
+        ASSIGN/PV PV_SPINE_LABEL = TEXT@A
+* Step through members of set, generating correct output for each.
+        FOR PV_Q = 1, PV_NUMMEM
+*
+* get calloc
+*
+            GET/VIEW [PV_FOUNDSET,PV_Q]LIBR@C, ERR=VIEWERR
+            ASSIGN/PV CALLOC = CALL_NUM_LOC@C
+            IF CALLOC = 'CAT' OR CALLOC = NULL THEN
+                SET/PV CALLOC = 'CATR'
+            END_IF
+*
+* Parse the Call Number to print it in the template
+*
+            IF CALLOC = 'CATR'
+                GET/VIEW [PV_FOUNDSET,PV_Q]CATR@D,ERR=VIEWERR
+                ASSIGN/PV PV_CALL = CALL@D
+            ELSE
+                GET/VIEW [PV_FOUNDSET,PV_Q]COPY@E,ERR=VIEWERR
+* smls19920414 changed field name being assigned to PV_CALL
+*              from ASSIGN/PV PV_CALL = COPY@E to
+                ASSIGN/PV PV_CALL = CALL@E
+            END_IF
+            SET/PV LENGTH  = $LC(PV_CALL)
+            SET/PV LINENUM = 1
+* Reset temp variables to give to template
+            FOR I = 1,9
+                SET/PV LINE!I! = ''
+            END_FOR
+*
+* Parse LC call numbers
+*
+* smls19920414 added reference to COPY_LC.
+*              Old IF was: IF CAT_LC = 'Y'
+            IF (CALLOC = 'CATR' AND CAT_LC = 'Y') +
+               OR (CALLOC = 'COPY' AND COPY_LC = 'Y') THEN
+                FOR PV_P = 1,LENGTH
+                    SET/PV PV_CHAR = PV_CALL[PV_P]
+                    IF PV_P <> LENGTH
+                        SET/PV PV_Z = PV_P + 1
+                        SET/PV PV_NEXT = PV_CALL[PV_Z]
+                    ELSE
+                        SET/PV PV_NEXT = ' '
+                    END_IF
+                    SELECT LINENUM
+                    CASE 1
+* Check for letter
+                        IF $ABS(PV_CHAR) = 0 AND PV_CHAR <> '0'
+                            SET/PV LINE1 = LINE1 // PV_CHAR
+                        ELSE
+                            SET/PV LINE2 = PV_CHAR
+                            SET/PV LINENUM = 2
+                        END_IF
+                    CASE 2
+* Check for period followed by a letter
+                        IF PV_CHAR = '.' AND $ABS(PV_NEXT) = 0 AND +
+                            PV_NEXT <> '0'
+                                SET/PV LINENUM = 3
+                        ELSE
+                            SET/PV LINE2 = LINE2 // PV_CHAR
+                        END_IF
+                    DEFAULT
+                        SET/PV LINE!LINENUM! = LINE!LINENUM! // PV_CHAR
+* Check for a space or next character to be a letter
+                        IF ($ABS(PV_NEXT) = 0 AND PV_NEXT <> '0')
+                                SET/PV LINENUM = LINENUM + 1
+                        END_IF
+                    END_SELECT
+                END_FOR
+*
+* Parse Dewey call numbers
+*
+            ELSE
+                FOR PV_P = 1,LENGTH
+                    SET/PV PV_CHAR = PV_CALL[PV_P]
+                    SELECT LINENUM
+                    CASE 1
+* Break on period
+                        IF PV_CHAR = '.'
+                            SET/PV LINENUM = 2
+                        END_IF
+                        SET/PV LINE!LINENUM! = LINE!LINENUM! // PV_CHAR
+                    DEFAULT
+                        SET/PV LINE!LINENUM! = LINE!LINENUM! // PV_CHAR
+* Break on spaces
+                        IF PV_CHAR = ' '
+                            SET/PV LINENUM = LINENUM + 1
+                        END_IF
+                    END_SELECT
+                END_FOR
+            END_IF
+* Type the Spine Label
+            TYPE !PV_SPINE_LABEL!, SKIP=0,  +
+                SET=!PV_FOUNDSET!,MEMBERS=!PV_Q! !PV_FILEID!
+            IF OUTPUT = 'REVIEW'
+                ACQUIRE/PV MESSAGE 46710, C2=MSG
+                INQUIRE/PV PV_QUIT, '!MSG!'
+                JUMPIF PV_QUIT[1] = 'N' OR PV_QUIT[1] = 'n',QUIT
+                CLEAR/SCREEN
+            END_IF
+
+        END_FOR
+*
+* Cleanup - close files and discard result sets.
+*
+CLEANUP:
+        ACQUIRE/PV MESSAGE 46708, C2=MSG
+        TELL MSG
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+QUIT:        ACQUIRE/PV LASTSET, N1 = PV_LASTSET
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+        END_IF
+        DISCARD !PV_FOUNDSET!:!PV_LASTSET!
+        SET/DEF RESULT = Y
+*
+* DONE - successful report generation; return to caller
+*
+DONE:
+        RETURN_TO_SCREEN
+*
+* Error - inform user and close file, if necessary.
+*
+SYNTAXERR:
+EXCEPTION:
+OPENERR:
+VIEWERR:
+        SHOW/MESSAGE !DMSTAT!
+        JUMP ERROR
+BREAKERR:
+        SHOW/MESSAGE 46700
+ERROR:
+        SHOW/MESSAGE 46703
+        IF (OUTPUT <> 'REVIEW')
+                CLOSE/F FID = A,ERR=$CONTINUE
+        END_IF
+        SET/DEF RESULT = Y
+        ACQUIRE/PV MESSAGE 46709, C2=MSG
+        INQUIRE/PV DUMMY, '!MSG!'
+        RETURN_TO_SCREEN
