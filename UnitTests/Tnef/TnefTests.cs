@@ -425,8 +425,10 @@ namespace UnitTests.Tnef {
 			//Console.WriteLine ("Extracting attachments...");
 
 			do {
-				if (reader.AttributeLevel != TnefAttributeLevel.Attachment)
-					Assert.Fail ("Expected attachment attribute level: {0}", reader.AttributeLevel);
+				if (reader.AttributeLevel != TnefAttributeLevel.Attachment) {
+					//Assert.Fail ("Expected attachment attribute level: {0}", reader.AttributeLevel);
+					break;
+				}
 
 				switch (reader.AttributeTag) {
 				case TnefAttributeTag.AttachRenderData:
@@ -798,6 +800,12 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestAttachments ()
+		{
+			TestTnefParser ("../../TestData/tnef/attachments");
+		}
+
+		[Test]
 		public void TestBody ()
 		{
 			TestTnefParser ("../../TestData/tnef/body");
@@ -857,6 +865,12 @@ namespace UnitTests.Tnef {
 		public void TestOneFile ()
 		{
 			TestTnefParser ("../../TestData/tnef/one-file");
+		}
+
+		[Test]
+		public void TestPanic ()
+		{
+			TestTnefParser ("../../TestData/tnef/panic", TnefComplianceStatus.InvalidAttribute | TnefComplianceStatus.InvalidAttributeLevel);
 		}
 
 		[Test]
