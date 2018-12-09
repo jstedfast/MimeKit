@@ -124,6 +124,10 @@ namespace MimeKit.Tnef {
 			var prop = reader.TnefPropertyReader;
 			string normalizedSubject = null;
 			string subjectPrefix = null;
+			string senderAddrType = "SMTP";
+			string senderSearchKey = null;
+			string senderName = null;
+			string senderAddr = null;
 
 			while (prop.ReadNextProperty ()) {
 				switch (prop.PropertyTag.Id) {
@@ -149,6 +153,31 @@ namespace MimeKit.Tnef {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						normalizedSubject = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.SenderName:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						senderName = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.SenderEmailAddress:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						senderAddr = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.SenderSearchKey:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+						senderSearchKey = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.SenderAddrtype:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						senderAddrType = prop.ReadValueAsString ();
 					}
 					break;
 				case TnefPropertyId.RtfCompressed:
@@ -230,6 +259,17 @@ namespace MimeKit.Tnef {
 				else
 					message.Subject = normalizedSubject;
 			}
+
+			if (string.IsNullOrEmpty (senderAddr) && !string.IsNullOrEmpty (senderSearchKey)) {
+				if (senderAddrType != null && senderSearchKey.Length > senderAddrType.Length &&
+					senderSearchKey.StartsWith (senderAddrType, StringComparison.Ordinal) && senderSearchKey[senderAddrType.Length] == ':')
+					senderAddr = senderSearchKey.Substring (senderAddrType.Length + 1);
+				else
+					senderAddr = senderSearchKey;
+			}
+
+			if (senderAddr != null)
+				message.From.Add (new MailboxAddress (senderName, senderAddr));
 		}
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)

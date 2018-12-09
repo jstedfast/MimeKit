@@ -290,6 +290,18 @@ namespace UnitTests.Tnef {
 					Assert.AreEqual (typeof (string), type);
 					value = prop.ReadValueAsString ();
 					break;
+				case TnefPropertyId.SenderEmailAddress:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.SenderAddrtype:
+					Assert.AreEqual (typeof (string), type);
+					value = prop.ReadValueAsString ();
+					break;
+				case TnefPropertyId.SenderSearchKey:
+					Assert.AreEqual (typeof (byte[]), type);
+					value = prop.ReadValueAsString ();
+					break;
 				case TnefPropertyId.NormalizedSubject:
 					Assert.AreEqual (typeof (string), type);
 					normalizedSubject = prop.ReadValueAsString ();
@@ -323,10 +335,6 @@ namespace UnitTests.Tnef {
 					value = prop.ReadValueAsBoolean ();
 					break;
 				case TnefPropertyId.TnefCorrelationKey:
-					Assert.AreEqual (typeof (byte[]), type);
-					value = prop.ReadValueAsString ();
-					break;
-				case TnefPropertyId.SenderSearchKey:
 					Assert.AreEqual (typeof (byte[]), type);
 					value = prop.ReadValueAsString ();
 					break;
