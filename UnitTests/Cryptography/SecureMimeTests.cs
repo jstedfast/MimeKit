@@ -329,7 +329,7 @@ namespace UnitTests.Cryptography {
 
 			Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 			Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
-			Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint);
+			Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
 			Assert.AreEqual (MimeKitCreationDate, signature.SignerCertificate.CreationDate, "CreationDate");
 			Assert.AreEqual (MimeKitExpirationDate, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
 			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
