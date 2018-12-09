@@ -396,6 +396,8 @@ namespace MimeKit.Tnef {
 			var builder = new BodyBuilder ();
 			var message = new MimeMessage ();
 
+			message.Headers.Remove (HeaderId.Date);
+
 			while (reader.ReadNextAttribute ()) {
 				if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
 					break;
