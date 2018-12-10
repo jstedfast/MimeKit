@@ -119,15 +119,53 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		class EmailAddress
+		{
+			public string AddrType = "SMTP";
+			public string SearchKey;
+			public string Name;
+			public string Addr;
+
+			bool CanUseSearchKey {
+				get {
+					return SearchKey != null && SearchKey.Length > AddrType.Length &&
+						SearchKey.StartsWith (AddrType, StringComparison.Ordinal) && SearchKey[AddrType.Length] == ':';
+				}
+			}
+
+			public bool IsComplete {
+				get {
+					return !string.IsNullOrEmpty (Addr) || CanUseSearchKey;
+				}
+			}
+
+			public bool TryGetMailboxAddress (out MailboxAddress mailbox)
+			{
+				string addr;
+
+				if (string.IsNullOrEmpty (Addr) && CanUseSearchKey)
+					addr = SearchKey.Substring (AddrType.Length + 1);
+				else
+					addr = Addr;
+
+				if (!string.IsNullOrEmpty (addr))
+					mailbox = new MailboxAddress (Name, addr);
+				else
+					mailbox = null;
+
+				return mailbox != null;
+			}
+		}
+
 		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
 		{
 			var prop = reader.TnefPropertyReader;
+			var recipient = new EmailAddress ();
+			var sender = new EmailAddress ();
 			string normalizedSubject = null;
 			string subjectPrefix = null;
-			string senderAddrType = "SMTP";
-			string senderSearchKey = null;
-			string senderName = null;
-			string senderAddr = null;
+			MailboxAddress mailbox;
+			var msgid = false;
 
 			while (prop.ReadNextProperty ()) {
 				switch (prop.PropertyTag.Id) {
@@ -135,6 +173,25 @@ namespace MimeKit.Tnef {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
 						message.MessageId = prop.ReadValueAsString ();
+						msgid = true;
+					}
+					break;
+				case TnefPropertyId.TnefCorrelationKey:
+					// According to MSDN, PidTagTnefCorrelationKey is a unique key that is
+					// meant to be used to tie the TNEF attachment to the encapsulating
+					// message. It can be a string or a binary blob. It seems that most
+					// implementations use the Message-Id string, so if this property
+					// value looks like a Message-Id, then us it as one (unless we get a
+					// InternetMessageId property, in which case we use that instead.
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+						if (!msgid) {
+							var value = prop.ReadValueAsString ();
+
+							if (value.Length > 5 && value[0] == '<' && value[value.Length - 1] == '>' && value.IndexOf ('@') != -1)
+								message.MessageId = value;
+						}
 					}
 					break;
 				case TnefPropertyId.Subject:
@@ -158,26 +215,51 @@ namespace MimeKit.Tnef {
 				case TnefPropertyId.SenderName:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						senderName = prop.ReadValueAsString ();
+						sender.Name = prop.ReadValueAsString ();
 					}
 					break;
 				case TnefPropertyId.SenderEmailAddress:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						senderAddr = prop.ReadValueAsString ();
+						sender.Addr = prop.ReadValueAsString ();
 					}
 					break;
 				case TnefPropertyId.SenderSearchKey:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						senderSearchKey = prop.ReadValueAsString ();
+						sender.SearchKey = prop.ReadValueAsString ();
 					}
 					break;
 				case TnefPropertyId.SenderAddrtype:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						senderAddrType = prop.ReadValueAsString ();
+						sender.AddrType = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.ReceivedByName:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						recipient.Name = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.ReceivedByEmailAddress:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						recipient.Addr = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.ReceivedBySearchKey:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+						recipient.SearchKey = prop.ReadValueAsString ();
+					}
+					break;
+				case TnefPropertyId.ReceivedByAddrtype:
+					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
+						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
+						recipient.AddrType = prop.ReadValueAsString ();
 					}
 					break;
 				case TnefPropertyId.RtfCompressed:
@@ -262,16 +344,11 @@ namespace MimeKit.Tnef {
 					message.Subject = normalizedSubject;
 			}
 
-			if (string.IsNullOrEmpty (senderAddr) && !string.IsNullOrEmpty (senderSearchKey)) {
-				if (senderAddrType != null && senderSearchKey.Length > senderAddrType.Length &&
-					senderSearchKey.StartsWith (senderAddrType, StringComparison.Ordinal) && senderSearchKey[senderAddrType.Length] == ':')
-					senderAddr = senderSearchKey.Substring (senderAddrType.Length + 1);
-				else
-					senderAddr = senderSearchKey;
-			}
+			if (sender.TryGetMailboxAddress (out mailbox))
+				message.From.Add (mailbox);
 
-			if (senderAddr != null)
-				message.From.Add (new MailboxAddress (senderName, senderAddr));
+			if (recipient.TryGetMailboxAddress (out mailbox))
+				message.To.Add (mailbox);
 		}
 
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
