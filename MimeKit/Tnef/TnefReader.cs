@@ -289,8 +289,16 @@ namespace MimeKit.Tnef {
 			Dispose (false);
 		}
 
+		void CheckDisposed ()
+		{
+			if (closed)
+				throw new ObjectDisposedException ("TnefReader");
+		}
+
 		internal int ReadAhead (int atleast)
 		{
+			CheckDisposed ();
+
 			int left = inputEnd - inputIndex;
 
 			if (left >= atleast || eos)
@@ -380,12 +388,6 @@ namespace MimeKit.Tnef {
 			} catch (EndOfStreamException) {
 				SetComplianceError (TnefComplianceStatus.StreamTruncated);
 			}
-		}
-
-		void CheckDisposed ()
-		{
-			if (closed)
-				throw new ObjectDisposedException ("TnefReader");
 		}
 
 		void CheckAttributeLevel ()
@@ -528,6 +530,8 @@ namespace MimeKit.Tnef {
 
 		internal bool Seek (int offset)
 		{
+			CheckDisposed ();
+
 			int left = offset - StreamOffset;
 
 			if (left <= 0)
@@ -588,6 +592,8 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public bool ReadNextAttribute ()
 		{
+			CheckDisposed ();
+
 			if (AttributeRawValueStreamOffset != 0 && !SkipAttributeRawValue ())
 				return false;
 
@@ -669,6 +675,8 @@ namespace MimeKit.Tnef {
 
 			if (count < 0 || count > (buffer.Length - offset))
 				throw new ArgumentOutOfRangeException (nameof (count));
+
+			CheckDisposed ();
 
 			int dataEndOffset = AttributeRawValueStreamOffset + AttributeRawValueLength;
 			int dataLeft = dataEndOffset - StreamOffset;

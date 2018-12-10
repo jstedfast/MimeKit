@@ -294,6 +294,92 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestReadAfterClose ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.TnefVersion), 0, 4);
+				stream.Write (BitConverter.GetBytes (28), 0, 4);
+				stream.Write (BitConverter.GetBytes (65536), 0, 4);
+				stream.Position = 0;
+
+				var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
+				reader.Close ();
+
+				Assert.Throws<ObjectDisposedException> (() => reader.ReadNextAttribute ());
+			}
+		}
+
+		[Test]
+		public void TestReadAttributeRawValueTruncatedLoose ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.MessageId), 0, 4);
+				stream.Write (BitConverter.GetBytes (28), 0, 4);
+				stream.Write (BitConverter.GetBytes (0xFFFFFFFF), 0, 4);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
+					Assert.AreEqual (TnefAttributeTag.MessageId, reader.AttributeTag, "AttributeTag");
+
+					var buffer = new byte[28];
+					int nread, n = 0;
+
+					do {
+						if ((nread = reader.ReadAttributeRawValue (buffer, n, buffer.Length - n)) == 0)
+							break;
+
+						n += nread;
+					} while (n < 28);
+
+					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+				}
+			}
+		}
+
+		[Test]
+		public void TestReadAttributeRawValueTruncatedStrict ()
+		{
+			using (var stream = new MemoryStream ()) {
+				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
+				stream.WriteByte (0);
+				stream.WriteByte (0);
+				stream.WriteByte ((byte) TnefAttributeLevel.Message);
+				stream.Write (BitConverter.GetBytes ((int) TnefAttributeTag.MessageId), 0, 4);
+				stream.Write (BitConverter.GetBytes (28), 0, 4);
+				stream.Write (BitConverter.GetBytes (0xFFFFFFFF), 0, 4);
+				stream.Position = 0;
+
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
+					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
+					Assert.AreEqual (TnefAttributeTag.MessageId, reader.AttributeTag, "AttributeTag");
+
+					var buffer = new byte[28];
+					int n;
+
+					n = reader.ReadAttributeRawValue (buffer, 0, buffer.Length);
+
+					try {
+						reader.ReadAttributeRawValue (buffer, n, buffer.Length - n);
+						Assert.Fail ("ReadAttributeRawValue should have thrown TnefException");
+					} catch (TnefException ex) {
+						Assert.AreEqual (TnefComplianceStatus.StreamTruncated, ex.Error, "Error");
+					} catch (Exception ex) {
+						Assert.Fail ("ReadAttributeRawValue should have thrown TnefException, not {0}", ex);
+					}
+				}
+			}
+		}
+
+		[Test]
 		public void TestReadInt32 ()
 		{
 			using (var stream = new MemoryStream ()) {
