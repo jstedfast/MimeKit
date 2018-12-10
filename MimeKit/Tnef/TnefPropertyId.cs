@@ -2028,6 +2028,11 @@ namespace MimeKit.Tnef {
 		ReplyRecipientNames                      = 0x0050,
 
 		/// <summary>
+		/// The MAPI property PR_REPLY_RECIPIENT_SMTP_PROXIES.
+		/// </summary>
+		ReplyRecipientSmtpProxies                = 0x3FFC,
+
+		/// <summary>
 		/// The MAPI property PR_REPLY_REQUESTED.
 		/// </summary>
 		ReplyRequested                           = 0x0C17,
@@ -2208,6 +2213,11 @@ namespace MimeKit.Tnef {
 		SenderSearchKey                          = 0x0C1D,
 
 		/// <summary>
+		/// The MAPI property PR_SENDER_SIMPLE_DISP_NAME.
+		/// </summary>
+		SenderSimpleDispName                     = 0x4030,
+
+		/// <summary>
 		/// The MAPI property PR_SEND_INTERNET_ENCODING.
 		/// </summary>
 		SendInternetEncoding                     = 0x3A71,
@@ -2256,6 +2266,11 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_SENT_REPRESENTING_SEARCH_KEY.
 		/// </summary>
 		SentRepresentingSearchKey                = 0x003B,
+
+		/// <summary>
+		/// The MAPI property PR_SENT_REPRESENTING_SIMPLE_DISP_NAME.
+		/// </summary>
+		SentRepresentingSimpleDispName           = 0x4031,
 
 		/// <summary>
 		/// The MAPI property PR_SERVICE_DELETE_FILES.
