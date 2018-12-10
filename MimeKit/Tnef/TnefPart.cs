@@ -321,6 +321,7 @@ namespace MimeKit.Tnef {
 					}
 					break;
 				case TnefPropertyId.Importance:
+					// https://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
 					switch (prop.ReadValueAsInt32 ()) {
 					case 2: message.Importance = MessageImportance.High; break;
 					case 1: message.Importance = MessageImportance.Normal; break;
@@ -328,10 +329,21 @@ namespace MimeKit.Tnef {
 					}
 					break;
 				case TnefPropertyId.Priority:
+					// https://msdn.microsoft.com/en-us/library/ee159473(v=exchg.80).aspx
 					switch (prop.ReadValueAsInt32 ()) {
 					case  1: message.Priority = MessagePriority.Urgent; break;
 					case  0: message.Priority = MessagePriority.Normal; break;
 					case -1: message.Priority = MessagePriority.NonUrgent; break;
+					}
+					break;
+				case TnefPropertyId.Sensitivity:
+					// https://msdn.microsoft.com/en-us/library/ee217353(v=exchg.80).aspx
+					// https://tools.ietf.org/html/rfc2156#section-5.3.4
+					switch (prop.ReadValueAsInt32 ()) {
+					case 1: message.Headers[HeaderId.Sensitivity] = "Personal"; break;
+					case 2: message.Headers[HeaderId.Sensitivity] = "Private"; break;
+					case 3: message.Headers[HeaderId.Sensitivity] = "Company-Confidential"; break;
+					case 0: message.Headers.Remove (HeaderId.Sensitivity); break;
 					}
 					break;
 				}
