@@ -958,6 +958,8 @@ namespace UnitTests.Tnef {
 			tnef2 = new TnefNameId (guid, "name");
 			Assert.AreEqual (tnef1.GetHashCode (), tnef2.GetHashCode (), "GetHashCode Name");
 			Assert.AreEqual (tnef1, tnef2, "Equal Name");
+
+			Assert.IsFalse (tnef1.Equals (new object ()), "Equals (object)");
 		}
 	}
 }
