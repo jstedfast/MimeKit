@@ -133,11 +133,11 @@ namespace MimeKit.Tnef {
 				}
 			}
 
-			public bool IsComplete {
-				get {
-					return !string.IsNullOrEmpty (Addr) || CanUseSearchKey;
-				}
-			}
+			//public bool IsComplete {
+			//	get {
+			//		return !string.IsNullOrEmpty (Addr) || CanUseSearchKey;
+			//	}
+			//}
 
 			public bool TryGetMailboxAddress (out MailboxAddress mailbox)
 			{
