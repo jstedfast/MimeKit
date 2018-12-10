@@ -323,15 +323,15 @@ namespace MimeKit.Tnef {
 				case TnefPropertyId.Importance:
 					switch (prop.ReadValueAsInt32 ()) {
 					case 2: message.Importance = MessageImportance.High; break;
+					case 1: message.Importance = MessageImportance.Normal; break;
 					case 0: message.Importance = MessageImportance.Low; break;
-					default: message.Importance = MessageImportance.Normal; break;
 					}
 					break;
 				case TnefPropertyId.Priority:
 					switch (prop.ReadValueAsInt32 ()) {
-					case 2: message.Priority = MessagePriority.Urgent; break;
-					case 0: message.Priority = MessagePriority.NonUrgent; break;
-					default: message.Priority = MessagePriority.Normal; break;
+					case  1: message.Priority = MessagePriority.Urgent; break;
+					case  0: message.Priority = MessagePriority.Normal; break;
+					case -1: message.Priority = MessagePriority.NonUrgent; break;
 					}
 					break;
 				}
