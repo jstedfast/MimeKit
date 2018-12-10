@@ -611,8 +611,10 @@ namespace MimeKit.Tnef {
 
 			CheckAttributeTag ();
 
-			if (AttributeRawValueLength < 0)
+			if (AttributeRawValueLength < 0) {
 				SetComplianceError (TnefComplianceStatus.InvalidAttributeLength);
+				return false;
+			}
 
 			try {
 				TnefPropertyReader.Load ();
