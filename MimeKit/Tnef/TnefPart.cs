@@ -414,9 +414,6 @@ namespace MimeKit.Tnef {
 								attachment.ContentDisposition.Disposition = text;
 							break;
 						case TnefPropertyId.AttachData:
-							var stream = prop.GetRawValueReadStream ();
-							var content = new MemoryStream ();
-
 							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								var tnef = new TnefPart ();
 
@@ -429,17 +426,10 @@ namespace MimeKit.Tnef {
 								attachment = tnef;
 							}
 
-							// the rest is content
-							using (var filtered = new FilteredStream (content)) {
-								filtered.Add (filter);
-								stream.CopyTo (filtered, 4096);
-								filtered.Flush ();
-							}
-
-							content.Position = 0;
-
+							attachData = prop.ReadValueAsBytes ();
+							filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-							attachment.Content = new MimeContent (content);
+							attachment.Content = new MimeContent (new MemoryStream (attachData, false));
 							filter.Reset ();
 
 							builder.Attachments.Add (attachment);
@@ -507,7 +497,7 @@ namespace MimeKit.Tnef {
 
 					attachData = prop.ReadValueAsBytes ();
 					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
-					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
+					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
 					filter.Reset ();
 
