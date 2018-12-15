@@ -934,6 +934,73 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestRichTextEml ()
+		{
+			var message = MimeMessage.Load ("../../TestData/tnef/rich-text.eml");
+			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
+			var timezone = new TimeSpan (-5, 0, 0);
+
+			message = tnef.ConvertToMessage ();
+
+			Assert.IsNullOrEmpty (message.Subject, "Subject");
+			Assert.AreEqual (DateTimeOffset.MinValue, message.Date, "Date");
+			Assert.AreEqual ("DM5PR21MB0828DA2B8C88048BC03EFFA6CFA20@DM5PR21MB0828.namprd21.prod.outlook.com", message.MessageId, "Message-Id");
+
+			Assert.IsInstanceOf (typeof (Multipart), message.Body);
+			var multipart = (Multipart) message.Body;
+
+			Assert.AreEqual (6, multipart.Count);
+
+			Assert.IsInstanceOf (typeof (TextPart), multipart[0]);
+			Assert.IsInstanceOf (typeof (MimePart), multipart[1]);
+			Assert.IsInstanceOf (typeof (MimePart), multipart[2]);
+			Assert.IsInstanceOf (typeof (MimePart), multipart[3]);
+			Assert.IsInstanceOf (typeof (MimePart), multipart[4]);
+			Assert.IsInstanceOf (typeof (MimePart), multipart[5]);
+
+			var rtf = (TextPart) multipart[0];
+			Assert.AreEqual ("text/rtf", rtf.ContentType.MimeType, "MimeType");
+
+			var kitten = (MimePart) multipart[1];
+			Assert.AreEqual ("application/octet-stream", kitten.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("kitten-playing-with-a-christmas-tree.jpg", kitten.FileName, "FileName");
+
+			// Note: For some reason, each task and appointment got duplicated. The first copy is attached as a
+			// TnefAttribute.AttachData and the second is a TnefPropertyId.AttachData.
+			var task1 = (MimePart) multipart[2];
+			Assert.AreEqual ("application/octet-stream", task1.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("Build a train table", task1.ContentType.Name, "Name");
+			Assert.AreEqual ("attachment", task1.ContentDisposition.Disposition, "Disposition");
+			Assert.AreEqual ("Untitled Attachment", task1.ContentDisposition.FileName, "FileName");
+			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), task1.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (9217, task1.ContentDisposition.Size, "Size");
+
+			var task2 = (MimePart) multipart[3];
+			Assert.AreEqual ("application/octet-stream", task2.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("Build a train table", task2.ContentType.Name, "Name");
+			Assert.AreEqual ("attachment", task2.ContentDisposition.Disposition, "Disposition");
+			Assert.AreEqual ("Untitled Attachment", task2.ContentDisposition.FileName, "FileName");
+			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), task2.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (9217, task2.ContentDisposition.Size, "Size");
+
+			var appointment1 = (MimePart) multipart[4];
+			Assert.AreEqual ("application/octet-stream", appointment1.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("Christmas Celebration!", appointment1.ContentType.Name, "Name");
+			Assert.AreEqual ("attachment", appointment1.ContentDisposition.Disposition, "Disposition");
+			Assert.AreEqual ("Untitled Attachment", appointment1.ContentDisposition.FileName, "FileName");
+			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), appointment1.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (387453, appointment1.ContentDisposition.Size, "Size");
+
+			var appointment2 = (MimePart) multipart[5];
+			Assert.AreEqual ("application/octet-stream", appointment2.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("Christmas Celebration!", appointment2.ContentType.Name, "Name");
+			Assert.AreEqual ("attachment", appointment2.ContentDisposition.Disposition, "Disposition");
+			Assert.AreEqual ("Untitled Attachment", appointment2.ContentDisposition.FileName, "FileName");
+			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), appointment2.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (387453, appointment2.ContentDisposition.Size, "Size");
+		}
+
+		[Test]
 		public void TestTnefNameId ()
 		{
 			var guid = Guid.NewGuid ();

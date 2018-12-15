@@ -289,6 +289,7 @@
     <None Include="TestData\tnef\panic\message.html" />
     <None Include="TestData\tnef\panic.list" />
     <None Include="TestData\tnef\panic.tnef" />
+    <None Include="TestData\tnef\rich-text.eml" />
     <None Include="TestData\tnef\rtf\message.rtf" />
     <None Include="TestData\tnef\rtf.list" />
     <None Include="TestData\tnef\rtf.tnef" />
