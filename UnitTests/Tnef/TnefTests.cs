@@ -750,7 +750,9 @@ namespace UnitTests.Tnef {
 				}
 
 				// Step 2: verify that the content of the extracted attachments matches up with the expected content
+				byte[] expectedData, actualData;
 				int untitled = 1;
+
 				foreach (var part in attachments.OfType<MimePart> ()) {
 					var isText = false;
 					string fileName;
@@ -765,7 +767,7 @@ namespace UnitTests.Tnef {
 
 						isText = true;
 					} else if (part.FileName == "Untitled Attachment") {
-						// special case for winmail.tnef
+						// special case for winmail.tnef and christmas.tnef
 						fileName = string.Format ("Untitled Attachment.{0}", untitled++);
 					} else {
 						var extension = Path.GetExtension (part.FileName);
@@ -784,10 +786,13 @@ namespace UnitTests.Tnef {
 
 					var file = Path.Combine (path, fileName);
 
-					if (!File.Exists (file))
+					if (!File.Exists (file)) {
+						//using (var stream = part.Content.Open ()) {
+						//	actualData = ReadAllBytes (stream, isText);
+						//	File.WriteAllBytes (file, actualData);
+						//}
 						continue;
-
-					byte[] expectedData, actualData;
+					}
 
 					using (var stream = File.OpenRead (file))
 						expectedData = ReadAllBytes (stream, isText);
@@ -812,6 +817,12 @@ namespace UnitTests.Tnef {
 		public void TestBody ()
 		{
 			TestTnefParser ("../../TestData/tnef/body");
+		}
+
+		[Test]
+		public void TestChristmas ()
+		{
+			TestTnefParser ("../../TestData/tnef/christmas", TnefComplianceStatus.UnsupportedPropertyType);
 		}
 
 		[Test]

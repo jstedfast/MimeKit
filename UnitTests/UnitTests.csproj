@@ -245,6 +245,14 @@
     <None Include="TestData\tnef\body\message.html" />
     <None Include="TestData\tnef\body.list" />
     <None Include="TestData\tnef\body.tnef" />
+    <None Include="TestData\tnef\christmas\kitten-playing-with-a-christmas-tree.jpg" />
+    <None Include="TestData\tnef\christmas\message.rtf" />
+    <None Include="TestData\tnef\christmas\Untitled Attachment.1" />
+    <None Include="TestData\tnef\christmas\Untitled Attachment.2" />
+    <None Include="TestData\tnef\christmas\Untitled Attachment.3" />
+    <None Include="TestData\tnef\christmas\Untitled Attachment.4" />
+    <None Include="TestData\tnef\christmas.list" />
+    <None Include="TestData\tnef\christmas.tnef" />
     <None Include="TestData\tnef\data-before-name\AUTOEXEC.BAT" />
     <None Include="TestData\tnef\data-before-name\boot.ini" />
     <None Include="TestData\tnef\data-before-name\CONFIG.SYS" />
