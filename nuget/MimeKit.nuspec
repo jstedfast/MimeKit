@@ -33,6 +33,7 @@
 * Fixed TnefPart.ConvertToMessage() to check the TNEF SubjectPrefix and NormalizedSubject properties and use them if a TNEF Subject property is not available.
 * Fixed TNEF logic for extracting attachment content to not truncate some bytes from the beginning of the content.
 * Added more fallbacks for attempting to extract the sender information out of the TNEF data.
+* Bumped Android and iOS versions of BouncyCastle to v1.8.4.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

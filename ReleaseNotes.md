@@ -14,6 +14,7 @@
 * Fixed TNEF logic for extracting attachment content to not truncate some bytes from the beginning
   of the content.
 * Added more fallbacks for attempting to extract the sender information out of the TNEF data.
+* Bumped Android and iOS versions of BouncyCastle to v1.8.4.
 
 ### MimeKit 2.1.0
 
