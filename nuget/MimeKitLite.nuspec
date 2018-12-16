@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -25,9 +25,14 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Optimized the OptimizedOrdinalIgnoreCaseComparer even more.
-* Added a bunch more HeaderId enum values.
-* Improved header folding logic for headers with long words. (issue #451)
+* Mapped the TNEF Sensitivity property to the Sensitivity message header when calling TnefPart.ConvertToMessage().
+* Fixed the TNEF Importance and Priority mappings when calling TnefPart.ConvertToMessage().
+* Added more TnefPropertyId's that have been identified.
+* Map PidTagTnefCorrelationKey to the Message-Id message header.
+* When the TNEF data does not have a SentDate property, set the MimeMessage.Date property to DateTimeOffset.MinValue instead of DateTimeOffset.Now.
+* Fixed TnefPart.ConvertToMessage() to check the TNEF SubjectPrefix and NormalizedSubject properties and use them if a TNEF Subject property is not available.
+* Fixed TNEF logic for extracting attachment content to not truncate some bytes from the beginning of the content.
+* Added more fallbacks for attempting to extract the sender information out of the TNEF data.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

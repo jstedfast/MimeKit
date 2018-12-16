@@ -1,5 +1,20 @@
 # Release Notes
 
+### MimeKit 2.1.1
+
+* Mapped the TNEF Sensitivity property to the Sensitivity message header when calling
+  TnefPart.ConvertToMessage().
+* Fixed the TNEF Importance and Priority mappings when calling TnefPart.ConvertToMessage().
+* Added more TnefPropertyId's that have been identified.
+* Map PidTagTnefCorrelationKey to the Message-Id message header.
+* When the TNEF data does not have a SentDate property, set the MimeMessage.Date property
+  to DateTimeOffset.MinValue instead of DateTimeOffset.Now.
+* Fixed TnefPart.ConvertToMessage() to check the TNEF SubjectPrefix and NormalizedSubject
+  properties and use them if a TNEF Subject property is not available.
+* Fixed TNEF logic for extracting attachment content to not truncate some bytes from the beginning
+  of the content.
+* Added more fallbacks for attempting to extract the sender information out of the TNEF data.
+
 ### MimeKit 2.1.0
 
 * Optimized SecureMimeCryptographyContext.Supports() and OpenPgpCryptographyContext.Supports()
