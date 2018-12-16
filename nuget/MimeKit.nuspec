@@ -6,8 +6,9 @@
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
-    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-    <projectUrl>http://github.com/jstedfast/MimeKit</projectUrl>
+    <license type="expression">MIT</license>
+    <projectUrl>http://www.mimekit.net</projectUrl>
+    <repository type="git" url="https://github.com/jstedfast/MimeKit" />
     <iconUrl>https://raw.github.com/jstedfast/MimeKit/master/nuget/mimekit-50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
