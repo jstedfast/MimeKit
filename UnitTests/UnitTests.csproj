@@ -84,6 +84,7 @@
     <Compile Include="Cryptography\PgpMimeTests.cs" />
     <Compile Include="Cryptography\SecureMimeTests.cs" />
     <Compile Include="Cryptography\X509CertificateChainTests.cs" />
+    <Compile Include="Cryptography\X509CertificateRecordTests.cs" />
     <Compile Include="Cryptography\X509CertificateStoreTests.cs" />
     <Compile Include="Encodings\EncoderTests.cs" />
     <Compile Include="Encodings\YEncodingTests.cs" />
