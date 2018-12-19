@@ -949,7 +949,7 @@ namespace UnitTests.Tnef {
 		{
 			var message = MimeMessage.Load ("../../TestData/tnef/rich-text.eml");
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
-			var timezone = new TimeSpan (-5, 0, 0);
+			var mtime = new DateTimeOffset (2018, 12, 15, 10, 17, 38, DateTimeOffset.Now.Offset);
 
 			message = tnef.ConvertToMessage ();
 
@@ -983,7 +983,7 @@ namespace UnitTests.Tnef {
 			Assert.AreEqual ("Build a train table", task1.ContentType.Name, "Name");
 			Assert.AreEqual ("attachment", task1.ContentDisposition.Disposition, "Disposition");
 			Assert.AreEqual ("Untitled Attachment", task1.ContentDisposition.FileName, "FileName");
-			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), task1.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (mtime, task1.ContentDisposition.ModificationDate, "ModificationDate");
 			Assert.AreEqual (9217, task1.ContentDisposition.Size, "Size");
 
 			var task2 = (MimePart) multipart[3];
@@ -991,7 +991,7 @@ namespace UnitTests.Tnef {
 			Assert.AreEqual ("Build a train table", task2.ContentType.Name, "Name");
 			Assert.AreEqual ("attachment", task2.ContentDisposition.Disposition, "Disposition");
 			Assert.AreEqual ("Untitled Attachment", task2.ContentDisposition.FileName, "FileName");
-			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), task2.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (mtime, task2.ContentDisposition.ModificationDate, "ModificationDate");
 			Assert.AreEqual (9217, task2.ContentDisposition.Size, "Size");
 
 			var appointment1 = (MimePart) multipart[4];
@@ -999,7 +999,7 @@ namespace UnitTests.Tnef {
 			Assert.AreEqual ("Christmas Celebration!", appointment1.ContentType.Name, "Name");
 			Assert.AreEqual ("attachment", appointment1.ContentDisposition.Disposition, "Disposition");
 			Assert.AreEqual ("Untitled Attachment", appointment1.ContentDisposition.FileName, "FileName");
-			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), appointment1.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (mtime, appointment1.ContentDisposition.ModificationDate, "ModificationDate");
 			Assert.AreEqual (387453, appointment1.ContentDisposition.Size, "Size");
 
 			var appointment2 = (MimePart) multipart[5];
@@ -1007,7 +1007,7 @@ namespace UnitTests.Tnef {
 			Assert.AreEqual ("Christmas Celebration!", appointment2.ContentType.Name, "Name");
 			Assert.AreEqual ("attachment", appointment2.ContentDisposition.Disposition, "Disposition");
 			Assert.AreEqual ("Untitled Attachment", appointment2.ContentDisposition.FileName, "FileName");
-			Assert.AreEqual (new DateTimeOffset (2018, 12, 15, 10, 17, 38, timezone), appointment2.ContentDisposition.ModificationDate, "ModificationDate");
+			Assert.AreEqual (mtime, appointment2.ContentDisposition.ModificationDate, "ModificationDate");
 			Assert.AreEqual (387453, appointment2.ContentDisposition.Size, "Size");
 		}
 
