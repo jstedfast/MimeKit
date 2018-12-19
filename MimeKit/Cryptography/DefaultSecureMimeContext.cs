@@ -118,16 +118,16 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
+			if (!SqliteCertificateDatabase.IsAvailable)
+				throw new NotSupportedException ("Mono.Data.Sqlite is not available.");
+
 			var dir = Path.GetDirectoryName (fileName);
 			var exists = File.Exists (fileName);
 
 			if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
 				Directory.CreateDirectory (dir);
 
-			if (SqliteCertificateDatabase.IsAvailable)
-				dbase = new SqliteCertificateDatabase (fileName, password);
-			else
-				throw new NotSupportedException ("Mono.Data.Sqlite is not available.");
+			dbase = new SqliteCertificateDatabase (fileName, password);
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.

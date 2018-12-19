@@ -127,6 +127,19 @@ namespace MimeKit.Cryptography {
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
 
+			if (!File.Exists (fileName)) {
+				var dir = Path.GetDirectoryName (fileName);
+
+				if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
+					Directory.CreateDirectory (dir);
+
+#if __MOBILE__
+				SqliteConnection.CreateFile (fileName);
+#else
+				File.Create (fileName).Dispose ();
+#endif
+			}
+
 #if !__MOBILE__
 			var dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
 			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
@@ -136,15 +149,6 @@ namespace MimeKit.Cryptography {
 			if (dateTimeFormat != null)
 				dateTimeFormat.SetValue (builder, 0, null);
 
-			if (!File.Exists (fileName)) {
-				var dir = Path.GetDirectoryName (fileName);
-
-				if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
-					Directory.CreateDirectory (dir);
-
-				File.Create (fileName).Dispose ();
-			}
-
 			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
 
 			return (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
@@ -152,15 +156,6 @@ namespace MimeKit.Cryptography {
 			var builder = new SqliteConnectionStringBuilder ();
 			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
 			builder.DataSource = fileName;
-
-			if (!File.Exists (fileName)) {
-				var dir = Path.GetDirectoryName (fileName);
-
-				if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
-					Directory.CreateDirectory (dir);
-
-				SqliteConnection.CreateFile (fileName);
-			}
 
 			return new SqliteConnection (builder.ConnectionString);
 #endif
@@ -193,7 +188,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
-		public SqliteCertificateDatabase (string fileName, string password) : base (CreateConnection (fileName), password)
+		public SqliteCertificateDatabase (string fileName, string password) : this (CreateConnection (fileName), password)
 		{
 		}
 
