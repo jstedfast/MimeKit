@@ -1,6 +1,6 @@
 # Release Notes
 
-### MimeKit 2.1.1
+### MimeKit 2.1.1 (2018-12-16)
 
 * Mapped the TNEF Sensitivity property to the Sensitivity message header when calling
   TnefPart.ConvertToMessage().
@@ -16,7 +16,7 @@
 * Added more fallbacks for attempting to extract the sender information out of the TNEF data.
 * Bumped Android and iOS versions of BouncyCastle to v1.8.4.
 
-### MimeKit 2.1.0
+### MimeKit 2.1.0 (2018-12-01)
 
 * Optimized SecureMimeCryptographyContext.Supports() and OpenPgpCryptographyContext.Supports()
   implementations.
@@ -28,7 +28,7 @@
 * Improved header folding logic for headers with long words.
   (issue [#451](https://github.com/jstedfast/MimeKit/issues/451))
 
-### MimeKit 2.0.7
+### MimeKit 2.0.7 (2018-10-28)
 
 * Fixed a bug in the UUEncoder.
 * Fixed a bug in MimeIterator.MoveTo().
@@ -48,7 +48,7 @@
   stream does not have properly formatted headers. (issue [#443](https://github.com/jstedfast/MimeKit/issues/443))
 * Added support for message/global.
 
-### MimeKit 2.0.6
+### MimeKit 2.0.6 (2018-08-04)
 
 * Added more bounds checking for parsing mailbox addresses to fix IndexOutOfRangeExceptions
   given an incomplete address like "Name <". (issue [#421](https://github.com/jstedfast/MimeKit/issues/421))
@@ -58,13 +58,13 @@
   iso-8859-1. (issue [#417](https://github.com/jstedfast/MimeKit/issues/417))
 * Minor optimizations.
 
-### MimeKit 2.0.5
+### MimeKit 2.0.5 (2018-07-07)
 
 * Make sure messages created from System.Net.Mail.MailMessages have a Date header. (MailKit issue [#710](https://github.com/jstedfast/MailKit/issues/710))
 * Allow developers to pass in their own SecureRandom when generating PGP key pairs. (issue [#404](https://github.com/jstedfast/MimeKit/issues/404))
 * Modified MemoryBlockStream to use a shared buffer pool to relieve pressure on the GC. (MailKit issue [#725](https://github.com/jstedfast/MailKit/issues/725))
 
-### MimeKit 2.0.4
+### MimeKit 2.0.4 (2018-05-21)
 
 * The default value of the `CheckCertificateRevocation` property located on the
   `BouncyCastleSecureMimeContext` has been changed to `false` due to privacy concerns noted
@@ -75,13 +75,13 @@
 * Added FormatOptions.EnsureNewLine property (MailKit issue [#251](https://github.com/jstedfast/MailKit/issues/251))
 * Enable System.Net.Mail support for .NET Core 2.0. (issue [#393](https://github.com/jstedfast/MimeKit/issues/393))
 
-### MimeKit 2.0.3
+### MimeKit 2.0.3 (2018-04-15)
 
 * Allow empty TextBody and HtmlBody properties for BodyBuilder. (issue [#391](https://github.com/jstedfast/MimeKit/issues/391))
 * Fixed BodyBuilder.Attachments.Add() to properly handle message/rfc822 attachments.
 * Fixed HTML entity encoder logic when a surrogate pair is at the end of the input. (issue [#385](https://github.com/jstedfast/MimeKit/issues/385))
 
-### MimeKit 2.0.2
+### MimeKit 2.0.2 (2018-03-18)
 
 * IDN encode/decode the local part of mailbox addresses as well. (MailKit issue [#649](https://github.com/jstedfast/MailKit/issues/649))
 * Added a record for .epub to the MimeTypes database. (issue [#376](https://github.com/jstedfast/MimeKit/issues/376))
@@ -91,7 +91,7 @@
 * Provide a better error message when the cert within a pkcs12 cannot digital sign. (issue [#367](https://github.com/jstedfast/MimeKit/issues/367))
 * Fixed TemporarySecureMimeContext to key off the certificate's fingerprint.
 
-### MimeKit 2.0.1
+### MimeKit 2.0.1 (2018-01-06)
 
 * Improved the HTML parser logic to better handle a number of edge cases.
 * MimeKit will now automatically download CRLs based on the CRL Distribution Point
@@ -108,7 +108,7 @@
   specifying the symmetric key algorithm to use in generating the key pair. This defaults
   to AES-256, which is the same value used in older versions of MimeKit.
 
-### MimeKit 2.0.0
+### MimeKit 2.0.0 (2017-12-22)
 
 * Added IDkimPublicKeyLocator.LookupPublicKeyAsync() and MimeMessage.VerifyAsync() to support
   asynchronous DNS lookups of DKIM public keys.
@@ -124,7 +124,7 @@
 * Renamed the MimePart.ContentObject property to MimePart.Content.
 * Dropped support for .NET 3.5 and .NET 4.0.
 
-### MimeKit 1.22.0
+### MimeKit 1.22.0 (2017-11-24)
 
 * Fixed a buffering bug in MimeParser's header parser. (issue [#358](https://github.com/jstedfast/MimeKit/issues/358))
 * Set the TnefReader charset on extracted text/plain and text/html bodies. (issue [#357](https://github.com/jstedfast/MimeKit/issues/357))
@@ -134,7 +134,7 @@
 * Fixed the S/MIME certificate database for .NETStandard by using GetFieldValue() instead
   of GetBytes() which is not supported on .NETStandard. (issue [#351](https://github.com/jstedfast/MimeKit/issues/351))
 
-### MimeKit 1.20.0
+### MimeKit 1.20.0 (2017-10-28)
 
 * Added async support for writing MimeMessage, MimeEntity, HeaderList and ContentObject.
 * Added async support for parsing MimeMessage, MimeEntity, and HeaderList.
@@ -147,7 +147,7 @@
   (issue [#337](https://github.com/jstedfast/MimeKit/issues/337))
 * Fixed a bug in BoundStream.Seek().
 
-### MimeKit 1.18.1
+### MimeKit 1.18.1 (2017-09-03)
 
 * Added CanSign() and CanEncrypt() methods to CryptographyContext for checking
   whether or not a mailbox can be used for signing or be encrypted to. (issue [#325](https://github.com/jstedfast/MimeKit/issues/325))
@@ -161,7 +161,7 @@
 * Added OpenPgpContext.SignKey().
 * Remove "Version:" header from armored OpenPGP output. (issue [#319](https://github.com/jstedfast/MimeKit/issues/319))
 
-### MimeKit 1.18.0
+### MimeKit 1.18.0 (2017-08-07)
 
 * Allow importing of known PGP keys (needed when re-importing keys after signing them). (issue [#315](https://github.com/jstedfast/MimeKit/issues/315))
 * Added APIs to enumerate public and secret PGP keys.
@@ -173,21 +173,21 @@
   when the MailboxAddress argument is a SecureMailboxAddress. (issue [#322](https://github.com/jstedfast/MimeKit/issues/322))
 * Fall back to using the Subject Alternative Rfc822 Name if the SubjectEmailAddress fails. (issue [#323](https://github.com/jstedfast/MimeKit/issues/323))
 
-### MimeKit 1.16.2
+### MimeKit 1.16.2 (2017-07-01)
 
 * Fixed a bug in the MailMessage to MimeMessage conversion which corrupted the Subject string. (issue [#306](https://github.com/jstedfast/MimeKit/issues/306))
 * If no KeyUsage extension exists for an X509 certificate, assume no restrictions on key usage.
 * Throw an exception if there is a problem building an X509 certificate chain when verifying
   S/MIME signatures.
 
-### MimeKit 1.16.1
+### MimeKit 1.16.1 (2017-05-05)
 
 * Fixed TextToHtml and FlowedToHtml's OutputHtmlFragment property to work.
 * Fixed EncodeAddrspec and DecodeAddrspec to handle string.Empty. (issue [#302](https://github.com/jstedfast/MimeKit/issues/302))
 * Allow string.Empty as a valid addrspec for MailboxAddress. (issue [#302](https://github.com/jstedfast/MimeKit/issues/302))
 * Catch exceptions trying to import CRLs and Certs when verifying S/MIME signatures. (issue [#304](https://github.com/jstedfast/MimeKit/issues/304))
 
-### MimeKit 1.16.0
+### MimeKit 1.16.0 (2017-04-21)
 
 * Added new ParserOptions option to allow local-only mailbox addresses (e.g. no @domain).
 * Improved address parser to interpret unquoted names containing commas in email addresses
@@ -195,7 +195,7 @@
 * Greatly improved the WindowsSecureMimeContext backend.
 * A number of fixes to bugs exposed by an ever-increasing set of unit tests (up to 87% coverage).
 
-### MimeKit 1.14.0
+### MimeKit 1.14.0 (2017-04-09)
 
 * Added International Domain Name support for email addresses.
 * Added a work-around for mailers that didn't provide a disposition value in a
@@ -211,7 +211,7 @@
 * Format Reply-To and Sender headers as address headers when using Header.SetValue().
 * Fixed MimeMessage.CreateFromMailMessage() to set MimeVersion. (issue [#290](https://github.com/jstedfast/MimeKit/issues/290))
 
-### MimeKit 1.12.0
+### MimeKit 1.12.0 (2017-03-12)
 
 * Added new DKIM MimeMessage.Sign() methods that take an IList<string> of header field names
   to sign.
@@ -228,36 +228,36 @@
 * Store DBNull in S/MIME SQL backends for null values (SQLite handles `null` but
   databases such as Postgres do not). (issue [#286](https://github.com/jstedfast/MimeKit/issues/286))
 
-### MimeKit 1.10.1
+### MimeKit 1.10.1 (2017-01-28)
 
 * Fixed the Content-Type and Content-Disposition parameter parser to remove trailing lwsp from
   unquoted parameter values. (issue [#278](https://github.com/jstedfast/MimeKit/issues/278))
 * Fixed MimePart.WriteTo() to not necessarily force the content to end with a new-line.
 
-### MimeKit 1.10.0
+### MimeKit 1.10.0 (2016-10-31)
 
 * Fixed OpenPgpContext.Verify() to throw FormatException if no data packets found.
 * Added new MailboxAddress constructors that do not take a 'name' argument. (issue [#267](https://github.com/jstedfast/MimeKit/issues/267))
 * Added an HtmlToHtml.FilterComments property to remove comments. (issue [#271](https://github.com/jstedfast/MimeKit/issues/271))
 * Modified address parser to handle invalid addresses like "user@example.com <user@example.com>".
 
-### MimeKit 1.8.0
+### MimeKit 1.8.0 (2016-09-25)
 
 * Improved parsing of malformed mailbox addresses.
 * Added DecompressTo() and DecryptTo() methods to SecureMimeContext.
 * Fixed MessagePartial.Split().
 
-### MimeKit 1.6.0
+### MimeKit 1.6.0 (2016-09-11)
 
 * Use RandomNumberGenerator.Create() for .NET Core instead of System.Random when generating
   multipart boundaries.
 
-### MimeKit 1.4.2
+### MimeKit 1.4.2 (2016-08-14)
 
 * Strong-name the .NET Core assemblies.
 * Fixed logic for selecting certificates from the Windows X.509 Store. (issue [#262](https://github.com/jstedfast/MimeKit/issues/262))
 
-### MimeKit 1.4.1
+### MimeKit 1.4.1 (2016-07-17)
 
 * Fixed QuotedPrintableDecoder to handle soft breaks that fall on a buffer boundary.
 * Fixed MimeMessage.WriteTo() to properly respect the FormatOptions when writing the
@@ -267,20 +267,20 @@
 * Added new TextPart .ctor that takes a TextFormat argument so that developers that
   don't understand mime-types can more easily intuit what that argument should be.
 
-### MimeKit 1.4.0
+### MimeKit 1.4.0 (2016-07-01)
 
 * Added support for .NET Core 1.0
 * Changed the default value of FormatOptions.AllowMixedHeaderCharsets to false.
 * Added a new DkimSigner .ctor that takes a stream of key data. (issue [#255](https://github.com/jstedfast/MimeKit/issues/255))
 
-### MimeKit 1.2.25
+### MimeKit 1.2.25 (2016-06-16)
 
 * Fixed parsing bugs in MessageDeliveryStatus.StatusGroups. (issue [#253](https://github.com/jstedfast/MimeKit/issues/253))
 * Fixed MimeParser.ParseHeaders() to handle header blocks that do not end with a blank line. (issue [#250](https://github.com/jstedfast/MimeKit/issues/250))
 * Fixed the MailboxAddress parser to handle whitespace between '<' and the addr-spec.
 * Fixed TemporarySecureMimeContext to handle certificates with null email addresses. (issue [#252](https://github.com/jstedfast/MimeKit/issues/252))
 
-### MimeKit 1.2.24
+### MimeKit 1.2.24 (2016-05-22)
 
 * Modified MimeMessage .ctor to not add an empty To: header by default. (issue [#241](https://github.com/jstedfast/MimeKit/issues/241))
 * Modified MimeMessage to remove address headers when all addresses in that field are removed.
@@ -288,7 +288,7 @@
 * Fixed TnefPropertyReader to convert APPTIME values into DateTimes from the OLE Automation
   Date format. (issue [#245](https://github.com/jstedfast/MimeKit/issues/245))
 
-### MimeKit 1.2.23
+### MimeKit 1.2.23 (2016-05-07)
 
 * Modified ParamaterList.TryParse() to handle quoted rfc2231-encoded param values. (issue [#239](https://github.com/jstedfast/MimeKit/issues/239))
 * Updated to reference BouncyCastle via NuGet packages rather than bundling the assemblies.
@@ -298,7 +298,7 @@
 * Added convenience MimeMessage property for the X-Priority header.
 * Fixed MimeMessage.ConvertFromMailMessage() to use appropriate MimeEntity subclasses. (issue [#232](https://github.com/jstedfast/MimeKit/issues/232))
 
-### MimeKit 1.2.22
+### MimeKit 1.2.22 (2016-02-28)
 
 * Added a new SecureMimeContext.Verify() overload that returns the extracted content stream.
 * Exposed the SecureMimeContext.GetDigitalSignatures() method as protected, allowing custom
@@ -312,7 +312,7 @@
   file or stream.
 * Fixed UrlScanner to properly deal with IPv6 literals in email addresses.
 
-### MimeKit 1.2.21
+### MimeKit 1.2.21 (2016-02-13)
 
 * Added a MultipartReport class for multipart/report.
 * Fixed serialization for embedded message/* parts. (issue [#228](https://github.com/jstedfast/MimeKit/issues/228))
@@ -325,7 +325,7 @@
 * Fixed MimeMessage.DkimSign() to not enforce 7bit encoding of the body. (issue [#224](https://github.com/jstedfast/MimeKit/issues/224))
 * Fixed ParameterList.IndexOf(string) to be case insensitive.
 
-### MimeKit 1.2.20
+### MimeKit 1.2.20 (2016-01-24)
 
 * Fixed serialization of mime parts with empty content. (issue [#221](https://github.com/jstedfast/MimeKit/issues/221))
 * Fixed a bug in the TnefPropertyReader that would break when not all properties were read
@@ -347,7 +347,7 @@
 * Fixed MimeParser to trim the CR from the mbox From marker.
 * Fixed SqlCertificateDatabase to properly chain Dispose.
 
-### MimeKit 1.2.19
+### MimeKit 1.2.19 (2016-01-01)
 
 * Handle illegal Content-Id headers that do not enclose their values in <>'s. (issue [#215](https://github.com/jstedfast/MimeKit/issues/215))
 * Fixed reserialization of MimeParts with empty content. (issue [#213](https://github.com/jstedfast/MimeKit/issues/213))
@@ -355,7 +355,7 @@
 * Fixed HtmlTokenizer to work properly when some closing tags were not lowercase.
 * Bumped Bouncy Castle to v1.8.1.
 
-### MimeKit 1.2.18
+### MimeKit 1.2.18 (2015-12-16)
 
 * Removed unimplemented TNEF APIs.
 * Use DateTime.UtcNow for S/MIME certificate validity checks.
@@ -369,18 +369,18 @@
 * Added GroupAddress.Parse() and MailboxAddress.Parse() methods. (issue [#197](https://github.com/jstedfast/MimeKit/issues/197))
 * Set a default filename when generating application/pgp-signature parts. (issue [#195](https://github.com/jstedfast/MimeKit/issues/195))
 
-### MimeKit 1.2.17
+### MimeKit 1.2.17 (2015-12-05)
 
 * Fixed DkimRelaxedBodyFilter to properly handle CRLF split across buffers.
 * Added ContentType.IsMimeType method to replace CongtentType.Matches.
 * Added S/MIME, PGP and DKIM support to the PCL and WindowsUniversal versions of MimeKit.
 * Fixed PGP key expiration calculation when encrypting. (issue [#194](https://github.com/jstedfast/MimeKit/issues/194))
 
-### MimeKit 1.2.16
+### MimeKit 1.2.16 (2015-11-29)
 
 * Fixed relaxed body canonicalization logic for DKIM signatures. (issue [#190](https://github.com/jstedfast/MimeKit/issues/190))
 
-### MimeKit 1.2.15
+### MimeKit 1.2.15 (2015-11-22)
 
 * Fixed the Date parser to catch exceptions thrown by the DateTimeOffset .ctor if any of the
   fields are out of range.
@@ -388,7 +388,7 @@
 * Fixed DKIM body filters to reserve extra space in the output buffer. (issue [#188](https://github.com/jstedfast/MimeKit/issues/188))
 * Allow specifying a charset encoding for each Content-Type/Disposition parameter.
 
-### MimeKit 1.2.14
+### MimeKit 1.2.14 (2015-10-18)
 
 * Fixed DKIM-Signature signing logic to use a UTC-based timestamp value rather than a
   timestamp based on the local-time. (issue [#180](https://github.com/jstedfast/MimeKit/issues/180))
@@ -398,16 +398,16 @@
   spanning across nested multiparts. (issue [#181](https://github.com/jstedfast/MimeKit/issues/181))
 * Fixed MimeMessage.WriteTo() to ensure that the output stream always ends with a new-line.
 
-### MimeKit 1.2.13
+### MimeKit 1.2.13 (2015-10-11)
 
 * Modified Base64Encoder's .ctor to allow specifying a maxLineLength.
 * Fixed DKIM signing logic for multipart/alternative messages. (issue [#178](https://github.com/jstedfast/MimeKit/issues/178))
 
-### MimeKit 1.2.12
+### MimeKit 1.2.12 (2015-09-20)
 
 * Prevent infinite loop when flushing CharsetFilter when there is no input data left.
 
-### MimeKit 1.2.11
+### MimeKit 1.2.11 (2015-09-06)
 
 * Fixed an IndexOutOfRangeException bug in the TextToHTML converter logic. (issue [#165](https://github.com/jstedfast/MimeKit/issues/165))
 * Fixed the DKIM-Signature verification logic to be more lenient in parsing DKIM-Signature
@@ -423,7 +423,7 @@
 * Fixed the DKIM-Signature logic (both signing and verifying) to properly canonicalize the
   body content. (issue [#172](https://github.com/jstedfast/MimeKit/issues/172))
 
-### MimeKit 1.2.10
+### MimeKit 1.2.10 (2015-08-16)
 
 * Added public Stream property to IContentObject.
 * Implemented a better fix for illegal unquoted multi-line Content-Type and
@@ -432,7 +432,7 @@
   (issue [#161](https://github.com/jstedfast/MimeKit/issues/161))
 * Fixed charset handling logic to not override charset aliases already in the cache.
 
-### MimeKit 1.2.9
+### MimeKit 1.2.9 (2015-08-08)
 
 * Fixed WriteTo(string fileName) methods to overwrite the existing file. (issue [#154](https://github.com/jstedfast/MimeKit/issues/154))
 * Updated InternetAddressList to implement IComparable.
@@ -440,7 +440,7 @@
 * Added support for Message-Id headers that do not properly use encapsulate the value
   with angle brackets.
 
-### MimeKit 1.2.8
+### MimeKit 1.2.8 (2015-07-19)
 
 * Added a new MessageDeliveryStatus MimePart subclass to make message/delivery-status
   MIME parts easier to deal with.
@@ -450,18 +450,18 @@
 * Fixed MimeParser to handle a message stream of just "\r\n".
 * Add a leading space in the Sender and Resent-Sender header values.
 
-### MimeKit 1.2.7
+### MimeKit 1.2.7 (2015-07-05)
 
 * Fixed encoding GroupAddress with multiple mailbox addresses.
 * Fixed MessageIdList to be less strict in what it will accept.
 * Fixed logic for DKIM-Signature header folding.
 
-### MimeKit 1.2.6
+### MimeKit 1.2.6 (2015-06-25)
 
 * Fixed a bug in the HTML tokenizer to handle some weird HTML created by Outlook 15.0.
 * Added CmsRecipient .ctor overloads that accept X509Certificate2. (issue [#149](https://github.com/jstedfast/MimeKit/issues/149))
 
-### MimeKit 1.2.5
+### MimeKit 1.2.5 (2015-06-22)
 
 * Changed BodyParts and Attachments to be IEnumerable<MimeEntity> -
   WARNING! This is an API change! (issue [#148](https://github.com/jstedfast/MimeKit/issues/148))
@@ -470,7 +470,7 @@
 * Vastly improved the HtmlToHtml text converter with a w3 compliant
   HTML tokenizer.
 
-### MimeKit 1.2.4
+### MimeKit 1.2.4 (2015-06-14)
 
 * Added support for generating and verifying DKIM-Signature headers.
 * Improved error handling for Encoding.GetEncoding() in CharsetFilter constructors.
@@ -490,12 +490,12 @@
   of leaving this up to the MimeEntity.WriteTo() method. This was needed for
   the DKIM-Signatures feature.
 
-### MimeKit 1.2.3
+### MimeKit 1.2.3 (2015-06-01)
 
 * Fixed TextToFlowed logic that stripped trailing spaces.
 * Switched to PCL Profile78 to support Xamarin.Forms.
 
-### MimeKit 1.2.2
+### MimeKit 1.2.2 (2015-05-31)
 
 * Added a MultipartAlternative class which adds some useful convenience methods
   and properties for use with the multipart/alternative mime-type.
@@ -508,7 +508,7 @@
 * Added a MimeVisitor class that implements the visitor pattern for visiting
   MIME nodes.
 
-### MimeKit 1.2.1
+### MimeKit 1.2.1 (2015-05-25)
 
 * Added a Format property to ContentType.
 * Added a TryGetValue() method to ParameterList.
@@ -520,17 +520,17 @@
 * Renamed MimeEntityConstructorInfo to MimeEntityConstructorArgs.
 * Modified the MimeParser to use TextPart to represent application/rtf.
 
-### MimeKit 1.2.0
+### MimeKit 1.2.0 (2015-05-24)
 
 * Force the use of the rfc2047 "B" encoding for ISO-2022-JP. (issue [#139](https://github.com/jstedfast/MimeKit/issues/139))
 * Added some text converters to convert between various text formats
   including format=flowed and HTML.
 
-### MimeKit 1.0.15
+### MimeKit 1.0.15 (2015-05-12)
 
 * Fixed MimeMessage.WriteTo() to be thread-safe. (issue [#138](https://github.com/jstedfast/MimeKit/issues/138))
 
-### MimeKit 1.0.14
+### MimeKit 1.0.14 (2015-05-09)
 
 * Added support for .NET 3.5.
 * Added a convenience CmsSigner .ctor that takes an X509Certificate2 argument.
@@ -548,7 +548,7 @@
 * Catch DecoderFallbackExceptions in MimeMessage.ToString() and fall back to
   Latin1. (issue [#137](https://github.com/jstedfast/MimeKit/issues/137))
 
-### MimeKit 1.0.13
+### MimeKit 1.0.13 (2015-04-11)
 
 * Added a work-around for a bug in Thunderbird's multipart/related implementation.
   (issue [#124](https://github.com/jstedfast/MimeKit/issues/124))
@@ -556,7 +556,7 @@
   From, Reply-To, To, Cc and/or Bcc headers.
 * Modified the HeaderIdExtensions to only be available for the HeaderId enum values.
 
-### MimeKit 1.0.12
+### MimeKit 1.0.12 (2015-03-29)
 
 * Modified InternetAddressList.Equals() to return true if the lists contain the same
   addresses even if they are in different orders. (issue [#118](https://github.com/jstedfast/MimeKit/issues/118))
@@ -568,7 +568,7 @@
 * Added support for SecureMailboxAddresses to OpenPgpContext to allow key lookups by
   fingerprints instead of email addresses.
 
-### MimeKit 1.0.11
+### MimeKit 1.0.11 (2015-03-21)
 
 * Added the ContentDisposition.FormData string constant.
 * Allow the ContentDisposition.Disposition property to be set to values other than
@@ -582,7 +582,7 @@
 * Added immutability-friendly .ctor to MimeMessage for use with languages such as F#.
   (issue [#116](https://github.com/jstedfast/MimeKit/issues/116))
 
-### MimeKit 1.0.10
+### MimeKit 1.0.10 (2015-03-14)
 
 * Ignore semi-colons in Content-Transfer-Encoding headers to work around broken mailers.
 * Added ParserOptions.ParameterComplianceMode (defaults to RfcComoplianceMode.Loose)
@@ -595,13 +595,13 @@
 * Modified MultipartSigned to use 78 characters as the max line length rather than 998
   characters. (issue [#107](https://github.com/jstedfast/MimeKit/issues/107))
 
-### MimeKit 1.0.9
+### MimeKit 1.0.9 (2015-03-08)
 
 * Added a new MessageDispositionNotification MimePart subclass to represent
   message/disposition-notification parts.
 * Fixed the TNEF parser to gracefully deal with duplicate attachment properties.
 
-### MimeKit 1.0.8
+### MimeKit 1.0.8 (2015-03-02)
 
 * Modified the parser to accept Message-Id values without a domain (i.e. "<local-part@>").
 * Fixed a NullReferenceException in MimeMessage.BodyParts in cases where a MessagePart
@@ -613,7 +613,7 @@
 * Fixed S/MIME support to gracefully deal with badly formatted signature timestamps
   which incrorectly use leap seconds. (issue [#103](https://github.com/jstedfast/MimeKit/issues/103))
 
-### MimeKit 1.0.7
+### MimeKit 1.0.7 (2015-02-17)
 
 * Fixed TnefPropertyReader.GetEmbeddedMessageReader() to skip the Guid.
 * When decrypting PGP data, iterate over all encrypted packets to find one that
@@ -623,7 +623,7 @@
 * Added a Pkcs9SigningTime attribute to the CmsSigner for WindowsSecureMimeContext.
   (issue [#101](https://github.com/jstedfast/MimeKit/issues/101))
 
-### MimeKit 1.0.6
+### MimeKit 1.0.6 (2015-01-18)
 
 * Vastly improved MS-TNEF support. In addition to being fixed to properly extract
   the AttachData property of an Attachment attribute, more metadata is captured
@@ -635,12 +635,12 @@ Note: If you are not yet ready to port your iOS application to the Unified API,
       you will need to stick with the 1.0.5 release. The Classic MonoTouch API
       is no longer supported.
 
-### MimeKit 1.0.5
+### MimeKit 1.0.5 (2015-01-10)
 
 * Fixed out-of-memory error when encoding some long non-ASCII parameter values in
   Content-Type and Content-Disposition headers.
 
-### MimeKit 1.0.4
+### MimeKit 1.0.4 (2015-01-08)
 
 * Added workaround for msg-id tokens with multiple domains
   (e.g. id@domain1@domain2).
@@ -649,7 +649,7 @@ Note: If you are not yet ready to port your iOS application to the Unified API,
 * Added a FormatOptions property to disallow the use of mixed charsets when
   encoding headers (issue [#139](https://github.com/jstedfast/MimeKit/issues/139)).
 
-### MimeKit 1.0.3
+### MimeKit 1.0.3 (2014-12-13)
 
 * Improved MimeMessage.TextBody and MimeMessage.HtmlBody logic. (issue [#87](https://github.com/jstedfast/MimeKit/issues/87))
 * Added new overrides of TextPart.GetText() and SetText() methods that take a
@@ -660,13 +660,13 @@ Note: If you are not yet ready to port your iOS application to the Unified API,
 * Fixed S/MIME logic for finding X.509 certificates to use for encipherment.
   (issue [#89](https://github.com/jstedfast/MimeKit/issues/89))
 
-### MimeKit 1.0.2
+### MimeKit 1.0.2 (2014-12-05)
 
 * Fixed MimeMessage.HtmlBody and MimeMessage.TextBody to properly
   handle nested multipart/alternatives (only generated by automated
   mailers).
 
-### MimeKit 1.0.1
+### MimeKit 1.0.1 (2014-11-23)
 
 * Added MimeMessage.HtmlBody and MimeMessage.TextBody convenience properties.
 * Added TextPart.IsPlain and TextPart.IsHtml convenience properties.
