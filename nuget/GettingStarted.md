@@ -55,7 +55,7 @@ to be interpreted as attachments.
 
 The `Content-Disposition` header will generally have one of two values: `inline` or `attachment`.
 
-The meaning of these value should be fairly obvious. If the value is `attachment`, then the content
+The meaning of these values should be fairly obvious. If the value is `attachment`, then the content
 of said MIME part is meant to be presented as a file attachment separate from the core message.
 However, if the value is `inline`, then the content of that MIME part is meant to be displayed inline
 within the mail client's rendering of the core message body. If the `Content-Disposition` header does
@@ -180,15 +180,15 @@ save the decoded content to a file:
 var fileName = part.FileName;
 
 using (var stream = File.Create (fileName)) {
-    part.ContentObject.DecodeTo (stream);
+    part.Content.DecodeTo (stream);
 }
 ```
 
-You can also get access to the original raw content by "opening" the `ContentObject`. This might be useful
+You can also get access to the original raw content by "opening" the `Content`. This might be useful
 if you want to pass the content off to a UI control that can do its own loading from a stream.
 
 ```csharp
-using (var stream = part.ContentObject.Open ()) {
+using (var stream = part.Content.Open ()) {
     // At this point, you can now read from the stream as if it were the original,
     // raw content. Assuming you have an image UI control that could load from a
     // stream, you could do something like this:
@@ -261,7 +261,7 @@ Will you be my +1?
 
 // create an image attachment for the file located at path
 var attachment = new MimePart ("image", "gif") {
-    ContentObject = new ContentObject (File.OpenRead (path), ContentEncoding.Default),
+    Content = new MimeContent (File.OpenRead (path), ContentEncoding.Default),
     ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
     ContentTransferEncoding = ContentEncoding.Base64,
     FileName = Path.GetFileName (path)
@@ -361,12 +361,17 @@ If you are targetting any of the Xamarin platforms (or Linux), you won't need to
 anything (although you certainly can if you want to) because, by default, I've
 configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
 
-If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
-provider such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
-Once you've made your choice and installed it (via NuGet or however), you'll need to
-implement your own `SecureMimeContext` subclass. Luckily, it's very simple to do. Assuming
-you've chosen System.Data.SQLite, here's how you'd implement your own `SecureMimeContext`
-class:
+If you are on any of the Windows platforms, however, you'll need to decide on whether
+to use one of the conveniently available backends such as the `WindowsSecureMimeContext`
+backend or the `TemporarySecureMimeContext` backend or else you'll need to pick a
+System.Data provider such as
+[System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite) to use with
+the `DefaultSecureMimeContext` base class.
+
+If you opt for using the `DefaultSecureMimeContext` backend, you'll need to implement
+your own `DefaultSecureMimeContext` subclass. Luckily, it's very simple to do.
+Assuming you've chosen System.Data.SQLite, here's how you'd implement your own
+`DefaultSecureMimeContext` class:
 
 ```csharp
 using System.Data.SQLite;
@@ -404,6 +409,9 @@ CryptographyContext.Register (typeof (MySecureMimeContext));
 ```
 
 Now you are ready to encrypt, decrypt, sign and verify S/MIME messages!
+
+Note: If you choose to use the `WindowsSecureMimeContext` or `TemporarySecureMimeContext` backend,
+you should register that class instead.
 
 ### Preparing to use MimeKit's PGP/MIME support
 
@@ -572,7 +580,7 @@ would use an OpenPGP cryptography context. For example, you might use a subclass
 use `GnuPGContext` directly because it has no way of prompting the user for their passphrase).
 
 For the sake of this example, let's pretend that you've written a minimal subclass of
-`MimeKit.Cryptography.GnuPGContext` that simply overrides the `GetPassword()` method and
+`MimeKit.Cryptography.GnuPGContext` that only overrides the `GetPassword()` method and
 that this subclass is called `MyGnuPGContext`.
 
 ```csharp
@@ -688,31 +696,211 @@ As you can see, it's fairly straight forward.
 
 Verifying DKIM signatures is slightly more involved than creating them because you'll need to write a custom
 implementation of the `IDkimPublicKeyLocator` interface. Typically, this custom class will need to download
-the DKIM public keys as they are requested by MimeKit during verification of DKIM signature headers.
+the DKIM public keys via your chosen DNS library as they are requested by MimeKit during verification of
+DKIM signature headers.
 
-Once you've implemented a custom `IDkimPublicKeyLocator`, verifying signatures is fairly trivial:
+Once you've implemented a custom `IDkimPublicKeyLocator`, verifying signatures is fairly trivial. Most of the work
+needed will be in the `IDkimPublicKeyLocator` implementation. As an example of how to implement this interface,
+here is one possible implementation using the [Heijden.DNS](http://www.nuget.org/packages/Heijden.Dns/) library:
 
 ```csharp
-var dkim = message.Headers[HeaderId.DkimSignature];
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Collections.Generic;
 
-if (message.Verify (dkim, locator)) {
-    // the DKIM-Signature header is valid!
-} else {
-    // the DKIM-Signature is invalid
+using Heijden.DNS;
+
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+
+using MimeKit;
+using MimeKit.Cryptography;
+
+namespace DkimVerifier
+{
+	class DkimPublicKeyLocator : IDkimPublicKeyLocator
+	{
+		readonly Dictionary<string, AsymmetricKeyParameter> cache;
+		readonly Resolver resolver;
+
+		public DkimPublicKeyLocator ()
+		{
+			cache = new Dictionary<string, AsymmetricKeyParameter> ();
+
+			resolver = new Resolver ("8.8.8.8") {
+				TransportType = TransportType.Udp,
+				UseCache = true,
+				Retries = 3
+			};
+		}
+
+		AsymmetricKeyParameter DnsLookup (string domain, string selector, CancellationToken cancellationToken)
+		{
+			var query = selector + "._domainkey." + domain;
+			AsymmetricKeyParameter pubkey;
+
+			// checked if we've already fetched this key
+			if (cache.TryGetValue (query, out pubkey))
+				return pubkey;
+
+			// make a DNS query
+			var response = resolver.Query (query, QType.TXT);
+			var builder = new StringBuilder ();
+
+			// combine the TXT records into 1 string buffer
+			foreach (var record in response.RecordsTXT) {
+				foreach (var text in record.TXT)
+					builder.Append (text);
+			}
+
+			var txt = builder.ToString ();
+			string k = null, p = null;
+			int index = 0;
+
+			// parse the response (will look something like: "k=rsa; p=<base64>")
+			while (index < txt.Length) {
+				while (index < txt.Length && char.IsWhiteSpace (txt[index]))
+					index++;
+
+				if (index == txt.Length)
+					break;
+
+				// find the end of the key
+				int startIndex = index;
+				while (index < txt.Length && txt[index] != '=')
+					index++;
+
+				if (index == txt.Length)
+					break;
+
+				var key = txt.Substring (startIndex, index - startIndex);
+
+				// skip over the '='
+				index++;
+
+				// find the end of the value
+				startIndex = index;
+				while (index < txt.Length && txt[index] != ';')
+					index++;
+
+				var value = txt.Substring (startIndex, index - startIndex);
+
+				switch (key) {
+				case "k": k = value; break;
+				case "p": p = value; break;
+				}
+
+				// skip over the ';'
+				index++;
+			}
+
+			if (k != null && p != null) {
+				var data = "-----BEGIN PUBLIC KEY-----\r\n" + p + "\r\n-----END PUBLIC KEY-----\r\n";
+				var rawData = Encoding.ASCII.GetBytes (data);
+
+				using (var stream = new MemoryStream (rawData, false)) {
+					using (var reader = new StreamReader (stream)) {
+						var pem = new PemReader (reader);
+
+						pubkey = pem.ReadObject () as AsymmetricKeyParameter;
+
+						if (pubkey != null) {
+							cache.Add (query, pubkey);
+
+							return pubkey;
+						}
+					}
+				}
+			}
+
+			throw new Exception (string.Format ("Failed to look up public key for: {0}", domain));
+		}
+
+		public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			var methodList = methods.Split (new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+			for (int i = 0; i < methodList.Length; i++) {
+				if (methodList[i] == "dns/txt")
+					return DnsLookup (domain, selector, cancellationToken);
+			}
+
+			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
+		}
+	}
+
+	class Program
+	{
+		public static void Main (string[] args)
+		{
+			if (args.Length == 0) {
+				Help ();
+				return;
+			}
+
+			for (int i = 0; i < args.Length; i++) {
+				if (args[i] == "--help") {
+					Help ();
+					return;
+				}
+			}
+
+			var locator = new DkimPublicKeyLocator ();
+
+			for (int i = 0; i < args.Length; i++) {
+				if (!File.Exists (args[i])) {
+					Console.Error.WriteLine ("{0}: No such file.", args[i]);
+					continue;
+				}
+
+				Console.Write ("{0} -> ", args[i]);
+
+				var message = MimeMessage.Load (args[i]);
+				var index = message.Headers.IndexOf (HeaderId.DkimSignature);
+
+				if (index == -1) {
+					Console.WriteLine ("NO SIGNATURE");
+					continue;
+				}
+
+				var dkim = message.Headers[index];
+
+				if (message.Verify (dkim, locator)) {
+					// the DKIM-Signature header is valid!
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine ("VALID");
+					Console.ResetColor ();
+				} else {
+					// the DKIM-Signature is invalid!
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("INVALID");
+					Console.ResetColor ();
+				}
+			}
+		}
+
+		static void Help ()
+		{
+			Console.WriteLine ("Usage is: DkimVerifier [options] [messages]");
+			Console.WriteLine ();
+			Console.WriteLine ("Options:");
+			Console.WriteLine ("  --help               This help menu.");
+		}
+	}
 }
 ```
 
 ## Donate
 
 MimeKit is a personal open source project that I have put thousands of hours into perfecting with the
-goal of making it not only the very best MIME parser framework for .NET, but the best MIME parser
-framework for any programming language. I need your help to achieve this.
+goal of making it the very best MIME parser framework for .NET. I need your help to achieve this.
 
-<a href="http://www.pledgie.com/campaigns/29300" target="_blank">
-  <img src="http://www.pledgie.com/campaigns/29300.png?skin_name=chrome"
-       alt="Click here to lend your support to MimeKit and MailKit by making a donation via pledgie.com!"
-       border="0" />
-</a>
+Donating helps pay for things such as web hosting, domain registration and licenses for developer tools
+such as a performance profiler, memory profiler, a static code analysis tool, and more. It also helps
+motivate me to continue working on the project.
+
+<a href="https://paypal.me/pools/c/857bnxBTXg" _target="blank"><img alt="Click here to lend your support to MimeKit by making a donation!" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif"></a>
 
 ## Reporting Bugs
 
