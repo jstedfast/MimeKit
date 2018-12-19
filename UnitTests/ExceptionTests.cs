@@ -136,6 +136,9 @@ namespace UnitTests
 			TestPrivateKeyNotFoundException (new PrivateKeyNotFoundException (new MailboxAddress ("Unit Tests", "example@mimekit.net"), "Message"));
 			TestPrivateKeyNotFoundException (new PrivateKeyNotFoundException ("DEADBEEF", "Message"));
 			TestPrivateKeyNotFoundException (new PrivateKeyNotFoundException (0xdeadbeef, "Message"));
+
+			Assert.Throws<ArgumentNullException> (() => new PrivateKeyNotFoundException ((string) null, "Message"));
+			Assert.Throws<ArgumentNullException> (() => new PrivateKeyNotFoundException ((MailboxAddress) null, "Message"));
 		}
 
 		[Test]
