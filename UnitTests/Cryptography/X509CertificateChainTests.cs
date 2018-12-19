@@ -26,10 +26,13 @@
 
 using System;
 using System.IO;
-
-using NUnit.Framework;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 
 using Org.BouncyCastle.X509;
+
+using NUnit.Framework;
 
 using MimeKit.Cryptography;
 
@@ -37,6 +40,15 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class X509CertificateChainTests
 	{
+		static readonly string[] CertificateAuthorities = new string[] {
+			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
+		};
+
+		static string GetTestDataPath (string relative)
+		{
+			return Path.Combine ("..", "..", "TestData", "smime", relative);
+		}
+
 		static X509Certificate LoadCertificate (string path)
 		{
 			using (var stream = File.OpenRead (path)) {
@@ -49,7 +61,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			var path = GetTestDataPath ("smime.p12");
 			var chain = new X509CertificateChain ();
 			CmsSigner signer;
 
@@ -71,15 +83,47 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestAddRemoveRange ()
+		{
+			var certificates = new List<X509Certificate> ();
+			var chain = new X509CertificateChain ();
+
+			foreach (var authority in CertificateAuthorities) {
+				var certificate = LoadCertificate (GetTestDataPath (authority));
+
+				certificates.Add (certificate);
+			}
+
+			Assert.Throws<ArgumentNullException> (() => chain.AddRange (null));
+
+			chain.AddRange (certificates);
+
+			Assert.AreEqual (CertificateAuthorities.Length, chain.Count, "Unexpected number of certificates after AddRange.");
+
+			int index = 0;
+			foreach (var certificate in chain)
+				Assert.AreEqual (certificates[index++], certificate, "GetEnumerator");
+
+			index = 0;
+			foreach (X509Certificate certificate in ((IEnumerable) chain))
+				Assert.AreEqual (certificates[index++], certificate, "GetEnumerator");
+
+			Assert.Throws<ArgumentNullException> (() => chain.RemoveRange (null));
+
+			chain.RemoveRange (certificates);
+
+			Assert.AreEqual (0, chain.Count, "Unexpected number of certificates after RemoveRange.");
+		}
+
+		[Test]
 		public void TestBasicFunctionality ()
 		{
-			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
 			var chain = new X509CertificateChain ();
 			X509Certificate cert1, cert2, cert3;
 
-			cert1 = LoadCertificate (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"));
-			cert2 = LoadCertificate (Path.Combine (dataDir, "StartComCertificationAuthority.crt"));
-			cert3 = LoadCertificate (Path.Combine (dataDir, "certificate-authority.crt"));
+			cert1 = LoadCertificate (GetTestDataPath ("StartComClass1PrimaryIntermediateClientCA.crt"));
+			cert2 = LoadCertificate (GetTestDataPath ("StartComCertificationAuthority.crt"));
+			cert3 = LoadCertificate (GetTestDataPath ("certificate-authority.crt"));
 
 			Assert.IsFalse (chain.IsReadOnly);
 			Assert.AreEqual (0, chain.Count, "Initial count");
