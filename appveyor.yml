@@ -3,9 +3,6 @@ os: Visual Studio 2017
 configuration: Debug
 platform: Any CPU
 
-init:
-  git config --global core.autocrlf true
-
 branches:
   only:
   - master
@@ -18,16 +15,12 @@ environment:
 
 install:
 - cmd: git submodule update --init --recursive
-- cmd: nuget restore MimeKit.sln
+- cmd: nuget restore MimeKit.Net45.sln
 
 build:
-  project: MimeKit.sln
+  project: MimeKit.Net45.sln
   verbosity: minimal
   parallel: true
-
-nuget:
-  project_feed: true
-  disable_publish_on_pr: true
 
 test_script:
 - ps: >-
