@@ -63,7 +63,7 @@ namespace MimeKit.Cryptography {
 			else if (algorithm is ECDiffieHellman)
 				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
 			else if (algorithm is ECDsa)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.EdwardsCurveDsa;
+				PublicKeyAlgorithm = PublicKeyAlgorithm.EllipticCurveDsa;
 		}
 
 		/// <summary>
