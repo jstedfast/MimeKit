@@ -26,21 +26,15 @@
 
 using System;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+
+using Org.BouncyCastle.OpenSsl;
 
 using NUnit.Framework;
 
-using Org.BouncyCastle.X509;
-
-using MimeKit;
 using MimeKit.Cryptography;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
-using Org.BouncyCastle.OpenSsl;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
