@@ -583,8 +583,8 @@ namespace MimeKit.Cryptography
 		{
 			try {
 				if (doAsync) {
-					using (var response = await client.GetAsync (location, cancellationToken))
-						await response.Content.CopyToAsync (stream);
+					using (var response = await client.GetAsync (location, cancellationToken).ConfigureAwait (false))
+						await response.Content.CopyToAsync (stream).ConfigureAwait (false);
 				} else {
 #if !NETSTANDARD && !PORTABLE
 					cancellationToken.ThrowIfCancellationRequested ();
@@ -750,14 +750,10 @@ namespace MimeKit.Cryptography
 					await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
 
 				if (certificate != null) {
-					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate != default (DateTime)) {
+					Import (certificate);
+
+					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate != default (DateTime))
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
-					} else {
-						try {
-							Import (certificate);
-						} catch {
-						}
-					}
 				}
 
 				var anchors = GetTrustedAnchors ();

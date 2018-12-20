@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Data.Common;
 using System.Collections.Generic;
 
@@ -76,9 +77,9 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => database.Remove ((X509CertificateRecord) null));
 			Assert.Throws<ArgumentNullException> (() => database.Update ((X509CertificateRecord) null, X509CertificateRecordFields.Algorithms));
 			Assert.Throws<ArgumentNullException> (() => database.Find ((X509Crl) null, X509CrlRecordFields.IsDelta));
-			Assert.Throws<ArgumentNullException> (() => database.Find ((X509Name) null, X509CrlRecordFields.IsDelta));
+			Assert.Throws<ArgumentNullException> (() => database.Find ((X509Name) null, X509CrlRecordFields.IsDelta).FirstOrDefault ());
 			Assert.Throws<ArgumentNullException> (() => database.Find ((X509Certificate) null, X509CertificateRecordFields.Id));
-			Assert.Throws<ArgumentNullException> (() => database.Find ((MailboxAddress) null, DateTime.Now, true, X509CertificateRecordFields.PrivateKey));
+			Assert.Throws<ArgumentNullException> (() => database.Find ((MailboxAddress) null, DateTime.Now, true, X509CertificateRecordFields.PrivateKey).FirstOrDefault ());
 
 			using (var ctx = new DefaultSecureMimeContext (database)) {
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null, true));
