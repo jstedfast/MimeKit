@@ -54,16 +54,21 @@ namespace MimeKit.Cryptography {
 
 			Certificate = certificate;
 
-			var algorithm = certificate.PublicKey.Key;
+			try {
+				var algorithm = certificate.PublicKey.Key;
 
-			if (algorithm is DSA)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.Dsa;
-			else if (algorithm is RSA)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.RsaGeneral;
-			else if (algorithm is ECDiffieHellman)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
-			else if (algorithm is ECDsa)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.EllipticCurveDsa;
+				if (algorithm is DSA)
+					PublicKeyAlgorithm = PublicKeyAlgorithm.Dsa;
+				else if (algorithm is RSA)
+					PublicKeyAlgorithm = PublicKeyAlgorithm.RsaGeneral;
+				else if (algorithm is ECDiffieHellman)
+					PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
+				else if (algorithm is ECDsa)
+					PublicKeyAlgorithm = PublicKeyAlgorithm.EllipticCurveDsa;
+			} catch (CryptographicException) {
+				var x509 = certificate.AsBouncyCastleCertificate ();
+				PublicKeyAlgorithm = x509.GetPublicKeyAlgorithm ();
+			}
 		}
 
 		/// <summary>

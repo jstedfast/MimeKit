@@ -34,6 +34,7 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Parameters;
 
 #if !PORTABLE
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
@@ -217,6 +218,38 @@ namespace MimeKit.Cryptography {
 				fingerprint.Append (data[i].ToString ("x2"));
 
 			return fingerprint.ToString ();
+		}
+
+		/// <summary>
+		/// Gets the public key algorithm for the certificate.
+		/// </summary>
+		/// <remarks>
+		/// Gets the public key algorithm for the ceretificate.
+		/// </remarks>
+		/// <returns>The public key algorithm.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public static PublicKeyAlgorithm GetPublicKeyAlgorithm (this X509Certificate certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			var pubkey = certificate.GetPublicKey ();
+
+			if (pubkey is DsaKeyParameters)
+				return PublicKeyAlgorithm.Dsa;
+			if (pubkey is RsaKeyParameters)
+				return PublicKeyAlgorithm.RsaGeneral;
+			if (pubkey is ElGamalKeyParameters)
+				return PublicKeyAlgorithm.ElGamalGeneral;
+			if (pubkey is ECKeyParameters)
+				return PublicKeyAlgorithm.EllipticCurve;
+			if (pubkey is DHKeyParameters)
+				return PublicKeyAlgorithm.DiffieHellman;
+
+			return PublicKeyAlgorithm.None;
 		}
 
 		internal static X509KeyUsageFlags GetKeyUsageFlags (bool[] usage)

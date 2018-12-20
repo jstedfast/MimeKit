@@ -1,9 +1,9 @@
-//
+﻿//
 // SecureMimeTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2017 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -120,14 +120,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
 			var stream = new MemoryStream ();
-
-			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalCertificate (null));
-			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalSignature (null, signer.Certificate));
-
-			Assert.Throws<ArgumentNullException> (() => new WindowsSecureMimeDigitalCertificate (null));
-			Assert.Throws<ArgumentNullException> (() => new WindowsSecureMimeDigitalSignature (null));
 
 			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Signature ((MimeEntityConstructorArgs) null));
 			Assert.Throws<ArgumentNullException> (() => new ApplicationPkcs7Mime ((MimeEntityConstructorArgs) null));
@@ -143,6 +136,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.Tiger192));
 
 			using (var ctx = CreateContext ()) {
+				var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
 				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
 				var recipients = new CmsRecipientCollection ();
 				DigitalSignatureCollection signatures;

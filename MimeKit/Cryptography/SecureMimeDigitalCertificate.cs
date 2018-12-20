@@ -27,7 +27,6 @@
 using System;
 
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Crypto.Parameters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -54,20 +53,8 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			Certificate = certificate;
-
-			var pubkey = certificate.GetPublicKey ();
-			if (pubkey is DsaKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.Dsa;
-			else if (pubkey is RsaKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.RsaGeneral;
-			else if (pubkey is ElGamalKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.ElGamalGeneral;
-			else if (pubkey is ECKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.EllipticCurve;
-			else if (pubkey is DHKeyParameters)
-				PublicKeyAlgorithm = PublicKeyAlgorithm.DiffieHellman;
-
 			Fingerprint = certificate.GetFingerprint ();
+			PublicKeyAlgorithm = certificate.GetPublicKeyAlgorithm ();
 		}
 
 		/// <summary>
