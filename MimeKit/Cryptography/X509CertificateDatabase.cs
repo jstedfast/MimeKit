@@ -484,7 +484,7 @@ namespace MimeKit.Cryptography {
 		protected object GetValue (X509CertificateRecord record, string columnName)
 		{
 			switch (columnName) {
-			case "ID": return record.Id;
+			//case "ID": return record.Id;
 			case "BASICCONSTRAINTS": return record.BasicConstraints;
 			case "TRUSTED": return record.IsTrusted;
 			case "KEYUSAGE": return (int) record.KeyUsage;
@@ -517,7 +517,7 @@ namespace MimeKit.Cryptography {
 		protected static object GetValue (X509CrlRecord record, string columnName)
 		{
 			switch (columnName) {
-			case "ID": return record.Id;
+			//case "ID": return record.Id;
 			case "DELTA": return record.IsDelta;
 			case "ISSUERNAME": return record.IssuerName;
 			case "THISUPDATE": return record.ThisUpdate;
@@ -775,9 +775,8 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetInsertCommand (record)) {
+			using (var command = GetInsertCommand (record))
 				command.ExecuteNonQuery ();
-			}
 		}
 
 		/// <summary>
@@ -795,9 +794,8 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetDeleteCommand (record)) {
+			using (var command = GetDeleteCommand (record))
 				command.ExecuteNonQuery ();
-			}
 		}
 
 		/// <summary>
@@ -816,9 +814,8 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetUpdateCommand (record, fields)) {
+			using (var command = GetUpdateCommand (record, fields))
 				command.ExecuteNonQuery ();
-			}
 		}
 
 		/// <summary>
@@ -916,9 +913,8 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetInsertCommand (record)) {
+			using (var command = GetInsertCommand (record))
 				command.ExecuteNonQuery ();
-			}
 		}
 
 		/// <summary>
@@ -936,9 +932,8 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetDeleteCommand (record)) {
+			using (var command = GetDeleteCommand (record))
 				command.ExecuteNonQuery ();
-			}
 		}
 
 		/// <summary>
@@ -956,9 +951,8 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetUpdateCommand (record)) {
+			using (var command = GetUpdateCommand (record))
 				command.ExecuteNonQuery ();
-			}
 		}
 
 		/// <summary>

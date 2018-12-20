@@ -50,6 +50,7 @@ namespace UnitTests.Cryptography {
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
 			}
 
+			Assert.Throws<ArgumentNullException> (() => new X509CrlRecord (null));
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null));
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null, keyPair.Private));
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (signer.Certificate, null));
