@@ -55,9 +55,11 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetFingerprint (null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetKeyUsageFlags ((X509Certificate) null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetEncryptionAlgorithms (null));
+			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetPublicKeyAlgorithm (null));
 
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.AsBouncyCastleCertificate (null));
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetEncryptionAlgorithms (null));
+			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetPublicKeyAlgorithm (null));
 		}
 
 		X509KeyUsageFlags GetX509Certificate2KeyUsageFlags (X509Certificate2 certificate)
