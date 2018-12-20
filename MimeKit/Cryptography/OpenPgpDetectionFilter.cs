@@ -300,10 +300,7 @@ namespace MimeKit.Cryptography
 						return input;
 					}
 
-					outputLength = index - outputIndex;
-					position += index - startIndex;
-
-					return input;
+					break;
 				}
 
 				index++;
