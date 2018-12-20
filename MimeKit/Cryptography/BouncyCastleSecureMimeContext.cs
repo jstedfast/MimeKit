@@ -52,7 +52,6 @@ using Org.BouncyCastle.Asn1.X509;
 using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
 
 using MimeKit.IO;
-using MimeKit.Utils;
 
 namespace MimeKit.Cryptography
 {
@@ -418,7 +417,7 @@ namespace MimeKit.Cryptography
 			return GetCertificate (signer);
 		}
 
-		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime? signingTime)
+		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime signingTime)
 		{
 			var intermediate = new X509CertificateStore ();
 			foreach (X509Certificate cert in certificates.GetMatches (null))
@@ -438,8 +437,8 @@ namespace MimeKit.Cryptography
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
 			parameters.IsRevocationEnabled = false;
 
-			if (signingTime.HasValue)
-				parameters.Date = new DateTimeObject (signingTime.Value);
+			if (signingTime != default (DateTime))
+				parameters.Date = new DateTimeObject (signingTime);
 
 			var result = new PkixCertPathBuilder ().Build (parameters);
 
@@ -460,7 +459,7 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="identifier"/> is <c>null</c>.
 		/// </exception>
-		protected static bool TryGetDigestAlgorithm (AlgorithmIdentifier identifier, out DigestAlgorithm algorithm)
+		internal protected static bool TryGetDigestAlgorithm (AlgorithmIdentifier identifier, out DigestAlgorithm algorithm)
 		{
 			if (identifier == null)
 				throw new ArgumentNullException (nameof (identifier));
@@ -578,15 +577,6 @@ namespace MimeKit.Cryptography
 			algorithm = EncryptionAlgorithm.RC240;
 
 			return false;
-		}
-
-		static DateTime ToAdjustedDateTime (DerUtcTime time)
-		{
-			//try {
-			//	return time.ToAdjustedDateTime ();
-			//} catch {
-			return DateUtils.Parse (time.AdjustedTimeString, "yyyyMMddHHmmsszzz");
-			//}
 		}
 
 		async Task<bool> DownloadCrlsOverHttpAsync (string location, Stream stream, bool doAsync, CancellationToken cancellationToken)
@@ -754,46 +744,14 @@ namespace MimeKit.Cryptography
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
-				var signature = new SecureMimeDigitalSignature (signerInfo);
-				var algorithms = new List<EncryptionAlgorithm> ();
-				DateTime? signedDate = null;
-				DigestAlgorithm digestAlgo;
+				var signature = new SecureMimeDigitalSignature (signerInfo, certificate);
 
 				if (CheckCertificateRevocation && certificate != null)
 					await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
 
-				if (signerInfo.SignedAttributes != null) {
-					Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
-					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
-						var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
-						signature.CreationDate = ToAdjustedDateTime (signingTime);
-						signedDate = signature.CreationDate;
-						break;
-					}
-
-					vector = signerInfo.SignedAttributes.GetAll (SmimeAttributes.SmimeCapabilities);
-					foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
-						foreach (Asn1Sequence sequence in attr.AttrValues) {
-							for (int i = 0; i < sequence.Count; i++) {
-								var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
-								EncryptionAlgorithm algorithm;
-
-								if (TryGetEncryptionAlgorithm (identifier, out algorithm))
-									algorithms.Add (algorithm);
-							}
-						}
-					}
-
-					signature.EncryptionAlgorithms = algorithms.ToArray ();
-				}
-
-				if (TryGetDigestAlgorithm (signerInfo.DigestAlgorithmID, out digestAlgo))
-					signature.DigestAlgorithm = digestAlgo;
-
 				if (certificate != null) {
-					signature.SignerCertificate = new SecureMimeDigitalCertificate (certificate);
-					if (algorithms.Count > 0 && signedDate != null) {
-						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signedDate.Value);
+					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate != default (DateTime)) {
+						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 					} else {
 						try {
 							Import (certificate);
@@ -805,7 +763,7 @@ namespace MimeKit.Cryptography
 				var anchors = GetTrustedAnchors ();
 
 				try {
-					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signedDate);
+					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signature.CreationDate);
 				} catch (Exception ex) {
 					signature.ChainException = ex;
 				}

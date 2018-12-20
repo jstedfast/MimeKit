@@ -141,7 +141,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <value>The public key algorithm.</value>
 		public PublicKeyAlgorithm PublicKeyAlgorithm {
-			get { return PublicKeyAlgorithm.None; }
+			get { return SignerCertificate != null ? SignerCertificate.PublicKeyAlgorithm : PublicKeyAlgorithm.None; }
 		}
 
 		/// <summary>

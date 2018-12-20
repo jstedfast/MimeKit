@@ -50,6 +50,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public SecureMimeDigitalCertificate (X509Certificate certificate)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
 			Certificate = certificate;
 
 			var pubkey = certificate.GetPublicKey ();
