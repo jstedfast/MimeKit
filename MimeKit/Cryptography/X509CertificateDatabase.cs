@@ -400,13 +400,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields.</param>
 		protected static string[] GetColumnNames (X509CrlRecordFields fields)
 		{
-			const X509CrlRecordFields all = X509CrlRecordFields.Id | X509CrlRecordFields.IsDelta |
-				X509CrlRecordFields.IssuerName | X509CrlRecordFields.ThisUpdate |
-				X509CrlRecordFields.NextUpdate | X509CrlRecordFields.Crl;
-
-			if (fields == all)
-				return new [] { "*" };
-
 			var columns = new List<string> ();
 
 			if ((fields & X509CrlRecordFields.Id) != 0)
