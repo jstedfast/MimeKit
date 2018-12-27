@@ -181,7 +181,7 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (SecureMimeType != SecureMimeType.CompressedData)
+			if (SecureMimeType != SecureMimeType.CompressedData && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
@@ -207,7 +207,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decompress ()
 		{
-			if (SecureMimeType != SecureMimeType.CompressedData)
+			if (SecureMimeType != SecureMimeType.CompressedData && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-mime"))
@@ -240,7 +240,7 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (SecureMimeType != SecureMimeType.EnvelopedData)
+			if (SecureMimeType != SecureMimeType.EnvelopedData && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
@@ -295,7 +295,7 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (SecureMimeType != SecureMimeType.CertsOnly)
+			if (SecureMimeType != SecureMimeType.CertsOnly && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
@@ -336,7 +336,7 @@ namespace MimeKit.Cryptography {
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (SecureMimeType != SecureMimeType.SignedData)
+			if (SecureMimeType != SecureMimeType.SignedData && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
