@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 2.1.2 (2018-12-30)
+
+* Fixed WindowsSecureMimeDigitalCertificate logic for ECDsa.
+* Added X509Certificate.GetPublicKeyAlgorithm() extension method.
+* Modified ApplicationPkcs7Mime to be less strict about the smime-type.
+
 ### MimeKit 2.1.1 (2018-12-16)
 
 * Mapped the TNEF Sensitivity property to the Sensitivity message header when calling
