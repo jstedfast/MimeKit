@@ -29,7 +29,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- powershell: '.\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -filter:"+[MimeKit]* -[UnitTests]* -[submodules]*" -target:"packages\NUnit.Runners.2.6.4\tools\nunit-console.exe" -targetargs:"/framework:net-4.5 /noshadow /domain:single /out:UnitTests\bin\Release\TEST-UnitTests.xml UnitTests\bin\Release\UnitTests.dll" -output:opencover.xml'
+- powershell: '.\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -filter:"+[MimeKit]* -[UnitTests]* -[submodules]* -[Mono.Data.Sqlite]*" -target:"packages\NUnit.Runners.2.6.4\tools\nunit-console.exe" -targetargs:"/framework:net-4.5 /noshadow /domain:single /out:UnitTests\bin\Release\TEST-UnitTests.xml UnitTests\bin\Release\UnitTests.dll" -output:opencover.xml'
 
 - task: PublishTestResults@2
 
