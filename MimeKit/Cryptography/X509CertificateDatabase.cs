@@ -1020,8 +1020,10 @@ namespace MimeKit.Cryptography {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			for (int i = 0; i < passwd.Length; i++)
-				passwd[i] = '\0';
+			if (passwd != null) {
+				for (int i = 0; i < passwd.Length; i++)
+					passwd[i] = '\0';
+			}
 		}
 
 		/// <summary>
