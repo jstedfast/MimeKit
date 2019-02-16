@@ -45,6 +45,7 @@ using Decoder = Portable.Text.Decoder;
 using MimeKit.IO;
 using MimeKit.Text;
 using MimeKit.Utils;
+using MimeKit.IO.Filters;
 
 namespace MimeKit {
 	/// <summary>
@@ -303,46 +304,38 @@ namespace MimeKit {
 					return string.Empty;
 
 				var charset = ContentType.Parameters["charset"];
+				Encoding encoding = null;
 
-				using (var memory = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (memory)) {
-						filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
-						Content.DecodeTo (filtered);
-						filtered.Flush ();
+				if (charset != null) {
+					try {
+						encoding = CharsetUtils.GetEncoding (charset);
+					} catch (NotSupportedException) {
 					}
-
-#if !PORTABLE && !NETSTANDARD
-					var content = memory.GetBuffer ();
-#else
-					var content = memory.ToArray ();
-#endif
-					Encoding encoding = null;
-
-					if (charset != null) {
-						try {
-							encoding = CharsetUtils.GetEncoding (charset);
-						} catch (NotSupportedException) {
-						}
-					}
-
-					if (encoding == null) {
-						try {
-							if (content.Length >= 2 && content[0] == 0xFF && content[1] == 0xFE)
-								encoding = Encoding.Unicode; // UTF-16LE
-							else if (content.Length >= 2 && content[0] == 0xFE && content[1] == 0xFF)
-								encoding = Encoding.BigEndianUnicode; // UTF-16BE
-							else
-								encoding = CharsetUtils.UTF8;
-
-							return encoding.GetString (content, 0, (int) memory.Length);
-						} catch (DecoderFallbackException) {
-							// fall back to iso-8859-1
-							encoding = CharsetUtils.Latin1;
-						}
-					}
-
-					return encoding.GetString (content, 0, (int) memory.Length);
 				}
+
+				if (encoding == null) {
+					try {
+						var bom = new byte[2];
+						int n;
+
+						using (var content = Content.Open ())
+							n = content.Read (bom, 0, bom.Length);
+
+						if (bom.Length >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
+							encoding = Encoding.Unicode; // UTF-16LE
+						else if (bom.Length >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
+							encoding = Encoding.BigEndianUnicode; // UTF-16BE
+						else
+							encoding = CharsetUtils.UTF8;
+
+						return GetText (encoding);
+					} catch (DecoderFallbackException) {
+						// fall back to iso-8859-1
+						encoding = CharsetUtils.Latin1;
+					}
+				}
+
+				return GetText (encoding);
 			}
 			set {
 				SetText (Encoding.UTF8, value);
@@ -416,6 +409,7 @@ namespace MimeKit {
 
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (new CharsetFilter (encoding, CharsetUtils.UTF8));
 					filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
 					Content.DecodeTo (filtered);
 					filtered.Flush ();
@@ -427,7 +421,7 @@ namespace MimeKit {
 				var buffer = memory.ToArray ();
 #endif
 
-				return encoding.GetString (buffer, 0, (int) memory.Length);
+				return CharsetUtils.UTF8.GetString (buffer, 0, (int) memory.Length);
 			}
 		}
 
