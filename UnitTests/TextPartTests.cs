@@ -131,7 +131,7 @@ namespace UnitTests
 		[Test]
 		public void TestUTF16BE ()
 		{
-			const string text = "This is some UTF-16BE text.";
+			const string text = "This is some UTF-16BE text.\r\nThis is line #2.";
 
 			var memory = new MemoryStream ();
 			memory.WriteByte (0xfe);
@@ -143,13 +143,13 @@ namespace UnitTests
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
-			Assert.AreEqual (text, part.Text.Substring (1));
+			Assert.AreEqual (text.Replace ("\r\n", Environment.NewLine), part.Text.Substring (1));
 		}
 
 		[Test]
 		public void TestUTF16LE ()
 		{
-			const string text = "This is some UTF-16LE text.";
+			const string text = "This is some UTF-16LE text.\r\nThis is line #2.";
 
 			var memory = new MemoryStream ();
 			memory.WriteByte (0xff);
@@ -161,7 +161,7 @@ namespace UnitTests
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
-			Assert.AreEqual (text, part.Text.Substring (1));
+			Assert.AreEqual (text.Replace ("\r\n", Environment.NewLine), part.Text.Substring (1));
 		}
 	}
 }
