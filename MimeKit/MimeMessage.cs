@@ -3470,6 +3470,8 @@ namespace MimeKit {
 				part.ContentId = item.ContentId;
 
 			var stream = new MemoryBlockStream ();
+			if (item.ContentStream.CanSeek)
+				item.ContentStream.Position = 0;
 			item.ContentStream.CopyTo (stream);
 			stream.Position = 0;
 
