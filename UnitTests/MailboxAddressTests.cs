@@ -472,13 +472,14 @@ namespace UnitTests {
 
 			// this should fail when we allow mailbox addresses w/o a domain
 			var options = ParserOptions.Default.Clone ();
-			options.AllowAddressesWithoutDomain = true;
+			options.AllowUnquotedCommasInAddresses = false;
+			options.AllowAddressesWithoutDomain = false;
 
 			try {
 				mailbox = MailboxAddress.Parse (options, text);
-				Assert.Fail ("Should not have parsed \"{0}\" with AllowAddressesWithoutDomain = true", text);
+				Assert.Fail ("Should not have parsed \"{0}\" with AllowUnquotedCommasInAddresses = false", text);
 			} catch (ParseException pex) {
-				Assert.AreEqual (text.IndexOf (','), pex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (0, pex.TokenIndex, "TokenIndex");
 				Assert.AreEqual (text.IndexOf (','), pex.ErrorIndex, "ErrorIndex");
 			} catch (Exception ex) {
 				Assert.Fail ("Should not have thrown {0}", ex.GetType ().Name);

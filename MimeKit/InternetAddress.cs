@@ -568,7 +568,7 @@ namespace MimeKit {
 		{
 			bool strict = options.AddressParserComplianceMode == RfcComplianceMode.Strict;
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
-			int minWordCount = options.AllowAddressesWithoutDomain ? 1 : 0;
+			int minWordCount = options.AllowUnquotedCommasInAddresses ? 0 : 1;
 
 			address = null;
 
@@ -658,6 +658,13 @@ namespace MimeKit {
 				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 					if (throwOnError)
 						throw new ParseException (string.Format ("Addr-spec token at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+
+				if (!options.AllowAddressesWithoutDomain) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
