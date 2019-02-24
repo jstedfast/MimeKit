@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 2.1.3 (2019-02-24)
+
+* Fixed an NRE in X509CertificateDatabase.Dispose().
+* Fixed TextPart.Text and GetText() to properly canonicalize EOLN for multi-byte charsets
+  such as UTF-16. (issue [#442](https://github.com/jstedfast/MimeKit/issues/442))
+* Fixed System.Net.Mail.MailMessage cast to MimeMessage when the ContentStream of
+  the attachments has not been rewound to the beginning of the stream.
+  (issue [#467](https://github.com/jstedfast/MimeKit/issues/467))
+* Changed ParserOptions.AllowAddressesWithoutDomain to work as users expected and
+  moved the old logic into ParserOptions.AllowUnquotedCommasInAddresses.
+  (issue [#465](https://github.com/jstedfast/MimeKit/issues/465))
+
 ### MimeKit 2.1.2 (2018-12-30)
 
 * Fixed WindowsSecureMimeDigitalCertificate logic for ECDsa.
