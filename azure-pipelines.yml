@@ -18,26 +18,35 @@ steps:
 - script: git submodule update --init --recursive
 
 - task: NuGetToolInstaller@0
+  displayName: 'Installing NuGet 4.9.2'
+  inputs:
+    versionSpec: 4.9.2
 
 - task: NuGetCommand@2
+  displayName: 'Restoring NuGet package dependencies'
   inputs:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
+  displayName: 'Building $(solution) for $(buildConfiguration)|$(buildPlatform)'
   inputs:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
 - powershell: '.\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -filter:"+[MimeKit]* -[UnitTests]* -[submodules]* -[Mono.Data.Sqlite]*" -target:"packages\NUnit.Runners.2.6.4\tools\nunit-console.exe" -targetargs:"/framework:net-4.5 /noshadow /domain:single /out:UnitTests\bin\Release\TEST-UnitTests.xml UnitTests\bin\Release\UnitTests.dll" -output:opencover.xml'
+  displayName: 'Running unit tests'
 
 - task: PublishTestResults@2
+  displayName: 'Publishing unit test results'
 
 - task: NuGetCommand@2
+  displayName: 'Packaging MimeKit'
   inputs:
     command: pack
     packagesToPack: nuget/MimeKit.nuspec
 
 - task: PublishBuildArtifacts@1
+  displayName: 'Publishing MimeKit NuGet package'
   inputs:
     ArtifactName: 'Nuget package'
