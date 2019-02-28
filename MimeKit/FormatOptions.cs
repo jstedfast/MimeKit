@@ -107,7 +107,7 @@ namespace MimeKit {
 				if (this == Default)
 					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
-				if (value < MinimumLineLength || value > MaxLineLength)
+				if (value < MinimumLineLength || value > MaximumLineLength)
 					throw new ArgumentOutOfRangeException (nameof (value));
 
 				maxLineLength = value;
