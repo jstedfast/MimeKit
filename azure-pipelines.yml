@@ -9,6 +9,8 @@ trigger:
 pool:
   vmImage: 'VS2017-Win2016'
 
+name: 2.1.3$(Rev:.r)
+
 variables:
   solution: 'MimeKit.sln'
   buildPlatform: 'Any CPU'
@@ -41,12 +43,13 @@ steps:
   displayName: 'Publish Unit Test Results'
 
 - task: NuGetCommand@2
-  displayName: 'Package MimeKit'
+  displayName: 'Package MimeKit-$(Build.BuildNumber)'
   inputs:
     command: pack
     packagesToPack: nuget/MimeKit.nuspec
+    versioningScheme: byBuildNumber
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish MimeKit NuGet package'
   inputs:
-    ArtifactName: 'MimeKit'
+    ArtifactName: 'MimeKit-$(Build.BuildNumber)'
