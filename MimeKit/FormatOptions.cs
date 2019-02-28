@@ -75,6 +75,7 @@ namespace MimeKit {
 		NewLineFormat newLineFormat;
 		bool ensureNewLine;
 		bool international;
+		int maxLineLength;
 
 		/// <summary>
 		/// The default formatting options.
@@ -87,15 +88,30 @@ namespace MimeKit {
 		public static readonly FormatOptions Default;
 
 		/// <summary>
-		/// Gets the maximum line length used by the encoders. The encoders
+		/// Gets or sets the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
 		/// </summary>
 		/// <remarks>
 		/// Specifies the maximum line length to use when line-wrapping headers.
 		/// </remarks>
 		/// <value>The maximum line length.</value>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is out of range. It must be between 60 and 998.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <see cref="Default"/> cannot be changed.
+		/// </exception>
 		public int MaxLineLength {
-			get { return DefaultMaxLineLength; }
+			get { return maxLineLength; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
+
+				if (value < MinimumLineLength || value > MaxLineLength)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxLineLength = value;
+			}
 		}
 
 		/// <summary>
@@ -279,7 +295,7 @@ namespace MimeKit {
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
 			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
-			//maxLineLength = DefaultMaxLineLength;
+			maxLineLength = DefaultMaxLineLength;
 			allowMixedHeaderCharsets = false;
 			ensureNewLine = false;
 			international = false;
@@ -300,7 +316,7 @@ namespace MimeKit {
 		public FormatOptions Clone ()
 		{
 			var options = new FormatOptions ();
-			//options.maxLineLength = maxLineLength;
+			options.maxLineLength = maxLineLength;
 			options.newLineFormat = newLineFormat;
 			options.ensureNewLine = ensureNewLine;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
