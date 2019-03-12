@@ -408,10 +408,9 @@ namespace MimeKit.Tnef {
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();
-							ContentDisposition contentDisposition;
-							ContentDisposition.TryParse(text, out contentDisposition);
-							attachment.ContentDisposition = contentDisposition;
-									break;
+							if (ContentDisposition.TryParse (text, out ContentDisposition disposition))
+								attachment.ContentDisposition = disposition;
+							break;
 						case TnefPropertyId.AttachData:
 							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								var tnef = new TnefPart ();
