@@ -475,10 +475,8 @@ namespace UnitTests.Tnef {
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();
-							if (attachment.ContentDisposition == null)
-								attachment.ContentDisposition = new ContentDisposition (text);
-							else
-								attachment.ContentDisposition.Disposition = text;
+							if (ContentDisposition.TryParse (text, out ContentDisposition disposition))
+								attachment.ContentDisposition = disposition;
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachMethod:
