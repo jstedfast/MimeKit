@@ -49,6 +49,14 @@ steps:
     packagesToPack: nuget/MimeKit.nuspec
     versioningScheme: byBuildNumber
 
+- task: NuGetCommand@2
+  displayName: 'Publish MimeKit NuGet package to MyGet Feed'
+  inputs:
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: 'MyGet'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish MimeKit NuGet package'
   inputs:
