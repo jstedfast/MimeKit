@@ -4,7 +4,7 @@
 
 |    Package    |Latest Release|Latest Build|
 |:--------------|:------------:|:----------:|
-|**MimeKit**    |[![NuGet Badge MimeKit](https://buildstats.info/nuget/MimeKit)](https://www.nuget.org/packages/MimeKit)|[![MyGet Badge MimeKit](https://buildstats.info/myget/mimekit/MimeKit)](https://www.myget.org/feed/Packages/mimekit)|
+|**MimeKit**    |[![NuGet Badge MimeKit](https://buildstats.info/nuget/MimeKit)](https://www.nuget.org/packages/MimeKit)|[![MyGet Badge MimeKit](https://buildstats.info/myget/mimekit/MimeKit)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit)|
 |**MimeKitLite**|[![NuGet Badge MimeKitLite](https://buildstats.info/nuget/MimeKitLite)](https://www.nuget.org/packages/MimeKitLite)||
 
 |   Platform   |Build Status|Code Coverage|Static Analysis|
