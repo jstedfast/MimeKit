@@ -470,7 +470,8 @@ namespace UnitTests.Tnef {
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentId:
-							attachment.ContentId = prop.ReadValueAsString ();
+							if (MailboxAddress.TryParse (prop.ReadValueAsString (), out MailboxAddress mailbox))
+								attachment.ContentId = mailbox.Address;
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
 							break;
 						case TnefPropertyId.AttachDisposition:
