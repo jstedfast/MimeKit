@@ -404,10 +404,8 @@ namespace MimeKit.Tnef {
 							attachment.ContentBase = prop.ReadValueAsUri ();
 							break;
 						case TnefPropertyId.AttachContentId:
-							if (MailboxAddress.TryParse(attachment.Headers.Options, prop.ReadValueAsString(), out MailboxAddress mailbox))
+							if (MailboxAddress.TryParse (prop.ReadValueAsString (), out MailboxAddress mailbox))
 								attachment.ContentId = mailbox.Address;
-							else
-								attachment.ContentId = null;
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();
