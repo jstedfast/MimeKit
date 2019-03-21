@@ -370,6 +370,125 @@ namespace MimeKit.Utils {
 			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
 		}
 
+		static readonly byte[] GreaterThan = { (byte) '>' };
+
+		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool throwOnError, out string msgid)
+		{
+			const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
+			msgid = null;
+
+			if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex || text[index] != '<') {
+				if (throwOnError)
+					throw new ParseException ("No msg-id token found.", index, index);
+
+				return false;
+			}
+
+			int tokenIndex = index;
+
+			index++;
+
+			SkipWhiteSpace (text, ref index, endIndex);
+
+			if (index >= endIndex) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+				return false;
+			}
+
+			var token = new StringBuilder ();
+
+			// consume the local-part of the msg-id using a very loose definition of 'local-part'
+			//
+			// See https://github.com/jstedfast/MimeKit/issues/472 for the reasons why.
+			do {
+				int start = index;
+
+				if (text[index] == '"') {
+					if (!SkipQuoted (text, ref index, endIndex, throwOnError))
+						return false;
+				} else {
+					while (index < endIndex && text[index] != (byte) '.' && text[index] != (byte) '@' && text[index] != '>' && !text[index].IsType (SpaceOrControl))
+						index++;
+				}
+
+				try {
+					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+				} catch (DecoderFallbackException ex) {
+					if (throwOnError)
+						throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
+
+					return false;
+				}
+
+				SkipWhiteSpace (text, ref index, endIndex);
+
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+					return false;
+				}
+
+				if (text[index] == (byte) '@' || text[index] == (byte) '>')
+					break;
+
+				if (text[index] != (byte) '.') {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Invalid msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+					return false;
+				}
+
+				token.Append ('.');
+				index++;
+
+				SkipWhiteSpace (text, ref index, endIndex);
+
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete msg-id at offset {0}", tokenIndex), tokenIndex, index);
+
+					return false;
+				}
+			} while (true);
+
+			if (text[index] == (byte) '@') {
+				token.Append ('@');
+				index++;
+
+				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				if (index >= endIndex) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+					return false;
+				}
+
+				string domain;
+				if (!TryParseDomain (text, ref index, endIndex, GreaterThan, throwOnError, out domain))
+					return false;
+
+				if (IsIdnEncoded (domain))
+					domain = IdnDecode (domain);
+
+				token.Append (domain);
+			}
+
+			if (text[index] == (byte) '>')
+				index++;
+
+			msgid = token.ToString ();
+
+			return true;
+		}
+
 		public static bool IsInternational (string value)
 		{
 			for (int i = 0; i < value.Length; i++) {

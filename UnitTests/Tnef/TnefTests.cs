@@ -32,6 +32,7 @@ using System.Linq;
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.Tnef;
+using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
 using NUnit.Framework;
@@ -419,6 +420,7 @@ namespace UnitTests.Tnef {
 			TnefAttachFlags flags;
 			string[] mimeType;
 			byte[] attachData;
+			byte[] buffer;
 			DateTime time;
 			string text;
 
@@ -470,8 +472,13 @@ namespace UnitTests.Tnef {
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, text);
 							break;
 						case TnefPropertyId.AttachContentId:
-							if (MailboxAddress.TryParse (prop.ReadValueAsString (), out MailboxAddress mailbox))
-								attachment.ContentId = mailbox.Address;
+							text = prop.ReadValueAsString ();
+
+							buffer = CharsetUtils.UTF8.GetBytes (text);
+							int index = 0;
+
+							if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, out string msgid))
+								attachment.ContentId = msgid;
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
 							break;
 						case TnefPropertyId.AttachDisposition:
@@ -521,7 +528,7 @@ namespace UnitTests.Tnef {
 
 							stream.CopyTo (content, 4096);
 
-							var buffer = content.GetBuffer ();
+							buffer = content.GetBuffer ();
 							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 							attachment.Content = new MimeContent (content);

@@ -404,8 +404,13 @@ namespace MimeKit.Tnef {
 							attachment.ContentBase = prop.ReadValueAsUri ();
 							break;
 						case TnefPropertyId.AttachContentId:
-							if (MailboxAddress.TryParse (prop.ReadValueAsString (), out MailboxAddress mailbox))
-								attachment.ContentId = mailbox.Address;
+							text = prop.ReadValueAsString ();
+
+							var buffer = CharsetUtils.UTF8.GetBytes (text);
+							int index = 0;
+
+							if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, out string msgid))
+								attachment.ContentId = msgid;
 							break;
 						case TnefPropertyId.AttachDisposition:
 							text = prop.ReadValueAsString ();

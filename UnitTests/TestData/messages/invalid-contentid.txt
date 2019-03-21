@@ -1,0 +1,9 @@
+From: MimeKit Unit Tests <mimekit@mimekit.net>
+To: MimeKit Unit Tests <mimekit@mimekit.net>
+Subject: Invalid Content-Id test (issue #472)
+Date: Thu, 21 Mar 2019 17:42:00 -0400
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Id: <Messe_Bauma_rz(1)_ae284449-6bdc-488f-8ec3-5be5e5b09efb.jpg>
+
+This is the text body.
