@@ -212,7 +212,6 @@
     <None Include="TestData\messages\disposition-notification.txt" />
     <None Include="TestData\messages\empty-multipart.txt" />
     <None Include="TestData\messages\epilogue.txt" />
-    <None Include="TestData\messages\invalid-contentid.txt" />
     <None Include="TestData\messages\issue358.txt" />
     <None Include="TestData\messages\japanese.txt" />
     <None Include="TestData\messages\missing-subtype.txt" />

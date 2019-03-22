@@ -477,7 +477,7 @@ namespace UnitTests.Tnef {
 							buffer = CharsetUtils.UTF8.GetBytes (text);
 							int index = 0;
 
-							if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, out string msgid))
+							if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
 								attachment.ContentId = msgid;
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentId);
 							break;

@@ -372,15 +372,17 @@ namespace MimeKit.Utils {
 
 		static readonly byte[] GreaterThan = { (byte) '>' };
 
-		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool throwOnError, out string msgid)
+		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{
 			const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
+			var angleAddr = false;
+
 			msgid = null;
 
 			if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			if (index >= endIndex || text[index] != '<') {
+			if (index >= endIndex || (requireAngleAddr && text[index] != '<')) {
 				if (throwOnError)
 					throw new ParseException ("No msg-id token found.", index, index);
 
@@ -389,7 +391,10 @@ namespace MimeKit.Utils {
 
 			int tokenIndex = index;
 
-			index++;
+			if (text[index] == '<') {
+				angleAddr = true;
+				index++;
+			}
 
 			SkipWhiteSpace (text, ref index, endIndex);
 
@@ -428,10 +433,15 @@ namespace MimeKit.Utils {
 				SkipWhiteSpace (text, ref index, endIndex);
 
 				if (index >= endIndex) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+					if (angleAddr) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
 
-					return false;
+						return false;
+					}
+
+					// since the msg-id token did not start with a '<', we do not need a '>'
+					break;
 				}
 
 				if (text[index] == (byte) '@' || text[index] == (byte) '>')
@@ -457,7 +467,7 @@ namespace MimeKit.Utils {
 				}
 			} while (true);
 
-			if (text[index] == (byte) '@') {
+			if (index < endIndex && text[index] == (byte) '@') {
 				token.Append ('@');
 				index++;
 
@@ -481,7 +491,14 @@ namespace MimeKit.Utils {
 				token.Append (domain);
 			}
 
-			if (text[index] == (byte) '>')
+			if (angleAddr && (index >= endIndex || text[index] != '>')) {
+				if (throwOnError)
+					throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+				return false;
+			}
+
+			if (index < endIndex && text[index] == (byte) '>')
 				index++;
 
 			msgid = token.ToString ();

@@ -1078,7 +1078,7 @@ namespace MimeKit {
 						baseUri = null;
 					break;
 				case HeaderId.ContentId:
-					if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, out string msgid))
+					if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string msgid))
 						contentId = msgid;
 					else
 						contentId = null;

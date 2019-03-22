@@ -973,17 +973,5 @@ namespace UnitTests {
 				}
 			}
 		}
-
-		[Test]
-		public void TestInvalidContentId ()
-		{
-			// This tests the fix for issue #472
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "invalid-contentid.txt"))) {
-				var message = MimeMessage.Load (stream);
-				var body = message.Body;
-
-				Assert.AreEqual ("Messe_Bauma_rz(1)_ae284449-6bdc-488f-8ec3-5be5e5b09efb.jpg", body.ContentId, "The Content-Id value does not match.");
-			}
-		}
 	}
 }
