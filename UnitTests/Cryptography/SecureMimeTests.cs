@@ -44,7 +44,8 @@ using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 namespace UnitTests.Cryptography {
 	public abstract class SecureMimeTestsBase
 	{
-		const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
+		//const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
+		const string ExpiredCertificateMessage = "The certificate is revoked.\r\n";
 		const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
 		const string ThunderbirdFingerprint = "354ea4dcf98166639b58ec5df06a65de0cd8a95c";
 		const string MimeKitFingerprint = "4846fb5e27df6a23bb35a995443363e447d3426d";
@@ -825,7 +826,7 @@ namespace UnitTests.Cryptography {
 						if (Path.DirectorySeparatorChar == '/')
 							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
 						else
-							Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
+							Assert.AreEqual (ExpiredCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
@@ -1192,7 +1193,7 @@ namespace UnitTests.Cryptography {
 						if (Path.DirectorySeparatorChar == '/')
 							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
 						else
-							Assert.AreEqual (ex.InnerException.Message, ExpiredCertificateMessage);
+							Assert.AreEqual (ExpiredCertificateMessage, ex.InnerException.Message);
 					} else {
 						Assert.Fail ("Failed to verify signature: {0}", ex);
 					}
