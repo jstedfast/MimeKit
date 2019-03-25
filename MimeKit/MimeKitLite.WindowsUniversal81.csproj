@@ -196,6 +196,7 @@
     <Compile Include="ParserOptions.cs" />
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="TextRfc822Headers.cs" />
     <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

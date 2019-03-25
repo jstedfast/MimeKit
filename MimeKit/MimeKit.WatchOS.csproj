@@ -247,6 +247,7 @@
     <Compile Include="ParserOptions.cs" />
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
+    <Compile Include="TextRfc822Headers.cs" />
     <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\WatchOS\Xamarin.WatchOS.CSharp.targets" />

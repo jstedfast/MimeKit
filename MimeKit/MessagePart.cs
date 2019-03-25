@@ -103,13 +103,30 @@ namespace MimeKit {
 		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
 		/// </summary>
 		/// <remarks>
+		/// Initializes the <see cref="ContentType"/> based on the provided media type and subtype.
+		/// </remarks>
+		/// <param name="mediaType">The media type.</param>
+		/// <param name="mediaSubtype">The media subtype.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// </exception>
+		protected MessagePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.MessagePart"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new MIME message entity with the specified subtype.
 		/// </remarks>
 		/// <param name="subtype">The message subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <c>null</c>.
 		/// </exception>
-		public MessagePart (string subtype) : base ("message", subtype)
+		public MessagePart (string subtype) : this ("message", subtype)
 		{
 		}
 

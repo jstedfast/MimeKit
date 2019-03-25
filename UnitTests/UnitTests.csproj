@@ -156,6 +156,7 @@
     <Compile Include="ParameterTests.cs" />
     <Compile Include="ParserOptionsTests.cs" />
     <Compile Include="TextPartTests.cs" />
+    <Compile Include="TextRfc822HeadersTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestData\dkim\example.bind9" />

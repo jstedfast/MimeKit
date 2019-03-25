@@ -353,6 +353,21 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Visit the text/rfc822-headers MIME entity.
+		/// </summary>
+		/// <remarks>
+		/// Visits the text/rfc822-headers MIME entity.
+		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
+		/// </example>
+		/// <param name="entity">The text/rfc822-headers MIME entity.</param>
+		protected internal virtual void VisitTextRfc822Headers (TextRfc822Headers entity)
+		{
+			VisitMessagePart (entity);
+		}
+
+		/// <summary>
 		/// Visit the Microsoft TNEF MIME part entity.
 		/// </summary>
 		/// <remarks>

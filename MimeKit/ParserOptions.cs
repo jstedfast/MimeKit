@@ -397,8 +397,12 @@ namespace MimeKit {
 				}
 			}
 
-			if (type == "text")
+			if (type == "text") {
+				if (subtype == "rfc822-headers" && !IsEncoded (headers))
+					return new TextRfc822Headers (args);
+
 				return new TextPart (args);
+			}
 
 			return new MimePart (args);
 		}
