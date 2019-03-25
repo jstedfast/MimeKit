@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 
 using NUnit.Framework;
 
@@ -44,6 +45,46 @@ namespace UnitTests
 			Assert.Throws<ArgumentException> (() => new TextRfc822Headers (new MimeMessage (), new MimeMessage ()));
 
 			Assert.Throws<ArgumentNullException> (() => entity.Accept (null));
+		}
+
+		class TextRfc822HeadersVisitor : MimeVisitor
+		{
+			public TextRfc822Headers Rfc822Headers;
+
+			protected internal override void VisitTextRfc822Headers (TextRfc822Headers entity)
+			{
+				Rfc822Headers = entity;
+			}
+		}
+
+		[Test]
+		public void TestSerializationAndDeserialization ()
+		{
+			var message = new MimeMessage ();
+			message.From.Add (new MailboxAddress ("Sender Name", "sender@example.com"));
+			message.To.Add (new MailboxAddress ("Recipient Name", "recipient@example.com"));
+			message.Subject = "Content of a text/rfc822-headers part";
+
+			var rfc822headers = new TextRfc822Headers (new Header (HeaderId.ContentId, "<id@localhost>"), message);
+
+			message = new MimeMessage ();
+			message.From.Add (new MailboxAddress ("Postmaster", "postmaster@example.com"));
+			message.To.Add (new MailboxAddress ("Sender Name", "sender@example.com.com"));
+			message.Subject = "Sorry, but your message bounced";
+			message.Body = rfc822headers;
+
+			using (var stream = new MemoryStream ()) {
+				message.WriteTo (stream);
+				stream.Position = 0;
+
+				message = MimeMessage.Load (stream);
+
+				var visitor = new TextRfc822HeadersVisitor ();
+				visitor.Visit (message);
+
+				Assert.IsNotNull (visitor.Rfc822Headers, "Rfc822Headers");
+				Assert.AreEqual ("id@localhost", visitor.Rfc822Headers.ContentId, "ContentId");
+			}
 		}
 	}
 }
