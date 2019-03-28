@@ -263,10 +263,10 @@ namespace MimeKit {
 		/// a message will contain transmission headers such as From and To along
 		/// with metadata headers such as Subject and Date, but may include just
 		/// about anything.</para>
-		/// <para><alert class="tip">To access any MIME headers other than
+		/// <note type="tip">To access any MIME headers other than
 		/// <see cref="HeaderId.MimeVersion"/>, you will need to access the
 		/// <see cref="MimeEntity.Headers"/> property of the <see cref="Body"/>.
-		/// </alert></para>
+		/// </note>
 		/// </remarks>
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
@@ -983,8 +983,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</para>
-		/// <para><alert class="warning">Note: In general, the string returned from this method SHOULD NOT be used for serializing
-		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</alert></para>
+		/// <note type="warning">Note: In general, the string returned from this method SHOULD NOT be used for serializing
+		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</note>
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
 		public override string ToString ()

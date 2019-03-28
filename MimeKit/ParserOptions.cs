@@ -69,9 +69,9 @@ namespace MimeKit {
 		/// <para>In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
 		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
 		/// and other mail software such as sloppily written perl scripts (aka spambots).</para>
-		/// <para><alert class="tip">Even in <see cref="RfcComplianceMode.Strict"/> mode, the address
-		/// parser is fairly liberal in what it accepts. Setting it to <see cref="RfcComplianceMode.Loose"/>
-		/// just makes it try harder to deal with garbage input.</alert></para>
+		/// <note type="tip">Even in <see cref="RfcComplianceMode.Strict"/> mode, the address parser
+		/// is fairly liberal in what it accepts. Setting it to <see cref="RfcComplianceMode.Loose"/>
+		/// just makes it try harder to deal with garbage input.</note>
 		/// </remarks>
 		/// <value>The RFC compliance mode.</value>
 		public RfcComplianceMode AddressParserComplianceMode { get; set; }
@@ -120,9 +120,9 @@ namespace MimeKit {
 		/// <para>In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
 		/// (the default) as it allows maximum interoperability with existing (broken) mail clients
 		/// and other mail software such as sloppily written perl scripts (aka spambots).</para>
-		/// <para><alert class="tip">Even in <see cref="RfcComplianceMode.Strict"/> mode, the parameter
-		/// parser is fairly liberal in what it accepts. Setting it to <see cref="RfcComplianceMode.Loose"/>
-		/// just makes it try harder to deal with garbage input.</alert></para>
+		/// <note type="tip">Even in <see cref="RfcComplianceMode.Strict"/> mode, the parameter parser
+		/// is fairly liberal in what it accepts. Setting it to <see cref="RfcComplianceMode.Loose"/>
+		/// just makes it try harder to deal with garbage input.</note>
 		/// </remarks>
 		/// <value>The RFC compliance mode.</value>
 		public RfcComplianceMode ParameterComplianceMode { get; set; }

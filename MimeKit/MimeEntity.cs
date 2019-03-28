@@ -333,7 +333,9 @@ namespace MimeKit {
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
 		/// </summary>
 		/// <remarks>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</para>
+		/// <note type="warning">Note: In general, the string returned from this method SHOULD NOT be used for serializing
+		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</note>
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
 		public override string ToString ()
