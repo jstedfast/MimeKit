@@ -983,7 +983,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</para>
-		/// <note type="warning">Note: In general, the string returned from this method SHOULD NOT be used for serializing
+		/// <note type="warning">In general, the string returned from this method SHOULD NOT be used for serializing
 		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</note>
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
