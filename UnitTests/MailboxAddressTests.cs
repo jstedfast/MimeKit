@@ -32,6 +32,7 @@ using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Cryptography;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -708,6 +709,50 @@ namespace UnitTests {
 			AssertParse (text);
 
 			AssertParseFailure (text, false, 0, errorIndex, RfcComplianceMode.Strict);
+		}
+
+		[Test]
+		public void TestParseLatin1EncodedAddrspec ()
+		{
+			const string text = "Name <æøå@example.com>";
+			var buffer = CharsetUtils.Latin1.GetBytes (text);
+			MailboxAddress mailbox;
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (buffer, out mailbox), "MailboxAddress.TryParse(byte[]) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(byte[]) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(byte[], int) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(byte[], int, int) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(byte[], int, int) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (buffer);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (buffer, 0);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (buffer, 0, buffer.Length);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+			}
 		}
 
 		#endregion
