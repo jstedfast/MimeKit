@@ -1,5 +1,18 @@
 # Release Notes
 
+### MimeKit 2.1.4 (2019-04-13)
+
+* Added a setter for FormatOptions.MaxLineLength, allowing developers to override this value.
+* Improved TNEF handling of Content-Disposition and Content-Id properties.
+  (issue [#470](https://github.com/jstedfast/MimeKit/pull/470) and
+  issue [#471](https://github.com/jstedfast/MimeKit/pull/471))
+* Improved Content-Id parser to be more forgiving with improperly formatted IDs.
+  (issue [#472](https://github.com/jstedfast/MimeKit/issue/472))
+* Added support for the text/rfc822-headers MIME-type via the new TextRfc822Headers class.
+  (issue [#474](https://github.com/jstedfast/MimeKit/issue/474))
+* Added fallback logic for international email addresses that are not properly encoded in UTF-8.
+  (issue [#477](https://github.com/jstedfast/MimeKit/issue/477))
+
 ### MimeKit 2.1.3 (2019-02-24)
 
 * Fixed an NRE in X509CertificateDatabase.Dispose().
