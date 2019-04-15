@@ -985,6 +985,7 @@ namespace MimeKit {
 			case HeaderId.Received:
 				return EncodeReceivedHeader (Options, format, encoding, Field, textValue);
 			case HeaderId.ResentMessageId:
+			case HeaderId.InReplyTo:
 			case HeaderId.MessageId:
 			case HeaderId.ContentId:
 				return EncodeMessageIdHeader (Options, format, encoding, Field, textValue);
