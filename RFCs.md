@@ -56,5 +56,6 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 
 * [1523](http://www.ietf.org/rfc/rfc1523.txt): The text/enriched MIME Content-type
 * [1927](http://www.ietf.org/rfc/rfc1927.txt): Suggested Additional MIME Types for Associating Documents
+* [2369](http://www.ietf.org/rfc/rfc2369.txt): The Use of URLs as Meta-Syntax for Core Mail List Commands and their Transport through Message Header Fields
 * [2388](http://www.ietf.org/rfc/rfc2388.txt): Returning Values from Forms: multipart/form-data
 * [7103](http://www.ietf.org/rfc/rfc7103.txt): Advice for Safe Handling of Malformed Messages
