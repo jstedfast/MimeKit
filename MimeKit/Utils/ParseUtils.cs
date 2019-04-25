@@ -370,7 +370,7 @@ namespace MimeKit.Utils {
 			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
 		}
 
-		static readonly byte[] GreaterThan = { (byte) '>' };
+		static readonly byte[] GreaterThanOrAt = { (byte) '>', (byte) '@' };
 
 		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{
@@ -430,7 +430,8 @@ namespace MimeKit.Utils {
 					return false;
 				}
 
-				SkipWhiteSpace (text, ref index, endIndex);
+				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
 
 				if (index >= endIndex) {
 					if (angleAddr) {
@@ -457,7 +458,8 @@ namespace MimeKit.Utils {
 				token.Append ('.');
 				index++;
 
-				SkipWhiteSpace (text, ref index, endIndex);
+				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
 
 				if (index >= endIndex) {
 					if (throwOnError)
@@ -474,21 +476,37 @@ namespace MimeKit.Utils {
 				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
-				if (index >= endIndex) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+				if (index < endIndex && text[index] != (byte) '>') {
+					// Note: some Message-Id's are broken and in the form "<local-part@domain1@domain2>"
+					// https://github.com/jstedfast/MailKit/issues/138
+					do {
+						if (!TryParseDomain (text, ref index, endIndex, GreaterThanOrAt, throwOnError, out string domain))
+							return false;
 
-					return false;
+						if (IsIdnEncoded (domain))
+							domain = IdnDecode (domain);
+
+						token.Append (domain);
+
+						if (index >= endIndex || text[index] != (byte) '@')
+							break;
+
+						token.Append ('@');
+						index++;
+					} while (true);
+
+					if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+				} else {
+					// The msgid token was in the form "<local-part@>". Technically this is illegal, but for
+					// the sake of maximum compatibility, I guess we have no choice but to accept it...
+					// https://github.com/jstedfast/MimeKit/issues/102
+
+					//if (throwOnError)
+					//	throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+					//return false;
 				}
-
-				string domain;
-				if (!TryParseDomain (text, ref index, endIndex, GreaterThan, throwOnError, out domain))
-					return false;
-
-				if (IsIdnEncoded (domain))
-					domain = IdnDecode (domain);
-
-				token.Append (domain);
 			}
 
 			if (angleAddr && (index >= endIndex || text[index] != '>')) {

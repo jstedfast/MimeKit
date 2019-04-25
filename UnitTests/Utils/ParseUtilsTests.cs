@@ -279,16 +279,8 @@ namespace UnitTests.Utils {
 			int index = 0;
 			string msgid;
 
-			Assert.IsFalse (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), "TryParseMsgId");
-
-			try {
-				index = 0;
-				ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, true, out msgid);
-				Assert.Fail ("throwOnError");
-			} catch (ParseException ex) {
-				Assert.AreEqual (13, ex.TokenIndex, "TokenIndex");
-				Assert.AreEqual (13, ex.ErrorIndex, "ErrorIndex");
-			}
+			Assert.IsTrue (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), "TryParseMsgId");
+			Assert.AreEqual ("local-part@", msgid);
 		}
 
 		[Test]

@@ -66,6 +66,7 @@ namespace UnitTests.Utils {
 			"<local-part@domain1@domain2>",                                                                                     "local-part@domain1@domain2",
 			"<local-part@>",                                                                                                    "local-part@",
 			"<local-part>",                                                                                                     "local-part",
+			"<:invalid-local-part;@domain.com>",                                                                                ":invalid-local-part;@domain.com",
 		};
 
 		[Test]
@@ -82,11 +83,10 @@ namespace UnitTests.Utils {
 			}
 		}
 
-		static readonly string[] BadReferences = {
+		static readonly string[] BrokenReferences = {
 			" (this is an unterminated comment...",
 			"(this is just a comment)",
 			"<",
-			"<:invalid-local-part;@domain.com>",
 			"<local-part",
 			"<local-part;",
 			"<local-part@ (unterminated comment...",
@@ -96,16 +96,16 @@ namespace UnitTests.Utils {
 		};
 
 		[Test]
-		public void TestParseBadReferences ()
+		public void TestParseBrokenReferences ()
 		{
-			for (int i = 0; i < BadReferences.Length; i++) {
-				var reference = MimeUtils.EnumerateReferences (BadReferences[i]).FirstOrDefault ();
+			for (int i = 0; i < BrokenReferences.Length; i++) {
+				var reference = MimeUtils.EnumerateReferences (BrokenReferences[i]).FirstOrDefault ();
 
-				Assert.IsNull (reference, "MimeUtils.EnumerateReferences(\"{0}\")", BadReferences[i]);
+				Assert.IsNull (reference, "MimeUtils.EnumerateReferences(\"{0}\")", BrokenReferences[i]);
 
-				reference = MimeUtils.ParseMessageId (BadReferences[i]);
+				reference = MimeUtils.ParseMessageId (BrokenReferences[i]);
 
-				Assert.IsNull (reference, "MimeUtils.ParseMessageId (\"{0}\")", BadReferences[i]);
+				Assert.IsNull (reference, "MimeUtils.ParseMessageId (\"{0}\")", BrokenReferences[i]);
 			}
 		}
 

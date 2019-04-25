@@ -158,10 +158,8 @@ namespace MimeKit.Utils {
 		{
 			ParseUtils.ValidateArguments (buffer, startIndex, length);
 
-			byte[] sentinels = { (byte) '>' };
 			int endIndex = startIndex + length;
 			int index = startIndex;
-			string msgid;
 
 			do {
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
@@ -171,74 +169,8 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					// skip over the '<'
-					index++;
-
-					if (index >= endIndex)
-						break;
-
-					string localpart;
-					if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, true, false, out localpart))
-						continue;
-
-					if (index >= endIndex)
-						break;
-
-					if (buffer[index] == (byte) '>') {
-						// The msgid token did not contain an @domain. Technically this is illegal, but for the
-						// sake of maximum compatibility, I guess we have no choice but to accept it...
-						index++;
-
-						yield return localpart;
-						continue;
-					}
-
-					if (buffer[index] != (byte) '@') {
-						// who the hell knows what we have here... ignore it and continue on?
-						continue;
-					}
-
-					// skip over the '@'
-					index++;
-
-					if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
-						break;
-
-					if (index >= endIndex)
-						break;
-
-					if (buffer[index] == (byte) '>') {
-						// The msgid token was in the form "<local-part@>". Technically this is illegal, but for
-						// the sake of maximum compatibility, I guess we have no choice but to accept it...
-						// https://github.com/jstedfast/MimeKit/issues/102
-						index++;
-
-						yield return localpart + "@";
-						continue;
-					}
-
-					string domain;
-					if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain))
-						continue;
-
-					msgid = localpart + "@" + domain;
-
-					// Note: some Message-Id's are broken and in the form "<local-part@domain@domain>"
-					// https://github.com/jstedfast/MailKit/issues/138
-					while (index < endIndex && buffer[index] == (byte) '@') {
-						int saved = index;
-
-						index++;
-
-						if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain)) {
-							index = saved;
-							break;
-						}
-
-						msgid += "@" + domain;
-					}
-
-					yield return msgid;
+					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string msgid))
+						yield return msgid;
 				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
 				}
@@ -291,75 +223,11 @@ namespace MimeKit.Utils {
 		{
 			ParseUtils.ValidateArguments (buffer, startIndex, length);
 
-			byte[] sentinels = { (byte) '>' };
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			string msgid;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
-				return null;
-
-			if (index >= endIndex)
-				return null;
-
-			if (buffer[index] == '<') {
-				// skip over the '<'
-				index++;
-
-				if (index >= endIndex)
-					return null;
-			}
-
-			string localpart;
-			if (!InternetAddress.TryParseLocalPart (buffer, ref index, endIndex, true, false, out localpart))
-				return null;
-
-			if (index >= endIndex)
-				return null;
-
-			if (buffer[index] == (byte) '>') {
-				// The msgid token did not contain an @domain. Technically this is illegal, but for the
-				// sake of maximum compatibility, I guess we have no choice but to accept it...
-				return localpart;
-			}
-
-			if (buffer[index] != (byte) '@') {
-				// who the hell knows what we have here...
-				return null;
-			}
-
-			// skip over the '@'
-			index++;
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false))
-				return null;
-
-			if (index >= endIndex)
-				return null;
-
-			if (buffer[index] == (byte) '>') {
-				// The msgid token was in the form "<local-part@>". Technically this is illegal, but for
-				// the sake of maximum compatibility, I guess we have no choice but to accept it...
-				// https://github.com/jstedfast/MimeKit/issues/102
-				return localpart + "@";
-			}
-
-			string domain;
-			if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain))
-				return null;
-
-			msgid = localpart + "@" + domain;
-
-			// Note: some Message-Id's are broken and in the form "<local-part@domain@domain>"
-			// https://github.com/jstedfast/MailKit/issues/138
-			while (index < endIndex && buffer[index] == (byte) '@') {
-				index++;
-
-				if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, sentinels, false, out domain))
-					break;
-
-				msgid += "@" + domain;
-			}
+			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out msgid);
 
 			return msgid;
 		}
