@@ -955,7 +955,7 @@ namespace UnitTests.Tnef {
 		{
 			var message = MimeMessage.Load ("../../TestData/tnef/rich-text.eml");
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
-			var mtime = new DateTimeOffset (2018, 12, 15, 10, 17, 38, DateTimeOffset.Now.Offset);
+			var mtime = new DateTimeOffset (new DateTime (2018, 12, 15, 10, 17, 38));
 
 			message = tnef.ConvertToMessage ();
 
