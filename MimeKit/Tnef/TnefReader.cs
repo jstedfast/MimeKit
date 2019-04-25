@@ -739,7 +739,8 @@ namespace MimeKit.Tnef {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			InputStream.Dispose ();
+			if (disposing && !closed)
+				InputStream.Dispose ();
 		}
 
 		/// <summary>
