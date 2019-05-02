@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -85,7 +86,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async void TestParsingOfCustomTypeAsync ()
+		public async Task TestParsingOfCustomTypeAsync ()
 		{
 			var options = ParserOptions.Default.Clone ();
 

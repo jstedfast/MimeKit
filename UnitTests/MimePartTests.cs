@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -417,7 +418,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async void TestTranscodingAsync ()
+		public async Task TestTranscodingAsync ()
 		{
 			var path = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
 			var expected = File.ReadAllBytes (path);
@@ -492,7 +493,7 @@ namespace UnitTests
 
 		[TestCase ("content", TestName = "TestWriteToNoNewLine")]
 		[TestCase ("content\r\n", TestName = "TestWriteToNewLine")]
-		public async void TestWriteToAsync (string text)
+		public async Task TestWriteToAsync (string text)
 		{
 			var builder = new BodyBuilder ();
 
@@ -540,7 +541,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async void TestLoadHttpWebResponseAsync ()
+		public async Task TestLoadHttpWebResponseAsync ()
 		{
 			var text = "This is some text and stuff." + Environment.NewLine;
 			var contentType = new ContentType ("text", "plain");

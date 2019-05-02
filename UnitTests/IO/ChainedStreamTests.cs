@@ -160,7 +160,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestReadAsync ()
+		public async Task TestReadAsync ()
 		{
 			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
 
@@ -269,7 +269,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestRandomSeekingAsync ()
+		public async Task TestRandomSeekingAsync ()
 		{
 			Assert.IsTrue (chained.CanSeek, "Expected to be able to seek in the chained stream.");
 
@@ -304,7 +304,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestSeekingToStreamBoundariesAsync ()
+		public async Task TestSeekingToStreamBoundariesAsync ()
 		{
 			long expected, actual;
 
@@ -351,7 +351,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestWriteAsync ()
+		public async Task TestWriteAsync ()
 		{
 			var buffer = new byte[(int) chained.Length];
 

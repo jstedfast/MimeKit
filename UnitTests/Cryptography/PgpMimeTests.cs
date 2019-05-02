@@ -252,7 +252,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public async void TestMimeMessageSignAsync ()
+		public async Task TestMimeMessageSignAsync ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
@@ -355,7 +355,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public async void TestMultipartSignedSignUsingKeysAsync ()
+		public async Task TestMultipartSignedSignUsingKeysAsync ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");

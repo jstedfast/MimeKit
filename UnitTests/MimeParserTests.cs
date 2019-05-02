@@ -103,7 +103,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestHeaderParserAsync ()
+		public async Task TestHeaderParserAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
 
@@ -168,7 +168,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestTruncatedHeaderAsync ()
+		public async Task TestTruncatedHeaderAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
 
@@ -208,7 +208,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestSingleHeaderNoTerminatorAsync ()
+		public async Task TestSingleHeaderNoTerminatorAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
 
@@ -244,7 +244,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestEmptyHeadersAsync ()
+		public async Task TestEmptyHeadersAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
@@ -353,7 +353,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestDoubleMboxMarkerAsync ()
+		public async Task TestDoubleMboxMarkerAsync ()
 		{
 			var content = Encoding.ASCII.GetBytes ("From - \r\nFrom -\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
 
@@ -386,7 +386,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestEmptyMessageAsync ()
+		public async Task TestEmptyMessageAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
@@ -479,7 +479,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestSimpleMboxAsync ()
+		public async Task TestSimpleMboxAsync ()
 		{
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
 				await AssertSimpleMboxAsync (stream);
@@ -503,7 +503,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestSimpleMboxWithByteOrderMarkAsync ()
+		public async Task TestSimpleMboxWithByteOrderMarkAsync ()
 		{
 			using (var stream = new MemoryStream ()) {
 				var bom = new byte[] { 0xEF, 0xBB, 0xBF };
@@ -701,7 +701,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestContentLengthMboxAsync ()
+		public async Task TestContentLengthMboxAsync ()
 		{
 			var options = ParserOptions.Default.Clone ();
 			options.RespectContentLength = true;
@@ -716,7 +716,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestJwzMboxAsync ()
+		public async Task TestJwzMboxAsync ()
 		{
 			await TestMboxAsync (null, "jwz");
 		}
@@ -761,7 +761,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestJwzPersistentMboxAsync ()
+		public async Task TestJwzPersistentMboxAsync ()
 		{
 			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
@@ -814,7 +814,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestJapaneseMessageAsync ()
+		public async Task TestJapaneseMessageAsync ()
 		{
 			const string subject = "日本語メールテスト (testing Japanese emails)";
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
@@ -854,7 +854,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestUnmungedFromLinesAsync ()
+		public async Task TestUnmungedFromLinesAsync ()
 		{
 			int count = 0;
 
@@ -896,7 +896,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestMultipartEpilogueWithTextAsync ()
+		public async Task TestMultipartEpilogueWithTextAsync ()
 		{
 			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
@@ -941,7 +941,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestMissingMessageBodyAsync ()
+		public async Task TestMissingMessageBodyAsync ()
 		{
 			const string text = "Date: Sat, 19 Apr 2014 13:13:23 -0700\r\n" +
 				"From: Jeffrey Stedfast <notifications@github.com>\r\n" +

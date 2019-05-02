@@ -30,6 +30,7 @@ using System.Linq;
 using System.Text;
 using System.Net.Mail;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -100,7 +101,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async void TestReserialization ()
+		public async Task TestReserialization ()
 		{
 			string rawMessageText = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
 Received: from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
@@ -205,7 +206,7 @@ Just for fun....  -- Nathaniel<nl>
 		}
 
 		[Test]
-		public async void TestReserializationEmptyParts ()
+		public async Task TestReserializationEmptyParts ()
 		{
 			string rawMessageText = @"Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
 From: MimeKit Unit Tests <unit.tests@mimekit.org>
@@ -264,7 +265,7 @@ Content-Description: this part contains a single blank line
 		}
 
 		[Test]
-		public async void TestReserializationMessageParts ()
+		public async Task TestReserializationMessageParts ()
 		{
 			string rawMessageText = @"Path: flop.mcom.com!news.Stanford.EDU!agate!tcsi.tcs.com!uunet!vixen.cso.uiuc.edu!gateway
 From: Internet-Drafts@CNRI.Reston.VA.US

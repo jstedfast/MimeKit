@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -117,7 +118,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestReadAsync ()
+		public async Task TestReadAsync ()
 		{
 			blocks.Position = 0;
 			master.Position = 0;
@@ -157,7 +158,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestWriteAsync ()
+		public async Task TestWriteAsync ()
 		{
 			var bytes = new byte[9 * 1024];
 			int position = 0;

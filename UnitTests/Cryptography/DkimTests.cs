@@ -358,7 +358,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public async void TestVerifyGoogleMailDkimSignatureAsync ()
+		public async Task TestVerifyGoogleMailDkimSignatureAsync ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
@@ -378,7 +378,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public async void TestVerifyGoogleMultipartRelatedDkimSignatureAsync ()
+		public async Task TestVerifyGoogleMultipartRelatedDkimSignatureAsync ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
@@ -398,7 +398,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public async void TestVerifyGoogleMultipartWithoutEndBoundaryDkimSignatureAsync ()
+		public async Task TestVerifyGoogleMultipartWithoutEndBoundaryDkimSignatureAsync ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);

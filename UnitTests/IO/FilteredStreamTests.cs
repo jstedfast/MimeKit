@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -119,7 +120,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestReadAsync ()
+		public async Task TestReadAsync ()
 		{
 			using (var original = new MemoryStream ()) {
 				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
@@ -174,7 +175,7 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
-		public async void TestWriteAsync ()
+		public async Task TestWriteAsync ()
 		{
 			using (var original = new MemoryStream ()) {
 				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
