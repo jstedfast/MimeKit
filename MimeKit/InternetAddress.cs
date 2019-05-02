@@ -213,6 +213,32 @@ namespace MimeKit {
 
 		#endregion
 
+		/// <summary>
+		/// Determines whether the specified object is equal to the current object.
+		/// </summary>
+		/// <remarks>
+		/// The type of comparison between the current instance and the <paramref name="obj"/> parameter depends on whether
+		/// the current instance is a reference type or a value type.
+		/// </remarks>
+		/// <param name="obj">The object to compare with the current object.</param>
+		/// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+		public override bool Equals (object obj)
+		{
+			return Equals (obj as InternetAddress);
+		}
+
+		/// <summary>
+		/// Returns the hash code for this instance.
+		/// </summary>
+		/// <remarks>
+		/// Returns the hash code for this instance.
+		/// </remarks>
+		/// <returns>A hash code for the current object.</returns>
+		public override int GetHashCode ()
+		{
+			return ToString ().GetHashCode ();
+		}
+
 		internal static string EncodeInternationalizedPhrase (string phrase)
 		{
 			for (int i = 0; i < phrase.Length; i++) {

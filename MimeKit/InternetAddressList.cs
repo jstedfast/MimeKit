@@ -420,14 +420,8 @@ namespace MimeKit {
 			if (other.Count != Count)
 				return false;
 
-			var otherSorted = new List<InternetAddress> (other);
-			otherSorted.Sort ();
-
-			var sorted = new List<InternetAddress> (this);
-			sorted.Sort ();
-
-			for (int i = 0; i < sorted.Count; i++) {
-				if (!sorted[i].Equals (otherSorted[i]))
+			for (int i = 0; i < Count; i++) {
+				if (!this[i].Equals (other[i]))
 					return false;
 			}
 
@@ -465,6 +459,32 @@ namespace MimeKit {
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Determines whether the specified object is equal to the current object.
+		/// </summary>
+		/// <remarks>
+		/// The type of comparison between the current instance and the <paramref name="obj"/> parameter depends on whether
+		/// the current instance is a reference type or a value type.
+		/// </remarks>
+		/// <param name="obj">The object to compare with the current object.</param>
+		/// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+		public override bool Equals (object obj)
+		{
+			return Equals (obj as InternetAddressList);
+		}
+
+		/// <summary>
+		/// Returns the hash code for this instance.
+		/// </summary>
+		/// <remarks>
+		/// Returns the hash code for this instance.
+		/// </remarks>
+		/// <returns>A hash code for the current object.</returns>
+		public override int GetHashCode ()
+		{
+			return ToString ().GetHashCode ();
+		}
 
 		internal void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
 		{

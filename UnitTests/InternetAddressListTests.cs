@@ -739,7 +739,6 @@ namespace UnitTests {
 
 			var list2 = new InternetAddressList ();
 
-			list2.Add (new MailboxAddress ("Chandler", "chandler@friends.com"));
 			list2.Add (new GroupAddress ("Local recipients", new InternetAddress[] {
 				new MailboxAddress ("", "phil"),
 				new MailboxAddress ("", "joe"),
@@ -747,10 +746,14 @@ namespace UnitTests {
 				new MailboxAddress ("", "bob"),
 			}));
 			list2.Add (new MailboxAddress ("Joey", "joey@friends.com"));
+			list2.Add (new MailboxAddress ("Chandler", "chandler@friends.com"));
 
 			Assert.IsFalse (list1.Equals (null), "Equals null");
 			Assert.IsFalse (list1.Equals (new InternetAddressList ()), "Equals empty list");
 			Assert.IsTrue (list1.Equals (list2), "The 2 lists should be equal.");
+
+			Assert.IsTrue (((object) list1).Equals ((object) list2), "Equals(object)");
+			Assert.AreEqual (list1.GetHashCode (), list2.GetHashCode (), "GetHashCode()");
 		}
 
 		[Test]
