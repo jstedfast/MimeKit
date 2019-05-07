@@ -99,9 +99,9 @@ namespace MimeKit.Cryptography {
 						}
 					}
 				}
-
-				EncryptionAlgorithms = algorithms.ToArray ();
 			}
+
+			EncryptionAlgorithms = algorithms.ToArray ();
 
 			if (BouncyCastleSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithmID, out digestAlgo))
 				DigestAlgorithm = digestAlgo;
