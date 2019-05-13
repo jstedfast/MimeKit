@@ -1,5 +1,21 @@
 # Release Notes
 
+### MimeKit 2.1.5 (2019-05-13)
+
+* Updated the BouncyCastle assemblies to version 1.8.5 for iOS and Android.
+* Fixed a possible NullReferenceException when decoding S/MIME digital signatures.
+* Fixed the netstandard2.0 dependencies to no longer explicitly include System.Net.Http.
+  (issue [#482](https://github.com/jstedfast/MimeKit/issues/482))
+* Override Equals(object) and GetHashCode() for InternetAddress and InternetAddressList.
+  (issue [#481](https://github.com/jstedfast/MimeKit/issues/481))
+* Fixed TnefReader.Dispose() to avoid a potential NullReferenceException if double disposed.
+* Fixed the Message-Id, Content-Id, References and In-Reply-To parsers to be more liberal
+  in what they accept in terms of the `msg-id` token.
+* Changed the Header encoding logic for the In-Reply-To header to not rfc2047 encode the value
+  even if it is longer than the suggested line-length.
+  (issue [#479](https://github.com/jstedfast/MimeKit/issues/479))
+* Reduced netstandard dependencies. (issue [#475](https://github.com/jstedfast/MimeKit/issues/475))
+
 ### MimeKit 2.1.4 (2019-04-13)
 
 * Added a setter for FormatOptions.MaxLineLength, allowing developers to override this value.

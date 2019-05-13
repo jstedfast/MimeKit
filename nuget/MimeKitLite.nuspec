@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.1.4</version>
+    <version>2.1.5</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,11 +26,11 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added a setter for FormatOptions.MaxLineLength, allowing developers to override this value.
-* Improved TNEF handling of Content-Disposition and Content-Id properties. (issue #470 and issue #471)
-* Improved Content-Id parser to be more forgiving with improperly formatted IDs. (issue #472)
-* Added support for the text/rfc822-headers MIME-type via the new TextRfc822Headers class. (issue #474)
-* Added fallback logic for international email addresses that are not properly encoded in UTF-8. (issue #477)
+* Override Equals(object) and GetHashCode() for InternetAddress and InternetAddressList. (issue #481)
+* Fixed TnefReader.Dispose() to avoid a potential NullReferenceException if double disposed.
+* Fixed the Message-Id, Content-Id, References and In-Reply-To parsers to be more liberal in what they accept in terms of the `msg-id` token.
+* Changed the Header encoding logic for the In-Reply-To header to not rfc2047 encode the value even if it is longer than the suggested line-length. (issue #479)
+* Reduced netstandard dependencies. (issue #475)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
