@@ -33,6 +33,9 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3689B0D3-C33B-4BE1-A7BD-A5DEBFB67496}
+	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = MessageReader.iOS\MessageReader.iOS.csproj
 	EndGlobalSection

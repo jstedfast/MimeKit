@@ -1,6 +1,7 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DkimVerifier", "DkimVerifier\DkimVerifier.csproj", "{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}"
 EndProject
 Global
@@ -13,5 +14,11 @@ Global
 		{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}.Debug|x86.Build.0 = Debug|x86
 		{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}.Release|x86.ActiveCfg = Release|x86
 		{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {469B0A01-06AE-4F83-9EF7-CC8053651B75}
 	EndGlobalSection
 EndGlobal
