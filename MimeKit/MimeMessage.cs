@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -2017,73 +2018,82 @@ namespace MimeKit {
 			return parameters;
 		}
 
-		static void ValidateDkimSignatureParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
+		static void ValidateSignatureParameters (IDictionary<string, string> parameters, HeaderId header, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
 			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
 		{
 			bool containsFrom = false;
-			string v, a, c, h, l, id;
 
-			if (!parameters.TryGetValue ("v", out v))
-				throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
+			if (header == HeaderId.DkimSignature) {
+				if (!parameters.TryGetValue ("v", out string v))
+					throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
 
-			if (v != "1")
-				throw new FormatException (string.Format ("Unrecognized DKIM-Signature version: v={0}", v));
+				if (v != "1")
+					throw new FormatException (string.Format ("Unrecognized DKIM-Signature version: v={0}", v));
+			}
 
-			if (!parameters.TryGetValue ("a", out a))
-				throw new FormatException ("Malformed DKIM-Signature header: no signature algorithm parameter detected.");
+			if (!parameters.TryGetValue ("a", out string a))
+				throw new FormatException (string.Format ("Malformed {0} header: no signature algorithm parameter detected.", header.ToHeaderName ()));
 
 			switch (a.ToLowerInvariant ()) {
 			case "rsa-sha256": algorithm = DkimSignatureAlgorithm.RsaSha256; break;
 			case "rsa-sha1": algorithm = DkimSignatureAlgorithm.RsaSha1; break;
-			default: throw new FormatException (string.Format ("Unrecognized DKIM-Signature algorithm parameter: a={0}", a));
+			default: throw new FormatException (string.Format ("Unrecognized {0} algorithm parameter: a={1}", header.ToHeaderName (), a));
 			}
 
 			if (!parameters.TryGetValue ("d", out d))
-				throw new FormatException ("Malformed DKIM-Signature header: no domain parameter detected.");
+				throw new FormatException (string.Format ("Malformed {0} header: no domain parameter detected.", header.ToHeaderName ()));
 
-			if (parameters.TryGetValue ("i", out id)) {
-				string ident;
-				int at;
+			if (parameters.TryGetValue ("i", out string id)) {
+				switch (header) {
+				case HeaderId.DkimSignature:
+					string ident;
+					int at;
 
-				if ((at = id.LastIndexOf ('@')) == -1)
-					throw new FormatException ("Malformed DKIM-Signature header: no @ in the AUID value.");
+					if ((at = id.LastIndexOf ('@')) == -1)
+						throw new FormatException ("Malformed DKIM-Signature header: no @ in the AUID value.");
 
-				ident = id.Substring (at + 1);
+					ident = id.Substring (at + 1);
 
-				if (!ident.Equals (d, StringComparison.OrdinalIgnoreCase) && !ident.EndsWith ("." + d, StringComparison.OrdinalIgnoreCase))
-					throw new FormatException ("Invalid DKIM-Signature header: the domain in the AUID does not match the domain parameter.");
+					if (!ident.Equals (d, StringComparison.OrdinalIgnoreCase) && !ident.EndsWith ("." + d, StringComparison.OrdinalIgnoreCase))
+						throw new FormatException ("Invalid DKIM-Signature header: the domain in the AUID does not match the domain parameter.");
+					break;
+				case HeaderId.ArcMessageSignature:
+					if (!int.TryParse (id, NumberStyles.Integer, CultureInfo.InvariantCulture, out int i) || i < 1 || i > 50)
+						throw new FormatException ("Malformed ARC-Message-Signature header: invalid instance value.");
+					break;
+				}
 			}
 
 			if (!parameters.TryGetValue ("s", out s))
-				throw new FormatException ("Malformed DKIM-Signature header: no selector parameter detected.");
+				throw new FormatException (string.Format ("Malformed {0} header: no selector parameter detected.", header.ToHeaderName ()));
 
 			if (!parameters.TryGetValue ("q", out q))
 				q = "dns/txt";
 
-			if (parameters.TryGetValue ("l", out l)) {
+			if (parameters.TryGetValue ("l", out string l)) {
 				if (!int.TryParse (l, out maxLength))
-					throw new FormatException (string.Format ("Malformed DKIM-Signature header: invalid length parameter: l={0}", l));
+					throw new FormatException (string.Format ("Malformed {0} header: invalid length parameter: l={1}", header.ToHeaderName (), l));
 			} else {
 				maxLength = -1;
 			}
 
-			if (parameters.TryGetValue ("c", out c)) {
+			if (parameters.TryGetValue ("c", out string c)) {
 				var tokens = c.ToLowerInvariant ().Split ('/');
 
 				if (tokens.Length == 0 || tokens.Length > 2)
-					throw new FormatException (string.Format ("Malformed DKIM-Signature header: invalid canonicalization parameter: c={0}", c));
+					throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header.ToHeaderName (), c));
 
 				switch (tokens[0]) {
 				case "relaxed": headerAlgorithm = DkimCanonicalizationAlgorithm.Relaxed; break;
 				case "simple": headerAlgorithm = DkimCanonicalizationAlgorithm.Simple; break;
-				default: throw new FormatException (string.Format ("Malformed DKIM-Signature header: invalid canonicalization parameter: c={0}", c));
+				default: throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header.ToHeaderName (), c));
 				}
 
 				if (tokens.Length == 2) {
 					switch (tokens[1]) {
 					case "relaxed": bodyAlgorithm = DkimCanonicalizationAlgorithm.Relaxed; break;
 					case "simple": bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple; break;
-					default: throw new FormatException (string.Format ("Malformed DKIM-Signature header: invalid canonicalization parameter: c={0}", c));
+					default: throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header.ToHeaderName (), c));
 					}
 				} else {
 					bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
@@ -2093,8 +2103,8 @@ namespace MimeKit {
 				bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
 			}
 
-			if (!parameters.TryGetValue ("h", out h))
-				throw new FormatException ("Malformed DKIM-Signature header: no signed header parameter detected.");
+			if (!parameters.TryGetValue ("h", out string h))
+				throw new FormatException (string.Format ("Malformed {0} header: no signed header parameter detected.", header.ToHeaderName ()));
 
 			headers = h.Split (':');
 			for (int i = 0; i < headers.Length; i++) {
@@ -2105,19 +2115,19 @@ namespace MimeKit {
 			}
 
 			if (!containsFrom)
-				throw new FormatException (string.Format ("Malformed DKIM-Signature header: From header not signed."));
+				throw new FormatException (string.Format ("Malformed {0} header: From header not signed.", header.ToHeaderName ()));
 
 			if (!parameters.TryGetValue ("bh", out bh))
-				throw new FormatException ("Malformed DKIM-Signature header: no body hash parameter detected.");
+				throw new FormatException (string.Format ("Malformed {0} header: no body hash parameter detected.", header.ToHeaderName ()));
 
 			if (!parameters.TryGetValue ("b", out b))
-				throw new FormatException ("Malformed DKIM-Signature header: no signature parameter detected.");
+				throw new FormatException (string.Format ("Malformed {0} header: no signature parameter detected.", header.ToHeaderName ()));
 		}
 
-		static Header GetSignedDkimSignatureHeader (Header dkimSignature)
+		static Header GetSignedSignatureHeader (Header header)
 		{
 			// modify the raw DKIM-Signature header value by chopping off the signature value after the "b="
-			var rawValue = (byte[]) dkimSignature.RawValue.Clone ();
+			var rawValue = (byte[]) header.RawValue.Clone ();
 			int length = 0, index = 0;
 
 			do {
@@ -2155,31 +2165,31 @@ namespace MimeKit {
 			} while (index < rawValue.Length);
 
 			if (index == rawValue.Length)
-				throw new FormatException ("Malformed DKIM-Signature header: missing signature parameter.");
+				throw new FormatException (string.Format ("Malformed {0} header: missing signature parameter.", header.Id.ToHeaderName ()));
 
 			while (index < rawValue.Length)
 				rawValue[length++] = rawValue[index++];
 
 			Array.Resize (ref rawValue, length);
 
-			return new Header (dkimSignature.Options, dkimSignature.RawField, rawValue);
+			return new Header (header.Options, header.RawField, rawValue);
 		}
 
-		async Task<bool> VerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
+		async Task<bool> VerifyAsync (FormatOptions options, Header signature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (dkimSignature == null)
-				throw new ArgumentNullException (nameof (dkimSignature));
+			if (signature == null)
+				throw new ArgumentNullException (nameof (signature));
 
-			if (dkimSignature.Id != HeaderId.DkimSignature)
-				throw new ArgumentException ("The dkimSignature parameter MUST be a DKIM-Signature header.", nameof (dkimSignature));
+			if (signature.Id != HeaderId.DkimSignature && signature.Id != HeaderId.ArcMessageSignature)
+				throw new ArgumentException ("The signature parameter MUST be a DKIM-Signature or ARC-Message-Signature header.", nameof (signature));
 
 			if (publicKeyLocator == null)
 				throw new ArgumentNullException (nameof (publicKeyLocator));
 
-			var parameters = ParseDkimSignature (dkimSignature.Value);
+			var parameters = ParseDkimSignature (signature.Value);
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
 			AsymmetricKeyParameter key;
@@ -2187,8 +2197,8 @@ namespace MimeKit {
 			string[] headers;
 			int maxLength;
 
-			ValidateDkimSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
-			                                 out d, out s, out q, out headers, out bh, out b, out maxLength);
+			ValidateSignatureParameters (parameters, signature.Id, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
+			                             out d, out s, out q, out headers, out bh, out b, out maxLength);
 
 			if (doAsync)
 				key = await publicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
@@ -2210,9 +2220,9 @@ namespace MimeKit {
 
 					DkimWriteHeaders (options, headers, headerAlgorithm, filtered);
 
-					// now include the DKIM-Signature header that we are verifying,
+					// now include the DKIM-Signature or ARC-Message-Signature header that we are verifying,
 					// but only after removing the "b=" signature value.
-					var header = GetSignedDkimSignatureHeader (dkimSignature);
+					var header = GetSignedSignatureHeader (signature);
 
 					switch (headerAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
@@ -2231,137 +2241,137 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Verify the specified DKIM-Signature header.
+		/// Verify the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the specified DKIM-Signature header.
+		/// Verifies the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><c>true</c> if the DKIM-Signature or ARC-Message-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <param name="signature">The DKIM-Signature or ARC-Message-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="signature"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// <paramref name="signature"/> is not a DKIM-Signature or ARC-Message-Signature header.
 		/// </exception>
 		/// <exception cref="System.FormatException">
-		/// The DKIM-Signature header value is malformed.
+		/// The DKIM-Signature or ARC-Message-Signature header value is malformed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		public bool Verify (FormatOptions options, Header signature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return VerifyAsync (options, dkimSignature, publicKeyLocator, false, cancellationToken).GetAwaiter ().GetResult ();
+			return VerifyAsync (options, signature, publicKeyLocator, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
-		/// Asynchronously verify the specified DKIM-Signature header.
+		/// Asynchronously verify the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the specified DKIM-Signature header.
+		/// Verifies the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><c>true</c> if the DKIM-Signature or ARC-Message-Signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <param name="signature">The DKIM-Signature or ARC-Message-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="signature"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// <paramref name="signature"/> is not a DKIM-Signature or ARC-Message-Signature header.
 		/// </exception>
 		/// <exception cref="System.FormatException">
-		/// The DKIM-Signature header value is malformed.
+		/// The DKIM-Signature or ARC-Message-Signature header value is malformed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<bool> VerifyAsync (FormatOptions options, Header signature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return VerifyAsync (options, dkimSignature, publicKeyLocator, true, cancellationToken);
+			return VerifyAsync (options, signature, publicKeyLocator, true, cancellationToken);
 		}
 
 		/// <summary>
-		/// Verify the specified DKIM-Signature header.
+		/// Verify the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the specified DKIM-Signature header.
+		/// Verifies the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
-		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <returns><c>true</c> if the DKIM-Signature or ARC-Message-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="signature">The DKIM-Signature or ARC-Message-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="signature"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// <paramref name="signature"/> is not a DKIM-Signature or ARC-Message-Signature header.
 		/// </exception>
 		/// <exception cref="System.FormatException">
-		/// The DKIM-Signature header value is malformed.
+		/// The DKIM-Signature or ARC-Message-Signature header value is malformed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		public bool Verify (Header signature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return Verify (FormatOptions.Default, dkimSignature, publicKeyLocator, cancellationToken);
+			return Verify (FormatOptions.Default, signature, publicKeyLocator, cancellationToken);
 		}
 
 		/// <summary>
-		/// Asynchronously verify the specified DKIM-Signature header.
+		/// Asynchronously verify the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the specified DKIM-Signature header.
+		/// Verifies the specified DKIM-Signature or ARC-Message-Signature header.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
-		/// <param name="dkimSignature">The DKIM-Signature header.</param>
+		/// <returns><c>true</c> if the DKIM-Signature or ARC-Message-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="signature">The DKIM-Signature or ARC-Message-Signature header.</param>
 		/// <param name="publicKeyLocator">The public key locator service.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="signature"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="publicKeyLocator"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
+		/// <paramref name="signature"/> is not a DKIM-Signature or ARC-Message-Signature header.
 		/// </exception>
 		/// <exception cref="System.FormatException">
-		/// The DKIM-Signature header value is malformed.
+		/// The DKIM-Signature or ARC-Message-Signature header value is malformed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<bool> VerifyAsync (Header signature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return VerifyAsync (FormatOptions.Default, dkimSignature, publicKeyLocator, cancellationToken);
+			return VerifyAsync (FormatOptions.Default, signature, publicKeyLocator, cancellationToken);
 		}
 
 		/// <summary>
