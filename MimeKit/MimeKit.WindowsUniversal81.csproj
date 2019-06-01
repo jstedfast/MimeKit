@@ -60,6 +60,7 @@
     <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
+    <Compile Include="Cryptography\ArcVerifier.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Cryptography\DkimSignatureStream.cs" />
     <Compile Include="Cryptography\DkimSigner.cs" />
     <Compile Include="Cryptography\DkimSimpleBodyFilter.cs" />
+    <Compile Include="Cryptography\DkimVerifier.cs" />
     <Compile Include="Cryptography\EncryptionAlgorithm.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />
     <Compile Include="Cryptography\IDigitalSignature.cs" />
