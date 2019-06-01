@@ -46,6 +46,7 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit.Cryptography;
 #endif
@@ -181,7 +182,7 @@ namespace MimeKit {
 							Headers.Add (h);
 					}
 
-					continue;						
+					continue;
 				}
 
 				var entity = obj as MimeEntity;
@@ -1980,32 +1981,44 @@ namespace MimeKit {
 			return c == ' ' || c == '\t';
 		}
 
-		static IDictionary<string, string> ParseSignatureParameters (HeaderId header, string signature)
+		static bool IsAlpha (char c)
 		{
-			var parameters = new Dictionary<string, string> (MimeUtils.OrdinalIgnoreCase);
+			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+		}
 
-			foreach (var token in signature.Split (';')) {
-				var value = new StringBuilder ();
-				int startIndex, index = 0;
-				string name;
+		static Dictionary<string, string> ParseSignatureParameters (HeaderId header, string signature)
+		{
+			var parameters = new Dictionary<string, string> ();
+			var value = new StringBuilder ();
+			int index = 0;
 
-				while (index < token.Length && IsWhiteSpace (token[index]))
+			while (index < signature.Length) {
+				while (index < signature.Length && IsWhiteSpace (signature[index]))
 					index++;
 
-				startIndex = index;
+				if (index >= signature.Length)
+					break;
 
-				while (index < token.Length && token[index] != '=')
+				if (signature[index] == ';' || !IsAlpha (signature[index]))
+					throw new FormatException (string.Format ("Malformed {0} value.", header.ToHeaderName ()));
+
+				int startIndex = index++;
+
+				while (index < signature.Length && signature[index] != '=')
 					index++;
 
-				if (index + 1 >= token.Length)
+				if (index >= signature.Length)
 					continue;
 
-				name = token.Substring (startIndex, index - startIndex).Trim ();
+				var name = signature.Substring (startIndex, index - startIndex).TrimEnd ();
+
+				// skip over '=' and clear value buffer
+				value.Length = 0;
 				index++;
 
-				while (index < token.Length) {
-					if (!IsWhiteSpace (token[index]))
-						value.Append (token[index]);
+				while (index < signature.Length && signature[index] != ';') {
+					if (!IsWhiteSpace (signature[index]))
+						value.Append (signature[index]);
 					index++;
 				}
 
@@ -2013,66 +2026,61 @@ namespace MimeKit {
 					throw new FormatException (string.Format ("Malformed {0} value: duplicate parameter '{1}'.", header.ToHeaderName (), name));
 
 				parameters.Add (name, value.ToString ());
+
+				// skip over ';'
+				index++;
 			}
 
 			return parameters;
 		}
 
-		static void ValidateSignatureParameters (IDictionary<string, string> parameters, HeaderId header, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
-			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
+		static void ValidateCommonParameters (string header, IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm,
+			out string d, out string s, out string q, out string b)
 		{
-			bool containsFrom = false;
-
-			if (header == HeaderId.DkimSignature) {
-				if (!parameters.TryGetValue ("v", out string v))
-					throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
-
-				if (v != "1")
-					throw new FormatException (string.Format ("Unrecognized DKIM-Signature version: v={0}", v));
-			}
-
 			if (!parameters.TryGetValue ("a", out string a))
-				throw new FormatException (string.Format ("Malformed {0} header: no signature algorithm parameter detected.", header.ToHeaderName ()));
+				throw new FormatException (string.Format ("Malformed {0} header: no signature algorithm parameter detected.", header));
 
 			switch (a.ToLowerInvariant ()) {
 			case "rsa-sha256": algorithm = DkimSignatureAlgorithm.RsaSha256; break;
 			case "rsa-sha1": algorithm = DkimSignatureAlgorithm.RsaSha1; break;
-			default: throw new FormatException (string.Format ("Unrecognized {0} algorithm parameter: a={1}", header.ToHeaderName (), a));
+			default: throw new FormatException (string.Format ("Unrecognized {0} algorithm parameter: a={1}", header, a));
 			}
 
 			if (!parameters.TryGetValue ("d", out d))
-				throw new FormatException (string.Format ("Malformed {0} header: no domain parameter detected.", header.ToHeaderName ()));
+				throw new FormatException (string.Format ("Malformed {0} header: no domain parameter detected.", header));
 
-			if (parameters.TryGetValue ("i", out string id)) {
-				switch (header) {
-				case HeaderId.DkimSignature:
-					string ident;
-					int at;
-
-					if ((at = id.LastIndexOf ('@')) == -1)
-						throw new FormatException ("Malformed DKIM-Signature header: no @ in the AUID value.");
-
-					ident = id.Substring (at + 1);
-
-					if (!ident.Equals (d, StringComparison.OrdinalIgnoreCase) && !ident.EndsWith ("." + d, StringComparison.OrdinalIgnoreCase))
-						throw new FormatException ("Invalid DKIM-Signature header: the domain in the AUID does not match the domain parameter.");
-					break;
-				case HeaderId.ArcMessageSignature:
-					if (!int.TryParse (id, NumberStyles.Integer, CultureInfo.InvariantCulture, out int i) || i < 1 || i > 50)
-						throw new FormatException ("Malformed ARC-Message-Signature header: invalid instance value.");
-					break;
-				}
-			}
+			if (d.Length == 0)
+				throw new FormatException (string.Format ("Malformed {0} header: empty domain parameter detected.", header));
 
 			if (!parameters.TryGetValue ("s", out s))
-				throw new FormatException (string.Format ("Malformed {0} header: no selector parameter detected.", header.ToHeaderName ()));
+				throw new FormatException (string.Format ("Malformed {0} header: no selector parameter detected.", header));
+
+			if (s.Length == 0)
+				throw new FormatException (string.Format ("Malformed {0} header: empty selector parameter detected.", header));
 
 			if (!parameters.TryGetValue ("q", out q))
 				q = "dns/txt";
 
+			if (!parameters.TryGetValue ("b", out b))
+				throw new FormatException (string.Format ("Malformed {0} header: no signature parameter detected.", header));
+
+			if (b.Length == 0)
+				throw new FormatException (string.Format ("Malformed {0} header: empty signature parameter detected.", header));
+
+			if (parameters.TryGetValue ("t", out string t)) {
+				if (!int.TryParse (t, NumberStyles.Integer, CultureInfo.InvariantCulture, out int timestamp) || timestamp < 0)
+					throw new FormatException (string.Format ("Malformed {0} header: invalid timestamp parameter: t={1}.", header, t));
+			}
+		}
+
+		static void ValidateCommonSignatureParameters (string header, IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
+			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
+		{
+			ValidateCommonParameters (header, parameters, out algorithm, out d, out s, out q, out b);
+
 			if (parameters.TryGetValue ("l", out string l)) {
 				if (!int.TryParse (l, out maxLength))
-					throw new FormatException (string.Format ("Malformed {0} header: invalid length parameter: l={1}", header.ToHeaderName (), l));
+					throw new FormatException (string.Format ("Malformed {0} header: invalid length parameter: l={1}", header, l));
 			} else {
 				maxLength = -1;
 			}
@@ -2081,19 +2089,19 @@ namespace MimeKit {
 				var tokens = c.ToLowerInvariant ().Split ('/');
 
 				if (tokens.Length == 0 || tokens.Length > 2)
-					throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header.ToHeaderName (), c));
+					throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header, c));
 
 				switch (tokens[0]) {
 				case "relaxed": headerAlgorithm = DkimCanonicalizationAlgorithm.Relaxed; break;
 				case "simple": headerAlgorithm = DkimCanonicalizationAlgorithm.Simple; break;
-				default: throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header.ToHeaderName (), c));
+				default: throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header, c));
 				}
 
 				if (tokens.Length == 2) {
 					switch (tokens[1]) {
 					case "relaxed": bodyAlgorithm = DkimCanonicalizationAlgorithm.Relaxed; break;
 					case "simple": bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple; break;
-					default: throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header.ToHeaderName (), c));
+					default: throw new FormatException (string.Format ("Malformed {0} header: invalid canonicalization parameter: c={1}", header, c));
 					}
 				} else {
 					bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
@@ -2104,9 +2112,27 @@ namespace MimeKit {
 			}
 
 			if (!parameters.TryGetValue ("h", out string h))
-				throw new FormatException (string.Format ("Malformed {0} header: no signed header parameter detected.", header.ToHeaderName ()));
+				throw new FormatException (string.Format ("Malformed {0} header: no signed header parameter detected.", header));
 
 			headers = h.Split (':');
+
+			if (!parameters.TryGetValue ("bh", out bh))
+				throw new FormatException (string.Format ("Malformed {0} header: no body hash parameter detected.", header));
+		}
+
+		static void ValidateDkimSignatureParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
+			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
+		{
+			bool containsFrom = false;
+
+			if (!parameters.TryGetValue ("v", out string v))
+				throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
+
+			if (v != "1")
+				throw new FormatException (string.Format ("Unrecognized DKIM-Signature version: v={0}", v));
+
+			ValidateCommonSignatureParameters ("DKIM-Signature", parameters, out algorithm, out headerAlgorithm, out bodyAlgorithm, out d, out s, out q, out headers, out bh, out b, out maxLength);
+
 			for (int i = 0; i < headers.Length; i++) {
 				if (headers[i].Equals ("from", StringComparison.OrdinalIgnoreCase)) {
 					containsFrom = true;
@@ -2115,13 +2141,20 @@ namespace MimeKit {
 			}
 
 			if (!containsFrom)
-				throw new FormatException (string.Format ("Malformed {0} header: From header not signed.", header.ToHeaderName ()));
+				throw new FormatException ("Malformed DKIM-Signature header: From header not signed.");
 
-			if (!parameters.TryGetValue ("bh", out bh))
-				throw new FormatException (string.Format ("Malformed {0} header: no body hash parameter detected.", header.ToHeaderName ()));
+			if (parameters.TryGetValue ("i", out string id)) {
+				string ident;
+				int at;
 
-			if (!parameters.TryGetValue ("b", out b))
-				throw new FormatException (string.Format ("Malformed {0} header: no signature parameter detected.", header.ToHeaderName ()));
+				if ((at = id.LastIndexOf ('@')) == -1)
+					throw new FormatException ("Malformed DKIM-Signature header: no @ in the AUID value.");
+
+				ident = id.Substring (at + 1);
+
+				if (!ident.Equals (d, StringComparison.OrdinalIgnoreCase) && !ident.EndsWith ("." + d, StringComparison.OrdinalIgnoreCase))
+					throw new FormatException ("Invalid DKIM-Signature header: the domain in the AUID does not match the domain parameter.");
+			}
 		}
 
 		static Header GetSignedSignatureHeader (Header header)
@@ -2175,9 +2208,9 @@ namespace MimeKit {
 			return new Header (header.Options, header.RawField, rawValue);
 		}
 
-		async Task<bool> GenericVerifyAsync (FormatOptions options, Header signature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
+		async Task<bool> GenericVerifyAsync (FormatOptions options, Header signature, Dictionary<string, string> parameters,
+			IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
 		{
-			var parameters = ParseSignatureParameters (signature.Id, signature.Value);
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
 			AsymmetricKeyParameter key;
@@ -2185,13 +2218,16 @@ namespace MimeKit {
 			string[] headers;
 			int maxLength;
 
-			ValidateSignatureParameters (parameters, signature.Id, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
-			                             out d, out s, out q, out headers, out bh, out b, out maxLength);
+			ValidateDkimSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
+				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
 			if (doAsync)
 				key = await publicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
 			else
 				key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
+
+			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < 1024)
+				return false;
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
@@ -2224,11 +2260,13 @@ namespace MimeKit {
 					filtered.Flush ();
 				}
 
-				return stream.VerifySignature (b);
+				var valid = stream.VerifySignature (b);
+
+				return valid;
 			}
 		}
 
-		Task<bool> VerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
+		Task<bool> DkimVerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -2242,7 +2280,9 @@ namespace MimeKit {
 			if (publicKeyLocator == null)
 				throw new ArgumentNullException (nameof (publicKeyLocator));
 
-			return GenericVerifyAsync (options, dkimSignature, publicKeyLocator, doAsync, cancellationToken);
+			var parameters = ParseSignatureParameters (dkimSignature.Id, dkimSignature.Value);
+
+			return GenericVerifyAsync (options, dkimSignature, parameters, publicKeyLocator, doAsync, cancellationToken);
 		}
 
 		/// <summary>
@@ -2277,7 +2317,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Verify (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return VerifyAsync (options, dkimSignature, publicKeyLocator, false, cancellationToken).GetAwaiter ().GetResult ();
+			return DkimVerifyAsync (options, dkimSignature, publicKeyLocator, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
@@ -2312,7 +2352,7 @@ namespace MimeKit {
 		/// </exception>
 		public Task<bool> VerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return VerifyAsync (options, dkimSignature, publicKeyLocator, true, cancellationToken);
+			return DkimVerifyAsync (options, dkimSignature, publicKeyLocator, true, cancellationToken);
 		}
 
 		/// <summary>
