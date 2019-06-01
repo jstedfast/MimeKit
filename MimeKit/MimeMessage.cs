@@ -1595,75 +1595,6 @@ namespace MimeKit {
 			}
 		}
 
-		//static readonly string[] ArcShouldNotInclude = { "arc-authentication-results", "arc-message-signature", "arc-seal" };
-		static readonly string[] DkimShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "dkim-signature" };
-
-		void DkimSign (FormatOptions options, DkimSigner signer, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm)
-		{
-			if (version == null && Body != null && Body.Headers.Count > 0)
-				MimeVersion = new Version (1, 0);
-
-			var t = DateTime.UtcNow - DateUtils.UnixEpoch;
-			var value = new StringBuilder ("v=1");
-			byte[] signature, hash;
-			Header dkim;
-
-			options = options.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
-
-			switch (signer.SignatureAlgorithm) {
-			case DkimSignatureAlgorithm.RsaSha256:
-				value.Append ("; a=rsa-sha256");
-				break;
-			default:
-				value.Append ("; a=rsa-sha1");
-				break;
-			}
-
-			value.AppendFormat ("; d={0}; s={1}", signer.Domain, signer.Selector);
-			value.AppendFormat ("; c={0}/{1}",
-				headerCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
-				bodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
-			if (!string.IsNullOrEmpty (signer.QueryMethod))
-				value.AppendFormat ("; q={0}", signer.QueryMethod);
-			if (!string.IsNullOrEmpty (signer.AgentOrUserIdentifier))
-				value.AppendFormat ("; i={0}", signer.AgentOrUserIdentifier);
-			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
-
-			using (var stream = new DkimSignatureStream (signer.DigestSigner)) {
-				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (options.CreateNewLineFilter ());
-
-					// write the specified message headers
-					DkimVerifier.WriteHeaders (options, this, fields, headerCanonicalizationAlgorithm, filtered);
-
-					value.AppendFormat ("; h={0}", string.Join (":", fields.ToArray ()));
-
-					hash = HashBody (options, signer.SignatureAlgorithm, bodyCanonicalizationAlgorithm, -1);
-					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
-					value.Append ("; b=");
-
-					dkim = new Header (HeaderId.DkimSignature, value.ToString ());
-					Headers.Insert (0, dkim);
-
-					switch (headerCanonicalizationAlgorithm) {
-					case DkimCanonicalizationAlgorithm.Relaxed:
-						DkimVerifier.WriteHeaderRelaxed (options, filtered, dkim, true);
-						break;
-					default:
-						DkimVerifier.WriteHeaderSimple (options, filtered, dkim, true);
-						break;
-					}
-
-					filtered.Flush ();
-				}
-
-				signature = stream.GenerateSignature ();
-
-				dkim.Value += Convert.ToBase64String (signature);
-			}
-		}
-
 		/// <summary>
 		/// Digitally sign the message using a DomainKeys Identified Mail (DKIM) signature.
 		/// </summary>
@@ -1691,6 +1622,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
+		[Obsolete ("Use DkimSigner.Sign() instead.")]
 		public void Sign (FormatOptions options, DkimSigner signer, IList<string> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			if (options == null)
@@ -1699,32 +1631,7 @@ namespace MimeKit {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			if (headers == null)
-				throw new ArgumentNullException (nameof (headers));
-
-			var fields = new string[headers.Count];
-			var containsFrom = false;
-
-			for (int i = 0; i < headers.Count; i++) {
-				if (headers[i] == null)
-					throw new ArgumentException ("The list of headers cannot contain null.", nameof (headers));
-
-				if (headers[i].Length == 0)
-					throw new ArgumentException ("The list of headers cannot contain empty string.", nameof (headers));
-
-				fields[i] = headers[i].ToLowerInvariant ();
-
-				if (DkimShouldNotInclude.Contains (fields[i]))
-					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i]), nameof (headers));
-
-				if (fields[i] == "from")
-					containsFrom = true;
-			}
-
-			if (!containsFrom)
-				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
-
-			DkimSign (options, signer, fields, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			signer.Sign (options, this, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}
 
 		/// <summary>
@@ -1751,6 +1658,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
+		[Obsolete ("Use DkimSigner.Sign() instead.")]
 		public void Sign (DkimSigner signer, IList<string> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			Sign (FormatOptions.Default, signer, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
@@ -1783,6 +1691,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
+		[Obsolete ("Use DkimSigner.Sign() instead.")]
 		public void Sign (FormatOptions options, DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			if (options == null)
@@ -1791,29 +1700,7 @@ namespace MimeKit {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			if (headers == null)
-				throw new ArgumentNullException (nameof (headers));
-
-			var fields = new string[headers.Count];
-			var containsFrom = false;
-
-			for (int i = 0; i < headers.Count; i++) {
-				if (headers[i] == HeaderId.Unknown)
-					throw new ArgumentException ("The list of headers to sign cannot include the 'Unknown' header.", nameof (headers));
-
-				fields[i] = headers[i].ToHeaderName ().ToLowerInvariant ();
-
-				if (DkimShouldNotInclude.Contains (fields[i]))
-					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i].ToHeaderName ()), nameof (headers));
-
-				if (headers[i] == HeaderId.From)
-					containsFrom = true;
-			}
-
-			if (!containsFrom)
-				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
-
-			DkimSign (options, signer, fields, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			signer.Sign (options, this, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}
 
 		/// <summary>
@@ -1840,6 +1727,7 @@ namespace MimeKit {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
+		[Obsolete ("Use DkimSigner.Sign() instead.")]
 		public void Sign (DkimSigner signer, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
 		{
 			Sign (FormatOptions.Default, signer, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);

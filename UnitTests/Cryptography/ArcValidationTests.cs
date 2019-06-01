@@ -8612,7 +8612,7 @@ ARC-Message-Signature: a=rsa-sha256;
     bh=dHN66dCNljBC18wb03I1K6hlBvV0qqsKoDsetl+jxb8=; c=relaxed/relaxed;
     d=example.org; h=from:to:date:subject:mime-version:arc-authentication-results;
     i=1; s=dummy; t=12345
-      ARC-Authentication-Results: i=1; lists.example.org;
+ARC-Authentication-Results: i=1; lists.example.org;
     spf=pass smtp.mfrom=jqd@d1.example;
     dkim=pass (1024-bit key) header.i=@d1.example;
     dmarc=pass

@@ -145,7 +145,7 @@ namespace UnitTests.Cryptography {
 
 			Assert.Throws<ArgumentNullException> (() => new DkimSignatureStream (null));
 
-			using (var stream = new DkimSignatureStream (signer.DigestSigner)) {
+			using (var stream = new DkimSignatureStream (signer.CreateSigningContext ())) {
 				Assert.IsFalse (stream.CanRead);
 				Assert.IsTrue (stream.CanWrite);
 				Assert.IsFalse (stream.CanSeek);
@@ -190,6 +190,7 @@ namespace UnitTests.Cryptography {
 		static void TestEmptyBody (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
 		{
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
+			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
 			var signer = CreateSigner (signatureAlgorithm);
 			var message = new MimeMessage ();
 
@@ -202,19 +203,20 @@ namespace UnitTests.Cryptography {
 
 			message.Body.Prepare (EncodingConstraint.SevenBit);
 
-			message.Sign (signer, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
+			signer.Sign (message, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
 			var dkim = message.Headers[0];
 
-			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
+			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
 		public void TestArgumentExceptions ()
 		{
 			var locator = new DummyPublicKeyLocator (DkimKeys.Public);
+			var verifier = new DkimVerifier (locator);
 			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
 			var options = FormatOptions.Default;
 			var message = new MimeMessage ();
@@ -239,6 +241,34 @@ namespace UnitTests.Cryptography {
 					QueryMethod = "dns/txt",
 				};
 			}
+
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (message, (IList<HeaderId>) null));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.Unknown, HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.Received, HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.ContentType }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (message, (IList<string>) null));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { "", "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { null, "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { "Received", "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { "Content-Type" }));
+
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, message, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (options, message, new HeaderId[] { HeaderId.From, HeaderId.Unknown }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, message, (IList<HeaderId>) null));
+
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, message, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, null, new string[] { "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (options, message, new string[] { "From", null }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, message, (IList<string>) null));
+
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null, dkimHeader));
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (message, null));
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null, message, dkimHeader));
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (FormatOptions.Default, null, dkimHeader));
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (FormatOptions.Default, message, null));
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<HeaderId>) null));
@@ -296,6 +326,7 @@ namespace UnitTests.Cryptography {
 		static void TestUnicode (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
 		{
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
+			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
 			var signer = CreateSigner (signatureAlgorithm);
 			var message = new MimeMessage ();
 
@@ -314,13 +345,13 @@ namespace UnitTests.Cryptography {
 
 			message.Body.Prepare (EncodingConstraint.EightBit);
 
-			message.Sign (signer, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
+			signer.Sign (message, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 
 			var dkim = message.Headers[0];
 
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
-			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
+			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
@@ -353,8 +384,9 @@ namespace UnitTests.Cryptography {
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
+			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -363,8 +395,9 @@ namespace UnitTests.Cryptography {
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await message.VerifyAsync (message.Headers[index], locator), "Failed to verify GMail signature.");
+			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -373,8 +406,9 @@ namespace UnitTests.Cryptography {
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
+			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -383,8 +417,9 @@ namespace UnitTests.Cryptography {
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await message.VerifyAsync (message.Headers[index], locator), "Failed to verify GMail signature.");
+			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -393,8 +428,9 @@ namespace UnitTests.Cryptography {
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (message.Verify (message.Headers[index], locator), "Failed to verify GMail signature.");
+			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -403,20 +439,22 @@ namespace UnitTests.Cryptography {
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await message.VerifyAsync (message.Headers[index], locator), "Failed to verify GMail signature.");
+			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
 		{
 			var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
+			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
 			var signer = CreateSigner (signatureAlgorithm);
 
-			message.Sign (signer, headers, headerAlgorithm, bodyAlgorithm);
+			signer.Sign (message, headers, headerAlgorithm, bodyAlgorithm);
 
 			var dkim = message.Headers[0];
 
-			Assert.IsTrue (message.Verify (dkim, new DummyPublicKeyLocator (DkimKeys.Public)), "Failed to verify DKIM-Signature.");
+			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
 
 			message.Headers.RemoveAt (0);
 		}
