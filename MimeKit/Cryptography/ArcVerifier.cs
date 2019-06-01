@@ -86,6 +86,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ArcVerifier (IDkimPublicKeyLocator publicKeyLocator)
 		{
+			if (publicKeyLocator == null)
+				throw new ArgumentNullException (nameof (publicKeyLocator));
+
 			this.publicKeyLocator = publicKeyLocator;
 		}
 
