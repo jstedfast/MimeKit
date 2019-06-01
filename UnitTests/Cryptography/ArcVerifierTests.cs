@@ -1,5 +1,5 @@
 ﻿//
-// ArcValidationTests.cs
+// ArcVerifierTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -42,7 +42,7 @@ using MimeKit.Cryptography;
 namespace UnitTests.Cryptography
 {
 	[TestFixture]
-	public class ArcValidationTests
+	public class ArcVerifierTests
 	{
 		class ArcPublicKeyLocator : IDkimPublicKeyLocator
 		{
@@ -128,6 +128,24 @@ namespace UnitTests.Cryptography
 			{
 				throw new NotImplementedException ();
 			}
+		}
+
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var locator = new ArcPublicKeyLocator ();
+			var verifier = new ArcVerifier (locator);
+			var message = new MimeMessage ();
+
+			Assert.Throws<ArgumentNullException> (() => new ArcVerifier (null));
+
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null));
+			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (null));
+
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null, message));
+			Assert.Throws<ArgumentNullException> (() => verifier.Verify (FormatOptions.Default, null));
+			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (null, message));
+			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, null));
 		}
 
 		static void Validate (string description, string input, ArcPublicKeyLocator locator, ArcValidationResult expected)

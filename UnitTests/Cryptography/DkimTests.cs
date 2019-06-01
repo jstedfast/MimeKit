@@ -264,6 +264,8 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentException> (() => signer.Sign (options, message, new string[] { "From", null }));
 			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, message, (IList<string>) null));
 
+			Assert.Throws<ArgumentNullException> (() => new DkimVerifier (null));
+
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null, dkimHeader));
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (message, null));
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null, message, dkimHeader));

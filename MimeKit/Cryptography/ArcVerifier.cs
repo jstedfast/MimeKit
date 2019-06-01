@@ -254,8 +254,8 @@ namespace MimeKit.Cryptography {
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (publicKeyLocator == null)
-				throw new ArgumentNullException (nameof (publicKeyLocator));
+			if (message == null)
+				throw new ArgumentNullException(nameof(message));
 
 			var sets = new ArcHeaderSet[50];
 			ArcHeaderSet set;
