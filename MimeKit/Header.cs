@@ -666,6 +666,120 @@ namespace MimeKit {
 			return charset.GetBytes (encoded.ToString ());
 		}
 
+		static void EncodeLongValue (FormatOptions format, StringBuilder encoded, ref int lineLength, string value)
+		{
+			int startIndex = 0;
+
+			while (startIndex < value.Length) {
+				int lineLeft = format.MaxLineLength - lineLength;
+				int maxIndex = startIndex + lineLeft;
+				int index;
+
+				if (maxIndex >= value.Length) {
+					index = value.Length;
+				} else {
+					index = maxIndex;
+
+					while (index > startIndex && IsWhiteSpace (value[index - 1]))
+						index--;
+
+					if (index == startIndex)
+						index = maxIndex;
+				}
+
+				encoded.Append (value, startIndex, index - startIndex);
+
+				while (index < value.Length && IsWhiteSpace (value[index]))
+					index++;
+
+				if (index == value.Length)
+					break;
+
+				encoded.Append (format.NewLine);
+				encoded.Append ('\t');
+				lineLength = 1;
+
+				startIndex = index;
+			}
+		}
+
+		static byte[] EncodeAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		{
+			var encoded = new StringBuilder ();
+			int lineLength = field.Length + 1;
+			var token = new StringBuilder ();
+			int index = 0;
+
+			while (index < value.Length) {
+				// skip leading whitespace
+				while (index < value.Length && IsWhiteSpace (value[index]))
+					index++;
+
+				// consume the tag name and/or domain
+				int wsp = 0;
+				while (index < value.Length && value[index] != '=' && value[index] != ';') {
+					if (!IsWhiteSpace (value[index]))
+						wsp = 0;
+					else
+						wsp++;
+
+					token.Append (value[index]);
+					index++;
+				}
+
+				// trim trailing whitespace from the tag name / domain
+				token.Length -= wsp;
+
+				if (index < value.Length && value[index] == '=') {
+					// skip leading whitespace in the tag value
+					while (index < value.Length && IsWhiteSpace (value[index]))
+						index++;
+
+					// consume the tag value
+					wsp = 0;
+					while (index < value.Length && value[index] != ';') {
+						if (IsWhiteSpace (value[index]))
+							wsp++;
+						else
+							wsp = 0;
+
+						token.Append (value[index]);
+						index++;
+					}
+
+					// trim the trailing whitespace
+					token.Length -= wsp;
+				}
+
+				if (index < value.Length && value[index] == ';') {
+					token.Append (';');
+					index++;
+				}
+
+				if (lineLength + token.Length + 1 > format.MaxLineLength) {
+					encoded.Append (format.NewLine);
+					encoded.Append ('\t');
+					lineLength = 1;
+				} else {
+					encoded.Append (' ');
+					lineLength++;
+				}
+
+				if (token.Length > format.MaxLineLength) {
+					EncodeLongValue (format, encoded, ref lineLength, token.ToString ());
+				} else {
+					encoded.Append (token.ToString ());
+					lineLength += token.Length;
+				}
+
+				token.Length = 0;
+			}
+
+			encoded.Append (format.NewLine);
+
+			return charset.GetBytes (encoded.ToString ());
+		}
+
 		static void EncodeDkimLongValue (FormatOptions format, StringBuilder encoded, ref int lineLength, string value)
 		{
 			int startIndex = 0;
@@ -716,7 +830,7 @@ namespace MimeKit {
 			}
 		}
 
-		static byte[] EncodeDkimSignatureHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeDkimOrArcSignatureHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
@@ -995,8 +1109,13 @@ namespace MimeKit {
 				return EncodeContentDisposition (Options, format, encoding, Field, textValue);
 			case HeaderId.ContentType:
 				return EncodeContentType (Options, format, encoding, Field, textValue);
+			case HeaderId.ArcAuthenticationResults:
+			case HeaderId.AuthenticationResults:
+				return EncodeAuthenticationResultsHeader (Options, format, encoding, Field, textValue);
+			case HeaderId.ArcMessageSignature:
+			case HeaderId.ArcSeal:
 			case HeaderId.DkimSignature:
-				return EncodeDkimSignatureHeader (Options, format, encoding, Field, textValue);
+				return EncodeDkimOrArcSignatureHeader (Options, format, encoding, Field, textValue);
 			default:
 				return EncodeUnstructuredHeader (Options, format, encoding, Field, textValue);
 			}
