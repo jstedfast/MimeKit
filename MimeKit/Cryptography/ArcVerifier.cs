@@ -70,10 +70,8 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// Validates Authenticated Received Chains.
 	/// </remarks>
-	public class ArcVerifier
+	public class ArcVerifier : DkimVerifierBase
 	{
-		readonly IDkimPublicKeyLocator publicKeyLocator;
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcVerifier"/> class.
 		/// </summary>
@@ -84,12 +82,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="publicKeyLocator"/> is <c>null</c>.
 		/// </exception>
-		public ArcVerifier (IDkimPublicKeyLocator publicKeyLocator)
+		public ArcVerifier (IDkimPublicKeyLocator publicKeyLocator) : base (publicKeyLocator)
 		{
-			if (publicKeyLocator == null)
-				throw new ArgumentNullException (nameof (publicKeyLocator));
-
-			this.publicKeyLocator = publicKeyLocator;
 		}
 
 		class ArcHeaderSet
@@ -138,12 +132,12 @@ namespace MimeKit.Cryptography {
 		static void ValidateArcMessageSignatureParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
 			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
 		{
-			DkimVerifier.ValidateCommonSignatureParameters ("ARC-Message-Signature", parameters, out algorithm, out headerAlgorithm, out bodyAlgorithm, out d, out s, out q, out headers, out bh, out b, out maxLength);
+			ValidateCommonSignatureParameters ("ARC-Message-Signature", parameters, out algorithm, out headerAlgorithm, out bodyAlgorithm, out d, out s, out q, out headers, out bh, out b, out maxLength);
 		}
 
 		static void ValidateArcSealParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out string d, out string s, out string q, out string b)
 		{
-			DkimVerifier.ValidateCommonParameters ("ARC-Seal", parameters, out algorithm, out d, out s, out q, out b);
+			ValidateCommonParameters ("ARC-Seal", parameters, out algorithm, out d, out s, out q, out b);
 
 			if (parameters.TryGetValue ("h", out string h))
 				throw new FormatException (string.Format ("Malformed ARC-Seal header: the 'h' parameter tag is not allowed."));
@@ -161,12 +155,15 @@ namespace MimeKit.Cryptography {
 			ValidateArcMessageSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
 				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
-			if (doAsync)
-				key = await publicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
-			else
-				key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
+			if (!IsEnabled (signatureAlgorithm))
+				return false;
 
-			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < 1024)
+			if (doAsync)
+				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
+			else
+				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
+
+			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < MinimumRsaKeyLength)
 				return false;
 
 			options = options.Clone ();
@@ -178,22 +175,22 @@ namespace MimeKit.Cryptography {
 			if (hash != bh)
 				return false;
 
-			using (var stream = new DkimSignatureStream (DkimVerifier.GetDigestSigner (signatureAlgorithm, key))) {
+			using (var stream = new DkimSignatureStream (GetDigestSigner (signatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
-					DkimVerifier.WriteHeaders (options, message, headers, headerAlgorithm, filtered);
+					WriteHeaders (options, message, headers, headerAlgorithm, filtered);
 
 					// now include the ARC-Message-Signature header that we are verifying,
 					// but only after removing the "b=" signature value.
-					var header = DkimVerifier.GetSignedSignatureHeader (arcSignature);
+					var header = GetSignedSignatureHeader (arcSignature);
 
 					switch (headerAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
-						DkimVerifier.WriteHeaderRelaxed (options, filtered, header, true);
+						WriteHeaderRelaxed (options, filtered, header, true);
 						break;
 					default:
-						DkimVerifier.WriteHeaderSimple (options, filtered, header, true);
+						WriteHeaderSimple (options, filtered, header, true);
 						break;
 					}
 
@@ -212,10 +209,13 @@ namespace MimeKit.Cryptography {
 
 			ValidateArcSealParameters (sets[i].ArcSealParameters, out algorithm, out d, out s, out q, out b);
 
+			if (!IsEnabled (algorithm))
+				return false;
+
 			if (doAsync)
-				key = await publicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
+				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
 			else
-				key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
+				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
 			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < 1024)
 				return false;
@@ -223,24 +223,24 @@ namespace MimeKit.Cryptography {
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
-			using (var stream = new DkimSignatureStream (DkimVerifier.GetDigestSigner (algorithm, key))) {
+			using (var stream = new DkimSignatureStream (GetDigestSigner (algorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					for (int j = 0; j < i; j++) {
-						DkimVerifier.WriteHeaderRelaxed (options, filtered, sets[j].ArcAuthenticationResult, false);
-						DkimVerifier.WriteHeaderRelaxed (options, filtered, sets[j].ArcMessageSignature, false);
-						DkimVerifier.WriteHeaderRelaxed (options, filtered, sets[j].ArcSeal, false);
+						WriteHeaderRelaxed (options, filtered, sets[j].ArcAuthenticationResult, false);
+						WriteHeaderRelaxed (options, filtered, sets[j].ArcMessageSignature, false);
+						WriteHeaderRelaxed (options, filtered, sets[j].ArcSeal, false);
 					}
 
-					DkimVerifier.WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult, false);
-					DkimVerifier.WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature, false);
+					WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult, false);
+					WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature, false);
 
 					// now include the ARC-Seal header that we are verifying,
 					// but only after removing the "b=" signature value.
-					var seal = DkimVerifier.GetSignedSignatureHeader (sets[i].ArcSeal);
+					var seal = GetSignedSignatureHeader (sets[i].ArcSeal);
 
-					DkimVerifier.WriteHeaderRelaxed (options, filtered, seal, true);
+					WriteHeaderRelaxed (options, filtered, seal, true);
 
 					filtered.Flush ();
 				}
@@ -272,7 +272,7 @@ namespace MimeKit.Cryptography {
 				case HeaderId.ArcMessageSignature:
 				case HeaderId.ArcSeal:
 					try {
-						parameters = DkimVerifier.ParseParameterTags (header.Id, header.Value);
+						parameters = ParseParameterTags (header.Id, header.Value);
 					} catch {
 						return ArcValidationResult.Fail;
 					}

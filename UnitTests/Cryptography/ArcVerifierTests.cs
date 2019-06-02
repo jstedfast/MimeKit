@@ -2644,7 +2644,6 @@ This is a test message.
 		}
 
 		[Test]
-		[Ignore] // Note: how is a=rsa-sha1 an unknown algorithm??
 		public void ams_fields_a_sha1 ()
 		{
 			const string input = @"MIME-Version: 1.0
@@ -6489,7 +6488,6 @@ Content-Type: text/html; charset=UTF-8
 		}
 
 		[Test]
-		[Ignore] // Note: how is a=rsa-sha1 an unknown algorithm??
 		public void as_fields_a_sha1 ()
 		{
 			const string input = @"MIME-Version: 1.0
