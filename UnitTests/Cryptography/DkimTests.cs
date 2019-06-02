@@ -113,6 +113,48 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestDkimSignerDefaults ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "dkim", "example.pem");
+			DkimSigner signer;
+
+			signer = new DkimSigner (DkimKeys.Private, "example.com", "1433868189.example");
+			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #1");
+
+			signer = new DkimSigner (path, "example.com", "1433868189.example");
+			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #2");
+
+			using (var stream = File.OpenRead (path)) {
+				signer = new DkimSigner (stream, "example.com", "1433868189.example");
+				Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #3");
+			}
+		}
+
+		[Test]
+		public void TestDkimVerifierDefaults ()
+		{
+			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+
+			Assert.AreEqual (1024, verifier.MinimumRsaKeyLength, "MinimumRsaKeyLength");
+			Assert.IsFalse (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "rsa-sha1");
+			Assert.IsTrue (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha256), "rsa-sha256");
+		}
+
+		[Test]
+		public void TestDkimVerifierEnableDisable ()
+		{
+			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+
+			Assert.IsFalse (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "initial value");
+
+			verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
+			Assert.IsTrue (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "rsa-sha1 enabled");
+
+			verifier.Disable (DkimSignatureAlgorithm.RsaSha1);
+			Assert.IsFalse (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "rsa-sha1 disabled");
+		}
+
+		[Test]
 		public void TestDkimHashStream ()
 		{
 			var buffer = new byte[128];
@@ -210,6 +252,13 @@ namespace UnitTests.Cryptography {
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
 			var dkim = message.Headers[0];
+
+			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
+				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+
+				// now enable rsa-sha1 to verify again, this time it should pass...
+				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
+			}
 
 			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
 		}
@@ -355,6 +404,13 @@ namespace UnitTests.Cryptography {
 
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
+			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
+				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+
+				// now enable rsa-sha1 to verify again, this time it should pass...
+				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
+			}
+
 			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
 		}
 
@@ -457,6 +513,13 @@ namespace UnitTests.Cryptography {
 			signer.Sign (message, headers);
 
 			var dkim = message.Headers[0];
+
+			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
+				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+
+				// now enable rsa-sha1 to verify again, this time it should pass...
+				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
+			}
 
 			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
 

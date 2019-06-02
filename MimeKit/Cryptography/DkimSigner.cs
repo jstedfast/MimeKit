@@ -58,7 +58,11 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="DkimSigner"/>.
+		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
@@ -85,7 +89,11 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="DkimSigner"/>.
+		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
 		/// <param name="key">The signer's private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
@@ -153,7 +161,11 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="DkimSigner"/>.
+		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
 		/// <param name="fileName">The file containing the private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
@@ -213,7 +225,11 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="DkimSigner"/>.
+		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
 		/// <param name="stream">The stream containing the private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
@@ -297,7 +313,12 @@ namespace MimeKit.Cryptography {
 		/// Get or set the algorithm to use for signing.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the algorithm to use for signing.
+		/// <para>Gets or sets the algorithm to use for signing.</para>
+		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
 		/// <value>The signature algorithm.</value>
 		public DkimSignatureAlgorithm SignatureAlgorithm {

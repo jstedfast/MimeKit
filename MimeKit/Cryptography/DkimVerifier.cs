@@ -59,6 +59,7 @@ namespace MimeKit.Cryptography {
 	public class DkimVerifier
 	{
 		readonly IDkimPublicKeyLocator publicKeyLocator;
+		int enabledSignatureAlgorithms;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimVerifier"/> class.
@@ -79,6 +80,77 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (publicKeyLocator));
 
 			this.publicKeyLocator = publicKeyLocator;
+
+			Enable (DkimSignatureAlgorithm.RsaSha256);
+			//Enable (DkimSignatureAlgorithm.RsaSha1);
+			MinimumRsaKeyLength = 1024;
+		}
+
+		/// <summary>
+		/// Get or set the minimum allowed RSA key length.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the minimum allowed RSA key length.</para>
+		/// <note type="security">The DKIM specifications specify a single signing algorithm, RSA,
+		/// and recommend key sizes of 1024 to 2048 bits (but require verification of 512-bit keys).
+		/// As discussed in US-CERT Vulnerability Note VU#268267, the operational community has
+		/// recognized that shorter keys compromise the effectiveness of DKIM. While 1024-bit
+		/// signatures are common, stronger signatures are not. Widely used DNS configuration
+		/// software places a practical limit on key sizes, because the software only handles a
+		/// single 256-octet string in a TXT record, and RSA keys significantly longer than 1024
+		/// bits don't fit in 256 octets.</note>
+		/// </remarks>
+		public int MinimumRsaKeyLength {
+			get; set;
+		}
+
+		/// <summary>
+		/// Enable a DKIM signature algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>Enables the specified DKIM signature algorithm.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be enabled.</note>
+		/// </remarks>
+		/// <param name="algorithm">The DKIM signature algorithm.</param>
+		public void Enable (DkimSignatureAlgorithm algorithm)
+		{
+			enabledSignatureAlgorithms |= 1 << (int) algorithm;
+		}
+
+		/// <summary>
+		/// Disable a DKIM signature algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>Disables the specified DKIM signature algorithm.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be enabled.</note>
+		/// </remarks>
+		/// <param name="algorithm">The DKIM signature algorithm.</param>
+		public void Disable (DkimSignatureAlgorithm algorithm)
+		{
+			enabledSignatureAlgorithms &= ~(1 << (int) algorithm);
+		}
+
+		/// <summary>
+		/// Check whether a DKIM signature algorithm is enabled.
+		/// </summary>
+		/// <remarks>
+		/// <para>Determines whether the specified DKIM signature algorithm is enabled.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be enabled.</note>
+		/// </remarks>
+		/// <returns><c>true</c> if the specified DKIM signature algorithm is enabled; otherwise, <c>false</c>.</returns>
+		/// <param name="algorithm">The DKIM signature algorithm.</param>
+		public bool IsEnabled (DkimSignatureAlgorithm algorithm)
+		{
+			return (enabledSignatureAlgorithms & (1 << (int) algorithm)) != 0;
 		}
 
 		static bool IsWhiteSpace (char c)
@@ -470,12 +542,15 @@ namespace MimeKit.Cryptography {
 			ValidateDkimSignatureParameters (parameters, out signatureAlgorithm, out headerAlgorithm, out bodyAlgorithm,
 				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
+			if (!IsEnabled (signatureAlgorithm))
+				return false;
+
 			if (doAsync)
 				key = await publicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
 			else
 				key = publicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
-			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < 1024)
+			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < MinimumRsaKeyLength)
 				return false;
 
 			options = options.Clone ();
