@@ -29,10 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 

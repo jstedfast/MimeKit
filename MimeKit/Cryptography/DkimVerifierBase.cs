@@ -27,9 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Globalization;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 #if PORTABLE
@@ -40,10 +38,7 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Parameters;
 
-using MimeKit;
-using MimeKit.IO;
 using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
