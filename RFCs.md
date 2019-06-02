@@ -52,6 +52,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [6522](http://www.ietf.org/rfc/rfc6522.txt): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages (Obsoletes rfc3462)
 * [6532](http://www.ietf.org/rfc/rfc6532.txt): Internationalized Email Headers
 * [8301](http://www.ietf.org/rfc/rfc8301.txt): Cryptographic Algorithm and Key Usage Update to DomainKeys Identified Mail (DKIM)
+* [8463](http://www.ietf.org/rfc/rfc8463.txt): A New Cryptographic Signature Method for DomainKeys Identified Mail (DKIM)
 
 #### Other RFCs of interest:
 
