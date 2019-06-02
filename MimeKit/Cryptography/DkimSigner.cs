@@ -305,6 +305,28 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Get or set the canonicalization algorithm to use for the message body.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the canonicalization algorithm to use for the message body.
+		/// </remarks>
+		/// <value>The canonicalization algorithm.</value>
+		public DkimCanonicalizationAlgorithm BodyCanonicalizationAlgorithm {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the canonicalization algorithm to use for the message headers.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the canonicalization algorithm to use for the message headers.
+		/// </remarks>
+		/// <value>The canonicalization algorithm.</value>
+		public DkimCanonicalizationAlgorithm HeaderCanonicalizationAlgorithm {
+			get; set;
+		}
+
+		/// <summary>
 		/// Get or set the public key query method.
 		/// </summary>
 		/// <remarks>
@@ -346,7 +368,7 @@ namespace MimeKit.Cryptography {
 #endif
 		}
 
-		void DkimSign (FormatOptions options, MimeMessage message, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm)
+		void DkimSign (FormatOptions options, MimeMessage message, IList<string> fields)
 		{
 			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
 				message.MimeVersion = new Version (1, 0);
@@ -370,8 +392,8 @@ namespace MimeKit.Cryptography {
 
 			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
 			value.AppendFormat ("; c={0}/{1}",
-				headerCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
-				bodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+				HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
+				BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
 			if (!string.IsNullOrEmpty (QueryMethod))
 				value.AppendFormat ("; q={0}", QueryMethod);
 			if (!string.IsNullOrEmpty (AgentOrUserIdentifier))
@@ -383,18 +405,18 @@ namespace MimeKit.Cryptography {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					// write the specified message headers
-					DkimVerifier.WriteHeaders (options, message, fields, headerCanonicalizationAlgorithm, filtered);
+					DkimVerifier.WriteHeaders (options, message, fields, HeaderCanonicalizationAlgorithm, filtered);
 
 					value.AppendFormat ("; h={0}", string.Join (":", fields.ToArray ()));
 
-					hash = message.HashBody (options, SignatureAlgorithm, bodyCanonicalizationAlgorithm, -1);
+					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
 					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
 					value.Append ("; b=");
 
 					dkim = new Header (HeaderId.DkimSignature, value.ToString ());
 					message.Headers.Insert (0, dkim);
 
-					switch (headerCanonicalizationAlgorithm) {
+					switch (HeaderCanonicalizationAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
 						DkimVerifier.WriteHeaderRelaxed (options, filtered, dkim, true);
 						break;
@@ -424,8 +446,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
-		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
-		/// <param name="bodyCanonicalizationAlgorithm">The body canonicalization algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -439,7 +459,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
-		public void Sign (FormatOptions options, MimeMessage message, IList<string> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		public void Sign (FormatOptions options, MimeMessage message, IList<string> headers)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -472,7 +492,7 @@ namespace MimeKit.Cryptography {
 			if (!containsFrom)
 				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
 
-			DkimSign (options, message, fields, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			DkimSign (options, message, fields);
 		}
 
 		/// <summary>
@@ -486,8 +506,6 @@ namespace MimeKit.Cryptography {
 		/// </example>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The headers to sign.</param>
-		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
-		/// <param name="bodyCanonicalizationAlgorithm">The body canonicalization algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="message"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -499,9 +517,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
-		public void Sign (MimeMessage message, IList<string> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		public void Sign (MimeMessage message, IList<string> headers)
 		{
-			Sign (FormatOptions.Default, message, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			Sign (FormatOptions.Default, message, headers);
 		}
 
 		/// <summary>
@@ -516,8 +534,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
-		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
-		/// <param name="bodyCanonicalizationAlgorithm">The body canonicalization algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -531,7 +547,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
-		public void Sign (FormatOptions options, MimeMessage message, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		public void Sign (FormatOptions options, MimeMessage message, IList<HeaderId> headers)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -561,7 +577,7 @@ namespace MimeKit.Cryptography {
 			if (!containsFrom)
 				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
 
-			DkimSign (options, message, fields, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			DkimSign (options, message, fields);
 		}
 
 		/// <summary>
@@ -575,8 +591,6 @@ namespace MimeKit.Cryptography {
 		/// </example>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The headers to sign.</param>
-		/// <param name="headerCanonicalizationAlgorithm">The header canonicalization algorithm.</param>
-		/// <param name="bodyCanonicalizationAlgorithm">The body canonicalization algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="message"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -588,9 +602,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
 		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
 		/// </exception>
-		public void Sign (MimeMessage message, IList<HeaderId> headers, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm bodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple)
+		public void Sign (MimeMessage message, IList<HeaderId> headers)
 		{
-			Sign (FormatOptions.Default, message, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			Sign (FormatOptions.Default, message, headers);
 		}
 	}
 

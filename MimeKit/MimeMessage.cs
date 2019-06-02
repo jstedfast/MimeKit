@@ -1631,7 +1631,10 @@ namespace MimeKit {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			signer.Sign (options, this, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			signer.HeaderCanonicalizationAlgorithm = headerCanonicalizationAlgorithm;
+			signer.BodyCanonicalizationAlgorithm = bodyCanonicalizationAlgorithm;
+
+			signer.Sign (options, this, headers);
 		}
 
 		/// <summary>
@@ -1700,7 +1703,10 @@ namespace MimeKit {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			signer.Sign (options, this, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
+			signer.HeaderCanonicalizationAlgorithm = headerCanonicalizationAlgorithm;
+			signer.BodyCanonicalizationAlgorithm = bodyCanonicalizationAlgorithm;
+
+			signer.Sign (options, this, headers);
 		}
 
 		/// <summary>

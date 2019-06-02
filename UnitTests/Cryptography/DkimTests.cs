@@ -81,9 +81,11 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static DkimSigner CreateSigner (DkimSignatureAlgorithm algorithm)
+		static DkimSigner CreateSigner (DkimSignatureAlgorithm algorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
 		{
 			return new DkimSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+				BodyCanonicalizationAlgorithm = bodyAlgorithm,
+				HeaderCanonicalizationAlgorithm = headerAlgorithm,
 				SignatureAlgorithm = algorithm,
 				AgentOrUserIdentifier = "@eng.example.com",
 				QueryMethod = "dns/txt"
@@ -140,7 +142,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDkimSignatureStream ()
 		{
-			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1);
+			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
 			var buffer = new byte[128];
 
 			Assert.Throws<ArgumentNullException> (() => new DkimSignatureStream (null));
@@ -189,9 +191,9 @@ namespace UnitTests.Cryptography {
 
 		static void TestEmptyBody (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
 		{
+			var signer = CreateSigner (signatureAlgorithm, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
 			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
-			var signer = CreateSigner (signatureAlgorithm);
 			var message = new MimeMessage ();
 
 			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
@@ -203,7 +205,7 @@ namespace UnitTests.Cryptography {
 
 			message.Body.Prepare (EncodingConstraint.SevenBit);
 
-			signer.Sign (message, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
+			signer.Sign (message, headers);
 
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
@@ -327,9 +329,9 @@ namespace UnitTests.Cryptography {
 
 		static void TestUnicode (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
 		{
+			var signer = CreateSigner (signatureAlgorithm, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
 			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
-			var signer = CreateSigner (signatureAlgorithm);
 			var message = new MimeMessage ();
 
 			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
@@ -347,7 +349,7 @@ namespace UnitTests.Cryptography {
 
 			message.Body.Prepare (EncodingConstraint.EightBit);
 
-			signer.Sign (message, headers, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
+			signer.Sign (message, headers);
 
 			var dkim = message.Headers[0];
 
@@ -450,9 +452,9 @@ namespace UnitTests.Cryptography {
 		{
 			var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
 			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
-			var signer = CreateSigner (signatureAlgorithm);
+			var signer = CreateSigner (signatureAlgorithm, headerAlgorithm, bodyAlgorithm);
 
-			signer.Sign (message, headers, headerAlgorithm, bodyAlgorithm);
+			signer.Sign (message, headers);
 
 			var dkim = message.Headers[0];
 
