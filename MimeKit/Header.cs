@@ -1518,13 +1518,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out Header header)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
-
-			unsafe {
-				fixed (byte* inptr = buffer) {
-					return TryParse (options.Clone (), inptr, buffer.Length, true, out header);
-				}
-			}
+			return TryParse (options, buffer, 0, out header);
 		}
 
 		/// <summary>
