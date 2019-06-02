@@ -135,6 +135,28 @@ namespace UnitTests {
 			Assert.AreEqual (expected, raw, "The folded address header does not match the expected value.");
 		}
 
+		static readonly string[] ArcAuthenticationResultsHeaderValues = {
+			" i=1; lists.example.org;" + FormatOptions.Default.NewLine + "\tspf=pass smtp.mfrom=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=pass (1024 - bit key) header.i=@d1.example; dmarc=pass",
+			" i=2; gmail.example;" + FormatOptions.Default.NewLine + "\tspf=fail smtp.from=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=fail (512-bit key) header.i=@example.org; dmarc=fail;" + FormatOptions.Default.NewLine + "\tarc=pass (as.1.lists.example.org=pass, ams.1.lists.example.org=pass)",
+			" i=3; gmail.example;" + FormatOptions.Default.NewLine + "\tspf=fail smtp.from=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=fail (512-bit key) header.i=@example.org;"+ FormatOptions.Default.NewLine + "\tdmarc=fail (this-is-a-reall-long-unbroken-comment-that-will-need-to-be-broken"+ FormatOptions.Default.NewLine + "\t-apart-somewhere---is-it-long-enough-yet?); arc=pass (as.1.lists.example.org=pass, ams.1.lists.example.org=pass)"
+		};
+
+		[Test]
+		public void TestArcAuthenticationResultsHeaderFolding ()
+		{
+			var header = new Header ("ARC-Authentication-Results", "");
+
+			foreach (var authResults in ArcAuthenticationResultsHeaderValues) {
+				header.SetValue (Encoding.ASCII, authResults.Replace (FormatOptions.Default.NewLine + "\t", " ").Trim ());
+
+				var raw = ByteArrayToString (header.RawValue);
+
+				Assert.IsTrue (raw[raw.Length - 1] == '\n', "The RawValue does not end with a new line.");
+
+				Assert.AreEqual (authResults + FormatOptions.Default.NewLine, raw, "The folded ARC-Authentication-Results header does not match the expected value.");
+			}
+		}
+
 		[Test]
 		public void TestMessageIdHeaderFolding ()
 		{
