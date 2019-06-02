@@ -35,9 +35,8 @@ using Encoding = Portable.Text.Encoding;
 #endif
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Signers;
 
 using MimeKit.Utils;
 
@@ -374,11 +373,11 @@ namespace MimeKit.Cryptography {
 			ISigner signer;
 
 			switch (algorithm) {
-			case DkimSignatureAlgorithm.RsaSha256:
-				signer = SignerUtilities.GetSigner (PkcsObjectIdentifiers.Sha256WithRsaEncryption);
-				break;
 			case DkimSignatureAlgorithm.RsaSha1:
-				signer = SignerUtilities.GetSigner (PkcsObjectIdentifiers.Sha1WithRsaEncryption);
+				signer = new RsaDigestSigner (new Sha1Digest ());
+				break;
+			case DkimSignatureAlgorithm.RsaSha256:
+				signer = new RsaDigestSigner (new Sha256Digest ());
 				break;
 			case DkimSignatureAlgorithm.Ed25519Sha256:
 				signer = new Ed25519DigestSigner (new Sha256Digest ());
