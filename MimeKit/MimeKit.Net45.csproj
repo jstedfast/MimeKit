@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Security" />
     <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.8.2\lib\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
   </ItemGroup>
@@ -86,6 +86,7 @@
     <Compile Include="Cryptography\DkimSimpleBodyFilter.cs" />
     <Compile Include="Cryptography\DkimVerifier.cs" />
     <Compile Include="Cryptography\DkimVerifierBase.cs" />
+    <Compile Include="Cryptography\Ed25519DigestSigner.cs" />
     <Compile Include="Cryptography\EncryptionAlgorithm.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />

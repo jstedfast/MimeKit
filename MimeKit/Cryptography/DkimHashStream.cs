@@ -64,6 +64,7 @@ namespace MimeKit.Cryptography {
 		{
 #if ENABLE_NATIVE_DKIM
 			switch (algorithm) {
+			case DkimSignatureAlgorithm.Ed25519Sha256:
 			case DkimSignatureAlgorithm.RsaSha256:
 				digest = SHA256.Create ();
 				break;
@@ -73,6 +74,7 @@ namespace MimeKit.Cryptography {
 			}
 #else
 			switch (algorithm) {
+			case DkimSignatureAlgorithm.Ed25519Sha256:
 			case DkimSignatureAlgorithm.RsaSha256:
 				digest = new Sha256Digest ();
 				break;

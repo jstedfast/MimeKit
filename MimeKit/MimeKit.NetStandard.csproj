@@ -39,7 +39,7 @@
     <PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,6 +70,7 @@
     <Compile Include="Cryptography\DkimSimpleBodyFilter.cs" />
     <Compile Include="Cryptography\DkimVerifier.cs" />
     <Compile Include="Cryptography\DkimVerifierBase.cs" />
+    <Compile Include="Cryptography\Ed25519DigestSigner.cs" />
     <Compile Include="Cryptography\EncryptionAlgorithm.cs" />
     <Compile Include="Cryptography\GnuPGContext.cs" />
     <Compile Include="Cryptography\IDigitalCertificate.cs" />

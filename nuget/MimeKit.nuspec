@@ -55,7 +55,7 @@
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="BouncyCastle" version="1.8.2" />
+        <dependency id="BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="monoandroid" />
       <group targetFramework="xamarinios" />
@@ -64,27 +64,27 @@
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
-        <dependency id="Portable.BouncyCastle" version="1.8.2" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="netstandard1.6">
         <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
-        <dependency id="Portable.BouncyCastle" version="1.8.2" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
-        <dependency id="Portable.BouncyCastle" version="1.8.2" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="portable-net45+win8">
-        <dependency id="Portable.BouncyCastle" version="1.8.2" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="portable-net45+win8+wpa81">
-        <dependency id="Portable.BouncyCastle" version="1.8.2" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
     </dependencies>
   </metadata>

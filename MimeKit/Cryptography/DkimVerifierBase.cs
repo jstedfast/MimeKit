@@ -34,10 +34,10 @@ using System.Collections.Generic;
 using Encoding = Portable.Text.Encoding;
 #endif
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Crypto.Digests;
 
 using MimeKit.Utils;
 
@@ -69,6 +69,7 @@ namespace MimeKit.Cryptography {
 
 			PublicKeyLocator = publicKeyLocator;
 
+			Enable (DkimSignatureAlgorithm.Ed25519Sha256);
 			Enable (DkimSignatureAlgorithm.RsaSha256);
 			//Enable (DkimSignatureAlgorithm.RsaSha1);
 			MinimumRsaKeyLength = 1024;
@@ -217,6 +218,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException (string.Format ("Malformed {0} header: no signature algorithm parameter detected.", header));
 
 			switch (a.ToLowerInvariant ()) {
+			case "ed25519-sha256": algorithm = DkimSignatureAlgorithm.Ed25519Sha256; break;
 			case "rsa-sha256": algorithm = DkimSignatureAlgorithm.RsaSha256; break;
 			case "rsa-sha1": algorithm = DkimSignatureAlgorithm.RsaSha1; break;
 			default: throw new FormatException (string.Format ("Unrecognized {0} algorithm parameter: a={1}", header, a));
@@ -369,14 +371,21 @@ namespace MimeKit.Cryptography {
 #if ENABLE_NATIVE_DKIM
 			return new SystemSecuritySigner (algorithm, key.AsAsymmetricAlgorithm ());
 #else
-			DerObjectIdentifier id;
+			ISigner signer;
 
-			if (algorithm == DkimSignatureAlgorithm.RsaSha256)
-				id = PkcsObjectIdentifiers.Sha256WithRsaEncryption;
-			else
-				id = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
-
-			var signer = SignerUtilities.GetSigner (id);
+			switch (algorithm) {
+			case DkimSignatureAlgorithm.RsaSha256:
+				signer = SignerUtilities.GetSigner (PkcsObjectIdentifiers.Sha256WithRsaEncryption);
+				break;
+			case DkimSignatureAlgorithm.RsaSha1:
+				signer = SignerUtilities.GetSigner (PkcsObjectIdentifiers.Sha1WithRsaEncryption);
+				break;
+			case DkimSignatureAlgorithm.Ed25519Sha256:
+				signer = new Ed25519DigestSigner (new Sha256Digest ());
+				break;
+			default:
+				throw new NotSupportedException (string.Format ("{0} is not supported.", algorithm));
+			}
 
 			signer.Init (key.IsPrivate, key);
 

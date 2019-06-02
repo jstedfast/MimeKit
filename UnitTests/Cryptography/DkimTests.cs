@@ -353,25 +353,25 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestEmptySimpleBodySha1 ()
+		public void TestEmptySimpleBodyRsaSha1 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "uoq1oCgLlTqpdDX/iUbLy7J1Wic=");
 		}
 
 		[Test]
-		public void TestEmptySimpleBodySha256 ()
+		public void TestEmptySimpleBodyRsaSha256 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, "frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=");
 		}
 
 		[Test]
-		public void TestEmptyRelaxedBodySha1 ()
+		public void TestEmptyRelaxedBodyRsaSha1 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Relaxed, "2jmj7l5rSw0yVb/vlWAYkK/YBwk=");
 		}
 
 		[Test]
-		public void TestEmptyRelaxedBodySha256 ()
+		public void TestEmptyRelaxedBodyRsaSha256 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=");
 		}
@@ -415,25 +415,25 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestUnicodeSimpleBodySha1 ()
+		public void TestUnicodeSimpleBodyRsaSha1 ()
 		{
 			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "6GV1ZoyaprYbwRLXsr5+8zY5Jh0=");
 		}
 
 		[Test]
-		public void TestUnicodeSimpleBodySha256 ()
+		public void TestUnicodeSimpleBodyRsaSha256 ()
 		{
 			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, "BuW/GpCA9rAVDfStp0Dc2duuFhmwcxhy5jOeL+Xn+ew=");
 		}
 
 		[Test]
-		public void TestUnicodeRelaxedBodySha1 ()
+		public void TestUnicodeRelaxedBodyRsaSha1 ()
 		{
 			TestUnicode (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Relaxed, "bbT6nP0aAiAP5OMguA+mHgpzgh4=");
 		}
 
 		[Test]
-		public void TestUnicodeRelaxedBodySha256 ()
+		public void TestUnicodeRelaxedBodyRsaSha256 ()
 		{
 			TestUnicode (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, "PEaN3fYH5NdIg4QzgaSS+ceYlSMRnYbqCPMxncx6gy0=");
 		}
@@ -502,6 +502,46 @@ namespace UnitTests.Cryptography {
 			var verifier = new DkimVerifier (locator);
 
 			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+		}
+
+		[Test]
+		public void TestRfc8463Example ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "rfc8463-example.msg"));
+			var locator = new DkimPublicKeyLocator ();
+			var verifier = new DkimVerifier (locator);
+			int index;
+
+			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+
+			// the last DKIM-Signature uses rsa-sha256
+			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
+			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify rsa-sha256");
+
+			// the first DKIM-Signature uses ed25519-sha256
+			index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+		}
+
+		[Test]
+		public async Task TestRfc8463ExampleAsync ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "rfc8463-example.msg"));
+			var locator = new DkimPublicKeyLocator ();
+			var verifier = new DkimVerifier (locator);
+			int index;
+
+			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+
+			// the last DKIM-Signature uses rsa-sha256
+			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
+			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify rsa-sha256");
+
+			// the first DKIM-Signature uses ed25519-sha256
+			index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify ed25519-sha256");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)

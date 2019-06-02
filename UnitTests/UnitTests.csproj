@@ -54,7 +54,7 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.Protocols" />
     <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.8.2\lib\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -79,6 +79,7 @@
     <Compile Include="Cryptography\CmsSignerTests.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContextTests.cs" />
     <Compile Include="Cryptography\DkimRelaxedBodyFilterTests.cs" />
+    <Compile Include="Cryptography\DkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\DkimTests.cs" />
     <Compile Include="Cryptography\DummyOpenPgpContext.cs" />
     <Compile Include="Cryptography\LdapUriTests.cs" />
@@ -168,6 +169,7 @@
     <None Include="TestData\dkim\gmail.pub" />
     <None Include="TestData\dkim\multipart-no-end-boundary.msg" />
     <None Include="TestData\dkim\related.msg" />
+    <None Include="TestData\dkim\rfc8463-example.msg" />
     <None Include="TestData\encoders\photo.b64" />
     <None Include="TestData\encoders\photo.jpg" />
     <None Include="TestData\encoders\photo.uu" />

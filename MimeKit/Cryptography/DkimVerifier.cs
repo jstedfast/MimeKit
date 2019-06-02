@@ -133,7 +133,7 @@ namespace MimeKit.Cryptography {
 			else
 				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
-			if (!(key is RsaKeyParameters rsa) || rsa.Modulus.BitLength < MinimumRsaKeyLength)
+			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
 				return false;
 
 			options = options.Clone ();
