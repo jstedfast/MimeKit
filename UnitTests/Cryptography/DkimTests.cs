@@ -370,6 +370,61 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestFormatExceptions ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "gmail.msg"));
+			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var dkim = message.Headers[index];
+			var original = dkim.Value;
+
+			// first, remove the 'v' tag and its value
+			dkim.Value = dkim.Value.Substring (4);
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for missing v=1;");
+
+			// add back a 'v' tag with an invalid value
+			dkim.Value = "v=x; " + dkim.Value;
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for v=x;");
+
+			// remove "from:"
+			dkim.Value = original.Replace ("from:", "");
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for missing from header");
+
+			// add an invalid i= value w/o an '@'
+			dkim.Value = "i=1; " + original;
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for an invalid i= value (missing '@')");
+
+			// add an invalid i= value that does not match the domain
+			dkim.Value = "i=user@domain; " + original;
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for an invalid i= that does not contain the domain");
+
+			// add an invalid l= value
+			dkim.Value = "l=abc; " + original;
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for an invalid l= value");
+
+			// set an invalid body canonicalization algorithm
+			dkim.Value = original.Replace ("c=relaxed/relaxed;", "c=simple/complex;");
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for an invalid body canonicalization value");
+
+			// set an invalid c= value
+			dkim.Value = original.Replace ("c=relaxed/relaxed;", "c=;");
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for an invalid c= value (empty)");
+
+			// set an invalid c= value
+			dkim.Value = original.Replace ("c=relaxed/relaxed;", "c=relaxed/relaxed/extra;");
+
+			Assert.Throws<FormatException> (() => verifier.Verify (message, dkim), "Expected FormatException for an invalid c= value (3 values)");
+		}
+
+		[Test]
 		public void TestEmptySimpleBodyRsaSha1 ()
 		{
 			TestEmptyBody (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, "uoq1oCgLlTqpdDX/iUbLy7J1Wic=");

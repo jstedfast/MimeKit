@@ -256,7 +256,7 @@ namespace MimeKit.Cryptography {
 			ValidateCommonParameters (header, parameters, out algorithm, out d, out s, out q, out b);
 
 			if (parameters.TryGetValue ("l", out string l)) {
-				if (!int.TryParse (l, out maxLength))
+				if (!int.TryParse (l, NumberStyles.Integer, CultureInfo.InvariantCulture, out maxLength) || maxLength < 0)
 					throw new FormatException (string.Format ("Malformed {0} header: invalid length parameter: l={1}", header, l));
 			} else {
 				maxLength = -1;
