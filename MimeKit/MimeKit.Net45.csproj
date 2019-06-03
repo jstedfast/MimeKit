@@ -62,6 +62,7 @@
     <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
+    <Compile Include="Cryptography\ArcSigner.cs" />
     <Compile Include="Cryptography\ArcVerifier.cs" />
     <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Cryptography\DkimSignatureAlgorithm.cs" />
     <Compile Include="Cryptography\DkimSignatureStream.cs" />
     <Compile Include="Cryptography\DkimSigner.cs" />
+    <Compile Include="Cryptography\DkimSignerBase.cs" />
     <Compile Include="Cryptography\DkimSimpleBodyFilter.cs" />
     <Compile Include="Cryptography\DkimVerifier.cs" />
     <Compile Include="Cryptography\DkimVerifierBase.cs" />

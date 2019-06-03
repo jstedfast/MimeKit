@@ -75,6 +75,7 @@
     <Compile Include="Cryptography\DkimSignatureAlgorithm.cs" />
     <Compile Include="Cryptography\DkimSignatureStream.cs" />
     <Compile Include="Cryptography\DkimSigner.cs" />
+    <Compile Include="Cryptography\DkimSignerBase.cs" />
     <Compile Include="Cryptography\DkimSimpleBodyFilter.cs" />
     <Compile Include="Cryptography\DkimVerifier.cs" />
     <Compile Include="Cryptography\DkimVerifierBase.cs" />

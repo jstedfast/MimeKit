@@ -29,14 +29,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
-#if ENABLE_NATIVE_DKIM
-using System.Security.Cryptography;
-#endif
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Signers;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -48,7 +42,7 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// A DKIM signer.
 	/// </remarks>
-	public class DkimSigner
+	public class DkimSigner : DkimSignerBase
 	{
 		static readonly string[] DkimShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "dkim-signature" };
 
@@ -70,17 +64,8 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="selector"/> is <c>null</c>.</para>
 		/// </exception>
-		protected DkimSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		protected DkimSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
 		{
-			if (domain == null)
-				throw new ArgumentNullException (nameof (domain));
-
-			if (selector == null)
-				throw new ArgumentNullException (nameof (selector));
-
-			SignatureAlgorithm = algorithm;
-			Selector = selector;
-			Domain = domain;
 		}
 
 		/// <summary>
@@ -116,33 +101,6 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			PrivateKey = key;
-		}
-
-		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
-		{
-			AsymmetricKeyParameter key = null;
-
-			using (var reader = new StreamReader (stream)) {
-				var pem = new PemReader (reader);
-
-				var keyObject = pem.ReadObject ();
-
-				if (keyObject != null) {
-					key = keyObject as AsymmetricKeyParameter;
-
-					if (key == null) {
-						var pair = keyObject as AsymmetricCipherKeyPair;
-
-						if (pair != null)
-							key = pair.Private;
-					}
-				}
-			}
-
-			if (key == null || !key.IsPrivate)
-				throw new FormatException ("Private key not found.");
-
-			return key;
 		}
 
 #if !PORTABLE
@@ -236,39 +194,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the private key.
-		/// </summary>
-		/// <remarks>
-		/// The private key used for signing.
-		/// </remarks>
-		/// <value>The private key.</value>
-		protected AsymmetricKeyParameter PrivateKey {
-			get; set;
-		}
-
-		/// <summary>
-		/// Get the domain that the signer represents.
-		/// </summary>
-		/// <remarks>
-		/// Gets the domain that the signer represents.
-		/// </remarks>
-		/// <value>The domain.</value>
-		public string Domain {
-			get; private set;
-		}
-
-		/// <summary>
-		/// Get the selector subdividing the domain.
-		/// </summary>
-		/// <remarks>
-		/// Gets the selector subdividing the domain.
-		/// </remarks>
-		/// <value>The selector.</value>
-		public string Selector {
-			get; private set;
-		}
-
-		/// <summary>
 		/// Get or set the agent or user identifier.
 		/// </summary>
 		/// <remarks>
@@ -276,44 +201,6 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The agent or user identifier.</value>
 		public string AgentOrUserIdentifier {
-			get; set;
-		}
-
-		/// <summary>
-		/// Get or set the algorithm to use for signing.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets or sets the algorithm to use for signing.</para>
-		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
-		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
-		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
-		/// part of DKIM since it was originally standardized in 2007), it is recommended
-		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
-		/// </remarks>
-		/// <value>The signature algorithm.</value>
-		public DkimSignatureAlgorithm SignatureAlgorithm {
-			get; set;
-		}
-
-		/// <summary>
-		/// Get or set the canonicalization algorithm to use for the message body.
-		/// </summary>
-		/// <remarks>
-		/// Gets or sets the canonicalization algorithm to use for the message body.
-		/// </remarks>
-		/// <value>The canonicalization algorithm.</value>
-		public DkimCanonicalizationAlgorithm BodyCanonicalizationAlgorithm {
-			get; set;
-		}
-
-		/// <summary>
-		/// Get or set the canonicalization algorithm to use for the message headers.
-		/// </summary>
-		/// <remarks>
-		/// Gets or sets the canonicalization algorithm to use for the message headers.
-		/// </remarks>
-		/// <value>The canonicalization algorithm.</value>
-		public DkimCanonicalizationAlgorithm HeaderCanonicalizationAlgorithm {
 			get; set;
 		}
 
@@ -332,44 +219,7 @@ namespace MimeKit.Cryptography {
 			get; set;
 		}
 
-		/// <summary>
-		/// Create the digest signing context.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new digest signing context.
-		/// </remarks>
-		/// <returns>The digest signer.</returns>
-		/// <exception cref="System.NotSupportedException">
-		/// The <see cref="SignatureAlgorithm"/> is not supported.
-		/// </exception>
-		internal protected virtual ISigner CreateSigningContext ()
-		{
-#if ENABLE_NATIVE_DKIM
-			return new SystemSecuritySigner (SignatureAlgorithm, PrivateKey.AsAsymmetricAlgorithm ());
-#else
-			ISigner signer;
-
-			switch (SignatureAlgorithm) {
-			case DkimSignatureAlgorithm.RsaSha1:
-				signer = new RsaDigestSigner (new Sha1Digest ());
-				break;
-			case DkimSignatureAlgorithm.RsaSha256:
-				signer = new RsaDigestSigner (new Sha256Digest ());
-				break;
-			case DkimSignatureAlgorithm.Ed25519Sha256:
-				signer = new Ed25519DigestSigner (new Sha256Digest ());
-				break;
-			default:
-				throw new NotSupportedException (string.Format ("{0} is not supported.", SignatureAlgorithm));
-			}
-
-			signer.Init (true, PrivateKey);
-
-			return signer;
-#endif
-		}
-
-		void DkimSign (FormatOptions options, MimeMessage message, IList<string> fields)
+		void DkimSign (FormatOptions options, MimeMessage message, IList<string> headers)
 		{
 			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
 				message.MimeVersion = new Version (1, 0);
@@ -409,9 +259,9 @@ namespace MimeKit.Cryptography {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					// write the specified message headers
-					DkimVerifierBase.WriteHeaders (options, message, fields, HeaderCanonicalizationAlgorithm, filtered);
+					DkimVerifierBase.WriteHeaders (options, message, headers, HeaderCanonicalizationAlgorithm, filtered);
 
-					value.AppendFormat ("; h={0}", string.Join (":", fields.ToArray ()));
+					value.AppendFormat ("; h={0}", string.Join (":", headers.ToArray ()));
 
 					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
 					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
@@ -611,74 +461,4 @@ namespace MimeKit.Cryptography {
 			Sign (FormatOptions.Default, message, headers);
 		}
 	}
-
-#if ENABLE_NATIVE_DKIM
-	class SystemSecuritySigner : ISigner
-	{
-		readonly RSACryptoServiceProvider rsa;
-		readonly HashAlgorithm hash;
-		readonly string oid;
-
-		public SystemSecuritySigner (DkimSignatureAlgorithm algorithm, AsymmetricAlgorithm key)
-		{
-			rsa = key as RSACryptoServiceProvider;
-
-			switch (algorithm) {
-			case DkimSignatureAlgorithm.RsaSha256:
-				oid = SecureMimeContext.GetDigestOid (DigestAlgorithm.Sha256);
-				AlgorithmName = "RSASHA256";
-				hash = SHA256.Create ();
-				break;
-			default:
-				oid = SecureMimeContext.GetDigestOid (DigestAlgorithm.Sha1);
-				AlgorithmName = "RSASHA1";
-				hash = SHA1.Create ();
-				break;
-			}
-		}
-
-		public string AlgorithmName {
-			get; private set;
-		}
-
-		public void BlockUpdate (byte[] input, int inOff, int length)
-		{
-			hash.TransformBlock (input, inOff, length, null, 0);
-		}
-
-		public byte[] GenerateSignature ()
-		{
-			hash.TransformFinalBlock (new byte[0], 0, 0);
-
-			return rsa.SignHash (hash.Hash, oid);
-		}
-
-		public void Init (bool forSigning, ICipherParameters parameters)
-		{
-			throw new NotImplementedException ();
-		}
-
-		public void Reset ()
-		{
-			hash.Initialize ();
-		}
-
-		public void Update (byte input)
-		{
-			hash.TransformBlock (new byte[] { input }, 0, 1, null, 0);
-		}
-
-		public bool VerifySignature (byte[] signature)
-		{
-			hash.TransformFinalBlock (new byte[0], 0, 0);
-
-			return rsa.VerifyHash (hash.Hash, oid, signature);
-		}
-
-		public void Dispose ()
-		{
-			rsa.Dispose ();
-		}
-	}
-#endif
 }

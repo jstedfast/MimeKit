@@ -42,7 +42,7 @@ using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A base class for DKIM verifiers.
+	/// A base class for DKIM and ARC verifiers.
 	/// </summary>
 	/// <remarks>
 	/// The base class for <see cref="DkimVerifier"/> and <see cref="ArcVerifier"/>.
@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="publicKeyLocator"/> is <c>null</c>.
 		/// </exception>
-		public DkimVerifierBase (IDkimPublicKeyLocator publicKeyLocator)
+		protected DkimVerifierBase (IDkimPublicKeyLocator publicKeyLocator)
 		{
 			if (publicKeyLocator == null)
 				throw new ArgumentNullException (nameof (publicKeyLocator));
