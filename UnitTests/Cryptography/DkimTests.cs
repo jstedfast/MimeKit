@@ -34,6 +34,7 @@ using NUnit.Framework;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -43,6 +44,7 @@ namespace UnitTests.Cryptography {
 	public class DkimTests
 	{
 		static readonly AsymmetricKeyParameter GMailDkimPublicKey;
+		static readonly AsymmetricKeyParameter Ed25519PrivateKey;
 		static readonly AsymmetricCipherKeyPair DkimKeys;
 
 		class DummyPublicKeyLocator : IDkimPublicKeyLocator
@@ -79,6 +81,9 @@ namespace UnitTests.Cryptography {
 
 				GMailDkimPublicKey = reader.ReadObject () as AsymmetricKeyParameter;
 			}
+
+			var rawData = Convert.FromBase64String ("nWGxne/9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A=");
+			Ed25519PrivateKey = new Ed25519PrivateKeyParameters (rawData, 0);
 		}
 
 		static DkimSigner CreateSigner (DkimSignatureAlgorithm algorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
@@ -577,7 +582,31 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestRfc8463Example ()
+		public void TestSignRfc8463Example ()
+		{
+			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "rfc8463-example.msg"));
+			var signer = new DkimSigner (Ed25519PrivateKey, "football.example.com", "brisbane", DkimSignatureAlgorithm.Ed25519Sha256) {
+				HeaderCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
+				BodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
+				AgentOrUserIdentifier = "@football.example.com"
+			};
+			var headers = new string[] { "from", "to", "subject", "date", "message-id", "from", "subject", "date" };
+
+			signer.Sign (message, headers);
+
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var locator = new DkimPublicKeyLocator ();
+			var verifier = new DkimVerifier (locator);
+			var dkim = message.Headers[index];
+
+			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+
+			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+		}
+
+		[Test]
+		public void TestVerifyRfc8463Example ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "rfc8463-example.msg"));
 			var locator = new DkimPublicKeyLocator ();
@@ -597,7 +626,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public async Task TestRfc8463ExampleAsync ()
+		public async Task TestVerifyRfc8463ExampleAsync ()
 		{
 			var message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "dkim", "rfc8463-example.msg"));
 			var locator = new DkimPublicKeyLocator ();

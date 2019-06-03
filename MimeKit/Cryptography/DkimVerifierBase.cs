@@ -365,7 +365,16 @@ namespace MimeKit.Cryptography {
 			stream.Write (rawValue, 0, rawLength);
 		}
 
-		internal static ISigner GetDigestSigner (DkimSignatureAlgorithm algorithm, AsymmetricKeyParameter key)
+		/// <summary>
+		/// Create the digest signing context.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new digest signing context that uses the specified algorithm.
+		/// </remarks>
+		/// <param name="algorithm">The DKIM signature algorithm.</param>
+		/// <param name="key">The public key.</param>
+		/// <returns>The digest signer.</returns>
+		internal virtual ISigner CreateVerifyContext (DkimSignatureAlgorithm algorithm, AsymmetricKeyParameter key)
 		{
 #if ENABLE_NATIVE_DKIM
 			return new SystemSecuritySigner (algorithm, key.AsAsymmetricAlgorithm ());

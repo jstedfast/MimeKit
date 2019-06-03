@@ -171,7 +171,7 @@ namespace MimeKit.Cryptography {
 			if (hash != bh)
 				return false;
 
-			using (var stream = new DkimSignatureStream (GetDigestSigner (signatureAlgorithm, key))) {
+			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -219,7 +219,7 @@ namespace MimeKit.Cryptography {
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
-			using (var stream = new DkimSignatureStream (GetDigestSigner (algorithm, key))) {
+			using (var stream = new DkimSignatureStream (CreateVerifyContext (algorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 

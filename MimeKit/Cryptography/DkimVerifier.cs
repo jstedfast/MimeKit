@@ -145,7 +145,7 @@ namespace MimeKit.Cryptography {
 			if (hash != bh)
 				return false;
 
-			using (var stream = new DkimSignatureStream (GetDigestSigner (signatureAlgorithm, key))) {
+			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 

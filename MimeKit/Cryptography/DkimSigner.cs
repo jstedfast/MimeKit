@@ -33,11 +33,10 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 #endif
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Signers;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -366,22 +365,32 @@ namespace MimeKit.Cryptography {
 		/// Create the digest signing context.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new digest signing context that uses the <see cref="SignatureAlgorithm"/>.
+		/// Creates a new digest signing context.
 		/// </remarks>
 		/// <returns>The digest signer.</returns>
+		/// <exception cref="System.NotSupportedException">
+		/// The <see cref="SignatureAlgorithm"/> is not supported.
+		/// </exception>
 		internal protected virtual ISigner CreateSigningContext ()
 		{
 #if ENABLE_NATIVE_DKIM
 			return new SystemSecuritySigner (SignatureAlgorithm, PrivateKey.AsAsymmetricAlgorithm ());
 #else
-			DerObjectIdentifier id;
+			ISigner signer;
 
-			if (SignatureAlgorithm == DkimSignatureAlgorithm.RsaSha256)
-				id = PkcsObjectIdentifiers.Sha256WithRsaEncryption;
-			else
-				id = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
-
-			var signer = SignerUtilities.GetSigner (id);
+			switch (SignatureAlgorithm) {
+			case DkimSignatureAlgorithm.RsaSha1:
+				signer = new RsaDigestSigner (new Sha1Digest ());
+				break;
+			case DkimSignatureAlgorithm.RsaSha256:
+				signer = new RsaDigestSigner (new Sha256Digest ());
+				break;
+			case DkimSignatureAlgorithm.Ed25519Sha256:
+				signer = new Ed25519DigestSigner (new Sha256Digest ());
+				break;
+			default:
+				throw new NotSupportedException (string.Format ("{0} is not supported.", SignatureAlgorithm));
+			}
 
 			signer.Init (true, PrivateKey);
 
@@ -403,6 +412,9 @@ namespace MimeKit.Cryptography {
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			switch (SignatureAlgorithm) {
+			case DkimSignatureAlgorithm.Ed25519Sha256:
+				value.Append ("; a=ed25519-sha256");
+				break;
 			case DkimSignatureAlgorithm.RsaSha256:
 				value.Append ("; a=rsa-sha256");
 				break;
@@ -426,7 +438,7 @@ namespace MimeKit.Cryptography {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					// write the specified message headers
-					DkimVerifier.WriteHeaders (options, message, fields, HeaderCanonicalizationAlgorithm, filtered);
+					DkimVerifierBase.WriteHeaders (options, message, fields, HeaderCanonicalizationAlgorithm, filtered);
 
 					value.AppendFormat ("; h={0}", string.Join (":", fields.ToArray ()));
 
@@ -439,10 +451,10 @@ namespace MimeKit.Cryptography {
 
 					switch (HeaderCanonicalizationAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
-						DkimVerifier.WriteHeaderRelaxed (options, filtered, dkim, true);
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, dkim, true);
 						break;
 					default:
-						DkimVerifier.WriteHeaderSimple (options, filtered, dkim, true);
+						DkimVerifierBase.WriteHeaderSimple (options, filtered, dkim, true);
 						break;
 					}
 
