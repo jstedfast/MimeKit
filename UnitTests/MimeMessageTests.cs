@@ -98,6 +98,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, DigestAlgorithm.Sha1));
 			Assert.Throws<ArgumentNullException> (() => message.Encrypt (null));
 			Assert.Throws<ArgumentNullException> (() => message.SignAndEncrypt (null));
+
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.CreateFromMailMessage (null));
 		}
 
 		[Test]
@@ -381,6 +383,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			mail.Bcc.Add (new MailAddress ("bcc@bcc.com", "The Blind Carbon-Copied Recipient"));
 			mail.Subject = "This is the message subject";
 			mail.Priority = MailPriority.High;
+			mail.Headers.Add ("X-MimeKit-Test", "does this get copied, too?");
 			mail.Body = "This is plain text.";
 
 			//var text = new MemoryStream (Encoding.ASCII.GetBytes ("This is plain text."), false);
@@ -414,6 +417,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			Assert.AreEqual (mail.Bcc[0].Address, ((MailboxAddress) message.Bcc[0]).Address, "The bcc addresses do not match.");
 			Assert.AreEqual (mail.Subject, message.Subject, "The message subjects do not match.");
 			Assert.AreEqual (MessagePriority.Urgent, message.Priority, "The message priority does not match.");
+			Assert.AreEqual (mail.Headers["X-MimeKit-Test"], message.Headers["X-MimeKit-Test"], "The X-MimeKit-Test headers do not match");
 			Assert.IsInstanceOf<Multipart> (message.Body, "The top-level MIME part should be a multipart/mixed.");
 
 			var mixed = (Multipart) message.Body;
@@ -443,6 +447,17 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 			Assert.AreEqual ("id@jpeg", jpeg.ContentId);
 			Assert.AreEqual ("image/jpeg", jpeg.ContentType.MimeType);
 			Assert.AreEqual ("link", jpeg.ContentLocation.OriginalString);
+
+			// Test other priorities
+			mail.Priority = MailPriority.Low;
+			message = (MimeMessage) mail;
+
+			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority, "The message priority does not match.");
+
+			mail.Priority = MailPriority.Normal;
+			message = (MimeMessage) mail;
+
+			Assert.AreEqual (MessagePriority.Normal, message.Priority, "The message priority does not match.");
 		}
 
 		[Test]
