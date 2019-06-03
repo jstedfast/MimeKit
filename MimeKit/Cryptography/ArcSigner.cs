@@ -1,0 +1,646 @@
+﻿//
+// ArcSigner.cs
+//
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
+//
+// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Globalization;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using Org.BouncyCastle.Crypto;
+
+using MimeKit.IO;
+using MimeKit.Utils;
+
+namespace MimeKit.Cryptography {
+	/// <summary>
+	/// An ARC signer.
+	/// </summary>
+	/// <remarks>
+	/// An ARC signer.
+	/// </remarks>
+	public abstract class ArcSigner : DkimSignerBase
+	{
+		static readonly string[] ArcShouldNotInclude = { "arc-seal" };
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ArcSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArcSigner"/>.
+		/// </remarks>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// </exception>
+		protected ArcSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArcSigner"/>.
+		/// </remarks>
+		/// <param name="key">The signer's private key.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="key"/> is not a private key.
+		/// </exception>
+		protected ArcSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		{
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
+
+			if (!key.IsPrivate)
+				throw new ArgumentException ("The key must be a private key.", nameof (key));
+
+			PrivateKey = key;
+		}
+
+#if !PORTABLE
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArcSigner"/>.
+		/// </remarks>
+		/// <param name="fileName">The file containing the private key.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters as defined by
+		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The file did not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		protected ArcSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			if (fileName.Length == 0)
+				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
+
+			using (var stream = File.OpenRead (fileName))
+				PrivateKey = LoadPrivateKey (stream);
+		}
+#endif
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArcSigner"/>.
+		/// </remarks>
+		/// <param name="stream">The stream containing the private key.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The file did not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		protected ArcSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		{
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			PrivateKey = LoadPrivateKey (stream);
+		}
+
+		/// <summary>
+		/// Generate an ARC-Authentication-Results header.
+		/// </summary>
+		/// <remarks>
+		/// Generates an ARC-Authentication-Results header.
+		/// </remarks>
+		/// <param name="options">The format options.</param>
+		/// <param name="message">The message to create the ARC-Authentication-Results header for.</param>
+		/// <param name="instance">The ARC instance (the <c>i=</c> value to use).</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The ARC-Authentication-Results header.</returns>
+		protected abstract Header GenerateArcAuthenticationResults (FormatOptions options, MimeMessage message, int instance, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Asynchronously generate an ARC-Authentication-Results header.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously generates an ARC-Authentication-Results header.
+		/// </remarks>
+		/// <param name="options">The format options.</param>
+		/// <param name="message">The message to create the ARC-Authentication-Results header for.</param>
+		/// <param name="instance">The ARC instance (the <c>i=</c> value to use).</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The ARC-Authentication-Results header.</returns>
+		protected abstract Task<Header> GenerateArcAuthenticationResultsAsync (FormatOptions options, MimeMessage message, int instance, CancellationToken cancellationToken);
+
+		StringBuilder CreateArcHeaderBuilder (int instance)
+		{
+			var value = new StringBuilder ();
+
+			value.AppendFormat ("i={0}", instance.ToString (CultureInfo.InvariantCulture));
+
+			switch (SignatureAlgorithm) {
+			case DkimSignatureAlgorithm.Ed25519Sha256:
+				value.Append ("; a=ed25519-sha256");
+				break;
+			case DkimSignatureAlgorithm.RsaSha256:
+				value.Append ("; a=rsa-sha256");
+				break;
+			default:
+				value.Append ("; a=rsa-sha1");
+				break;
+			}
+
+			return value;
+		}
+
+		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, TimeSpan t, IList<string> headers)
+		{
+			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
+				message.MimeVersion = new Version (1, 0);
+
+			var value = CreateArcHeaderBuilder (instance);
+			byte[] signature, hash;
+			Header ams;
+
+			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
+			value.AppendFormat ("; c={0}/{1}",
+				HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
+				BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
+
+			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					// write the specified message headers
+					DkimVerifierBase.WriteHeaders (options, message, headers, HeaderCanonicalizationAlgorithm, filtered);
+
+					value.AppendFormat ("; h={0}", string.Join (":", headers.ToArray ()));
+
+					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
+					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
+					value.Append ("; b=");
+
+					ams = new Header (HeaderId.ArcMessageSignature, value.ToString ());
+
+					switch (HeaderCanonicalizationAlgorithm) {
+					case DkimCanonicalizationAlgorithm.Relaxed:
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, ams, true);
+						break;
+					default:
+						DkimVerifierBase.WriteHeaderSimple (options, filtered, ams, true);
+						break;
+					}
+
+					filtered.Flush ();
+				}
+
+				signature = stream.GenerateSignature ();
+
+				ams.Value += Convert.ToBase64String (signature);
+
+				return ams;
+			}
+		}
+
+		Header GenerateArcSeal (FormatOptions options, int instance, TimeSpan t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
+		{
+			var value = CreateArcHeaderBuilder (instance);
+			byte[] signature;
+			Header seal;
+
+			// FIXME: where should this value come from?
+			value.Append ("; cv=pass");
+
+			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
+			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
+
+			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					for (int i = 0; i < count; i++) {
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult, false);
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature, false);
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcSeal, false);
+					}
+
+					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, aar, false);
+					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, ams, false);
+
+					value.Append ("; b=");
+
+					seal = new Header (HeaderId.ArcSeal, value.ToString ());
+					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, seal, true);
+
+					filtered.Flush ();
+				}
+
+				signature = stream.GenerateSignature ();
+
+				seal.Value += Convert.ToBase64String (signature);
+
+				return seal;
+			}
+		}
+
+		async Task ArcSignAsync (FormatOptions options, MimeMessage message, IList<string> headers, bool doAsync, CancellationToken cancellationToken)
+		{
+			ArcVerifier.GetArcHeaderSets (message, true, out ArcHeaderSet[] sets, out int count);
+			int instance = count + 1;
+			Header aar;
+
+			if (doAsync)
+				aar = await GenerateArcAuthenticationResultsAsync (options, message, instance, cancellationToken).ConfigureAwait (false);
+			else
+				aar = GenerateArcAuthenticationResults (options, message, instance, cancellationToken);
+
+			var t = DateTime.UtcNow - DateUtils.UnixEpoch;
+			var ams = GenerateArcMessageSignature (options, message, instance, t, headers);
+			var seal = GenerateArcSeal (options, instance, t, sets, count, aar, ams);
+
+			message.Headers.Insert (0, aar);
+			message.Headers.Insert (0, ams);
+			message.Headers.Insert (0, seal);
+		}
+
+		Task SignAsync (FormatOptions options, MimeMessage message, IList<string> headers, bool doAsync, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (message == null)
+				throw new ArgumentNullException (nameof (message));
+
+			if (headers == null)
+				throw new ArgumentNullException (nameof (headers));
+
+			var fields = new string[headers.Count];
+			var containsFrom = false;
+
+			for (int i = 0; i < headers.Count; i++) {
+				if (headers[i] == null)
+					throw new ArgumentException ("The list of headers cannot contain null.", nameof (headers));
+
+				if (headers[i].Length == 0)
+					throw new ArgumentException ("The list of headers cannot contain empty string.", nameof (headers));
+
+				fields[i] = headers[i].ToLowerInvariant ();
+
+				if (ArcShouldNotInclude.Contains (fields[i]))
+					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i]), nameof (headers));
+
+				if (fields[i] == "from")
+					containsFrom = true;
+			}
+
+			if (!containsFrom)
+				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
+
+			return ArcSignAsync (options, message, fields, doAsync, cancellationToken);
+		}
+
+		Task SignAsync (FormatOptions options, MimeMessage message, IList<HeaderId> headers, bool doAsync, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (message == null)
+				throw new ArgumentNullException (nameof (message));
+
+			if (headers == null)
+				throw new ArgumentNullException (nameof (headers));
+
+			var fields = new string[headers.Count];
+			var containsFrom = false;
+
+			for (int i = 0; i < headers.Count; i++) {
+				if (headers[i] == HeaderId.Unknown)
+					throw new ArgumentException ("The list of headers to sign cannot include the 'Unknown' header.", nameof (headers));
+
+				fields[i] = headers[i].ToHeaderName ().ToLowerInvariant ();
+
+				if (ArcShouldNotInclude.Contains (fields[i]))
+					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i].ToHeaderName ()), nameof (headers));
+
+				if (headers[i] == HeaderId.From)
+					containsFrom = true;
+			}
+
+			if (!containsFrom)
+				throw new ArgumentException ("The list of headers to sign MUST include the 'From' header.", nameof (headers));
+
+			return ArcSignAsync (options, message, fields, doAsync, cancellationToken);
+		}
+
+		/// <summary>
+		/// Digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public void Sign (FormatOptions options, MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			SignAsync (options, message, headers, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public Task SignAsync (FormatOptions options, MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (options, message, headers, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public void Sign (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			SignAsync (FormatOptions.Default, message, headers, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public Task SignAsync (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (FormatOptions.Default, message, headers, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public void Sign (FormatOptions options, MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			SignAsync (options, message, headers, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public Task SignAsync (FormatOptions options, MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (options, message, headers, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public void Sign (MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Sign (FormatOptions.Default, message, headers, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously digitally sign and seal a message using ARC.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously digitally signs and seals a message using ARC.
+		/// </remarks>
+		/// <param name="message">The message to sign.</param>
+		/// <param name="headers">The list of header fields to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="headers"/> contains one or more of the following headers: Return-Path,
+		/// Received, Comments, Keywords, Bcc, Resent-Bcc, or DKIM-Signature.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
+		/// </exception>
+		public Task SignAsync (MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (FormatOptions.Default, message, headers, cancellationToken);
+		}
+	}
+}

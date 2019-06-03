@@ -60,6 +60,49 @@ namespace MimeKit.Cryptography {
 		Fail
 	}
 
+	internal class ArcHeaderSet
+	{
+		public Dictionary<string, string> ArcAuthenticationResultParameters { get; private set; }
+		public Header ArcAuthenticationResult { get; private set; }
+
+		public Dictionary<string, string> ArcMessageSignatureParameters { get; private set; }
+		public Header ArcMessageSignature { get; private set; }
+
+		public Dictionary<string, string> ArcSealParameters { get; private set; }
+		public Header ArcSeal { get; private set; }
+
+		public bool Add (Header header, Dictionary<string, string> parameters)
+		{
+			switch (header.Id) {
+			case HeaderId.ArcAuthenticationResults:
+				if (ArcAuthenticationResult != null)
+					return false;
+
+				ArcAuthenticationResultParameters = parameters;
+				ArcAuthenticationResult = header;
+				break;
+			case HeaderId.ArcMessageSignature:
+				if (ArcMessageSignature != null)
+					return false;
+
+				ArcMessageSignatureParameters = parameters;
+				ArcMessageSignature = header;
+				break;
+			case HeaderId.ArcSeal:
+				if (ArcSeal != null)
+					return false;
+
+				ArcSealParameters = parameters;
+				ArcSeal = header;
+				break;
+			default:
+				return false;
+			}
+
+			return true;
+		}
+	}
+
 	/// <summary>
 	/// An ARC verifier.
 	/// </summary>
@@ -80,49 +123,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ArcVerifier (IDkimPublicKeyLocator publicKeyLocator) : base (publicKeyLocator)
 		{
-		}
-
-		class ArcHeaderSet
-		{
-			public Dictionary<string, string> ArcAuthenticationResultParameters { get; private set; }
-			public Header ArcAuthenticationResult { get; private set; }
-
-			public Dictionary<string, string> ArcMessageSignatureParameters { get; private set; }
-			public Header ArcMessageSignature { get; private set; }
-
-			public Dictionary<string, string> ArcSealParameters { get; private set; }
-			public Header ArcSeal { get; private set; }
-
-			public bool Add (Header header, Dictionary<string, string> parameters)
-			{
-				switch (header.Id) {
-				case HeaderId.ArcAuthenticationResults:
-					if (ArcAuthenticationResult != null)
-						return false;
-
-					ArcAuthenticationResultParameters = parameters;
-					ArcAuthenticationResult = header;
-					break;
-				case HeaderId.ArcMessageSignature:
-					if (ArcMessageSignature != null)
-						return false;
-
-					ArcMessageSignatureParameters = parameters;
-					ArcMessageSignature = header;
-					break;
-				case HeaderId.ArcSeal:
-					if (ArcSeal != null)
-						return false;
-
-					ArcSealParameters = parameters;
-					ArcSeal = header;
-					break;
-				default:
-					return false;
-				}
-
-				return true;
-			}
 		}
 
 		static void ValidateArcMessageSignatureParameters (IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
@@ -245,23 +245,18 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		async Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, bool doAsync, CancellationToken cancellationToken)
+		internal static ArcValidationResult GetArcHeaderSets (MimeMessage message, bool throwOnError, out ArcHeaderSet[] sets, out int count)
 		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (message == null)
-				throw new ArgumentNullException(nameof(message));
-
-			var sets = new ArcHeaderSet[50];
 			ArcHeaderSet set;
-			int newest = -1;
+
+			sets = new ArcHeaderSet[50];
+			count = 0;
 
 			for (int i = 0; i < message.Headers.Count; i++) {
 				Dictionary<string, string> parameters = null;
 				var header = message.Headers[i];
 				string value;
-				int inst;
+				int instance;
 
 				switch (header.Id) {
 				case HeaderId.ArcAuthenticationResults:
@@ -270,6 +265,9 @@ namespace MimeKit.Cryptography {
 					try {
 						parameters = ParseParameterTags (header.Id, header.Value);
 					} catch {
+						if (throwOnError)
+							throw;
+
 						return ArcValidationResult.Fail;
 					}
 					break;
@@ -278,39 +276,74 @@ namespace MimeKit.Cryptography {
 				if (parameters == null)
 					continue;
 
-				if (!parameters.TryGetValue ("i", out value))
+				if (!parameters.TryGetValue ("i", out value)) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Missing instance tag in {0} header.", header.Id.ToHeaderName ()));
+
 					return ArcValidationResult.Fail;
+				}
 
-				if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out inst) || inst < 1 || inst > 50)
+				if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
+
 					return ArcValidationResult.Fail;
+				}
 
-				inst--;
-
-				set = sets[inst];
+				set = sets[instance - 1];
 				if (set == null)
-					sets[inst] = set = new ArcHeaderSet ();
+					sets[instance - 1] = set = new ArcHeaderSet ();
 
 				if (!set.Add (header, parameters))
 					return ArcValidationResult.Fail;
 
-				if (inst >= newest)
-					newest = inst;
+				if (instance > count)
+					count = instance;
 			}
 
-			if (newest == -1) {
+			if (count == 0) {
 				// there are no ARC sets
 				return ArcValidationResult.None;
 			}
 
 			// verify that all ARC sets are complete
-			for (int i = 0; i <= newest; i++) {
+			for (int i = 0; i < count; i++) {
 				set = sets[i];
 
-				if (sets == null || set.ArcAuthenticationResult == null || set.ArcMessageSignature == null || set.ArcSeal == null)
-					return ArcValidationResult.Fail;
+				if (set == null) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Missing ARC headers for i={0}", i + 1));
 
-				if (!set.ArcSealParameters.TryGetValue ("cv", out string cv))
 					return ArcValidationResult.Fail;
+				}
+
+				if (set.ArcAuthenticationResult == null) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Missing ARC-Authentication-Results header for i={0}", i + 1));
+
+					return ArcValidationResult.Fail;
+				}
+
+				if (set.ArcMessageSignature == null) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Missing ARC-Message-Signature header for i={0}", i + 1));
+
+					return ArcValidationResult.Fail;
+				}
+
+				if (set.ArcSeal == null) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Missing ARC-Seal header for i={0}", i + 1));
+
+					return ArcValidationResult.Fail;
+				}
+
+				if (!set.ArcSealParameters.TryGetValue ("cv", out string cv)) {
+					if (throwOnError)
+						throw new FormatException (string.Format ("Missing chain validation tag in ARC-Seal header for i={0}.", i + 1));
+
+					return ArcValidationResult.Fail;
+				}
 
 				// The "cv" value for all ARC-Seal header fields MUST NOT be
 				// "fail". For ARC Sets with instance values > 1, the values
@@ -319,6 +352,24 @@ namespace MimeKit.Cryptography {
 				if (!cv.Equals (i == 0 ? "none" : "pass", StringComparison.Ordinal))
 					return ArcValidationResult.Fail;
 			}
+
+			return ArcValidationResult.Pass;
+		}
+
+		async Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, bool doAsync, CancellationToken cancellationToken)
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (message == null)
+				throw new ArgumentNullException(nameof(message));
+
+			switch (GetArcHeaderSets (message, false, out ArcHeaderSet[] sets, out int count)) {
+			case ArcValidationResult.None: return ArcValidationResult.None;
+			case ArcValidationResult.Fail: return ArcValidationResult.Fail;
+			}
+
+			int newest = count - 1;
 
 			// validate the most recent Arc-Message-Signature
 			try {
