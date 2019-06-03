@@ -30,8 +30,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Math.EC.Rfc8032;
 using Org.BouncyCastle.Crypto.Parameters;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	class Ed25519DigestSigner : ISigner
 	{
 		Ed25519PrivateKeyParameters privateKey;

@@ -51,7 +51,6 @@ namespace MimeKit.Cryptography {
 	public class DkimSigner
 	{
 		static readonly string[] DkimShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "dkim-signature" };
-		//static readonly string[] DefaultHeaders = { "from", "to", "date", "subject" };
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DkimSigner"/> class.
@@ -108,24 +107,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
 		{
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
-			if (domain == null)
-				throw new ArgumentNullException (nameof (domain));
-
-			if (selector == null)
-				throw new ArgumentNullException (nameof (selector));
-
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
-			SignatureAlgorithm = algorithm;
-			Selector = selector;
 			PrivateKey = key;
-			Domain = domain;
 		}
 
 		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
@@ -197,7 +187,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public DkimSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		public DkimSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -205,18 +195,8 @@ namespace MimeKit.Cryptography {
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
 
-			if (domain == null)
-				throw new ArgumentNullException (nameof (domain));
-
-			if (selector == null)
-				throw new ArgumentNullException (nameof (selector));
-
 			using (var stream = File.OpenRead (fileName))
 				PrivateKey = LoadPrivateKey (stream);
-
-			SignatureAlgorithm = algorithm;
-			Selector = selector;
-			Domain = domain;
 		}
 #endif
 
@@ -247,21 +227,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public DkimSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		public DkimSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (domain == null)
-				throw new ArgumentNullException (nameof (domain));
-
-			if (selector == null)
-				throw new ArgumentNullException (nameof (selector));
-
 			PrivateKey = LoadPrivateKey (stream);
-			SignatureAlgorithm = algorithm;
-			Selector = selector;
-			Domain = domain;
 		}
 
 		/// <summary>
