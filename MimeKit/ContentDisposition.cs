@@ -520,7 +520,7 @@ namespace MimeKit {
 		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -551,7 +551,7 @@ namespace MimeKit {
 		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -574,7 +574,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -602,7 +602,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
@@ -623,7 +623,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
@@ -647,7 +647,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -664,7 +664,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
@@ -689,7 +689,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the disposition was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
 		/// <exception cref="System.ArgumentNullException">
