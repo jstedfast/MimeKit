@@ -33,6 +33,7 @@ using Encoding = Portable.Text.Encoding;
 #endif
 
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
@@ -705,77 +706,15 @@ namespace MimeKit {
 
 		static byte[] EncodeAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
+			var buffer = Encoding.UTF8.GetBytes (value);
+
+			if (!AuthenticationResults.TryParse (buffer, out AuthenticationResults authres))
+				return EncodeUnstructuredHeader (options, format, charset, field, value);
+
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
-			var token = new StringBuilder ();
-			int index = 0;
 
-			while (index < value.Length) {
-				// skip leading whitespace
-				while (index < value.Length && IsWhiteSpace (value[index]))
-					index++;
-
-				// consume the tag name and/or domain
-				int wsp = 0;
-				while (index < value.Length && value[index] != '=' && value[index] != ';') {
-					if (!IsWhiteSpace (value[index]))
-						wsp = 0;
-					else
-						wsp++;
-
-					token.Append (value[index]);
-					index++;
-				}
-
-				// trim trailing whitespace from the tag name / domain
-				token.Length -= wsp;
-
-				if (index < value.Length && value[index] == '=') {
-					// skip leading whitespace in the tag value
-					while (index < value.Length && IsWhiteSpace (value[index]))
-						index++;
-
-					// consume the tag value
-					wsp = 0;
-					while (index < value.Length && value[index] != ';') {
-						if (IsWhiteSpace (value[index]))
-							wsp++;
-						else
-							wsp = 0;
-
-						token.Append (value[index]);
-						index++;
-					}
-
-					// trim the trailing whitespace
-					token.Length -= wsp;
-				}
-
-				if (index < value.Length && value[index] == ';') {
-					token.Append (';');
-					index++;
-				}
-
-				if (lineLength + token.Length + 1 > format.MaxLineLength) {
-					encoded.Append (format.NewLine);
-					encoded.Append ('\t');
-					lineLength = 1;
-				} else {
-					encoded.Append (' ');
-					lineLength++;
-				}
-
-				if (token.Length > format.MaxLineLength) {
-					EncodeLongValue (format, encoded, ref lineLength, token.ToString ());
-				} else {
-					encoded.Append (token.ToString ());
-					lineLength += token.Length;
-				}
-
-				token.Length = 0;
-			}
-
-			encoded.Append (format.NewLine);
+			authres.Encode (format, encoded, ref lineLength);
 
 			return charset.GetBytes (encoded.ToString ());
 		}

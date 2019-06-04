@@ -57,6 +57,7 @@
     <Compile Include="Cryptography\ArcSigner.cs" />
     <Compile Include="Cryptography\ArcVerifier.cs" />
     <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" />
+    <Compile Include="Cryptography\AuthenticationResults.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />
     <Compile Include="Cryptography\CertificateNotFoundException.cs" />

@@ -74,6 +74,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7MimeTests.cs" />
     <Compile Include="Cryptography\ArcVerifierTests.cs" />
     <Compile Include="Cryptography\AsymmetricAlgorithmExtensionTests.cs" />
+    <Compile Include="Cryptography\AuthenticationResultsTests.cs" />
     <Compile Include="Cryptography\CertificateExtensionTests.cs" />
     <Compile Include="Cryptography\CmsRecipientTests.cs" />
     <Compile Include="Cryptography\CmsSignerTests.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Cryptography\DkimRelaxedBodyFilterTests.cs" />
     <Compile Include="Cryptography\DkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\DkimTests.cs" />
+    <Compile Include="Cryptography\DummyArcSigner.cs" />
     <Compile Include="Cryptography\DummyOpenPgpContext.cs" />
     <Compile Include="Cryptography\LdapUriTests.cs" />
     <Compile Include="Cryptography\PgpMimeTests.cs" />

@@ -138,7 +138,7 @@ namespace UnitTests {
 		static readonly string[] ArcAuthenticationResultsHeaderValues = {
 			" i=1; lists.example.org;" + FormatOptions.Default.NewLine + "\tspf=pass smtp.mfrom=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=pass (1024 - bit key) header.i=@d1.example; dmarc=pass",
 			" i=2; gmail.example;" + FormatOptions.Default.NewLine + "\tspf=fail smtp.from=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=fail (512-bit key) header.i=@example.org; dmarc=fail;" + FormatOptions.Default.NewLine + "\tarc=pass (as.1.lists.example.org=pass, ams.1.lists.example.org=pass)",
-			" i=3; gmail.example;" + FormatOptions.Default.NewLine + "\tspf=fail smtp.from=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=fail (512-bit key) header.i=@example.org;"+ FormatOptions.Default.NewLine + "\tdmarc=fail (this-is-a-reall-long-unbroken-comment-that-will-need-to-be-broken"+ FormatOptions.Default.NewLine + "\t-apart-somewhere---is-it-long-enough-yet?); arc=pass (as.1.lists.example.org=pass, ams.1.lists.example.org=pass)"
+			" i=3; gmail.example;" + FormatOptions.Default.NewLine + "\tspf=fail smtp.from=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=fail (512-bit key) header.i=@example.org; dmarc=fail"+ FormatOptions.Default.NewLine + "\t(this-is-a-really-really-really-long-unbroken-comment-that-will-be-on-a-line-by-itself);" + FormatOptions.Default.NewLine + "\tarc=pass (as.1.lists.example.org=pass, ams.1.lists.example.org=pass)"
 		};
 
 		[Test]

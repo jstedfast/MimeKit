@@ -25,6 +25,7 @@
 //
 
 using System.Text;
+using System.Collections.Generic;
 
 namespace MimeKit.Utils {
 	static class StringBuilderExtensions
@@ -42,6 +43,24 @@ namespace MimeKit.Utils {
 			}
 
 			return text;
+		}
+
+		public static void AppendTokens (this StringBuilder text, FormatOptions options, ref int lineLength, List<string> tokens, bool needsSpace = false)
+		{
+			foreach (var token in tokens) {
+				if (lineLength + token.Length > options.MaxLineLength) {
+					text.Append (options.NewLine);
+					text.Append ('\t');
+					needsSpace = false;
+					lineLength = 1;
+				} else if (needsSpace) {
+					needsSpace = false;
+					text.Append (' ');
+				}
+
+				lineLength += token.Length;
+				text.Append (token);
+			}
 		}
 
 		public static StringBuilder AppendFolded (this StringBuilder text, FormatOptions options, bool firstToken, string value, ref int lineLength)

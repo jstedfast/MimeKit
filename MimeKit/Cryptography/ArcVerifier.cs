@@ -62,7 +62,6 @@ namespace MimeKit.Cryptography {
 
 	internal class ArcHeaderSet
 	{
-		public Dictionary<string, string> ArcAuthenticationResultParameters { get; private set; }
 		public Header ArcAuthenticationResult { get; private set; }
 
 		public Dictionary<string, string> ArcMessageSignatureParameters { get; private set; }
@@ -78,7 +77,6 @@ namespace MimeKit.Cryptography {
 				if (ArcAuthenticationResult != null)
 					return false;
 
-				ArcAuthenticationResultParameters = parameters;
 				ArcAuthenticationResult = header;
 				break;
 			case HeaderId.ArcMessageSignature:
@@ -255,11 +253,34 @@ namespace MimeKit.Cryptography {
 			for (int i = 0; i < message.Headers.Count; i++) {
 				Dictionary<string, string> parameters = null;
 				var header = message.Headers[i];
-				string value;
 				int instance;
+				string value;
 
 				switch (header.Id) {
 				case HeaderId.ArcAuthenticationResults:
+					if (!AuthenticationResults.TryParse (header.RawValue, out AuthenticationResults authres)) {
+						if (throwOnError)
+							throw new FormatException ("Invalid ARC-AUthentication-Results header.");
+
+						return ArcValidationResult.Fail;
+					}
+
+					if (!authres.Instance.HasValue) {
+						if (throwOnError)
+							throw new FormatException ("Missing instance tag in ARC-Authentication-Results header.");
+
+						return ArcValidationResult.Fail;
+					}
+
+					instance = authres.Instance.Value;
+
+					if (instance < 1 || instance > 50) {
+						if (throwOnError)
+							throw new FormatException (string.Format ("Invalid instance tag in ARC-Authentication-Results header: i={0}", instance));
+
+						return ArcValidationResult.Fail;
+					}
+					break;
 				case HeaderId.ArcMessageSignature:
 				case HeaderId.ArcSeal:
 					try {
@@ -270,25 +291,28 @@ namespace MimeKit.Cryptography {
 
 						return ArcValidationResult.Fail;
 					}
+
+					if (!parameters.TryGetValue ("i", out value)) {
+						if (throwOnError)
+							throw new FormatException (string.Format ("Missing instance tag in {0} header.", header.Id.ToHeaderName ()));
+
+						return ArcValidationResult.Fail;
+					}
+
+					if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
+						if (throwOnError)
+							throw new FormatException (string.Format ("Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
+
+						return ArcValidationResult.Fail;
+					}
+					break;
+				default:
+					instance = 0;
 					break;
 				}
 
-				if (parameters == null)
+				if (instance == 0)
 					continue;
-
-				if (!parameters.TryGetValue ("i", out value)) {
-					if (throwOnError)
-						throw new FormatException (string.Format ("Missing instance tag in {0} header.", header.Id.ToHeaderName ()));
-
-					return ArcValidationResult.Fail;
-				}
-
-				if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
-					if (throwOnError)
-						throw new FormatException (string.Format ("Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
-
-					return ArcValidationResult.Fail;
-				}
 
 				set = sets[instance - 1];
 				if (set == null)
