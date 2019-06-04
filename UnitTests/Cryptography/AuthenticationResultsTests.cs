@@ -70,7 +70,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Instance.Value, "instance");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
@@ -86,7 +86,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes ("example.org");
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
 
 			Assert.AreEqual ("example.org; none", authres.ToString ());
@@ -98,7 +98,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes ("example.org;");
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
 
 			Assert.AreEqual ("example.org; none", authres.ToString ());
@@ -111,7 +111,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Version.Value, "authres-version");
 
@@ -124,7 +124,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes ("example.org 1;");
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Version.Value, "authres-version");
 
@@ -137,7 +137,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes ("example.org 1; none");
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Version.Value, "authres-version");
 			Assert.AreEqual (0, authres.Results.Count, "no-results");
@@ -152,7 +152,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
 			Assert.AreEqual ("foo", authres.Results[0].Method);
@@ -168,7 +168,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
 			Assert.AreEqual ("foo", authres.Results[0].Method);
@@ -185,7 +185,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
 			Assert.AreEqual ("spf", authres.Results[0].Method);
@@ -205,7 +205,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
 			Assert.AreEqual ("spf", authres.Results[0].Method);
@@ -225,7 +225,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
 			Assert.AreEqual ("spf", authres.Results[0].Method);
@@ -239,13 +239,72 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestParseSimpleWithReason ()
+		{
+			const string input = "example.com; spf=pass reason=good";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (1, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("pass", authres.Results[0].Result);
+			Assert.AreEqual ("good", authres.Results[0].Reason);
+			Assert.AreEqual (0, authres.Results[0].Properties.Count, "properties");
+
+			Assert.AreEqual ("example.com; spf=pass reason=\"good\"", authres.ToString ());
+		}
+
+		[Test]
+		public void TestParseSimpleWithQuotedReason ()
+		{
+			const string input = "example.com; spf=pass reason=\"good stuff\"";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (1, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("pass", authres.Results[0].Result);
+			Assert.AreEqual ("good stuff", authres.Results[0].Reason);
+			Assert.AreEqual (0, authres.Results[0].Properties.Count, "properties");
+
+			Assert.AreEqual (input, authres.ToString ());
+		}
+
+		[Test]
+		public void TestParseMethodWithMultipleProperties ()
+		{
+			const string input = "example.com; spf=pass ptype1.prop1=value1 ptype2.prop2=value2";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (1, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("pass", authres.Results[0].Result);
+			Assert.AreEqual (2, authres.Results[0].Properties.Count, "properties");
+			Assert.AreEqual ("ptype1", authres.Results[0].Properties[0].PropertyType);
+			Assert.AreEqual ("prop1", authres.Results[0].Properties[0].Property);
+			Assert.AreEqual ("value1", authres.Results[0].Properties[0].Value);
+			Assert.AreEqual ("ptype2", authres.Results[0].Properties[1].PropertyType);
+			Assert.AreEqual ("prop2", authres.Results[0].Properties[1].Property);
+			Assert.AreEqual ("value2", authres.Results[0].Properties[1].Value);
+
+			Assert.AreEqual (input, authres.ToString ());
+		}
+
+		[Test]
 		public void TestParseMultipleMethods ()
 		{
 			const string input = "example.com; auth=pass (cram-md5) smtp.auth=sender@example.net; spf=pass smtp.mailfrom=example.net; sender-id=pass header.from=example.net";
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (3, authres.Results.Count, "methods");
 			Assert.AreEqual ("auth", authres.Results[0].Method);
@@ -278,7 +337,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (2, authres.Results.Count, "methods");
 			Assert.AreEqual ("dkim", authres.Results[0].Method);
@@ -305,7 +364,7 @@ namespace UnitTests.Cryptography {
 			var buffer = Encoding.ASCII.GetBytes ("foo.example.net (foobar) 1 (baz); dkim (Because I like it) / 1 (One yay) = (wait for it) fail policy (A dot can go here) . (like that) expired (this surprised me) = (as I wasn't expecting it) 1362471462");
 			AuthenticationResults authres;
 
-			Assert.IsTrue (AuthenticationResults.TryParse (buffer, out authres));
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("foo.example.net", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual (1, authres.Version.Value, "authres-version");
 			Assert.AreEqual (1, authres.Results.Count, "methods");
@@ -325,6 +384,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes (" \"quoted-authserv-id");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -338,6 +399,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureIncompleteArcInstance ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("i=");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -353,6 +416,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("i=abc; authserv-id");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -366,6 +431,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureUnexpectedTokenAfterArcInstance ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("i=1: authserv-id");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -381,6 +448,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("i=5");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -394,6 +463,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureOnlyArcInstanceSemicolon ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("i=5;");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -409,6 +480,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("i=5; i=1");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -422,6 +495,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureUnknownLeadingMethod ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("x=5; authserv-id");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -437,6 +512,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id x");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -450,6 +527,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureInvalidTokenAfterVersion ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id 1 x");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -465,6 +544,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; .");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -477,7 +558,25 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestParseFailureInvalidMethod2 ()
 		{
+			var buffer = Encoding.ASCII.GetBytes ("authserv-id; abc");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
+			try {
+				AuthenticationResults.Parse (buffer);
+				Assert.Fail ("Expected parse error.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (13, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (16, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
+		public void TestParseFailureInvalidMethod3 ()
+		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; abc def");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -493,6 +592,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; abc/1.0=pass");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -506,6 +607,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureInvalidMethodVersion2 ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; abc/def=pass");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -521,6 +624,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; abc=");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -534,6 +639,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureMethodEqualNonKeyword ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; abc=.");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -549,6 +656,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; none; method=pass");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -562,6 +671,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureNoResultAfterMethods ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass; none");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -577,6 +688,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass reason");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -590,6 +703,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureIncompleteReason2 ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass reason=");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -605,6 +720,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass reason=\"this is some text");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -619,6 +736,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass reason=;");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -629,9 +748,27 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestParseFailureInvalidReason ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass reason .");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
+			try {
+				AuthenticationResults.Parse (buffer);
+				Assert.Fail ("Expected parse error.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (25, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (32, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
 		public void TestParseFailureInvalidPropTypeAfterReason ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass reason=\"because I said so\" .;");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -647,6 +784,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -660,6 +799,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureIncompleteProperty2 ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -675,6 +816,8 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
@@ -688,6 +831,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureIncompleteProperty4 ()
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
 
 			try {
 				AuthenticationResults.Parse (buffer);
@@ -703,12 +848,62 @@ namespace UnitTests.Cryptography {
 		{
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=;");
 
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
 			try {
 				AuthenticationResults.Parse (buffer);
 				Assert.Fail ("Expected parse error.");
 			} catch (ParseException ex) {
 				Assert.AreEqual (25, ex.TokenIndex, "TokenIndex");
 				Assert.AreEqual (36, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
+		public void TestParseFailureInvalidProperty1 ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype;");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
+			try {
+				AuthenticationResults.Parse (buffer);
+				Assert.Fail ("Expected parse error.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (25, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (30, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
+		public void TestParseFailureInvalidProperty2 ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop;");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
+			try {
+				AuthenticationResults.Parse (buffer);
+				Assert.Fail ("Expected parse error.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (25, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (35, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
+		public void TestParseFailureInvalidProperty3 ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=value .");
+
+			Assert.IsFalse (AuthenticationResults.TryParse (buffer, out AuthenticationResults authres));
+
+			try {
+				AuthenticationResults.Parse (buffer);
+				Assert.Fail ("Expected parse error.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (42, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (42, ex.ErrorIndex, "ErrorIndex");
 			}
 		}
 	}

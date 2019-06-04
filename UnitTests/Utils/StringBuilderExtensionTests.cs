@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -55,6 +56,25 @@ namespace UnitTests.Utils {
 			builder.LineWrap (format);
 
 			Assert.AreEqual (expected2, builder.ToString (), "#2");
+		}
+
+		[Test]
+		public void TestAppendTokens ()
+		{
+			var builder = new StringBuilder ("Authentication-Results:");
+			var format = FormatOptions.Default.Clone ();
+			var tokens = new List<string> ();
+			int lineLength = builder.Length;
+
+			format.NewLineFormat = NewLineFormat.Unix;
+
+			tokens.Add ("this-is-a-really-long-parameter-name");
+			tokens.Add ("=");
+			tokens.Add ("this-is-a-really-long-parameter-value");
+
+			builder.AppendTokens (format, ref lineLength, tokens, true);
+
+			Assert.AreEqual ("Authentication-Results: this-is-a-really-long-parameter-name=\n\tthis-is-a-really-long-parameter-value", builder.ToString ());
 		}
 
 		[Test]
