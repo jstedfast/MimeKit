@@ -63,6 +63,7 @@ namespace MimeKit.Utils {
 				} else {
 					lineLength += spaces.Length;
 					text.Append (spaces);
+					spaces = string.Empty;
 				}
 
 				lineLength += token.Length;
