@@ -155,6 +155,7 @@ namespace MimeKit.Cryptography {
 					lineLength++;
 				}
 
+				lineLength += version.Length;
 				builder.Append (version);
 			}
 

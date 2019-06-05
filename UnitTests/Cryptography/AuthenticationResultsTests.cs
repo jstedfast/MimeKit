@@ -601,6 +601,48 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestParseFailureIncompleteCommentBeforeMethod ()
+		{
+			AssertParseFailure (" authserv-id; (incomplete comment", 14, 33);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethod ()
+		{
+			AssertParseFailure (" authserv-id; method (incomplete comment", 21, 40);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethodEquals ()
+		{
+			AssertParseFailure (" authserv-id; method= (incomplete comment", 22, 41);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethodEqualsResult ()
+		{
+			AssertParseFailure (" authserv-id; method=result (incomplete comment", 28, 47);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethodSlash ()
+		{
+			AssertParseFailure (" authserv-id; method/ (incomplete comment", 22, 41);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethodVersion ()
+		{
+			AssertParseFailure (" authserv-id; method/1 (incomplete comment", 23, 42);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethodVersionEquals ()
+		{
+			AssertParseFailure (" authserv-id; method/1= (incomplete comment", 24, 43);
+		}
+
+		[Test]
 		public void TestParseFailureIncompleteArcInstance ()
 		{
 			AssertParseFailure ("i=", 2, 2);
@@ -675,11 +717,17 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestParseFailureInvalidMethodVersion1 ()
 		{
-			AssertParseFailure ("authserv-id; abc/1.0=pass", 13, 18);
+			AssertParseFailure ("authserv-id; abc/1 ", 13, 19);
 		}
 
 		[Test]
 		public void TestParseFailureInvalidMethodVersion2 ()
+		{
+			AssertParseFailure ("authserv-id; abc/1.0=pass", 13, 18);
+		}
+
+		[Test]
+		public void TestParseFailureInvalidMethodVersion3 ()
 		{
 			AssertParseFailure ("authserv-id; abc/def=pass", 17, 17);
 		}
@@ -706,6 +754,18 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureNoResultAfterMethods ()
 		{
 			AssertParseFailure ("authserv-id; method=pass; none", 26, 30);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteResultComment ()
+		{
+			AssertParseFailure ("authserv-id; method=pass (truncated comment", 25, 43);
+		}
+
+		[Test]
+		public void TestParseFailureInvalidTokenAfterResult ()
+		{
+			AssertParseFailure ("authserv-id; method=pass .", 25, 25);
 		}
 
 		[Test]
@@ -790,6 +850,12 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureInvalidProperty3 ()
 		{
 			AssertParseFailure ("authserv-id; method=pass ptype.prop=value .", 42, 42);
+		}
+
+		[Test]
+		public void TestParseFailureInvalidProperty4 ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype..", 31, 31);
 		}
 	}
 }
