@@ -103,6 +103,88 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestEncodeLongResultMethod ()
+		{
+			const string expected = "Authentication-Results: lists.example.com 1;\n\treally-long-method-name=really-long-value\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("really-long-method-name", "really-long-value"));
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeLongResultMethodWithVersion ()
+		{
+			const string expected = "Authentication-Results: lists.example.com 1;\n\treally-long-method-name/1=really-long-value\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("really-long-method-name", "really-long-value") {
+				Version = 1
+			});
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeLongResultMethodWithVersionAndComment ()
+		{
+			const string expected = "Authentication-Results: lists.example.com 1;\n\treally-long-method-name/1=really-long-value\n\t(this is a really long result comment)\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("really-long-method-name", "really-long-value") {
+				ResultComment = "this is a really long result comment",
+				Version = 1
+			});
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeLongResultMethodWithVersionAndCommentAndReason ()
+		{
+			const string expected = "Authentication-Results: lists.example.com 1;\n\treally-really-really-long-method-name/214748367=\n\treally-really-really-long-value (this is a really really long result comment)\n\treason=\"this is a really really really long reason\"\n\tthis-is-a-really-really-long-ptype.this-is-a-really-really-long-property=\n\tthis-is-a-really-really-long-value\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("really-really-really-long-method-name", "really-really-really-long-value") {
+				ResultComment = "this is a really really long result comment",
+				Reason = "this is a really really really long reason",
+				Version = 214748367
+			});
+			authres.Results[0].Properties.Add (new AuthenticationMethodProperty ("this-is-a-really-really-long-ptype", "this-is-a-really-really-long-property", "this-is-a-really-really-long-value"));
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
 		public void TestParseArcAuthenticationResults ()
 		{
 			const string input = "i=1; example.com; foo=pass";

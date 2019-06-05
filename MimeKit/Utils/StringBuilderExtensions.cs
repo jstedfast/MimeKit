@@ -45,17 +45,24 @@ namespace MimeKit.Utils {
 			return text;
 		}
 
-		public static void AppendTokens (this StringBuilder text, FormatOptions options, ref int lineLength, List<string> tokens, bool needsSpace = false)
+		public static void AppendTokens (this StringBuilder text, FormatOptions options, ref int lineLength, List<string> tokens)
 		{
+			var spaces = string.Empty;
+
 			foreach (var token in tokens) {
-				if (lineLength + token.Length > options.MaxLineLength) {
+				if (string.IsNullOrWhiteSpace (token)) {
+					spaces = token;
+					continue;
+				}
+
+				if (lineLength + spaces.Length + token.Length > options.MaxLineLength) {
 					text.Append (options.NewLine);
+					spaces = string.Empty;
 					text.Append ('\t');
-					needsSpace = false;
 					lineLength = 1;
-				} else if (needsSpace) {
-					needsSpace = false;
-					text.Append (' ');
+				} else {
+					lineLength += spaces.Length;
+					text.Append (spaces);
 				}
 
 				lineLength += token.Length;

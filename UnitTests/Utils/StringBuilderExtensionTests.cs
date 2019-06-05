@@ -72,7 +72,7 @@ namespace UnitTests.Utils {
 			tokens.Add ("=");
 			tokens.Add ("this-is-a-really-long-parameter-value");
 
-			builder.AppendTokens (format, ref lineLength, tokens, true);
+			builder.AppendTokens (format, ref lineLength, tokens);
 
 			Assert.AreEqual ("Authentication-Results: this-is-a-really-long-parameter-name=\n\tthis-is-a-really-long-parameter-value", builder.ToString ());
 		}

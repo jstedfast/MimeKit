@@ -220,11 +220,29 @@ namespace MimeKit.Cryptography {
 			return index > startIndex;
 		}
 
+		static bool SkipValue (byte[] text, ref int index, int endIndex, out bool quoted)
+		{
+			if (text[index] == (byte) '"') {
+				quoted = true;
+
+				if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
+					return false;
+			} else {
+				quoted = false;
+
+				if (!ParseUtils.SkipToken (text, ref index, endIndex))
+					return false;
+			}
+
+			return true;
+		}
+
 		static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out AuthenticationResults authres)
 		{
 			int? instance = null;
 			string srvid = null;
 			string value;
+			bool quoted;
 
 			authres = null;
 
@@ -232,26 +250,22 @@ namespace MimeKit.Cryptography {
 				return false;
 
 			do {
-				// we're either at the start of the authserv-id token or "i=#;" (if we're parsing an ARC-Authentication-Results header)
-				if (index < endIndex && text[index] == (byte) '"') {
-					int start = index;
+				int start = index;
 
-					if (!ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError))
-						return false;
+				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete authserv-id token at offset {0}", start), start, index);
 
-					srvid = MimeUtils.Unquote (Encoding.UTF8.GetString (text, start, index - start));
+					return false;
+				}
+
+				value = Encoding.UTF8.GetString (text, start, index - start);
+
+				if (quoted) {
+					// this can only be the authserv-id token
+					srvid = MimeUtils.Unquote (value);
 				} else {
-					int start = index;
-
-					if (!ParseUtils.SkipToken (text, ref index, endIndex)) {
-						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete authserv-id token at offset {0}", start), start, index);
-
-						return false;
-					}
-
-					value = Encoding.UTF8.GetString (text, start, index - start);
-
+					// this could either be the authserv-id or it could be "i=#" (ARC instance)
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
@@ -522,25 +536,19 @@ namespace MimeKit.Cryptography {
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
-					if (index < endIndex && text[index] == (byte) '"') {
-						int start = index;
+					int reasonIndex = index;
 
-						if (!ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError))
-							return false;
+					if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Invalid reasonspec value token at offset {0}", reasonIndex), reasonIndex, index);
 
-						resinfo.Reason = MimeUtils.Unquote (Encoding.UTF8.GetString (text, start, index - start));
-					} else {
-						int start = index;
-
-						if (!ParseUtils.SkipToken (text, ref index, endIndex)) {
-							if (throwOnError)
-								throw new ParseException (string.Format ("Invalid reasonspec value token at offset {0}", start), start, index);
-
-							return false;
-						}
-
-						resinfo.Reason = Encoding.UTF8.GetString (text, start, index - start);
+						return false;
 					}
+
+					resinfo.Reason = Encoding.UTF8.GetString (text, reasonIndex, index - reasonIndex);
+
+					if (quoted)
+						resinfo.Reason = MimeUtils.Unquote (resinfo.Reason);
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
@@ -914,7 +922,7 @@ namespace MimeKit.Cryptography {
 			// try to put the entire result on 1 line
 			var complete = ToString ();
 
-			if (complete.Length < options.MaxLineLength) {
+			if (complete.Length + 1 < options.MaxLineLength) {
 				// if it fits, it sits...
 				if (lineLength + complete.Length + 1 > options.MaxLineLength) {
 					builder.Append (options.NewLine);
@@ -930,73 +938,60 @@ namespace MimeKit.Cryptography {
 				return;
 			}
 
+			// Note: if we've made it this far, then we can't put everything on one line...
+
 			var tokens = new List<string> ();
+			tokens.Add (" ");
 
 			if (Version.HasValue) {
 				var version = Version.Value.ToString (CultureInfo.InvariantCulture);
-				var combinedLength = Method.Length + 1 + version.Length + 1 + Result.Length;
 
-				if (combinedLength > options.MaxLineLength) {
-					// we will have to break this up into individual tokens
+				if (Method.Length + 1 + version.Length + 1 + Result.Length < options.MaxLineLength) {
+					tokens.Add ($"{Method}/{version}={Result}");
+				} else if (Method.Length + 1 + version.Length < options.MaxLineLength) {
+					tokens.Add ($"{Method}/{version}");
+					tokens.Add ("=");
+					tokens.Add (Result);
+				} else {
 					tokens.Add (Method);
 					tokens.Add ("/");
 					tokens.Add (version);
 					tokens.Add ("=");
 					tokens.Add (Result);
-				} else {
-					tokens.Add (string.Format ("{0}/{1}={2}", Method, version, Result));
 				}
 			} else {
-				var combinedLength = Method.Length + 1 + Result.Length;
-
-				if (combinedLength > options.MaxLineLength) {
+				if (Method.Length + 1 + Result.Length < options.MaxLineLength) {
+					tokens.Add ($"{Method}={Result}");
+				} else {
 					// we will have to break this up into individual tokens
 					tokens.Add (Method);
 					tokens.Add ("=");
 					tokens.Add (Result);
-				} else {
-					tokens.Add (string.Format ("{0}={1}", Method, Result));
 				}
 			}
 
-			builder.AppendTokens (options, ref lineLength, tokens, true);
-			tokens.Clear ();
-
 			if (!string.IsNullOrEmpty (ResultComment)) {
-				if (lineLength + ResultComment.Length + 3 > options.MaxLineLength) {
-					builder.Append (options.NewLine);
-					builder.Append ('\t');
-					lineLength = 1;
-				} else {
-					builder.Append (' ');
-					lineLength++;
-				}
-
-				lineLength += ResultComment.Length + 2;
-				builder.Append ('(');
-				builder.Append (ResultComment);
-				builder.Append (')');
+				tokens.Add (" ");
+				tokens.Add ($"({ResultComment})");
 			}
 
 			if (!string.IsNullOrEmpty (Reason)) {
 				var reason = MimeUtils.Quote (Reason);
-				var combinedLength = "reason=".Length + reason.Length;
 
-				tokens.Clear ();
-				if (combinedLength > options.MaxLineLength) {
-					// we will have to break this up into individual tokens
+				tokens.Add (" ");
+
+				if ("reason=".Length + reason.Length < options.MaxLineLength) {
+					tokens.Add ($"reason={reason}");
+				} else {
 					tokens.Add ("reason=");
 					tokens.Add (reason);
-				} else {
-					tokens.Add ("reason=" + reason);
 				}
-
-				builder.AppendTokens (options, ref lineLength, tokens);
-				tokens.Clear ();
 			}
 
 			for (int i = 0; i < Properties.Count; i++)
-				Properties[i].Encode (options, builder, ref lineLength);
+				Properties[i].AppendTokens (options, tokens);
+
+			builder.AppendTokens (options, ref lineLength, tokens);
 		}
 
 		/// <summary>
@@ -1110,30 +1105,22 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
+		internal void AppendTokens (FormatOptions options, List<string> tokens)
 		{
-			var combinedLength = PropertyType.Length + 1 + Property.Length + 1 + Value.Length;
-			var tokens = new List<string> ();
+			tokens.Add (" ");
 
-			if (combinedLength > options.MaxLineLength) {
-				// we will have to break this up into individual tokens
-				combinedLength = PropertyType.Length + 1 + Property.Length + 1;
-
-				if (combinedLength > options.MaxLineLength) {
-					tokens.Add (PropertyType);
-					tokens.Add (".");
-					tokens.Add (Property);
-					tokens.Add ("=");
-					tokens.Add (Value);
-				} else {
-					tokens.Add (PropertyType + "." + Property + "=");
-					tokens.Add (Value);
-				}
+			if (PropertyType.Length + 1 + Property.Length + 1 + Value.Length < options.MaxLineLength) {
+				tokens.Add ($"{PropertyType}.{Property}={Value}");
+			} else if (PropertyType.Length + 1 + Property.Length + 1 < options.MaxLineLength) {
+				tokens.Add ($"{PropertyType}.{Property}=");
+				tokens.Add (Value);
 			} else {
-				tokens.Add (ToString ());
+				tokens.Add (PropertyType);
+				tokens.Add (".");
+				tokens.Add (Property);
+				tokens.Add ("=");
+				tokens.Add (Value);
 			}
-
-			builder.AppendTokens (options, ref lineLength, tokens);
 		}
 
 		/// <summary>
