@@ -404,10 +404,64 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestParseSimpleWithReasonSemiColon ()
+		{
+			const string input = "example.com; spf=pass reason=good; ";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (1, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("pass", authres.Results[0].Result);
+			Assert.AreEqual ("good", authres.Results[0].Reason);
+			Assert.AreEqual (0, authres.Results[0].Properties.Count, "properties");
+
+			Assert.AreEqual ("example.com; spf=pass reason=\"good\"", authres.ToString ());
+
+			const string expected = " example.com; spf=pass reason=\"good\"\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
 		public void TestParseSimpleWithQuotedReason ()
 		{
 			const string input = "example.com; spf=pass reason=\"good stuff\"";
 			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (1, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("pass", authres.Results[0].Result);
+			Assert.AreEqual ("good stuff", authres.Results[0].Reason);
+			Assert.AreEqual (0, authres.Results[0].Properties.Count, "properties");
+
+			Assert.AreEqual (input, authres.ToString ());
+
+			const string expected = " example.com; spf=pass reason=\"good stuff\"\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
+		public void TestParseSimpleWithQuotedReasonSemiColon ()
+		{
+			const string input = "example.com; spf=pass reason=\"good stuff\"";
+			var buffer = Encoding.ASCII.GetBytes (input + "; ");
 			AuthenticationResults authres;
 
 			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
@@ -598,6 +652,36 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureAuthServIdIncompleteQString ()
 		{
 			AssertParseFailure (" \"quoted-authserv-id", 1, 20);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteComment ()
+		{
+			AssertParseFailure (" (truncated comment", 1, 19);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterAuthServId ()
+		{
+			AssertParseFailure (" authserv-id (truncated comment", 13, 31);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterInstanceEquals ()
+		{
+			AssertParseFailure (" i= (truncated comment", 4, 22);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterInstanceEqualsValue ()
+		{
+			AssertParseFailure (" i=1 (truncated comment", 5, 23);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterInstanceEqualsValueSemiColon ()
+		{
+			AssertParseFailure (" i=1; (truncated comment", 6, 24);
 		}
 
 		[Test]
