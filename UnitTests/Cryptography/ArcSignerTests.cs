@@ -50,7 +50,7 @@ namespace UnitTests.Cryptography {
 			foreach (var tag in expectedTags) {
 				string value;
 
-				if (tag.Key == "b" || tag.Key == "bh") {
+				if (tag.Key == "b") {
 					// Note: these values are affected by tag order, so MimeKit's results *will* differ
 					// from the results produced by the library that the tests are based on...
 					//
@@ -103,6 +103,14 @@ namespace UnitTests.Cryptography {
 					Assert.AreEqual (0, index, "IndexOf ARC-Seal header");
 					header = message.Headers[index];
 					AssertHeadersEqual (description, HeaderId.ArcSeal, seal, header.Value);
+
+					var expected = ArcValidationResult.Pass;
+					if (header.Value.Contains ("cv=fail;"))
+						expected = ArcValidationResult.Fail;
+					var verifier = new ArcVerifier (locator);
+					var result = verifier.Verify (message);
+
+					Assert.AreEqual (expected, result, "ArcSigner validation failed");
 				}
 			}
 		}
