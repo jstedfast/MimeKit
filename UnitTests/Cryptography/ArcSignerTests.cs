@@ -127,6 +127,8 @@ namespace UnitTests.Cryptography {
 				};
 			}
 
+			// Sign
+
 			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, new HeaderId[] { HeaderId.From }));
 			Assert.Throws<ArgumentNullException> (() => signer.Sign (message, (IList<HeaderId>) null));
 			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.Unknown, HeaderId.From }));
@@ -148,6 +150,30 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, null, new string[] { "From" }));
 			Assert.Throws<ArgumentException> (() => signer.Sign (options, message, new string[] { "From", null }));
 			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, message, (IList<string>) null));
+
+			// SignAsync
+
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (message, (IList<HeaderId>) null));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new HeaderId[] { HeaderId.Unknown, HeaderId.From }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new HeaderId[] { HeaderId.Received, HeaderId.From }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new HeaderId[] { HeaderId.ContentType }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (null, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (message, (IList<string>) null));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new string[] { "", "From" }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new string[] { null, "From" }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new string[] { "Received", "From" }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (message, new string[] { "Content-Type" }));
+
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (null, message, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (options, null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (options, message, new HeaderId[] { HeaderId.From, HeaderId.Unknown }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (options, message, (IList<HeaderId>) null));
+
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (null, message, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (options, null, new string[] { "From" }));
+			Assert.Throws<ArgumentException> (async () => await signer.SignAsync (options, message, new string[] { "From", null }));
+			Assert.Throws<ArgumentNullException> (async () => await signer.SignAsync (options, message, (IList<string>) null));
 		}
 
 		static void AssertHeadersEqual (string description, HeaderId id, string expected, string actual)
