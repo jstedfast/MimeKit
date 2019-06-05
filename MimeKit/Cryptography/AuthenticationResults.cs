@@ -117,17 +117,15 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
+		internal void Encode (FormatOptions options, StringBuilder builder, int lineLength)
 		{
-			int space = 0;
+			int space = 1;
 
 			if (Instance.HasValue) {
 				var i = Instance.Value.ToString (CultureInfo.InvariantCulture);
 
 				builder.AppendFormat (" i={0};", i);
-
 				lineLength += 4 + i.Length;
-				space = 1;
 			}
 
 			if (lineLength + space + AuthenticationServiceIdentifier.Length > options.MaxLineLength) {

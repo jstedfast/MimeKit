@@ -667,43 +667,6 @@ namespace MimeKit {
 			return charset.GetBytes (encoded.ToString ());
 		}
 
-		static void EncodeLongValue (FormatOptions format, StringBuilder encoded, ref int lineLength, string value)
-		{
-			int startIndex = 0;
-
-			while (startIndex < value.Length) {
-				int lineLeft = format.MaxLineLength - lineLength;
-				int maxIndex = startIndex + lineLeft;
-				int index;
-
-				if (maxIndex >= value.Length) {
-					index = value.Length;
-				} else {
-					index = maxIndex;
-
-					while (index > startIndex && IsWhiteSpace (value[index - 1]))
-						index--;
-
-					if (index == startIndex)
-						index = maxIndex;
-				}
-
-				encoded.Append (value, startIndex, index - startIndex);
-
-				while (index < value.Length && IsWhiteSpace (value[index]))
-					index++;
-
-				if (index == value.Length)
-					break;
-
-				encoded.Append (format.NewLine);
-				encoded.Append ('\t');
-				lineLength = 1;
-
-				startIndex = index;
-			}
-		}
-
 		static byte[] EncodeAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
 		{
 			var buffer = Encoding.UTF8.GetBytes (value);
@@ -714,7 +677,7 @@ namespace MimeKit {
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
 
-			authres.Encode (format, encoded, ref lineLength);
+			authres.Encode (format, encoded, lineLength);
 
 			return charset.GetBytes (encoded.ToString ());
 		}
