@@ -219,13 +219,25 @@ namespace MimeKit.Cryptography {
 			get; set;
 		}
 
+		/// <summary>
+		/// Get the timestamp value.
+		/// </summary>
+		/// <remarks>
+		/// Gets the timestamp to use as the <c>t=</c> value in the DKIM-Signature header.
+		/// </remarks>
+		/// <returns>A value representing the timestamp value.</returns>
+		protected virtual long GetTimestamp ()
+		{
+			return (long) (DateTime.UtcNow - DateUtils.UnixEpoch).TotalSeconds;
+		}
+
 		void DkimSign (FormatOptions options, MimeMessage message, IList<string> headers)
 		{
 			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
 				message.MimeVersion = new Version (1, 0);
 
-			var t = DateTime.UtcNow - DateUtils.UnixEpoch;
 			var value = new StringBuilder ("v=1");
+			var t = GetTimestamp ();
 			byte[] signature, hash;
 			Header dkim;
 
@@ -252,7 +264,7 @@ namespace MimeKit.Cryptography {
 				value.AppendFormat ("; q={0}", QueryMethod);
 			if (!string.IsNullOrEmpty (AgentOrUserIdentifier))
 				value.AppendFormat ("; i={0}", AgentOrUserIdentifier);
-			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
+			value.AppendFormat ("; t={0}", t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
