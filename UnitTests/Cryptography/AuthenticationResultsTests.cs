@@ -667,6 +667,12 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestParseFailureIncompleteCommentAfterAuthServIdVersion ()
+		{
+			AssertParseFailure (" authserv-id 1 (truncated comment", 15, 33);
+		}
+
+		[Test]
 		public void TestParseFailureIncompleteCommentAfterInstanceEquals ()
 		{
 			AssertParseFailure (" i= (truncated comment", 4, 22);
@@ -709,6 +715,12 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestParseFailureIncompleteCommentAfterMethodEqualsResultComment ()
+		{
+			AssertParseFailure (" authserv-id; method=result (comment) (incomplete comment", 38, 57);
+		}
+
+		[Test]
 		public void TestParseFailureIncompleteCommentAfterMethodSlash ()
 		{
 			AssertParseFailure (" authserv-id; method/ (incomplete comment", 22, 41);
@@ -724,6 +736,54 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureIncompleteCommentAfterMethodVersionEquals ()
 		{
 			AssertParseFailure (" authserv-id; method/1= (incomplete comment", 24, 43);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterReason ()
+		{
+			AssertParseFailure ("authserv-id; method=pass reason (truncated comment", 32, 50);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterReasonEquals ()
+		{
+			AssertParseFailure ("authserv-id; method=pass reason= (truncated comment", 33, 51);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterReasonEqualsValue ()
+		{
+			AssertParseFailure ("authserv-id; method=pass reason=value (truncated comment", 38, 56);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterPType ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype (truncated comment", 31, 49);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterPTypeDot ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype. (truncated comment", 32, 50);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterPTypeDotProp ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop (truncated comment", 36, 54);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterPTypeDotPropEquals ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop= (truncated comment", 37, 55);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteCommentAfterPTypeDotPropEqualsValue ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop=value (truncated comment", 42, 60);
 		}
 
 		[Test]
