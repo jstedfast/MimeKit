@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cryptography\ApplicationPkcs7MimeTests.cs" />
+    <Compile Include="Cryptography\ArcSignerTests.cs" />
     <Compile Include="Cryptography\ArcVerifierTests.cs" />
     <Compile Include="Cryptography\AsymmetricAlgorithmExtensionTests.cs" />
     <Compile Include="Cryptography\AuthenticationResultsTests.cs" />

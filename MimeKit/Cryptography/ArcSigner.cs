@@ -188,10 +188,9 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="options">The format options.</param>
 		/// <param name="message">The message to create the ARC-Authentication-Results header for.</param>
-		/// <param name="instance">The ARC instance (the <c>i=</c> value to use).</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns>The ARC-Authentication-Results header.</returns>
-		protected abstract Header GenerateArcAuthenticationResults (FormatOptions options, MimeMessage message, int instance, CancellationToken cancellationToken);
+		/// <returns>The ARC-Authentication-Results header or <c>null</c> if the <see cref="ArcSigner"/> should not sign the message.</returns>
+		protected abstract AuthenticationResults GenerateArcAuthenticationResults (FormatOptions options, MimeMessage message, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Asynchronously generate an ARC-Authentication-Results header.
@@ -201,10 +200,21 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="options">The format options.</param>
 		/// <param name="message">The message to create the ARC-Authentication-Results header for.</param>
-		/// <param name="instance">The ARC instance (the <c>i=</c> value to use).</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns>The ARC-Authentication-Results header.</returns>
-		protected abstract Task<Header> GenerateArcAuthenticationResultsAsync (FormatOptions options, MimeMessage message, int instance, CancellationToken cancellationToken);
+		/// <returns>The ARC-Authentication-Results header or <c>null</c> if the <see cref="ArcSigner"/> should not sign the message.</returns>
+		protected abstract Task<AuthenticationResults> GenerateArcAuthenticationResultsAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get the timestamp value.
+		/// </summary>
+		/// <remarks>
+		/// Gets the timestamp to use as the <c>t=</c> value in the ARC-Message-Signature and ARC-Seal headers.
+		/// </remarks>
+		/// <returns>A value representing the timestamp value.</returns>
+		protected virtual long GetTimestamp ()
+		{
+			return (long) (DateTime.UtcNow - DateUtils.UnixEpoch).TotalSeconds;
+		}
 
 		StringBuilder CreateArcHeaderBuilder (int instance)
 		{
@@ -227,7 +237,7 @@ namespace MimeKit.Cryptography {
 			return value;
 		}
 
-		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, TimeSpan t, IList<string> headers)
+		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, long t, IList<string> headers)
 		{
 			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
 				message.MimeVersion = new Version (1, 0);
@@ -240,7 +250,7 @@ namespace MimeKit.Cryptography {
 			value.AppendFormat ("; c={0}/{1}",
 				HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
 				BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
-			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
+			value.AppendFormat ("; t={0}", t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -277,17 +287,16 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		Header GenerateArcSeal (FormatOptions options, int instance, TimeSpan t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
+		Header GenerateArcSeal (FormatOptions options, int instance, string cv, long t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
 		{
 			var value = CreateArcHeaderBuilder (instance);
 			byte[] signature;
 			Header seal;
 
-			// FIXME: where should this value come from?
-			value.Append ("; cv=pass");
+			value.AppendFormat ("; cv={0}", cv);
 
 			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
-			value.AppendFormat ("; t={0}", (long) t.TotalSeconds);
+			value.AppendFormat ("; t={0}", t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -321,17 +330,45 @@ namespace MimeKit.Cryptography {
 		async Task ArcSignAsync (FormatOptions options, MimeMessage message, IList<string> headers, bool doAsync, CancellationToken cancellationToken)
 		{
 			ArcVerifier.GetArcHeaderSets (message, true, out ArcHeaderSet[] sets, out int count);
+			AuthenticationResults authres;
 			int instance = count + 1;
-			Header aar;
+			string cv;
+
+			if (count > 0) {
+				var parameters = sets[count - 1].ArcSealParameters;
+
+				// do not sign if there is already a failed ARC-Seal.
+				if (!parameters.TryGetValue ("cv", out cv) || cv.Equals ("fail", StringComparison.OrdinalIgnoreCase))
+					return;
+			}
 
 			if (doAsync)
-				aar = await GenerateArcAuthenticationResultsAsync (options, message, instance, cancellationToken).ConfigureAwait (false);
+				authres = await GenerateArcAuthenticationResultsAsync (options, message, cancellationToken).ConfigureAwait (false);
 			else
-				aar = GenerateArcAuthenticationResults (options, message, instance, cancellationToken);
+				authres = GenerateArcAuthenticationResults (options, message, cancellationToken);
 
-			var t = DateTime.UtcNow - DateUtils.UnixEpoch;
+			if (authres == null)
+				return;
+
+			authres.Instance = instance;
+
+			var aar = new Header (HeaderId.ArcAuthenticationResults, authres.ToString ());
+			cv = "none";
+
+			if (count > 0) {
+				cv = "pass";
+
+				foreach (var method in authres.Results) {
+					if (method.Method.Equals ("arc", StringComparison.OrdinalIgnoreCase)) {
+						cv = method.Result;
+						break;
+					}
+				}
+			}
+
+			var t = GetTimestamp ();
 			var ams = GenerateArcMessageSignature (options, message, instance, t, headers);
-			var seal = GenerateArcSeal (options, instance, t, sets, count, aar, ams);
+			var seal = GenerateArcSeal (options, instance, cv, t, sets, count, aar, ams);
 
 			message.Headers.Insert (0, aar);
 			message.Headers.Insert (0, ams);

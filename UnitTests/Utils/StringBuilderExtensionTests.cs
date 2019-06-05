@@ -68,6 +68,7 @@ namespace UnitTests.Utils {
 
 			format.NewLineFormat = NewLineFormat.Unix;
 
+			tokens.Add (" ");
 			tokens.Add ("this-is-a-really-long-parameter-name");
 			tokens.Add ("=");
 			tokens.Add ("this-is-a-really-long-parameter-value");

@@ -40,14 +40,21 @@ namespace UnitTests.Cryptography {
 		{
 		}
 
+		public IDkimPublicKeyLocator PublicKeyLocator {
+			get; set;
+		}
+
 		public string SrvId {
 			get; set;
 		}
 
-		protected override Header GenerateArcAuthenticationResults (FormatOptions options, MimeMessage message, int instance, CancellationToken cancellationToken)
+		public long Timestamp {
+			get; set;
+		}
+
+		protected override AuthenticationResults GenerateArcAuthenticationResults (FormatOptions options, MimeMessage message, CancellationToken cancellationToken)
 		{
 			var results = new AuthenticationResults (SrvId);
-			results.Instance = instance;
 
 			for (int i = 0; i < message.Headers.Count; i++) {
 				var header = message.Headers[i];
@@ -67,12 +74,17 @@ namespace UnitTests.Cryptography {
 				}
 			}
 
-			return new Header (HeaderId.ArcAuthenticationResults, results.ToString ());
+			return results;
 		}
 
-		protected override Task<Header> GenerateArcAuthenticationResultsAsync (FormatOptions options, MimeMessage message, int instance, CancellationToken cancellationToken)
+		protected override Task<AuthenticationResults> GenerateArcAuthenticationResultsAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken)
 		{
-			return Task.FromResult (GenerateArcAuthenticationResults (options, message, instance, cancellationToken));
+			return Task.FromResult (GenerateArcAuthenticationResults (options, message, cancellationToken));
+		}
+
+		protected override long GetTimestamp ()
+		{
+			return Timestamp;
 		}
 	}
 }
