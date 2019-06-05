@@ -47,7 +47,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class ArcSigner : DkimSignerBase
 	{
-		static readonly string[] ArcShouldNotInclude = { "arc-seal" };
+		static readonly string[] ArcShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "arc-seal" };
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ArcSigner"/> class.

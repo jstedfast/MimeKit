@@ -41,6 +41,115 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class ArcSignerTests
 	{
+		[Test]
+		public void TestArcSignerCtors ()
+		{
+			Assert.DoesNotThrow (() => {
+				var signer = new DummyArcSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256
+				};
+			});
+
+			AsymmetricCipherKeyPair keys;
+
+			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"))) {
+				var reader = new PemReader (stream);
+
+				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			Assert.DoesNotThrow (() => {
+				var signer = new DummyArcSigner (keys.Private, "example.com", "1433868189.example") {
+					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256
+				};
+			});
+		}
+
+		[Test]
+		public void TestArcSignerDefaults ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "dkim", "example.pem");
+			AsymmetricCipherKeyPair keys;
+			ArcSigner signer;
+
+			using (var stream = new StreamReader (path)) {
+				var reader = new PemReader (stream);
+
+				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			signer = new DummyArcSigner (keys.Private, "example.com", "1433868189.example");
+			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #1");
+
+			signer = new DummyArcSigner (path, "example.com", "1433868189.example");
+			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #2");
+
+			using (var stream = File.OpenRead (path)) {
+				signer = new DummyArcSigner (stream, "example.com", "1433868189.example");
+				Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #3");
+			}
+		}
+
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "dkim", "example.pem");
+			var locator = new DkimPublicKeyLocator ();
+			var verifier = new DkimVerifier (locator);
+			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
+			var arcHeader = new Header (HeaderId.ArcMessageSignature, "value");
+			var options = FormatOptions.Default;
+			var message = new MimeMessage ();
+			AsymmetricCipherKeyPair keys;
+			ArcSigner signer;
+
+			using (var stream = new StreamReader (path)) {
+				var reader = new PemReader (stream);
+
+				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner ((AsymmetricKeyParameter) null, "domain", "selector"));
+			Assert.Throws<ArgumentException> (() => new DummyArcSigner (keys.Public, "domain", "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner (keys.Private, null, "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner (keys.Private, "domain", null));
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner ((string) null, "domain", "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner ("fileName", null, "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner ("fileName", "domain", null));
+			Assert.Throws<ArgumentException> (() => new DummyArcSigner (string.Empty, "domain", "selector"));
+			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner ((Stream) null, "domain", "selector"));
+			using (var stream = File.OpenRead (path)) {
+				Assert.Throws<ArgumentNullException> (() => new DummyArcSigner (stream, null, "selector"));
+				Assert.Throws<ArgumentNullException> (() => new DummyArcSigner (stream, "domain", null));
+
+				signer = new DummyArcSigner (stream, "example.com", "1433868189.example") {
+					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha1
+				};
+			}
+
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (message, (IList<HeaderId>) null));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.Unknown, HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.Received, HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new HeaderId[] { HeaderId.ContentType }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (message, (IList<string>) null));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { "", "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { null, "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { "Received", "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (message, new string[] { "Content-Type" }));
+
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, message, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, null, new HeaderId[] { HeaderId.From }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (options, message, new HeaderId[] { HeaderId.From, HeaderId.Unknown }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, message, (IList<HeaderId>) null));
+
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (null, message, new string[] { "From" }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, null, new string[] { "From" }));
+			Assert.Throws<ArgumentException> (() => signer.Sign (options, message, new string[] { "From", null }));
+			Assert.Throws<ArgumentNullException> (() => signer.Sign (options, message, (IList<string>) null));
+		}
+
 		static void AssertHeadersEqual (string description, HeaderId id, string expected, string actual)
 		{
 			var expectedTags = DkimVerifierBase.ParseParameterTags (id, expected);

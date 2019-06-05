@@ -30,13 +30,23 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Org.BouncyCastle.Crypto;
+
 using MimeKit;
 using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	public class DummyArcSigner : ArcSigner
 	{
-		public DummyArcSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm) : base (stream, domain, selector, algorithm)
+		public DummyArcSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (stream, domain, selector, algorithm)
+		{
+		}
+
+		public DummyArcSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (fileName, domain, selector, algorithm)
+		{
+		}
+
+		public DummyArcSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (key, domain, selector, algorithm)
 		{
 		}
 
