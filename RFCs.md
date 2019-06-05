@@ -45,12 +45,15 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [4262](http://www.ietf.org/rfc/rfc4262.txt): X.509 Certificate Extension for S/MIME Capabilities
 * [4871](http://www.ietf.org/rfc/rfc4871.txt): DomainKeys Identified Mail (DKIM) Signatures
 * [5322](http://www.ietf.org/rfc/rfc5322.txt): Internet Message Format (Obsoletes rfc2822)
+* [5451](http://www.ietf.org/rfc/rfc5451.txt): Message Header Field for Indicating Message Authentication Status
 * [5672](http://www.ietf.org/rfc/rfc5672.txt): RFC 4871 DomainKeys Identified Mail (DKIM) Signatures -- Update
 * [5750](http://www.ietf.org/rfc/rfc5750.txt): S/MIME Version 3.2 Certificate Handling (Obsoletes rfc3850)
 * [5751](http://www.ietf.org/rfc/rfc5751.txt): S/MIME Version 3.2 Message Specification (Obsoletes rfc3851)
 * [6376](http://www.ietf.org/rfc/rfc6376.txt): DomainKeys Identified Mail (DKIM) Signatures (Obsoletes rfc4871)
 * [6522](http://www.ietf.org/rfc/rfc6522.txt): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages (Obsoletes rfc3462)
 * [6532](http://www.ietf.org/rfc/rfc6532.txt): Internationalized Email Headers
+* [7001](http://www.ietf.org/rfc/rfc7001.txt): Message Header Field for Indicating Message Authentication Status (Obsoletes rfc5451)
+* [7601](http://www.ietf.org/rfc/rfc7601.txt): Message Header Field for Indicating Message Authentication Status (Obsoletes rfc7001)
 * [8301](http://www.ietf.org/rfc/rfc8301.txt): Cryptographic Algorithm and Key Usage Update to DomainKeys Identified Mail (DKIM)
 * [8463](http://www.ietf.org/rfc/rfc8463.txt): A New Cryptographic Signature Method for DomainKeys Identified Mail (DKIM)
 
@@ -60,4 +63,6 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [1927](http://www.ietf.org/rfc/rfc1927.txt): Suggested Additional MIME Types for Associating Documents
 * [2369](http://www.ietf.org/rfc/rfc2369.txt): The Use of URLs as Meta-Syntax for Core Mail List Commands and their Transport through Message Header Fields
 * [2388](http://www.ietf.org/rfc/rfc2388.txt): Returning Values from Forms: multipart/form-data
+* [6577](http://www.ietf.org/rfc/rfc6577.txt): Authentication-Results Registration Update for Sender Policy Framework (SPF) Results
 * [7103](http://www.ietf.org/rfc/rfc7103.txt): Advice for Safe Handling of Malformed Messages
+* [7410](http://www.ietf.org/rfc/rfc7410.txt): A Property Types Registry for the Authentication-Results Header Field
