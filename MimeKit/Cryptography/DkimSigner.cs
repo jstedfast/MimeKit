@@ -233,9 +233,6 @@ namespace MimeKit.Cryptography {
 
 		void DkimSign (FormatOptions options, MimeMessage message, IList<string> headers)
 		{
-			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
-				message.MimeVersion = new Version (1, 0);
-
 			var value = new StringBuilder ("v=1");
 			var t = GetTimestamp ();
 			byte[] signature, hash;

@@ -247,9 +247,6 @@ namespace MimeKit.Cryptography {
 
 		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, long t, IList<string> headers)
 		{
-			if (message.MimeVersion == null && message.Body != null && message.Body.Headers.Count > 0)
-				message.MimeVersion = new Version (1, 0);
-
 			var value = CreateArcHeaderBuilder (instance);
 			byte[] signature, hash;
 			Header ams;

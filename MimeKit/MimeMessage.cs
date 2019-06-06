@@ -1046,8 +1046,12 @@ namespace MimeKit {
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
-			if (Body != null)
+			if (Body != null) {
+				if (MimeVersion == null && Body.Headers.Count > 0)
+					MimeVersion = new Version (1, 0);
+
 				Body.Prepare (constraint, maxLineLength);
+			}
 		}
 
 		/// <summary>

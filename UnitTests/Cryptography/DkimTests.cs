@@ -250,7 +250,7 @@ namespace UnitTests.Cryptography {
 
 			message.Body = new TextPart ("plain") { Text = "" };
 
-			message.Body.Prepare (EncodingConstraint.SevenBit);
+			message.Prepare (EncodingConstraint.SevenBit);
 
 			signer.Sign (message, headers);
 
@@ -473,7 +473,7 @@ namespace UnitTests.Cryptography {
 			((Multipart) message.Body).Boundary = "=-MultipartAlternativeBoundary";
 			((Multipart) message.Body)[1].ContentId = null;
 
-			message.Body.Prepare (EncodingConstraint.EightBit);
+			message.Prepare (EncodingConstraint.EightBit);
 
 			signer.Sign (message, headers);
 
