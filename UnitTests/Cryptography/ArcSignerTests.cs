@@ -198,6 +198,41 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		static void AssertSignResults (string description, MimeMessage message, DkimPublicKeyLocator locator, string aar, string ams, string seal)
+		{
+			Header header;
+			int index;
+
+			if (string.IsNullOrEmpty (seal)) {
+				index = message.Headers.IndexOf (HeaderId.ArcSeal);
+
+				Assert.AreNotEqual (0, index, "Message should not have been signed.");
+			} else {
+				index = message.Headers.IndexOf (HeaderId.ArcAuthenticationResults);
+				Assert.AreEqual (2, index, "IndexOf ARC-Authentication-Results header");
+				header = message.Headers[index];
+				Assert.AreEqual (aar, header.Value, "ARC-Authentication-Results headers do not match");
+
+				index = message.Headers.IndexOf (HeaderId.ArcMessageSignature);
+				Assert.AreEqual (1, index, "IndexOf ARC-Message-Signature header");
+				header = message.Headers[index];
+				AssertHeadersEqual (description, HeaderId.ArcMessageSignature, ams, header.Value);
+
+				index = message.Headers.IndexOf (HeaderId.ArcSeal);
+				Assert.AreEqual (0, index, "IndexOf ARC-Seal header");
+				header = message.Headers[index];
+				AssertHeadersEqual (description, HeaderId.ArcSeal, seal, header.Value);
+
+				var expected = ArcValidationResult.Pass;
+				if (header.Value.Contains ("cv=fail;"))
+					expected = ArcValidationResult.Fail;
+				var verifier = new ArcVerifier (locator);
+				var result = verifier.Verify (message);
+
+				Assert.AreEqual (expected, result, "ArcSigner validation failed");
+			}
+		}
+
 		static void Sign (string description, string input, DkimPublicKeyLocator locator, string srvid, string domain, string selector, string privateKey, long t, string[] hdrs, string aar, string ams, string seal)
 		{
 			ArcSigner signer;
@@ -214,39 +249,35 @@ namespace UnitTests.Cryptography {
 
 			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (input), false)) {
 				var message = MimeMessage.Load (stream);
-				Header header;
-				int index;
 
+				// Test Sign(..., string[] headers, ...)
 				signer.Sign (message, hdrs);
+				AssertSignResults (description, message, locator, aar, ams, seal);
 
-				if (string.IsNullOrEmpty (seal)) {
-					index = message.Headers.IndexOf (HeaderId.ArcSeal);
+				stream.Position = 0;
+				message = MimeMessage.Load (stream);
 
-					Assert.AreNotEqual (0, index, "Message should not have been signed.");
-				} else {
-					index = message.Headers.IndexOf (HeaderId.ArcAuthenticationResults);
-					Assert.AreEqual (2, index, "IndexOf ARC-Authentication-Results header");
-					header = message.Headers[index];
-					Assert.AreEqual (aar, header.Value, "ARC-Authentication-Results headers do not match");
+				// Test SignAsync(..., string[] headers, ...)
+				signer.SignAsync (message, hdrs).GetAwaiter ().GetResult ();
+				AssertSignResults (description, message, locator, aar, ams, seal);
 
-					index = message.Headers.IndexOf (HeaderId.ArcMessageSignature);
-					Assert.AreEqual (1, index, "IndexOf ARC-Message-Signature header");
-					header = message.Headers[index];
-					AssertHeadersEqual (description, HeaderId.ArcMessageSignature, ams, header.Value);
+				var ids = new HeaderId[hdrs.Length];
+				for (int i = 0; i < hdrs.Length; i++)
+					ids[i] = hdrs[i].ToHeaderId ();
 
-					index = message.Headers.IndexOf (HeaderId.ArcSeal);
-					Assert.AreEqual (0, index, "IndexOf ARC-Seal header");
-					header = message.Headers[index];
-					AssertHeadersEqual (description, HeaderId.ArcSeal, seal, header.Value);
+				stream.Position = 0;
+				message = MimeMessage.Load (stream);
 
-					var expected = ArcValidationResult.Pass;
-					if (header.Value.Contains ("cv=fail;"))
-						expected = ArcValidationResult.Fail;
-					var verifier = new ArcVerifier (locator);
-					var result = verifier.Verify (message);
+				// Test Sign(..., HeaderId[] headers, ...)
+				signer.Sign (message, hdrs);
+				AssertSignResults (description, message, locator, aar, ams, seal);
 
-					Assert.AreEqual (expected, result, "ArcSigner validation failed");
-				}
+				stream.Position = 0;
+				message = MimeMessage.Load (stream);
+
+				// Test SignAsync(..., HeaderId[] headers, ...)
+				signer.SignAsync (message, hdrs).GetAwaiter ().GetResult ();
+				AssertSignResults (description, message, locator, aar, ams, seal);
 			}
 		}
 

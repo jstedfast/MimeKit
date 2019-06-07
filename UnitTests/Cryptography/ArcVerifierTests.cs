@@ -68,9 +68,14 @@ namespace UnitTests.Cryptography
 			using (var stream = new MemoryStream (buffer, false)) {
 				var verifier = new ArcVerifier (locator);
 				var message = MimeMessage.Load (stream);
+				ArcValidationResult result;
 
-				var result = verifier.Verify (message);
+				// Test Verify()
+				result = verifier.Verify (message);
+				Assert.AreEqual (expected, result, description);
 
+				// Test VerifyAsync
+				result = verifier.VerifyAsync (message).GetAwaiter ().GetResult ();
 				Assert.AreEqual (expected, result, description);
 			}
 		}
