@@ -33,6 +33,7 @@ using NUnit.Framework;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -198,7 +199,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static void AssertSignResults (string description, MimeMessage message, DkimPublicKeyLocator locator, string aar, string ams, string seal)
+		static void AssertSignResults (string description, MimeMessage message, DkimPublicKeyLocator locator, DkimSignatureAlgorithm algorithm, string aar, string ams, string seal)
 		{
 			Header header;
 			int index;
@@ -227,39 +228,60 @@ namespace UnitTests.Cryptography {
 				if (header.Value.Contains ("cv=fail;"))
 					expected = ArcValidationResult.Fail;
 				var verifier = new ArcVerifier (locator);
-				var result = verifier.Verify (message);
+				ArcValidationResult result;
+
+				if (!verifier.IsEnabled (algorithm)) {
+					result = verifier.Verify (message);
+
+					Assert.AreEqual (ArcValidationResult.Fail, result, "Disabled algorithm should fail");
+
+					verifier.Enable (algorithm);
+				}
+
+				result = verifier.Verify (message);
 
 				Assert.AreEqual (expected, result, "ArcSigner validation failed");
 			}
 		}
 
-		static void Sign (string description, string input, DkimPublicKeyLocator locator, string srvid, string domain, string selector, string privateKey, long t, string[] hdrs, string aar, string ams, string seal)
+		static void Sign (string description, string input, DkimPublicKeyLocator locator, string srvid, string domain, string selector,
+			string privateKey, long t, string[] hdrs, string aar, string ams, string seal,
+			DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256,
+			DkimCanonicalizationAlgorithm headerAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
+			DkimCanonicalizationAlgorithm bodyAlgorithm = DkimCanonicalizationAlgorithm.Relaxed)
 		{
-			ArcSigner signer;
+			DummyArcSigner signer;
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (privateKey), false)) {
-				signer = new DummyArcSigner (stream, domain, selector, DkimSignatureAlgorithm.RsaSha256) {
-					HeaderCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
-					BodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
-					PublicKeyLocator = locator,
-					Timestamp = t,
-					SrvId = srvid
-				};
+			if (algorithm == DkimSignatureAlgorithm.Ed25519Sha256) {
+				var rawData = Convert.FromBase64String ("nWGxne/9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A=");
+				var key = new Ed25519PrivateKeyParameters (rawData, 0);
+
+				signer = new DummyArcSigner (key, domain, selector, algorithm);
+			} else {
+				using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (privateKey), false)) {
+					signer = new DummyArcSigner (stream, domain, selector, algorithm);
+				}
 			}
+
+			signer.HeaderCanonicalizationAlgorithm = headerAlgorithm;
+			signer.BodyCanonicalizationAlgorithm = bodyAlgorithm;
+			signer.PublicKeyLocator = locator;
+			signer.Timestamp = t;
+			signer.SrvId = srvid;
 
 			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (input), false)) {
 				var message = MimeMessage.Load (stream);
 
 				// Test Sign(..., string[] headers, ...)
 				signer.Sign (message, hdrs);
-				AssertSignResults (description, message, locator, aar, ams, seal);
+				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
 
 				stream.Position = 0;
 				message = MimeMessage.Load (stream);
 
 				// Test SignAsync(..., string[] headers, ...)
 				signer.SignAsync (message, hdrs).GetAwaiter ().GetResult ();
-				AssertSignResults (description, message, locator, aar, ams, seal);
+				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
 
 				var ids = new HeaderId[hdrs.Length];
 				for (int i = 0; i < hdrs.Length; i++)
@@ -270,15 +292,94 @@ namespace UnitTests.Cryptography {
 
 				// Test Sign(..., HeaderId[] headers, ...)
 				signer.Sign (message, ids);
-				AssertSignResults (description, message, locator, aar, ams, seal);
+				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
 
 				stream.Position = 0;
 				message = MimeMessage.Load (stream);
 
 				// Test SignAsync(..., HeaderId[] headers, ...)
 				signer.SignAsync (message, ids).GetAwaiter ().GetResult ();
-				AssertSignResults (description, message, locator, aar, ams, seal);
+				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
 			}
+		}
+
+		[Test]
+		public void sig_alg_rsa_sha1 ()
+		{
+			const string input = @"Authentication-Results: lists.example.org; arc=none;
+  spf=pass smtp.mfrom=jqd@d1.example;
+  dkim=pass (1024-bit key) header.i=@d1.example;
+  dmarc=pass
+MIME-Version: 1.0
+Return-Path: <jqd@d1.example.org>
+Received: by 10.157.14.6 with HTTP; Tue, 3 Jan 2017 12:22:54 -0800 (PST)
+Message-ID: <54B84785.1060301@d1.example.org>
+Date: Thu, 14 Jan 2015 15:00:01 -0800
+From: John Q Doe <jqd@d1.example.org>
+To: arc@dmarc.org
+Subject: Example 1
+
+Hey gang,  
+This is a test message.
+--J.
+";
+			const string keyblock = @"-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQi
+Y/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqM
+KrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB
+AoGAH0cxOhFZDgzXWhDhnAJDw5s4roOXN4OhjiXa8W7Y3rhX3FJqmJSPuC8N9vQm
+6SVbaLAE4SG5mLMueHlh4KXffEpuLEiNp9Ss3O4YfLiQpbRqE7Tm5SxKjvvQoZZe
+zHorimOaChRL2it47iuWxzxSiRMv4c+j70GiWdxXnxe4UoECQQDzJB/0U58W7RZy
+6enGVj2kWF732CoWFZWzi1FicudrBFoy63QwcowpoCazKtvZGMNlPWnC7x/6o8Gc
+uSe0ga2xAkEA8C7PipPm1/1fTRQvj1o/dDmZp243044ZNyxjg+/OPN0oWCbXIGxy
+WvmZbXriOWoSALJTjExEgraHEgnXssuk7QJBALl5ICsYMu6hMxO73gnfNayNgPxd
+WFV6Z7ULnKyV7HSVYF0hgYOHjeYe9gaMtiJYoo0zGN+L3AAtNP9huqkWlzECQE1a
+licIeVlo1e+qJ6Mgqr0Q7Aa7falZ448ccbSFYEPD6oFxiOl9Y9se9iYHZKKfIcst
+o7DUw1/hz2Ck4N5JrgUCQQCyKveNvjzkkd8HjYs0SwM0fPjK16//5qDZ2UiDGnOe
+uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
+-----END RSA PRIVATE KEY-----
+";
+			const string seal = "i=1; a=rsa-sha1; cv=none; d=example.org; s=dummy; t=12345; b=eF3i/65gJXfQu4kMAiK+EusLS0irqv6gIyJYEcpJTaASwWZd+vt6+nN7pjP7kDZYwno8gVFS5vFrkc959FBjJr1oWVVbVdrJenYqCvBBnFmrYyhG137vV+7RziHerQCJ44VkrF1VEaj7TQ+rp5rmwUMZQlpxdqUYWTIT9DpYAFs=";
+			const string ams = "i=1; a=rsa-sha1; d=example.org; s=dummy; c=relaxed/relaxed; t=12345; h=mime-version:date:from:to:subject; bh=bIxxaeIQvmOBdTAitYfSNFgzPP4=; b=qh2z8AFVMdUI4pG3EBTn9+3Af3KU0tmlLUOeUnCsWuigUdE7TTGLirz2ZOeFUAjAeHuKFxJjEPbtYtQh9ptuxZ8Mn9sE/AfIBd85q2yHWu3WOGQFwRrEuLekiH/zXG3d7VUhf8PNveHEXx/NI40qBpPLjXF4o8qxoApGEQZ6CjA=";
+			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
+			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
+			var locator = new DkimPublicKeyLocator ();
+
+			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+
+			Sign ("a=rsa-sha1", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.RsaSha1);
+		}
+
+		[Test]
+		public void sig_alg_ed25519_sha256 ()
+		{
+			const string input = @"Authentication-Results: lists.example.org; arc=none;
+  spf=pass smtp.mfrom=jqd@d1.example;
+  dkim=pass (1024-bit key) header.i=@d1.example;
+  dmarc=pass
+MIME-Version: 1.0
+Return-Path: <jqd@d1.example.org>
+Received: by 10.157.14.6 with HTTP; Tue, 3 Jan 2017 12:22:54 -0800 (PST)
+Message-ID: <54B84785.1060301@d1.example.org>
+Date: Thu, 14 Jan 2015 15:00:01 -0800
+From: John Q Doe <jqd@d1.example.org>
+To: arc@dmarc.org
+Subject: Example 1
+
+Hey gang,  
+This is a test message.
+--J.
+";
+			const string keyblock = "nWGxne/9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A=";
+			const string seal = "i=1; a=ed25519-sha256; cv=none; d=example.org; s=dummy; t=12345; b=1VlNt2DJiRslGH64VEByTy/rviHk9vVjzaFb6Jd4C5V01Uy9pyrZwa6vwPdUZgrnymXzbz2qgtGyHKd3oYHABg==";
+			const string ams = "i=1; a=ed25519-sha256; d=example.org; s=dummy; c=relaxed/relaxed; t=12345; h=mime-version:date:from:to:subject; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; b=f3EEIg6djos7u74HzwTwQaZmCt3jhoQe/PnDsLfnOd5i6slE0MJdoR4lgBOAZMh+nTLF7YfsHF/qopJwoPBQDg==";
+			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
+			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
+			var locator = new DkimPublicKeyLocator ();
+
+			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+
+			Sign ("a=ed25519-sha256", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.Ed25519Sha256);
 		}
 
 		#region Canonicalization
