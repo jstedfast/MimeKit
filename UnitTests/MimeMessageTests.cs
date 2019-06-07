@@ -85,12 +85,14 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((string) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => message.WriteTo ((Stream) null, true));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (Stream) null));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => message.WriteTo (FormatOptions.Default, (string) null));
 			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync ((string) null));
 			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync ((Stream) null));
 			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync ((Stream) null, true));
 			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (FormatOptions.Default, (Stream) null));
 			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (async () => await message.WriteToAsync (FormatOptions.Default, (string) null));
@@ -203,6 +205,31 @@ Just for fun....  -- Nathaniel<nl>
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
 					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+
+				var index = rawMessageText.IndexOf ("\n\n", StringComparison.Ordinal);
+				var headersOnly = rawMessageText.Substring (0, index + 2);
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized, true);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (headersOnly, result, "Reserialized headers are not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized, true);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (headersOnly, result, "Reserialized headers (async) are not identical to the original.");
 				}
 			}
 		}
