@@ -253,7 +253,7 @@ namespace UnitTests.Cryptography {
 			DummyArcSigner signer;
 
 			if (algorithm == DkimSignatureAlgorithm.Ed25519Sha256) {
-				var rawData = Convert.FromBase64String ("nWGxne/9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A=");
+				var rawData = Convert.FromBase64String (privateKey);
 				var key = new Ed25519PrivateKeyParameters (rawData, 0);
 
 				signer = new DummyArcSigner (key, domain, selector, algorithm);
@@ -380,6 +380,53 @@ This is a test message.
 			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
 
 			Sign ("a=ed25519-sha256", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.Ed25519Sha256);
+		}
+
+		[Test]
+		public void c_simple_simple ()
+		{
+			const string input = @"Authentication-Results: lists.example.org; arc=none;
+  spf=pass smtp.mfrom=jqd@d1.example;
+  dkim=pass (1024-bit key) header.i=@d1.example;
+  dmarc=pass
+MIME-Version: 1.0
+Return-Path: <jqd@d1.example.org>
+Received: by 10.157.14.6 with HTTP; Tue, 3 Jan 2017 12:22:54 -0800 (PST)
+Message-ID: <54B84785.1060301@d1.example.org>
+Date: Thu, 14 Jan 2015 15:00:01 -0800
+From: John Q Doe <jqd@d1.example.org>
+To: arc@dmarc.org
+Subject: Example 1
+
+Hey gang,  
+This is a test message.
+--J.
+";
+			const string keyblock = @"-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQi
+Y/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqM
+KrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB
+AoGAH0cxOhFZDgzXWhDhnAJDw5s4roOXN4OhjiXa8W7Y3rhX3FJqmJSPuC8N9vQm
+6SVbaLAE4SG5mLMueHlh4KXffEpuLEiNp9Ss3O4YfLiQpbRqE7Tm5SxKjvvQoZZe
+zHorimOaChRL2it47iuWxzxSiRMv4c+j70GiWdxXnxe4UoECQQDzJB/0U58W7RZy
+6enGVj2kWF732CoWFZWzi1FicudrBFoy63QwcowpoCazKtvZGMNlPWnC7x/6o8Gc
+uSe0ga2xAkEA8C7PipPm1/1fTRQvj1o/dDmZp243044ZNyxjg+/OPN0oWCbXIGxy
+WvmZbXriOWoSALJTjExEgraHEgnXssuk7QJBALl5ICsYMu6hMxO73gnfNayNgPxd
+WFV6Z7ULnKyV7HSVYF0hgYOHjeYe9gaMtiJYoo0zGN+L3AAtNP9huqkWlzECQE1a
+licIeVlo1e+qJ6Mgqr0Q7Aa7falZ448ccbSFYEPD6oFxiOl9Y9se9iYHZKKfIcst
+o7DUw1/hz2Ck4N5JrgUCQQCyKveNvjzkkd8HjYs0SwM0fPjK16//5qDZ2UiDGnOe
+uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
+-----END RSA PRIVATE KEY-----
+";
+			const string seal = "i=1; a=rsa-sha256; cv=none; d=example.org; s=dummy; t=12345; b=utRLvF0lNhc2EUk27iMDUrE7jKP4eGWRy9iUKvmgcZtXY8f4x7r5zz8WzLzOUKo8KyUSgnzVWyyxtMqoAcGzzb/1HtwsEiT+B79pCkZDNqcH2E5dHHq7z8/QBwjScZWu3qFaFDtnMktVs13AMc6W1vgAueOyFjH3mdHmAbQBQaY=";
+			const string ams = "i=1; a=rsa-sha256; d=example.org; s=dummy; c=simple/simple; t=12345; h=mime-version:date:from:to:subject; bh=hhFbTjokraRYc/Af+8v4zyKm/9ApHGkBSLO129NtPbo=; b=GTpRE34Ud8TOECxNCRNw4jSncvc1nTlLNr6OJC6AjxmumsW2dvQglYIYJK5NO7zPKwzTVUlVB6ZznpIzaKJzsy5oBxV2frl5p5ZBFKGeiU94O0byPiATdwHe4lQiYUK5hBQV0Ei2sxSSlbQPXqjDymnZDcMPp/fLhDQETrjE6AI=";
+			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
+			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
+			var locator = new DkimPublicKeyLocator ();
+
+			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+
+			Sign ("a=rsa-sha256", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
 		}
 
 		#region Canonicalization
