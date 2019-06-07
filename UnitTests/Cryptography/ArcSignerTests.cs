@@ -269,14 +269,14 @@ namespace UnitTests.Cryptography {
 				message = MimeMessage.Load (stream);
 
 				// Test Sign(..., HeaderId[] headers, ...)
-				signer.Sign (message, hdrs);
+				signer.Sign (message, ids);
 				AssertSignResults (description, message, locator, aar, ams, seal);
 
 				stream.Position = 0;
 				message = MimeMessage.Load (stream);
 
 				// Test SignAsync(..., HeaderId[] headers, ...)
-				signer.SignAsync (message, hdrs).GetAwaiter ().GetResult ();
+				signer.SignAsync (message, ids).GetAwaiter ().GetResult ();
 				AssertSignResults (description, message, locator, aar, ams, seal);
 			}
 		}

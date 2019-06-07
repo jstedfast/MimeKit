@@ -94,6 +94,8 @@ namespace UnitTests.Cryptography {
 
 		protected override long GetTimestamp ()
 		{
+			base.GetTimestamp ();
+
 			return Timestamp;
 		}
 	}

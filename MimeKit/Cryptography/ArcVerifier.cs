@@ -386,7 +386,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (options));
 
 			if (message == null)
-				throw new ArgumentNullException(nameof(message));
+				throw new ArgumentNullException (nameof (message));
 
 			switch (GetArcHeaderSets (message, false, out ArcHeaderSet[] sets, out int count)) {
 			case ArcValidationResult.None: return ArcValidationResult.None;
