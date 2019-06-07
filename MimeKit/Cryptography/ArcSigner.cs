@@ -539,7 +539,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public void Sign (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			SignAsync (FormatOptions.Default, message, headers, false, cancellationToken).GetAwaiter ().GetResult ();
+			Sign (FormatOptions.Default, message, headers, cancellationToken);
 		}
 
 		/// <summary>
@@ -567,7 +567,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Task SignAsync (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return SignAsync (FormatOptions.Default, message, headers, true, cancellationToken);
+			return SignAsync (FormatOptions.Default, message, headers, cancellationToken);
 		}
 
 		/// <summary>
