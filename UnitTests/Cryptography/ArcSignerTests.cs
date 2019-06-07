@@ -224,23 +224,23 @@ namespace UnitTests.Cryptography {
 				header = message.Headers[index];
 				AssertHeadersEqual (description, HeaderId.ArcSeal, seal, header.Value);
 
-				var expected = ArcValidationResult.Pass;
+				var expected = ArcSignatureValidationResult.Pass;
 				if (header.Value.Contains ("cv=fail;"))
-					expected = ArcValidationResult.Fail;
+					expected = ArcSignatureValidationResult.Fail;
 				var verifier = new ArcVerifier (locator);
 				ArcValidationResult result;
 
 				if (!verifier.IsEnabled (algorithm)) {
 					result = verifier.Verify (message);
 
-					Assert.AreEqual (ArcValidationResult.Fail, result, "Disabled algorithm should fail");
+					Assert.AreEqual (ArcSignatureValidationResult.Fail, result.Chain, "Disabled algorithm should fail");
 
 					verifier.Enable (algorithm);
 				}
 
 				result = verifier.Verify (message);
 
-				Assert.AreEqual (expected, result, "ArcSigner validation failed");
+				Assert.AreEqual (expected, result.Chain, "ArcSigner validation failed");
 			}
 		}
 
