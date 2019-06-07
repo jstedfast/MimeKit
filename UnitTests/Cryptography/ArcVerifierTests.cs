@@ -151,7 +151,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Broken AAR should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Broken AAR throwOnError");
 				} catch {
 					Assert.Fail ("Broken AAR throwOnError unexpected exception");
 				}
@@ -165,7 +164,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("AAR missing i=1 should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("AAR missing i=1 throwOnError");
 				} catch {
 					Assert.Fail ("AAR missing i=1 throwOnError unexpected exception");
 				}
@@ -179,7 +177,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("AAR i=0 should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("AAR i=0 throwOnError");
 				} catch {
 					Assert.Fail ("AAR i=0 throwOnError unexpected exception");
 				}
@@ -193,7 +190,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Missing AAR should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Missing AAR throwOnError");
 				} catch {
 					Assert.Fail ("Missing AAR throwOnError unexpected exception");
 				}
@@ -262,7 +258,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Broken AMS should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Broken AMS throwOnError");
 				} catch {
 					Assert.Fail ("Broken AMS throwOnError unexpected exception");
 				}
@@ -276,7 +271,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("AMS missing i=1 should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("AMS missing i=1 throwOnError");
 				} catch {
 					Assert.Fail ("AMS missing i=1 throwOnError unexpected exception");
 				}
@@ -290,7 +284,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("AMS i=0 should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("AMS i=0 throwOnError");
 				} catch {
 					Assert.Fail ("AMS i=0 throwOnError unexpected exception");
 				}
@@ -304,7 +297,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Missing AMS should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Missing AMS throwOnError");
 				} catch {
 					Assert.Fail ("Missing AMS throwOnError unexpected exception");
 				}
@@ -373,7 +365,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Broken AS should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Broken AS throwOnError");
 				} catch {
 					Assert.Fail ("Broken AS throwOnError unexpected exception");
 				}
@@ -387,7 +378,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("AS missing i=1 should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("AS missing i=1 throwOnError");
 				} catch {
 					Assert.Fail ("AS missing i=1 throwOnError unexpected exception");
 				}
@@ -401,7 +391,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("AS i=0 should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("AS i=0 throwOnError");
 				} catch {
 					Assert.Fail ("AS i=0 throwOnError unexpected exception");
 				}
@@ -415,7 +404,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Missing AS should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Missing AS throwOnError");
 				} catch {
 					Assert.Fail ("Missing AS throwOnError unexpected exception");
 				}
@@ -502,7 +490,6 @@ This is a test message.
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count);
 					Assert.Fail ("Missing set should throwOnError");
 				} catch (FormatException) {
-					Assert.Pass ("Missing set throwOnError");
 				} catch {
 					Assert.Fail ("Missing set throwOnError unexpected exception");
 				}
