@@ -1,5 +1,5 @@
 ﻿//
-// IDkimPublicKeyLocator.cs
+// DkimPublicKeyLocatorBase.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,19 +24,23 @@
 // THE SOFTWARE.
 //
 
+using System;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An interface for a service which locates and retrieves DKIM public keys (probably via DNS).
+	/// A base class for implemnentations of <see cref="IDkimPublicKeyLocator"/>.
 	/// </summary>
 	/// <remarks>
-	/// <para>An interface for a service which locates and retrieves DKIM public keys (probably via DNS).</para>
-	/// <para>Since MimeKit itself does not implement DNS, it is up to the client to implement public key lookups
-	/// via DNS.</para>
+	/// The <see cref="DkimPublicKeyLocatorBase"/> class provides a helpful
+	/// method for parsing DNS TXT records in order to extract the public key.
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
@@ -44,11 +48,90 @@ namespace MimeKit.Cryptography {
 	/// <example>
 	/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
 	/// </example>
-	/// <seealso cref="MimeKit.Cryptography.DkimPublicKeyLocatorBase"/>
-	/// <seealso cref="MimeKit.Cryptography.ArcVerifier"/>
-	/// <seealso cref="MimeKit.Cryptography.DkimVerifier"/>
-	public interface IDkimPublicKeyLocator
+	public abstract class DkimPublicKeyLocatorBase : IDkimPublicKeyLocator
 	{
+		/// <summary>
+		/// Get the public key from a DNS TXT record.
+		/// </summary>
+		/// <remarks>
+		/// Gets the public key from a DNS TXT record.
+		/// </remarks>
+		/// <param name="txt">The DNS TXT record.</param>
+		/// <returns>The public key.</returns>
+		/// <exception cref="System.ArgumentNullException">
+		/// The <paramref name="txt"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ParseException">
+		/// There was an error parsing the DNS TXT record.
+		/// </exception>
+		protected AsymmetricKeyParameter GetPublicKey (string txt)
+		{
+			AsymmetricKeyParameter pubkey;
+			string k = null, p = null;
+			int index = 0;
+
+			// parse the response (will look something like: "k=rsa; p=<base64>")
+			while (index < txt.Length) {
+				while (index < txt.Length && char.IsWhiteSpace (txt[index]))
+					index++;
+
+				if (index == txt.Length)
+					break;
+
+				// find the end of the key
+				int startIndex = index;
+				while (index < txt.Length && txt[index] != '=')
+					index++;
+
+				if (index == txt.Length)
+					break;
+
+				var key = txt.Substring (startIndex, index - startIndex);
+
+				// skip over the '='
+				index++;
+
+				// find the end of the value
+				startIndex = index;
+				while (index < txt.Length && txt[index] != ';')
+					index++;
+
+				var value = txt.Substring (startIndex, index - startIndex).Replace (" ", "");
+
+				switch (key) {
+				case "k": k = value; break;
+				case "p": p = value; break;
+				}
+
+				// skip over the ';'
+				index++;
+			}
+
+			if (k != null && p != null) {
+				if (k == "ed25519") {
+					var decoded = Convert.FromBase64String (p);
+
+					return new Ed25519PublicKeyParameters (decoded, 0);
+				}
+
+				var data = "-----BEGIN PUBLIC KEY-----\r\n" + p + "\r\n-----END PUBLIC KEY-----\r\n";
+				var rawData = Encoding.ASCII.GetBytes (data);
+
+				using (var stream = new MemoryStream (rawData, false)) {
+					using (var reader = new StreamReader (stream)) {
+						var pem = new PemReader (reader);
+
+						pubkey = pem.ReadObject () as AsymmetricKeyParameter;
+
+						if (pubkey != null)
+							return pubkey;
+					}
+				}
+			}
+
+			throw new ParseException ("Public key parameters not found in DNS TXT record.", 0, txt.Length);
+		}
+
 		/// <summary>
 		/// Locate and retrieve the public key for the given domain and selector.
 		/// </summary>
@@ -69,7 +152,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="domain">The domain.</param>
 		/// <param name="selector">The selector.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
 		/// Asynchronously locate and retrieve the public key for the given domain and selector.
@@ -91,6 +174,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="domain">The domain.</param>
 		/// <param name="selector">The selector.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken));
 	}
 }

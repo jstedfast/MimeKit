@@ -42,6 +42,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// A DKIM signer.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+	/// </example>
 	public class DkimSigner : DkimSignerBase
 	{
 		static readonly string[] DkimShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "dkim-signature" };
@@ -114,6 +117,9 @@ namespace MimeKit.Cryptography {
 		/// part of DKIM since it was originally standardized in 2007), it is recommended
 		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <param name="fileName">The file containing the private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
@@ -199,6 +205,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets or sets the agent or user identifier.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The agent or user identifier.</value>
 		public string AgentOrUserIdentifier {
 			get; set;
@@ -214,6 +223,9 @@ namespace MimeKit.Cryptography {
 		/// query method is of the form "type[/options]", where the syntax and
 		/// semantics of the options depend on the type and specified options.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The public key query method.</value>
 		public string QueryMethod {
 			get; set;

@@ -26,9 +26,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
 #if ENABLE_NATIVE_DKIM
 using System.Security.Cryptography;
 #endif
@@ -37,9 +34,6 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Signers;
-
-using MimeKit.IO;
-using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -87,6 +81,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the domain that the signer represents.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The domain.</value>
 		public string Domain {
 			get; private set;
@@ -98,6 +95,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the selector subdividing the domain.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The selector.</value>
 		public string Selector {
 			get; private set;
@@ -114,6 +114,9 @@ namespace MimeKit.Cryptography {
 		/// part of DKIM since it was originally standardized in 2007), it is recommended
 		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The signature algorithm.</value>
 		public DkimSignatureAlgorithm SignatureAlgorithm {
 			get; set;
@@ -125,6 +128,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets or sets the canonicalization algorithm to use for the message body.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The canonicalization algorithm.</value>
 		public DkimCanonicalizationAlgorithm BodyCanonicalizationAlgorithm {
 			get; set;
@@ -136,6 +142,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets or sets the canonicalization algorithm to use for the message headers.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
+		/// </example>
 		/// <value>The canonicalization algorithm.</value>
 		public DkimCanonicalizationAlgorithm HeaderCanonicalizationAlgorithm {
 			get; set;

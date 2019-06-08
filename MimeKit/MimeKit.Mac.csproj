@@ -73,6 +73,7 @@
     <Compile Include="Cryptography\DkimBodyFilter.cs" />
     <Compile Include="Cryptography\DkimCanonicalizationAlgorithm.cs" />
     <Compile Include="Cryptography\DkimHashStream.cs" />
+    <Compile Include="Cryptography\DkimPublicKeyLocatorBase.cs" />
     <Compile Include="Cryptography\DkimRelaxedBodyFilter.cs" />
     <Compile Include="Cryptography\DkimSignatureAlgorithm.cs" />
     <Compile Include="Cryptography\DkimSignatureStream.cs" />
