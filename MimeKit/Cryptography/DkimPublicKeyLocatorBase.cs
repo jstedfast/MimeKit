@@ -103,11 +103,18 @@ namespace MimeKit.Cryptography {
 				while (index < txt.Length && txt[index] != ';')
 					index++;
 
-				var value = txt.Substring (startIndex, index - startIndex).Replace (" ", "");
+				var value = txt.Substring (startIndex, index - startIndex);
 
 				switch (key) {
-				case "k": k = value; break;
-				case "p": p = value; break;
+				case "k":
+					switch (value) {
+					case "rsa": case "ed25519": k = value; break;
+					default: throw new ParseException ($"Unknown public key algorithm: {value}", startIndex, index);
+					}
+					break;
+				case "p":
+					p = value.Replace (" ", "");
+					break;
 				}
 
 				// skip over the ';'

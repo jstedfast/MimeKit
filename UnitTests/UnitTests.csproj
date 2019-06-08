@@ -81,6 +81,7 @@
     <Compile Include="Cryptography\CmsSignerTests.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContextTests.cs" />
     <Compile Include="Cryptography\DkimRelaxedBodyFilterTests.cs" />
+    <Compile Include="Cryptography\DkimPublicKeyLocatorBaseTests.cs" />
     <Compile Include="Cryptography\DkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\DkimTests.cs" />
     <Compile Include="Cryptography\DummyArcSigner.cs" />
