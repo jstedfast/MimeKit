@@ -74,6 +74,9 @@ namespace MimeKit.Cryptography {
 			string k = null, p = null;
 			int index = 0;
 
+			if (txt == null)
+				throw new ArgumentNullException (nameof (txt));
+
 			// parse the response (will look something like: "k=rsa; p=<base64>")
 			while (index < txt.Length) {
 				while (index < txt.Length && char.IsWhiteSpace (txt[index]))
