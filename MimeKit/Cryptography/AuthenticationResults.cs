@@ -487,7 +487,7 @@ namespace MimeKit.Cryptography {
 
 					commentIndex++;
 
-					resinfo.ResultComment = Encoding.UTF8.GetString (text, commentIndex, (index - 1) - commentIndex);
+					resinfo.ResultComment = Header.Unfold (Encoding.UTF8.GetString (text, commentIndex, (index - 1) - commentIndex));
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;

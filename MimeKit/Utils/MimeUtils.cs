@@ -432,7 +432,7 @@ namespace MimeKit.Utils {
 			if (index == -1)
 				return text;
 
-			var builder = new StringBuilder ();
+			var builder = new StringBuilder (text.Length);
 			bool escaped = false;
 			bool quoted = false;
 
