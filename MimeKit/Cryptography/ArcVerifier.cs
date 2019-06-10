@@ -42,6 +42,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An ARC signature validation result.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+	/// </example>
 	public enum ArcSignatureValidationResult
 	{
 		/// <summary>
@@ -66,6 +69,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// Represents an ARC header and its signature validation result.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+	/// </example>
 	public class ArcHeaderValidationResult
 	{
 		/// <summary>
@@ -135,6 +141,9 @@ namespace MimeKit.Cryptography {
 	/// <see cref="Chain"/> result will be <see cref="ArcSignatureValidationResult.Fail"/> and both
 	/// <see cref="MessageSignature"/> and <see cref="Seals"/> will be <c>null</c>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+	/// </example>
 	public class ArcValidationResult
 	{
 		internal ArcValidationResult ()
@@ -189,6 +198,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the signature validation results of the entire chain.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+		/// </example>
 		/// <value>The signature validation results of the entire chain.</value>
 		public ArcSignatureValidationResult Chain {
 			get; internal set;
@@ -242,6 +254,9 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// Validates Authenticated Received Chains.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+	/// </example>
 	public class ArcVerifier : DkimVerifierBase
 	{
 		/// <summary>
@@ -250,6 +265,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="ArcVerifier"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+		/// </example>
 		/// <param name="publicKeyLocator">The public key locator.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="publicKeyLocator"/> is <c>null</c>.
@@ -581,6 +599,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the ARC signature chain.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+		/// </example>
 		/// <returns>The ARC validation result.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to verify.</param>
@@ -604,6 +625,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously verifies the ARC signature chain.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+		/// </example>
 		/// <returns>The ARC validation result.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to verify.</param>
@@ -627,6 +651,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the ARC signature chain.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+		/// </example>
 		/// <returns>The ARC validation result.</returns>
 		/// <param name="message">The message to verify.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -647,6 +674,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously verifies the ARC signature chain.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
+		/// </example>
 		/// <returns>The ARC validation result.</returns>
 		/// <param name="message">The message to verify.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
