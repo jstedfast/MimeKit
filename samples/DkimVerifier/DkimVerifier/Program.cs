@@ -8,14 +8,13 @@ using System.Collections.Generic;
 using Heijden.DNS;
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace DkimVerifier
+namespace DkimVerifierExample
 {
-	class DkimPublicKeyLocator : IDkimPublicKeyLocator
+	class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
 	{
 		readonly Dictionary<string, AsymmetricKeyParameter> cache;
 		readonly Resolver resolver;
@@ -51,69 +50,14 @@ namespace DkimVerifier
 			}
 
 			var txt = builder.ToString ();
-			string k = null, p = null;
-			int index = 0;
 
-			// parse the response (will look something like: "k=rsa; p=<base64>")
-			while (index < txt.Length) {
-				while (index < txt.Length && char.IsWhiteSpace (txt[index]))
-					index++;
+			pubkey = GetPublicKey (txt);
+			cache.Add (query, pubkey);
 
-				if (index == txt.Length)
-					break;
-
-				// find the end of the key
-				int startIndex = index;
-				while (index < txt.Length && txt[index] != '=')
-					index++;
-
-				if (index == txt.Length)
-					break;
-
-				var key = txt.Substring (startIndex, index - startIndex);
-
-				// skip over the '='
-				index++;
-
-				// find the end of the value
-				startIndex = index;
-				while (index < txt.Length && txt[index] != ';')
-					index++;
-
-				var value = txt.Substring (startIndex, index - startIndex);
-
-				switch (key) {
-				case "k": k = value; break;
-				case "p": p = value; break;
-				}
-
-				// skip over the ';'
-				index++;
-			}
-
-			if (k != null && p != null) {
-				var data = "-----BEGIN PUBLIC KEY-----\r\n" + p + "\r\n-----END PUBLIC KEY-----\r\n";
-				var rawData = Encoding.ASCII.GetBytes (data);
-
-				using (var stream = new MemoryStream (rawData, false)) {
-					using (var reader = new StreamReader (stream)) {
-						var pem = new PemReader (reader);
-
-						pubkey = pem.ReadObject () as AsymmetricKeyParameter;
-
-						if (pubkey != null) {
-							cache.Add (query, pubkey);
-
-							return pubkey;
-						}
-					}
-				}
-			}
-
-			throw new Exception (string.Format ("Failed to look up public key for: {0}", domain));
+			return pubkey;
 		}
 
-		public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		public override AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			var methodList = methods.Split (new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < methodList.Length; i++) {
@@ -124,7 +68,7 @@ namespace DkimVerifier
 			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
 		}
 
-		public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			throw new NotImplementedException ("Asynchronous DKIM public key lookup is not implemented in this sample.");
 		}
@@ -147,6 +91,7 @@ namespace DkimVerifier
 			}
 
 			var locator = new DkimPublicKeyLocator ();
+			var verifier = new DkimVerifier (locator);
 
 			for (int i = 0; i < args.Length; i++) {
 				if (!File.Exists (args[i])) {
@@ -166,7 +111,7 @@ namespace DkimVerifier
 
 				var dkim = message.Headers[index];
 
-				if (message.Verify (dkim, locator)) {
+				if (verifier.Verify (message, dkim)) {
 					// the DKIM-Signature header is valid!
 					Console.ForegroundColor = ConsoleColor.Green;
 					Console.WriteLine ("VALID");

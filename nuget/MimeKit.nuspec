@@ -36,7 +36,7 @@
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
-    <tags>mime encryption dkim security smime s/mime openpgp pgp mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid win8 wp81</tags>
+    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid win8 wp81</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
