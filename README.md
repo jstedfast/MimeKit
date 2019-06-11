@@ -876,12 +876,11 @@ using System.Collections.Generic;
 using Heijden.DNS;
 
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace DkimVerifier
+namespace DkimVerifierExample
 {
 	// Note: By using the DkimPublicKeyLocatorBase, we avoid having to parse the DNS TXT records
 	// in order to get the public key ourselves.
@@ -923,7 +922,11 @@ namespace DkimVerifier
 			var txt = builder.ToString ();
 
                         // DkimPublicKeyLocatorBase provides us with this helpful method.
-                        return GetPublicKey (txt);
+                        pubkey = GetPublicKey (txt);
+			
+			cache.Add (query, pubkey);
+			
+			return pubkey;
 		}
 
 		public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
