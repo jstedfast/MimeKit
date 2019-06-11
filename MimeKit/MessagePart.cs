@@ -243,8 +243,9 @@ namespace MimeKit {
 		/// Asynchronously writes the <see cref="MimeKit.MessagePart"/> to the output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the MIME entity and its message to the output stream.
+		/// Asynchronously writes the MIME entity and its message to the output stream.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>

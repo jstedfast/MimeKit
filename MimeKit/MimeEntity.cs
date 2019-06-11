@@ -430,9 +430,10 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line.</para>
 		/// <para>Subclasses should override this method to write the content of the entity.</para>
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
@@ -492,9 +493,10 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
+		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line.</para>
 		/// <para>Subclasses should override this method to write the content of the entity.</para>
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -538,11 +540,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Adsynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the entity to the output stream.
+		/// Asynchronously writes the entity to the output stream.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -586,8 +589,9 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the entity to the output stream.
+		/// Asynchronously writes the entity to the output stream.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -656,8 +660,9 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
@@ -749,8 +754,9 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -832,8 +838,9 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -909,8 +916,9 @@ namespace MimeKit {
 		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">

@@ -1049,6 +1049,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="ptype">The property type.</param>
 		/// <param name="property">The name of the property.</param>
+		/// <param name="value">The value of the property.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ptype"/> is <c>null</c>.</para>
 		/// <para>-or-</para>

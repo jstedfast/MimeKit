@@ -1130,8 +1130,9 @@ namespace MimeKit {
 		/// Asynchronously write the message to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the output stream using the provided formatting options.
+		/// Asynchronously writes the message to the output stream using the provided formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
@@ -1220,8 +1221,9 @@ namespace MimeKit {
 		/// Asynchronously write the message to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the output stream using the provided formatting options.
+		/// Asynchronously writes the message to the output stream using the provided formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1268,8 +1270,9 @@ namespace MimeKit {
 		/// Asynchronously write the message to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the output stream using the default formatting options.
+		/// Asynchronously writes the message to the output stream using the default formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1313,8 +1316,9 @@ namespace MimeKit {
 		/// Asynchronously write the message to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the output stream using the default formatting options.
+		/// Asynchronously writes the message to the output stream using the default formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1382,8 +1386,9 @@ namespace MimeKit {
 		/// Asynchronously write the message to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the specified file using the provided formatting options.
+		/// Asynchronously writes the message to the specified file using the provided formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1468,8 +1473,9 @@ namespace MimeKit {
 		/// Asynchronously write the message to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the message to the specified file using the default formatting options.
+		/// Asynchronously writes the message to the specified file using the default formatting options.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">

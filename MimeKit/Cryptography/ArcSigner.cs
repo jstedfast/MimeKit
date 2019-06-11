@@ -507,6 +507,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcSignerExample.cs" />
 		/// </example>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
@@ -572,6 +573,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcSignerExample.cs" />
 		/// </example>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -637,6 +639,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcSignerExample.cs" />
 		/// </example>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
@@ -702,6 +705,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcSignerExample.cs" />
 		/// </example>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

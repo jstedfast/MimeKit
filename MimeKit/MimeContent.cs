@@ -226,6 +226,7 @@ namespace MimeKit {
 		/// <note type="note">If you want the decoded content, use
 		/// <see cref="DecodeTo(System.IO.Stream,System.Threading.CancellationToken)"/> instead.</note>
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -275,6 +276,9 @@ namespace MimeKit {
 		/// using a suitable decoder based on the <see cref="Encoding"/> property, otherwise the
 		/// stream will be copied into the output stream as-is.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -286,9 +290,6 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		/// <example>
-		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
-		/// </example>
 		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
@@ -309,6 +310,10 @@ namespace MimeKit {
 		/// using a suitable decoder based on the <see cref="Encoding"/> property, otherwise the
 		/// stream will be copied into the output stream as-is.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -320,9 +325,6 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		/// <example>
-		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
-		/// </example>
 		public async Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
