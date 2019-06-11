@@ -1,5 +1,16 @@
 # Release Notes
 
+### MimeKit 2.2.0 (2019-06-11)
+
+* Added support for [ARC](https://arc-spec.org).
+* Added AuthenticationResults class for parsing and constructing Authentication-Results and
+  ARC-Authentication-Results headers.
+* Added support for the Ed25519-SHA256 DKIM signature algorithm.
+* Obsoleted MimeMessage DKIM API's in favor of the newer DKIM API's:
+  - MimeMessage.Sign (DkimSigner, ...) has been replaced by DkimSigner.Sign (MimeMessage, ...).
+  - MimeMessage.Verify (Header, ...) has been replaced by DkimVerifier.Verify (MimeMessage, Header, ...).
+* Added DkimPublicKeyLocatorBase to help simplify implementing IDkimPublicKeyLocator.
+
 ### MimeKit 2.1.5 (2019-05-13)
 
 * Updated the BouncyCastle assemblies to version 1.8.5 for iOS and Android.

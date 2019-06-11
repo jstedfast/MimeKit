@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.1.5.1</version>
+    <version>2.2.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,14 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Updated the BouncyCastle assemblies to version 1.8.5 for iOS and Android.
-* Fixed a possible NullReferenceException when decoding S/MIME digital signatures.
-* Fixed the netstandard2.0 dependencies to no longer explicitly include System.Net.Http. (issue #482)
-* Override Equals(object) and GetHashCode() for InternetAddress and InternetAddressList. (issue #481)
-* Fixed TnefReader.Dispose() to avoid a potential NullReferenceException if double disposed.
-* Fixed the Message-Id, Content-Id, References and In-Reply-To parsers to be more liberal in what they accept in terms of the `msg-id` token.
-* Changed the Header encoding logic for the In-Reply-To header to not rfc2047 encode the value even if it is longer than the suggested line-length. (issue #479)
-* Reduced netstandard dependencies. (issue #475)
+* Added support for [ARC](https://arc-spec.org).
+* Added AuthenticationResults class for parsing and constructing Authentication-Results and ARC-Authentication-Results headers.
+* Added support for the Ed25519-SHA256 DKIM signature algorithm.
+* Obsoleted MimeMessage DKIM API's in favor of the newer DKIM API's:
+  - MimeMessage.Sign (DkimSigner, ...) has been replaced by DkimSigner.Sign (MimeMessage, ...).
+  - MimeMessage.Verify (Header, ...) has been replaced by DkimVerifier.Verify (MimeMessage, Header, ...).
+* Added DkimPublicKeyLocatorBase to help simplify implementing IDkimPublicKeyLocator.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

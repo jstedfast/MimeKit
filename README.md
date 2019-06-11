@@ -837,10 +837,9 @@ file called **privatekey.pem**:
 
 ```csharp
 var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
-var headerAlgorithm = DkimCanonicalizationAlgorithm.Simple;
-var bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
-var signer = new DkimSigner ("privatekey.pem") {
-	SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha1,
+var signer = new DkimSigner ("privatekey.pem", "example.com", "brisbane", DkimSignatureAlgorithm.RsaSha256) {
+	HeaderCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple,
+	BodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple,
 	AgentOrUserIdentifier = "@eng.example.com",
 	QueryMethod = "dns/txt",
 };
@@ -850,7 +849,7 @@ var signer = new DkimSigner ("privatekey.pem") {
 // then you can use `EncodingConstraint.EightBit` instead.
 message.Prepare (EncodingConstraint.SevenBit);
 
-message.Sign (signer, headers, headerAlgorithm, bodyAlgorithm);
+signer.Sign (message, headers);
 ```
 
 As you can see, it's fairly straight forward.
@@ -871,6 +870,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Heijden.DNS;
@@ -883,7 +883,9 @@ using MimeKit.Cryptography;
 
 namespace DkimVerifier
 {
-	class DkimPublicKeyLocator : IDkimPublicKeyLocator
+	// Note: By using the DkimPublicKeyLocatorBase, we avoid having to parse the DNS TXT records
+	// in order to get the public key ourselves.
+	class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
 	{
 		readonly Dictionary<string, AsymmetricKeyParameter> cache;
 		readonly Resolver resolver;
@@ -919,66 +921,9 @@ namespace DkimVerifier
 			}
 
 			var txt = builder.ToString ();
-			string k = null, p = null;
-			int index = 0;
 
-			// parse the response (will look something like: "k=rsa; p=<base64>")
-			while (index < txt.Length) {
-				while (index < txt.Length && char.IsWhiteSpace (txt[index]))
-					index++;
-
-				if (index == txt.Length)
-					break;
-
-				// find the end of the key
-				int startIndex = index;
-				while (index < txt.Length && txt[index] != '=')
-					index++;
-
-				if (index == txt.Length)
-					break;
-
-				var key = txt.Substring (startIndex, index - startIndex);
-
-				// skip over the '='
-				index++;
-
-				// find the end of the value
-				startIndex = index;
-				while (index < txt.Length && txt[index] != ';')
-					index++;
-
-				var value = txt.Substring (startIndex, index - startIndex);
-
-				switch (key) {
-				case "k": k = value; break;
-				case "p": p = value; break;
-				}
-
-				// skip over the ';'
-				index++;
-			}
-
-			if (k != null && p != null) {
-				var data = "-----BEGIN PUBLIC KEY-----\r\n" + p + "\r\n-----END PUBLIC KEY-----\r\n";
-				var rawData = Encoding.ASCII.GetBytes (data);
-
-				using (var stream = new MemoryStream (rawData, false)) {
-					using (var reader = new StreamReader (stream)) {
-						var pem = new PemReader (reader);
-
-						pubkey = pem.ReadObject () as AsymmetricKeyParameter;
-
-						if (pubkey != null) {
-							cache.Add (query, pubkey);
-
-							return pubkey;
-						}
-					}
-				}
-			}
-
-			throw new Exception (string.Format ("Failed to look up public key for: {0}", domain));
+                        // DkimPublicKeyLocatorBase provides us with this helpful method.
+                        return GetPublicKey (txt);
 		}
 
 		public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
@@ -990,6 +935,13 @@ namespace DkimVerifier
 			}
 
 			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
+		}
+
+		public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Task.Run (() => {
+				return LocatePublicKey (methods, domain, selector, cancellationToken);
+			}, cancellationToken);
 		}
 	}
 
@@ -1010,6 +962,7 @@ namespace DkimVerifier
 			}
 
 			var locator = new DkimPublicKeyLocator ();
+			var verifier = new DkimVerifier (locator);
 
 			for (int i = 0; i < args.Length; i++) {
 				if (!File.Exists (args[i])) {
@@ -1029,7 +982,7 @@ namespace DkimVerifier
 
 				var dkim = message.Headers[index];
 
-				if (message.Verify (dkim, locator)) {
+				if (verifier.Verify (message, dkim)) {
 					// the DKIM-Signature header is valid!
 					Console.ForegroundColor = ConsoleColor.Green;
 					Console.WriteLine ("VALID");
@@ -1052,6 +1005,189 @@ namespace DkimVerifier
 		}
 	}
 }
+```
+
+### Signing Messages with ARC
+
+Signing with ARC is similar to DKIM but quite a bit more involved. In order to sign with
+ARC, you must first validate that the existing message is authentictic and produce
+an ARC-Authentication-Results header containing the methods that you used to
+authenticate the message as well as their results.
+
+The abstract [ArcSigner](http://www.mimekit.net/docs/html/T_MimeKit_Cryptography_ArcSigner.htm)
+class provided by MimeKit will need to be subclassed before it can be used. An example subclass
+that provides 2 different implementations for generating the ARC-Authentication-Results header
+can be seen below:
+
+```csharp
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using MimeKit;
+using MimeKit.Cryptography;
+
+namespace ArcSignerExample
+{
+	class MyArcSigner : ArcSigner
+	{
+		public MyArcSigner (string fileName, string domain, string selector, DkimSigningAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		       : base (fileName, domain, selector, algorithm)
+		{
+		}
+
+		/// <summary>
+		/// Generate the ARC-Authentication-Results header.
+		/// </summary>
+		/// <remarks>
+		/// The ARC-Authentication-Results header contains information detailing the results of
+		/// authenticating/verifying the message via ARC, DKIM, SPF, etc.
+		///
+		/// In the following implementation, we assume that all of these authentication results
+		/// have already been determined by other mail software that has added some Authentication-Results
+		/// headers containing this information.
+		///
+		/// Note: This method is used when ArcSigner.Sign() is called instead of ArcSigner.SignAsync().
+		/// </remarks>
+		protected override AuthenticationResults GenerateArcAuthenticationResults (FormatOptions options, MimeMessage message, CancellationToken cancellationToken)
+		{
+			const string AuthenticationServiceIdentifier = "lists.example.com";
+
+			var results = new AuthenticationResults (AuthenticationServiceIdentifier);
+
+			for (int i = 0; i < message.Headers.Count; i++) {
+				var header = message.Headers[i];
+
+				if (header.Id != HeaderId.AuthenticationResults)
+					continue;
+
+				if (!AuthenticationResults.TryParse (header.RawValue, out AuthenticationResults authres))
+					continue;
+
+				if (authres.AuthenticationServiceIdentifier != AuthenticationServiceIdentifier)
+					continue;
+
+				// Merge any authentication results that aren't already known.
+				foreach (var result in authres.Results) {
+					if (!results.Results.Any (r => r.Method == result.Method))
+						results.Results.Add (result);
+				}
+			}
+
+			return results;
+		}
+
+		/// <summary>
+		/// Generate the ARC-Authentication-Results asynchronously.
+		/// </summary>
+		/// <remarks>
+		/// The ARC-Authentication-Results header contains information detailing the results of
+		/// authenticating/verifying the message via ARC, DKIM, SPF, etc.
+		///
+		/// In the following implementation, we assume that we have to verify all of the various
+		/// authentication methods ourselves.
+		///
+		/// Note: This method is used when ArcSigner.SignAsync() is called instead of ArcSigner.Sign().
+		/// </remarks>
+		protected override async Task<AuthenticationResults> GenerateArcAuthenticationResultsAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken)
+		{
+			const string AuthenticationServiceIdentifier = "lists.example.com";
+
+			var results = new AuthenticationResults (AuthenticationServiceIdentifier);
+			var locator = new DkimPublicKeyLocator (); // from the DKIM example above
+			var dkimVerifier = new DkimVerifier (locator);
+			var arcVerifier = new ArcVerifier (locator);
+			AuthenticationMethodResult method;
+
+			// Add the ARC authentication results
+			try {
+				var arc = await arcVerifier.VerifyAsync (message, cancellationToken);
+				var result = arc.Chain.ToString ().ToLowerInvariant ();
+
+				method = new AuthenticationMethodResult ("arc", result);
+				results.Results.Add (method);
+			} catch {
+				// Likely a DNS error
+				method = new AuthenticationMethodResult ("arc", "fail");
+				method.Reason = "DNS error";
+				results.Results.Add (method);
+			}
+
+			// Add authentication results for each DKIM signature
+			foreach (var dkimHeader in message.Headers.Where (h => h.Id == HeaderId.DkimSignature)) {
+				string result;
+
+				try {
+					if (await dkimVerifier.VerifyAsync (message, cancellationToken)) {
+						result = "pass";
+					} else {
+						result = "fail";
+					}
+				} catch {
+					result = "fail";
+				}
+
+				method = new AuthenticationMethodResult ("dkim", result);
+
+				// Parse the DKIM-Signature header so that we can add some
+				// properties to our method result.
+				var params = dkimHeader.Value.Replace (" ", "").Split (new char[] { ';' });
+				var i = params.FirstOrDefault (p => p.StartsWith ("i=", StringComparison.Ordinal));
+				var b = params.FirstOrDefault (p => p.StartsWith ("b=", StringComparison.Ordinal));
+
+				if (i != null)
+					method.Parameters.Add ("header.i", i.Substring (2));
+
+				if (b != null)
+					method.Parameters.Add ("header.b", b.Substring (2, 8));
+
+				results.Results.Add (method);
+			}
+
+			return results;
+		}
+	}
+}
+```
+
+Once you have a custom `ArcSigner` class, the actual logic for signing is almost identical to DKIM.
+
+Note: As with the DKIM signing example above, assume that the private key is saved in a
+file called **privatekey.pem**:
+
+```csharp
+var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
+var signer = new MyArcSigner ("privatekey.pem", "example.com", "brisbane", DkimSignatureAlgorithm.RsaSha256) {
+	HeaderCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
+	BodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
+	AgentOrUserIdentifier = "@eng.example.com"
+};
+
+// Prepare the message body to be sent over a 7bit transport (such as older versions of SMTP).
+// Note: If the SMTP server you will be sending the message over supports the 8BITMIME extension,
+// then you can use `EncodingConstraint.EightBit` instead.
+message.Prepare (EncodingConstraint.SevenBit);
+
+signer.Sign (message, headers); // or SignAsync
+```
+
+### Verifying ARC Signatures
+
+Just like with verifying DKIM signatures, you will need to implement the `IDkimPublicKeyLocator`
+interface. To see an example of how to implement this interface, see the DKIM signature verification
+example above.
+
+The `ArcVerifier` works exactly the same as the `DkimVerifier` except that it is not necessary
+to provide a `Header` argument to the `Verify` or `VerifyAsync` method.
+
+```csharp
+var verifier = new ArcVerifier (new DkimPublicKeyLocator ());
+var results = await verifier.VerifyAsync (message);
+
+// The Chain results are the only real important results.
+Console.WriteLine ("ARC results: {0}", results.Chain);
 ```
 
 ## Contributing
