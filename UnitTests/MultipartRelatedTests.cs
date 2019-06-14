@@ -97,6 +97,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestDocumentRootByType ()
+		{
+			var related = (MultipartRelated) MimeEntity.Load (Path.Combine ("..", "..", "TestData", "messages", "multipart-related-mhtml.txt"));
+
+			Assert.AreEqual (2, related.Count, "Count");
+
+			var image = related[0];
+
+			Assert.AreEqual ("image/png", image.ContentType.MimeType, "related[0]");
+
+			var html = related[1];
+
+			Assert.AreEqual ("text/html", html.ContentType.MimeType, "related[1]");
+
+			Assert.AreEqual (html, related.Root, "Root");
+		}
+
+		[Test]
 		public void TestReferenceByContentId ()
 		{
 			var builder = new BodyBuilder ();

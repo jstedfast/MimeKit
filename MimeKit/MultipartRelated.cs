@@ -86,19 +86,32 @@ namespace MimeKit {
 
 		int GetRootIndex ()
 		{
-			string start = ContentType.Parameters["start"];
+			var start = ContentType.Parameters["start"];
 
-			if (start == null)
+			if (start != null) {
+				string contentId;
+
+				if ((contentId = MimeUtils.EnumerateReferences (start).FirstOrDefault ()) == null)
+					contentId = start;
+
+				var cid = new Uri (string.Format ("cid:{0}", contentId));
+
+				return IndexOf (cid);
+			}
+
+			var type = ContentType.Parameters["type"];
+
+			if (type == null)
 				return -1;
 
-			string contentId;
+			for (int index = 0; index < Count; index++) {
+				var mimeType = this[index].ContentType.MimeType;
 
-			if ((contentId = MimeUtils.EnumerateReferences (start).FirstOrDefault ()) == null)
-				contentId = start;
+				if (mimeType.Equals (type, StringComparison.OrdinalIgnoreCase))
+					return index;
+			}
 
-			var cid = new Uri (string.Format ("cid:{0}", contentId));
-
-			return IndexOf (cid);
+			return -1;
 		}
 
 		/// <summary>
