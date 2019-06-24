@@ -171,7 +171,7 @@ namespace UnitTests.Cryptography {
 
 			authres.Results.Add (new AuthenticationMethodResult ("really-really-really-long-method-name", "really-really-really-long-value") {
 				ResultComment = "this is a really really long result comment",
-				Reason = "this is a really really really long reason",
+				Action = "this is a really really really long reason",
 				Version = 214748367
 			});
 			authres.Results[0].Properties.Add (new AuthenticationMethodProperty ("this-is-a-really-really-long-ptype", "this-is-a-really-really-long-property", "this-is-a-really-really-long-value"));
@@ -288,6 +288,27 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual ("example.org 1; none", authres.ToString ());
 
 			const string expected = " example.org 1; none\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
+		public void TestParseNoAuthServId ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; recevingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=none header.from=domain.com;");
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.IsNull (authres.AuthenticationServiceIdentifier, "authserv-id");
+
+			Assert.AreEqual ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; recevingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=\"none\" header.from=domain.com", authres.ToString ());
+
+			const string expected = " spf=fail (sender IP is 1.1.1.1)\n\tsmtp.mailfrom=eu-west-1.amazonses.com; recevingdomain.com;\n\tdkim=pass (signature was verified) header.d=domain.com;domain1.com;\n\tdmarc=bestguesspass action=\"none\" header.from=domain.com\n";
 			var encoded = new StringBuilder ();
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
@@ -902,12 +923,6 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureMultipleLeadingArcInstance ()
 		{
 			AssertParseFailure ("i=5; i=1", 5, 6);
-		}
-
-		[Test]
-		public void TestParseFailureUnknownLeadingMethod ()
-		{
-			AssertParseFailure ("x=5; authserv-id", 0, 1);
 		}
 
 		[Test]

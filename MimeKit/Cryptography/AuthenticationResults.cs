@@ -48,6 +48,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class AuthenticationResults
 	{
+		AuthenticationResults ()
+		{
+			Results = new List<AuthenticationMethodResult> ();
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationResults"/> class.
 		/// </summary>
@@ -58,12 +63,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="authservid"/> is <c>null</c>.
 		/// </exception>
-		public AuthenticationResults (string authservid)
+		public AuthenticationResults (string authservid) : this ()
 		{
 			if (authservid == null)
 				throw new ArgumentNullException (nameof (authservid));
 
-			Results = new List<AuthenticationMethodResult> ();
 			AuthenticationServiceIdentifier = authservid;
 		}
 
@@ -128,42 +132,53 @@ namespace MimeKit.Cryptography {
 				lineLength += 4 + i.Length;
 			}
 
-			if (lineLength + space + AuthenticationServiceIdentifier.Length > options.MaxLineLength) {
-				builder.Append (options.NewLine);
-				builder.Append ('\t');
-				lineLength = 1;
-				space = 0;
-			}
-
-			if (space > 0) {
-				builder.Append (' ');
-				lineLength++;
-			}
-
-			builder.Append (AuthenticationServiceIdentifier);
-			lineLength += AuthenticationServiceIdentifier.Length;
-
-			if (Version.HasValue) {
-				var version = Version.Value.ToString (CultureInfo.InvariantCulture);
-
-				if (lineLength + 1 + version.Length > options.MaxLineLength) {
+			if (AuthenticationServiceIdentifier != null) {
+				if (lineLength + space + AuthenticationServiceIdentifier.Length > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
 					lineLength = 1;
-				} else {
+					space = 0;
+				}
+
+				if (space > 0) {
 					builder.Append (' ');
 					lineLength++;
 				}
 
-				lineLength += version.Length;
-				builder.Append (version);
+				builder.Append (AuthenticationServiceIdentifier);
+				lineLength += AuthenticationServiceIdentifier.Length;
+
+				if (Version.HasValue) {
+					var version = Version.Value.ToString (CultureInfo.InvariantCulture);
+
+					if (lineLength + 1 + version.Length > options.MaxLineLength) {
+						builder.Append (options.NewLine);
+						builder.Append ('\t');
+						lineLength = 1;
+					} else {
+						builder.Append (' ');
+						lineLength++;
+					}
+
+					lineLength += version.Length;
+					builder.Append (version);
+				}
+
+				builder.Append (';');
+				lineLength++;
 			}
 
 			if (Results.Count > 0) {
-				for (int i = 0; i < Results.Count; i++)
+				for (int i = 0; i < Results.Count; i++) {
+					if (i > 0) {
+						builder.Append (';');
+						lineLength++;
+					}
+
 					Results[i].Encode (options, builder, ref lineLength);
+				}
 			} else {
-				builder.Append ("; none");
+				builder.Append (" none");
 			}
 
 			builder.Append (options.NewLine);
@@ -183,20 +198,25 @@ namespace MimeKit.Cryptography {
 			if (Instance.HasValue)
 				builder.AppendFormat ("i={0}; ", Instance.Value.ToString (CultureInfo.InvariantCulture));
 
-			builder.Append (AuthenticationServiceIdentifier);
+			if (AuthenticationServiceIdentifier != null) {
+				builder.Append (AuthenticationServiceIdentifier);
 
-			if (Version.HasValue) {
-				builder.Append (' ');
-				builder.Append (Version.Value.ToString (CultureInfo.InvariantCulture));
+				if (Version.HasValue) {
+					builder.Append (' ');
+					builder.Append (Version.Value.ToString (CultureInfo.InvariantCulture));
+				}
+
+				builder.Append ("; ");
 			}
 
 			if (Results.Count > 0) {
 				for (int i = 0; i < Results.Count; i++) {
-					builder.Append ("; ");
+					if (i > 0)
+						builder.Append ("; ");
 					builder.Append (Results[i]);
 				}
 			} else {
-				builder.Append ("; none");
+				builder.Append ("none");
 			}
 
 			return builder.ToString ();
@@ -237,136 +257,101 @@ namespace MimeKit.Cryptography {
 			return true;
 		}
 
-		static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out AuthenticationResults authres)
+		static bool SkipDomain (byte[] text, ref int index, int endIndex)
 		{
-			int? instance = null;
-			string srvid = null;
-			string value;
-			bool quoted;
+			int startIndex = index;
 
-			authres = null;
+			while (ParseUtils.SkipAtom (text, ref index, endIndex) && index < endIndex && text[index] == (byte) '.')
+				index++;
 
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-				return false;
-
-			do {
-				int start = index;
-
-				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete authserv-id token at offset {0}", start), start, index);
-
-					return false;
-				}
-
-				value = Encoding.UTF8.GetString (text, start, index - start);
-
-				if (quoted) {
-					// this can only be the authserv-id token
-					srvid = MimeUtils.Unquote (value);
-				} else {
-					// this could either be the authserv-id or it could be "i=#" (ARC instance)
-					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-						return false;
-
-					if (index < endIndex && text[index] == (byte) '=') {
-						// probably i=#
-						if (instance.HasValue) {
-							if (throwOnError)
-								throw new ParseException (string.Format ("Invalid token at offset {0}", start), start, index);
-
-							return false;
-						}
-
-						if (value != "i") {
-							if (throwOnError)
-								throw new ParseException (string.Format ("Invalid instance token at offset {0}", start), start, index);
-
-							return false;
-						}
-
-						// skip over '='
-						index++;
-
-						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-							return false;
-
-						start = index;
-
-						if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int i)) {
-							if (throwOnError)
-								throw new ParseException (string.Format ("Invalid instance value at offset {0}", start), start, index);
-
-							return false;
-						}
-
-						instance = i;
-
-						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-							return false;
-
-						if (index >= endIndex) {
-							if (throwOnError)
-								throw new ParseException (string.Format ("Missing semi-colon after instance value at offset {0}", start), start, index);
-
-							return false;
-						}
-
-						if (text[index] != ';') {
-							if (throwOnError)
-								throw new ParseException (string.Format ("Unexpected token after instance value at offset {0}", index), index, index);
-
-							return false;
-						}
-
-						// skip over ';'
-						index++;
-
-						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-							return false;
-					} else {
-						srvid = value;
-					}
-				}
-			} while (srvid == null);
-
-			authres = new AuthenticationResults (srvid) { Instance = instance };
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-				return false;
-
-			if (index >= endIndex)
+			if (index > startIndex && text[index - 1] != (byte) '.')
 				return true;
 
-			if (text[index] != (byte) ';') {
-				// might be the authres-version token
-				int start = index;
+			// don't advance `index` on failure
+			index = startIndex;
 
-				if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int version)) {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid authres-version at offset {0}", start), start, index);
+			return false;
+		}
 
+		static bool SkipPropertyValue (byte[] text, ref int index, int endIndex, out bool quoted)
+		{
+			// pvalue := [CFWS] ( value / [ [ local-part ] "@" ] domain-name ) [CFWS]
+			// value  := token / quoted-string
+			// token  := 1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
+			// tspecials :=  "(" / ")" / "<" / ">" / "@" / "," / ";" / ":" / "\" / <"> / "/" / "[" / "]" / "?" / "="
+			if (text[index] == (byte) '"') {
+				// quoted-string
+				quoted = true;
+
+				if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
 					return false;
-				}
 
-				authres.Version = version;
+				return true;
+			}
 
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+			quoted = false;
+
+			if (text[index] == (byte) '@') {
+				// "@" domain-name
+				index++;
+
+				if (!SkipDomain (text, ref index, endIndex))
 					return false;
 
-				if (index >= endIndex)
-					return true;
+				return true;
+			}
 
-				if (text[index] != (byte) ';') {
-					if (throwOnError)
-						throw new ParseException (string.Format ("Unknown token at offset {0}", index), index, index);
+			if (!ParseUtils.SkipToken (text, ref index, endIndex))
+				return false;
 
+			if (index < endIndex) {
+				if (text[index] == (byte) '@') {
+					// local-part@domain-name
+					index++;
+
+					if (!SkipDomain (text, ref index, endIndex))
+						return false;
+				} else if (text[index] != ';' && !text[index].IsWhitespace ()) {
 					return false;
+				} else {
+					int multiIndex = index;
+
+					ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
+
+					if (multiIndex < endIndex && text[multiIndex] == (byte) ';') {
+						multiIndex++;
+
+						ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
+
+						while (multiIndex < endIndex && SkipDomain (text, ref multiIndex, endIndex)) {
+							int startIndex = multiIndex;
+
+							ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
+
+							if (multiIndex >= endIndex) {
+								index = startIndex;
+								break;
+							}
+
+							if (text[multiIndex] != (byte) ';')
+								break;
+
+							index = startIndex;
+							multiIndex++;
+
+							ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
+						}
+					}
 				}
 			}
 
-			// skip the ';'
-			index++;
+			return true;
+		}
+
+		static bool TryParseMethods (byte[] text, ref int index, int endIndex, bool throwOnError, AuthenticationResults authres)
+		{
+			string value;
+			bool quoted;
 
 			while (index < endIndex) {
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -513,20 +498,20 @@ namespace MimeKit.Cryptography {
 
 				value = Encoding.ASCII.GetString (text, tokenIndex, index - tokenIndex);
 
-				if (value == "reason") {
+				if (value == "reason" || value == "action") {
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete reasonspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format ("Incomplete {0}spec token at offset {1}", value, tokenIndex), tokenIndex, index);
 
 						return false;
 					}
 
 					if (text[index] != (byte) '=') {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid reasonspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format ("Invalid {0}spec token at offset {1}", value, tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -540,15 +525,20 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid reasonspec value token at offset {0}", reasonIndex), reasonIndex, index);
+							throw new ParseException (string.Format ("Invalid {0}spec value token at offset {1}", value, reasonIndex), reasonIndex, index);
 
 						return false;
 					}
 
-					resinfo.Reason = Encoding.UTF8.GetString (text, reasonIndex, index - reasonIndex);
+					var reason = Encoding.UTF8.GetString (text, reasonIndex, index - reasonIndex);
 
 					if (quoted)
-						resinfo.Reason = MimeUtils.Unquote (resinfo.Reason);
+						reason = MimeUtils.Unquote (reason);
+
+					if (value == "action")
+						resinfo.Action = reason;
+					else
+						resinfo.Reason = reason;
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
@@ -649,10 +639,7 @@ namespace MimeKit.Cryptography {
 
 					int valueIndex = index;
 
-					while (index < endIndex && text[index] != ';' && !text[index].IsWhitespace ())
-						index++;
-
-					if (index == valueIndex) {
+					if (!SkipPropertyValue (text, ref index, endIndex, out quoted)) {
 						if (throwOnError)
 							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
@@ -660,6 +647,9 @@ namespace MimeKit.Cryptography {
 					}
 
 					value = Encoding.UTF8.GetString (text, valueIndex, index - valueIndex);
+
+					if (quoted)
+						value = MimeUtils.Unquote (value);
 
 					var propspec = new AuthenticationMethodProperty (ptype, property, value);
 					resinfo.Properties.Add (propspec);
@@ -687,6 +677,146 @@ namespace MimeKit.Cryptography {
 			}
 
 			return true;
+		}
+
+		static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out AuthenticationResults authres)
+		{
+			int? instance = null;
+			string srvid = null;
+			string value;
+			bool quoted;
+
+			authres = null;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			do {
+				int start = index;
+
+				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Incomplete authserv-id token at offset {0}", start), start, index);
+
+					return false;
+				}
+
+				value = Encoding.UTF8.GetString (text, start, index - start);
+
+				if (quoted) {
+					// this can only be the authserv-id token
+					srvid = MimeUtils.Unquote (value);
+				} else {
+					// this could either be the authserv-id or it could be "i=#" (ARC instance)
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					if (index < endIndex && text[index] == (byte) '=') {
+						// probably i=#
+						if (instance.HasValue) {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Invalid token at offset {0}", start), start, index);
+
+							return false;
+						}
+
+						if (value != "i") {
+							// Office 365 Authentication-Results do not include an authserv-id token, so this is probably a method.
+							// Rewind the parser and start over again with the assumption that the Authentication-Results only
+							// contains methods.
+							//
+							// See https://github.com/jstedfast/MimeKit/issues/490 for details.
+
+							authres = new AuthenticationResults ();
+							index = 0;
+
+							return TryParseMethods (text, ref index, endIndex, throwOnError, authres);
+						}
+
+						// skip over '='
+						index++;
+
+						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+							return false;
+
+						start = index;
+
+						if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int i)) {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Invalid instance value at offset {0}", start), start, index);
+
+							return false;
+						}
+
+						instance = i;
+
+						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+							return false;
+
+						if (index >= endIndex) {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Missing semi-colon after instance value at offset {0}", start), start, index);
+
+							return false;
+						}
+
+						if (text[index] != ';') {
+							if (throwOnError)
+								throw new ParseException (string.Format ("Unexpected token after instance value at offset {0}", index), index, index);
+
+							return false;
+						}
+
+						// skip over ';'
+						index++;
+
+						if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+							return false;
+					} else {
+						srvid = value;
+					}
+				}
+			} while (srvid == null);
+
+			authres = new AuthenticationResults (srvid) { Instance = instance };
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex)
+				return true;
+
+			if (text[index] != (byte) ';') {
+				// might be the authres-version token
+				int start = index;
+
+				if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int version)) {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Invalid authres-version at offset {0}", start), start, index);
+
+					return false;
+				}
+
+				authres.Version = version;
+
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				if (index >= endIndex)
+					return true;
+
+				if (text[index] != (byte) ';') {
+					if (throwOnError)
+						throw new ParseException (string.Format ("Unknown token at offset {0}", index), index, index);
+
+					return false;
+				}
+			}
+
+			// skip the ';'
+			index++;
+
+			return TryParseMethods (text, ref index, endIndex, throwOnError, authres);
 		}
 
 		/// <summary>
@@ -887,9 +1017,20 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the comment regarding the authentication method result.
 		/// </remarks>
-		/// <value>THe comment regarding the authentication method result.</value>
+		/// <value>The comment regarding the authentication method result.</value>
 		public string ResultComment {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get the action taken for the authentication method result.
+		/// </summary>
+		/// <remarks>
+		/// Gets the action taken for the authentication method result.
+		/// </remarks>
+		/// <value>The action taken for the authentication method result.</value>
+		public string Action {
+			get; internal set;
 		}
 
 		/// <summary>
@@ -916,9 +1057,6 @@ namespace MimeKit.Cryptography {
 
 		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength)
 		{
-			builder.Append (';');
-			lineLength++;
-
 			// try to put the entire result on 1 line
 			var complete = ToString ();
 
@@ -986,6 +1124,17 @@ namespace MimeKit.Cryptography {
 					tokens.Add ("reason=");
 					tokens.Add (reason);
 				}
+			} else if (!string.IsNullOrEmpty (Action)) {
+				var action = MimeUtils.Quote (Action);
+
+				tokens.Add (" ");
+
+				if ("action=".Length + action.Length < options.MaxLineLength) {
+					tokens.Add ($"reason={action}");
+				} else {
+					tokens.Add ("reason=");
+					tokens.Add (action);
+				}
 			}
 
 			for (int i = 0; i < Properties.Count; i++)
@@ -1022,6 +1171,9 @@ namespace MimeKit.Cryptography {
 			if (!string.IsNullOrEmpty (Reason)) {
 				builder.Append (" reason=");
 				builder.Append (MimeUtils.Quote (Reason));
+			} else if (!string.IsNullOrEmpty (Action)) {
+				builder.Append (" action=");
+				builder.Append (MimeUtils.Quote (Action));
 			}
 
 			for (int i = 0; i < Properties.Count; i++) {

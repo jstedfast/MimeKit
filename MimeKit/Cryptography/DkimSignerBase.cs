@@ -170,15 +170,10 @@ namespace MimeKit.Cryptography {
 
 				var keyObject = pem.ReadObject ();
 
-				if (keyObject != null) {
-					key = keyObject as AsymmetricKeyParameter;
-
-					if (key == null) {
-						var pair = keyObject as AsymmetricCipherKeyPair;
-
-						if (pair != null)
-							key = pair.Private;
-					}
+				if (keyObject is AsymmetricCipherKeyPair pair) {
+					key = pair.Private;
+				} else if (keyObject is AsymmetricKeyParameter) {
+					key = (AsymmetricKeyParameter) keyObject;
 				}
 			}
 
