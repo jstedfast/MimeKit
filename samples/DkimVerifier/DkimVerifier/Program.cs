@@ -93,6 +93,9 @@ namespace DkimVerifierExample
 			var locator = new DkimPublicKeyLocator ();
 			var verifier = new DkimVerifier (locator);
 
+			// RSA-SHA1 is disabled by default starting with MimeKit 2.2.0
+			verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
+
 			for (int i = 0; i < args.Length; i++) {
 				if (!File.Exists (args[i])) {
 					Console.Error.WriteLine ("{0}: No such file.", args[i]);
