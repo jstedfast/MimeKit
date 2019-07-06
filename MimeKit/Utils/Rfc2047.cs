@@ -1045,11 +1045,17 @@ namespace MimeKit.Utils {
 			EncodedWord
 		}
 
+		enum WordEncoding {
+			Ascii,
+			Latin1,
+			UserSpecified
+		}
+
 		class Word {
 			public WordType Type;
 			public int StartIndex;
 			public int CharCount;
-			public int Encoding;  // 0 => ASCII, 1 => iso-8859-1, 2 => custom
+			public WordEncoding Encoding;
 			public int ByteCount;
 			public int EncodeCount;
 			public int QuotedPairs;
@@ -1111,10 +1117,10 @@ namespace MimeKit.Utils {
 			switch (word.Type) {
 			case WordType.EncodedWord:
 				switch (word.Encoding) {
-				case 1:
+				case WordEncoding.Latin1:
 					length = EstimateEncodedWordLength ("iso-8859-1", word.ByteCount, word.EncodeCount);
 					break;
-				case 0:
+				case WordEncoding.Ascii:
 					length = EstimateEncodedWordLength ("us-ascii", word.ByteCount, word.EncodeCount);
 					break;
 				default:
@@ -1159,7 +1165,7 @@ namespace MimeKit.Utils {
 
 					if (c < 127) {
 						if (IsCtrl (c)) {
-							word.Encoding = Math.Max (word.Encoding, 1);
+							word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) WordEncoding.Latin1);
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount++;
 						} else if (phrase && !IsAtom (c)) {
@@ -1176,7 +1182,7 @@ namespace MimeKit.Utils {
 						nchars = 1;
 					} else if (c < 256) {
 						// iso-8859-1
-						word.Encoding = Math.Max (word.Encoding, 1);
+						word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) WordEncoding.Latin1);
 						word.Type = WordType.EncodedWord;
 						word.EncodeCount++;
 						word.ByteCount++;
@@ -1198,11 +1204,11 @@ namespace MimeKit.Utils {
 							n = 3;
 						}
 
+						word.Encoding = WordEncoding.UserSpecified;
 						word.Type = WordType.EncodedWord;
 						word.CharCount += nchars;
 						word.EncodeCount += n;
 						word.ByteCount += n;
-						word.Encoding = 2;
 					}
 
 					if (ExceedsMaxLineLength (options, charset, word)) {
@@ -1288,11 +1294,11 @@ namespace MimeKit.Utils {
 				if (next.Type == WordType.QuotedString)
 					return false;
 
-				switch (Math.Max (word.Encoding, next.Encoding)) {
-				case 1:
+				switch ((WordEncoding) Math.Max ((int) word.Encoding, (int) next.Encoding)) {
+				case WordEncoding.Latin1:
 					length = EstimateEncodedWordLength ("iso-8859-1", length, encoded);
 					break;
-				case 0:
+				case WordEncoding.Ascii:
 					length = EstimateEncodedWordLength ("us-ascii", length, encoded);
 					break;
 				default:
@@ -1311,8 +1317,9 @@ namespace MimeKit.Utils {
 			if (words.Count < 2)
 				return words;
 
-			int lwspCount, encoding, encoded, quoted, byteCount, length;
+			int lwspCount, encoded, quoted, byteCount, length;
 			var merged = new List<Word> ();
+			WordEncoding encoding;
 			Word word, next;
 
 			word = words[0];
@@ -1323,18 +1330,18 @@ namespace MimeKit.Utils {
 				next = words[i];
 
 				if (word.Type != WordType.Atom && word.Type == next.Type) {
+					encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) next.Encoding);
 					lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
 					byteCount = word.ByteCount + lwspCount + next.ByteCount;
-					encoding = Math.Max (word.Encoding, next.Encoding);
 					encoded = word.EncodeCount + next.EncodeCount;
 					quoted = word.QuotedPairs + next.QuotedPairs;
 
 					if (word.Type == WordType.EncodedWord) {
 						switch (encoding) {
-						case 1:
+						case WordEncoding.Latin1:
 							length = EstimateEncodedWordLength ("iso-8859-1", byteCount, encoded);
 							break;
-						case 0:
+						case WordEncoding.Ascii:
 							length = EstimateEncodedWordLength ("us-ascii", byteCount, encoded);
 							break;
 						default:
@@ -1376,7 +1383,7 @@ namespace MimeKit.Utils {
 					word.Type = (WordType) Math.Max ((int) word.Type, (int) next.Type);
 					word.CharCount = (next.StartIndex + next.CharCount) - word.StartIndex;
 					word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
-					word.Encoding = Math.Max (word.Encoding, next.Encoding);
+					word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) next.Encoding);
 					word.EncodeCount = word.EncodeCount + next.EncodeCount;
 					word.QuotedPairs = word.QuotedPairs + next.QuotedPairs;
 				} else {
@@ -1398,23 +1405,9 @@ namespace MimeKit.Utils {
 			byte[] encoded;
 
 			if (!options.AllowMixedHeaderCharsets) {
-				int maxEncoding = 0;
-
 				for (int i = 0; i < words.Count; i++) {
-					if (words[i].Type != WordType.EncodedWord || words[i].Encoding == maxEncoding)
-						continue;
-
-					if (words[i].Encoding > maxEncoding) {
-						maxEncoding = words[i].Encoding;
-						for (int j = 0; j < i; j++) {
-							if (words[j].Type != WordType.EncodedWord)
-								continue;
-
-							words[j].Encoding = maxEncoding;
-						}
-					} else {
-						words[i].Encoding = maxEncoding;
-					}
+					if (words[i].Type == WordType.EncodedWord)
+						words[i].Encoding = WordEncoding.UserSpecified;
 				}
 			}
 
@@ -1447,10 +1440,10 @@ namespace MimeKit.Utils {
 					}
 
 					switch (word.Encoding) {
-					case 0: // us-ascii
+					case WordEncoding.Ascii:
 						AppendEncodedWord (str, Encoding.ASCII, text, start, length, mode);
 						break;
-					case 1: // iso-8859-1
+					case WordEncoding.Latin1:
 						AppendEncodedWord (str, CharsetUtils.Latin1, text, start, length, mode);
 						break;
 					default: // custom charset

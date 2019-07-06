@@ -430,7 +430,8 @@ namespace UnitTests {
 		[Test]
 		public void TestMailboxWith8bitName ()
 		{
-			const string encoded = "Patrik =?iso-8859-1?b?RqVkbHRzdHKldm0=?= <paf@nada.kth.se>";
+			//const string encoded = "Patrik =?iso-8859-1?b?RqVkbHRzdHKldm0=?= <paf@nada.kth.se>";
+			const string encoded = "Patrik =?utf-8?b?RsKlZGx0c3RywqV2bQ==?= <paf@nada.kth.se>";
 			const string text = "Patrik F¥dltstr¥vm <paf@nada.kth.se>";
 			var expected = new InternetAddressList ();
 
@@ -504,10 +505,14 @@ namespace UnitTests {
 			const string expected = "=?us-ascii?q?reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllll?=\n =?us-ascii?q?llllllllllllllllllllllllllllllllllllllllllly?= long word\n\t<really.long.word@example.com>";
 			const string name = "reeeeeeeeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaallllllllllllllllllllllllllllllllllllllllllllllllllllllly long word";
 			var mailbox = new MailboxAddress (name, "really.long.word@example.com");
+			var options = FormatOptions.Default.Clone ();
 			var list = new InternetAddressList ();
 			list.Add (mailbox);
 
-			var actual = list.ToString (UnixFormatOptions, true);
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.AllowMixedHeaderCharsets = true;
+
+			var actual = list.ToString (options, true);
 
 			Assert.AreEqual (expected, actual, "Encoding really long mailbox did not match expected result: {0}", expected);
 			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse really long mailbox");
@@ -569,17 +574,19 @@ namespace UnitTests {
 		public void TestEncodingLongNameMixedQuotingAndEncoding ()
 		{
 			const string name = "Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx für xxxxxxxxxxxxx xxxx";
-			const string encodedName = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx xxxx";
+			const string encodedNameLatin1 = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx xxxx";
+			const string encodedNameUnicode = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?utf-8?b?ZsO8cg==?= xxxxxxxxxxxxx xxxx";
 			const string encodedMailbox = "\"Dr. xxxxxxxxxx xxxxx | xxxxxx.xxxxxxx\" =?iso-8859-1?b?Zvxy?= xxxxxxxxxxxxx\n xxxx <x.xxxxx@xxxxxxx-xxxxxx.xx>";
 			const string address = "x.xxxxx@xxxxxxx-xxxxxx.xx";
 			var options = FormatOptions.Default.Clone ();
 
 			options.NewLineFormat = NewLineFormat.Unix;
+			options.AllowMixedHeaderCharsets = true;
 
 			var buffer = Rfc2047.EncodePhrase (options, Encoding.UTF8, name);
 			var result = Encoding.UTF8.GetString (buffer);
 
-			Assert.AreEqual (encodedName, result);
+			Assert.AreEqual (encodedNameLatin1, result);
 
 			var mailbox = new MailboxAddress (name, address);
 			var list = new InternetAddressList ();
@@ -589,6 +596,15 @@ namespace UnitTests {
 			result = list.ToString (options, true);
 
 			Assert.AreEqual (encodedMailbox, result);
+
+			// Now disable smart encoding
+
+			options.AllowMixedHeaderCharsets = false;
+
+			buffer = Rfc2047.EncodePhrase (options, Encoding.UTF8, name);
+			result = Encoding.UTF8.GetString (buffer);
+
+			Assert.AreEqual (encodedNameUnicode, result);
 		}
 
 		[Test]

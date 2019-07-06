@@ -223,8 +223,8 @@ namespace MimeKit {
 		/// Gets or sets whether the formatter should allow mixed charsets in the headers.
 		/// </summary>
 		/// <remarks>
-		/// <para>When this option is enabled, the MIME formatter will try to use US-ASCII and/or
-		/// ISO-8859-1 to encode headers when appropriate rather than being forced to use the
+		/// <para>When this option is enabled, the MIME formatter will try to use us-ascii and/or
+		/// iso-8859-1 to encode headers when appropriate rather than being forced to use the
 		/// specified charset for all encoded-word tokens in order to maximize readability.</para>
 		/// <para>Unfortunately, mail clients like Outlook and Thunderbird do not treat
 		/// encoded-word tokens individually and assume that all tokens are encoded using the
@@ -234,7 +234,7 @@ namespace MimeKit {
 		/// <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=317263">
 		/// https://bugzilla.mozilla.org/show_bug.cgi?id=317263</a>.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the formatter should be allowed to use ISO-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if the formatter should be allowed to use us-ascii and/or iso-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
 		public bool AllowMixedHeaderCharsets {
 			get { return allowMixedHeaderCharsets; }
 			set {
