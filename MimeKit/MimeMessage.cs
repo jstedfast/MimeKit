@@ -976,9 +976,15 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The attachments.</value>
-		public IEnumerable<MimeEntity> Attachments {
-			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
-		}
+		public IEnumerable<MimeEntity> Attachments
+        {
+            get
+            {
+                return Body is MimePart p && !"text".Equals(p.ContentType.MediaType, StringComparison.OrdinalIgnoreCase)
+                     ? Enumerable.Repeat(Body, 1)
+                     : EnumerateMimeParts(Body).Where(x => x.IsAttachment);
+            }
+        }
 
 		/// <summary>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.
