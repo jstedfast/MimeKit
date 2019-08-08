@@ -206,6 +206,30 @@ namespace UnitTests.IO.Filters {
 					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "French (long lines) no constraint.");
 				}
 			}
+
+			filter.Reset ();
+
+			// Test 78 character line length with CRLF
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					var buffer = Encoding.ASCII.GetBytes ("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz\r\nabc\r\n");
+					ContentEncoding encoding;
+
+					filtered.Add (filter);
+
+					filtered.Write (buffer, 0, buffer.Length);
+					filtered.Flush ();
+
+					encoding = filter.GetBestEncoding (EncodingConstraint.SevenBit, 78);
+					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "78-character line; 7bit constraint.");
+
+					encoding = filter.GetBestEncoding (EncodingConstraint.EightBit, 78);
+					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "78-character line; 8bit constraint.");
+
+					encoding = filter.GetBestEncoding (EncodingConstraint.None, 78);
+					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "78-character line; no constraint.");
+				}
+			}
 		}
 
 		[Test]
