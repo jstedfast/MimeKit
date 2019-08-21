@@ -404,7 +404,7 @@ namespace MimeKit {
 		public string Value {
 			get {
 				if (textValue == null)
-					textValue = Unfold (Rfc2047.DecodeText (Options, RawValue));
+					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
 
 				return textValue;
 			}
@@ -434,7 +434,7 @@ namespace MimeKit {
 			var options = Options.Clone ();
 			options.CharsetEncoding = encoding;
 
-			return Unfold (Rfc2047.DecodeText (options, RawValue));
+			return Unfold (Rfc2047.DecodeText (options, rawValue));
 		}
 
 		/// <summary>
@@ -1027,7 +1027,7 @@ namespace MimeKit {
 		{
 			if (format.International) {
 				if (textValue == null)
-					textValue = Unfold (Rfc2047.DecodeText (Options, RawValue));
+					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
 
 				// Note: if we're reformatting to be International, then charset doesn't matter.
 				return FormatRawValue (format, CharsetUtils.UTF8);
