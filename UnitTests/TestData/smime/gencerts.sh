@@ -13,7 +13,7 @@ echo "Organizational Unit Name: "
 echo "Common Name: Bruce Wayne"
 echo "Email Address: root@example.com"
 echo "========================================="
-openssl req -new -x509 -days 365 -nodes -key certificate-authority.key -out certificate-authority.crt \
+openssl req -new -x509 -days 3650 -nodes -key certificate-authority.key -out certificate-authority.crt \
 	-subj "/C=US/ST=Massachusetts/L=Boston/O=Example Authority Inc./CN=Bruce Wayne/emailAddress=root@example.com"
 
 # Create the private key for the intermediate certificate
@@ -34,7 +34,7 @@ openssl req -new -key intermediate.key -out intermediate.csr \
 
 # Sign the CSR using the root (CA) certificate
 openssl x509 -req -in intermediate.csr -CA certificate-authority.crt -CAkey certificate-authority.key \
-	-CAcreateserial -days 365 -out intermediate.crt
+	-CAcreateserial -days 3650 -out intermediate.crt
 
 # Create the certificate chain
 cat intermediate.crt certificate-authority.crt > chain.crt
@@ -51,7 +51,7 @@ echo "========================================="
 openssl genrsa -des3 -out smime.key 4096 > /dev/null
 openssl req -new -key smime.key -out smime.csr \
 	-subj "/C=US/ST=Massachusetts/L=Boston/CN=MimeKit UnitTests/emailAddress=mimekit@example.com"
-openssl x509 -req -days 365 -in smime.csr -CA intermediate.crt -CAkey intermediate.key -set_serial 1 \
+openssl x509 -req -days 3650 -in smime.csr -CA intermediate.crt -CAkey intermediate.key -set_serial 1 \
 	-out smime.crt -setalias "mimekit@example.com" -addtrust emailProtection \
 	-addreject clientAuth -addreject serverAuth -trustout
 openssl pkcs12 -export -in smime.crt -inkey smime.key -out smime.p12 -chain -CAfile chain.crt

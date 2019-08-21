@@ -48,11 +48,11 @@ namespace UnitTests.Cryptography {
 		const string ExpiredCertificateMessage = "The certificate is revoked.\r\n";
 		const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
 		const string ThunderbirdFingerprint = "354ea4dcf98166639b58ec5df06a65de0cd8a95c";
-		const string MimeKitFingerprint = "4846fb5e27df6a23bb35a995443363e447d3426d";
+		const string MimeKitFingerprint = "66679bc836cf4f22cb3680bc9bbae50898cd30e0";
 		const string ThunderbirdName = "fejj@gnome.org";
 
-		static readonly DateTime MimeKitCreationDate = new DateTime (2018, 07, 30, 13, 13, 19);
-		static readonly DateTime MimeKitExpirationDate = new DateTime (2019, 07, 30, 13, 13, 19);
+		static readonly DateTime MimeKitCreationDate = new DateTime (2019, 08, 21, 11, 46, 34);
+		static readonly DateTime MimeKitExpirationDate = new DateTime (2029, 08, 18, 11, 46, 34);
 
 		static readonly string[] CertificateAuthorities = {
 			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
@@ -1202,7 +1202,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestSecureMimeImportExport ()
+		public virtual void TestSecureMimeImportExport ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			var mailboxes = new List<MailboxAddress> ();
@@ -1430,6 +1430,15 @@ namespace UnitTests.Cryptography {
 				return;
 
 			base.TestSecureMimeSignAndEncrypt ();
+		}
+
+		[Test]
+		public override void TestSecureMimeImportExport ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeImportExport ();
 		}
 	}
 }
