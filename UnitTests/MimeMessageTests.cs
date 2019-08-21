@@ -399,6 +399,85 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 		}
 
 		[Test]
+		public async Task TestReserializationEpilogue ()
+		{
+			string rawMessageText = @"From: Example Test <test@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+   boundary=""simple boundary""
+
+This is the preamble.
+
+--simple boundary
+Content-TypeS: text/plain
+
+This is a test.
+
+--simple boundary
+Content-Type: text/plain
+Content-Disposition: attachment
+Content-Transfer-Encoding: 7bit
+
+Another test.
+
+--simple boundary--
+
+
+This is the epilogue.".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized message is not identical to the original (EnsureNewLine).");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized (async) message is not identical to the original (EnsureNewLine).");
+				}
+			}
+		}
+
+		[Test]
 		public void TestMailMessageToMimeMessage ()
 		{
 			var mail = new MailMessage ();

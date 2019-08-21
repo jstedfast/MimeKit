@@ -356,10 +356,10 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes, CancellationToken cancellationToken)
+		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes, bool ensureNewLine, CancellationToken cancellationToken)
 		{
 			var cancellable = stream as ICancellableStream;
-			var filter = options.CreateNewLineFilter ();
+			var filter = options.CreateNewLineFilter (ensureNewLine);
 			int index, length;
 
 			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
@@ -372,9 +372,9 @@ namespace MimeKit {
 			}
 		}
 
-		static Task WriteBytesAsync (FormatOptions options, Stream stream, byte[] bytes, CancellationToken cancellationToken)
+		static Task WriteBytesAsync (FormatOptions options, Stream stream, byte[] bytes, bool ensureNewLine, CancellationToken cancellationToken)
 		{
-			var filter = options.CreateNewLineFilter ();
+			var filter = options.CreateNewLineFilter (ensureNewLine);
 			int index, length;
 
 			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
@@ -444,7 +444,7 @@ namespace MimeKit {
 			var cancellable = stream as ICancellableStream;
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
-				WriteBytes (options, stream, RawPreamble, cancellationToken);
+				WriteBytes (options, stream, RawPreamble, true, cancellationToken);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
@@ -513,7 +513,7 @@ namespace MimeKit {
 			}
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
-				WriteBytes (options, stream, RawEpilogue, cancellationToken);
+				WriteBytes (options, stream, RawEpilogue, EnsureNewLine, cancellationToken);
 		}
 
 		/// <summary>
@@ -555,7 +555,7 @@ namespace MimeKit {
 			}
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
-				await WriteBytesAsync (options, stream, RawPreamble, cancellationToken).ConfigureAwait (false);
+				await WriteBytesAsync (options, stream, RawPreamble, true, cancellationToken).ConfigureAwait (false);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
@@ -589,7 +589,7 @@ namespace MimeKit {
 				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
-				await WriteBytesAsync (options, stream, RawEpilogue, cancellationToken).ConfigureAwait (false);
+				await WriteBytesAsync (options, stream, RawEpilogue, EnsureNewLine, cancellationToken).ConfigureAwait (false);
 		}
 
 		#region ICollection implementation
