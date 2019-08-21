@@ -681,14 +681,7 @@ namespace MimeKit {
 			fixed (byte* buf = headerBuffer) {
 				Header header;
 
-				if (!Header.TryParse (options, buf, headerIndex, false, out header)) {
-#if DEBUG
-					Debug.WriteLine (string.Format ("Invalid header at offset {0}: {1}", headerOffset, ConvertToCString (headerBuffer, 0, headerIndex)));
-#endif
-					headerIndex = 0;
-					return;
-				}
-
+				Header.TryParse (options, buf, headerIndex, false, out header);
 				header.Offset = headerOffset;
 				headers.Add (header);
 				headerIndex = 0;

@@ -291,12 +291,12 @@ namespace MimeKit {
 			Id = id;
 		}
 
-		internal Header (ParserOptions options, byte[] field, byte[] value)
+		internal Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
 		{
 			var chars = new char[field.Length];
 			int count = 0;
 
-			while (count < field.Length && !field[count].IsBlank ()) {
+			while (count < field.Length && (invalid || !field[count].IsBlank ())) {
 				chars[count] = (char) field[count];
 				count++;
 			}
@@ -307,6 +307,7 @@ namespace MimeKit {
 
 			Field = new string (chars, 0, count);
 			Id = Field.ToHeaderId ();
+			IsInvalid = invalid;
 		}
 
 		internal Header (ParserOptions options, HeaderId id, string field, byte[] value)
@@ -327,7 +328,9 @@ namespace MimeKit {
 		/// <returns>A copy of the header with its current state.</returns>
 		public Header Clone ()
 		{
-			var header = new Header (Options, Id, Field, RawField, RawValue);
+			var header = new Header (Options, Id, Field, rawField, rawValue) {
+				IsInvalid = IsInvalid
+			};
 
 			// if the textValue has already been calculated, set it on the cloned header as well.
 			header.textValue = textValue;
@@ -366,6 +369,10 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The header identifier.</value>
 		public HeaderId Id {
+			get; private set;
+		}
+
+		internal bool IsInvalid {
 			get; private set;
 		}
 
@@ -1177,7 +1184,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="Header"/>.</returns>
 		public override string ToString ()
 		{
-			return Field + ": " + Value;
+			return IsInvalid ? Field : Field + ": " + Value;
 		}
 
 		/// <summary>
@@ -1250,6 +1257,7 @@ namespace MimeKit {
 			byte* inend = input + length;
 			byte* start = input;
 			byte* inptr = input;
+			var invalid = false;
 
 			// find the end of the field name
 			if (strict) {
@@ -1264,8 +1272,13 @@ namespace MimeKit {
 				inptr++;
 
 			if (inptr == inend || *inptr != ':') {
-				header = null;
-				return false;
+				if (strict) {
+					header = null;
+					return false;
+				}
+
+				invalid = true;
+				inptr = inend;
 			}
 
 			var field = new byte[(int) (inptr - start)];
@@ -1276,19 +1289,25 @@ namespace MimeKit {
 					*outptr++ = *start++;
 			}
 
-			inptr++;
+			byte[] value;
 
-			int count = (int) (inend - inptr);
-			var value = new byte[count];
+			if (inptr < inend) {
+				inptr++;
 
-			fixed (byte *outbuf = value) {
-				byte* outptr = outbuf;
+				int count = (int) (inend - inptr);
+				value = new byte[count];
 
-				while (inptr < inend)
-					*outptr++ = *inptr++;
+				fixed (byte* outbuf = value) {
+					byte* outptr = outbuf;
+
+					while (inptr < inend)
+						*outptr++ = *inptr++;
+				}
+			} else {
+				value = new byte[0];
 			}
 
-			header = new Header (options, field, value);
+			header = new Header (options, field, value, invalid);
 
 			return true;
 		}

@@ -493,7 +493,7 @@ namespace MimeKit.Cryptography {
 
 			Array.Resize (ref rawValue, length);
 
-			return new Header (header.Options, header.RawField, rawValue);
+			return new Header (header.Options, header.RawField, rawValue, false);
 		}
 	}
 }
