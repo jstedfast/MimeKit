@@ -351,7 +351,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetCmsSignerCertificate (mailbox, out key)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
-			return new CmsSigner (certificate, key) {
+			return new CmsSigner (BuildCertificateChain (certificate), key) {
 				DigestAlgorithm = digestAlgo
 			};
 		}

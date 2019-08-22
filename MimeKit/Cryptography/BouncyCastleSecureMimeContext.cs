@@ -417,6 +417,38 @@ namespace MimeKit.Cryptography
 			return GetCertificate (signer);
 		}
 
+		/// <summary>
+		/// Build a certificate chain.
+		/// </summary>
+		/// <remarks>
+		/// <para>Builds a certificate chain for the provided certificate.</para>
+		/// <para>This method is ideal for use with custom <see cref="GetCmsSigner"/>
+		/// implementations when it is desirable to include the certificate chain
+		/// in the signature.</para>
+		/// </remarks>
+		/// <param name="certificate">The certificate to build the chain for.</param>
+		/// <returns>The certificate chain, including the specified certificate.</returns>
+		protected IList<X509Certificate> BuildCertificateChain (X509Certificate certificate)
+		{
+			var selector = new X509CertStoreSelector ();
+			selector.Certificate = certificate;
+
+			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector);
+			parameters.ValidityModel = PkixParameters.PkixValidityModel;
+			parameters.AddStore (GetIntermediateCertificates ());
+			parameters.IsRevocationEnabled = false;
+
+			var builder = new PkixCertPathBuilder ();
+			var result = builder.Build (parameters);
+
+			var chain = new X509Certificate[result.CertPath.Certificates.Count];
+
+			for (int i = 0; i < chain.Length; i++)
+				chain[i] = (X509Certificate) result.CertPath.Certificates[i];
+
+			return chain;
+		}
+
 		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime signingTime)
 		{
 			var intermediate = new X509CertificateStore ();
@@ -440,7 +472,8 @@ namespace MimeKit.Cryptography
 			if (signingTime != default (DateTime))
 				parameters.Date = new DateTimeObject (signingTime);
 
-			var result = new PkixCertPathBuilder ().Build (parameters);
+			var builder = new PkixCertPathBuilder ();
+			var result = builder.Build (parameters);
 
 			return result.CertPath;
 		}

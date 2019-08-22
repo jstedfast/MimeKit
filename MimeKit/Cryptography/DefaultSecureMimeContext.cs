@@ -397,7 +397,7 @@ namespace MimeKit.Cryptography {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
-				var signer = new CmsSigner (record.Certificate, record.PrivateKey);
+				var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey);
 				signer.DigestAlgorithm = digestAlgo;
 
 				return signer;
