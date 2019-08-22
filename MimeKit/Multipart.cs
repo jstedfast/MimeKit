@@ -494,6 +494,7 @@ namespace MimeKit {
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
+					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
