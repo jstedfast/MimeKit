@@ -1,5 +1,26 @@
 # Release Notes
 
+### MimeKit 2.3.0 (2019-08-24)
+
+* Fixed MultipartRelated to fall back to the multipart/related type parameter when
+  locating the Root. (issue [#489](https://github.com/jstedfast/MimeKit/issues/489))
+* Improved Authentication-Results parser to handle non-standard syntax.
+  (issue [#490](https://github.com/jstedfast/MimeKit/issues/490))
+* When FormatOptions.AllowMixedHeaderCharsets is disabled, always use the user-specified
+  charset. Previously this could/would still use us-ascii and/or iso-8859-1 if the entire
+  header could fit within one of those charsets.
+  (issue [#493](https://github.com/jstedfast/MimeKit/issues/493))
+* Fixed the line length calculations in the BestEncodingFilter.
+  (issue [#497](https://github.com/jstedfast/MimeKit/issues/497))
+* Fixed Multipart to properly ensure the epilogue ends w/ a new-line when
+  FormatOptions.EnsureNewLine is true.
+  (issue [#499](https://github.com/jstedfast/MimeKit/issues/499))
+* Modified Multipart.WriteTo[Async] to not ensure that a Content-Type boundary parameter
+  has been set. This code-path was only hit if the multipart was parsed by the parser and
+  did not have a boundary parameter in the first place. In the interest of preserving
+  byte-for-byte compatibility with the original input, this sanity check has been removed.
+  (issue [#499](https://github.com/jstedfast/MimeKit/issues/499))
+
 ### MimeKit 2.2.0 (2019-06-11)
 
 * Added support for [ARC](https://arc-spec.org).
