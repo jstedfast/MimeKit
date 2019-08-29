@@ -302,11 +302,17 @@ class HtmlPreviewVisitor : MimeVisitor
         return false;
     }
 
-    // Save the image to our temp directory and return a "file://" url suitable for
-    // the browser control to load.
-    // Note: if you'd rather embed the image data into the HTML, you can construct a
-    // "data:" url instead.
-    string SaveImage (MimePart image, string url)
+    /// <summary>
+    /// Get a file:// URI for the image attachment.
+    /// </summary>
+    /// <remarks>
+    /// Saves the image attachment to a temp file and returns a file:// URI for the
+    /// temp file.
+    /// </remarks>
+    /// <returns>The file:// URI.</returns>
+    /// <param name="image">The image attachment.</param>
+    /// <param name="url">The original HTML image URL.</param>
+    string GetFileUri (MimePart image, string url)
     {
         string fileName = url.Replace (':', '_').Replace ('\\', '_').Replace ('/', '_');
 
@@ -318,6 +324,28 @@ class HtmlPreviewVisitor : MimeVisitor
         }
 
         return "file://" + path.Replace ('\\', '/');
+    }
+
+    /// <summary>
+    /// Get a file:// URI for the image attachment.
+    /// </summary>
+    /// <remarks>
+    /// Saves the image attachment to a temp file and returns a file:// URI for the
+    /// temp file.
+    /// </remarks>
+    /// <returns>The file:// URI.</returns>
+    /// <param name="image">The image attachment.</param>
+    /// <param name="url">The original HTML image URL.</param>
+    string GetDataUri (MimePart image)
+    {
+        using (var memory = new MemoryStream ()) {
+            image.Content.DecodeTo (memory);
+            var buffer = memory.GetBuffer ();
+            var length = (int) memory.Length;
+            var base64 = Convert.ToBase64String (buffer, 0, length);
+
+            return string.Format ("data:{0};base64,{1}", image.ContentType.MimeType, base64);
+        }
     }
 
     // Replaces <img src=...> urls that refer to images embedded within the message with
@@ -338,7 +366,10 @@ class HtmlPreviewVisitor : MimeVisitor
                         continue;
                     }
 
-                    url = SaveImage (image, attribute.Value);
+                    // Note: you can either use a "file://" URI or you can use a
+                    // "data:" URI, the choice is yours.
+                    url = GetFileUri (image, attribute.Value);
+                    //uri = GetDataUri (image);
 
                     htmlWriter.WriteAttributeName (attribute.Name);
                     htmlWriter.WriteAttributeValue (url);
