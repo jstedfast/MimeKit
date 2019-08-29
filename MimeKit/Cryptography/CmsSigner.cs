@@ -54,7 +54,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha256"/> and both the
 		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties
 		/// will be initialized to empty tables.</para>
 		/// </remarks>
@@ -62,7 +62,7 @@ namespace MimeKit.Cryptography {
 		{
 			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
 			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
-			DigestAlgorithm = DigestAlgorithm.Sha1;
+			DigestAlgorithm = DigestAlgorithm.Sha256;
 		}
 
 		static bool CanSign (X509Certificate certificate)
@@ -86,7 +86,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha256"/> and both the
 		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties
 		/// will be initialized to empty tables.</para>
 		/// </remarks>
@@ -131,7 +131,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
-		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha256"/> and both the
 		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
 		/// initialized to empty tables.</para>
 		/// </remarks>
@@ -209,7 +209,7 @@ namespace MimeKit.Cryptography {
 		/// <para>Creates a new <see cref="CmsSigner"/>, loading the X.509 certificate and private key
 		/// from the specified stream.</para>
 		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
-		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha256"/> and both the
 		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
 		/// initialized to empty tables.</para>
 		/// </remarks>
@@ -247,7 +247,7 @@ namespace MimeKit.Cryptography {
 		/// <para>Creates a new <see cref="CmsSigner"/>, loading the X.509 certificate and private key
 		/// from the specified file.</para>
 		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
-		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha256"/> and both the
 		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
 		/// initialized to empty tables.</para>
 		/// </remarks>
@@ -298,7 +298,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>The initial value of the <see cref="MimeKit.Cryptography.DigestAlgorithm"/> will
-		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha1"/> and both the
+		/// be set to <see cref="MimeKit.Cryptography.DigestAlgorithm.Sha256"/> and both the
 		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties will be
 		/// initialized to empty tables.</para>
 		/// </remarks>
