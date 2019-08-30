@@ -128,8 +128,9 @@ namespace MimeKit.Tnef {
 
 			bool CanUseSearchKey {
 				get {
-					return SearchKey != null && SearchKey.Length > AddrType.Length &&
-						SearchKey.StartsWith (AddrType, StringComparison.Ordinal) && SearchKey[AddrType.Length] == ':';
+					return SearchKey != null && SearchKey.Equals ("SMTP", StringComparison.OrdinalIgnoreCase) &&
+						SearchKey.Length > AddrType.Length && SearchKey.StartsWith (AddrType, StringComparison.Ordinal) &&
+						SearchKey[AddrType.Length] == ':';
 				}
 			}
 
@@ -143,17 +144,19 @@ namespace MimeKit.Tnef {
 			{
 				string addr;
 
+				mailbox = null;
+
 				if (string.IsNullOrEmpty (Addr) && CanUseSearchKey)
 					addr = SearchKey.Substring (AddrType.Length + 1);
 				else
 					addr = Addr;
 
-				if (!string.IsNullOrEmpty (addr))
-					mailbox = new MailboxAddress (Name, addr);
-				else
-					mailbox = null;
+				if (string.IsNullOrEmpty (addr) || !MailboxAddress.TryParse (addr, out mailbox))
+					return false;
 
-				return mailbox != null;
+				mailbox.Name = Name;
+
+				return true;
 			}
 		}
 
