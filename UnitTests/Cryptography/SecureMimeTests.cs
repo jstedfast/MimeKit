@@ -628,7 +628,7 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeSigningWithRsaSsaPss ()
 		{
 			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret") {
-				SignaturePaddingScheme = RsaSignaturePaddingScheme.Pss
+				RsaSignaturePaddingScheme = RsaSignaturePaddingScheme.Pss
 			};
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
