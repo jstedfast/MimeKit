@@ -625,6 +625,57 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public virtual void TestSecureMimeSigningWithRsaSsaPss ()
+		{
+			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret") {
+				SignaturePaddingScheme = RsaSignaturePaddingScheme.Pss
+			};
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+
+			var multipart = MultipartSigned.Create (signer, body);
+
+			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+
+			var protocol = multipart.ContentType.Parameters["protocol"];
+			Assert.AreEqual ("application/pkcs7-signature", protocol, "The multipart/signed protocol does not match.");
+
+			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+			Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+
+			var signatures = multipart.Verify ();
+			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+
+			var signature = signatures[0];
+
+			using (var ctx = CreateContext ()) {
+				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
+				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
+				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
+				Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException ex) {
+					if (ctx is WindowsSecureMimeContext) {
+						// AppVeyor gets an exception about the root certificate not being trusted
+						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
+					} else {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
+
+		[Test]
 		public virtual void TestSecureMimeMessageSigning ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1358,6 +1409,15 @@ namespace UnitTests.Cryptography {
 				return;
 
 			base.TestSecureMimeSigningWithContextAndCmsSigner ();
+		}
+
+		[Test]
+		public override void TestSecureMimeSigningWithRsaSsaPss ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeSigningWithRsaSsaPss ();
 		}
 
 		[Test]
