@@ -20,7 +20,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\portable</OutputPath>
     <IntermediateOutputPath>obj\Debug\portable</IntermediateOutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;ENABLE_CRYPTO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\portable</OutputPath>
     <IntermediateOutputPath>obj\Release\portable</IntermediateOutputPath>
     <DocumentationFile>bin\Release\portable\MimeKit.xml</DocumentationFile>
-    <DefineConstants>TRACE;PORTABLE;ENABLE_CRYPTO;USE_HTTP_CLIENT</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;ENABLE_CRYPTO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>

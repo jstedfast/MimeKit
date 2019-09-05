@@ -42,6 +42,16 @@
       <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.7" />
       <frameworkAssembly assemblyName="System" targetFramework="monoandroid" />
       <frameworkAssembly assemblyName="System.Core" targetFramework="monoandroid" />
       <frameworkAssembly assemblyName="System.Data" targetFramework="monoandroid" />
@@ -53,6 +63,12 @@
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net45">
+        <dependency id="BouncyCastle" version="1.8.5" />
+      </group>
+      <group targetFramework="net46">
+        <dependency id="BouncyCastle" version="1.8.5" />
+      </group>
+      <group targetFramework="net47">
         <dependency id="BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="monoandroid" />
@@ -101,6 +117,10 @@
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.xml" target="lib\xamarinios\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKit.dll" target="lib\net46\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKit.xml" target="lib\net46\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\portable\MimeKit.dll" target="lib\portable-net45+win8\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\portable\MimeKit.xml" target="lib\portable-net45+win8\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win8\Portable.Text.Encoding.dll" />
