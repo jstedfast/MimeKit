@@ -183,6 +183,8 @@ namespace UnitTests.Cryptography {
 
 				Assert.Throws<NotSupportedException> (() => stream.Seek (64, SeekOrigin.Begin));
 				Assert.Throws<NotSupportedException> (() => stream.SetLength (256));
+
+				stream.Flush ();
 			}
 		}
 
@@ -215,6 +217,8 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<NotSupportedException> (() => stream.SetLength (256));
 
 				Assert.Throws<ArgumentNullException> (() => stream.VerifySignature (null));
+
+				stream.Flush ();
 			}
 		}
 
