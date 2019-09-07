@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+			if (recipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
@@ -102,14 +102,13 @@ namespace MimeKit.Cryptography {
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+			if (recipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
 			var parser = new X509CertificateParser ();
 
-			RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			Certificate = parser.ReadCertificate (stream);
 
 			if (Certificate == null)
@@ -160,15 +159,16 @@ namespace MimeKit.Cryptography {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			var parser = new X509CertificateParser ();
-
-			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+			if (recipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
-			using (var stream = File.OpenRead (fileName))
+			using (var stream = File.OpenRead (fileName)) {
+				var parser = new X509CertificateParser ();
+
 				Certificate = parser.ReadCertificate (stream);
+			}
 
 			if (Certificate == null)
 				throw new FormatException ();
@@ -199,7 +199,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			if (recipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+			if (recipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				RecipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
 			else
 				RecipientIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
