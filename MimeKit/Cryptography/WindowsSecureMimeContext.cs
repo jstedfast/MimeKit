@@ -223,7 +223,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
-			return new RealCmsRecipient (RealSubjectIdentifierType.SubjectKeyIdentifier, certificate);
+			return new RealCmsRecipient (certificate);
 		}
 
 		/// <summary>
@@ -261,7 +261,7 @@ namespace MimeKit.Cryptography {
 				var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
 				RealSubjectIdentifierType type;
 
-				if (recipient.RecipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+				if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 					type = RealSubjectIdentifierType.IssuerAndSerialNumber;
 				else
 					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
