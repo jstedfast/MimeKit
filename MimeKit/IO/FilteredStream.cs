@@ -693,12 +693,6 @@ namespace MimeKit.IO {
 				filteredIndex = 0;
 				filteredLength = 0;
 			}
-
-			if (cancellable != null) {
-				cancellable.Flush (cancellationToken);
-			} else {
-				Source.Flush ();
-			}
 		}
 
 		/// <summary>
@@ -770,8 +764,6 @@ namespace MimeKit.IO {
 				filteredIndex = 0;
 				filteredLength = 0;
 			}
-
-			await Source.FlushAsync (cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>
