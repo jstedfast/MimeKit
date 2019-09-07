@@ -365,6 +365,8 @@ namespace UnitTests {
 				AssertStreamArguments (stream);
 
 			using (var memory = new MemoryStream ()) {
+				Assert.Throws<ArgumentNullException> (() => new FilteredStream (null));
+
 				using (var stream = new FilteredStream (memory))
 					AssertStreamArguments (stream);
 			}
