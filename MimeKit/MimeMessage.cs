@@ -1384,8 +1384,10 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
 				WriteTo (options, stream, cancellationToken);
+				stream.Flush ();
+			}
 		}
 
 		/// <summary>
@@ -1431,8 +1433,10 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
 				await WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+				await stream.FlushAsync (cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		/// <summary>
@@ -1468,11 +1472,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.Default, fileName, cancellationToken);
 		}
 
 		/// <summary>
@@ -1507,13 +1507,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				await WriteToAsync (FormatOptions.Default, stream, cancellationToken).ConfigureAwait (false);
+			return WriteToAsync (FormatOptions.Default, fileName, cancellationToken);
 		}
 #endif
 
