@@ -1130,9 +1130,9 @@ namespace MimeKit.Cryptography {
 				tokens.Add (" ");
 
 				if ("action=".Length + action.Length < options.MaxLineLength) {
-					tokens.Add ($"reason={action}");
+					tokens.Add ($"action={action}");
 				} else {
-					tokens.Add ("reason=");
+					tokens.Add ("action=");
 					tokens.Add (action);
 				}
 			}
