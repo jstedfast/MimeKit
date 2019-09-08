@@ -1250,6 +1250,8 @@ namespace MimeKit {
 
 			if (!empty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding);
+			else
+				content.Dispose ();
 
 			return found;
 		}

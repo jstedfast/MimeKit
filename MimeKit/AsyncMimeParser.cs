@@ -281,6 +281,8 @@ namespace MimeKit {
 
 			if (!results.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding);
+			else
+				content.Dispose ();
 
 			return results.Boundary;
 		}
