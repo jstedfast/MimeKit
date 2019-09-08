@@ -1219,9 +1219,9 @@ namespace MimeKit.Cryptography
 				throw new ArgumentException ("No mailboxes specified.", nameof (mailboxes));
 
 			var cms = new CmsSignedDataStreamGenerator ();
-			var memory = new MemoryBlockStream ();
-
 			cms.AddCertificates (certificates);
+
+			var memory = new MemoryBlockStream ();
 			cms.Open (memory).Dispose ();
 			memory.Position = 0;
 
