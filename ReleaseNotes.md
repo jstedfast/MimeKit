@@ -1,5 +1,18 @@
 # Release Notes
 
+### MimeKit 2.3.1 (2019-09-08)
+
+* Updated CmsSigner's default DigestAlgorithm to Sha256 instead of Sha1 to match
+  System.Security.Cryptography.Pkcs.CmsSigner's default.
+* Updated WindowsSecureMimeContext to default to IssuerAndSerialNumber for
+  System.Security.Cryptography.Pkcs.CmsSigner.
+* Added support for the RSASSA-PSS signature padding algorithm when using the
+  BouncyCastle backend.
+* Improved robustness of TNEF processing of email address fields.
+* Modified FilteredStream.Flush*() to not flush the source stream.
+  (MailKit issue [#904](https://github.com/jstedfast/MailKit/issues/904))
+* Added net46 and net47 assemblies to the NuGet package.
+
 ### MimeKit 2.3.0 (2019-08-24)
 
 * Fixed MultipartRelated to fall back to the multipart/related type parameter when

@@ -24,8 +24,7 @@
 // THE SOFTWARE.
 //
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// The RSA signature padding schemes used by S/MIME.
 	/// </summary>
