@@ -40,13 +40,19 @@ namespace UnitTests {
 			var format = FormatOptions.Default.Clone ();
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => format.ParameterEncodingMethod = (ParameterEncodingMethod) 100, "ParameterEncodingMethod");
+			Assert.Throws<ArgumentOutOfRangeException> (() => format.MaxLineLength = 999, "MaxLineLength too large");
+			Assert.Throws<ArgumentOutOfRangeException> (() => format.MaxLineLength = 59, "MaxLineLength too small");
+
+			Assert.DoesNotThrow (() => format.MaxLineLength = 72);
 		}
 
 		[Test]
 		public void TestInvalidOperationExceptions ()
 		{
+			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.MaxLineLength = 998, "MaxLineLength");
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.EnsureNewLine = true, "EnsureNewLine");
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.International = true, "International");
+			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.NewLineFormat = NewLineFormat.Dos, "NewLineFormat");
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.AllowMixedHeaderCharsets = true, "AllowMixedHeaderCharsets");
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047, "ParameterEncodingMethod");
 		}
