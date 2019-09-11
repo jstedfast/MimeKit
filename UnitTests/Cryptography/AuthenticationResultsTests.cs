@@ -171,7 +171,7 @@ namespace UnitTests.Cryptography {
 
 			authres.Results.Add (new AuthenticationMethodResult ("really-really-really-long-method-name", "really-really-really-long-value") {
 				ResultComment = "this is a really really long result comment",
-				Action = "this is a really really really long reason",
+				Reason = "this is a really really really long reason",
 				Version = 214748367
 			});
 			authres.Results[0].Properties.Add (new AuthenticationMethodProperty ("this-is-a-really-really-long-ptype", "this-is-a-really-really-long-property", "this-is-a-really-really-long-value"));
