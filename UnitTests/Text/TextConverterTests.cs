@@ -68,6 +68,30 @@ namespace UnitTests.Text {
 			AssertArgumentExceptions (new HtmlToHtml ());
 		}
 
+		void AssertDefaultPropertyValues (TextConverter converter)
+		{
+			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
+			Assert.IsNull (converter.Footer, "Footer");
+			Assert.IsNull (converter.Header, "Header");
+			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
+			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
+			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
+			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+		}
+
+		[Test]
+		public void TestDefaultPropertyValues ()
+		{
+			AssertDefaultPropertyValues (new TextToText ());
+			AssertDefaultPropertyValues (new TextToFlowed ());
+			AssertDefaultPropertyValues (new TextToHtml ());
+
+			AssertDefaultPropertyValues (new FlowedToText ());
+			AssertDefaultPropertyValues (new FlowedToHtml ());
+
+			AssertDefaultPropertyValues (new HtmlToHtml ());
+		}
+
 		[Test]
 		public void TestSimpleFlowedToText ()
 		{
