@@ -104,6 +104,8 @@
     <Compile Include="IO\MemoryBlockStreamTests.cs" />
     <Compile Include="IO\ReadOneByteStream.cs" />
     <Compile Include="IO\TimeoutStream.cs" />
+    <Compile Include="Text\FlowedToHtmlTests.cs" />
+    <Compile Include="Text\FlowedToTextTests.cs" />
     <Compile Include="Text\HtmlAttributeTests.cs" />
     <Compile Include="Text\HtmlEntityDecoderTests.cs" />
     <Compile Include="Text\HtmlToHtmlTests.cs" />
