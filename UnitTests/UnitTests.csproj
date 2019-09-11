@@ -115,7 +115,9 @@
     <Compile Include="Text\HtmlWriterTests.cs" />
     <Compile Include="Text\RtfCompressedToRtfTests.cs" />
     <Compile Include="Text\TextConverterTests.cs" />
+    <Compile Include="Text\TextToFlowedTests.cs" />
     <Compile Include="Text\TextToHtmlTests.cs" />
+    <Compile Include="Text\TextToTextTests.cs" />
     <Compile Include="Text\TrieTests.cs" />
     <Compile Include="Text\UrlScannerTests.cs" />
     <Compile Include="Tnef\RtfCompressedToRtfTests.cs" />

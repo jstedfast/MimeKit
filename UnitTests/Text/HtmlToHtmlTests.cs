@@ -43,18 +43,78 @@ namespace UnitTests.Text {
 			var reader = new StringReader ("");
 			var writer = new StringWriter ();
 
-			Assert.AreEqual (TextFormat.Html, converter.InputFormat);
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat);
-			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark);
-			Assert.IsFalse (converter.FilterComments);
-			Assert.IsFalse (converter.FilterHtml);
-			Assert.IsNull (converter.Footer);
-			Assert.IsNull (converter.Header);
-			Assert.AreEqual (HeaderFooterFormat.Text, converter.FooterFormat);
-			Assert.AreEqual (HeaderFooterFormat.Text, converter.HeaderFormat);
+			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
+			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
 
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = -1);
+
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (TextWriter) null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, writer));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (new StreamReader (Stream.Null), (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, new StreamWriter (Stream.Null)));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (new StreamReader (Stream.Null), (TextWriter) null));
+		}
+
+		[Test]
+		public void TestDefaultPropertyValues ()
+		{
+			var converter = new HtmlToHtml ();
+
+			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
+			Assert.IsFalse (converter.FilterComments, "FilterComments");
+			Assert.IsFalse (converter.FilterHtml, "FilterHtml");
+			Assert.IsNull (converter.Footer, "Footer");
+			Assert.AreEqual (HeaderFooterFormat.Text, converter.FooterFormat, "FooterFormat");
+			Assert.IsNull (converter.Header, "Header");
+			Assert.AreEqual (HeaderFooterFormat.Text, converter.HeaderFormat, "HeaderFormat");
+			Assert.IsNull (converter.HtmlTagCallback, "HtmlTagCallback");
+			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
+			Assert.AreEqual (TextFormat.Html, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
+			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
+			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+		}
+
+		void ReplaceUrlsWithFileNames (HtmlTagContext ctx, HtmlWriter htmlWriter)
+		{
+			if (ctx.TagId == HtmlTagId.Image) {
+				htmlWriter.WriteEmptyElementTag (ctx.TagName);
+				ctx.DeleteEndTag = true;
+
+				for (int i = 0; i < ctx.Attributes.Count; i++) {
+					var attr = ctx.Attributes[i];
+
+					if (attr.Id == HtmlAttributeId.Src) {
+						var fileName = Path.GetFileName (attr.Value);
+						htmlWriter.WriteAttributeName (attr.Name);
+						htmlWriter.WriteAttributeValue (fileName);
+					} else {
+						htmlWriter.WriteAttribute (attr);
+					}
+				}
+			} else {
+				ctx.WriteTag (htmlWriter, true);
+			}
+		}
+
+		[Test]
+		public void TestSimpleHtmlToHtml ()
+		{
+			string expected = File.ReadAllText ("../../TestData/html/xamarin3.xhtml");
+			string text = File.ReadAllText ("../../TestData/html/xamarin3.html");
+			var converter = new HtmlToHtml { Header = null, Footer = null, HtmlTagCallback = ReplaceUrlsWithFileNames };
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (TextFormat.Html, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
+			Assert.AreEqual (expected, result);
 		}
 
 		void SupressInnerContentCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)

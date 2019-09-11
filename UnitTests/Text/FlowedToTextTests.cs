@@ -40,6 +40,8 @@ namespace UnitTests.Text {
 		public void TestArgumentExceptions ()
 		{
 			var converter = new FlowedToText ();
+			var reader = new StringReader ("");
+			var writer = new StringWriter ();
 
 			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
 			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
@@ -52,6 +54,8 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (Stream) null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, Stream.Null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, writer));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (TextWriter) null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (new StreamReader (Stream.Null), (Stream) null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, new StreamWriter (Stream.Null)));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (new StreamReader (Stream.Null), (TextWriter) null));

@@ -1,5 +1,5 @@
 ﻿//
-// TextToHtmlTests.cs
+// TextToFlowedTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -28,19 +28,18 @@ using System;
 using System.IO;
 using System.Text;
 
-using MimeKit.Encodings;
 using MimeKit.Text;
 
 using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class TextToHtmlTests
+	public class TextToFlowedTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var converter = new TextToHtml ();
+			var converter = new TextToFlowed ();
 			var reader = new StringReader ("");
 			var writer = new StringWriter ();
 
@@ -65,102 +64,45 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestDefaultPropertyValues ()
 		{
-			var converter = new TextToHtml ();
+			var converter = new TextToFlowed ();
 
 			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
 			Assert.IsNull (converter.Footer, "Footer");
-			Assert.AreEqual (HeaderFooterFormat.Text, converter.FooterFormat, "FooterFormat");
 			Assert.IsNull (converter.Header, "Header");
-			Assert.AreEqual (HeaderFooterFormat.Text, converter.HeaderFormat, "HeaderFormat");
-			Assert.IsNull (converter.HtmlTagCallback, "HtmlTagCallback");
 			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
 			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
 			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
 			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
-			Assert.IsFalse (converter.OutputHtmlFragment, "OutputHtmlFragment");
+			Assert.AreEqual (TextFormat.Flowed, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
 		}
 
 		[Test]
-		public void TestOutputHtmlFragment ()
+		public void TestSimpleTextToFlowed ()
 		{
-			const string input = "This is the html body";
-			const string expected = "<html><body>This is the html body<br/></body></html>";
-			const string expected2 = "This is the html body<br/>";
-			var converter = new TextToHtml ();
-			string result;
+			string expected = "> Thou art a villainous ill-breeding spongy dizzy-eyed reeky elf-skinned " + Environment.NewLine +
+				">  pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including " + Environment.NewLine +
+				">>>>  the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			string text = "> Thou art a villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			TextConverter converter = new TextToFlowed { Header = null, Footer = null };
+			string result = converter.Convert (text);
 
-			result = converter.Convert (input);
 			Assert.AreEqual (expected, result);
 
-			converter.OutputHtmlFragment = true;
-			result = converter.Convert (input);
-			Assert.AreEqual (expected2, result);
-		}
+			converter = new FlowedToText { DeleteSpace = true };
+			result = converter.Convert (expected);
 
-		[Test]
-		public void TestHeaderFooter ()
-		{
-			const string input = "This is the html body";
-			const string header = "This is the header";
-			const string footer = "This is the footer";
-			var expected = "<html><body>" + header + "<br/>" + input + "<br/>" + footer + "<br/></body></html>";
-			var converter = new TextToHtml {
-				HeaderFormat = HeaderFooterFormat.Text,
-				Header = header,
-				FooterFormat = HeaderFooterFormat.Text,
-				Footer = footer
-			};
-
-			var result = converter.Convert (input);
-			Assert.AreEqual (expected, result);
-		}
-
-		[Test]
-		public void TestEmoji ()
-		{
-			var expected = "<html><body>&#128561;<br/></body></html>";
-			var buffer = Encoding.ASCII.GetBytes ("=F0=9F=98=B1");
-			var decoder = new QuotedPrintableDecoder ();
-			var length = decoder.EstimateOutputLength (buffer.Length);
-			var decoded = new byte[length];
-			var n = decoder.Decode (buffer, 0, buffer.Length, decoded);
-			var emoji = Encoding.UTF8.GetString (decoded, 0, n);
-			var converter = new TextToHtml ();
-			var result = converter.Convert (emoji);
-
-			Assert.AreEqual (expected, result);
-		}
-
-		[Test]
-		public void TestSimpleTextToHtml ()
-		{
-			const string expected = "This is some sample text. This is line #1.<br/>" +
-				"This is line #2.<br/>" +
-				"And this is line #3.<br/>";
-			string text = "This is some sample text. This is line #1." + Environment.NewLine +
-				"This is line #2." + Environment.NewLine +
-				"And this is line #3." + Environment.NewLine;
-			var converter = new TextToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
-			var result = converter.Convert (text);
-
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
-			Assert.AreEqual (expected, result);
-		}
-
-		[Test]
-		public void TestSimpleTextWithUrlsToHtml ()
-		{
-			const string expected = "Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!<br/>";
-			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
-			var converter = new TextToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
-			var result = converter.Convert (text);
-
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
-			Assert.AreEqual (expected, result);
+			Assert.AreEqual (text, result);
 		}
 	}
 }
