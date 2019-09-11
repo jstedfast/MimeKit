@@ -36,11 +36,8 @@ namespace UnitTests.Text {
 	[TestFixture]
 	public class TextConverterTests
 	{
-		[Test]
-		public void TestArgumentExceptions ()
+		void AssertArgumentExceptions (TextConverter converter)
 		{
-			var converter = new TextToText ();
-
 			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
 			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
 
@@ -59,6 +56,19 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			AssertArgumentExceptions (new TextToText ());
+			AssertArgumentExceptions (new TextToFlowed ());
+			AssertArgumentExceptions (new TextToHtml ());
+
+			AssertArgumentExceptions (new FlowedToText ());
+			AssertArgumentExceptions (new FlowedToHtml ());
+
+			AssertArgumentExceptions (new HtmlToHtml ());
+		}
+
+		[Test]
 		public void TestSimpleFlowedToText ()
 		{
 			string expected = "This is some sample text that has been formatted " +
@@ -67,9 +77,11 @@ namespace UnitTests.Text {
 			string text = "This is some sample text that has been formatted " + Environment.NewLine +
 				"according to the format=flowed rules defined in rfc3676. " + Environment.NewLine +
 				"This text, once converted, should all be on a single line." + Environment.NewLine;
-			var converter = new FlowedToText ();
+			var converter = new FlowedToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -93,9 +105,11 @@ namespace UnitTests.Text {
 				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			var converter = new FlowedToText ();
+			var converter = new FlowedToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -120,9 +134,11 @@ namespace UnitTests.Text {
 				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			var converter = new FlowedToText ();
+			var converter = new FlowedToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -145,9 +161,11 @@ namespace UnitTests.Text {
 				Environment.NewLine +
 				Environment.NewLine +
 				"And this line of text should be separate by 4 blank lines." + Environment.NewLine;
-			var converter = new FlowedToHtml { OutputHtmlFragment = true };
+			var converter = new FlowedToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -172,9 +190,11 @@ namespace UnitTests.Text {
 				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			var converter = new FlowedToHtml { OutputHtmlFragment = true };
+			var converter = new FlowedToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -200,9 +220,11 @@ namespace UnitTests.Text {
 				">>>>> I've noticed a lack of adherence to the coding " + Environment.NewLine +
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			var converter = new FlowedToHtml { OutputHtmlFragment = true };
+			var converter = new FlowedToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -211,9 +233,11 @@ namespace UnitTests.Text {
 		{
 			string expected = "<p>Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!</p>" + Environment.NewLine;
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
-			var converter = new FlowedToHtml { OutputHtmlFragment = true };
+			var converter = new FlowedToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -226,9 +250,11 @@ namespace UnitTests.Text {
 			string text = "This is some sample text. This is line #1." + Environment.NewLine +
 				"This is line #2." + Environment.NewLine +
 				"And this is line #3." + Environment.NewLine;
-			var converter = new TextToText ();
+			var converter = new TextToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -249,14 +275,18 @@ namespace UnitTests.Text {
 				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
 				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
-			TextConverter converter = new TextToFlowed ();
+			TextConverter converter = new TextToFlowed { Header = null, Footer = null };
 			string result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Flowed, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 
 			converter = new FlowedToText { DeleteSpace = true };
 			result = converter.Convert (expected);
 
+			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (text, result);
 		}
 
@@ -269,9 +299,11 @@ namespace UnitTests.Text {
 			string text = "This is some sample text. This is line #1." + Environment.NewLine +
 				"This is line #2." + Environment.NewLine +
 				"And this is line #3." + Environment.NewLine;
-			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var converter = new TextToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -280,9 +312,11 @@ namespace UnitTests.Text {
 		{
 			const string expected = "Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!<br/>";
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
-			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var converter = new TextToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -313,9 +347,11 @@ namespace UnitTests.Text {
 		{
 			string expected = File.ReadAllText ("../../TestData/html/xamarin3.xhtml");
 			string text = File.ReadAllText ("../../TestData/html/xamarin3.html");
-			var converter = new HtmlToHtml { HtmlTagCallback = ReplaceUrlsWithFileNames };
+			var converter = new HtmlToHtml { Header = null, Footer = null, HtmlTagCallback = ReplaceUrlsWithFileNames };
 			var result = converter.Convert (text);
 
+			Assert.AreEqual (TextFormat.Html, converter.InputFormat, "InputFormat");
+			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 	}
