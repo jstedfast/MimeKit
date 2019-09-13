@@ -212,7 +212,10 @@ namespace UnitTests.Text {
 				">>>>>> Any complaints?" + Environment.NewLine;
 			var converter = new FlowedToHtml {
 				Header = "On <date>, so-and-so said:" + Environment.NewLine,
-				Footer = "Tha-tha-tha-tha that's all, folks!" + Environment.NewLine
+				HeaderFormat = HeaderFooterFormat.Text,
+				Footer = "Tha-tha-tha-tha that's all, folks!" + Environment.NewLine,
+				FooterFormat = HeaderFooterFormat.Text,
+				HtmlTagCallback = null
 			};
 			var result = converter.Convert (text);
 

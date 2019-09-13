@@ -104,5 +104,41 @@ namespace UnitTests.Text {
 
 			Assert.AreEqual (text, result);
 		}
+
+		[Test]
+		public void TestSpaceStuffingFromLine ()
+		{
+			string expected = "My favorite James Bond movie is" + Environment.NewLine +
+				" From Russia with love." + Environment.NewLine;
+			string text = "My favorite James Bond movie is" + Environment.NewLine +
+				"From Russia with love." + Environment.NewLine;
+			TextConverter converter = new TextToFlowed ();
+			string result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+
+			converter = new FlowedToText ();
+			result = converter.Convert (expected);
+
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestSpaceStuffingLinesStartingWithSpace ()
+		{
+			string expected = "This is a regular line." + Environment.NewLine +
+				"  This line starts with a space." + Environment.NewLine;
+			string text = "This is a regular line." + Environment.NewLine +
+				" This line starts with a space." + Environment.NewLine;
+			TextConverter converter = new TextToFlowed ();
+			string result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+
+			converter = new FlowedToText ();
+			result = converter.Convert (expected);
+
+			Assert.AreEqual (text, result);
+		}
 	}
 }

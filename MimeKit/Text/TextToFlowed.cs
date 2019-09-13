@@ -115,7 +115,7 @@ namespace MimeKit.Text {
 				flowed.Append ('>', quoteDepth);
 
 			// Space-stuffed lines which start with a space, "From ", or ">".
-			if (quoteDepth > 0 || StartsWith (line, index, "From "))
+			if (quoteDepth > 0 || (line.Length > 0 && line[0] == ' ') || StartsWith (line, index, "From "))
 				flowed.Append (' ');
 
 			if (flowed.Length + (line.Length - index) <= MaxLineLength) {
