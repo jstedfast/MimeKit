@@ -130,7 +130,7 @@ namespace MimeKit {
 				var text = new TextPart ("plain");
 				text.Text = TextBody;
 
-				if (!string.IsNullOrEmpty (HtmlBody)) {
+				if (HtmlBody != null) {
 					alternative = new MultipartAlternative ();
 					alternative.Add (text);
 					body = alternative;
