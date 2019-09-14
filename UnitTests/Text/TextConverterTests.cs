@@ -54,6 +54,9 @@ namespace UnitTests.Text {
 
 			converter.OutputStreamBufferSize = 6000;
 			Assert.AreEqual (6000, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+
+			converter.DetectEncodingFromByteOrderMark = true;
+			Assert.IsTrue (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
 		}
 
 		[Test]
@@ -61,6 +64,7 @@ namespace UnitTests.Text {
 		{
 			const string input = "This is some text...";
 			var converter = new TextToText {
+				DetectEncodingFromByteOrderMark = false,
 				InputEncoding = Encoding.ASCII,
 				OutputEncoding = Encoding.ASCII
 			};
@@ -80,6 +84,7 @@ namespace UnitTests.Text {
 		{
 			const string input = "This is some text...";
 			var converter = new TextToText {
+				DetectEncodingFromByteOrderMark = false,
 				InputEncoding = Encoding.ASCII,
 				OutputEncoding = Encoding.ASCII
 			};
@@ -99,6 +104,7 @@ namespace UnitTests.Text {
 		{
 			const string input = "This is some text...";
 			var converter = new TextToText {
+				DetectEncodingFromByteOrderMark = false,
 				InputEncoding = Encoding.ASCII,
 				OutputEncoding = Encoding.ASCII
 			};
