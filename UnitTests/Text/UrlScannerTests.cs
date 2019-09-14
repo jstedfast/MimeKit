@@ -178,6 +178,36 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestSimpleWebUrlWithPathEnclosedInParens ()
+		{
+			TestUrlScanner ("This is some text with an (http://www.xamarin.com/logo.png) url in it...", "http://www.xamarin.com/logo.png");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithPathEnclosedInCurlyBraces ()
+		{
+			TestUrlScanner ("This is some text with an {http://www.xamarin.com/logo.png} url in it...", "http://www.xamarin.com/logo.png");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithPathEnclosedInAngleBrackets ()
+		{
+			TestUrlScanner ("This is some text with an <http://www.xamarin.com/logo.png> url in it...", "http://www.xamarin.com/logo.png");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithPathEnclosedInSquareBrackets ()
+		{
+			TestUrlScanner ("This is some text with an [http://www.xamarin.com/logo.png] url in it...", "http://www.xamarin.com/logo.png");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithPathEnclosedInPipes ()
+		{
+			TestUrlScanner ("This is some text with an |http://www.xamarin.com/logo.png| url in it...", "http://www.xamarin.com/logo.png");
+		}
+
+		[Test]
 		public void TestSimpleWebUrlWithPort ()
 		{
 			TestUrlScanner ("This is some text with an http://www.xamarin.com:80 url in it...", "http://www.xamarin.com:80");
