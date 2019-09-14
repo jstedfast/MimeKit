@@ -301,5 +301,59 @@ namespace UnitTests.Utils {
 				Assert.AreEqual (19, ex.ErrorIndex, "ErrorIndex");
 			}
 		}
+
+		[Test]
+		public void TestTryParseMsgIdInvalidQuotedLocalPart ()
+		{
+			var buffer = Encoding.ASCII.GetBytes (" <\"quoted-string@domain>");
+			int index = 0;
+			string msgid;
+
+			Assert.IsFalse (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), "TryParseMsgId");
+
+			try {
+				index = 0;
+				ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, true, out msgid);
+				Assert.Fail ("throwOnError");
+			} catch (ParseException ex) {
+				Assert.AreEqual (2, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (24, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
+		public void TestTryParseMsgIdInvalidInternationalLocalPart ()
+		{
+			var buffer = Encoding.GetEncoding ("iso-8859-1").GetBytes (" <æøå@domain>");
+			int index = 0;
+			string msgid;
+
+			Assert.IsFalse (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), "TryParseMsgId");
+
+			try {
+				index = 0;
+				ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, true, out msgid);
+				Assert.Fail ("throwOnError");
+			} catch (ParseException ex) {
+				Assert.AreEqual (1, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (2, ex.ErrorIndex, "ErrorIndex");
+			}
+		}
+
+		[Test]
+		public void TestTryParseMsgIdWithIdnDomain ()
+		{
+			var buffer = Encoding.ASCII.GetBytes (" <id@xn--v8jxj3d1dzdz08w.com>");
+			const string expected = "id@名がドメイン.com";
+			int index = 0;
+			string msgid;
+
+			Assert.IsTrue (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), "TryParseMsgId");
+			Assert.AreEqual (expected, msgid, "msgid");
+
+			index = 0;
+			Assert.IsTrue (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, true, out msgid), "TryParseMsgId+thowOnError");
+			Assert.AreEqual (expected, msgid, "msgid");
+		}
 	}
 }
