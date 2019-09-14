@@ -52,8 +52,65 @@ namespace UnitTests.Text {
 			converter.OutputEncoding = utf16;
 			Assert.AreEqual (utf16, converter.OutputEncoding, "OutputEncoding");
 
-			converter.InputStreamBufferSize = 6000;
-			Assert.AreEqual (6000, converter.InputStreamBufferSize, "InputStreamBufferSize");
+			converter.OutputStreamBufferSize = 6000;
+			Assert.AreEqual (6000, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+		}
+
+		[Test]
+		public void TestConvertFromReaderToStream ()
+		{
+			const string input = "This is some text...";
+			var converter = new TextToText {
+				InputEncoding = Encoding.ASCII,
+				OutputEncoding = Encoding.ASCII
+			};
+
+			using (var output = new MemoryStream ()) {
+				using (var reader = new StringReader (input))
+					converter.Convert (reader, output);
+
+				var result = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+				Assert.AreEqual (input, result);
+			}
+		}
+
+		[Test]
+		public void TestConvertFromStreamToStream ()
+		{
+			const string input = "This is some text...";
+			var converter = new TextToText {
+				InputEncoding = Encoding.ASCII,
+				OutputEncoding = Encoding.ASCII
+			};
+
+			using (var output = new MemoryStream ()) {
+				using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (input)))
+					converter.Convert (stream, output);
+
+				var result = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+				Assert.AreEqual (input, result);
+			}
+		}
+
+		[Test]
+		public void TestConvertFromStreamToWriter ()
+		{
+			const string input = "This is some text...";
+			var converter = new TextToText {
+				InputEncoding = Encoding.ASCII,
+				OutputEncoding = Encoding.ASCII
+			};
+
+			using (var writer = new StringWriter ()) {
+				using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (input)))
+					converter.Convert (stream, writer);
+
+				var result = writer.ToString ();
+
+				Assert.AreEqual (input, result);
+			}
 		}
 	}
 }

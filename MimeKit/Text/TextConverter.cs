@@ -230,12 +230,12 @@ namespace MimeKit.Text {
 
 		TextReader CreateReader (Stream stream)
 		{
-			return new StreamReader (stream, InputEncoding, DetectEncodingFromByteOrderMark, InputStreamBufferSize);
+			return new StreamReader (stream, InputEncoding, DetectEncodingFromByteOrderMark, InputStreamBufferSize, true);
 		}
 
 		TextWriter CreateWriter (Stream stream)
 		{
-			return new StreamWriter (stream, OutputEncoding, OutputStreamBufferSize);
+			return new StreamWriter (stream, OutputEncoding, OutputStreamBufferSize, true);
 		}
 
 		/// <summary>
@@ -261,7 +261,11 @@ namespace MimeKit.Text {
 			if (destination == null)
 				throw new ArgumentNullException (nameof (destination));
 
-			Convert (CreateReader (source), CreateWriter (destination));
+			using (var writer = CreateWriter (destination)) {
+				using (var reader = CreateReader (source))
+					Convert (reader, writer);
+				writer.Flush ();
+			}
 		}
 
 		/// <summary>
@@ -287,7 +291,8 @@ namespace MimeKit.Text {
 			if (writer == null)
 				throw new ArgumentNullException (nameof (writer));
 
-			Convert (CreateReader (source), writer);
+			using (var reader = CreateReader (source))
+				Convert (reader, writer);
 		}
 
 		/// <summary>
@@ -313,7 +318,10 @@ namespace MimeKit.Text {
 			if (destination == null)
 				throw new ArgumentNullException (nameof (destination));
 
-			Convert (reader, CreateWriter (destination));
+			using (var writer = CreateWriter (destination)) {
+				Convert (reader, writer);
+				writer.Flush ();
+			}
 		}
 
 		/// <summary>
