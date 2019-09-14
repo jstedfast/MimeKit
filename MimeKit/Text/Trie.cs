@@ -324,6 +324,9 @@ namespace MimeKit.Text {
 		/// </exception>
 		public int Search (char[] text, int startIndex, out string pattern)
 		{
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
 			return Search (text, startIndex, text.Length - startIndex, out pattern);
 		}
 
@@ -341,6 +344,9 @@ namespace MimeKit.Text {
 		/// </exception>
 		public int Search (char[] text, out string pattern)
 		{
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
 			return Search (text, 0, text.Length, out pattern);
 		}
 	}

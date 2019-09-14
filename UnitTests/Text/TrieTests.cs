@@ -57,6 +57,28 @@ namespace UnitTests.Text {
 		};
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var text = TestCases[0].ToCharArray ();
+			var trie = new Trie ();
+			string pattern;
+
+			Assert.Throws<ArgumentNullException> (() => trie.Add (null));
+			Assert.Throws<ArgumentException> (() => trie.Add (string.Empty));
+
+			for (int i = 0; i < TriePatterns.Length; i++)
+				trie.Add (TriePatterns[i]);
+
+			Assert.Throws<ArgumentNullException> (() => trie.Search (null, out pattern));
+			Assert.Throws<ArgumentNullException> (() => trie.Search (null, 0, out pattern));
+			Assert.Throws<ArgumentNullException> (() => trie.Search (null, 0, 0, out pattern));
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => trie.Search (text, -1, out pattern));
+			Assert.Throws<ArgumentOutOfRangeException> (() => trie.Search (text, -1, text.Length, out pattern));
+			Assert.Throws<ArgumentOutOfRangeException> (() => trie.Search (text, 0, -1, out pattern));
+		}
+
+		[Test]
 		public void TestTrie ()
 		{
 			var trie = new Trie (true);
