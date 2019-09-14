@@ -67,9 +67,22 @@ namespace UnitTests.Text {
 			Assert.IsNull (converter.Footer, "Footer");
 			Assert.IsNull (converter.Header, "Header");
 			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
+			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
 			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
+			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
 			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+		}
+
+		[Test]
+		public void TestHeaderAndFooter ()
+		{
+			string expected = "Header,Footer";
+			string text = ",";
+			var converter = new TextToText { Header = "Header", Footer = "Footer" };
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
 		}
 
 		[Test]
@@ -81,11 +94,9 @@ namespace UnitTests.Text {
 			string text = "This is some sample text. This is line #1." + Environment.NewLine +
 				"This is line #2." + Environment.NewLine +
 				"And this is line #3." + Environment.NewLine;
-			var converter = new TextToText { Header = null, Footer = null };
+			var converter = new TextToText ();
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 	}

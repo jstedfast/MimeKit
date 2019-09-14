@@ -134,6 +134,72 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestIncreasingQuoteLevels ()
+		{
+			string expected = "<blockquote>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!<br/>" +
+				"<blockquote>Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!<br/>" +
+				"<blockquote>Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!<br/>" +
+				"<blockquote>Henceforth, the coding style is to be strictly enforced, including the use of only upper case.<br/>" +
+				"<blockquote>I&#39;ve noticed a lack of adherence to the coding styles, of late.<br/>" +
+				"<blockquote>Any complaints?<br/>" +
+				"</blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>";
+			string text = "> Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?" + Environment.NewLine;
+			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestIncreasingQuoteLevelsNoNewLineAtEndOfText ()
+		{
+			string expected = "<blockquote>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!<br/>" +
+				"<blockquote>Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!<br/>" +
+				"<blockquote>Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!<br/>" +
+				"<blockquote>Henceforth, the coding style is to be strictly enforced, including the use of only upper case.<br/>" +
+				"<blockquote>I&#39;ve noticed a lack of adherence to the coding styles, of late.<br/>" +
+				"<blockquote>Any complaints?<br/>" +
+				"</blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>";
+			string text = "> Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">>>>> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				">>>>>> Any complaints?";
+			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestDecreasingQuoteLevels ()
+		{
+			string expected = "<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote>Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!<br/>" +
+				"</blockquote>Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!<br/>" +
+				"</blockquote>Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!<br/>" +
+				"</blockquote>Henceforth, the coding style is to be strictly enforced, including the use of only upper case.<br/>" +
+				"</blockquote>I&#39;ve noticed a lack of adherence to the coding styles, of late.<br/>" +
+				"</blockquote>Any complaints?<br/>" +
+				"</blockquote>";
+			string text = ">>>>>> Thou villainous ill-breeding spongy dizzy-eyed reeky elf-skinned pigeon-egg!" + Environment.NewLine +
+				">>>>> Thou artless swag-bellied milk-livered dismal-dreaming idle-headed scut!" + Environment.NewLine +
+				">>>> Thou errant folly-fallen spleeny reeling-ripe unmuzzled ratsbane!" + Environment.NewLine +
+				">>> Henceforth, the coding style is to be strictly enforced, including the use of only upper case." + Environment.NewLine +
+				">> I've noticed a lack of adherence to the coding styles, of late." + Environment.NewLine +
+				"> Any complaints?" + Environment.NewLine;
+			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var result = converter.Convert (text);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
 		public void TestSimpleTextToHtml ()
 		{
 			const string expected = "This is some sample text. This is line #1.<br/>" +
@@ -142,11 +208,9 @@ namespace UnitTests.Text {
 			string text = "This is some sample text. This is line #1." + Environment.NewLine +
 				"This is line #2." + Environment.NewLine +
 				"And this is line #3." + Environment.NewLine;
-			var converter = new TextToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
+			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 
@@ -155,11 +219,9 @@ namespace UnitTests.Text {
 		{
 			const string expected = "Check out <a href=\"http://www.xamarin.com\">http://www.xamarin.com</a> - it&#39;s amazing!<br/>";
 			string text = "Check out http://www.xamarin.com - it's amazing!" + Environment.NewLine;
-			var converter = new TextToHtml { Header = null, Footer = null, OutputHtmlFragment = true };
+			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
 			Assert.AreEqual (expected, result);
 		}
 	}

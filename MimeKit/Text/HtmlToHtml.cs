@@ -252,7 +252,7 @@ namespace MimeKit.Text {
 
 			if (!string.IsNullOrEmpty (Header)) {
 				if (HeaderFormat == HeaderFooterFormat.Text) {
-					var converter = new TextToHtml ();
+					var converter = new TextToHtml { OutputHtmlFragment = true };
 
 					using (var sr = new StringReader (Header))
 						converter.Convert (sr, writer);
@@ -344,7 +344,7 @@ namespace MimeKit.Text {
 
 			if (!string.IsNullOrEmpty (Footer)) {
 				if (FooterFormat == HeaderFooterFormat.Text) {
-					var converter = new TextToHtml ();
+					var converter = new TextToHtml { OutputHtmlFragment = true };
 
 					using (var sr = new StringReader (Footer))
 						converter.Convert (sr, writer);

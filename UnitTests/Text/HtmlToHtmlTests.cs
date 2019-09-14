@@ -201,5 +201,22 @@ namespace UnitTests.Text {
 
 			Assert.AreEqual (expected, result);
 		}
+
+		[Test]
+		public void TestTextHeaderFooter ()
+		{
+			const string input = "<body>Here is the body content which seems fine so far</body>";
+			const string expected = "&lt;html&gt;&lt;head&gt;&lt;/head&gt;<br/><body>Here is the body content which seems fine so far</body>&lt;/html&gt;<br/>";
+			var converter = new HtmlToHtml {
+				HeaderFormat = HeaderFooterFormat.Text,
+				Header = "<html><head></head>",
+				FooterFormat = HeaderFooterFormat.Text,
+				Footer = "</html>"
+			};
+
+			var result = converter.Convert (input);
+
+			Assert.AreEqual (expected, result);
+		}
 	}
 }
