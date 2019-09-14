@@ -108,6 +108,7 @@
     <Compile Include="Text\FlowedToTextTests.cs" />
     <Compile Include="Text\HtmlAttributeTests.cs" />
     <Compile Include="Text\HtmlEntityDecoderTests.cs" />
+    <Compile Include="Text\HtmlTagIdTests.cs" />
     <Compile Include="Text\HtmlToHtmlTests.cs" />
     <Compile Include="Text\HtmlTokenizerTests.cs" />
     <Compile Include="Text\HtmlTokenTests.cs" />

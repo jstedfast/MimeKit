@@ -1,5 +1,5 @@
 ﻿//
-// MimeTypeTests.cs
+// HtmlTagIdTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,38 +24,39 @@
 // THE SOFTWARE.
 //
 
-using System;
+using MimeKit.Text;
 
 using NUnit.Framework;
 
-using MimeKit;
-
-namespace UnitTests {
+namespace UnitTests.Text {
 	[TestFixture]
-	public class MimeTypeTests
+	public class HtmlTagIdTests
 	{
 		[Test]
-		public void TestNullFileName ()
+		public void TestToHtmlTagId ()
 		{
-			Assert.Throws<ArgumentNullException> (() => MimeTypes.GetMimeType (null));
+			Assert.AreEqual (HtmlTagId.Unknown, "".ToHtmlTagId (), "string.Empty");
+			Assert.AreEqual (HtmlTagId.Comment, "!".ToHtmlTagId (), "!");
+			Assert.AreEqual (HtmlTagId.Comment, "!blah".ToHtmlTagId (), "!blah");
+			Assert.AreEqual (HtmlTagId.A, "a".ToHtmlTagId (), "a");
+			Assert.AreEqual (HtmlTagId.A, "A".ToHtmlTagId (), "A");
+			Assert.AreEqual (HtmlTagId.Font, "font".ToHtmlTagId (), "font");
+			Assert.AreEqual (HtmlTagId.Font, "FONT".ToHtmlTagId (), "FONT");
+			Assert.AreEqual (HtmlTagId.Font, "FoNt".ToHtmlTagId (), "FoNt");
 		}
 
 		[Test]
-		public void TestNoFileExtension ()
+		public void TestIsFormattingElement ()
 		{
-			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename"));
-		}
+			var formattingElements = new[] { "a", "b", "big", "code", "em", "font", "i", "nobr", "s", "small", "strike", "strong", "tt", "u" };
 
-		[Test]
-		public void TestFileNameDot ()
-		{
-			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename."));
-		}
+			foreach (var element in formattingElements) {
+				var tag = element.ToHtmlTagId ();
 
-		[Test]
-		public void TestFileExtensionTxt ()
-		{
-			Assert.AreEqual ("text/plain", MimeTypes.GetMimeType ("filename.txt"));
+				Assert.IsTrue (tag.IsFormattingElement (), element);
+			}
+
+			Assert.IsFalse ("body".ToHtmlTagId ().IsFormattingElement (), "body");
 		}
 	}
 }
