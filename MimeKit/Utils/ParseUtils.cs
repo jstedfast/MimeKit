@@ -417,7 +417,7 @@ namespace MimeKit.Utils {
 					if (!SkipQuoted (text, ref index, endIndex, throwOnError))
 						return false;
 				} else {
-					while (index < endIndex && text[index] != (byte) '.' && text[index] != (byte) '@' && text[index] != '>' && !text[index].IsType (SpaceOrControl))
+					while (index < endIndex && text[index] != (byte) '.' && text[index] != (byte) '@' && text[index] != '>' && !text[index].IsBlank ())
 						index++;
 				}
 
