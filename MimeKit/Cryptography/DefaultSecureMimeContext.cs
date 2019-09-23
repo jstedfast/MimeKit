@@ -393,17 +393,23 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
+			X509CertificateRecord recordSigner = null;
+			
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
-				var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey);
+				recordSigner = record;
+				break;
+			}
+			
+			if (recordSigner != null) {
+				var signer = new CmsSigner (BuildCertificateChain (recordSigner.Certificate), recordSigner.PrivateKey);
 				signer.DigestAlgorithm = digestAlgo;
 
 				return signer;
-			}
-
-			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
+			} else
+				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
 
 		/// <summary>
