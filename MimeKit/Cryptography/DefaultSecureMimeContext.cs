@@ -393,11 +393,20 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
+			AsymmetricKeyParameter privateKey = null;
+			X509Certificate certificate = null;
+
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
-				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
-				var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey);
+				certificate = record.Certificate;
+				privateKey = record.PrivateKey;
+				break;
+			}
+
+			if (certificate != null && privateKey != null) {
+				var signer = new CmsSigner (BuildCertificateChain (certificate), privateKey);
 				signer.DigestAlgorithm = digestAlgo;
 
 				return signer;
