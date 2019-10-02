@@ -252,6 +252,7 @@ namespace MimeKit.Cryptography {
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
+			options.EnsureNewLine = true;
 
 			switch (SignatureAlgorithm) {
 			case DkimSignatureAlgorithm.Ed25519Sha256:

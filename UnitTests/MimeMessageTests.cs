@@ -608,6 +608,83 @@ This is the epilogue.
 		}
 
 		[Test]
+		public async Task TestReserializationDeliveryStatusReportWithEnsureNewLine ()
+		{
+			string rawMessageText = @"From: est@somwhere.com
+Date: Fri, 15 Feb 2019 16:00:08 +0000
+Subject: report_with_no_body
+To: tom@to.com
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary=""A41C7.838631588=_/mm1""
+
+
+Processing your mail message caused the following errors:
+
+error: err.nosuchuser: newsletter-request@imusic.com
+
+--A41C7.838631588=_/mm1
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mm1
+Arrival-Date: Mon, 29 Jul 1996 02:12:50 -0700
+
+Final-Recipient: RFC822; newsletter-request@imusic.com
+Action: failed
+Diagnostic-Code: X-LOCAL; 500 (err.nosuchuser)
+
+--A41C7.838631588=_/mm1
+Content-Type: message/rfc822
+
+Received: from urchin.netscape.com ([198.95.250.59]) by mm1.sprynet.com with ESMTP id <148217-12799>; Mon, 29 Jul 1996 02:12:50 -0700
+Received: from gruntle (gruntle.mcom.com [205.217.230.10]) by urchin.netscape.com (8.7.5/8.7.3) with SMTP id CAA24688 for <newsletter-request@imusic.com>; Mon, 29 Jul 1996 02:04:53 -0700 (PDT)
+Sender: jwz@netscape.com
+Message-ID: <31FC7EB4.41C6@netscape.com>
+Date: Mon, 29 Jul 1996 02:04:52 -0700
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.0b6 (X11; U; IRIX 5.3 IP22)
+MIME-Version: 1.0
+To: newsletter-request@imusic.com
+Subject: unsubscribe
+References: <96Jul29.013736-0700pdt.148116-12799+675@mm1.sprynet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+unsubscribe
+--A41C7.838631588=_/mm1--
+".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+			}
+		}
+
+		[Test]
 		public void TestMailMessageToMimeMessage ()
 		{
 			var mail = new MailMessage ();

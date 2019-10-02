@@ -361,6 +361,7 @@ namespace MimeKit.Cryptography {
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
+			options.EnsureNewLine = true;
 
 			if (doAsync)
 				authres = await GenerateArcAuthenticationResultsAsync (options, message, cancellationToken).ConfigureAwait (false);

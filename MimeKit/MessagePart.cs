@@ -236,6 +236,11 @@ namespace MimeKit {
 				}
 			}
 
+			if (options.EnsureNewLine) {
+				options = options.Clone ();
+				options.EnsureNewLine = false;
+			}
+
 			Message.WriteTo (options, stream, cancellationToken);
 		}
 
@@ -271,6 +276,11 @@ namespace MimeKit {
 			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0) {
 				await stream.WriteAsync (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken).ConfigureAwait (false);
 				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+			}
+
+			if (options.EnsureNewLine) {
+				options = options.Clone ();
+				options.EnsureNewLine = false;
 			}
 
 			await Message.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
