@@ -1,5 +1,20 @@
 # Release Notes
 
+### MimeKit 2.3.2 (2019-10-12)
+
+* Fixed reserialization of message/rfc822 parts to not add an extra new-line sequence
+  to the end of the message. (issue [#510](https://github.com/jstedfast/MimeKit/issues/510))
+* Fixed DefaultSecureMimeContext to build the cert chain outside of the private key query.
+  (issue [#508](https://github.com/jstedfast/MimeKit/issues/508))
+* Modified the Message-Id parser to gobble ctrl chars in the local-part.
+* Fixed some buglets in the TextToFlowed converter involving space-stuffing lines.
+* Fixed BodyBuilder logic for constructing a body with an HtmlBody set to string.Empty.
+  (issue [#506](https://github.com/jstedfast/MimeKit/issues/506))
+* Fixed potential memory leaks in WindowsSecureMimeContext and BouncyCastleSecureMimeContext
+  in the Export() methods in cases where an exception is throw while adding certificates.
+* Removed MimeKit.Cryptography.NpgsqlCertificateDatabase. It is unlikely anyone actually
+  uses this.
+
 ### MimeKit 2.3.1 (2019-09-08)
 
 * Updated CmsSigner's default DigestAlgorithm to Sha256 instead of Sha1 to match

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.3.1</version>
+    <version>2.3.2</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,12 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Updated CmsSigner's default DigestAlgorithm to Sha256 instead of Sha1 to match System.Security.Cryptography.Pkcs.CmsSigner's default.
-* Updated WindowsSecureMimeContext to default to IssuerAndSerialNumber for System.Security.Cryptography.Pkcs.CmsSigner.
-* Added support for the RSASSA-PSS signature padding algorithm when using the BouncyCastle backend.
-* Improved robustness of TNEF processing of email address fields.
-* Modified FilteredStream.Flush*() to not flush the source stream. (MailKit issue #904)
-* Added net46 and net47 assemblies to the NuGet package.
+* Fixed reserialization of message/rfc822 parts to not add an extra new-line sequence to the end of the message. (issue #510)
+* Fixed DefaultSecureMimeContext to build the cert chain outside of the private key query. (issue #508)
+* Modified the Message-Id parser to gobble ctrl chars in the local-part.
+* Fixed some buglets in the TextToFlowed converter involving space-stuffing lines.
+* Fixed BodyBuilder logic for constructing a body with an HtmlBody set to string.Empty. (issue #506)
+* Fixed potential memory leaks in WindowsSecureMimeContext and BouncyCastleSecureMimeContext in the Export() methods in cases where an exception is throw while adding certificates.
+* Removed MimeKit.Cryptography.NpgsqlCertificateDatabase. It is unlikely anyone actually uses this.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
