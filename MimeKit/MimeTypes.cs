@@ -112,6 +112,7 @@ namespace MimeKit {
 			mimeTypes.Add ("crt", "application/pkix-cert");
 			mimeTypes.Add ("csh", "application/x-csh");
 			mimeTypes.Add ("css", "text/css");
+			mimeTypes.Add ("csv", "text/csv");
 			mimeTypes.Add ("c", "text/plain");
 			mimeTypes.Add ("c++", "text/plain");
 			mimeTypes.Add ("cxx", "text/plain");

@@ -57,5 +57,10 @@ namespace UnitTests {
 		{
 			Assert.AreEqual ("text/plain", MimeTypes.GetMimeType ("filename.txt"));
 		}
+
+		[Test]
+		public void TestFileExtensionCsv() {
+			Assert.AreEqual ("text/csv", MimeTypes.GetMimeType("filename.csv"));
+		}
 	}
 }
