@@ -33,6 +33,12 @@
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <DefineConstants>$(DefineConstants);NETSTANDARD_1_3</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <DefineConstants>$(DefineConstants);NETSTANDARD_1_6</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;NETSTANDARD_2_0</DefineConstants>
   </PropertyGroup>
@@ -65,7 +71,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\ArcSigner.cs" />
     <Compile Include="Cryptography\ArcVerifier.cs" />
-    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
+    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0'" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />
@@ -124,7 +130,7 @@
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
     <Compile Include="Cryptography\WindowsSecureMimeDigitalCertificate.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
     <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
-    <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
+    <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0'" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateRecord.cs" />

@@ -415,7 +415,7 @@ namespace MimeKit {
 					filtered.Flush ();
 				}
 
-#if !PORTABLE && !NETSTANDARD
+#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();

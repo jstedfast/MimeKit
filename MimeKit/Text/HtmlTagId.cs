@@ -766,7 +766,7 @@ namespace MimeKit.Text {
 
 			var name = value.ToString ();
 
-#if PORTABLE || NETSTANDARD
+#if PORTABLE || NETSTANDARD_1_3 || NETSTANDARD_1_6
 			var field = typeof (HtmlTagId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlTagNameAttribute), false).ToArray ();
 #else

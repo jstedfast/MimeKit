@@ -626,7 +626,7 @@ namespace MimeKit.Cryptography
 					using (var response = await client.GetAsync (location, cancellationToken).ConfigureAwait (false))
 						await response.Content.CopyToAsync (stream).ConfigureAwait (false);
 				} else {
-#if !NETSTANDARD && !PORTABLE
+#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
 					cancellationToken.ThrowIfCancellationRequested ();
 
 					var request = (HttpWebRequest) WebRequest.Create (location);

@@ -292,7 +292,7 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-#if !PORTABLE && !NETSTANDARD
+#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>

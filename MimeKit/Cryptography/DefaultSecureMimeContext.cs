@@ -68,7 +68,7 @@ namespace MimeKit.Cryptography {
 		{
 			string path;
 
-#if !NETSTANDARD
+#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
 			if (Path.DirectorySeparatorChar == '\\') {
 				var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 				path = Path.Combine (appData, "Roaming\\mimekit");

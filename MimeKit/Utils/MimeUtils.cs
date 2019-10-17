@@ -125,7 +125,7 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
-#if PORTABLE || NETSTANDARD
+#if PORTABLE || NETSTANDARD_1_3 || NETSTANDARD_1_6
 			return GenerateMessageId ("localhost.localdomain");
 #else
 			var properties = IPGlobalProperties.GetIPGlobalProperties ();

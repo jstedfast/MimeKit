@@ -611,7 +611,7 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-#if PORTABLE || NETSTANDARD
+#if PORTABLE || NETSTANDARD_1_3 || NETSTANDARD_1_6
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;

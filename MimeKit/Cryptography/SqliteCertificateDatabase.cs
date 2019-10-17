@@ -60,6 +60,14 @@ namespace MimeKit.Cryptography {
 		// assembly.
 		static SqliteCertificateDatabase ()
 		{
+#if __MOBILE__
+			IsAvailable = true;
+#endif
+
+#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0
+			var platform = Environment.OSVersion.Platform;
+#endif
+
 #if NETSTANDARD
 			try {
 				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
@@ -70,14 +78,15 @@ namespace MimeKit.Cryptography {
 					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
 
 					IsAvailable = true;
+					return;
 				}
 			} catch (FileNotFoundException) {
 			} catch (FileLoadException) {
 			} catch (BadImageFormatException) {
 			}
-#elif !__MOBILE__
-			var platform = Environment.OSVersion.Platform;
+#endif
 
+#if NET_4_5 || NET_4_6 || NET_4_7
 			try {
 				// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
 				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
@@ -90,28 +99,32 @@ namespace MimeKit.Cryptography {
 						sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
 
 						IsAvailable = true;
-					}
-				}
-
-				// System.Data.Sqlite is only available for Windows-based platforms.
-				if (!IsAvailable && platform != PlatformID.Unix && platform != PlatformID.MacOSX) {
-					if ((sqliteAssembly = Assembly.Load ("System.Data.SQLite")) != null) {
-						sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");
-						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnectionStringBuilder");
-
-						// Make sure that the runtime can load the native sqlite3 library
-						var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
-						sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
-
-						IsAvailable = true;
+						return;
 					}
 				}
 			} catch (FileNotFoundException) {
 			} catch (FileLoadException) {
 			} catch (BadImageFormatException) {
 			}
-#else
-			IsAvailable = true;
+#endif
+
+#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0
+			try {
+				if ((sqliteAssembly = Assembly.Load ("System.Data.SQLite")) != null) {
+					sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");
+					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnectionStringBuilder");
+
+					// Make sure that the runtime can load the native sqlite3 library
+					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+					sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+
+					IsAvailable = true;
+					return;
+				}
+			} catch (FileNotFoundException) {
+			} catch (FileLoadException) {
+			} catch (BadImageFormatException) {
+			}
 #endif
 		}
 
