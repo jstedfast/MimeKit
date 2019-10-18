@@ -358,7 +358,7 @@ namespace MimeKit.Utils {
 
 		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{
-			const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
+			//const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
 			var angleAddr = false;
 
 			msgid = null;
