@@ -25,15 +25,10 @@
 //
 
 using System;
+using System.Text;
 
 using MimeKit.IO.Filters;
 using MimeKit.Utils;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#else
-using Encoding = System.Text.Encoding;
-#endif
 
 namespace MimeKit.Tnef {
 	/// <summary>

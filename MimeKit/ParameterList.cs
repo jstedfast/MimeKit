@@ -30,12 +30,6 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
-
 using MimeKit.Encodings;
 using MimeKit.Utils;
 

@@ -27,12 +27,6 @@
 using System;
 using System.Text;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
-
 using MimeKit.Utils;
 
 namespace MimeKit.IO.Filters {

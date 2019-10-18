@@ -27,10 +27,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-
-#if !PORTABLE
-using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
-#endif
+using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
@@ -239,7 +236,6 @@ namespace MimeKit.Cryptography {
 			LoadPkcs12 (stream, password);
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>
@@ -290,9 +286,8 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				LoadPkcs12 (stream, password);
 		}
-#endif
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
+#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsSigner"/> class.
 		/// </summary>

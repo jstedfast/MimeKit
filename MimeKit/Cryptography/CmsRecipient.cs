@@ -26,12 +26,9 @@
 
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.X509;
-
-#if !PORTABLE
-using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
-#endif
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -117,7 +114,6 @@ namespace MimeKit.Cryptography {
 			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>
@@ -175,9 +171,8 @@ namespace MimeKit.Cryptography {
 
 			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
-#endif
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
+#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>

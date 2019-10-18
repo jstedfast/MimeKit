@@ -216,7 +216,7 @@ namespace MimeKit {
 			}
 
 			var streams = new List<Stream> ();
-#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
+#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
 			var buf = memory.GetBuffer ();
 #else
 			var buf = memory.ToArray ();

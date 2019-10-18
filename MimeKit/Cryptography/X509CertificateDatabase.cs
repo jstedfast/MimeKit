@@ -131,7 +131,7 @@ namespace MimeKit.Cryptography {
 
 		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
 		{
-#if NETSTANDARD
+#if NETSTANDARD_1_3 || NETSTANDARD_1_6
 			buffer = reader.GetFieldValue<byte[]> (column);
 			return (int) buffer.Length;
 #else
@@ -587,21 +587,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			using (var command = GetSelectCommand (certificate, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CertificateParser ();
 						var buffer = new byte[4096];
 
 						return LoadCertificateRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -620,9 +612,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<X509Certificate> FindCertificates (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (selector, false, false, X509CertificateRecordFields.Certificate)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
@@ -631,12 +621,6 @@ namespace MimeKit.Cryptography {
 						if (selector == null || selector.Match (record.Certificate))
 							yield return record.Certificate;
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -655,9 +639,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (selector, false, true, PrivateKeyFields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
@@ -667,12 +649,6 @@ namespace MimeKit.Cryptography {
 						if (selector == null || selector.Match (record.Certificate))
 							yield return record.PrivateKey;
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -701,21 +677,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			using (var command = GetSelectCommand (mailbox, now, requirePrivateKey, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
 						yield return LoadCertificateRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -736,9 +704,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedOnly, X509CertificateRecordFields fields)
 		{
 			using (var command = GetSelectCommand (selector, trustedOnly, false, fields | X509CertificateRecordFields.Certificate)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
@@ -748,12 +714,6 @@ namespace MimeKit.Cryptography {
 						if (selector == null || selector.Match (record.Certificate))
 							yield return record;
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -837,21 +797,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (issuer));
 
 			using (var command = GetSelectCommand (issuer, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
 						yield return LoadCrlRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -877,21 +829,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (crl));
 
 			using (var command = GetSelectCommand (crl, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CrlParser ();
 						var buffer = new byte[4096];
 
 						return LoadCrlRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -967,9 +911,7 @@ namespace MimeKit.Cryptography {
 			var crls = new List<X509Crl> ();
 
 			using (var command = GetSelectAllCrlsCommand ()) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
 
@@ -977,12 +919,6 @@ namespace MimeKit.Cryptography {
 						var record = LoadCrlRecord (reader, parser, ref buffer);
 						crls.Add (record.Crl);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 

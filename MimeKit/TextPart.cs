@@ -28,20 +28,6 @@ using System;
 using System.IO;
 using System.Text;
 
-#if PORTABLE
-using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
-using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
-using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
-using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
-using EncoderFallbackException = Portable.Text.EncoderFallbackException;
-using DecoderFallbackException = Portable.Text.DecoderFallbackException;
-using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
-using DecoderFallback = Portable.Text.DecoderFallback;
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
-
 using MimeKit.IO;
 using MimeKit.Text;
 using MimeKit.Utils;
@@ -415,7 +401,7 @@ namespace MimeKit {
 					filtered.Flush ();
 				}
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
+#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();

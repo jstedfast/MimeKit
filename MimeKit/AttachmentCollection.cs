@@ -365,7 +365,6 @@ namespace MimeKit {
 			return attachment;
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Add the specified attachment.
 		/// </summary>
@@ -461,7 +460,6 @@ namespace MimeKit {
 				return attachment;
 			}
 		}
-#endif
 
 		/// <summary>
 		/// Add the specified attachment.

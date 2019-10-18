@@ -27,11 +27,6 @@
 using System;
 using System.Text;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-#endif
-
 using MimeKit.Encodings;
 using MimeKit.Utils;
 

@@ -27,11 +27,8 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-
-#if !PORTABLE
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
-#endif
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -42,9 +39,6 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
-#if PORTABLE
-		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
-#endif
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		/// <summary>
@@ -57,14 +51,8 @@ namespace MimeKit.Utils {
 
 		internal static void GetRandomBytes (byte[] buffer)
 		{
-#if !PORTABLE
 			using (var random = RandomNumberGenerator.Create ())
 				random.GetBytes (buffer);
-#else
-			lock (random) {
-				random.NextBytes (buffer);
-			}
-#endif
 		}
 
 		/// <summary>
@@ -125,7 +113,7 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
-#if PORTABLE || NETSTANDARD_1_3 || NETSTANDARD_1_6
+#if NETSTANDARD_1_3 || NETSTANDARD_1_6
 			return GenerateMessageId ("localhost.localdomain");
 #else
 			var properties = IPGlobalProperties.GetIPGlobalProperties ();

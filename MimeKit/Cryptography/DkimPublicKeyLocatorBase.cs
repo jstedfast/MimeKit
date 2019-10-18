@@ -30,10 +30,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Crypto.Parameters;

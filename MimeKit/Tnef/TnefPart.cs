@@ -26,13 +26,8 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#else
-using Encoding = System.Text.Encoding;
-#endif
 
 using MimeKit.IO;
 using MimeKit.Utils;

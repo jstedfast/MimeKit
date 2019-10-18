@@ -106,7 +106,6 @@ namespace MimeKit.Cryptography {
 			PrivateKey = key;
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
 		/// </summary>
@@ -162,7 +161,6 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				PrivateKey = LoadPrivateKey (stream);
 		}
-#endif
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.

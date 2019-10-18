@@ -29,10 +29,6 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 using MimeKit.Utils;
 
 namespace MimeKit {

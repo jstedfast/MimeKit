@@ -28,10 +28,6 @@ using System;
 using System.IO;
 using System.Text;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF reader.

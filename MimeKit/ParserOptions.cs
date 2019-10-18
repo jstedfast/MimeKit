@@ -29,10 +29,6 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 #if ENABLE_CRYPTO
 using MimeKit.Cryptography;
 #endif
@@ -210,27 +206,6 @@ namespace MimeKit {
 			return options;
 		}
 
-#if PORTABLE
-		static ConstructorInfo GetConstructor (TypeInfo type, Type[] argTypes)
-		{
-			foreach (var ctor in type.DeclaredConstructors) {
-				var args = ctor.GetParameters ();
-
-				if (args.Length != ConstructorArgTypes.Length)
-					continue;
-
-				bool matched = true;
-				for (int i = 0; i < argTypes.Length && matched; i++)
-					matched = matched && args[i].ParameterType == argTypes[i];
-
-				if (matched)
-					return ctor;
-			}
-
-			return null;
-		}
-#endif
-
 		/// <summary>
 		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
 		/// </summary>
@@ -264,7 +239,7 @@ namespace MimeKit {
 
 			mimeType = mimeType.ToLowerInvariant ();
 
-#if PORTABLE || NETSTANDARD
+#if NETSTANDARD_1_3 || NETSTANDARD_1_6
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;
@@ -275,11 +250,7 @@ namespace MimeKit {
 				!info.IsSubclassOf (typeof (MimePart)))
 				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", nameof (type));
 
-#if PORTABLE
-			var ctor = GetConstructor (info, ConstructorArgTypes);
-#else
 			var ctor = type.GetConstructor (ConstructorArgTypes);
-#endif
 
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", nameof (type));

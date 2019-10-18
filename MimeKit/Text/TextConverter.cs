@@ -29,16 +29,6 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#else
-using Encoding = System.Text.Encoding;
-using Encoder = System.Text.Encoder;
-using Decoder = System.Text.Decoder;
-#endif
-
 namespace MimeKit.Text {
 	/// <summary>
 	/// An abstract class for converting text from one format to another.

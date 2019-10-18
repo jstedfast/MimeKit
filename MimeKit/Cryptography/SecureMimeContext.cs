@@ -727,7 +727,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public abstract void Import (Stream stream, string password);
 
-#if !PORTABLE
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12 file.
 		/// </summary>
@@ -776,7 +775,6 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				Import (stream, password);
 		}
-#endif
 
 		/// <summary>
 		/// Imports the specified certificate.

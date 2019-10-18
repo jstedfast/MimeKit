@@ -28,10 +28,6 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 #if ENABLE_SNM
 using System.Net.Mail;
 #endif
@@ -307,7 +303,6 @@ namespace MimeKit {
 
 		static string EncodeAddrspec (string addrspec, int at)
 		{
-#if !PORTABLE
 			if (at != -1) {
 				var domain = addrspec.Substring (at + 1);
 				var local = addrspec.Substring (0, at);
@@ -320,7 +315,7 @@ namespace MimeKit {
 
 				return local + "@" + domain;
 			}
-#endif
+
 			return addrspec;
 		}
 
@@ -340,7 +335,6 @@ namespace MimeKit {
 			if (addrspec == null)
 				throw new ArgumentNullException (nameof (addrspec));
 
-#if !PORTABLE
 			if (addrspec.Length == 0)
 				return addrspec;
 
@@ -352,14 +346,10 @@ namespace MimeKit {
 				return addrspec;
 
 			return EncodeAddrspec (address, at);
-#else
-			return addrspec;
-#endif
 		}
 
 		static string DecodeAddrspec (string addrspec, int at)
 		{
-#if !PORTABLE
 			if (at != -1) {
 				var domain = addrspec.Substring (at + 1);
 				var local = addrspec.Substring (0, at);
@@ -372,7 +362,7 @@ namespace MimeKit {
 
 				return local + "@" + domain;
 			}
-#endif
+
 			return addrspec;
 		}
 
@@ -392,7 +382,6 @@ namespace MimeKit {
 			if (addrspec == null)
 				throw new ArgumentNullException (nameof (addrspec));
 
-#if !PORTABLE
 			if (addrspec.Length == 0)
 				return addrspec;
 
@@ -404,9 +393,6 @@ namespace MimeKit {
 				return addrspec;
 
 			return DecodeAddrspec (address, at);
-#else
-			return addrspec;
-#endif
 		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)

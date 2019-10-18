@@ -28,10 +28,6 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 namespace MimeKit.Utils {
 	[Flags]
 	enum DateTokenFlags : byte

@@ -28,12 +28,6 @@ using System;
 using System.IO;
 using System.Text;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#else
-using Encoding = System.Text.Encoding;
-#endif
-
 namespace MimeKit.Text {
 	/// <summary>
 	/// An HTML writer.

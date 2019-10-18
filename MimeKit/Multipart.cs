@@ -32,10 +32,6 @@ using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 using MimeKit.Encodings;
 using MimeKit.Utils;
 using MimeKit.IO;

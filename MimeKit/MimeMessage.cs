@@ -33,10 +33,6 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
-
 #if ENABLE_SNM
 using System.Net.Mail;
 #endif
@@ -994,7 +990,7 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (FormatOptions.Default, memory);
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NETSTANDARD_2_0 || __MOBILE__
+#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();
@@ -1341,7 +1337,6 @@ namespace MimeKit {
 			return WriteToAsync (FormatOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Write the message to the specified file.
 		/// </summary>
@@ -1511,7 +1506,6 @@ namespace MimeKit {
 		{
 			return WriteToAsync (FormatOptions.Default, fileName, cancellationToken);
 		}
-#endif
 
 		MailboxAddress GetMessageSigner ()
 		{
@@ -2791,7 +2785,6 @@ namespace MimeKit {
 			return LoadAsync (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
@@ -2975,7 +2968,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
-#endif // !PORTABLE
 
 #if ENABLE_SNM
 		static MimePart GetMimePart (AttachmentBase item)

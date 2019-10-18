@@ -68,7 +68,7 @@ namespace MimeKit.Cryptography {
 			var platform = Environment.OSVersion.Platform;
 #endif
 
-#if NETSTANDARD
+#if NETSTANDARD_1_3 || NETSTANDARD_1_6 || NETSTANDARD_2_0
 			try {
 				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
 					sqliteConnectionClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnection");

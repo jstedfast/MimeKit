@@ -30,12 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-using MD5 = MimeKit.Cryptography.MD5;
-#else
 using MD5 = System.Security.Cryptography.MD5;
-#endif
 
 using MimeKit.IO.Filters;
 using MimeKit.Encodings;
