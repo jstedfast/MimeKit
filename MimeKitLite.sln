@@ -9,14 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Android", "Mime
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.iOS", "MimeKit\MimeKitLite.iOS.csproj", "{5F211544-940D-46C9-98EB-4FD8F62506AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding", "submodules\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.csproj", "{EEE48C75-11BE-4B50-B759-F85B5052D473}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portable.Text.Encoding.WindowsUniversal81", "submodules\Portable.Text.Encoding\Portable.Text.Encoding\Portable.Text.Encoding.WindowsUniversal81.csproj", "{B76A64F9-B00E-4243-AE89-5D024CA3B436}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Portable", "MimeKit\MimeKitLite.Portable.csproj", "{25C2DD3E-ED14-494F-9BD4-75536911C1BD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.WindowsUniversal81", "MimeKit\MimeKitLite.WindowsUniversal81.csproj", "{5EB9F403-45B4-4F3A-B64E-0ECC94D14167}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.NetStandard", "MimeKit\MimeKitLite.NetStandard.csproj", "{23F999AF-CF50-42FF-A011-D56D68E60FB9}"
 EndProject
 Global
@@ -37,22 +29,6 @@ Global
 		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EEE48C75-11BE-4B50-B759-F85B5052D473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EEE48C75-11BE-4B50-B759-F85B5052D473}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EEE48C75-11BE-4B50-B759-F85B5052D473}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EEE48C75-11BE-4B50-B759-F85B5052D473}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B76A64F9-B00E-4243-AE89-5D024CA3B436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B76A64F9-B00E-4243-AE89-5D024CA3B436}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B76A64F9-B00E-4243-AE89-5D024CA3B436}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B76A64F9-B00E-4243-AE89-5D024CA3B436}.Release|Any CPU.Build.0 = Release|Any CPU
-		{25C2DD3E-ED14-494F-9BD4-75536911C1BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25C2DD3E-ED14-494F-9BD4-75536911C1BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25C2DD3E-ED14-494F-9BD4-75536911C1BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25C2DD3E-ED14-494F-9BD4-75536911C1BD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5EB9F403-45B4-4F3A-B64E-0ECC94D14167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5EB9F403-45B4-4F3A-B64E-0ECC94D14167}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5EB9F403-45B4-4F3A-B64E-0ECC94D14167}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5EB9F403-45B4-4F3A-B64E-0ECC94D14167}.Release|Any CPU.Build.0 = Release|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU

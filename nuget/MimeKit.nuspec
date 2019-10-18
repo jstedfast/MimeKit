@@ -95,12 +95,6 @@
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
-      <group targetFramework="portable-net45+win8">
-        <dependency id="Portable.BouncyCastle" version="1.8.5" />
-      </group>
-      <group targetFramework="portable-net45+win8+wpa81">
-        <dependency id="Portable.BouncyCastle" version="1.8.5" />
-      </group>
     </dependencies>
   </metadata>
   <files>
@@ -122,12 +116,6 @@
     <file src="..\MimeKit\bin\Release\net46\MimeKit.xml" target="lib\net46\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\portable\MimeKit.dll" target="lib\portable-net45+win8\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\portable\MimeKit.xml" target="lib\portable-net45+win8\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win8\Portable.Text.Encoding.dll" />
-    <file src="..\MimeKit\bin\Release\wpa81\MimeKit.dll" target="lib\portable-net45+win8+wpa81\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\wpa81\MimeKit.xml" target="lib\portable-net45+win8+wpa81\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\wpa81\Portable.Text.Encoding.dll" target="lib\portable-net45+win8+wpa81\Portable.Text.Encoding.dll" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>

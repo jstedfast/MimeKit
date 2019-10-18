@@ -104,7 +104,7 @@
     <Compile Include="Cryptography\IDigitalSignature.cs" />
     <Compile Include="Cryptography\IDkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
-    <Compile Include="Cryptography\MD5.cs" Condition="$(TargetFramework.StartsWith('netstandard'))" />
+    <Compile Include="Cryptography\MD5.cs" Condition="$(TargetFramework.StartsWith('netstandard1.'))" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
