@@ -84,30 +84,6 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
-		/// <summary>
-		/// Get or set the text that will be appended to the end of the output.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets or sets the text that will be appended to the end of the output.</para>
-		/// <para>The footer must be set before conversion begins.</para>
-		/// </remarks>
-		/// <value>The footer.</value>
-		public string Footer {
-			get; set;
-		}
-
-		/// <summary>
-		/// Get or set text that will be prepended to the beginning of the output.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets or sets the text that will be prepended to the beginning of the output.</para>
-		/// <para>The header must be set before conversion begins.</para>
-		/// </remarks>
-		/// <value>The header.</value>
-		public string Header {
-			get; set;
-		}
-
 		static string Unquote (string line, out int quoteDepth)
 		{
 			int index = 0;

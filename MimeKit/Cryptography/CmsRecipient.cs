@@ -26,9 +26,10 @@
 
 using System;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.X509;
+
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
 namespace MimeKit.Cryptography {
 	/// <summary>

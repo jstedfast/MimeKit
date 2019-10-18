@@ -27,13 +27,14 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.Cms;
+
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
