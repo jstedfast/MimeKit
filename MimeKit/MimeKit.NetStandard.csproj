@@ -5,12 +5,12 @@
     <AssemblyTitle>MimeKit</AssemblyTitle>
     <VersionPrefix>2.3.2.0</VersionPrefix>
     <Authors>Jeffrey Stedfast</Authors>
-    <TargetFrameworks>netstandard1.3;netstandard1.6;netstandard2.0;net46;net47</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;netstandard1.6;netstandard2.0;net46;net47;net48</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AssemblyName>MimeKit</AssemblyName>
     <PackageId>MimeKit</PackageId>
-    <PackageTags>mime;encryption;dkim;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef;net45;netstandard;netstandard1.3;netstandard1.6;netstandard2.0;xamarin;android;ios;monodroid;monoandroid;win8;wp81</PackageTags>
+    <PackageTags>mime;encryption;dkim;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef;net45;netstandard;netstandard1.3;netstandard1.6;netstandard2.0;xamarin;android;ios;monodroid;monoandroid</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -48,6 +48,9 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net47' ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE;NET_4_7</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE;NET_4_8</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
@@ -71,7 +74,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\ArcSigner.cs" />
     <Compile Include="Cryptography\ArcVerifier.cs" />
-    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0'" />
+    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />
@@ -130,7 +133,7 @@
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
     <Compile Include="Cryptography\WindowsSecureMimeDigitalCertificate.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
     <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
-    <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0'" />
+    <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateRecord.cs" />
