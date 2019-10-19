@@ -50,7 +50,7 @@ namespace MimeKit.Cryptography {
 			var gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
 
 			if (gnupg == null) {
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				if (Path.DirectorySeparatorChar == '\\') {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 					gnupg = Path.Combine (appData, "gnupg");

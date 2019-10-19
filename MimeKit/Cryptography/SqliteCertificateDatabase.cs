@@ -64,11 +64,11 @@ namespace MimeKit.Cryptography {
 			IsAvailable = true;
 #endif
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NET_4_8 || NETSTANDARD_2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
 			var platform = Environment.OSVersion.Platform;
 #endif
 
-#if NETSTANDARD_1_3 || NETSTANDARD_1_6 || NETSTANDARD_2_0
+#if NETSTANDARD1_3 || NETSTANDARD1_6 || NETSTANDARD2_0
 			try {
 				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
 					sqliteConnectionClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnection");
@@ -86,7 +86,7 @@ namespace MimeKit.Cryptography {
 			}
 #endif
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NET_4_8
+#if NETFRAMEWORK
 			try {
 				// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
 				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
@@ -108,7 +108,7 @@ namespace MimeKit.Cryptography {
 			}
 #endif
 
-#if NET_4_5 || NET_4_6 || NET_4_7 || NET_4_8 || NETSTANDARD_2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
 			try {
 				if ((sqliteAssembly = Assembly.Load ("System.Data.SQLite")) != null) {
 					sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");

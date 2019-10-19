@@ -239,7 +239,7 @@ namespace MimeKit {
 
 			mimeType = mimeType.ToLowerInvariant ();
 
-#if NETSTANDARD_1_3 || NETSTANDARD_1_6
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;

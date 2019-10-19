@@ -173,7 +173,7 @@ namespace MimeKit.Cryptography {
 			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
 
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
 		/// </summary>

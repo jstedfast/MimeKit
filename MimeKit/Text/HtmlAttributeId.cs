@@ -621,7 +621,7 @@ namespace MimeKit.Text {
 		{
 			var name = value.ToString ();
 
-#if NETSTANDARD_1_3 || NETSTANDARD_1_6
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			var field = typeof (HtmlAttributeId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false).ToArray ();
 #else

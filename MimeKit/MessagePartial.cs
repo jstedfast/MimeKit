@@ -216,7 +216,7 @@ namespace MimeKit {
 			}
 
 			var streams = new List<Stream> ();
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			var buf = memory.GetBuffer ();
 #else
 			var buf = memory.ToArray ();

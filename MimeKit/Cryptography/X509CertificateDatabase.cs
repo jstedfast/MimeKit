@@ -131,7 +131,7 @@ namespace MimeKit.Cryptography {
 
 		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
 		{
-#if NETSTANDARD_1_3 || NETSTANDARD_1_6
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			buffer = reader.GetFieldValue<byte[]> (column);
 			return (int) buffer.Length;
 #else

@@ -480,7 +480,7 @@ namespace MimeKit.Cryptography {
 						using (var response = await client.GetAsync (uri.ToString (), cancellationToken).ConfigureAwait (false))
 							await response.Content.CopyToAsync (filtered).ConfigureAwait (false);
 					} else {
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 						var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
 						using (var response = request.GetResponse ()) {
 							var content = response.GetResponseStream ();
@@ -1058,7 +1058,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (random == null) {
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				random = new SecureRandom (new CryptoApiRandomGenerator ());
 #else
 				random = new SecureRandom ();
@@ -2349,7 +2349,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (PublicKeyRingPath)) {
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				File.Replace (tmp, PublicKeyRingPath, bak);
 #else
 				if (File.Exists (bak))
@@ -2387,7 +2387,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (SecretKeyRingPath)) {
-#if !NETSTANDARD_1_3 && !NETSTANDARD_1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				File.Replace (tmp, SecretKeyRingPath, bak);
 #else
 				if (File.Exists (bak))
