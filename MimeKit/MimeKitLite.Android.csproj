@@ -90,6 +90,7 @@
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="IO\Filters\Unix2DosFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Text\CharBuffer.cs" />
     <Compile Include="Text\FlowedToHtml.cs" />
     <Compile Include="Text\FlowedToText.cs" />
     <Compile Include="Text\HeaderFooterFormat.cs" />
