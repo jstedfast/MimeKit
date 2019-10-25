@@ -347,7 +347,8 @@ namespace MimeKit.Cryptography {
 		internal static bool IsDelta (this X509Crl crl)
 		{
 			var critical = crl.GetCriticalExtensionOids ();
-
+			if (critical == null)
+				return false;
 			return critical.Contains (X509Extensions.DeltaCrlIndicator.Id);
 		}
 	}
