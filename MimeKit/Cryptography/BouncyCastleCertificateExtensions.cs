@@ -348,7 +348,7 @@ namespace MimeKit.Cryptography {
 		{
 			var critical = crl.GetCriticalExtensionOids ();
 
-			return critical.Contains (X509Extensions.DeltaCrlIndicator.Id);
+			return critical != null ? critical.Contains (X509Extensions.DeltaCrlIndicator.Id) : false;
 		}
 	}
 }
