@@ -306,13 +306,19 @@ namespace MimeKit {
 			// actually handle that w/o any problems.
 			if (type == "message") {
 				switch (subtype) {
+				case "global-disposition-notification":
 				case "disposition-notification":
 					return new MessageDispositionNotification (args);
+				case "global-delivery-status":
 				case "delivery-status":
 					return new MessageDeliveryStatus (args);
 				case "partial":
 					if (!IsEncoded (headers))
 						return new MessagePartial (args);
+					break;
+				case "global-headers":
+					if (!IsEncoded (headers))
+						return new TextRfc822Headers (args);
 					break;
 				case "external-body":
 				case "rfc2822":
