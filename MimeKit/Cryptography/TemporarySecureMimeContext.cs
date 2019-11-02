@@ -167,9 +167,16 @@ namespace MimeKit.Cryptography {
 		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
 		{
 			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
+			var selector = new X509CertStoreSelector ();
+			var keyUsage = new bool[9];
 
-			foreach (var certificate in certificates)
-				anchors.Add (new TrustAnchor (certificate, null));
+			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
+			selector.KeyUsage = keyUsage;
+
+			foreach (var certificate in certificates) {
+				if (selector.Match (certificate))
+					anchors.Add (new TrustAnchor (certificate, null));
+			}
 
 			return anchors;
 		}
