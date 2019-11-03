@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.3.2</version>
+    <version>2.4.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,10 +26,12 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed reserialization of message/rfc822 parts to not add an extra new-line sequence to the end of the message. (issue #510)
-* Modified the Message-Id parser to gobble ctrl chars in the local-part.
-* Fixed some buglets in the TextToFlowed converter involving space-stuffing lines.
-* Fixed BodyBuilder logic for constructing a body with an HtmlBody set to string.Empty. (issue #506)
+* Added the `text/csv` mime-type to the `MimeTypes` mapping table for files with a .csv extension.
+* Expanded the .NETStandard API to match the .NET 4.5 API, so .NETStandard is now complete.
+* Dropped support for .NETPortable and WindowsPhone/Universal v8.1.
+* Added a net48 assembly to the NuGet package.
+* Improved HTML tokenizer performance.
+* Added support for `message/global-delivery-status`, `message/global-disposition-notification`, and `message/global-headers` to `MimeParser`. (issue #514)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
