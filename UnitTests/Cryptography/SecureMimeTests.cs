@@ -132,7 +132,16 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password)
+		public static X509Certificate LoadCertificate (string path)
+		{
+			using (var stream = File.OpenRead (path)) {
+				var parser = new X509CertificateParser ();
+
+				return parser.ReadCertificate (stream);
+			}
+		}
+
+		public static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password)
 		{
 			using (var stream = File.OpenRead (fileName)) {
 				var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());

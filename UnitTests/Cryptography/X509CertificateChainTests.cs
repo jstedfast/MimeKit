@@ -41,21 +41,12 @@ namespace UnitTests.Cryptography {
 	public class X509CertificateChainTests
 	{
 		static readonly string[] CertificateAuthorities = new string[] {
-			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
+			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
 		static string GetTestDataPath (string relative)
 		{
 			return Path.Combine ("..", "..", "TestData", "smime", relative);
-		}
-
-		static X509Certificate LoadCertificate (string path)
-		{
-			using (var stream = File.OpenRead (path)) {
-				var parser = new X509CertificateParser ();
-
-				return parser.ReadCertificate (stream);
-			}
 		}
 
 		[Test]
@@ -89,7 +80,7 @@ namespace UnitTests.Cryptography {
 			var chain = new X509CertificateChain ();
 
 			foreach (var authority in CertificateAuthorities) {
-				var certificate = LoadCertificate (GetTestDataPath (authority));
+				var certificate = SecureMimeTestsBase.LoadCertificate (GetTestDataPath (authority));
 
 				certificates.Add (certificate);
 			}
@@ -118,31 +109,27 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestBasicFunctionality ()
 		{
+			var certs = SecureMimeTestsBase.LoadPkcs12CertificateChain (GetTestDataPath ("smime.pfx"), "no.secret");
 			var chain = new X509CertificateChain ();
-			X509Certificate cert1, cert2, cert3;
-
-			cert1 = LoadCertificate (GetTestDataPath ("StartComClass1PrimaryIntermediateClientCA.crt"));
-			cert2 = LoadCertificate (GetTestDataPath ("StartComCertificationAuthority.crt"));
-			cert3 = LoadCertificate (GetTestDataPath ("certificate-authority.crt"));
 
 			Assert.IsFalse (chain.IsReadOnly);
 			Assert.AreEqual (0, chain.Count, "Initial count");
 
-			chain.Add (cert3);
+			chain.Add (certs[2]);
 
 			Assert.AreEqual (1, chain.Count);
-			Assert.AreEqual (cert3, chain[0]);
+			Assert.AreEqual (certs[2], chain[0]);
 
-			chain.Insert (0, cert1);
-			chain.Insert (1, cert2);
+			chain.Insert (0, certs[0]);
+			chain.Insert (1, certs[1]);
 
 			Assert.AreEqual (3, chain.Count);
-			Assert.AreEqual (cert1, chain[0]);
-			Assert.AreEqual (cert2, chain[1]);
-			Assert.AreEqual (cert3, chain[2]);
+			Assert.AreEqual (certs[0], chain[0]);
+			Assert.AreEqual (certs[1], chain[1]);
+			Assert.AreEqual (certs[2], chain[2]);
 
-			Assert.IsTrue (chain.Contains (cert2), "Contains");
-			Assert.AreEqual (1, chain.IndexOf (cert2), "IndexOf");
+			Assert.IsTrue (chain.Contains (certs[1]), "Contains");
+			Assert.AreEqual (1, chain.IndexOf (certs[1]), "IndexOf");
 
 			var array = new X509Certificate[chain.Count];
 			chain.CopyTo (array, 0);
@@ -155,20 +142,20 @@ namespace UnitTests.Cryptography {
 
 			Assert.AreEqual (array.Length, chain.Count);
 
-			Assert.IsTrue (chain.Remove (cert3));
+			Assert.IsTrue (chain.Remove (certs[2]));
 			Assert.AreEqual (2, chain.Count);
-			Assert.AreEqual (cert1, chain[0]);
-			Assert.AreEqual (cert2, chain[1]);
+			Assert.AreEqual (certs[0], chain[0]);
+			Assert.AreEqual (certs[1], chain[1]);
 
 			chain.RemoveAt (0);
 
 			Assert.AreEqual (1, chain.Count);
-			Assert.AreEqual (cert2, chain[0]);
+			Assert.AreEqual (certs[1], chain[0]);
 
-			chain[0] = cert3;
+			chain[0] = certs[2];
 
 			Assert.AreEqual (1, chain.Count);
-			Assert.AreEqual (cert3, chain[0]);
+			Assert.AreEqual (certs[2], chain[0]);
 		}
 	}
 }

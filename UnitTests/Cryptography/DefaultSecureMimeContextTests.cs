@@ -45,7 +45,7 @@ namespace UnitTests.Cryptography {
 	public class DefaultSecureMimeContextTests
 	{
 		static readonly string[] CertificateAuthorities = {
-			"certificate-authority.crt", "intermediate.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
+			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
 		static DefaultSecureMimeContextTests ()

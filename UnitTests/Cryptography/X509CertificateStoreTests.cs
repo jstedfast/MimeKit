@@ -40,7 +40,7 @@ namespace UnitTests.Cryptography {
 	public class X509CertificateStoreTests
 	{
 		static readonly string[] CertificateAuthorities = new string[] {
-			"certificate-authority.crt", "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
+			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
 		static string GetTestDataPath (string relative)
@@ -153,7 +153,7 @@ namespace UnitTests.Cryptography {
 			var count = store.Certificates.Count ();
 
 			Assert.AreEqual (1, count, "Unexpected number of certificates imported.");
-			Assert.AreEqual ("root@example.com", certificate.GetSubjectEmailAddress (), "Unexpected email address for certificate.");
+			Assert.AreEqual ("StartCom Certification Authority", certificate.GetCommonName (), "Unexpected CN for certificate.");
 		}
 
 		[Test]
@@ -166,7 +166,7 @@ namespace UnitTests.Cryptography {
 			var count = store.Certificates.Count ();
 
 			Assert.AreEqual (1, count, "Unexpected number of certificates imported.");
-			Assert.AreEqual ("root@example.com", certificate.GetSubjectEmailAddress (), "Unexpected email address for certificate.");
+			Assert.AreEqual ("StartCom Certification Authority", certificate.GetCommonName (), "Unexpected CN for certificate.");
 		}
 
 		[Test]
