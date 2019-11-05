@@ -438,15 +438,15 @@ namespace MimeKit.Cryptography
 		protected IList<X509Certificate> BuildCertificateChain (X509Certificate certificate)
 		{
 			var selector = new X509CertStoreSelector ();
-			selector.Subject = certificate.SubjectDN;
+			selector.Certificate = certificate;
 
 			var intermediates = new X509CertificateStore ();
 			intermediates.Add (certificate);
 
 			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector);
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
-			parameters.AddStore (GetIntermediateCertificates ());
 			parameters.AddStore (intermediates);
+			parameters.AddStore (GetIntermediateCertificates ());
 			parameters.IsRevocationEnabled = false;
 			parameters.Date = new DateTimeObject (DateTime.UtcNow);
 
@@ -464,18 +464,20 @@ namespace MimeKit.Cryptography
 		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime signingTime)
 		{
 			var selector = new X509CertStoreSelector ();
-			selector.Subject = certificate.SubjectDN;
+			selector.Certificate = certificate;
 
 			var intermediates = new X509CertificateStore ();
-			foreach (X509Certificate cert in certificates.GetMatches (null))
-				intermediates.Add (cert);
 			intermediates.Add (certificate);
 
+			foreach (X509Certificate cert in certificates.GetMatches (null))
+				intermediates.Add (cert);
+
 			var parameters = new PkixBuilderParameters (anchors, selector);
-			parameters.AddStore (GetIntermediateCertificates ());
 			parameters.AddStore (intermediates);
-			parameters.AddStore (GetCertificateRevocationLists ());
 			parameters.AddStore (crls);
+
+			parameters.AddStore (GetIntermediateCertificates ());
+			parameters.AddStore (GetCertificateRevocationLists ());
 
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
 			parameters.IsRevocationEnabled = false;
