@@ -291,7 +291,8 @@ namespace MimeKit.Cryptography {
 			selector.KeyUsage = keyUsage;
 
 			foreach (var record in dbase.Find (selector, true, X509CertificateRecordFields.Certificate)) {
-				anchors.Add (new TrustAnchor (record.Certificate, null));
+				if (record.Certificate.IsSelfSigned ())
+					anchors.Add (new TrustAnchor (record.Certificate, null));
 			}
 
 			return anchors;
@@ -308,7 +309,19 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			return dbase;
+			var intermediates = new X509CertificateStore ();
+			var selector = new X509CertStoreSelector ();
+			var keyUsage = new bool[9];
+
+			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
+			selector.KeyUsage = keyUsage;
+
+			foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
+				if (!record.Certificate.IsSelfSigned ())
+					intermediates.Add (record.Certificate);
+			}
+
+			return intermediates;
 		}
 
 		/// <summary>
@@ -556,29 +569,61 @@ namespace MimeKit.Cryptography {
 						startIndex = 1;
 					}
 
-					for (int i = startIndex; i < chain.Length; i++) {
-						if ((record = dbase.Find (chain[i].Certificate, X509CertificateRecordFields.Id)) == null)
-							dbase.Add (new X509CertificateRecord (chain[i].Certificate) { IsTrusted = true });
-					}
+					for (int i = startIndex; i < chain.Length; i++)
+						Import (chain[i].Certificate, true);
 				} else if (pkcs12.IsCertificateEntry (alias)) {
 					var entry = pkcs12.GetCertificate (alias);
 
-					if ((record = dbase.Find (entry.Certificate, X509CertificateRecordFields.Id)) == null)
-						dbase.Add (new X509CertificateRecord (entry.Certificate) { IsTrusted = true });
+					Import (entry.Certificate, true);
 				}
 			}
 		}
 
-#endregion
+		#endregion
+
+		/// <summary>
+		/// Imports a certificate.
+		/// </summary>
+		/// <remarks>
+		/// <para>Imports the certificate.</para>
+		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <c>true</c>,
+		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
+		/// specified trust.</para>
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public void Import (X509Certificate certificate, bool trusted)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			X509CertificateRecord record;
+
+			if ((record = dbase.Find (certificate, X509CertificateRecordFields.Id | X509CertificateRecordFields.Trusted)) != null) {
+				if (trusted && !record.IsTrusted) {
+					record.IsTrusted = trusted;
+					dbase.Update (record, X509CertificateRecordFields.Trusted);
+				}
+
+				return;
+			}
+
+			record = new X509CertificateRecord (certificate);
+			record.IsTrusted = trusted;
+			dbase.Add (record);
+		}
 
 		/// <summary>
 		/// Imports a DER-encoded certificate stream.
 		/// </summary>
 		/// <remarks>
-		/// Imports all of the certificates in the DER-encoded stream.
+		/// Imports the certificate(s).
 		/// </remarks>
 		/// <param name="stream">The raw certificate(s).</param>
-		/// <param name="trusted"><c>true</c> if the certificates are trusted.</param>
+		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -589,21 +634,8 @@ namespace MimeKit.Cryptography {
 
 			var parser = new X509CertificateParser ();
 
-			foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
-				X509CertificateRecord record;
-
-				if ((record = dbase.Find (certificate, X509CertificateRecordFields.Id | X509CertificateRecordFields.Trusted)) != null) {
-					if (trusted && !record.IsTrusted) {
-						record.IsTrusted = trusted;
-						dbase.Update (record, X509CertificateRecordFields.Trusted);
-					}
-					continue;
-				}
-
-				record = new X509CertificateRecord (certificate);
-				record.IsTrusted = trusted;
-				dbase.Add (record);
-			}
+			foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+				Import (certificate, trusted);
 		}
 
 		/// <summary>

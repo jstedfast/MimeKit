@@ -66,6 +66,11 @@ namespace MimeKit.Cryptography {
 			return new X509Certificate2 (certificate.GetEncoded ());
 		}
 
+		internal static bool IsSelfSigned (this X509Certificate certificate)
+		{
+			return certificate.SubjectDN.Equivalent (certificate.IssuerDN);
+		}
+
 		/// <summary>
 		/// Gets the issuer name info.
 		/// </summary>

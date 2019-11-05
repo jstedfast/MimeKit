@@ -167,14 +167,11 @@ namespace MimeKit.Cryptography {
 		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
 		{
 			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
-			var selector = new X509CertStoreSelector ();
-			var keyUsage = new bool[9];
-
-			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
-			selector.KeyUsage = keyUsage;
 
 			foreach (var certificate in certificates) {
-				if (selector.Match (certificate))
+				var keyUsage = certificate.GetKeyUsage ();
+
+				if (keyUsage != null && keyUsage[(int) X509KeyUsageBits.KeyCertSign] && certificate.IsSelfSigned ())
 					anchors.Add (new TrustAnchor (certificate, null));
 			}
 
@@ -192,12 +189,16 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			var store = new X509CertificateStore ();
+			var intermediates = new X509CertificateStore ();
 
-			foreach (var certificate in certificates)
-				store.Add (certificate);
+			foreach (var certificate in certificates) {
+				var keyUsage = certificate.GetKeyUsage ();
 
-			return store;
+				if (keyUsage != null && keyUsage[(int) X509KeyUsageBits.KeyCertSign] && !certificate.IsSelfSigned ())
+					intermediates.Add (certificate);
+			}
+
+			return intermediates;
 		}
 
 		/// <summary>
