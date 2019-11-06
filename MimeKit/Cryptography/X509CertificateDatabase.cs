@@ -373,7 +373,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected abstract DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -384,9 +384,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select certificate records matching the specified selector.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		/// <param name="selector">Selector.</param>
-		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
+		/// <param name="selector">The certificate selector.</param>
+		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched; otherwise, <c>false</c>.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -905,7 +905,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets a certificate revocation list store.
 		/// </remarks>
-		/// <returns>A certificate recovation list store.</returns>
+		/// <returns>A certificate revocation list store.</returns>
 		public IX509Store GetCrlStore ()
 		{
 			var crls = new List<X509Crl> ();

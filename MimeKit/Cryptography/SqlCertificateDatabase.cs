@@ -136,6 +136,21 @@ namespace MimeKit.Cryptography {
 			CreateIndex (connection, "CRLS", new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
+		static StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
+		{
+			var query = new StringBuilder ("SELECT ");
+			var columns = GetColumnNames (fields);
+
+			for (int i = 0; i < columns.Length; i++) {
+				if (i > 0)
+					query = query.Append (", ");
+
+				query = query.Append (columns[i]);
+			}
+
+			return query.Append (" FROM CERTIFICATES");
+		}
+
 		/// <summary>
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </summary>
@@ -147,23 +162,26 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES ";
 			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var issuerName = certificate.IssuerDN.ToString ();
 			var command = connection.CreateCommand ();
+			var query = CreateSelectQuery (fields);
 
-			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
+			// FIXME: Is this really the best way to query for an exact match of a certificate?
+			query = query.Append (" WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1");
 			command.AddParameterWithValue ("@ISSUERNAME", issuerName);
 			command.AddParameterWithValue ("@SERIALNUMBER", serialNumber);
 			command.AddParameterWithValue ("@FINGERPRINT", fingerprint);
+
+			command.CommandText = query.ToString ();
 			command.CommandType = CommandType.Text;
 
 			return command;
 		}
 
 		/// <summary>
-		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// Get the database command to select the certificate records for the specified mailbox.
 		/// </summary>
 		/// <remarks>
 		/// Gets the database command to select the certificate records for the specified mailbox.
@@ -175,110 +193,153 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
 			var secure = mailbox as SecureMailboxAddress;
 			var command = connection.CreateCommand ();
-			var constraints = " WHERE ";
+			var query = CreateSelectQuery (fields);
 
-			constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS ";
+			query = query.Append (" WHERE BASICCONSTRAINTS = @BASICCONSTRAINTS ");
 			command.AddParameterWithValue ("@BASICCONSTRAINTS", -1);
 
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				if (secure.Fingerprint.Length < 40) {
-					constraints += "AND FINGERPRINT LIKE @FINGERPRINT ";
 					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant () + "%");
+					query = query.Append ("AND FINGERPRINT LIKE @FINGERPRINT ");
 				} else {
-					constraints += "AND FINGERPRINT = @FINGERPRINT ";
 					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant ());
+					query = query.Append ("AND FINGERPRINT = @FINGERPRINT ");
 				}
 			} else {
-				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL ";
 				command.AddParameterWithValue ("@SUBJECTEMAIL", mailbox.Address.ToLowerInvariant ());
+				query = query.Append ("AND SUBJECTEMAIL = @SUBJECTEMAIL ");
 			}
 
-			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
+			query = query.Append ("AND NOTBEFORE < @NOW AND NOTAFTER > @NOW");
 			command.AddParameterWithValue ("@NOW", now.ToUniversalTime ());
 
 			if (requirePrivateKey)
-				constraints += "AND PRIVATEKEY IS NOT NULL";
+				query = query.Append (" AND PRIVATEKEY IS NOT NULL");
 
-			command.CommandText = query + constraints;
+			command.CommandText = query.ToString ();
 			command.CommandType = CommandType.Text;
 
 			return command;
 		}
 
 		/// <summary>
-		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// Get the database command to select the requested certificate records.
 		/// </summary>
 		/// <remarks>
-		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// Gets the database command to select the requested certificate records.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		/// <param name="selector">Selector.</param>
-		/// <param name="trustedOnly">If set to <c>true</c> trusted only.</param>
-		/// <param name="requirePrivateKey">true</param>
+		/// <param name="selector">The certificate selector.</param>
+		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched; otherwise, <c>false</c>.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
-			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CERTIFICATES";
 			var match = selector as X509CertStoreSelector;
 			var command = connection.CreateCommand ();
-			var constraints = " WHERE ";
+			var query = CreateSelectQuery (fields);
+			int baseQueryLength = query.Length;
 
+			query = query.Append (" WHERE ");
+
+			// FIXME: We could create an X509CertificateDatabaseSelector subclass of X509CertStoreSelector that
+			// adds properties like bool Trusted, bool Anchor, and bool HasPrivateKey ? Then we could drop the
+			// bool method arguments...
 			if (trustedOnly) {
 				command.AddParameterWithValue ("@TRUSTED", true);
-				constraints += "TRUSTED = @TRUSTED";
+				query = query.Append ("TRUSTED = @TRUSTED");
 			}
 
+			// FIXME: This query is used to get the TrustedAnchors in DefaultSecureMimeContext. If the database
+			// had an ANCHOR (or ROOT?) column, that would likely improve performance a bit because we would
+			// protentially reduce the number of certificates we load.
+
 			if (match != null) {
-				if (match.BasicConstraints != -1) {
+				if (match.BasicConstraints >= 0 || match.BasicConstraints == -2) {
 					if (command.Parameters.Count > 0)
-						constraints += " AND ";
+						query = query.Append (" AND ");
 
-					command.AddParameterWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
-					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
+					if (match.BasicConstraints == -2) {
+						command.AddParameterWithValue ("@BASICCONSTRAINTS", -1);
+						query = query.Append ("BASICCONSTRAINTS = @BASICCONSTRAINTS");
+					} else {
+						command.AddParameterWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
+						query = query.Append ("BASICCONSTRAINTS >= @BASICCONSTRAINTS");
+					}
 				}
 
-				if (match.Issuer != null) {
+				if (match.CertificateValid != null) {
 					if (command.Parameters.Count > 0)
-						constraints += " AND ";
+						query = query.Append (" AND ");
 
-					command.AddParameterWithValue ("@ISSUERNAME", match.Issuer.ToString ());
-					constraints += "ISSUERNAME = @ISSUERNAME";
+					command.AddParameterWithValue ("@DATETIME", match.CertificateValid.Value.ToUniversalTime ());
+					query = query.Append ("NOTBEFORE < @DATETIME AND NOTAFTER > @DATETIME");
 				}
 
-				if (match.SerialNumber != null) {
-					if (command.Parameters.Count > 0)
-						constraints += " AND ";
+				if (match.Issuer != null || match.Certificate != null) {
+					// Note: GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+					// queries for ISSUERNAME, SERIALNUMBER, and FINGERPRINT so we'll do the same.
+					var issuer = match.Issuer ?? match.Certificate.IssuerDN;
 
-					command.AddParameterWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
-					constraints += "SERIALNUMBER = @SERIALNUMBER";
+					if (command.Parameters.Count > 0)
+						query = query.Append (" AND ");
+
+					command.AddParameterWithValue ("@ISSUERNAME", issuer.ToString ());
+					query = query.Append ("ISSUERNAME = @ISSUERNAME");
 				}
+
+				if (match.SerialNumber != null || match.Certificate != null) {
+					// Note: GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+					// queries for ISSUERNAME, SERIALNUMBER, and FINGERPRINT so we'll do the same.
+					var serialNumber = match.SerialNumber ?? match.Certificate.SerialNumber;
+
+					if (command.Parameters.Count > 0)
+						query = query.Append (" AND ");
+
+					command.AddParameterWithValue ("@SERIALNUMBER", serialNumber.ToString ());
+					query = query.Append ("SERIALNUMBER = @SERIALNUMBER");
+				}
+
+				if (match.Certificate != null) {
+					// Note: GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+					// queries for ISSUERNAME, SERIALNUMBER, and FINGERPRINT so we'll do the same.
+					if (command.Parameters.Count > 0)
+						query = query.Append (" AND ");
+
+					command.AddParameterWithValue ("@FINGERPRINT", match.Certificate.GetFingerprint ());
+					query = query.Append ("FINGERPRINT = @FINGERPRINT");
+				}
+
+				// FIXME: maybe the database should have a SUBJECTNAME column as well? Then we could match against
+				// selector.SubjectDN. Plus it might be nice to have when querying the database manually to see
+				// what's there.
 
 				if (match.KeyUsage != null) {
 					var flags = BouncyCastleCertificateExtensions.GetKeyUsageFlags (match.KeyUsage);
 
 					if (flags != X509KeyUsageFlags.None) {
 						if (command.Parameters.Count > 0)
-							constraints += " AND ";
+							query = query.Append (" AND ");
 
 						command.AddParameterWithValue ("@FLAGS", (int) flags);
-						constraints += "(KEYUSAGE == 0 OR (KEYUSAGE & @FLAGS) == @FLAGS)";
+						query = query.Append ("(KEYUSAGE = 0 OR (KEYUSAGE & @FLAGS) = @FLAGS)");
 					}
 				}
 			}
 
 			if (requirePrivateKey) {
 				if (command.Parameters.Count > 0)
-					constraints += " AND ";
+					query = query.Append (" AND ");
 
-				constraints += "PRIVATEKEY IS NOT NULL";
+				query = query.Append ("PRIVATEKEY IS NOT NULL");
 			} else if (command.Parameters.Count == 0) {
-				constraints = string.Empty;
+				query.Length = baseQueryLength;
 			}
 
-			command.CommandText = query + constraints;
+			command.CommandText = query.ToString ();
 			command.CommandType = CommandType.Text;
 
 			return command;
