@@ -269,6 +269,28 @@ namespace MimeKit.Cryptography {
 			return false;
 		}
 
+		// pvalue := [CFWS] ( value / [ [ local-part ] "@" ] domain-name ) [CFWS]
+		// value  := token / quoted-string
+		// token  := 1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
+		// tspecials :=  "(" / ")" / "<" / ">" / "@" / "," / ";" / ":" / "\" / <"> / "/" / "[" / "]" / "?" / "="
+		static bool IsPValueToken (byte c)
+		{
+			// Note: We're allowing '/' because it is a base64 character
+			//
+			// See https://github.com/jstedfast/MimeKit/issues/518 for details.
+			return c.IsToken () || c == (byte) '/';
+		}
+
+		static bool SkipPValueToken (byte[] text, ref int index, int endIndex)
+		{
+			int start = index;
+
+			while (index < endIndex && IsPValueToken (text[index]))
+				index++;
+
+			return index > start;
+		}
+
 		static bool SkipPropertyValue (byte[] text, ref int index, int endIndex, out bool quoted)
 		{
 			// pvalue := [CFWS] ( value / [ [ local-part ] "@" ] domain-name ) [CFWS]
@@ -297,7 +319,7 @@ namespace MimeKit.Cryptography {
 				return true;
 			}
 
-			if (!ParseUtils.SkipToken (text, ref index, endIndex))
+			if (!SkipPValueToken (text, ref index, endIndex))
 				return false;
 
 			if (index < endIndex) {
