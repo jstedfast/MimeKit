@@ -1,5 +1,16 @@
 # Release Notes
 
+### MimeKit 2.4.1 (2019-11-10)
+
+* Don't use PublicSign on non-Windows NT machines when building.
+  (issue [#516](https://github.com/jstedfast/MimeKit/issues/516))
+* Improved BouncyCastleSecureMimeContext logic for building certificate chains so that
+  certificate chains are included in the S/MIME signature.
+  (issue [#515](https://github.com/jstedfast/MimeKit/issues/515))
+* Improved SqlCertificateDatabase.Find() by using more IX509Selector properties.
+* Relaxed the Authentication-Results header parser a bit to allow '/' in pvalue tokens.
+  (issue [#518](https://github.com/jstedfast/MimeKit/issues/518))
+
 ### MimeKit 2.4.0 (2019-11-02)
 
 * Added the `text/csv` mime-type to the `MimeTypes` mapping table for files with a .csv extension.

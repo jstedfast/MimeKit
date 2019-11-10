@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.4.0</version>
+    <version>2.4.1</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,12 +26,8 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added the `text/csv` mime-type to the `MimeTypes` mapping table for files with a .csv extension.
-* Expanded the .NETStandard API to match the .NET 4.5 API, so .NETStandard is now complete.
-* Dropped support for .NETPortable and WindowsPhone/Universal v8.1.
-* Added a net48 assembly to the NuGet package.
-* Improved HTML tokenizer performance.
-* Added support for `message/global-delivery-status`, `message/global-disposition-notification`, and `message/global-headers` to `MimeParser`. (issue #514)
+* Don't use PublicSign on non-Windows NT machines when building. (issue #516)
+* Relaxed the Authentication-Results header parser a bit to allow '/' in pvalue tokens. (issue #518)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
