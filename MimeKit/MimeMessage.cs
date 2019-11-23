@@ -2143,6 +2143,17 @@ namespace MimeKit {
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 
+			// write all of the prepended message headers first
+			while (mesgIndex < Headers.Count) {
+				var mesgHeader = Headers[mesgIndex];
+				if (mesgHeader.Offset.HasValue)
+					break;
+
+				yield return mesgHeader;
+				mesgIndex++;
+			}
+
+			// now merge the message and body headers as they appeared in the raw message
 			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
 				var bodyHeader = Body.Headers[bodyIndex];
 				if (!bodyHeader.Offset.HasValue)
