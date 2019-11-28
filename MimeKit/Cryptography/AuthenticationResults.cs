@@ -657,7 +657,7 @@ namespace MimeKit.Cryptography {
 					if (quoted)
 						value = MimeUtils.Unquote (value);
 
-					var propspec = new AuthenticationMethodProperty (ptype, property, value);
+					var propspec = new AuthenticationMethodProperty (ptype, property, value, quoted);
 					resinfo.Properties.Add (propspec);
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -1199,6 +1199,43 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class AuthenticationMethodProperty
 	{
+		static readonly char[] TokenSpecials = ByteExtensions.TokenSpecials.ToCharArray ();
+		bool? quoted;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationMethodProperty"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="AuthenticationMethodProperty"/>.
+		/// </remarks>
+		/// <param name="ptype">The property type.</param>
+		/// <param name="property">The name of the property.</param>
+		/// <param name="value">The value of the property.</param>
+		/// <param name="quoted"><c>true</c> if the property value was originally quoted; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ptype"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="property"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// </exception>
+		internal AuthenticationMethodProperty (string ptype, string property, string value, bool? quoted)
+		{
+			if (ptype == null)
+				throw new ArgumentNullException (nameof (ptype));
+
+			if (property == null)
+				throw new ArgumentNullException (nameof (property));
+
+			if (value == null)
+				throw new ArgumentNullException (nameof (value));
+
+			this.quoted = quoted;
+			PropertyType = ptype;
+			Property = property;
+			Value = value;
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationMethodProperty"/> class.
 		/// </summary>
@@ -1215,20 +1252,8 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="value"/> is <c>null</c>.</para>
 		/// </exception>
-		public AuthenticationMethodProperty (string ptype, string property, string value)
+		public AuthenticationMethodProperty (string ptype, string property, string value) : this (ptype, property, value, null)
 		{
-			if (ptype == null)
-				throw new ArgumentNullException (nameof (ptype));
-
-			if (property == null)
-				throw new ArgumentNullException (nameof (property));
-
-			if (value == null)
-				throw new ArgumentNullException (nameof (value));
-
-			PropertyType = ptype;
-			Property = property;
-			Value = value;
 		}
 
 		/// <summary>
@@ -1266,19 +1291,22 @@ namespace MimeKit.Cryptography {
 
 		internal void AppendTokens (FormatOptions options, List<string> tokens)
 		{
+			var quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+			var value = quote ? MimeUtils.Quote (Value) : Value;
+
 			tokens.Add (" ");
 
-			if (PropertyType.Length + 1 + Property.Length + 1 + Value.Length < options.MaxLineLength) {
-				tokens.Add ($"{PropertyType}.{Property}={Value}");
+			if (PropertyType.Length + 1 + Property.Length + 1 + value.Length < options.MaxLineLength) {
+				tokens.Add ($"{PropertyType}.{Property}={value}");
 			} else if (PropertyType.Length + 1 + Property.Length + 1 < options.MaxLineLength) {
 				tokens.Add ($"{PropertyType}.{Property}=");
-				tokens.Add (Value);
+				tokens.Add (value);
 			} else {
 				tokens.Add (PropertyType);
 				tokens.Add (".");
 				tokens.Add (Property);
 				tokens.Add ("=");
-				tokens.Add (Value);
+				tokens.Add (value);
 			}
 		}
 
@@ -1291,7 +1319,10 @@ namespace MimeKit.Cryptography {
 		/// <returns>The serialized string.</returns>
 		public override string ToString ()
 		{
-			return $"{PropertyType}.{Property}={Value}";
+			var quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+			var value = quote ? MimeUtils.Quote (Value) : Value;
+
+			return $"{PropertyType}.{Property}={value}";
 		}
 	}
 }

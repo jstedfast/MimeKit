@@ -56,8 +56,8 @@ namespace MimeKit.Utils {
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
 		const string EncodedWordSpecials = "()<>@,;:\"/[]?.=_";  // rfc2047 5.1
 		const string EncodedPhraseSpecials = "!*+-/=_";          // rfc2047 5.3
-		const string Specials = "()<>@,;:\\\".[]";
-		internal const string TokenSpecials = "()<>@,;:\\\"/[]?=";
+		const string Specials = "()<>[]:;@\\,.\"";               // rfc5322 3.2.3
+		internal const string TokenSpecials = "()<>@,;:\\\"/[]?="; // rfc2045 5.1
 		const string Whitespace = " \t\r\n";
 
 		static readonly CharType[] table = new CharType[256];

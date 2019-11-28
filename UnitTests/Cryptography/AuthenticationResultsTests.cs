@@ -141,6 +141,26 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestEncodeQuotedPropertyValue ()
+		{
+			const string expected = "Authentication-Results: lists.example.com 1;\n\tfoo=pass (2 of 3 tests OK) ptype.prop=\"value1;value2\"\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("foo", "pass"));
+			authres.Results[0].ResultComment = "2 of 3 tests OK";
+			authres.Results[0].Properties.Add (new AuthenticationMethodProperty ("ptype", "prop", "value1;value2"));
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
 		public void TestEncodeLongResultMethodWithVersionAndComment ()
 		{
 			const string expected = "Authentication-Results: lists.example.com 1;\n\treally-long-method-name/1=really-long-value\n\t(this is a really long result comment)\n";
@@ -495,6 +515,35 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (input, authres.ToString ());
 
 			const string expected = " example.com;\n\tspf=pass smtp.mailfrom=local-part@example.net\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
+		public void TestParseSimpleWithQuotedPropertyValue ()
+		{
+			const string input = "example.com; method=pass ptype.prop=\"value1;value2\"";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("example.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (1, authres.Results.Count, "methods");
+			Assert.AreEqual ("method", authres.Results[0].Method);
+			Assert.AreEqual ("pass", authres.Results[0].Result);
+			Assert.AreEqual (1, authres.Results[0].Properties.Count, "properties");
+			Assert.AreEqual ("ptype", authres.Results[0].Properties[0].PropertyType);
+			Assert.AreEqual ("prop", authres.Results[0].Properties[0].Property);
+			Assert.AreEqual ("value1;value2", authres.Results[0].Properties[0].Value);
+
+			Assert.AreEqual (input, authres.ToString ());
+
+			const string expected = " example.com; method=pass ptype.prop=\"value1;value2\"\n";
 			var encoded = new StringBuilder ();
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
