@@ -114,11 +114,31 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestInvalidCharset ()
+		{
+			const string text = "This is some Låtín1 text.";
+
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
+			var part = new TextPart ("plain");
+
+			part.SetText ("iso-8859-1", text);
+			part.ContentType.Charset = "flubber";
+
+			Assert.AreEqual (text, part.Text);
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (text, actual, "GetText(out Encoding)");
+			Assert.AreEqual (latin1.CodePage, encoding.CodePage, "Encoding");
+		}
+
+		[Test]
 		public void TestNullContentIsAscii ()
 		{
 			var part = new TextPart ("plain");
 
 			Assert.AreEqual (string.Empty, part.Text, "Text");
+			Assert.AreEqual (string.Empty, part.GetText (Encoding.ASCII), "GetText");
 
 			var actual = part.GetText (out Encoding encoding);
 
