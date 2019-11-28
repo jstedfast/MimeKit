@@ -281,14 +281,10 @@ namespace MimeKit.Cryptography {
 			return c.IsToken () || c == (byte) '/';
 		}
 
-		static bool SkipPValueToken (byte[] text, ref int index, int endIndex)
+		static void SkipPValueToken (byte[] text, ref int index, int endIndex)
 		{
-			int start = index;
-
 			while (index < endIndex && IsPValueToken (text[index]))
 				index++;
-
-			return index > start;
 		}
 
 		static bool SkipPropertyValue (byte[] text, ref int index, int endIndex, out bool quoted)
@@ -319,8 +315,7 @@ namespace MimeKit.Cryptography {
 				return true;
 			}
 
-			if (!SkipPValueToken (text, ref index, endIndex))
-				return false;
+			SkipPValueToken (text, ref index, endIndex);
 
 			if (index < endIndex) {
 				if (text[index] == (byte) '@') {
@@ -647,13 +642,6 @@ namespace MimeKit.Cryptography {
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
-
-					if (index >= endIndex) {
-						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
-
-						return false;
-					}
 
 					int valueIndex = index;
 

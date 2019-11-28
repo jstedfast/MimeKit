@@ -300,15 +300,40 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestParseNoAuthServId ()
 		{
-			var buffer = Encoding.ASCII.GetBytes ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; recevingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=none header.from=domain.com;");
+			const string input = "spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; dkim=pass (signature was verified) header.d=domain.com; dmarc=bestguesspass header.from=domain.com";
+			var buffer = Encoding.ASCII.GetBytes (input);
 			AuthenticationResults authres;
 
 			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.IsNull (authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (3, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("fail", authres.Results[0].Result);
+			Assert.AreEqual ("sender IP is 1.1.1.1", authres.Results[0].ResultComment);
+			Assert.AreEqual (1, authres.Results[0].Properties.Count, "spf properties");
+			Assert.AreEqual ("smtp", authres.Results[0].Properties[0].PropertyType);
+			Assert.AreEqual ("mailfrom", authres.Results[0].Properties[0].Property);
+			Assert.AreEqual ("eu-west-1.amazonses.com", authres.Results[0].Properties[0].Value);
 
-			Assert.AreEqual ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; recevingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=\"none\" header.from=domain.com", authres.ToString ());
+			Assert.AreEqual ("dkim", authres.Results[1].Method);
+			Assert.AreEqual ("pass", authres.Results[1].Result);
+			Assert.AreEqual ("signature was verified", authres.Results[1].ResultComment);
+			Assert.AreEqual (1, authres.Results[1].Properties.Count, "dkim properties");
+			Assert.AreEqual ("header", authres.Results[1].Properties[0].PropertyType);
+			Assert.AreEqual ("d", authres.Results[1].Properties[0].Property);
+			Assert.AreEqual ("domain.com", authres.Results[1].Properties[0].Value);
 
-			const string expected = " spf=fail (sender IP is 1.1.1.1)\n\tsmtp.mailfrom=eu-west-1.amazonses.com; recevingdomain.com;\n\tdkim=pass (signature was verified) header.d=domain.com;domain1.com;\n\tdmarc=bestguesspass action=\"none\" header.from=domain.com\n";
+			Assert.AreEqual ("dmarc", authres.Results[2].Method);
+			Assert.AreEqual ("bestguesspass", authres.Results[2].Result);
+			Assert.AreEqual (null, authres.Results[2].ResultComment);
+			Assert.AreEqual (1, authres.Results[2].Properties.Count, "dmarc properties");
+			Assert.AreEqual ("header", authres.Results[2].Properties[0].PropertyType);
+			Assert.AreEqual ("from", authres.Results[2].Properties[0].Property);
+			Assert.AreEqual ("domain.com", authres.Results[2].Properties[0].Value);
+
+			Assert.AreEqual (input, authres.ToString ());
+
+			const string expected = "\n\tspf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com;\n\tdkim=pass (signature was verified) header.d=domain.com;\n\tdmarc=bestguesspass header.from=domain.com\n";
 			var encoded = new StringBuilder ();
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
@@ -780,6 +805,101 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (expected, encoded.ToString ());
 		}
 
+		// Tests work-around for https://github.com/jstedfast/MimeKit/issues/490
+		[Test]
+		public void TestParseOffice365RandomDomainTokensAndAction ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; receivingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=none header.from=domain.com;");
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.IsNull (authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (3, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("fail", authres.Results[0].Result);
+			Assert.AreEqual ("sender IP is 1.1.1.1", authres.Results[0].ResultComment);
+			Assert.AreEqual (1, authres.Results[0].Properties.Count, "spf properties");
+			Assert.AreEqual ("smtp", authres.Results[0].Properties[0].PropertyType);
+			Assert.AreEqual ("mailfrom", authres.Results[0].Properties[0].Property);
+			Assert.AreEqual ("eu-west-1.amazonses.com; receivingdomain.com", authres.Results[0].Properties[0].Value);
+
+			Assert.AreEqual ("dkim", authres.Results[1].Method);
+			Assert.AreEqual ("pass", authres.Results[1].Result);
+			Assert.AreEqual ("signature was verified", authres.Results[1].ResultComment);
+			Assert.AreEqual (1, authres.Results[1].Properties.Count, "dkim properties");
+			Assert.AreEqual ("header", authres.Results[1].Properties[0].PropertyType);
+			Assert.AreEqual ("d", authres.Results[1].Properties[0].Property);
+			Assert.AreEqual ("domain.com;domain1.com", authres.Results[1].Properties[0].Value);
+
+			Assert.AreEqual ("dmarc", authres.Results[2].Method);
+			Assert.AreEqual ("bestguesspass", authres.Results[2].Result);
+			Assert.AreEqual (null, authres.Results[2].ResultComment);
+			Assert.AreEqual ("none", authres.Results[2].Action);
+			Assert.AreEqual (1, authres.Results[2].Properties.Count, "dmarc properties");
+			Assert.AreEqual ("header", authres.Results[2].Properties[0].PropertyType);
+			Assert.AreEqual ("from", authres.Results[2].Properties[0].Property);
+			Assert.AreEqual ("domain.com", authres.Results[2].Properties[0].Value);
+
+			Assert.AreEqual ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; receivingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=\"none\" header.from=domain.com", authres.ToString ());
+
+			const string expected = " spf=fail (sender IP is 1.1.1.1)\n\tsmtp.mailfrom=eu-west-1.amazonses.com; receivingdomain.com;\n\tdkim=pass (signature was verified) header.d=domain.com;domain1.com;\n\tdmarc=bestguesspass action=\"none\" header.from=domain.com\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		// Tests work-around for https://github.com/jstedfast/MimeKit/issues/527
+		[Test]
+		public void TestParseOffice365RandomDomainTokensAndEmptyPropertyValue ()
+		{
+			const string input = "spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none;mydomain.com; dmarc=none action=none header.from=;";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual (null, authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (3, authres.Results.Count, "methods");
+			Assert.AreEqual ("spf", authres.Results[0].Method);
+			Assert.AreEqual ("temperror", authres.Results[0].Result);
+			Assert.AreEqual ("sender IP is 1.1.1.1", authres.Results[0].ResultComment);
+			Assert.AreEqual (1, authres.Results[0].Properties.Count, "spf properties");
+			Assert.AreEqual ("smtp", authres.Results[0].Properties[0].PropertyType);
+			Assert.AreEqual ("helo", authres.Results[0].Properties[0].Property);
+			Assert.AreEqual ("tes.test.ru; mydomain.com", authres.Results[0].Properties[0].Value);
+
+			Assert.AreEqual ("dkim", authres.Results[1].Method);
+			Assert.AreEqual ("none", authres.Results[1].Result);
+			Assert.AreEqual ("message not signed", authres.Results[1].ResultComment);
+			Assert.AreEqual (1, authres.Results[1].Properties.Count, "dkim properties");
+			Assert.AreEqual ("header", authres.Results[1].Properties[0].PropertyType);
+			Assert.AreEqual ("d", authres.Results[1].Properties[0].Property);
+			Assert.AreEqual ("none;mydomain.com", authres.Results[1].Properties[0].Value);
+
+			Assert.AreEqual ("dmarc", authres.Results[2].Method);
+			Assert.AreEqual ("none", authres.Results[2].Result);
+			Assert.AreEqual (null, authres.Results[2].ResultComment);
+			Assert.AreEqual ("none", authres.Results[2].Action);
+			Assert.AreEqual (1, authres.Results[2].Properties.Count, "dmarc properties");
+			Assert.AreEqual ("header", authres.Results[2].Properties[0].PropertyType);
+			Assert.AreEqual ("from", authres.Results[2].Properties[0].Property);
+			Assert.AreEqual ("", authres.Results[2].Properties[0].Value);
+
+			Assert.AreEqual ("spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none;mydomain.com; dmarc=none action=\"none\" header.from=", authres.ToString ());
+
+			const string expected = "\n\tspf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com;\n\tdkim=none (message not signed) header.d=none;mydomain.com;\n\tdmarc=none action=\"none\" header.from=\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
 		static void AssertParseFailure (string input, int tokenIndex, int errorIndex)
 		{
 			var buffer = Encoding.ASCII.GetBytes (input);
@@ -1115,17 +1235,20 @@ namespace UnitTests.Cryptography {
 			AssertParseFailure ("authserv-id; method=pass ptype.prop", 25, 35);
 		}
 
-		[Test]
-		public void TestParseFailureIncompleteProperty4 ()
-		{
-			AssertParseFailure ("authserv-id; method=pass ptype.prop=", 25, 36);
-		}
+		// Note: TestParseFailureIncompleteProperty4 and 5 are commented out because of
+		// https://github.com/jstedfast/MimeKit/issues/527 where we have "header.from=;"
 
-		[Test]
-		public void TestParseFailureIncompleteProperty5 ()
-		{
-			AssertParseFailure ("authserv-id; method=pass ptype.prop=;", 25, 36);
-		}
+		//[Test]
+		//public void TestParseFailureIncompleteProperty4 ()
+		//{
+		//	AssertParseFailure ("authserv-id; method=pass ptype.prop=", 25, 36);
+		//}
+
+		//[Test]
+		//public void TestParseFailureIncompleteProperty5 ()
+		//{
+		//	AssertParseFailure ("authserv-id; method=pass ptype.prop=;", 25, 36);
+		//}
 
 		[Test]
 		public void TestParseFailureInvalidProperty1 ()
