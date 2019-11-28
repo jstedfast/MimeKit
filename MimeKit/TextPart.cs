@@ -273,55 +273,22 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the decoded text content.
+		/// Get the decoded text content.
 		/// </summary>
 		/// <remarks>
 		/// <para>If the charset parameter on the <see cref="MimeEntity.ContentType"/>
 		/// is set, it will be used in order to convert the raw content into unicode.
-		/// If that fails or if the charset parameter is not set, iso-8859-1 will be
-		/// used instead.</para>
+		/// If that fails or if the charset parameter is not set, the first 2 bytes of
+		/// the content will be checked for a unicode BOM. If a BOM exists, then that
+		/// will be used for conversion. If no BOM is found, then UTF-8 is attempted.
+		/// If conversion fails, then iso-8859-1 will be used as the final fallback.</para>
 		/// <para>For more control, use <see cref="GetText(Encoding)"/>
 		/// or <see cref="GetText(String)"/>.</para>
 		/// </remarks>
-		/// <value>The text.</value>
+		/// <value>The decocded text.</value>
 		public string Text {
 			get {
-				if (Content == null)
-					return string.Empty;
-
-				var charset = ContentType.Parameters["charset"];
-				Encoding encoding = null;
-
-				if (charset != null) {
-					try {
-						encoding = CharsetUtils.GetEncoding (charset);
-					} catch (NotSupportedException) {
-					}
-				}
-
-				if (encoding == null) {
-					try {
-						var bom = new byte[2];
-						int n;
-
-						using (var content = Content.Open ())
-							n = content.Read (bom, 0, bom.Length);
-
-						if (bom.Length >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
-							encoding = Encoding.Unicode; // UTF-16LE
-						else if (bom.Length >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
-							encoding = Encoding.BigEndianUnicode; // UTF-16BE
-						else
-							encoding = CharsetUtils.UTF8;
-
-						return GetText (encoding);
-					} catch (DecoderFallbackException) {
-						// fall back to iso-8859-1
-						encoding = CharsetUtils.Latin1;
-					}
-				}
-
-				return GetText (encoding);
+				return GetText (out Encoding encoding);
 			}
 			set {
 				SetText (Encoding.UTF8, value);
@@ -369,6 +336,63 @@ namespace MimeKit {
 			case TextFormat.RichText: return IsRichText;
 			default: return false;
 			}
+		}
+
+		/// <summary>
+		/// Get the decoded text and the encoding used to convert it into unicode.
+		/// </summary>
+		/// <remarks>
+		/// <para>If the charset parameter on the <see cref="MimeEntity.ContentType"/>
+		/// is set, it will be used in order to convert the raw content into unicode.
+		/// If that fails or if the charset parameter is not set, the first 2 bytes of
+		/// the content will be checked for a unicode BOM. If a BOM exists, then that
+		/// will be used for conversion. If no BOM is found, then UTF-8 is attempted.
+		/// If conversion fails, then iso-8859-1 will be used as the final fallback.</para>
+		/// <para>For more control, use <see cref="GetText(Encoding)"/>
+		/// or <see cref="GetText(String)"/>.</para>
+		/// </remarks>
+		/// <param name="encoding">The encoding used to convert the text into unicode.</param>
+		/// <returns>The decoded text.</returns>
+		public string GetText (out Encoding encoding)
+		{
+			if (Content == null) {
+				encoding = Encoding.ASCII;
+				return string.Empty;
+			}
+
+			var charset = ContentType.Parameters["charset"];
+			encoding = null;
+
+			if (charset != null) {
+				try {
+					encoding = CharsetUtils.GetEncoding (charset);
+				} catch (NotSupportedException) {
+				}
+			}
+
+			if (encoding == null) {
+				try {
+					var bom = new byte[2];
+					int n;
+
+					using (var content = Content.Open ())
+						n = content.Read (bom, 0, bom.Length);
+
+					if (bom.Length >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
+						encoding = Encoding.Unicode; // UTF-16LE
+					else if (bom.Length >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
+						encoding = Encoding.BigEndianUnicode; // UTF-16BE
+					else
+						encoding = CharsetUtils.UTF8;
+
+					return GetText (encoding);
+				} catch (DecoderFallbackException) {
+					// fall back to iso-8859-1
+					encoding = CharsetUtils.Latin1;
+				}
+			}
+
+			return GetText (encoding);
 		}
 
 		/// <summary>

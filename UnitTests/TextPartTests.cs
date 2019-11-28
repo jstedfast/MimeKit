@@ -114,24 +114,44 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestNullContentIsAscii ()
+		{
+			var part = new TextPart ("plain");
+
+			Assert.AreEqual (string.Empty, part.Text, "Text");
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (string.Empty, actual, "GetText(out Encoding)");
+			Assert.AreEqual (Encoding.ASCII.CodePage, encoding.CodePage, "Encoding");
+		}
+
+		[Test]
 		public void TestLatin1 ()
 		{
 			const string text = "This is some Låtín1 text.";
 
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
 			var memory = new MemoryStream ();
-			var buffer = Encoding.GetEncoding ("iso-8859-1").GetBytes (text);
+			var buffer = latin1.GetBytes (text);
 			memory.Write (buffer, 0, buffer.Length);
 			memory.Position = 0;
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
 			Assert.AreEqual (text, part.Text);
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (text, actual, "GetText(out Encoding)");
+			Assert.AreEqual (latin1.CodePage, encoding.CodePage, "Encoding");
 		}
 
 		[Test]
 		public void TestUTF16BE ()
 		{
 			const string text = "This is some UTF-16BE text.\r\nThis is line #2.";
+			var expected = text.Replace ("\r\n", Environment.NewLine);
 
 			var memory = new MemoryStream ();
 			memory.WriteByte (0xfe);
@@ -143,13 +163,19 @@ namespace UnitTests
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
-			Assert.AreEqual (text.Replace ("\r\n", Environment.NewLine), part.Text.Substring (1));
+			Assert.AreEqual (expected, part.Text.Substring (1));
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (expected, actual.Substring (1), "GetText(out Encoding)");
+			Assert.AreEqual (Encoding.BigEndianUnicode.CodePage, encoding.CodePage, "Encoding");
 		}
 
 		[Test]
 		public void TestUTF16LE ()
 		{
 			const string text = "This is some UTF-16LE text.\r\nThis is line #2.";
+			var expected = text.Replace ("\r\n", Environment.NewLine);
 
 			var memory = new MemoryStream ();
 			memory.WriteByte (0xff);
@@ -161,7 +187,12 @@ namespace UnitTests
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
-			Assert.AreEqual (text.Replace ("\r\n", Environment.NewLine), part.Text.Substring (1));
+			Assert.AreEqual (expected, part.Text.Substring (1));
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (expected, actual.Substring (1), "GetText(out Encoding)");
+			Assert.AreEqual (Encoding.Unicode.CodePage, encoding.CodePage, "Encoding");
 		}
 	}
 }
