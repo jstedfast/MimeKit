@@ -360,15 +360,7 @@ namespace MimeKit {
 				return string.Empty;
 			}
 
-			var charset = ContentType.Parameters["charset"];
-			encoding = null;
-
-			if (charset != null) {
-				try {
-					encoding = CharsetUtils.GetEncoding (charset);
-				} catch (NotSupportedException) {
-				}
-			}
+			encoding = ContentType.CharsetEncoding;
 
 			if (encoding == null) {
 				try {
@@ -483,8 +475,8 @@ namespace MimeKit {
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
 
-			ContentType.Parameters["charset"] = CharsetUtils.GetMimeCharset (encoding);
 			var content = new MemoryStream (encoding.GetBytes (text));
+			ContentType.CharsetEncoding = encoding;
 			Content = new MimeContent (content);
 		}
 

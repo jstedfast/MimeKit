@@ -70,7 +70,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the type of the media.
+		/// Get or set the type of the media.
 		/// </summary>
 		/// <remarks>
 		/// Represents the media type of the <see cref="MimeEntity"/>. Examples include
@@ -97,7 +97,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the media subtype.
+		/// Get or set the media subtype.
 		/// </summary>
 		/// <remarks>
 		/// Represents the media subtype of the <see cref="MimeEntity"/>. Examples include
@@ -124,7 +124,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the parameters.
+		/// Get the parameters.
 		/// </summary>
 		/// <remarks>
 		/// In addition to the media type and subtype, the Content-Type header may also
@@ -144,7 +144,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the boundary parameter.
+		/// Get or set the boundary parameter.
 		/// </summary>
 		/// <remarks>
 		/// This is a special parameter on <see cref="Multipart"/> entities, designating to the
@@ -162,7 +162,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the charset parameter.
+		/// Get or set the charset parameter.
 		/// </summary>
 		/// <remarks>
 		/// Text-based <see cref="MimePart"/> entities will often include a charset parameter
@@ -180,7 +180,33 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the format parameter.
+		/// Get or set the charset parameter as an <see cref="Encoding"/>.
+		/// </summary>
+		/// <remarks>
+		/// Text-based <see cref="MimePart"/> entities will often include a charset parameter
+		/// so that the receiving client can properly render the text.
+		/// </remarks>
+		/// <value>The charset encoding.</value>
+		public Encoding CharsetEncoding {
+			get {
+				var charset = Charset;
+
+				if (charset == null)
+					return null;
+
+				try {
+					return CharsetUtils.GetEncoding (charset);
+				} catch {
+					return null;
+				}
+			}
+			set {
+				Charset = value != null ? CharsetUtils.GetMimeCharset (value) : null;
+			}
+		}
+
+		/// <summary>
+		/// Get or set the format parameter.
 		/// </summary>
 		/// <remarks>
 		/// The format parameter is typically use with text/plain <see cref="MimePart"/>
@@ -209,7 +235,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the name parameter.
+		/// Get or set the name parameter.
 		/// </summary>
 		/// <remarks>
 		/// The name parameter is a way for the originiating client to suggest
