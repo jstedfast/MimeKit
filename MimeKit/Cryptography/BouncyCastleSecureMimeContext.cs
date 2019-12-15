@@ -1010,7 +1010,7 @@ namespace MimeKit.Cryptography
 				var publicKeyInfo = certificate.SubjectPublicKeyInfo;
 				AlgorithmIdentifier keyEncryptionAlgorithm;
 
-				if (recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep) {
+				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep) {
 					keyEncryptionAlgorithm = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdRsaesOaep, new RsaesOaepParameters ());
 				} else {
 					keyEncryptionAlgorithm = publicKeyInfo.AlgorithmID;
