@@ -258,6 +258,9 @@ namespace MimeKit.Cryptography {
 			var collection = new RealCmsRecipientCollection ();
 
 			foreach (var recipient in recipients) {
+				if (recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep)
+					throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+
 				var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
 				RealSubjectIdentifierType type;
 
@@ -265,9 +268,6 @@ namespace MimeKit.Cryptography {
 					type = RealSubjectIdentifierType.IssuerAndSerialNumber;
 				else
 					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
-
-				if (recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep)
-					throw new NotSupportedException ("The RSAES-OAEP padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 
 				collection.Add (new RealCmsRecipient (type, certificate));
 			}
@@ -344,6 +344,9 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (CmsSigner signer)
 		{
+			if (signer.RsaSignaturePaddingScheme == RsaSignaturePaddingScheme.Pss)
+				throw new NotSupportedException ("The RSASSA-PSS signature padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+
 			var certificate = signer.Certificate.AsX509Certificate2 ();
 
 			certificate.PrivateKey = signer.PrivateKey.AsAsymmetricAlgorithm ();
