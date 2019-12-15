@@ -680,22 +680,30 @@ namespace UnitTests.Cryptography {
 			};
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
-			var multipart = MultipartSigned.Create (signer, body);
-
-			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
-
-			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.AreEqual ("application/pkcs7-signature", protocol, "The multipart/signed protocol does not match.");
-
-			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
-
-			var signatures = multipart.Verify ();
-			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
-
-			var signature = signatures[0];
-
 			using (var ctx = CreateContext ()) {
+				MultipartSigned multipart;
+
+				try {
+					multipart = MultipartSigned.Create (signer, body);
+				} catch (NotSupportedException) {
+					if (!(ctx is WindowsSecureMimeContext))
+						Assert.Fail ("RSASSA-PSS should be supported.");
+					return;
+				}
+
+				Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.AreEqual ("application/pkcs7-signature", protocol, "The multipart/signed protocol does not match.");
+
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+
+				var signatures = multipart.Verify ();
+				Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+
+				var signature = signatures[0];
+
 				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);

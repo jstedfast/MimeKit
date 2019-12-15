@@ -246,7 +246,7 @@ namespace MimeKit.Cryptography
 
 		AttributeTable AddSecureMimeCapabilities (AttributeTable signedAttributes)
 		{
-			var attr = GetSecureMimeCapabilitiesAttribute ();
+			var attr = GetSecureMimeCapabilitiesAttribute (true);
 
 			// populate our signed attributes with some S/MIME capabilities
 			return signedAttributes.Add (attr.AttrType, attr.AttrValues[0]);
@@ -993,15 +993,6 @@ namespace MimeKit.Cryptography
 				return keyWrapper.Wrap (keyBytes, 0, keyBytes.Length);
 			}
 
-			//RsaesOaepParameters GetRsaesOaepParameters (DigestAlgorithm digest)
-			//{
-			//	var oid = GetDigestOid (digest);
-			//	var hashAlgorithm = new AlgorithmIdentifier (new DerObjectIdentifier (oid), DerNull.Instance);
-			//	var maskGenFunction = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdMgf1, hashAlgorithm);
-
-			//	return new RsaesOaepParameters (hashAlgorithm, maskGenFunction, RsaesOaepParameters.DefaultPSourceAlgorithm);
-			//}
-
 			public RecipientInfo Generate (KeyParameter contentEncryptionKey, SecureRandom random)
 			{
 				var tbs = Asn1Object.FromByteArray (recipient.Certificate.GetTbsCertificate ());
@@ -1011,6 +1002,7 @@ namespace MimeKit.Cryptography
 				AlgorithmIdentifier keyEncryptionAlgorithm;
 
 				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep) {
+					// TODO: support SHA-246, SHA-384 and SHA-512? Use SecureMimeContext.GetRsaesOaepParameters (DigestAlgorithm)
 					keyEncryptionAlgorithm = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdRsaesOaep, new RsaesOaepParameters ());
 				} else {
 					keyEncryptionAlgorithm = publicKeyInfo.AlgorithmID;

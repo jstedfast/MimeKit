@@ -31,10 +31,11 @@ using System.Threading;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Kisa;
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.Smime;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -508,7 +509,16 @@ namespace MimeKit.Cryptography {
 			content.ContentStream.CopyTo (output, 4096);
 		}
 
-		internal SmimeCapabilitiesAttribute GetSecureMimeCapabilitiesAttribute ()
+		internal RsaesOaepParameters GetRsaesOaepParameters (DigestAlgorithm digest)
+		{
+			var oid = GetDigestOid (digest);
+			var hashAlgorithm = new AlgorithmIdentifier (new DerObjectIdentifier (oid), DerNull.Instance);
+			var maskGenFunction = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdMgf1, hashAlgorithm);
+
+			return new RsaesOaepParameters (hashAlgorithm, maskGenFunction, RsaesOaepParameters.DefaultPSourceAlgorithm);
+		}
+
+		internal SmimeCapabilitiesAttribute GetSecureMimeCapabilitiesAttribute (bool includeRsaesOaep)
 		{
 			var capabilities = new SmimeCapabilityVector ();
 
@@ -566,6 +576,13 @@ namespace MimeKit.Cryptography {
 				//	capabilities.AddCapability (Twofish);
 				//	break;
 				}
+			}
+
+			if (includeRsaesOaep) {
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, new RsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters (DigestAlgorithm.Sha256));
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters (DigestAlgorithm.Sha384));
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters (DigestAlgorithm.Sha512));
 			}
 
 			return new SmimeCapabilitiesAttribute (capabilities);

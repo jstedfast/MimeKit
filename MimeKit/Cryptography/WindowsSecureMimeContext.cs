@@ -327,7 +327,7 @@ namespace MimeKit.Cryptography {
 
 		AsnEncodedData GetSecureMimeCapabilities ()
 		{
-			var attr = GetSecureMimeCapabilitiesAttribute ();
+			var attr = GetSecureMimeCapabilitiesAttribute (false);
 
 			return new AsnEncodedData (attr.AttrType.Id, attr.AttrValues[0].GetEncoded ());
 		}
