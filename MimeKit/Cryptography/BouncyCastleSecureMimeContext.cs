@@ -42,6 +42,8 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
@@ -51,6 +53,7 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities.Collections;
 
 using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
+using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
 
 using MimeKit.IO;
 
@@ -963,6 +966,72 @@ namespace MimeKit.Cryptography
 			return content;
 		}
 
+		class CmsRecipientInfoGenerator : RecipientInfoGenerator
+		{
+			readonly CmsRecipient recipient;
+
+			public CmsRecipientInfoGenerator (CmsRecipient recipient)
+			{
+				this.recipient = recipient;
+			}
+
+			IWrapper CreateWrapper (string encryptionOid)
+			{
+				if (PkcsObjectIdentifiers.RsaEncryption.Id.Equals (encryptionOid, StringComparison.Ordinal))
+					encryptionOid = "RSA/ECB/PKCS1Padding";
+
+				return WrapperUtilities.GetWrapper (encryptionOid);
+			}
+
+			byte[] GenerateWrappedKey (KeyParameter contentEncryptionKey, AlgorithmIdentifier keyEncryptionAlgorithm, AsymmetricKeyParameter publicKey, SecureRandom random)
+			{
+				var keyWrapper = CreateWrapper (keyEncryptionAlgorithm.Algorithm.Id);
+				var keyBytes = contentEncryptionKey.GetKey ();
+
+				keyWrapper.Init (true, new ParametersWithRandom (publicKey, random));
+
+				return keyWrapper.Wrap (keyBytes, 0, keyBytes.Length);
+			}
+
+			//RsaesOaepParameters GetRsaesOaepParameters (DigestAlgorithm digest)
+			//{
+			//	var oid = GetDigestOid (digest);
+			//	var hashAlgorithm = new AlgorithmIdentifier (new DerObjectIdentifier (oid), DerNull.Instance);
+			//	var maskGenFunction = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdMgf1, hashAlgorithm);
+
+			//	return new RsaesOaepParameters (hashAlgorithm, maskGenFunction, RsaesOaepParameters.DefaultPSourceAlgorithm);
+			//}
+
+			public RecipientInfo Generate (KeyParameter contentEncryptionKey, SecureRandom random)
+			{
+				var tbs = Asn1Object.FromByteArray (recipient.Certificate.GetTbsCertificate ());
+				var certificate = TbsCertificateStructure.GetInstance (tbs);
+				var publicKey = recipient.Certificate.GetPublicKey ();
+				var publicKeyInfo = certificate.SubjectPublicKeyInfo;
+				AlgorithmIdentifier keyEncryptionAlgorithm;
+
+				if (recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep) {
+					keyEncryptionAlgorithm = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdRsaesOaep, new RsaesOaepParameters ());
+				} else {
+					keyEncryptionAlgorithm = publicKeyInfo.AlgorithmID;
+				}
+
+				var encryptedKeyBytes = GenerateWrappedKey (contentEncryptionKey, keyEncryptionAlgorithm, publicKey, random);
+				RecipientIdentifier recipientIdentifier;
+
+				if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier) {
+					var issuerAndSerial = new IssuerAndSerialNumber (certificate.Issuer, certificate.SerialNumber.Value);
+					recipientIdentifier = new RecipientIdentifier (issuerAndSerial);
+				} else {
+					var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+					recipientIdentifier = new RecipientIdentifier (subjectKeyIdentifier);
+				}
+
+				return new RecipientInfo (new KeyTransRecipientInfo (recipientIdentifier, keyEncryptionAlgorithm,
+					new DerOctetString (encryptedKeyBytes)));
+			}
+		}
+
 		Stream Envelope (CmsRecipientCollection recipients, Stream content)
 		{
 			var unique = new HashSet<X509Certificate> ();
@@ -971,7 +1040,7 @@ namespace MimeKit.Cryptography
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					cms.AddKeyTransRecipient (recipient.Certificate);
+					cms.AddRecipientInfoGenerator (new CmsRecipientInfoGenerator (recipient));
 					count++;
 				}
 			}

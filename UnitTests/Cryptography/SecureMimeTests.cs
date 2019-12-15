@@ -1094,6 +1094,34 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public virtual void TestSecureMimeEncryptionWithRsaesOaep ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+
+			using (var ctx = CreateContext ()) {
+				var recipients = new CmsRecipientCollection ();
+
+				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier);
+				recipient.RsaEncryptionPaddingScheme = RsaEncryptionPaddingScheme.Oaep;
+				recipients.Add (recipient);
+
+				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+
+				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
+
+				using (var stream = new MemoryStream ()) {
+					ctx.DecryptTo (encrypted.Content.Open (), stream);
+					stream.Position = 0;
+
+					var decrypted = MimeEntity.Load (stream);
+
+					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+					Assert.AreEqual (body.Text, ((TextPart) decrypted).Text, "Decrypted content is not the same as the original.");
+				}
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeDecryptThunderbird ()
 		{
 			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
@@ -1530,7 +1558,7 @@ namespace UnitTests.Cryptography {
 			if (Path.DirectorySeparatorChar != '\\')
 				return;
 
-			base.TestSecureMimeEncryption ();
+			base.TestSecureMimeEncryptionWithContext ();
 		}
 
 		[Test]
@@ -1540,6 +1568,15 @@ namespace UnitTests.Cryptography {
 				return;
 
 			base.TestSecureMimeEncryptionWithAlgorithm ();
+		}
+
+		[Test]
+		public override void TestSecureMimeEncryptionWithRsaesOaep ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return;
+
+			base.TestSecureMimeEncryptionWithRsaesOaep ();
 		}
 
 		[Test]
