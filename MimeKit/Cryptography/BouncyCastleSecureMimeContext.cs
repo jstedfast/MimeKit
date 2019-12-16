@@ -1001,9 +1001,8 @@ namespace MimeKit.Cryptography
 				var publicKeyInfo = certificate.SubjectPublicKeyInfo;
 				AlgorithmIdentifier keyEncryptionAlgorithm;
 
-				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPaddingScheme == RsaEncryptionPaddingScheme.Oaep) {
-					// TODO: support SHA-246, SHA-384 and SHA-512? Use SecureMimeContext.GetRsaesOaepParameters (DigestAlgorithm)
-					keyEncryptionAlgorithm = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdRsaesOaep, new RsaesOaepParameters ());
+				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep) {
+					keyEncryptionAlgorithm = recipient.RsaEncryptionPadding.GetAlgorithmIdentifier ();
 				} else {
 					keyEncryptionAlgorithm = publicKeyInfo.AlgorithmID;
 				}
@@ -1239,7 +1238,6 @@ namespace MimeKit.Cryptography
 					continue;
 
 				var content = recipient.GetContentStream (key);
-
 				content.ContentStream.CopyTo (decryptedData, 4096);
 				return;
 			}

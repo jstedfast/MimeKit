@@ -509,15 +509,6 @@ namespace MimeKit.Cryptography {
 			content.ContentStream.CopyTo (output, 4096);
 		}
 
-		internal RsaesOaepParameters GetRsaesOaepParameters (DigestAlgorithm digest)
-		{
-			var oid = GetDigestOid (digest);
-			var hashAlgorithm = new AlgorithmIdentifier (new DerObjectIdentifier (oid), DerNull.Instance);
-			var maskGenFunction = new AlgorithmIdentifier (PkcsObjectIdentifiers.IdMgf1, hashAlgorithm);
-
-			return new RsaesOaepParameters (hashAlgorithm, maskGenFunction, RsaesOaepParameters.DefaultPSourceAlgorithm);
-		}
-
 		internal SmimeCapabilitiesAttribute GetSecureMimeCapabilitiesAttribute (bool includeRsaesOaep)
 		{
 			var capabilities = new SmimeCapabilityVector ();
@@ -579,10 +570,10 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (includeRsaesOaep) {
-				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, new RsaesOaepParameters ());
-				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters (DigestAlgorithm.Sha256));
-				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters (DigestAlgorithm.Sha384));
-				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters (DigestAlgorithm.Sha512));
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha1.GetRsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha256.GetRsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha384.GetRsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha512.GetRsaesOaepParameters ());
 			}
 
 			return new SmimeCapabilitiesAttribute (capabilities);
