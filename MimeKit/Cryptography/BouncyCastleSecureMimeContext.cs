@@ -975,17 +975,25 @@ namespace MimeKit.Cryptography
 				this.recipient = recipient;
 			}
 
-			IWrapper CreateWrapper (string encryptionOid)
+			IWrapper CreateWrapper (AlgorithmIdentifier keyExchangeAlgorithm)
 			{
-				if (PkcsObjectIdentifiers.RsaEncryption.Id.Equals (encryptionOid, StringComparison.Ordinal))
-					encryptionOid = "RSA/ECB/PKCS1Padding";
+				string name;
 
-				return WrapperUtilities.GetWrapper (encryptionOid);
+				if (PkcsObjectIdentifiers.IdRsaesOaep.Id.Equals (keyExchangeAlgorithm.Algorithm.Id, StringComparison.Ordinal)) {
+					var oaepParameters = RsaesOaepParameters.GetInstance (keyExchangeAlgorithm.Parameters);
+					name = "RSA//OAEPWITH" + DigestUtilities.GetAlgorithmName (oaepParameters.HashAlgorithm.Algorithm) + "ANDMGF1Padding";
+				} else if (PkcsObjectIdentifiers.RsaEncryption.Id.Equals (keyExchangeAlgorithm.Algorithm.Id, StringComparison.Ordinal)) {
+					name = "RSA//PKCS1Padding";
+				} else {
+					name = keyExchangeAlgorithm.Algorithm.Id;
+				}
+
+				return WrapperUtilities.GetWrapper (name);
 			}
 
 			byte[] GenerateWrappedKey (KeyParameter contentEncryptionKey, AlgorithmIdentifier keyEncryptionAlgorithm, AsymmetricKeyParameter publicKey, SecureRandom random)
 			{
-				var keyWrapper = CreateWrapper (keyEncryptionAlgorithm.Algorithm.Id);
+				var keyWrapper = CreateWrapper (keyEncryptionAlgorithm);
 				var keyBytes = contentEncryptionKey.GetKey ();
 
 				keyWrapper.Init (true, new ParametersWithRandom (publicKey, random));

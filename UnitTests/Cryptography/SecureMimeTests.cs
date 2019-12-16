@@ -1113,7 +1113,8 @@ namespace UnitTests.Cryptography {
 			using (var ctx = CreateContext ()) {
 				var recipients = new CmsRecipientCollection ();
 
-				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier);
+				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber);
+				recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 };
 				recipient.RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm);
 				recipients.Add (recipient);
 
@@ -1122,17 +1123,8 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
 				using (var stream = new MemoryStream ()) {
-					try {
-						ctx.DecryptTo (encrypted.Content.Open (), stream);
-						stream.Position = 0;
-					} catch (CmsException) {
-						if (hashAlgorithm != DigestAlgorithm.Sha1) {
-							Assert.Ignore ($"RSAES-OAEP w/ {hashAlgorithm} is known to fail.");
-							return;
-						}
-
-						throw;
-					}
+					ctx.DecryptTo (encrypted.Content.Open (), stream);
+					stream.Position = 0;
 
 					var decrypted = MimeEntity.Load (stream);
 
