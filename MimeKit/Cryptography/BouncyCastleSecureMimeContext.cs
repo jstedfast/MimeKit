@@ -67,6 +67,8 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public abstract class BouncyCastleSecureMimeContext : SecureMimeContext
 	{
+		static readonly string RsassaPssOid = PkcsObjectIdentifiers.IdRsassaPss.Id;
+
 		HttpClient client;
 
 		/// <summary>
@@ -244,25 +246,37 @@ namespace MimeKit.Cryptography
 		/// <param name="timestamp">The timestamp.</param>
 		protected abstract void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp);
 
-		AttributeTable AddSecureMimeCapabilities (AttributeTable signedAttributes)
+		CmsAttributeTableGenerator AddSecureMimeCapabilities (AttributeTable signedAttributes)
 		{
 			var attr = GetSecureMimeCapabilitiesAttribute (true);
 
 			// populate our signed attributes with some S/MIME capabilities
-			return signedAttributes.Add (attr.AttrType, attr.AttrValues[0]);
+			return new DefaultSignedAttributeTableGenerator (signedAttributes.Add (attr.AttrType, attr.AttrValues[0]));
 		}
 
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)
 		{
+			var unsignedAttributes = new SimpleAttributeTableGenerator (signer.UnsignedAttributes);
 			var signedAttributes = AddSecureMimeCapabilities (signer.SignedAttributes);
 			var signedData = new CmsSignedDataStreamGenerator ();
 			var digestOid = GetDigestOid (signer.DigestAlgorithm);
+			byte[] subjectKeyId = null;
+
+			if (signer.SignerIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
+				var subjectKeyIdentifier = signer.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+				var id = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
+				subjectKeyId = id.GetOctets ();
+			}
 
 			if (signer.PrivateKey is RsaKeyParameters && signer.RsaSignaturePaddingScheme == RsaSignaturePaddingScheme.Pss) {
-				signedData.AddSigner (signer.PrivateKey, signer.Certificate, PkcsObjectIdentifiers.IdRsassaPss.Id, digestOid,
-					signedAttributes, signer.UnsignedAttributes);
+				if (subjectKeyId == null)
+					signedData.AddSigner (signer.PrivateKey, signer.Certificate, RsassaPssOid, digestOid, signedAttributes, unsignedAttributes);
+				else
+					signedData.AddSigner (signer.PrivateKey, subjectKeyId, RsassaPssOid, digestOid, signedAttributes, unsignedAttributes);
+			} else if (subjectKeyId == null) {
+				signedData.AddSigner (signer.PrivateKey, signer.Certificate, digestOid, signedAttributes, unsignedAttributes);
 			} else {
-				signedData.AddSigner (signer.PrivateKey, signer.Certificate, digestOid, signedAttributes, signer.UnsignedAttributes);
+				signedData.AddSigner (signer.PrivateKey, subjectKeyId, digestOid, signedAttributes, unsignedAttributes);
 			}
 
 			signedData.AddCertificates (signer.CertificateChain);

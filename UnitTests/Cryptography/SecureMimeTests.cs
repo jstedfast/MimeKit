@@ -486,7 +486,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret");
+			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
 			var signed = ApplicationPkcs7Mime.Sign (signer, cleartext);
@@ -528,7 +528,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithContextAndCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret");
+			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {

@@ -90,6 +90,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="chain">The chain of certificates starting with the signer's certificate back to the root.</param>
 		/// <param name="key">The signer's private key.</param>
+		/// <param name="signerIdentifierType">The scheme used for identifying the signer certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="chain"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -102,7 +103,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is not a private key.</para>
 		/// </exception>
-		public CmsSigner (IEnumerable<X509Certificate> chain, AsymmetricKeyParameter key) : this ()
+		public CmsSigner (IEnumerable<X509Certificate> chain, AsymmetricKeyParameter key, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
 		{
 			if (chain == null)
 				throw new ArgumentNullException (nameof (chain));
@@ -120,6 +121,11 @@ namespace MimeKit.Cryptography {
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
+			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
+				SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+			else
+				SignerIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
+
 			Certificate = CertificateChain[0];
 			PrivateKey = key;
 		}
@@ -135,6 +141,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">The signer's certificate.</param>
 		/// <param name="key">The signer's private key.</param>
+		/// <param name="signerIdentifierType">The scheme used for identifying the signer certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="certificate"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -145,7 +152,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is not a private key.</para>
 		/// </exception>
-		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key) : this ()
+		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -158,13 +165,18 @@ namespace MimeKit.Cryptography {
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
+			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
+				SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+			else
+				SignerIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
+
 			CertificateChain = new X509CertificateChain ();
 			CertificateChain.Add (certificate);
 			Certificate = certificate;
 			PrivateKey = key;
 		}
 
-		void LoadPkcs12 (Stream stream, string password)
+		void LoadPkcs12 (Stream stream, string password, SubjectIdentifierType signerIdentifierType)
 		{
 			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 			bool hasPrivateKey = false;
@@ -183,6 +195,11 @@ namespace MimeKit.Cryptography {
 
 				if (chain.Length == 0 || !CanSign (chain[0].Certificate))
 					continue;
+
+				if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
+					SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+				else
+					SignerIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
 				CertificateChain = new X509CertificateChain ();
 				Certificate = chain[0].Certificate;
@@ -213,6 +230,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="stream">The raw certificate and key data in pkcs12 format.</param>
 		/// <param name="password">The password to unlock the stream.</param>
+		/// <param name="signerIdentifierType">The scheme used for identifying the signer certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -226,7 +244,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public CmsSigner (Stream stream, string password) : this ()
+		public CmsSigner (Stream stream, string password, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -234,7 +252,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
-			LoadPkcs12 (stream, password);
+			LoadPkcs12 (stream, password, signerIdentifierType);
 		}
 
 		/// <summary>
@@ -250,6 +268,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="fileName">The raw certificate and key data in pkcs12 format.</param>
 		/// <param name="password">The password to unlock the stream.</param>
+		/// <param name="signerIdentifierType">The scheme used for identifying the signer certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -276,7 +295,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public CmsSigner (string fileName, string password) : this ()
+		public CmsSigner (string fileName, string password, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -285,7 +304,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (password));
 
 			using (var stream = File.OpenRead (fileName))
-				LoadPkcs12 (stream, password);
+				LoadPkcs12 (stream, password, signerIdentifierType);
 		}
 
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
@@ -299,13 +318,14 @@ namespace MimeKit.Cryptography {
 		/// initialized to empty tables.</para>
 		/// </remarks>
 		/// <param name="certificate">The signer's certificate.</param>
+		/// <param name="signerIdentifierType">The scheme used for identifying the signer certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="certificate"/> cannot be used for signing.
 		/// </exception>
-		public CmsSigner (X509Certificate2 certificate) : this ()
+		public CmsSigner (X509Certificate2 certificate, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -317,6 +337,11 @@ namespace MimeKit.Cryptography {
 			var key = certificate.PrivateKey.AsAsymmetricKeyParameter ();
 
 			CheckCertificateCanBeUsedForSigning (cert);
+
+			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
+				SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
+			else
+				SignerIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
 			CertificateChain = new X509CertificateChain ();
 			CertificateChain.Add (cert);
@@ -381,6 +406,17 @@ namespace MimeKit.Cryptography {
 		/// <value>The signature padding scheme.</value>
 		public RsaSignaturePaddingScheme RsaSignaturePaddingScheme {
 			get; set;
+		}
+
+		/// <summary>
+		/// Gets the signer identifier type.
+		/// </summary>
+		/// <remarks>
+		/// Specifies how the certificate should be looked up on the recipient's end.
+		/// </remarks>
+		/// <value>The signer identifier type.</value>
+		public SubjectIdentifierType SignerIdentifierType {
+			get; private set;
 		}
 
 		/// <summary>

@@ -157,5 +157,33 @@ namespace UnitTests.Cryptography {
 				Assert.Fail (".ctor (X509Certificate2): {0}", ex);
 			}
 		}
+
+		[Test]
+		public void TestDefaultValues ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			List<X509Certificate> certificates;
+			AsymmetricKeyParameter key;
+			var password = "no.secret";
+			CmsSigner signer;
+
+			signer = new CmsSigner (path, password);
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (string, string)");
+
+			using (var stream = File.OpenRead (path))
+				signer = new CmsSigner (stream, password);
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (Stream, string)");
+
+			LoadPkcs12 (path, password, out certificates, out key);
+
+			signer = new CmsSigner (certificates, key);
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (chain, key)");
+
+			signer = new CmsSigner (certificates[0], key);
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (certificate, key)");
+
+			signer = new CmsSigner (new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable));
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (X509Certificate2)");
+		}
 	}
 }
