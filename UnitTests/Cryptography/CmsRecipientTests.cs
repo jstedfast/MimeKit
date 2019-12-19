@@ -62,10 +62,11 @@ namespace UnitTests.Cryptography {
 
 		static void AssertDefaultValues (CmsRecipient recipient, X509Certificate certificate)
 		{
-			Assert.AreEqual (certificate, recipient.Certificate);
-			Assert.AreEqual (1, recipient.EncryptionAlgorithms.Length);
-			Assert.AreEqual (EncryptionAlgorithm.TripleDes, recipient.EncryptionAlgorithms[0]);
-			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, recipient.RecipientIdentifierType);
+			Assert.AreEqual (certificate, recipient.Certificate, "Certificate");
+			Assert.AreEqual (1, recipient.EncryptionAlgorithms.Length, "EncryptionAlgorithms");
+			Assert.AreEqual (EncryptionAlgorithm.TripleDes, recipient.EncryptionAlgorithms[0], "EncryptionAlgorithm");
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, recipient.RecipientIdentifierType, "RecipientIdentifierType");
+			Assert.IsNull (recipient.RsaEncryptionPadding, "RsaEncryptionPadding");
 		}
 
 		[Test]
@@ -89,6 +90,26 @@ namespace UnitTests.Cryptography {
 			recipient = new CmsRecipient (new X509Certificate2 (path));
 
 			AssertDefaultValues (recipient, certificate);
+		}
+
+		[Test]
+		public void TestRecipientIdentifierType ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "smime", "StartComCertificationAuthority.crt");
+			var recipient = new CmsRecipient (path, SubjectIdentifierType.SubjectKeyIdentifier);
+			var certificate = recipient.Certificate;
+
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+
+			using (var stream = File.OpenRead (path))
+				recipient = new CmsRecipient (stream, SubjectIdentifierType.SubjectKeyIdentifier);
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+
+			recipient = new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier);
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+
+			recipient = new CmsRecipient (new X509Certificate2 (File.ReadAllBytes (path)), SubjectIdentifierType.SubjectKeyIdentifier);
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
 		}
 
 		[Test]
