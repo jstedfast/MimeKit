@@ -243,6 +243,8 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "Default RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "Default RsaSignaturePadding");
 
+			Assert.Throws<ArgumentOutOfRangeException> (() => signer.RsaSignaturePaddingScheme = (RsaSignaturePaddingScheme) 555);
+
 			signer.RsaSignaturePaddingScheme = RsaSignaturePaddingScheme.Pkcs1;
 			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme #1");
 			Assert.AreEqual (RsaSignaturePadding.Pkcs1, signer.RsaSignaturePadding, "RsaSignaturePadding #1");
