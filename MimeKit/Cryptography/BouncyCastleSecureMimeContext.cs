@@ -268,7 +268,7 @@ namespace MimeKit.Cryptography
 				subjectKeyId = id.GetOctets ();
 			}
 
-			if (signer.PrivateKey is RsaKeyParameters && signer.RsaSignaturePaddingScheme == RsaSignaturePaddingScheme.Pss) {
+			if (signer.PrivateKey is RsaKeyParameters && signer.RsaSignaturePadding == RsaSignaturePadding.Pss) {
 				if (subjectKeyId == null)
 					signedData.AddSigner (signer.PrivateKey, signer.Certificate, RsassaPssOid, digestOid, signedAttributes, unsignedAttributes);
 				else

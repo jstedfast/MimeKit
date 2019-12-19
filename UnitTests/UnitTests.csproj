@@ -89,6 +89,7 @@
     <Compile Include="Cryptography\LdapUriTests.cs" />
     <Compile Include="Cryptography\PgpMimeTests.cs" />
     <Compile Include="Cryptography\RsaEncryptionPaddingTests.cs" />
+    <Compile Include="Cryptography\RsaSignaturePaddingTests.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalCertificateTests.cs" />
     <Compile Include="Cryptography\SecureMimeTests.cs" />
     <Compile Include="Cryptography\X509CertificateChainTests.cs" />

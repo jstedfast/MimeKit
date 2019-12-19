@@ -111,6 +111,7 @@
     <Compile Include="Cryptography\PublicKeyNotFoundException.cs" />
     <Compile Include="Cryptography\RsaEncryptionPadding.cs" />
     <Compile Include="Cryptography\RsaEncryptionPaddingScheme.cs" />
+    <Compile Include="Cryptography\RsaSignaturePadding.cs" />
     <Compile Include="Cryptography\RsaSignaturePaddingScheme.cs" />
     <Compile Include="Cryptography\SecureMailboxAddress.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />

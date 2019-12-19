@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2019 Microsoft Corp.
+// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -134,10 +134,52 @@ namespace MimeKit.Cryptography {
 		{
 			int hash = Scheme.GetHashCode ();
 
-			if (Scheme == RsaEncryptionPaddingScheme.Oaep)
-				hash ^= OaepHashAlgorithm.GetHashCode ();
+			return ((hash << 5) + hash) ^ OaepHashAlgorithm.GetHashCode ();
+		}
 
-			return hash;
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current
+		/// <see cref="RsaEncryptionPadding"/>.
+		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="RsaEncryptionPadding"/>.
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current
+		/// <see cref="RsaEncryptionPadding"/>.</returns>
+		public override string ToString ()
+		{
+			return Scheme == RsaEncryptionPaddingScheme.Pkcs1 ? "Pkcs1" : "Oaep" + OaepHashAlgorithm.ToString ();
+		}
+
+		/// <summary>
+		/// Compare two <see cref="RsaEncryptionPadding"/> objects for equality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="RsaEncryptionPadding"/> objects for equality.
+		/// </remarks>
+		/// <param name="left">The first object to compare.</param>
+		/// <param name="right">The second object to compare.</param>
+		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
+		public static bool operator == (RsaEncryptionPadding left, RsaEncryptionPadding right)
+		{
+			if (ReferenceEquals (left, null))
+				return ReferenceEquals (right, null);
+
+			return left.Equals (right);
+		}
+
+		/// <summary>
+		/// Compare two <see cref="RsaEncryptionPadding"/> objects for inequality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="RsaEncryptionPadding"/> objects for inequality.
+		/// </remarks>
+		/// <param name="left">The first object to compare.</param>
+		/// <param name="right">The second object to compare.</param>
+		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <c>false</c>.</returns>
+		public static bool operator != (RsaEncryptionPadding left, RsaEncryptionPadding right)
+		{
+			return !(left == right);
 		}
 
 		/// <summary>

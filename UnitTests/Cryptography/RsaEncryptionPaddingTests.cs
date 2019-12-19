@@ -46,10 +46,10 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEquality ()
 		{
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha1, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), "SHA-1");
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha256, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha256), "SHA-256");
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha384, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha384), "SHA-384");
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha512, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha512), "SHA-512");
+			Assert.AreEqual (RsaEncryptionPadding.OaepSha1, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), "CreateOaep(SHA-1)");
+			Assert.AreEqual (RsaEncryptionPadding.OaepSha256, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha256), "CreateOaep(SHA-256)");
+			Assert.AreEqual (RsaEncryptionPadding.OaepSha384, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha384), "CreateOaep(SHA-384)");
+			Assert.AreEqual (RsaEncryptionPadding.OaepSha512, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha512), "CreateOaep(SHA-512)");
 
 			Assert.AreNotEqual (RsaEncryptionPadding.Pkcs1, RsaEncryptionPadding.OaepSha1, "PKCS1 != SHA-1");
 			Assert.AreNotEqual (RsaEncryptionPadding.Pkcs1, RsaEncryptionPadding.OaepSha256, "PKCS1 != SHA-256");
