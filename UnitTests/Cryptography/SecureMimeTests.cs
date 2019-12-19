@@ -1583,7 +1583,10 @@ namespace UnitTests.Cryptography {
 			base.TestSecureMimeEncryptionWithAlgorithm ();
 		}
 
-		[Test]
+		[TestCase (DigestAlgorithm.Sha1)]
+		[TestCase (DigestAlgorithm.Sha256)]
+		[TestCase (DigestAlgorithm.Sha384)]
+		[TestCase (DigestAlgorithm.Sha512)]
 		public override void TestSecureMimeEncryptionWithRsaesOaep (DigestAlgorithm hashAlgorithm)
 		{
 			if (Path.DirectorySeparatorChar != '\\')
