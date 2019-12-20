@@ -258,18 +258,30 @@ namespace MimeKit.Cryptography {
 			var collection = new RealCmsRecipientCollection ();
 
 			foreach (var recipient in recipients) {
-				if (recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep)
-					throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
-
 				var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
 				RealSubjectIdentifierType type;
+				RealCmsRecipient real;
 
 				if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 					type = RealSubjectIdentifierType.IssuerAndSerialNumber;
 				else
 					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
 
-				collection.Add (new RealCmsRecipient (type, certificate));
+#if NETCOREAPP3_0
+				var padding = recipient.RsaEncryptionPadding?.AsRSAEncryptionPadding ();
+
+				if (padding != null)
+					real = new RealCmsRecipient (type, certificate, padding);
+				else
+					real = new RealCmsRecipient (type, certificate);
+#else
+				if (recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep)
+					throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+
+				real = new RealCmsRecipient (type, certificate);
+#endif
+
+				collection.Add (real);
 			}
 
 			return collection;
@@ -344,7 +356,7 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (CmsSigner signer)
 		{
-			if (signer.RsaSignaturePaddingScheme == RsaSignaturePaddingScheme.Pss)
+			if (signer.RsaSignaturePadding == RsaSignaturePadding.Pss)
 				throw new NotSupportedException ("The RSASSA-PSS signature padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 
 			var certificate = signer.Certificate.AsX509Certificate2 ();

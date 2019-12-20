@@ -247,7 +247,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets the padding to use for key encryption when
-		/// the <see cref="PrivateKey"/> is an RSA key.</para>
+		/// the <see cref="Certificate"/>'s public key is an RSA key.</para>
 		/// </remarks>
 		/// <value>The encryption padding scheme.</value>
 		public RsaEncryptionPadding RsaEncryptionPadding {
