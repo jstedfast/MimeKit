@@ -190,6 +190,16 @@ namespace MimeKit.Cryptography {
 			return null;
 		}
 
+		internal static string AsHex (this byte[] blob)
+		{
+			var hex = new StringBuilder (blob.Length * 2);
+
+			for (int i = 0; i < blob.Length; i++)
+				hex.Append (blob[i].ToString ("x2"));
+
+			return hex.ToString ();
+		}
+
 		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
@@ -208,17 +218,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			var encoded = certificate.GetEncoded ();
-			var fingerprint = new StringBuilder ();
+			var fingerprint = new byte[20];
 			var sha1 = new Sha1Digest ();
-			var data = new byte[20];
 
 			sha1.BlockUpdate (encoded, 0, encoded.Length);
-			sha1.DoFinal (data, 0);
+			sha1.DoFinal (fingerprint, 0);
 
-			for (int i = 0; i < data.Length; i++)
-				fingerprint.Append (data[i].ToString ("x2"));
-
-			return fingerprint.ToString ();
+			return fingerprint.AsHex ();
 		}
 
 		/// <summary>

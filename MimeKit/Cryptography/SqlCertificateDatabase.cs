@@ -28,6 +28,7 @@ using System;
 using System.Data;
 using System.Text;
 using System.Data.Common;
+using System.Collections.Generic;
 
 #if __MOBILE__
 using Mono.Data.Sqlite;
@@ -35,6 +36,7 @@ using Mono.Data.Sqlite;
 using System.Reflection;
 #endif
 
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
@@ -82,31 +84,57 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the command to create the certificates table.
+		/// Gets the columns for the specified table.
 		/// </summary>
 		/// <remarks>
-		/// Constructs the command to create a certificates table suitable for storing
-		/// <see cref="X509CertificateRecord"/> objects.
+		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
 		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
-		protected abstract DbCommand GetCreateCertificatesTableCommand (DbConnection connection);
+		/// <param name="tableName">The name of the table.</param>
+		/// <returns>The list of columns.</returns>
+		protected abstract IList<DataColumn> GetTableColumns (DbConnection connection, string tableName);
 
 		/// <summary>
-		/// Gets the command to create the CRLs table.
+		/// Gets the command to create a table.
 		/// </summary>
 		/// <remarks>
-		/// Constructs the command to create a CRLs table suitable for storing
-		/// <see cref="X509CertificateRecord"/> objects.
+		/// Constructs the command to create a table.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
 		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
-		protected abstract DbCommand GetCreateCrlsTableCommand (DbConnection connection);
+		/// <param name="table">The table.</param>
+		protected abstract void CreateTable (DbConnection connection, DataTable table);
+
+		/// <summary>
+		/// Adds a column to a table.
+		/// </summary>
+		/// <remarks>
+		/// Adds a column to a table.
+		/// </remarks>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="table">The table.</param>
+		/// <param name="column">The column to add.</param>
+		protected abstract void AddTableColumn (DbConnection connection, DataTable table, DataColumn column);
+
+		static string GetIndexName (string tableName, string[] columnNames)
+		{
+			return string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
+		}
 
 		static void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
-			var indexName = string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
+			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("CREATE INDEX IF NOT EXISTS {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
+
+			using (var command = connection.CreateCommand ()) {
+				command.CommandText = query;
+				command.ExecuteNonQuery ();
+			}
+		}
+
+		static void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
+		{
+			var indexName = GetIndexName (tableName, columnNames);
+			var query = string.Format ("DROP INDEX IF EXISTS {0}", indexName);
 
 			using (var command = connection.CreateCommand ()) {
 				command.CommandText = query;
@@ -116,21 +144,106 @@ namespace MimeKit.Cryptography {
 
 		void CreateCertificatesTable ()
 		{
-			using (var command = GetCreateCertificatesTableCommand (connection))
-				command.ExecuteNonQuery ();
+			const string tableName = "CERTIFICATES";
 
-			CreateIndex (connection, "CERTIFICATES", new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
-			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "FINGERPRINT" });
-			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
-			CreateIndex (connection, "CERTIFICATES", new [] { "TRUSTED" });
-			CreateIndex (connection, "CERTIFICATES", new [] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
-			CreateIndex (connection, "CERTIFICATES", new [] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+			var table = new DataTable (tableName);
+			table.Columns.Add (new DataColumn ("ID", typeof (int)) { AutoIncrement = true });
+			table.Columns.Add (new DataColumn ("TRUSTED", typeof (bool)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ANCHOR", typeof (bool)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("BASICCONSTRAINTS", typeof (int)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("KEYUSAGE", typeof (int)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("NOTBEFORE", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("NOTAFTER", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ISSUERNAME", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("SERIALNUMBER", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("SUBJECTNAME", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("SUBJECTKEYIDENTIFIER", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("SUBJECTEMAIL", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("FINGERPRINT", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ALGORITHMS", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("ALGORITHMSUPDATED", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("CERTIFICATE", typeof (byte[])) { AllowDBNull = false, Unique = true });
+			table.Columns.Add (new DataColumn ("PRIVATEKEY", typeof (byte[])) { AllowDBNull = true });
+			table.PrimaryKey = new DataColumn[] { table.Columns[0] };
+
+			CreateTable (connection, table);
+
+			var currentColumns = GetTableColumns (connection, tableName);
+			var hasAnchorColumn = false;
+
+			for (int i = 0; i < currentColumns.Count; i++) {
+				// Note: ANCHOR, SUBJECTNAME and SUBJECTKEYIDENTIFIER were all added in the same version
+				if (currentColumns[i].ColumnName.Equals ("ANCHOR", StringComparison.Ordinal)) {
+					hasAnchorColumn = true;
+					break;
+				}
+			}
+
+			if (!hasAnchorColumn) {
+				using (var transaction = connection.BeginTransaction ()) {
+					try {
+						// Note: Normally we'd want an ANCHOR column of type INTEGER NOT NULL, but we can't add a new column with a NOT NULL restriction
+						AddTableColumn (connection, table, new DataColumn ("ANCHOR", typeof (bool)) { AllowDBNull = true });
+
+						// Note: Normally we'd want a SUBJECTNAME column of type TEXT NOT NULL, but we can't add a new column with a NOT NULL restriction
+						AddTableColumn (connection, table, new DataColumn ("SUBJECTNAME", typeof (string)) { AllowDBNull = true });
+
+						AddTableColumn (connection, table, new DataColumn ("SUBJECTKEYIDENTIFIER", typeof (byte[])) { AllowDBNull = true });
+
+						foreach (var record in Find (null, false, X509CertificateRecordFields.Id)) {
+							var statement = "UPDATE CERTIFICATES SET ANCHOR = @ANCHOR, SUBJECTNAME = @SUBJECTNAME, SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER WHERE ID = @ID";
+							var command = connection.CreateCommand ();
+
+							command.AddParameterWithValue ("@ID", record.Id);
+							command.AddParameterWithValue ("@ANCHOR", record.IsAnchor);
+							command.AddParameterWithValue ("@SUBJECTNAME", record.SubjectName);
+							command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", record.SubjectKeyIdentifier.AsHex ());
+							command.CommandType = CommandType.Text;
+							command.CommandText = statement;
+
+							command.ExecuteNonQuery ();
+						}
+
+						transaction.Commit ();
+					} catch {
+						transaction.Rollback ();
+						throw;
+					}
+				}
+
+				// Remove some old indexes
+				RemoveIndex (connection, tableName, new[] { "TRUSTED" });
+				RemoveIndex (connection, tableName, new[] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+				RemoveIndex (connection, tableName, new[] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+			}
+
+			// Index for matching against a specific certificate
+			CreateIndex (connection, tableName, new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
+
+			// Index for searching for a certificate based on a SecureMailboxAddress
+			CreateIndex (connection, tableName, new [] { "BASICCONSTRAINTS", "FINGERPRINT" });
+
+			// Index for searching for a certificate based on a MailboxAddress
+			CreateIndex (connection, tableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
+
+			// Index for gathering a list of Trusted Anchors
+			CreateIndex (connection, tableName, new [] { "TRUSTED", "ANCHOR" });
 		}
 
 		void CreateCrlsTable ()
 		{
-			using (var command = GetCreateCrlsTableCommand (connection))
-				command.ExecuteNonQuery ();
+			const string tableName = "CRLS";
+
+			var table = new DataTable (tableName);
+			table.Columns.Add (new DataColumn ("ID", typeof (int)) { AutoIncrement = true });
+			table.Columns.Add (new DataColumn ("DELTA", typeof (bool)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ISSUERNAME", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("THISUPDATE", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("NEXTUPDATE", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("CRL", typeof (byte[])) { AllowDBNull = false });
+			table.PrimaryKey = new DataColumn[] { table.Columns[0] };
+
+			CreateTable (connection, table);
 
 			CreateIndex (connection, "CRLS", new [] { "ISSUERNAME" });
 			CreateIndex (connection, "CRLS", new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
@@ -233,10 +346,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="selector">The certificate selector.</param>
-		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched; otherwise, <c>false</c>.</param>
+		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var match = selector as X509CertStoreSelector;
 			var command = connection.CreateCommand ();
@@ -248,14 +361,11 @@ namespace MimeKit.Cryptography {
 			// FIXME: We could create an X509CertificateDatabaseSelector subclass of X509CertStoreSelector that
 			// adds properties like bool Trusted, bool Anchor, and bool HasPrivateKey ? Then we could drop the
 			// bool method arguments...
-			if (trustedOnly) {
+			if (trustedAnchorsOnly) {
+				query = query.Append ("TRUSTED = @TRUSTED AND ANCHOR = @ANCHOR");
 				command.AddParameterWithValue ("@TRUSTED", true);
-				query = query.Append ("TRUSTED = @TRUSTED");
+				command.AddParameterWithValue ("@ANCHOR", true);
 			}
-
-			// FIXME: This query is used to get the TrustedAnchors in DefaultSecureMimeContext. If the database
-			// had an ANCHOR (or ROOT?) column, that would likely improve performance a bit because we would
-			// protentially reduce the number of certificates we load.
 
 			if (match != null) {
 				if (match.BasicConstraints >= 0 || match.BasicConstraints == -2) {
@@ -313,9 +423,24 @@ namespace MimeKit.Cryptography {
 					query = query.Append ("FINGERPRINT = @FINGERPRINT");
 				}
 
-				// FIXME: maybe the database should have a SUBJECTNAME column as well? Then we could match against
-				// selector.SubjectDN. Plus it might be nice to have when querying the database manually to see
-				// what's there.
+				if (match.Subject != null) {
+					if (command.Parameters.Count > 0)
+						query = query.Append (" AND ");
+
+					command.AddParameterWithValue ("@SUBJECTNAME", match.Subject.ToString ());
+					query = query.Append ("SUBJECTNAME = @SUBJECTNAME");
+				}
+
+				if (match.SubjectKeyIdentifier != null) {
+					if (command.Parameters.Count > 0)
+						query = query.Append (" AND ");
+
+					var id = (Asn1OctetString) Asn1Object.FromByteArray (match.SubjectKeyIdentifier);
+					var subjectKeyIdentifier = id.GetOctets ().AsHex ();
+
+					command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", subjectKeyIdentifier);
+					query = query.Append ("SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER");
+				}
 
 				if (match.KeyUsage != null) {
 					var flags = BouncyCastleCertificateExtensions.GetKeyUsageFlags (match.KeyUsage);

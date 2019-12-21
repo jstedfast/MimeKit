@@ -13,6 +13,7 @@
   * Add an ANCHOR/ROOT table column to the SQL database to optimize searches
     for Trusted Anchors.
   * Add a SUBJECTNAME table column to the SQL database?
+  * Add a SUBJECTKEYIDENTIFIER table column to the SQL database?
   * Add a RECORDVERSION table column to the SQL database so we can add columns
     in the future and work around gaps in the row data?
 

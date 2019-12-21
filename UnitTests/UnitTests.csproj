@@ -92,6 +92,7 @@
     <Compile Include="Cryptography\RsaSignaturePaddingTests.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalCertificateTests.cs" />
     <Compile Include="Cryptography\SecureMimeTests.cs" />
+    <Compile Include="Cryptography\SqliteCertificateDatabaseTests.cs" />
     <Compile Include="Cryptography\X509CertificateChainTests.cs" />
     <Compile Include="Cryptography\X509CertificateRecordTests.cs" />
     <Compile Include="Cryptography\X509CertificateStoreTests.cs" />
@@ -242,7 +243,6 @@
     <None Include="TestData\partial\message-partial.0.eml" />
     <None Include="TestData\partial\message-partial.1.eml" />
     <None Include="TestData\partial\message-partial.2.eml" />
-    <None Include="TestData\smime\certificate-authority.crt" />
     <None Include="TestData\smime\certificate-authority.key" />
     <None Include="TestData\smime\gencerts.sh" />
     <None Include="TestData\smime\smdh.pem" />
@@ -253,8 +253,6 @@
     <None Include="TestData\smime\smec1.pem" />
     <None Include="TestData\smime\smec2.pem" />
     <None Include="TestData\smime\smec3.pem" />
-    <None Include="TestData\smime\smime.crt" />
-    <None Include="TestData\smime\smime.csr" />
     <None Include="TestData\smime\smime.key" />
     <None Include="TestData\smime\smime.p12" />
     <None Include="TestData\smime\smroot.pem" />

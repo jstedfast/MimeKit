@@ -385,10 +385,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="selector">The certificate selector.</param>
-		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched; otherwise, <c>false</c>.</param>
+		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the column names for the specified fields.
@@ -487,11 +487,14 @@ namespace MimeKit.Cryptography {
 			//case "ID": return record.Id;
 			case "BASICCONSTRAINTS": return record.BasicConstraints;
 			case "TRUSTED": return record.IsTrusted;
+			case "ANCHOR": return record.IsAnchor;
 			case "KEYUSAGE": return (int) record.KeyUsage;
 			case "NOTBEFORE": return record.NotBefore.ToUniversalTime ();
 			case "NOTAFTER": return record.NotAfter.ToUniversalTime ();
 			case "ISSUERNAME": return record.IssuerName;
 			case "SERIALNUMBER": return record.SerialNumber;
+			case "SUBJECTNAME": return record.SubjectName;
+			case "SUBJECTKEYIDENTIFIER": return record.SubjectKeyIdentifier.AsHex ();
 			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;
 			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
 			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
@@ -699,11 +702,11 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
-		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be returned.</param>
+		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
-		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedOnly, X509CertificateRecordFields fields)
+		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
-			using (var command = GetSelectCommand (selector, trustedOnly, false, fields | X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];

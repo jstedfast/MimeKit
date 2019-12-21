@@ -29,6 +29,7 @@ using System.IO;
 using System.Data;
 using System.Text;
 using System.Data.Common;
+using System.Collections.Generic;
 
 #if __MOBILE__
 using Mono.Data.Sqlite;
@@ -223,89 +224,146 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the command to create the certificates table.
+		/// Gets the columns for the specified table.
 		/// </summary>
 		/// <remarks>
-		/// Constructs the command to create a certificates table suitable for storing
-		/// <see cref="X509CertificateRecord"/> objects.
+		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
 		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
-		protected override DbCommand GetCreateCertificatesTableCommand (DbConnection connection)
+		/// <param name="tableName">The name of the table.</param>
+		/// <returns>The list of columns.</returns>
+		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
 		{
-			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
-			var columns = X509CertificateRecord.ColumnNames;
+			using (var command = connection.CreateCommand ()) {
+				command.CommandText = $"PRAGMA table_info({tableName})";
+				using (var reader = command.ExecuteReader ()) {
+					var columns = new List<DataColumn> ();
 
-			for (int i = 0; i < columns.Length; i++) {
-				if (i > 0)
-					statement.Append (", ");
+					while (reader.Read ()) {
+						var column = new DataColumn ();
 
-				statement.Append (columns[i] + " ");
-				switch (columns[i]) {
-				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
-				case "BASICCONSTRAINTS": statement.Append ("INTEGER NOT NULL"); break;
-				case "TRUSTED":  statement.Append ("INTEGER NOT NULL"); break;
-				case "KEYUSAGE": statement.Append ("INTEGER NOT NULL"); break;
-				case "NOTBEFORE": statement.Append ("INTEGER NOT NULL"); break;
-				case "NOTAFTER": statement.Append ("INTEGER NOT NULL"); break;
-				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
-				case "SERIALNUMBER": statement.Append ("TEXT NOT NULL"); break;
-				case "SUBJECTEMAIL": statement.Append ("TEXT"); break;
-				case "FINGERPRINT": statement.Append ("TEXT NOT NULL"); break;
-				case "ALGORITHMS": statement.Append ("TEXT"); break;
-				case "ALGORITHMSUPDATED": statement.Append ("INTEGER NOT NULL"); break;
-				case "CERTIFICATE": statement.Append ("BLOB UNIQUE NOT NULL"); break;
-				case "PRIVATEKEY": statement.Append ("BLOB"); break;
+						for (int i = 0; i < reader.FieldCount; i++) {
+							var field = reader.GetName (i).ToUpperInvariant ();
+
+							switch (field) {
+							case "NAME":
+								column.ColumnName = reader.GetString (i);
+								break;
+							case "TYPE":
+								var type = reader.GetString (i);
+								switch (type) {
+								case "INTEGER": column.DataType = typeof (long); break;
+								case "BLOB": column.DataType = typeof (byte[]); break;
+								case "TEXT": column.DataType = typeof (string); break;
+								}
+								break;
+							case "NOTNULL":
+								column.AllowDBNull = !reader.GetBoolean (i);
+								break;
+							}
+						}
+
+						columns.Add (column);
+					}
+
+					return columns;
+				}
+			}
+		}
+
+		static void Build (StringBuilder statement, DataTable table, DataColumn column, ref int primaryKeys)
+		{
+			statement.Append (column.ColumnName);
+			statement.Append (' ');
+
+			if (column.DataType == typeof (long) || column.DataType == typeof (int) || column.DataType == typeof (bool)) {
+				statement.Append ("INTEGER");
+			} else if (column.DataType == typeof (byte[])) {
+				statement.Append ("BLOB");
+			} else if (column.DataType == typeof (string)) {
+				statement.Append ("TEXT");
+			} else {
+				throw new NotImplementedException ();
+			}
+
+			bool isPrimaryKey = false;
+			if (table != null && table.PrimaryKey != null && primaryKeys < table.PrimaryKey.Length) {
+				for (int i = 0; i < table.PrimaryKey.Length; i++) {
+					if (column == table.PrimaryKey[i]) {
+						statement.Append (" PRIMARY KEY");
+						isPrimaryKey = true;
+						primaryKeys++;
+						break;
+					}
 				}
 			}
 
-			statement.Append (')');
+			if (column.AutoIncrement)
+				statement.Append (" AUTOINCREMENT");
 
-			var command = connection.CreateCommand ();
+			if (column.Unique && !isPrimaryKey)
+				statement.Append (" UNIQUE");
 
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
-
-			return command;
+			if (!column.AllowDBNull)
+				statement.Append (" NOT NULL");
 		}
 
 		/// <summary>
-		/// Gets the command to create the CRLs table.
+		/// Create a table.
 		/// </summary>
 		/// <remarks>
-		/// Constructs the command to create a CRLs table suitable for storing
-		/// <see cref="X509CertificateRecord"/> objects.
+		/// Creates the specified table.
 		/// </remarks>
-		/// <returns>The <see cref="System.Data.Common.DbCommand"/>.</returns>
 		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
-		protected override DbCommand GetCreateCrlsTableCommand (DbConnection connection)
+		/// <param name="table">The table.</param>
+		protected override void CreateTable (DbConnection connection, DataTable table)
 		{
-			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");
-			var columns = X509CrlRecord.ColumnNames;
+			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS ");
+			int primaryKeys = 0;
 
-			for (int i = 0; i < columns.Length; i++) {
-				if (i > 0)
-					statement.Append (", ");
+			statement.Append (table.TableName);
+			statement.Append ('(');
 
-				statement.Append (columns[i] + " ");
-				switch (columns[i]) {
-				case "ID": statement.Append ("INTEGER PRIMARY KEY AUTOINCREMENT"); break;
-				case "DELTA" : statement.Append ("INTEGER NOT NULL"); break;
-				case "ISSUERNAME": statement.Append ("TEXT NOT NULL"); break;
-				case "THISUPDATE": statement.Append ("INTEGER NOT NULL"); break;
-				case "NEXTUPDATE": statement.Append ("INTEGER NOT NULL"); break;
-				case "CRL": statement.Append ("BLOB NOT NULL"); break;
-				}
+			foreach (DataColumn column in table.Columns) {
+				Build (statement, table, column, ref primaryKeys);
+				statement.Append (", ");
 			}
+
+			if (table.Columns.Count > 0)
+				statement.Length -= 2;
 
 			statement.Append (')');
 
-			var command = connection.CreateCommand ();
+			using (var command = connection.CreateCommand ()) {
+				command.CommandText = statement.ToString ();
+				command.CommandType = CommandType.Text;
+				command.ExecuteNonQuery ();
+			}
+		}
 
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
+		/// <summary>
+		/// Adds a column to a table.
+		/// </summary>
+		/// <remarks>
+		/// Adds a column to a table.
+		/// </remarks>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="table">The table.</param>
+		/// <param name="column">The column to add.</param>
+		protected override void AddTableColumn (DbConnection connection, DataTable table, DataColumn column)
+		{
+			var statement = new StringBuilder ("ALTER TABLE ");
+			int primaryKeys = table.PrimaryKey?.Length ?? 0;
 
-			return command;
+			statement.Append (table.TableName);
+			statement.Append (" ADD COLUMN ");
+			Build (statement, table, column, ref primaryKeys);
+
+			using (var command = connection.CreateCommand ()) {
+				command.CommandText = statement.ToString ();
+				command.CommandType = CommandType.Text;
+				command.ExecuteNonQuery ();
+			}
 		}
 	}
 }

@@ -264,8 +264,10 @@ namespace MimeKit.Cryptography
 
 			if (signer.SignerIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
 				var subjectKeyIdentifier = signer.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
-				var id = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
-				subjectKeyId = id.GetOctets ();
+				if (subjectKeyIdentifier != null) {
+					var id = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
+					subjectKeyId = id.GetOctets ();
+				}
 			}
 
 			if (signer.PrivateKey is RsaKeyParameters && signer.RsaSignaturePadding == RsaSignaturePadding.Pss) {
@@ -1030,14 +1032,16 @@ namespace MimeKit.Cryptography
 				}
 
 				var encryptedKeyBytes = GenerateWrappedKey (contentEncryptionKey, keyEncryptionAlgorithm, publicKey, random);
-				RecipientIdentifier recipientIdentifier;
+				RecipientIdentifier recipientIdentifier = null;
 
-				if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier) {
-					var issuerAndSerial = new IssuerAndSerialNumber (certificate.Issuer, certificate.SerialNumber.Value);
-					recipientIdentifier = new RecipientIdentifier (issuerAndSerial);
-				} else {
+				if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
 					var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
 					recipientIdentifier = new RecipientIdentifier (subjectKeyIdentifier);
+				}
+
+				if (recipientIdentifier == null) {
+					var issuerAndSerial = new IssuerAndSerialNumber (certificate.Issuer, certificate.SerialNumber.Value);
+					recipientIdentifier = new RecipientIdentifier (issuerAndSerial);
 				}
 
 				return new RecipientInfo (new KeyTransRecipientInfo (recipientIdentifier, keyEncryptionAlgorithm,

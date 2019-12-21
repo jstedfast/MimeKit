@@ -26,8 +26,10 @@
 
 using System;
 
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -86,13 +88,16 @@ namespace MimeKit.Cryptography {
 	{
 		internal static readonly string[] ColumnNames = {
 			"ID",
-			"BASICCONSTRAINTS",
 			"TRUSTED",
+			"ANCHOR",
+			"BASICCONSTRAINTS",
 			"KEYUSAGE",
 			"NOTBEFORE",
 			"NOTAFTER",
 			"ISSUERNAME",
 			"SERIALNUMBER",
+			"SUBJECTNAME",
+			"SUBJECTKEYIDENTIFIER",
 			"SUBJECTEMAIL",
 			"FINGERPRINT",
 			"ALGORITHMS",
@@ -130,6 +135,15 @@ namespace MimeKit.Cryptography {
 		public bool IsTrusted { get; set; }
 
 		/// <summary>
+		/// Gets whether or not the certificate is an anchor.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether or not the certificate is an anchor.
+		/// </remarks>
+		/// <value><c>true</c> if the certificate is an anchor; otherwise, <c>false</c>.</value>
+		public bool IsAnchor { get { return Certificate.IsSelfSigned (); } }
+
+		/// <summary>
 		/// Gets the key usage flags for the certificate.
 		/// </summary>
 		/// <remarks>
@@ -157,12 +171,12 @@ namespace MimeKit.Cryptography {
 		public DateTime NotAfter { get { return Certificate.NotAfter.ToUniversalTime (); } }
 
 		/// <summary>
-		/// Gets the certificate issuer's name.
+		/// Gets the certificate's issuer name.
 		/// </summary>
 		/// <remarks>
-		/// Gets the certificate issuer's name.
+		/// Gets the certificate's issuer name.
 		/// </remarks>
-		/// <value>The issuer's name.</value>
+		/// <value>The certificate's issuer name.</value>
 		public string IssuerName { get { return Certificate.IssuerDN.ToString (); } }
 
 		/// <summary>
@@ -173,6 +187,35 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The serial number.</value>
 		public string SerialNumber { get { return Certificate.SerialNumber.ToString (); } }
+
+		/// <summary>
+		/// Gets the certificate's subject name.
+		/// </summary>
+		/// <remarks>
+		/// Gets the certificate's subject name.
+		/// </remarks>
+		/// <value>The certificate's subject name.</value>
+		public string SubjectName { get { return Certificate.SubjectDN.ToString (); } }
+
+		/// <summary>
+		/// Gets the certificate's subject key identifier.
+		/// </summary>
+		/// <remarks>
+		/// Gets the certificate's subject key identifier.
+		/// </remarks>
+		/// <value>The certificate's subject key identifier.</value>
+		public byte[] SubjectKeyIdentifier {
+			get {
+				var subjectKeyIdentifier = Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+
+				if (subjectKeyIdentifier != null) {
+					var id = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
+					return id.GetOctets ();
+				}
+
+				return null;
+			}
+		}
 
 		/// <summary>
 		/// Gets the subject email address.
