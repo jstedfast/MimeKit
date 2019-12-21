@@ -242,6 +242,8 @@ namespace MimeKit.Cryptography {
 				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
 			}
 
+			// Note: Use "EXPLAIN QUERY PLAN SELECT ... FROM CERTIFICATES WHERE ..." to verify that any indexes we create get used as expected.
+
 			// Index for matching against a specific certificate
 			CreateIndex (connection, table.TableName, new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
 

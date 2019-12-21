@@ -677,7 +677,7 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeSigningWithRsaSsaPss ()
 		{
 			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret") {
-				RsaSignaturePaddingScheme = RsaSignaturePaddingScheme.Pss
+				RsaSignaturePadding = RsaSignaturePadding.Pss
 			};
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
@@ -1118,7 +1118,15 @@ namespace UnitTests.Cryptography {
 				recipient.RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm);
 				recipients.Add (recipient);
 
-				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				ApplicationPkcs7Mime encrypted;
+
+				try {
+					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				} catch (NotSupportedException) {
+					if (!(ctx is WindowsSecureMimeContext))
+						Assert.Fail ("RSAES-OAEP should be supported.");
+					return;
+				}
 
 				Assert.AreEqual (SecureMimeType.EnvelopedData, encrypted.SecureMimeType, "S/MIME type did not match.");
 
