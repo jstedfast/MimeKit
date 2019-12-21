@@ -271,7 +271,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static void Build (StringBuilder statement, DataTable table, DataColumn column, ref int primaryKeys)
+		static void Build (StringBuilder statement, DataTable table, DataColumn column, ref int primaryKeys, bool create)
 		{
 			statement.Append (column.ColumnName);
 			statement.Append (' ');
@@ -304,7 +304,8 @@ namespace MimeKit.Cryptography {
 			if (column.Unique && !isPrimaryKey)
 				statement.Append (" UNIQUE");
 
-			if (!column.AllowDBNull)
+			// Note: Normally we'd want to include NOT NULL, but we can't *add* new columns with the NOT NULL restriction
+			if (create && !column.AllowDBNull)
 				statement.Append (" NOT NULL");
 		}
 
@@ -325,7 +326,7 @@ namespace MimeKit.Cryptography {
 			statement.Append ('(');
 
 			foreach (DataColumn column in table.Columns) {
-				Build (statement, table, column, ref primaryKeys);
+				Build (statement, table, column, ref primaryKeys, true);
 				statement.Append (", ");
 			}
 
@@ -357,7 +358,7 @@ namespace MimeKit.Cryptography {
 
 			statement.Append (table.TableName);
 			statement.Append (" ADD COLUMN ");
-			Build (statement, table, column, ref primaryKeys);
+			Build (statement, table, column, ref primaryKeys, false);
 
 			using (var command = connection.CreateCommand ()) {
 				command.CommandText = statement.ToString ();

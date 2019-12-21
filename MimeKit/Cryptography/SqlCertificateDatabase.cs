@@ -53,6 +53,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SqlCertificateDatabase : X509CertificateDatabase
 	{
+		readonly DataTable certificatesTable, crlsTable;
 		readonly DbConnection connection;
 		bool disposed;
 
@@ -79,8 +80,50 @@ namespace MimeKit.Cryptography {
 			if (connection.State != ConnectionState.Open)
 				connection.Open ();
 
-			CreateCertificatesTable ();
-			CreateCrlsTable ();
+			certificatesTable = CreateCertificatesDataTable ("CERTIFICATES");
+			crlsTable = CreateCrlsDataTable ("CRLS");
+
+			CreateCertificatesTable (certificatesTable);
+			CreateCrlsTable (crlsTable);
+		}
+
+		static DataTable CreateCertificatesDataTable (string tableName)
+		{
+			var table = new DataTable (tableName);
+			table.Columns.Add (new DataColumn ("ID", typeof (int)) { AutoIncrement = true });
+			table.Columns.Add (new DataColumn ("TRUSTED", typeof (bool)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ANCHOR", typeof (bool)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("BASICCONSTRAINTS", typeof (int)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("KEYUSAGE", typeof (int)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("NOTBEFORE", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("NOTAFTER", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ISSUERNAME", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("SERIALNUMBER", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("SUBJECTNAME", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("SUBJECTKEYIDENTIFIER", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("SUBJECTEMAIL", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("FINGERPRINT", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ALGORITHMS", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("ALGORITHMSUPDATED", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("CERTIFICATE", typeof (byte[])) { AllowDBNull = false, Unique = true });
+			table.Columns.Add (new DataColumn ("PRIVATEKEY", typeof (byte[])) { AllowDBNull = true });
+			table.PrimaryKey = new DataColumn[] { table.Columns[0] };
+
+			return table;
+		}
+
+		static DataTable CreateCrlsDataTable (string tableName)
+		{
+			var table = new DataTable (tableName);
+			table.Columns.Add (new DataColumn ("ID", typeof (int)) { AutoIncrement = true });
+			table.Columns.Add (new DataColumn ("DELTA", typeof (bool)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("ISSUERNAME", typeof (string)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("THISUPDATE", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("NEXTUPDATE", typeof (long)) { AllowDBNull = false });
+			table.Columns.Add (new DataColumn ("CRL", typeof (byte[])) { AllowDBNull = false });
+			table.PrimaryKey = new DataColumn[] { table.Columns[0] };
+
+			return table;
 		}
 
 		/// <summary>
@@ -142,55 +185,35 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void CreateCertificatesTable ()
+		void CreateCertificatesTable (DataTable table)
 		{
-			const string tableName = "CERTIFICATES";
-
-			var table = new DataTable (tableName);
-			table.Columns.Add (new DataColumn ("ID", typeof (int)) { AutoIncrement = true });
-			table.Columns.Add (new DataColumn ("TRUSTED", typeof (bool)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("ANCHOR", typeof (bool)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("BASICCONSTRAINTS", typeof (int)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("KEYUSAGE", typeof (int)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("NOTBEFORE", typeof (long)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("NOTAFTER", typeof (long)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("ISSUERNAME", typeof (string)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("SERIALNUMBER", typeof (string)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("SUBJECTNAME", typeof (string)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("SUBJECTKEYIDENTIFIER", typeof (string)) { AllowDBNull = true });
-			table.Columns.Add (new DataColumn ("SUBJECTEMAIL", typeof (string)) { AllowDBNull = true });
-			table.Columns.Add (new DataColumn ("FINGERPRINT", typeof (string)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("ALGORITHMS", typeof (string)) { AllowDBNull = true });
-			table.Columns.Add (new DataColumn ("ALGORITHMSUPDATED", typeof (long)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("CERTIFICATE", typeof (byte[])) { AllowDBNull = false, Unique = true });
-			table.Columns.Add (new DataColumn ("PRIVATEKEY", typeof (byte[])) { AllowDBNull = true });
-			table.PrimaryKey = new DataColumn[] { table.Columns[0] };
-
 			CreateTable (connection, table);
 
-			var currentColumns = GetTableColumns (connection, tableName);
-			var hasAnchorColumn = false;
+			var currentColumns = GetTableColumns (connection, table.TableName);
+			bool hasAnchorColumn = false;
 
 			for (int i = 0; i < currentColumns.Count; i++) {
-				// Note: ANCHOR, SUBJECTNAME and SUBJECTKEYIDENTIFIER were all added in the same version
 				if (currentColumns[i].ColumnName.Equals ("ANCHOR", StringComparison.Ordinal)) {
 					hasAnchorColumn = true;
 					break;
 				}
 			}
 
+			// Note: The ANCHOR, SUBJECTNAME and SUBJECTKEYIDENTIFIER columns were all added in the same version,
+			// so if the ANCHOR column is missing, they all are.
 			if (!hasAnchorColumn) {
 				using (var transaction = connection.BeginTransaction ()) {
 					try {
-						// Note: Normally we'd want an ANCHOR column of type INTEGER NOT NULL, but we can't add a new column with a NOT NULL restriction
-						AddTableColumn (connection, table, new DataColumn ("ANCHOR", typeof (bool)) { AllowDBNull = true });
+						var column = table.Columns[table.Columns.IndexOf ("ANCHOR")];
+						AddTableColumn (connection, table, column);
 
-						// Note: Normally we'd want a SUBJECTNAME column of type TEXT NOT NULL, but we can't add a new column with a NOT NULL restriction
-						AddTableColumn (connection, table, new DataColumn ("SUBJECTNAME", typeof (string)) { AllowDBNull = true });
+						column = table.Columns[table.Columns.IndexOf ("SUBJECTNAME")];
+						AddTableColumn (connection, table, column);
 
-						AddTableColumn (connection, table, new DataColumn ("SUBJECTKEYIDENTIFIER", typeof (byte[])) { AllowDBNull = true });
+						column = table.Columns[table.Columns.IndexOf ("SUBJECTKEYIDENTIFIER")];
+						AddTableColumn (connection, table, column);
 
-						foreach (var record in Find (null, false, X509CertificateRecordFields.Id)) {
+						foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
 							var statement = "UPDATE CERTIFICATES SET ANCHOR = @ANCHOR, SUBJECTNAME = @SUBJECTNAME, SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER WHERE ID = @ID";
 							var command = connection.CreateCommand ();
 
@@ -212,41 +235,32 @@ namespace MimeKit.Cryptography {
 				}
 
 				// Remove some old indexes
-				RemoveIndex (connection, tableName, new[] { "TRUSTED" });
-				RemoveIndex (connection, tableName, new[] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
-				RemoveIndex (connection, tableName, new[] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+				RemoveIndex (connection, table.TableName, new[] { "TRUSTED" });
+				RemoveIndex (connection, table.TableName, new[] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "FINGERPRINT" });
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
 			}
 
 			// Index for matching against a specific certificate
-			CreateIndex (connection, tableName, new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
+			CreateIndex (connection, table.TableName, new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
 
 			// Index for searching for a certificate based on a SecureMailboxAddress
-			CreateIndex (connection, tableName, new [] { "BASICCONSTRAINTS", "FINGERPRINT" });
+			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "FINGERPRINT", "NOTBEFORE", "NOTAFTER" });
 
 			// Index for searching for a certificate based on a MailboxAddress
-			CreateIndex (connection, tableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
+			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL", "NOTBEFORE", "NOTAFTER" });
 
 			// Index for gathering a list of Trusted Anchors
-			CreateIndex (connection, tableName, new [] { "TRUSTED", "ANCHOR" });
+			CreateIndex (connection, table.TableName, new [] { "TRUSTED", "ANCHOR", "KEYUSAGE" });
 		}
 
-		void CreateCrlsTable ()
+		void CreateCrlsTable (DataTable table)
 		{
-			const string tableName = "CRLS";
-
-			var table = new DataTable (tableName);
-			table.Columns.Add (new DataColumn ("ID", typeof (int)) { AutoIncrement = true });
-			table.Columns.Add (new DataColumn ("DELTA", typeof (bool)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("ISSUERNAME", typeof (string)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("THISUPDATE", typeof (long)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("NEXTUPDATE", typeof (long)) { AllowDBNull = false });
-			table.Columns.Add (new DataColumn ("CRL", typeof (byte[])) { AllowDBNull = false });
-			table.PrimaryKey = new DataColumn[] { table.Columns[0] };
-
 			CreateTable (connection, table);
 
-			CreateIndex (connection, "CRLS", new [] { "ISSUERNAME" });
-			CreateIndex (connection, "CRLS", new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
+			CreateIndex (connection, table.TableName, new [] { "ISSUERNAME" });
+			CreateIndex (connection, table.TableName, new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
 		static StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
@@ -581,17 +595,17 @@ namespace MimeKit.Cryptography {
 		protected override DbCommand GetInsertCommand (X509CertificateRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
-			var columns = X509CertificateRecord.ColumnNames;
 			var variables = new StringBuilder ("VALUES(");
 			var command = connection.CreateCommand ();
+			var columns = certificatesTable.Columns;
 
-			for (int i = 1; i < columns.Length; i++) {
+			for (int i = 1; i < columns.Count; i++) {
 				if (i > 1) {
 					statement.Append (", ");
 					variables.Append (", ");
 				}
 
-				var value = GetValue (record, columns[i]);
+				var value = GetValue (record, columns[i].ColumnName);
 				var variable = "@" + columns[i];
 
 				command.AddParameterWithValue (variable, value);
@@ -620,16 +634,16 @@ namespace MimeKit.Cryptography {
 		{
 			var statement = new StringBuilder ("INSERT INTO CRLS(");
 			var variables = new StringBuilder ("VALUES(");
-			var columns = X509CrlRecord.ColumnNames;
 			var command = connection.CreateCommand ();
+			var columns = crlsTable.Columns;
 
-			for (int i = 1; i < columns.Length; i++) {
+			for (int i = 1; i < columns.Count; i++) {
 				if (i > 1) {
 					statement.Append (", ");
 					variables.Append (", ");
 				}
 
-				var value = GetValue (record, columns[i]);
+				var value = GetValue (record, columns[i].ColumnName);
 				var variable = "@" + columns[i];
 
 				command.AddParameterWithValue (variable, value);
@@ -695,11 +709,11 @@ namespace MimeKit.Cryptography {
 		protected override DbCommand GetUpdateCommand (X509CrlRecord record)
 		{
 			var statement = new StringBuilder ("UPDATE CRLS SET ");
-			var columns = X509CrlRecord.ColumnNames;
 			var command = connection.CreateCommand ();
+			var columns = crlsTable.Columns;
 
-			for (int i = 1; i < columns.Length; i++) {
-				var value = GetValue (record, columns[i]);
+			for (int i = 1; i < columns.Count; i++) {
+				var value = GetValue (record, columns[i].ColumnName);
 				var variable = "@" + columns[i];
 
 				if (i > 1)

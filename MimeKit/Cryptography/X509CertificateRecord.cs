@@ -86,26 +86,6 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class X509CertificateRecord
 	{
-		internal static readonly string[] ColumnNames = {
-			"ID",
-			"TRUSTED",
-			"ANCHOR",
-			"BASICCONSTRAINTS",
-			"KEYUSAGE",
-			"NOTBEFORE",
-			"NOTAFTER",
-			"ISSUERNAME",
-			"SERIALNUMBER",
-			"SUBJECTNAME",
-			"SUBJECTKEYIDENTIFIER",
-			"SUBJECTEMAIL",
-			"FINGERPRINT",
-			"ALGORITHMS",
-			"ALGORITHMSUPDATED",
-			"CERTIFICATE",
-			"PRIVATEKEY"
-		};
-
 		/// <summary>
 		/// Gets the identifier.
 		/// </summary>
@@ -208,12 +188,10 @@ namespace MimeKit.Cryptography {
 			get {
 				var subjectKeyIdentifier = Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
 
-				if (subjectKeyIdentifier != null) {
-					var id = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
-					return id.GetOctets ();
-				}
+				if (subjectKeyIdentifier != null)
+					subjectKeyIdentifier = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
 
-				return null;
+				return subjectKeyIdentifier?.GetOctets ();
 			}
 		}
 

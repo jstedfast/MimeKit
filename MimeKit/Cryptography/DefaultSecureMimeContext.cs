@@ -290,10 +290,8 @@ namespace MimeKit.Cryptography {
 			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
 			selector.KeyUsage = keyUsage;
 
-			foreach (var record in dbase.Find (selector, true, X509CertificateRecordFields.Certificate)) {
-				if (record.Certificate.IsSelfSigned ())
-					anchors.Add (new TrustAnchor (record.Certificate, null));
-			}
+			foreach (var record in dbase.Find (selector, true, X509CertificateRecordFields.Certificate))
+				anchors.Add (new TrustAnchor (record.Certificate, null));
 
 			return anchors;
 		}

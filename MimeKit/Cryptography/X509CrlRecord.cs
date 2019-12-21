@@ -78,15 +78,6 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class X509CrlRecord
 	{
-		internal static readonly string[] ColumnNames = {
-			"ID",
-			"DELTA",
-			"ISSUERNAME",
-			"THISUPDATE",
-			"NEXTUPDATE",
-			"CRL"
-		};
-
 		/// <summary>
 		/// Gets the identifier.
 		/// </summary>
