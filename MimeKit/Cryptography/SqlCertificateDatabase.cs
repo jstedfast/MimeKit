@@ -87,6 +87,77 @@ namespace MimeKit.Cryptography {
 			CreateCrlsTable (crlsTable);
 		}
 
+#if NETSTANDARD1_3 || NETSTANDARD1_6
+#pragma warning disable 1591
+		protected class DataColumn
+		{
+			public DataColumn (string columnName, Type dataType)
+			{
+				ColumnName = columnName;
+				DataType = dataType;
+			}
+
+			public DataColumn ()
+			{
+			}
+
+			public bool AllowDBNull {
+				get; set;
+			}
+
+			public bool AutoIncrement {
+				get; set;
+			}
+
+			public string ColumnName {
+				get; set;
+			}
+
+			public Type DataType {
+				get; set;
+			}
+
+			public bool Unique {
+				get; set;
+			}
+		}
+
+		protected class DataColumnCollection : List<DataColumn>
+		{
+			public int IndexOf (string columnName)
+			{
+				for (int i = 0; i < Count; i++) {
+					if (this[i].ColumnName.Equals (columnName, StringComparison.Ordinal))
+						return i;
+				}
+
+				return -1;
+			}
+		}
+
+		protected class DataTable
+		{
+			public DataTable (string tableName)
+			{
+				Columns = new DataColumnCollection ();
+				TableName = tableName;
+			}
+
+			public string TableName {
+				get; set;
+			}
+
+			public DataColumnCollection Columns {
+				get; private set;
+			}
+
+			public DataColumn[] PrimaryKey {
+				get; set;
+			}
+		}
+#pragma warning restore 1591
+#endif
+
 		static DataTable CreateCertificatesDataTable (string tableName)
 		{
 			var table = new DataTable (tableName);
