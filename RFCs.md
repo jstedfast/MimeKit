@@ -67,3 +67,5 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [6577](http://www.ietf.org/rfc/rfc6577.txt): Authentication-Results Registration Update for Sender Policy Framework (SPF) Results
 * [7103](http://www.ietf.org/rfc/rfc7103.txt): Advice for Safe Handling of Malformed Messages
 * [7410](http://www.ietf.org/rfc/rfc7410.txt): A Property Types Registry for the Authentication-Results Header Field
+* [8550](http://www.ietf.org/rfc/rfc8550.txt): S/MIME Version 4.0 Certificate Handling (Obsoletes rfc5750)
+* [8551](http://www.ietf.org/rfc/rfc8551.txt): S/MIME Version 4.0 Message Specification (Obsoletes rfc5751)

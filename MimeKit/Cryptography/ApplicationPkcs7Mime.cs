@@ -127,6 +127,7 @@ namespace MimeKit.Cryptography {
 					return SecureMimeType.Unknown;
 
 				switch (type.ToLowerInvariant ()) {
+				case "authenveloped-data": return SecureMimeType.AuthEnvelopedData;
 				case "compressed-data": return SecureMimeType.CompressedData;
 				case "enveloped-data": return SecureMimeType.EnvelopedData;
 				case "signed-data": return SecureMimeType.SignedData;

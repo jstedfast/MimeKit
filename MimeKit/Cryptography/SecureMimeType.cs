@@ -33,28 +33,33 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public enum SecureMimeType {
 		/// <summary>
-		/// S/MIME compressed data.
+		/// The S/MIME data type is unknown.
+		/// </summary>
+		Unknown = -1,
+
+		/// <summary>
+		/// The S/MIME content is compressed.
 		/// </summary>
 		CompressedData,
 
 		/// <summary>
-		/// S/MIME enveloped data.
+		/// The S/MIME content is encrypted.
 		/// </summary>
 		EnvelopedData,
 
 		/// <summary>
-		/// S/MIME signed data.
+		/// The S/MIME content is signed.
 		/// </summary>
 		SignedData,
 
 		/// <summary>
-		/// S/MIME certificate data.
+		/// The S/MIME content contains only certificates.
 		/// </summary>
 		CertsOnly,
 
 		/// <summary>
-		/// The S/MIME data type is unknown.
+		/// The S/MIME content is both signed and encrypted.
 		/// </summary>
-		Unknown
+		AuthEnvelopedData,
 	}
 }
