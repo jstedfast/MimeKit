@@ -86,7 +86,7 @@ How does your MIME parser compare?
 
 ## License Information
 
-MimeKit is Copyright (C) 2012-2018 Xamarin Inc. and is licensed under the MIT license:
+MimeKit is Copyright (C) 2012-2019 Xamarin Inc. and is licensed under the MIT license:
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
