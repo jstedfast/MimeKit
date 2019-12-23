@@ -994,9 +994,21 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (encryptedData));
 
 			var enveloped = new EnvelopedCms ();
+			CryptographicException ce = null;
 
 			enveloped.Decode (ReadAllBytes (encryptedData));
-			enveloped.Decrypt ();
+
+			foreach (var recipient in enveloped.RecipientInfos) {
+				try {
+					enveloped.Decrypt (recipient);
+					ce = null;
+				} catch (CryptographicException ex) {
+					ce = ex;
+				}
+			}
+
+			if (ce != null)
+				throw ce;
 
 			var decryptedData = enveloped.Encode ();
 
