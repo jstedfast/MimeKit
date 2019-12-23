@@ -1002,6 +1002,7 @@ namespace MimeKit.Cryptography {
 				try {
 					enveloped.Decrypt (recipient);
 					ce = null;
+					break;
 				} catch (CryptographicException ex) {
 					ce = ex;
 				}
