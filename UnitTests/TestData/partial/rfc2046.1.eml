@@ -1,0 +1,10 @@
+From: Bill@host.com
+To: joe@otherhost.com
+Date: Fri, 26 Mar 1993 12:59:38 -0500 (EST)
+Subject: Audio mail (part 2 of 2)
+MIME-Version: 1.0
+Message-ID: <id2@host.com>
+Content-type: message/partial;
+	id="ABC@host.com"; number=2; total=2
+
+... second half of encoded audio data goes here ...

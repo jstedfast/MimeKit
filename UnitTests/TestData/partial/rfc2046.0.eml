@@ -1,0 +1,19 @@
+X-Weird-Header-1: Foo
+From: Bill@host.com
+To: joe@otherhost.com
+Date: Fri, 26 Mar 1993 12:59:38 -0500 (EST)
+Subject: Audio mail (part 1 of 2)
+Message-ID: <id1@host.com>
+MIME-Version: 1.0
+Content-type: message/partial; id="ABC@host.com";
+	number=1; total=2
+
+X-Weird-Header-1: Bar
+X-Weird-Header-2: Hello
+Message-ID: <anotherid@foo.com>
+Subject: Audio mail
+MIME-Version: 1.0
+Content-type: audio/basic
+Content-transfer-encoding: base64
+
+... first half of encoded audio data goes here ...
