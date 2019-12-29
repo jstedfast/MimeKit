@@ -263,9 +263,6 @@ namespace MimeKit.Cryptography {
 			if (index > startIndex && text[index - 1] != (byte) '.')
 				return true;
 
-			// don't advance `index` on failure
-			index = startIndex;
-
 			return false;
 		}
 
@@ -324,37 +321,6 @@ namespace MimeKit.Cryptography {
 
 					if (!SkipDomain (text, ref index, endIndex))
 						return false;
-				} else if (text[index] != ';' && !text[index].IsWhitespace ()) {
-					return false;
-				} else {
-					int multiIndex = index;
-
-					ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
-
-					if (multiIndex < endIndex && text[multiIndex] == (byte) ';') {
-						multiIndex++;
-
-						ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
-
-						while (multiIndex < endIndex && SkipDomain (text, ref multiIndex, endIndex)) {
-							int startIndex = multiIndex;
-
-							ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
-
-							if (multiIndex >= endIndex) {
-								index = startIndex;
-								break;
-							}
-
-							if (text[multiIndex] != (byte) ';')
-								break;
-
-							index = startIndex;
-							multiIndex++;
-
-							ParseUtils.SkipWhiteSpace (text, ref multiIndex, endIndex);
-						}
-					}
 				}
 			}
 
@@ -367,6 +333,9 @@ namespace MimeKit.Cryptography {
 			bool quoted;
 
 			while (index < endIndex) {
+				string srvid = null;
+
+			method_token:
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
@@ -381,6 +350,45 @@ namespace MimeKit.Cryptography {
 						throw new ParseException (string.Format ("Invalid method token at offset {0}", methodIndex), methodIndex, index);
 
 					return false;
+				}
+
+				// Note: Office365 seems to (sometimes) place a method-specific authserv-id token before each
+				// method. This block of code is here to handle that case.
+				//
+				// See https://github.com/jstedfast/MimeKit/issues/527 for details.
+				if (srvid == null && index < endIndex && text[index] == '.') {
+					index = methodIndex;
+
+					if (!SkipDomain (text, ref index, endIndex)) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Invalid Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
+
+						return false;
+					}
+
+					srvid = Encoding.UTF8.GetString (text, methodIndex, index - methodIndex);
+
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
+
+					if (index >= endIndex) {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Missing semi-colon after Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
+
+						return false;
+					}
+
+					if (text[index] != ';') {
+						if (throwOnError)
+							throw new ParseException (string.Format ("Unexpected token after Office365 authserv-id token at offset {0}", index), index, index);
+
+						return false;
+					}
+
+					// skip over ';'
+					index++;
+
+					goto method_token;
 				}
 
 				var method = Encoding.ASCII.GetString (text, methodIndex, index - methodIndex);
@@ -407,6 +415,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				var resinfo = new AuthenticationMethodResult (method);
+				resinfo.Office365AuthenticationServiceIdentifier = srvid;
 				authres.Results.Add (resinfo);
 
 				int tokenIndex;
@@ -985,6 +994,22 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Get the Office365 method-specific authserv-id.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the Office365 method-specific authserv-id.</para>
+		/// <para>An authentication service identifier is the <c>authserv-id</c> token
+		/// as defined in <a href="https://tools.ietf.org/html/rfc7601">rfc7601</a>.</para>
+		/// <para>Instead of specifying a single authentication service identifier at the
+		/// beginning of the header value, Office365 seems to provide a different
+		/// authentication service identifier for each method.</para>
+		/// </remarks>
+		/// <value>The authserv-id token.</value>
+		public string Office365AuthenticationServiceIdentifier {
+			get; internal set;
+		}
+
+		/// <summary>
 		/// Get the authentication method.
 		/// </summary>
 		/// <remarks>
@@ -1087,6 +1112,12 @@ namespace MimeKit.Cryptography {
 			var tokens = new List<string> ();
 			tokens.Add (" ");
 
+			if (Office365AuthenticationServiceIdentifier != null) {
+				tokens.Add (Office365AuthenticationServiceIdentifier);
+				tokens.Add (";");
+				tokens.Add (" ");
+			}
+
 			if (Version.HasValue) {
 				var version = Version.Value.ToString (CultureInfo.InvariantCulture);
 
@@ -1158,7 +1189,14 @@ namespace MimeKit.Cryptography {
 		/// <returns>The serialized string.</returns>
 		public override string ToString ()
 		{
-			var builder = new StringBuilder (Method);
+			var builder = new StringBuilder ();
+
+			if (Office365AuthenticationServiceIdentifier != null) {
+				builder.Append (Office365AuthenticationServiceIdentifier);
+				builder.Append ("; ");
+			}
+
+			builder.Append (Method);
 
 			if (Version.HasValue) {
 				builder.Append ('/');

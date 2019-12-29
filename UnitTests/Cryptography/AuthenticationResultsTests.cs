@@ -870,16 +870,18 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (1, authres.Results[0].Properties.Count, "spf properties");
 			Assert.AreEqual ("smtp", authres.Results[0].Properties[0].PropertyType);
 			Assert.AreEqual ("mailfrom", authres.Results[0].Properties[0].Property);
-			Assert.AreEqual ("eu-west-1.amazonses.com; receivingdomain.com", authres.Results[0].Properties[0].Value);
+			Assert.AreEqual ("eu-west-1.amazonses.com", authres.Results[0].Properties[0].Value);
 
+			Assert.AreEqual ("receivingdomain.com", authres.Results[1].Office365AuthenticationServiceIdentifier);
 			Assert.AreEqual ("dkim", authres.Results[1].Method);
 			Assert.AreEqual ("pass", authres.Results[1].Result);
 			Assert.AreEqual ("signature was verified", authres.Results[1].ResultComment);
 			Assert.AreEqual (1, authres.Results[1].Properties.Count, "dkim properties");
 			Assert.AreEqual ("header", authres.Results[1].Properties[0].PropertyType);
 			Assert.AreEqual ("d", authres.Results[1].Properties[0].Property);
-			Assert.AreEqual ("domain.com;domain1.com", authres.Results[1].Properties[0].Value);
+			Assert.AreEqual ("domain.com", authres.Results[1].Properties[0].Value);
 
+			Assert.AreEqual ("domain1.com", authres.Results[2].Office365AuthenticationServiceIdentifier);
 			Assert.AreEqual ("dmarc", authres.Results[2].Method);
 			Assert.AreEqual ("bestguesspass", authres.Results[2].Result);
 			Assert.AreEqual (null, authres.Results[2].ResultComment);
@@ -889,9 +891,9 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual ("from", authres.Results[2].Properties[0].Property);
 			Assert.AreEqual ("domain.com", authres.Results[2].Properties[0].Value);
 
-			Assert.AreEqual ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; receivingdomain.com; dkim=pass (signature was verified) header.d=domain.com;domain1.com; dmarc=bestguesspass action=\"none\" header.from=domain.com", authres.ToString ());
+			Assert.AreEqual ("spf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com; receivingdomain.com; dkim=pass (signature was verified) header.d=domain.com; domain1.com; dmarc=bestguesspass action=\"none\" header.from=domain.com", authres.ToString ());
 
-			const string expected = " spf=fail (sender IP is 1.1.1.1)\n\tsmtp.mailfrom=eu-west-1.amazonses.com; receivingdomain.com;\n\tdkim=pass (signature was verified) header.d=domain.com;domain1.com;\n\tdmarc=bestguesspass action=\"none\" header.from=domain.com\n";
+			const string expected = "\n\tspf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com;\n\treceivingdomain.com; dkim=pass (signature was verified) header.d=domain.com;\n\tdomain1.com; dmarc=bestguesspass action=\"none\" header.from=domain.com\n";
 			var encoded = new StringBuilder ();
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
@@ -918,16 +920,18 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (1, authres.Results[0].Properties.Count, "spf properties");
 			Assert.AreEqual ("smtp", authres.Results[0].Properties[0].PropertyType);
 			Assert.AreEqual ("helo", authres.Results[0].Properties[0].Property);
-			Assert.AreEqual ("tes.test.ru; mydomain.com", authres.Results[0].Properties[0].Value);
+			Assert.AreEqual ("tes.test.ru", authres.Results[0].Properties[0].Value);
 
+			Assert.AreEqual ("mydomain.com", authres.Results[1].Office365AuthenticationServiceIdentifier);
 			Assert.AreEqual ("dkim", authres.Results[1].Method);
 			Assert.AreEqual ("none", authres.Results[1].Result);
 			Assert.AreEqual ("message not signed", authres.Results[1].ResultComment);
 			Assert.AreEqual (1, authres.Results[1].Properties.Count, "dkim properties");
 			Assert.AreEqual ("header", authres.Results[1].Properties[0].PropertyType);
 			Assert.AreEqual ("d", authres.Results[1].Properties[0].Property);
-			Assert.AreEqual ("none;mydomain.com", authres.Results[1].Properties[0].Value);
+			Assert.AreEqual ("none", authres.Results[1].Properties[0].Value);
 
+			Assert.AreEqual ("mydomain.com", authres.Results[2].Office365AuthenticationServiceIdentifier);
 			Assert.AreEqual ("dmarc", authres.Results[2].Method);
 			Assert.AreEqual ("none", authres.Results[2].Result);
 			Assert.AreEqual (null, authres.Results[2].ResultComment);
@@ -937,9 +941,9 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual ("from", authres.Results[2].Properties[0].Property);
 			Assert.AreEqual ("", authres.Results[2].Properties[0].Value);
 
-			Assert.AreEqual ("spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none;mydomain.com; dmarc=none action=\"none\" header.from=", authres.ToString ());
+			Assert.AreEqual ("spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none; mydomain.com; dmarc=none action=\"none\" header.from=", authres.ToString ());
 
-			const string expected = "\n\tspf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com;\n\tdkim=none (message not signed) header.d=none;mydomain.com;\n\tdmarc=none action=\"none\" header.from=\n";
+			const string expected = "\n\tspf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru;\n\tmydomain.com; dkim=none (message not signed) header.d=none;\n\tmydomain.com; dmarc=none action=\"none\" header.from=\n";
 			var encoded = new StringBuilder ();
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
@@ -1321,6 +1325,24 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureInvalidProperty4 ()
 		{
 			AssertParseFailure ("authserv-id; method=pass ptype..", 31, 31);
+		}
+
+		[Test]
+		public void TestParseFailureInvalidOffice365AuthServId ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop=pvalue; invalid.office365.domain..; method=pass", 44, 69);
+		}
+
+		[Test]
+		public void TestParseFailureTruncatedOffice365AuthServId ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop=pvalue; truncated.office365.domain", 44, 70);
+		}
+
+		[Test]
+		public void TestParseFailureUnexpectedTokenAfterOffice365AuthServId ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop=pvalue; office365.domain :", 61, 61);
 		}
 	}
 }
