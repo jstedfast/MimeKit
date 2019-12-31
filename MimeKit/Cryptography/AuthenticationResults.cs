@@ -378,7 +378,7 @@ namespace MimeKit.Cryptography {
 						return false;
 					}
 
-					if (text[index] != ';') {
+					if (text[index] != (byte) ';') {
 						if (throwOnError)
 							throw new ParseException (string.Format ("Unexpected token after Office365 authserv-id token at offset {0}", index), index, index);
 
@@ -482,7 +482,7 @@ namespace MimeKit.Cryptography {
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
 
-				if (index < endIndex && text[index] == '(') {
+				if (index < endIndex && text[index] == (byte) '(') {
 					int commentIndex = index;
 
 					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
@@ -775,7 +775,7 @@ namespace MimeKit.Cryptography {
 							return false;
 						}
 
-						if (text[index] != ';') {
+						if (text[index] != (byte) ';') {
 							if (throwOnError)
 								throw new ParseException (string.Format ("Unexpected token after instance value at offset {0}", index), index, index);
 
