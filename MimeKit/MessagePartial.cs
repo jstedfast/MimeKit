@@ -484,6 +484,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more partials is missing.</para>
 		/// </exception>
+		[Obsolete ("Use MessagePartial.Join (ParserOptions, MimeMessage, IEnumerable<MessagePartial>) instead.")]
 		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
 		{
 			return Join (options, null, partials, true);
@@ -501,6 +502,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="partials"/>is <c>null</c>.
 		/// </exception>
+		[Obsolete ("Use MessagePartial.Join (MimeMessage, IEnumerable<MessagePartial>) instead.")]
 		public static MimeMessage Join (IEnumerable<MessagePartial> partials)
 		{
 			return Join (ParserOptions.Default, null, partials, true);
