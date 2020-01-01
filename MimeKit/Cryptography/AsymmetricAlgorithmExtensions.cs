@@ -116,7 +116,7 @@ namespace MimeKit.Cryptography
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
-#if NET46 || NET47 || NET48 || __MOBILE__
+#if NET46 || NET47 || NET48 || NETCOREAPP3_0 || __MOBILE__
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACng rsa)
 		{
 			AsymmetricKeyParameter pub, key;
@@ -162,7 +162,7 @@ namespace MimeKit.Cryptography
 			if (key is RSACryptoServiceProvider)
 				return GetAsymmetricKeyParameter ((RSACryptoServiceProvider) key);
 
-#if NET46 || NET47 || NET48 || __MOBILE__
+#if NET46 || NET47 || NET48 || NETCOREAPP3_0 || __MOBILE__
 			if (key is RSACng)
 				return GetAsymmetricKeyParameter ((RSACng) key);
 #endif
@@ -201,7 +201,7 @@ namespace MimeKit.Cryptography
 			if (key is RSACryptoServiceProvider)
 				return GetAsymmetricCipherKeyPair ((RSACryptoServiceProvider) key);
 
-#if NET46 || NET47 || NET48 || __MOBILE__
+#if NET46 || NET47 || NET48 || NETCOREAPP3_0 || __MOBILE__
 			if (key is RSACng)
 				return GetAsymmetricCipherKeyPair ((RSACng) key);
 #endif
