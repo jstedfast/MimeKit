@@ -100,9 +100,19 @@
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
+      <group targetFramework="netcoreapp3.0">
+        <dependency id="System.Security.Cryptography.Pkcs" version="4.6.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
+        <dependency id="System.Globalization.Extensions" version="4.3.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
+        <dependency id="System.Data.Common" version="4.3.0" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
+      </group>
     </dependencies>
   </metadata>
   <files>
+    <file src="..\MimeKit\bin\Release\netcoreapp3.0\MimeKit.dll" target="lib\netcoreapp3.0\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\netcoreapp3.0\MimeKit.xml" target="lib\netcoreapp3.0\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.dll" target="lib\netstandard1.3\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.xml" target="lib\netstandard1.3\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKit.dll" target="lib\netstandard1.6\MimeKit.dll" />
