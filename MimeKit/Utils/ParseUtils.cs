@@ -216,6 +216,17 @@ namespace MimeKit.Utils {
 			return index > start;
 		}
 
+		// Note: a "phrase atom" is a more lenient atom (e.g. mailbox display-name phrase atom)
+		public static bool SkipPhraseAtom (byte[] text, ref int index, int endIndex)
+		{
+			int start = index;
+
+			while (index < endIndex && text[index].IsPhraseAtom ())
+				index++;
+
+			return index > start;
+		}
+
 		public static bool SkipToken (byte[] text, ref int index, int endIndex)
 		{
 			int start = index;

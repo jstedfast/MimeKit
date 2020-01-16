@@ -523,5 +523,13 @@ namespace UnitTests {
 		}
 
 		#endregion
+
+		[Test]
+		public void TestParseMailboxWithSquareBracketsInDisplayName ()
+		{
+			const string text = "[Invalid Sender] <sender@tk2-201-10422.vs.sakura.ne.jp>";
+
+			AssertParse (text);
+		}
 	}
 }

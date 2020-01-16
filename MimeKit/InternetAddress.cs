@@ -616,7 +616,7 @@ namespace MimeKit {
 
 						ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
 
-						if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+						if (!ParseUtils.SkipPhraseAtom (text, ref index, endIndex)) {
 							if (throwOnError)
 								throw new ParseException (string.Format ("Incomplete quoted-string token at offset {0}", qstringIndex), qstringIndex, endIndex);
 
@@ -627,7 +627,7 @@ namespace MimeKit {
 							trimLeadingQuote = true;
 					}
 				} else {
-					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
+					if (!ParseUtils.SkipPhraseAtom (text, ref index, endIndex))
 						break;
 				}
 
