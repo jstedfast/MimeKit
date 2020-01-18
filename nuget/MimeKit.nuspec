@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,10 +26,18 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Don't use PublicSign on non-Windows NT machines when building. (issue #516)
-* Improved BouncyCastleSecureMimeContext logic for building certificate chains so that certificate chains are included in the S/MIME signature. (issue #515)
-* Improved SqlCertificateDatabase.Find() by using more IX509Selector properties.
-* Relaxed the Authentication-Results header parser a bit to allow '/' in pvalue tokens. (issue #518)
+* Fixed message reserialization after prepending headers. (issue #524)
+* Added a ContentType.CharsetEncoding property. (issue #526)
+* Allow empty prop-spec token values in Authentication-Results headers. (issue #527)
+* Added logic to quote Authentication-Results pvalue tokens if needed.
+* Added support for converting RSACng keys into BouncyCastle keys for net4x versions that support it.
+* Added support for RSAES-OAEP for the BouncyCastle backend. (issue #528)
+* Updated and changed the API for RSASSA-PSS. CmsSigner now has a RsaSignaturePadding property which obsoletes the previous RsaSignaturePaddingScheme property.
+* Added more columns to the default SQLite database CERTIFICATES table that allow more optimal SQL searches for certificates given various matching criteria.
+* Fixed WindowsSecureMimeContext.Decrypt() to make sure it doesn't stop at the first failed recipient. (issue #530)
+* Fixed splitting and reassembly of message/partial messages.
+* Improved handling of Office365 Authentication-Results headers by adding a Office365AuthenticationServiceIdentifier property to the AuthenticationMethodResult class.
+* Fixed mailbox address parser to be more lenient about `"["` and `"]"` characters in the display-name. (issue #532)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

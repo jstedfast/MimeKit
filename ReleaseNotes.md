@@ -1,5 +1,35 @@
 # Release Notes
 
+### MimeKit 2.5.0 (2020-01-18)
+
+* Fixed message reserialization after prepending headers.
+  (issue [#524](https://github.com/jstedfast/MimeKit/issues/524))
+* Added a ContentType.CharsetEncoding property.
+  (issue [#526](https://github.com/jstedfast/MimeKit/issues/526))
+* Allow empty prop-spec token values in Authentication-Results headers.
+  (issue [#527](https://github.com/jstedfast/MimeKit/issues/527))
+* Added logic to quote Authentication-Results pvalue tokens if needed.
+* Added support for converting RSACng keys into BouncyCastle keys for
+  net4x versions that support it.
+* Added support for RSAES-OAEP for the BouncyCastle backend.
+  (issue [#528](https://github.com/jstedfast/MimeKit/issues/528))
+* Updated and changed the API for RSASSA-PSS. CmsSigner now has a
+  RsaSignaturePadding property which obsoletes the previous
+  RsaSignaturePaddingScheme property.
+* Added more columns to the default SQLite database CERTIFICATES table
+  that allow more optimal SQL searches for certificates given various
+  matching criteria.
+* Fixed WindowsSecureMimeContext.Decrypt() to make sure it doesn't stop
+  at the first failed recipient.
+  (issue [#530](https://github.com/jstedfast/MimeKit/issues/530))
+* Fixed splitting and reassembly of message/partial messages.
+* Improved handling of Office365 Authentication-Results headers by adding
+  a Office365AuthenticationServiceIdentifier property to the
+  AuthenticationMethodResult class.
+* Fixed mailbox address parser to be more lenient about `"["` and `"]"`
+  characters in the display-name.
+  (issue [#532](https://github.com/jstedfast/MimeKit/issues/532))
+
 ### MimeKit 2.4.1 (2019-11-10)
 
 * Don't use PublicSign on non-Windows NT machines when building.
