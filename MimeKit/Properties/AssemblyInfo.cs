@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Xamarin Inc.")]
 [assembly: AssemblyProduct ("MimeKit")]
-[assembly: AssemblyCopyright ("Copyright © 2013-2019 Xamarin Inc. (www.xamarin.com)")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2020 Xamarin Inc. (www.xamarin.com)")]
 [assembly: AssemblyTrademark ("Xamarin Inc.")]
 [assembly: AssemblyCulture ("")]
 
