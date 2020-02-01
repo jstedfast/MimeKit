@@ -38,572 +38,948 @@ namespace MimeKit {
 	/// </remarks>
 	public static class MimeTypes
 	{
+		static readonly Dictionary<string, string> extensions;
 		static readonly Dictionary<string, string> mimeTypes;
 
 		static MimeTypes ()
 		{
-			mimeTypes = new Dictionary<string, string> (MimeUtils.OrdinalIgnoreCase);
-			mimeTypes.Add ("323", "text/h323");
-			mimeTypes.Add ("3dmf", "x-world/x-3dmf");
-			mimeTypes.Add ("3dm", "x-world/x-3dmf");
-			mimeTypes.Add ("3g2", "video/3gpp2");
-			mimeTypes.Add ("3gp", "video/3gpp");
-			mimeTypes.Add ("7z", "application/x-7z-compressed");
-			mimeTypes.Add ("aab", "application/x-authorware-bin");
-			mimeTypes.Add ("aac", "audio/aac");
-			mimeTypes.Add ("aam", "application/x-authorware-map");
-			mimeTypes.Add ("aas", "application/x-authorware-seg");
-			mimeTypes.Add ("abc", "text/vnd.abc");
-			mimeTypes.Add ("acgi", "text/html");
-			mimeTypes.Add ("acx", "application/internet-property-stream");
-			mimeTypes.Add ("afl", "video/animaflex");
-			mimeTypes.Add ("ai", "application/postscript");
-			mimeTypes.Add ("aif", "audio/aiff");
-			mimeTypes.Add ("aifc", "audio/aiff");
-			mimeTypes.Add ("aiff", "audio/aiff");
-			mimeTypes.Add ("aim", "application/x-aim");
-			mimeTypes.Add ("aip", "text/x-audiosoft-intra");
-			mimeTypes.Add ("ani", "application/x-navi-animation");
-			mimeTypes.Add ("aos", "application/x-nokia-9000-communicator-add-on-software");
-			mimeTypes.Add ("appcache", "text/cache-manifest");
-			mimeTypes.Add ("application", "application/x-ms-application");
-			mimeTypes.Add ("aps", "application/mime");
-			mimeTypes.Add ("art", "image/x-jg");
-			mimeTypes.Add ("asf", "video/x-ms-asf");
-			mimeTypes.Add ("asm", "text/x-asm");
-			mimeTypes.Add ("asp", "text/asp");
-			mimeTypes.Add ("asr", "video/x-ms-asf");
-			mimeTypes.Add ("asx", "application/x-mplayer2");
-			mimeTypes.Add ("atom", "application/atom+xml");
-			mimeTypes.Add ("au", "audio/x-au");
-			mimeTypes.Add ("avi", "video/avi");
-			mimeTypes.Add ("avs", "video/avs-video");
-			mimeTypes.Add ("axs", "application/olescript");
-			mimeTypes.Add ("bas", "text/plain");
-			mimeTypes.Add ("bcpio", "application/x-bcpio");
-			mimeTypes.Add ("bin", "application/octet-stream");
-			mimeTypes.Add ("bm", "image/bmp");
-			mimeTypes.Add ("bmp", "image/bmp");
-			mimeTypes.Add ("boo", "application/book");
-			mimeTypes.Add ("book", "application/book");
-			mimeTypes.Add ("boz", "application/x-bzip2");
-			mimeTypes.Add ("bsh", "application/x-bsh");
-			mimeTypes.Add ("bz2", "application/x-bzip2");
-			mimeTypes.Add ("bz", "application/x-bzip");
-			mimeTypes.Add ("cat", "application/vnd.ms-pki.seccat");
-			mimeTypes.Add ("ccad", "application/clariscad");
-			mimeTypes.Add ("cco", "application/x-cocoa");
-			mimeTypes.Add ("cc", "text/plain");
-			mimeTypes.Add ("cdf", "application/cdf");
-			mimeTypes.Add ("cer", "application/pkix-cert");
-			mimeTypes.Add ("cha", "application/x-chat");
-			mimeTypes.Add ("chat", "application/x-chat");
-			mimeTypes.Add ("class", "application/x-java-applet");
-			mimeTypes.Add ("clp", "application/x-msclip");
-			mimeTypes.Add ("cmx", "image/x-cmx");
-			mimeTypes.Add ("cod", "image/cis-cod");
-			mimeTypes.Add ("coffee", "text/x-coffeescript");
-			mimeTypes.Add ("conf", "text/plain");
-			mimeTypes.Add ("cpio", "application/x-cpio");
-			mimeTypes.Add ("cpp", "text/plain");
-			mimeTypes.Add ("cpt", "application/x-cpt");
-			mimeTypes.Add ("crd", "application/x-mscardfile");
-			mimeTypes.Add ("crl", "application/pkix-crl");
-			mimeTypes.Add ("crt", "application/pkix-cert");
-			mimeTypes.Add ("csh", "application/x-csh");
-			mimeTypes.Add ("css", "text/css");
-			mimeTypes.Add ("csv", "text/csv");
-			mimeTypes.Add ("c", "text/plain");
-			mimeTypes.Add ("c++", "text/plain");
-			mimeTypes.Add ("cxx", "text/plain");
-			mimeTypes.Add ("dart", "application/dart");
-			mimeTypes.Add ("dcr", "application/x-director");
-			mimeTypes.Add ("deb", "application/x-deb");
-			mimeTypes.Add ("deepv", "application/x-deepv");
-			mimeTypes.Add ("def", "text/plain");
-			mimeTypes.Add ("deploy", "application/octet-stream");
-			mimeTypes.Add ("der", "application/x-x509-ca-cert");
-			mimeTypes.Add ("dib", "image/bmp");
-			mimeTypes.Add ("dif", "video/x-dv");
-			mimeTypes.Add ("dir", "application/x-director");
-			mimeTypes.Add ("disco", "text/xml");
-			mimeTypes.Add ("dll", "application/x-msdownload");
-			mimeTypes.Add ("dl", "video/dl");
-			mimeTypes.Add ("doc", "application/msword");
-			mimeTypes.Add ("docm", "application/vnd.ms-word.document.macroEnabled.12");
-			mimeTypes.Add ("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-			mimeTypes.Add ("dot", "application/msword");
-			mimeTypes.Add ("dotm", "application/vnd.ms-word.template.macroEnabled.12");
-			mimeTypes.Add ("dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template");
-			mimeTypes.Add ("dp", "application/commonground");
-			mimeTypes.Add ("drw", "application/drafting");
-			mimeTypes.Add ("dtd", "application/xml-dtd");
-			mimeTypes.Add ("dvi", "application/x-dvi");
-			mimeTypes.Add ("dv", "video/x-dv");
-			mimeTypes.Add ("dwf", "drawing/x-dwf (old)");
-			mimeTypes.Add ("dwg", "application/acad");
-			mimeTypes.Add ("dxf", "application/dxf");
-			mimeTypes.Add ("dxr", "application/x-director");
-			mimeTypes.Add ("el", "text/x-script.elisp");
-			mimeTypes.Add ("elc", "application/x-elc");
-			mimeTypes.Add ("eml", "message/rfc822");
-			mimeTypes.Add ("eot", "application/vnd.bw-fontobject");
-			mimeTypes.Add ("eps", "application/postscript");
-			mimeTypes.Add ("epub", "application/epub+zip");
-			mimeTypes.Add ("es", "application/x-esrehber");
-			mimeTypes.Add ("etx", "text/x-setext");
-			mimeTypes.Add ("evy", "application/envoy");
-			mimeTypes.Add ("exe", "application/octet-stream");
-			mimeTypes.Add ("f77", "text/plain");
-			mimeTypes.Add ("f90", "text/plain");
-			mimeTypes.Add ("fdf", "application/vnd.fdf");
-			mimeTypes.Add ("fif", "image/fif");
-			mimeTypes.Add ("flac", "audio/x-flac");
-			mimeTypes.Add ("fli", "video/fli");
-			mimeTypes.Add ("flo", "image/florian");
-			mimeTypes.Add ("flr", "x-world/x-vrml");
-			mimeTypes.Add ("flx", "text/vnd.fmi.flexstor");
-			mimeTypes.Add ("fmf", "video/x-atomic3d-feature");
-			mimeTypes.Add ("for", "text/plain");
-			mimeTypes.Add ("fpx", "image/vnd.fpx");
-			mimeTypes.Add ("frl", "application/freeloader");
-			mimeTypes.Add ("f", "text/plain");
-			mimeTypes.Add ("funk", "audio/make");
-			mimeTypes.Add ("g3", "image/g3fax");
-			mimeTypes.Add ("gif", "image/gif");
-			mimeTypes.Add ("gl", "video/gl");
-			mimeTypes.Add ("gsd", "audio/x-gsm");
-			mimeTypes.Add ("gsm", "audio/x-gsm");
-			mimeTypes.Add ("gsp", "application/x-gsp");
-			mimeTypes.Add ("gss", "application/x-gss");
-			mimeTypes.Add ("gtar", "application/x-gtar");
-			mimeTypes.Add ("g", "text/plain");
-			mimeTypes.Add ("gz", "application/x-gzip");
-			mimeTypes.Add ("gzip", "application/x-gzip");
-			mimeTypes.Add ("hdf", "application/x-hdf");
-			mimeTypes.Add ("help", "application/x-helpfile");
-			mimeTypes.Add ("hgl", "application/vnd.hp-HPGL");
-			mimeTypes.Add ("hh", "text/plain");
-			mimeTypes.Add ("hlb", "text/x-script");
-			mimeTypes.Add ("hlp", "application/x-helpfile");
-			mimeTypes.Add ("hpg", "application/vnd.hp-HPGL");
-			mimeTypes.Add ("hpgl", "application/vnd.hp-HPGL");
-			mimeTypes.Add ("hqx", "application/binhex");
-			mimeTypes.Add ("hta", "application/hta");
-			mimeTypes.Add ("htc", "text/x-component");
-			mimeTypes.Add ("h", "text/plain");
-			mimeTypes.Add ("htmls", "text/html");
-			mimeTypes.Add ("html", "text/html");
-			mimeTypes.Add ("htm", "text/html");
-			mimeTypes.Add ("htt", "text/webviewhtml");
-			mimeTypes.Add ("htx", "text/html");
-			mimeTypes.Add ("ice", "x-conference/x-cooltalk");
-			mimeTypes.Add ("ico", "image/x-icon");
-			mimeTypes.Add ("ics", "text/calendar");
-			mimeTypes.Add ("idc", "text/plain");
-			mimeTypes.Add ("ief", "image/ief");
-			mimeTypes.Add ("iefs", "image/ief");
-			mimeTypes.Add ("iges", "application/iges");
-			mimeTypes.Add ("igs", "application/iges");
-			mimeTypes.Add ("iii", "application/x-iphone");
-			mimeTypes.Add ("ima", "application/x-ima");
-			mimeTypes.Add ("imap", "application/x-httpd-imap");
-			mimeTypes.Add ("inf", "application/inf");
-			mimeTypes.Add ("ins", "application/x-internett-signup");
-			mimeTypes.Add ("ip", "application/x-ip2");
-			mimeTypes.Add ("isp", "application/x-internet-signup");
-			mimeTypes.Add ("isu", "video/x-isvideo");
-			mimeTypes.Add ("it", "audio/it");
-			mimeTypes.Add ("iv", "application/x-inventor");
-			mimeTypes.Add ("ivf", "video/x-ivf");
-			mimeTypes.Add ("ivr", "i-world/i-vrml");
-			mimeTypes.Add ("ivy", "application/x-livescreen");
-			mimeTypes.Add ("jam", "audio/x-jam");
-			mimeTypes.Add ("jar", "application/java-archive");
-			mimeTypes.Add ("java", "text/plain");
-			mimeTypes.Add ("jav", "text/plain");
-			mimeTypes.Add ("jcm", "application/x-java-commerce");
-			mimeTypes.Add ("jfif", "image/jpeg");
-			mimeTypes.Add ("jfif-tbnl", "image/jpeg");
-			mimeTypes.Add ("jpeg", "image/jpeg");
-			mimeTypes.Add ("jpe", "image/jpeg");
-			mimeTypes.Add ("jpg", "image/jpeg");
-			mimeTypes.Add ("jps", "image/x-jps");
-			mimeTypes.Add ("js", "application/javascript");
-			mimeTypes.Add ("json", "application/json");
-			mimeTypes.Add ("jut", "image/jutvision");
-			mimeTypes.Add ("kar", "audio/midi");
-			mimeTypes.Add ("ksh", "text/x-script.ksh");
-			mimeTypes.Add ("la", "audio/nspaudio");
-			mimeTypes.Add ("lam", "audio/x-liveaudio");
-			mimeTypes.Add ("latex", "application/x-latex");
-			mimeTypes.Add ("list", "text/plain");
-			mimeTypes.Add ("lma", "audio/nspaudio");
-			mimeTypes.Add ("log", "text/plain");
-			mimeTypes.Add ("lsp", "application/x-lisp");
-			mimeTypes.Add ("lst", "text/plain");
-			mimeTypes.Add ("lsx", "text/x-la-asf");
-			mimeTypes.Add ("ltx", "application/x-latex");
-			mimeTypes.Add ("m13", "application/x-msmediaview");
-			mimeTypes.Add ("m14", "application/x-msmediaview");
-			mimeTypes.Add ("m1v", "video/mpeg");
-			mimeTypes.Add ("m2a", "audio/mpeg");
-			mimeTypes.Add ("m2v", "video/mpeg");
-			mimeTypes.Add ("m3u", "audio/x-mpequrl");
-			mimeTypes.Add ("m4a", "audio/mp4");
-			mimeTypes.Add ("m4v", "video/mp4");
-			mimeTypes.Add ("man", "application/x-troff-man");
-			mimeTypes.Add ("manifest", "application/x-ms-manifest");
-			mimeTypes.Add ("map", "application/x-navimap");
-			mimeTypes.Add ("mar", "text/plain");
-			mimeTypes.Add ("mbd", "application/mbedlet");
-			mimeTypes.Add ("mc$", "application/x-magic-cap-package-1.0");
-			mimeTypes.Add ("mcd", "application/mcad");
-			mimeTypes.Add ("mcf", "image/vasa");
-			mimeTypes.Add ("mcp", "application/netmc");
-			mimeTypes.Add ("mdb", "application/x-msaccess");
-			mimeTypes.Add ("mesh", "model/mesh");
-			mimeTypes.Add ("me", "application/x-troff-me");
-			mimeTypes.Add ("mid", "audio/midi");
-			mimeTypes.Add ("midi", "audio/midi");
-			mimeTypes.Add ("mif", "application/x-mif");
-			mimeTypes.Add ("mjf", "audio/x-vnd.AudioExplosion.MjuiceMediaFile");
-			mimeTypes.Add ("mjpg", "video/x-motion-jpeg");
-			mimeTypes.Add ("mm", "application/base64");
-			mimeTypes.Add ("mme", "application/base64");
-			mimeTypes.Add ("mny", "application/x-msmoney");
-			mimeTypes.Add ("mod", "audio/mod");
-			mimeTypes.Add ("mov", "video/quicktime");
-			mimeTypes.Add ("movie", "video/x-sgi-movie");
-			mimeTypes.Add ("mp2", "video/mpeg");
-			mimeTypes.Add ("mp3", "audio/mpeg");
-			mimeTypes.Add ("mp4", "video/mp4");
-			mimeTypes.Add ("mp4a", "audio/mp4");
-			mimeTypes.Add ("mp4v", "video/mp4");
-			mimeTypes.Add ("mpa", "audio/mpeg");
-			mimeTypes.Add ("mpc", "application/x-project");
-			mimeTypes.Add ("mpeg", "video/mpeg");
-			mimeTypes.Add ("mpe", "video/mpeg");
-			mimeTypes.Add ("mpga", "audio/mpeg");
-			mimeTypes.Add ("mpg", "video/mpeg");
-			mimeTypes.Add ("mpp", "application/vnd.ms-project");
-			mimeTypes.Add ("mpt", "application/x-project");
-			mimeTypes.Add ("mpv2", "video/mpeg");
-			mimeTypes.Add ("mpv", "application/x-project");
-			mimeTypes.Add ("mpx", "application/x-project");
-			mimeTypes.Add ("mrc", "application/marc");
-			mimeTypes.Add ("ms", "application/x-troff-ms");
-			mimeTypes.Add ("msh", "model/mesh");
-			mimeTypes.Add ("m", "text/plain");
-			mimeTypes.Add ("mvb", "application/x-msmediaview");
-			mimeTypes.Add ("mv", "video/x-sgi-movie");
-			mimeTypes.Add ("my", "audio/make");
-			mimeTypes.Add ("mzz", "application/x-vnd.AudioExplosion.mzz");
-			mimeTypes.Add ("nap", "image/naplps");
-			mimeTypes.Add ("naplps", "image/naplps");
-			mimeTypes.Add ("nc", "application/x-netcdf");
-			mimeTypes.Add ("ncm", "application/vnd.nokia.configuration-message");
-			mimeTypes.Add ("niff", "image/x-niff");
-			mimeTypes.Add ("nif", "image/x-niff");
-			mimeTypes.Add ("nix", "application/x-mix-transfer");
-			mimeTypes.Add ("nsc", "application/x-conference");
-			mimeTypes.Add ("nvd", "application/x-navidoc");
-			mimeTypes.Add ("nws", "message/rfc822");
-			mimeTypes.Add ("oda", "application/oda");
-			mimeTypes.Add ("ods", "application/oleobject");
-			mimeTypes.Add ("oga", "audio/ogg");
-			mimeTypes.Add ("ogg", "audio/ogg");
-			mimeTypes.Add ("ogv", "video/ogg");
-			mimeTypes.Add ("ogx", "application/ogg");
-			mimeTypes.Add ("omc", "application/x-omc");
-			mimeTypes.Add ("omcd", "application/x-omcdatamaker");
-			mimeTypes.Add ("omcr", "application/x-omcregerator");
-			mimeTypes.Add ("opus", "audio/ogg");
-			mimeTypes.Add ("oxps", "application/oxps");
-			mimeTypes.Add ("p10", "application/pkcs10");
-			mimeTypes.Add ("p12", "application/pkcs-12");
-			mimeTypes.Add ("p7a", "application/x-pkcs7-signature");
-			mimeTypes.Add ("p7b", "application/x-pkcs7-certificates");
-			mimeTypes.Add ("p7c", "application/pkcs7-mime");
-			mimeTypes.Add ("p7m", "application/pkcs7-mime");
-			mimeTypes.Add ("p7r", "application/x-pkcs7-certreqresp");
-			mimeTypes.Add ("p7s", "application/pkcs7-signature");
-			mimeTypes.Add ("part", "application/pro_eng");
-			mimeTypes.Add ("pas", "text/pascal");
-			mimeTypes.Add ("pbm", "image/x-portable-bitmap");
-			mimeTypes.Add ("pcl", "application/x-pcl");
-			mimeTypes.Add ("pct", "image/x-pict");
-			mimeTypes.Add ("pcx", "image/x-pcx");
-			mimeTypes.Add ("pdb", "chemical/x-pdb");
-			mimeTypes.Add ("pdf", "application/pdf");
-			mimeTypes.Add ("pfunk", "audio/make");
-			mimeTypes.Add ("pfx", "application/x-pkcs12");
-			mimeTypes.Add ("pgm", "image/x-portable-graymap");
-			mimeTypes.Add ("pic", "image/pict");
-			mimeTypes.Add ("pict", "image/pict");
-			mimeTypes.Add ("pkg", "application/x-newton-compatible-pkg");
-			mimeTypes.Add ("pko", "application/vnd.ms-pki.pko");
-			mimeTypes.Add ("pl", "text/plain");
-			mimeTypes.Add ("plx", "application/x-PiXCLscript");
-			mimeTypes.Add ("pm4", "application/x-pagemaker");
-			mimeTypes.Add ("pm5", "application/x-pagemaker");
-			mimeTypes.Add ("pma", "application/x-perfmon");
-			mimeTypes.Add ("pmc", "application/x-perfmon");
-			mimeTypes.Add ("pm", "image/x-xpixmap");
-			mimeTypes.Add ("pml", "application/x-perfmon");
-			mimeTypes.Add ("pmr", "application/x-perfmon");
-			mimeTypes.Add ("pmw", "application/x-perfmon");
-			mimeTypes.Add ("png", "image/png");
-			mimeTypes.Add ("pnm", "application/x-portable-anymap");
-			mimeTypes.Add ("pot", "application/vnd.ms-powerpoint");
-			mimeTypes.Add ("potm", "application/vnd.ms-powerpoint.template.macroEnabled.12");
-			mimeTypes.Add ("potx", "application/vnd.openxmlformats-officedocument.presentationml.template");
-			mimeTypes.Add ("pov", "model/x-pov");
-			mimeTypes.Add ("ppa", "application/vnd.ms-powerpoint");
-			mimeTypes.Add ("ppam", "application/vnd.ms-powerpoint.addin.macroEnabled.12");
-			mimeTypes.Add ("ppm", "image/x-portable-pixmap");
-			mimeTypes.Add ("pps", "application/vnd.ms-powerpoint");
-			mimeTypes.Add ("ppsm", "application/vnd.ms-powerpoint.slideshow.macroEnabled.12");
-			mimeTypes.Add ("ppsx", "application/vnd.openxmlformats-officedocument.presentationml.slideshow");
-			mimeTypes.Add ("ppt", "application/vnd.ms-powerpoint");
-			mimeTypes.Add ("pptm", "application/vnd.ms-powerpoint.presentation.macroEnabled.12");
-			mimeTypes.Add ("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-			mimeTypes.Add ("ppz", "application/mspowerpoint");
-			mimeTypes.Add ("pre", "application/x-freelance");
-			mimeTypes.Add ("prf", "application/pics-rules");
-			mimeTypes.Add ("prt", "application/pro_eng");
-			mimeTypes.Add ("ps", "application/postscript");
-			mimeTypes.Add ("p", "text/x-pascal");
-			mimeTypes.Add ("pub", "application/x-mspublisher");
-			mimeTypes.Add ("pvu", "paleovu/x-pv");
-			mimeTypes.Add ("pwz", "application/vnd.ms-powerpoint");
-			mimeTypes.Add ("pyc", "applicaiton/x-bytecode.python");
-			mimeTypes.Add ("py", "text/x-script.phyton");
-			mimeTypes.Add ("qcp", "audio/vnd.qcelp");
-			mimeTypes.Add ("qd3d", "x-world/x-3dmf");
-			mimeTypes.Add ("qd3", "x-world/x-3dmf");
-			mimeTypes.Add ("qif", "image/x-quicktime");
-			mimeTypes.Add ("qtc", "video/x-qtc");
-			mimeTypes.Add ("qtif", "image/x-quicktime");
-			mimeTypes.Add ("qti", "image/x-quicktime");
-			mimeTypes.Add ("qt", "video/quicktime");
-			mimeTypes.Add ("ra", "audio/x-pn-realaudio");
-			mimeTypes.Add ("ram", "audio/x-pn-realaudio");
-			mimeTypes.Add ("ras", "application/x-cmu-raster");
-			mimeTypes.Add ("rast", "image/cmu-raster");
-			mimeTypes.Add ("rexx", "text/x-script.rexx");
-			mimeTypes.Add ("rf", "image/vnd.rn-realflash");
-			mimeTypes.Add ("rgb", "image/x-rgb");
-			mimeTypes.Add ("rm", "application/vnd.rn-realmedia");
-			mimeTypes.Add ("rmi", "audio/mid");
-			mimeTypes.Add ("rmm", "audio/x-pn-realaudio");
-			mimeTypes.Add ("rmp", "audio/x-pn-realaudio");
-			mimeTypes.Add ("rng", "application/ringing-tones");
-			mimeTypes.Add ("rnx", "application/vnd.rn-realplayer");
-			mimeTypes.Add ("roff", "application/x-troff");
-			mimeTypes.Add ("rp", "image/vnd.rn-realpix");
-			mimeTypes.Add ("rpm", "audio/x-pn-realaudio-plugin");
-			mimeTypes.Add ("rss", "application/rss+xml");
-			mimeTypes.Add ("rtf", "text/richtext");
-			mimeTypes.Add ("rt", "text/richtext");
-			mimeTypes.Add ("rtx", "text/richtext");
-			mimeTypes.Add ("rv", "video/vnd.rn-realvideo");
-			mimeTypes.Add ("s3m", "audio/s3m");
-			mimeTypes.Add ("sbk", "application/x-tbook");
-			mimeTypes.Add ("scd", "application/x-msschedule");
-			mimeTypes.Add ("scm", "application/x-lotusscreencam");
-			mimeTypes.Add ("sct", "text/scriptlet");
-			mimeTypes.Add ("sdml", "text/plain");
-			mimeTypes.Add ("sdp", "application/sdp");
-			mimeTypes.Add ("sdr", "application/sounder");
-			mimeTypes.Add ("sea", "application/sea");
-			mimeTypes.Add ("set", "application/set");
-			mimeTypes.Add ("setpay", "application/set-payment-initiation");
-			mimeTypes.Add ("setreg", "application/set-registration-initiation");
-			mimeTypes.Add ("sgml", "text/sgml");
-			mimeTypes.Add ("sgm", "text/sgml");
-			mimeTypes.Add ("shar", "application/x-bsh");
-			mimeTypes.Add ("sh", "text/x-script.sh");
-			mimeTypes.Add ("shtml", "text/html");
-			mimeTypes.Add ("sid", "audio/x-psid");
-			mimeTypes.Add ("silo", "model/mesh");
-			mimeTypes.Add ("sit", "application/x-sit");
-			mimeTypes.Add ("skd", "application/x-koan");
-			mimeTypes.Add ("skm", "application/x-koan");
-			mimeTypes.Add ("skp", "application/x-koan");
-			mimeTypes.Add ("skt", "application/x-koan");
-			mimeTypes.Add ("sl", "application/x-seelogo");
-			mimeTypes.Add ("smi", "application/smil");
-			mimeTypes.Add ("smil", "application/smil");
-			mimeTypes.Add ("snd", "audio/basic");
-			mimeTypes.Add ("sol", "application/solids");
-			mimeTypes.Add ("spc", "application/x-pkcs7-certificates");
-			mimeTypes.Add ("spl", "application/futuresplash");
-			mimeTypes.Add ("spr", "application/x-sprite");
-			mimeTypes.Add ("sprite", "application/x-sprite");
-			mimeTypes.Add ("spx", "audio/ogg");
-			mimeTypes.Add ("src", "application/x-wais-source");
-			mimeTypes.Add ("ssi", "text/x-server-parsed-html");
-			mimeTypes.Add ("ssm", "application/streamingmedia");
-			mimeTypes.Add ("sst", "application/vnd.ms-pki.certstore");
-			mimeTypes.Add ("step", "application/step");
-			mimeTypes.Add ("s", "text/x-asm");
-			mimeTypes.Add ("stl", "application/sla");
-			mimeTypes.Add ("stm", "text/html");
-			mimeTypes.Add ("stp", "application/step");
-			mimeTypes.Add ("sv4cpio", "application/x-sv4cpio");
-			mimeTypes.Add ("sv4crc", "application/x-sv4crc");
-			mimeTypes.Add ("svf", "image/x-dwg");
-			mimeTypes.Add ("svg", "image/svg+xml");
-			mimeTypes.Add ("svr", "application/x-world");
-			mimeTypes.Add ("swf", "application/x-shockwave-flash");
-			mimeTypes.Add ("talk", "text/x-speech");
-			mimeTypes.Add ("t", "application/x-troff");
-			mimeTypes.Add ("tar", "application/x-tar");
-			mimeTypes.Add ("tbk", "application/toolbook");
-			mimeTypes.Add ("tcl", "text/x-script.tcl");
-			mimeTypes.Add ("tcsh", "text/x-script.tcsh");
-			mimeTypes.Add ("tex", "application/x-tex");
-			mimeTypes.Add ("texi", "application/x-texinfo");
-			mimeTypes.Add ("texinfo", "application/x-texinfo");
-			mimeTypes.Add ("text", "text/plain");
-			mimeTypes.Add ("tgz", "application/x-compressed");
-			mimeTypes.Add ("tiff", "image/tiff");
-			mimeTypes.Add ("tif", "image/tiff");
-			mimeTypes.Add ("tr", "application/x-troff");
-			mimeTypes.Add ("trm", "application/x-msterminal");
-			mimeTypes.Add ("ts", "text/x-typescript");
-			mimeTypes.Add ("tsi", "audio/tsp-audio");
-			mimeTypes.Add ("tsp", "audio/tsplayer");
-			mimeTypes.Add ("tsv", "text/tab-separated-values");
-			mimeTypes.Add ("ttf", "application/x-font-ttf");
-			mimeTypes.Add ("turbot", "image/florian");
-			mimeTypes.Add ("txt", "text/plain");
-			mimeTypes.Add ("uil", "text/x-uil");
-			mimeTypes.Add ("uls", "text/iuls");
-			mimeTypes.Add ("unis", "text/uri-list");
-			mimeTypes.Add ("uni", "text/uri-list");
-			mimeTypes.Add ("unv", "application/i-deas");
-			mimeTypes.Add ("uris", "text/uri-list");
-			mimeTypes.Add ("uri", "text/uri-list");
-			mimeTypes.Add ("ustar", "multipart/x-ustar");
-			mimeTypes.Add ("uue", "text/x-uuencode");
-			mimeTypes.Add ("uu", "text/x-uuencode");
-			mimeTypes.Add ("vcd", "application/x-cdlink");
-			mimeTypes.Add ("vcf", "text/vcard");
-			mimeTypes.Add ("vcard", "text/vcard");
-			mimeTypes.Add ("vcs", "text/x-vCalendar");
-			mimeTypes.Add ("vda", "application/vda");
-			mimeTypes.Add ("vdo", "video/vdo");
-			mimeTypes.Add ("vew", "application/groupwise");
-			mimeTypes.Add ("vivo", "video/vivo");
-			mimeTypes.Add ("viv", "video/vivo");
-			mimeTypes.Add ("vmd", "application/vocaltec-media-desc");
-			mimeTypes.Add ("vmf", "application/vocaltec-media-file");
-			mimeTypes.Add ("voc", "audio/voc");
-			mimeTypes.Add ("vos", "video/vosaic");
-			mimeTypes.Add ("vox", "audio/voxware");
-			mimeTypes.Add ("vqe", "audio/x-twinvq-plugin");
-			mimeTypes.Add ("vqf", "audio/x-twinvq");
-			mimeTypes.Add ("vql", "audio/x-twinvq-plugin");
-			mimeTypes.Add ("vrml", "application/x-vrml");
-			mimeTypes.Add ("vrt", "x-world/x-vrt");
-			mimeTypes.Add ("vsd", "application/x-visio");
-			mimeTypes.Add ("vst", "application/x-visio");
-			mimeTypes.Add ("vsw", "application/x-visio");
-			mimeTypes.Add ("w60", "application/wordperfect6.0");
-			mimeTypes.Add ("w61", "application/wordperfect6.1");
-			mimeTypes.Add ("w6w", "application/msword");
-			mimeTypes.Add ("wav", "audio/wav");
-			mimeTypes.Add ("wb1", "application/x-qpro");
-			mimeTypes.Add ("wbmp", "image/vnd.wap.wbmp");
-			mimeTypes.Add ("wcm", "application/vnd.ms-works");
-			mimeTypes.Add ("wdb", "application/vnd.ms-works");
-			mimeTypes.Add ("web", "application/vnd.xara");
-			mimeTypes.Add ("webm", "video/webm");
-			mimeTypes.Add ("wiz", "application/msword");
-			mimeTypes.Add ("wk1", "application/x-123");
-			mimeTypes.Add ("wks", "application/vnd.ms-works");
-			mimeTypes.Add ("wmf", "windows/metafile");
-			mimeTypes.Add ("wmlc", "application/vnd.wap.wmlc");
-			mimeTypes.Add ("wmlsc", "application/vnd.wap.wmlscriptc");
-			mimeTypes.Add ("wmls", "text/vnd.wap.wmlscript");
-			mimeTypes.Add ("wml", "text/vnd.wap.wml");
-			mimeTypes.Add ("wmp", "video/x-ms-wmp");
-			mimeTypes.Add ("wmv", "video/x-ms-wmv");
-			mimeTypes.Add ("wmx", "video/x-ms-wmx");
-			mimeTypes.Add ("woff", "application/x-woff");
-			mimeTypes.Add ("word", "application/msword");
-			mimeTypes.Add ("wp5", "application/wordperfect");
-			mimeTypes.Add ("wp6", "application/wordperfect");
-			mimeTypes.Add ("wp", "application/wordperfect");
-			mimeTypes.Add ("wpd", "application/wordperfect");
-			mimeTypes.Add ("wps", "application/vnd.ms-works");
-			mimeTypes.Add ("wq1", "application/x-lotus");
-			mimeTypes.Add ("wri", "application/mswrite");
-			mimeTypes.Add ("wrl", "application/x-world");
-			mimeTypes.Add ("wrz", "model/vrml");
-			mimeTypes.Add ("wsc", "text/scriplet");
-			mimeTypes.Add ("wsdl", "text/xml");
-			mimeTypes.Add ("wsrc", "application/x-wais-source");
-			mimeTypes.Add ("wtk", "application/x-wintalk");
-			mimeTypes.Add ("wvx", "video/x-ms-wvx");
-			mimeTypes.Add ("x3d", "model/x3d+xml");
-			mimeTypes.Add ("x3db", "model/x3d+fastinfoset");
-			mimeTypes.Add ("x3dv", "model/x3d-vrml");
-			mimeTypes.Add ("xaf", "x-world/x-vrml");
-			mimeTypes.Add ("xaml", "application/xaml+xml");
-			mimeTypes.Add ("xap", "application/x-silverlight-app");
-			mimeTypes.Add ("xbap", "application/x-ms-xbap");
-			mimeTypes.Add ("xbm", "image/x-xbitmap");
-			mimeTypes.Add ("xdr", "video/x-amt-demorun");
-			mimeTypes.Add ("xgz", "xgl/drawing");
-			mimeTypes.Add ("xht", "application/xhtml+xml");
-			mimeTypes.Add ("xhtml", "application/xhtml+xml");
-			mimeTypes.Add ("xif", "image/vnd.xiff");
-			mimeTypes.Add ("xla", "application/vnd.ms-excel");
-			mimeTypes.Add ("xlam", "application/vnd.ms-excel.addin.macroEnabled.12");
-			mimeTypes.Add ("xl", "application/excel");
-			mimeTypes.Add ("xlb", "application/excel");
-			mimeTypes.Add ("xlc", "application/excel");
-			mimeTypes.Add ("xld", "application/excel");
-			mimeTypes.Add ("xlk", "application/excel");
-			mimeTypes.Add ("xll", "application/excel");
-			mimeTypes.Add ("xlm", "application/excel");
-			mimeTypes.Add ("xls", "application/vnd.ms-excel");
-			mimeTypes.Add ("xlsb", "application/vnd.ms-excel.sheet.binary.macroEnabled.12");
-			mimeTypes.Add ("xlsm", "application/vnd.ms-excel.sheet.macroEnabled.12");
-			mimeTypes.Add ("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			mimeTypes.Add ("xlt", "application/vnd.ms-excel");
-			mimeTypes.Add ("xltm", "application/vnd.ms-excel.template.macroEnabled.12");
-			mimeTypes.Add ("xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template");
-			mimeTypes.Add ("xlv", "application/excel");
-			mimeTypes.Add ("xlw", "application/excel");
-			mimeTypes.Add ("xm", "audio/xm");
-			mimeTypes.Add ("xml", "text/xml");
-			mimeTypes.Add ("xmz", "xgl/movie");
-			mimeTypes.Add ("xof", "x-world/x-vrml");
-			mimeTypes.Add ("xpi", "application/x-xpinstall");
-			mimeTypes.Add ("xpix", "application/x-vnd.ls-xpix");
-			mimeTypes.Add ("xpm", "image/xpm");
-			mimeTypes.Add ("xps", "application/vnd.ms-xpsdocument");
-			mimeTypes.Add ("x-png", "image/png");
-			mimeTypes.Add ("xsd", "text/xml");
-			mimeTypes.Add ("xsl", "text/xml");
-			mimeTypes.Add ("xslt", "text/xml");
-			mimeTypes.Add ("xsr", "video/x-amt-showrun");
-			mimeTypes.Add ("xwd", "image/x-xwd");
-			mimeTypes.Add ("xyz", "chemical/x-pdb");
-			mimeTypes.Add ("z", "application/x-compressed");
-			mimeTypes.Add ("zip", "application/zip");
-			mimeTypes.Add ("zsh", "text/x-script.zsh");
+			extensions = LoadExtensions ();
+			mimeTypes = LoadMimeTypes ();
+		}
+
+		static Dictionary<string, string> LoadMimeTypes ()
+		{
+			return new Dictionary<string, string> (MimeUtils.OrdinalIgnoreCase) {
+				{ "323", "text/h323" },
+				{ "3g2", "video/3gpp2" },
+				{ "3gp", "video/3gpp" },
+				{ "7z", "application/x-7z-compressed" },
+				{ "aab", "application/x-authorware-bin" },
+				{ "aac", "audio/aac" },
+				{ "aam", "application/x-authorware-map" },
+				{ "aas", "application/x-authorware-seg" },
+				{ "abc", "text/vnd.abc" },
+				{ "acgi", "text/html" },
+				{ "acx", "application/internet-property-stream" },
+				{ "afl", "video/animaflex" },
+				{ "ai", "application/postscript" },
+				{ "aif", "audio/aiff" },
+				{ "aifc", "audio/aiff" },
+				{ "aiff", "audio/aiff" },
+				{ "aim", "application/x-aim" },
+				{ "aip", "text/x-audiosoft-intra" },
+				{ "ani", "application/x-navi-animation" },
+				{ "aos", "application/x-nokia-9000-communicator-add-on-software" },
+				{ "appcache", "text/cache-manifest" },
+				{ "application", "application/x-ms-application" },
+				{ "aps", "application/mime" },
+				{ "art", "image/x-jg" },
+				{ "asf", "video/x-ms-asf" },
+				{ "asm", "text/x-asm" },
+				{ "asp", "text/asp" },
+				{ "asr", "video/x-ms-asf" },
+				{ "asx", "application/x-mplayer2" },
+				{ "atom", "application/atom+xml" },
+				{ "au", "audio/x-au" },
+				{ "avi", "video/avi" },
+				{ "avs", "video/avs-video" },
+				{ "axs", "application/olescript" },
+				{ "bas", "text/plain" },
+				{ "bcpio", "application/x-bcpio" },
+				{ "bin", "application/octet-stream" },
+				{ "bm", "image/bmp" },
+				{ "bmp", "image/bmp" },
+				{ "boo", "application/book" },
+				{ "book", "application/book" },
+				{ "boz", "application/x-bzip2" },
+				{ "bsh", "application/x-bsh" },
+				{ "bz2", "application/x-bzip2" },
+				{ "bz", "application/x-bzip" },
+				{ "cat", "application/vnd.ms-pki.seccat" },
+				{ "ccad", "application/clariscad" },
+				{ "cco", "application/x-cocoa" },
+				{ "cc", "text/plain" },
+				{ "cdf", "application/cdf" },
+				{ "cer", "application/pkix-cert" },
+				{ "cha", "application/x-chat" },
+				{ "chat", "application/x-chat" },
+				{ "class", "application/x-java-applet" },
+				{ "clp", "application/x-msclip" },
+				{ "cmx", "image/x-cmx" },
+				{ "cod", "image/cis-cod" },
+				{ "coffee", "text/x-coffeescript" },
+				{ "conf", "text/plain" },
+				{ "cpio", "application/x-cpio" },
+				{ "cpp", "text/plain" },
+				{ "cpt", "application/x-cpt" },
+				{ "crd", "application/x-mscardfile" },
+				{ "crl", "application/pkix-crl" },
+				{ "crt", "application/pkix-cert" },
+				{ "csh", "application/x-csh" },
+				{ "css", "text/css" },
+				{ "csv", "text/csv" },
+				{ "cs", "text/plain" },
+				{ "c", "text/plain" },
+				{ "c++", "text/plain" },
+				{ "cxx", "text/plain" },
+				{ "dart", "application/dart" },
+				{ "dcr", "application/x-director" },
+				{ "deb", "application/x-deb" },
+				{ "deepv", "application/x-deepv" },
+				{ "def", "text/plain" },
+				{ "deploy", "application/octet-stream" },
+				{ "der", "application/x-x509-ca-cert" },
+				{ "dib", "image/bmp" },
+				{ "dif", "video/x-dv" },
+				{ "dir", "application/x-director" },
+				{ "disco", "text/xml" },
+				{ "dll", "application/x-msdownload" },
+				{ "dl", "video/dl" },
+				{ "doc", "application/msword" },
+				{ "docm", "application/vnd.ms-word.document.macroEnabled.12" },
+				{ "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+				{ "dot", "application/msword" },
+				{ "dotm", "application/vnd.ms-word.template.macroEnabled.12" },
+				{ "dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template" },
+				{ "dp", "application/commonground" },
+				{ "drw", "application/drafting" },
+				{ "dtd", "application/xml-dtd" },
+				{ "dvi", "application/x-dvi" },
+				{ "dv", "video/x-dv" },
+				{ "dwg", "application/acad" },
+				{ "dxf", "application/dxf" },
+				{ "dxr", "application/x-director" },
+				{ "el", "text/x-script.elisp" },
+				{ "elc", "application/x-elc" },
+				{ "eml", "message/rfc822" },
+				{ "eot", "application/vnd.bw-fontobject" },
+				{ "eps", "application/postscript" },
+				{ "epub", "application/epub+zip" },
+				{ "es", "application/x-esrehber" },
+				{ "etx", "text/x-setext" },
+				{ "evy", "application/envoy" },
+				{ "exe", "application/octet-stream" },
+				{ "f77", "text/plain" },
+				{ "f90", "text/plain" },
+				{ "fdf", "application/vnd.fdf" },
+				{ "fif", "image/fif" },
+				{ "flac", "audio/x-flac" },
+				{ "fli", "video/fli" },
+				{ "flo", "image/florian" },
+				{ "flx", "text/vnd.fmi.flexstor" },
+				{ "fmf", "video/x-atomic3d-feature" },
+				{ "for", "text/plain" },
+				{ "fpx", "image/vnd.fpx" },
+				{ "frl", "application/freeloader" },
+				{ "fsx", "application/fsharp-script" },
+				{ "f", "text/plain" },
+				{ "g3", "image/g3fax" },
+				{ "gif", "image/gif" },
+				{ "gl", "video/gl" },
+				{ "gsd", "audio/x-gsm" },
+				{ "gsm", "audio/x-gsm" },
+				{ "gsp", "application/x-gsp" },
+				{ "gss", "application/x-gss" },
+				{ "gtar", "application/x-gtar" },
+				{ "g", "text/plain" },
+				{ "gz", "application/x-gzip" },
+				{ "gzip", "application/x-gzip" },
+				{ "hdf", "application/x-hdf" },
+				{ "help", "application/x-helpfile" },
+				{ "hgl", "application/vnd.hp-HPGL" },
+				{ "hh", "text/plain" },
+				{ "hlb", "text/x-script" },
+				{ "hlp", "application/x-helpfile" },
+				{ "hpg", "application/vnd.hp-HPGL" },
+				{ "hpgl", "application/vnd.hp-HPGL" },
+				{ "hqx", "application/binhex" },
+				{ "hta", "application/hta" },
+				{ "htc", "text/x-component" },
+				{ "h", "text/plain" },
+				{ "htmls", "text/html" },
+				{ "html", "text/html" },
+				{ "htm", "text/html" },
+				{ "htt", "text/webviewhtml" },
+				{ "htx", "text/html" },
+				{ "ico", "image/x-icon" },
+				{ "ics", "text/calendar" },
+				{ "idc", "text/plain" },
+				{ "ief", "image/ief" },
+				{ "iefs", "image/ief" },
+				{ "iges", "model/iges" },
+				{ "igs", "model/iges" },
+				{ "iii", "application/x-iphone" },
+				{ "ima", "application/x-ima" },
+				{ "imap", "application/x-httpd-imap" },
+				{ "inf", "application/inf" },
+				{ "ins", "application/x-internett-signup" },
+				{ "ip", "application/x-ip2" },
+				{ "isp", "application/x-internet-signup" },
+				{ "isu", "video/x-isvideo" },
+				{ "it", "audio/it" },
+				{ "iv", "application/x-inventor" },
+				{ "ivf", "video/x-ivf" },
+				{ "ivy", "application/x-livescreen" },
+				{ "jam", "audio/x-jam" },
+				{ "jar", "application/java-archive" },
+				{ "java", "text/plain" },
+				{ "jav", "text/plain" },
+				{ "jcm", "application/x-java-commerce" },
+				{ "jfif", "image/jpeg" },
+				{ "jfif-tbnl", "image/jpeg" },
+				{ "jpeg", "image/jpeg" },
+				{ "jpe", "image/jpeg" },
+				{ "jpg", "image/jpeg" },
+				{ "jps", "image/x-jps" },
+				{ "js", "application/javascript" },
+				{ "json", "application/json" },
+				{ "jut", "image/jutvision" },
+				{ "kar", "audio/midi" },
+				{ "ksh", "text/x-script.ksh" },
+				{ "la", "audio/nspaudio" },
+				{ "lam", "audio/x-liveaudio" },
+				{ "latex", "application/x-latex" },
+				{ "list", "text/plain" },
+				{ "lma", "audio/nspaudio" },
+				{ "log", "text/plain" },
+				{ "lsp", "application/x-lisp" },
+				{ "lst", "text/plain" },
+				{ "lsx", "text/x-la-asf" },
+				{ "ltx", "application/x-latex" },
+				{ "m13", "application/x-msmediaview" },
+				{ "m14", "application/x-msmediaview" },
+				{ "m1v", "video/mpeg" },
+				{ "m2a", "audio/mpeg" },
+				{ "m2v", "video/mpeg" },
+				{ "m3u", "audio/x-mpequrl" },
+				{ "m4a", "audio/mp4" },
+				{ "m4v", "video/mp4" },
+				{ "man", "application/x-troff-man" },
+				{ "manifest", "application/x-ms-manifest" },
+				{ "map", "application/x-navimap" },
+				{ "mar", "text/plain" },
+				{ "markdown", "text/markdown" },
+				{ "mbd", "application/mbedlet" },
+				{ "mc$", "application/x-magic-cap-package-1.0" },
+				{ "mcd", "application/mcad" },
+				{ "mcf", "image/vasa" },
+				{ "mcp", "application/netmc" },
+				{ "md", "text/markdown" },
+				{ "mdb", "application/x-msaccess" },
+				{ "mesh", "model/mesh" },
+				{ "me", "application/x-troff-me" },
+				{ "mid", "audio/midi" },
+				{ "midi", "audio/midi" },
+				{ "mif", "application/x-mif" },
+				{ "mjf", "audio/x-vnd.AudioExplosion.MjuiceMediaFile" },
+				{ "mjpg", "video/x-motion-jpeg" },
+				{ "mm", "application/base64" },
+				{ "mme", "application/base64" },
+				{ "mny", "application/x-msmoney" },
+				{ "mod", "audio/mod" },
+				{ "mov", "video/quicktime" },
+				{ "movie", "video/x-sgi-movie" },
+				{ "mp2", "video/mpeg" },
+				{ "mp3", "audio/mpeg" },
+				{ "mp4", "video/mp4" },
+				{ "mp4a", "audio/mp4" },
+				{ "mp4v", "video/mp4" },
+				{ "mpa", "audio/mpeg" },
+				{ "mpc", "application/x-project" },
+				{ "mpeg", "video/mpeg" },
+				{ "mpe", "video/mpeg" },
+				{ "mpga", "audio/mpeg" },
+				{ "mpg", "video/mpeg" },
+				{ "mpp", "application/vnd.ms-project" },
+				{ "mpt", "application/x-project" },
+				{ "mpv2", "video/mpeg" },
+				{ "mpv", "application/x-project" },
+				{ "mpx", "application/x-project" },
+				{ "mrc", "application/marc" },
+				{ "ms", "application/x-troff-ms" },
+				{ "msh", "model/mesh" },
+				{ "m", "text/plain" },
+				{ "mvb", "application/x-msmediaview" },
+				{ "mv", "video/x-sgi-movie" },
+				{ "mzz", "application/x-vnd.AudioExplosion.mzz" },
+				{ "nap", "image/naplps" },
+				{ "naplps", "image/naplps" },
+				{ "nc", "application/x-netcdf" },
+				{ "ncm", "application/vnd.nokia.configuration-message" },
+				{ "niff", "image/x-niff" },
+				{ "nif", "image/x-niff" },
+				{ "nix", "application/x-mix-transfer" },
+				{ "nsc", "application/x-conference" },
+				{ "nvd", "application/x-navidoc" },
+				{ "nws", "message/rfc822" },
+				{ "oda", "application/oda" },
+				{ "ods", "application/oleobject" },
+				{ "oga", "audio/ogg" },
+				{ "ogg", "audio/ogg" },
+				{ "ogv", "video/ogg" },
+				{ "ogx", "application/ogg" },
+				{ "omc", "application/x-omc" },
+				{ "omcd", "application/x-omcdatamaker" },
+				{ "omcr", "application/x-omcregerator" },
+				{ "opus", "audio/ogg" },
+				{ "oxps", "application/oxps" },
+				{ "p10", "application/pkcs10" },
+				{ "p12", "application/pkcs-12" },
+				{ "p7a", "application/x-pkcs7-signature" },
+				{ "p7b", "application/x-pkcs7-certificates" },
+				{ "p7c", "application/pkcs7-mime" },
+				{ "p7m", "application/pkcs7-mime" },
+				{ "p7r", "application/x-pkcs7-certreqresp" },
+				{ "p7s", "application/pkcs7-signature" },
+				{ "part", "application/pro_eng" },
+				{ "pas", "text/pascal" },
+				{ "pbm", "image/x-portable-bitmap" },
+				{ "pcl", "application/x-pcl" },
+				{ "pct", "image/x-pict" },
+				{ "pcx", "image/x-pcx" },
+				{ "pdf", "application/pdf" },
+				{ "pfx", "application/x-pkcs12" },
+				{ "pgm", "image/x-portable-graymap" },
+				{ "pic", "image/pict" },
+				{ "pict", "image/pict" },
+				{ "pkg", "application/x-newton-compatible-pkg" },
+				{ "pko", "application/vnd.ms-pki.pko" },
+				{ "pl", "text/plain" },
+				{ "plx", "application/x-PiXCLscript" },
+				{ "pm4", "application/x-pagemaker" },
+				{ "pm5", "application/x-pagemaker" },
+				{ "pma", "application/x-perfmon" },
+				{ "pmc", "application/x-perfmon" },
+				{ "pm", "image/x-xpixmap" },
+				{ "pml", "application/x-perfmon" },
+				{ "pmr", "application/x-perfmon" },
+				{ "pmw", "application/x-perfmon" },
+				{ "png", "image/png" },
+				{ "pnm", "application/x-portable-anymap" },
+				{ "pot", "application/vnd.ms-powerpoint" },
+				{ "potm", "application/vnd.ms-powerpoint.template.macroEnabled.12" },
+				{ "potx", "application/vnd.openxmlformats-officedocument.presentationml.template" },
+				{ "pov", "model/x-pov" },
+				{ "ppa", "application/vnd.ms-powerpoint" },
+				{ "ppam", "application/vnd.ms-powerpoint.addin.macroEnabled.12" },
+				{ "ppm", "image/x-portable-pixmap" },
+				{ "pps", "application/vnd.ms-powerpoint" },
+				{ "ppsm", "application/vnd.ms-powerpoint.slideshow.macroEnabled.12" },
+				{ "ppsx", "application/vnd.openxmlformats-officedocument.presentationml.slideshow" },
+				{ "ppt", "application/vnd.ms-powerpoint" },
+				{ "pptm", "application/vnd.ms-powerpoint.presentation.macroEnabled.12" },
+				{ "pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+				{ "ppz", "application/mspowerpoint" },
+				{ "pre", "application/x-freelance" },
+				{ "prf", "application/pics-rules" },
+				{ "prt", "application/pro_eng" },
+				{ "ps", "application/postscript" },
+				{ "p", "text/x-pascal" },
+				{ "pub", "application/x-mspublisher" },
+				{ "pwz", "application/vnd.ms-powerpoint" },
+				{ "pyc", "application/x-bytecode.python" },
+				{ "py", "text/x-script.phyton" },
+				{ "qcp", "audio/vnd.qcelp" },
+				{ "qif", "image/x-quicktime" },
+				{ "qtc", "video/x-qtc" },
+				{ "qtif", "image/x-quicktime" },
+				{ "qti", "image/x-quicktime" },
+				{ "qt", "video/quicktime" },
+				{ "ra", "audio/x-pn-realaudio" },
+				{ "ram", "audio/x-pn-realaudio" },
+				{ "ras", "application/x-cmu-raster" },
+				{ "rast", "image/cmu-raster" },
+				{ "rexx", "text/x-script.rexx" },
+				{ "rf", "image/vnd.rn-realflash" },
+				{ "rgb", "image/x-rgb" },
+				{ "rm", "application/vnd.rn-realmedia" },
+				{ "rmi", "audio/mid" },
+				{ "rmm", "audio/x-pn-realaudio" },
+				{ "rmp", "audio/x-pn-realaudio" },
+				{ "rng", "application/ringing-tones" },
+				{ "rnx", "application/vnd.rn-realplayer" },
+				{ "roff", "application/x-troff" },
+				{ "rp", "image/vnd.rn-realpix" },
+				{ "rpm", "audio/x-pn-realaudio-plugin" },
+				{ "rss", "application/rss+xml" },
+				{ "rtf", "text/rtf" },
+				{ "rt", "text/richtext" },
+				{ "rtx", "text/richtext" },
+				{ "rv", "video/vnd.rn-realvideo" },
+				{ "s3m", "audio/s3m" },
+				{ "sbk", "application/x-tbook" },
+				{ "scd", "application/x-msschedule" },
+				{ "scm", "application/x-lotusscreencam" },
+				{ "sct", "text/scriptlet" },
+				{ "sdml", "text/plain" },
+				{ "sdp", "application/sdp" },
+				{ "sdr", "application/sounder" },
+				{ "sea", "application/sea" },
+				{ "set", "application/set" },
+				{ "setpay", "application/set-payment-initiation" },
+				{ "setreg", "application/set-registration-initiation" },
+				{ "sgml", "text/sgml" },
+				{ "sgm", "text/sgml" },
+				{ "shar", "application/x-bsh" },
+				{ "sh", "text/x-script.sh" },
+				{ "shtml", "text/html" },
+				{ "sid", "audio/x-psid" },
+				{ "silo", "model/mesh" },
+				{ "sit", "application/x-sit" },
+				{ "skd", "application/x-koan" },
+				{ "skm", "application/x-koan" },
+				{ "skp", "application/x-koan" },
+				{ "skt", "application/x-koan" },
+				{ "sl", "application/x-seelogo" },
+				{ "smi", "application/smil" },
+				{ "smil", "application/smil" },
+				{ "snd", "audio/basic" },
+				{ "sol", "application/solids" },
+				{ "spc", "application/x-pkcs7-certificates" },
+				{ "spl", "application/futuresplash" },
+				{ "spr", "application/x-sprite" },
+				{ "sprite", "application/x-sprite" },
+				{ "spx", "audio/ogg" },
+				{ "src", "application/x-wais-source" },
+				{ "ssi", "text/x-server-parsed-html" },
+				{ "ssm", "application/streamingmedia" },
+				{ "sst", "application/vnd.ms-pki.certstore" },
+				{ "step", "application/step" },
+				{ "s", "text/x-asm" },
+				{ "stl", "application/sla" },
+				{ "stm", "text/html" },
+				{ "stp", "application/step" },
+				{ "sv4cpio", "application/x-sv4cpio" },
+				{ "sv4crc", "application/x-sv4crc" },
+				{ "svf", "image/x-dwg" },
+				{ "svg", "image/svg+xml" },
+				{ "svr", "application/x-world" },
+				{ "swf", "application/x-shockwave-flash" },
+				{ "talk", "text/x-speech" },
+				{ "t", "application/x-troff" },
+				{ "tar", "application/x-tar" },
+				{ "tbk", "application/toolbook" },
+				{ "tcl", "text/x-script.tcl" },
+				{ "tcsh", "text/x-script.tcsh" },
+				{ "tex", "application/x-tex" },
+				{ "texi", "application/x-texinfo" },
+				{ "texinfo", "application/x-texinfo" },
+				{ "text", "text/plain" },
+				{ "tgz", "application/x-compressed" },
+				{ "tiff", "image/tiff" },
+				{ "tif", "image/tiff" },
+				{ "tr", "application/x-troff" },
+				{ "trm", "application/x-msterminal" },
+				{ "ts", "text/x-typescript" },
+				{ "tsi", "audio/tsp-audio" },
+				{ "tsp", "audio/tsplayer" },
+				{ "tsv", "text/tab-separated-values" },
+				{ "ttf", "application/x-font-ttf" },
+				{ "turbot", "image/florian" },
+				{ "txt", "text/plain" },
+				{ "uil", "text/x-uil" },
+				{ "uls", "text/iuls" },
+				{ "unis", "text/uri-list" },
+				{ "uni", "text/uri-list" },
+				{ "unv", "application/i-deas" },
+				{ "uris", "text/uri-list" },
+				{ "uri", "text/uri-list" },
+				{ "ustar", "multipart/x-ustar" },
+				{ "uue", "text/x-uuencode" },
+				{ "uu", "text/x-uuencode" },
+				{ "vcd", "application/x-cdlink" },
+				{ "vcf", "text/vcard" },
+				{ "vcard", "text/vcard" },
+				{ "vcs", "text/x-vcalendar" },
+				{ "vda", "application/vda" },
+				{ "vdo", "video/vdo" },
+				{ "vew", "application/groupwise" },
+				{ "vivo", "video/vnd.vivo" },
+				{ "viv", "video/vnd.vivo" },
+				{ "vmd", "application/vocaltec-media-desc" },
+				{ "vmf", "application/vocaltec-media-file" },
+				{ "voc", "audio/voc" },
+				{ "vos", "video/vosaic" },
+				{ "vox", "audio/voxware" },
+				{ "vqe", "audio/x-twinvq-plugin" },
+				{ "vqf", "audio/x-twinvq" },
+				{ "vql", "audio/x-twinvq-plugin" },
+				{ "vrml", "application/x-vrml" },
+				{ "vsd", "application/x-visio" },
+				{ "vst", "application/x-visio" },
+				{ "vsw", "application/x-visio" },
+				{ "w60", "application/wordperfect6.0" },
+				{ "w61", "application/wordperfect6.1" },
+				{ "w6w", "application/msword" },
+				{ "wav", "audio/wav" },
+				{ "wb1", "application/x-qpro" },
+				{ "wbmp", "image/vnd.wap.wbmp" },
+				{ "wcm", "application/vnd.ms-works" },
+				{ "wdb", "application/vnd.ms-works" },
+				{ "web", "application/vnd.xara" },
+				{ "webm", "video/webm" },
+				{ "wiz", "application/msword" },
+				{ "wk1", "application/x-123" },
+				{ "wks", "application/vnd.ms-works" },
+				{ "wmf", "image/wmf" },
+				{ "wmlc", "application/vnd.wap.wmlc" },
+				{ "wmlsc", "application/vnd.wap.wmlscriptc" },
+				{ "wmls", "text/vnd.wap.wmlscript" },
+				{ "wml", "text/vnd.wap.wml" },
+				{ "wmp", "video/x-ms-wmp" },
+				{ "wmv", "video/x-ms-wmv" },
+				{ "wmx", "video/x-ms-wmx" },
+				{ "woff", "application/x-woff" },
+				{ "word", "application/msword" },
+				{ "wp5", "application/wordperfect" },
+				{ "wp6", "application/wordperfect" },
+				{ "wp", "application/wordperfect" },
+				{ "wpd", "application/wordperfect" },
+				{ "wps", "application/vnd.ms-works" },
+				{ "wq1", "application/x-lotus" },
+				{ "wri", "application/mswrite" },
+				{ "wrl", "application/x-world" },
+				{ "wrz", "model/vrml" },
+				{ "wsc", "text/scriplet" },
+				{ "wsdl", "text/xml" },
+				{ "wsrc", "application/x-wais-source" },
+				{ "wtk", "application/x-wintalk" },
+				{ "wvx", "video/x-ms-wvx" },
+				{ "x3d", "model/x3d+xml" },
+				{ "x3db", "model/x3d+fastinfoset" },
+				{ "x3dv", "model/x3d-vrml" },
+				{ "xaml", "application/xaml+xml" },
+				{ "xap", "application/x-silverlight-app" },
+				{ "xbap", "application/x-ms-xbap" },
+				{ "xbm", "image/x-xbitmap" },
+				{ "xdr", "video/x-amt-demorun" },
+				{ "xht", "application/xhtml+xml" },
+				{ "xhtml", "application/xhtml+xml" },
+				{ "xif", "image/vnd.xiff" },
+				{ "xla", "application/vnd.ms-excel" },
+				{ "xlam", "application/vnd.ms-excel.addin.macroEnabled.12" },
+				{ "xl", "application/excel" },
+				{ "xlb", "application/excel" },
+				{ "xlc", "application/excel" },
+				{ "xld", "application/excel" },
+				{ "xlk", "application/excel" },
+				{ "xll", "application/excel" },
+				{ "xlm", "application/excel" },
+				{ "xls", "application/vnd.ms-excel" },
+				{ "xlsb", "application/vnd.ms-excel.sheet.binary.macroEnabled.12" },
+				{ "xlsm", "application/vnd.ms-excel.sheet.macroEnabled.12" },
+				{ "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+				{ "xlt", "application/vnd.ms-excel" },
+				{ "xltm", "application/vnd.ms-excel.template.macroEnabled.12" },
+				{ "xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template" },
+				{ "xlv", "application/excel" },
+				{ "xlw", "application/excel" },
+				{ "xm", "audio/xm" },
+				{ "xml", "text/xml" },
+				{ "xpi", "application/x-xpinstall" },
+				{ "xpix", "application/x-vnd.ls-xpix" },
+				{ "xpm", "image/xpm" },
+				{ "xps", "application/vnd.ms-xpsdocument" },
+				{ "x-png", "image/png" },
+				{ "xsd", "text/xml" },
+				{ "xsl", "text/xml" },
+				{ "xslt", "text/xml" },
+				{ "xsr", "video/x-amt-showrun" },
+				{ "xwd", "image/x-xwd" },
+				{ "z", "application/x-compressed" },
+				{ "zip", "application/zip" },
+				{ "zsh", "text/x-script.zsh" }
+			};
+		}
+
+		static Dictionary<string, string> LoadExtensions ()
+		{
+			return new Dictionary<string, string> (MimeUtils.OrdinalIgnoreCase) {
+				{ "application/acad", ".dwg" },
+				{ "application/atom+xml", ".atom" },
+				{ "application/base64", ".mm" },
+				{ "application/binhex", ".hqx" },
+				{ "application/book", ".boo" },
+				{ "application/cdf", ".cdf" },
+				{ "application/clariscad", ".ccad" },
+				{ "application/commonground", ".dp" },
+				{ "application/dart", ".dart" },
+				{ "application/drafting", ".drw" },
+				{ "application/dxf", ".dxf" },
+				{ "application/envoy", ".evy" },
+				{ "application/epub+zip", ".epub" },
+				{ "application/excel", ".xls" },
+				{ "application/freeloader", ".frl" },
+				{ "application/fsharp-script", ".fsx" },
+				{ "application/futuresplash", ".spl" },
+				{ "application/groupwise", ".vew" },
+				{ "application/hta", ".hta" },
+				{ "application/i-deas", ".unv" },
+				{ "application/inf", ".inf" },
+				{ "application/internet-property-stream", ".acx" },
+				{ "application/java-archive", ".jar" },
+				{ "application/javascript", ".js" },
+				{ "application/json", ".json" },
+				{ "application/marc", ".mrc" },
+				{ "application/mbedlet", ".mbd" },
+				{ "application/mcad", ".mcd" },
+				{ "application/mime", ".aps" },
+				{ "application/mspowerpoint", ".ppz" },
+				{ "application/msword", ".doc" },
+				{ "application/mswrite", ".wri" },
+				{ "application/netmc", ".mcp" },
+				{ "application/octet-stream", ".bin" },
+				{ "application/oda", ".oda" },
+				{ "application/ogg", ".ogx" },
+				{ "application/oleobject", ".ods" },
+				{ "application/olescript", ".axs" },
+				{ "application/oxps", ".oxps" },
+				{ "application/pdf", ".pdf" },
+				{ "application/pics-rules", ".prf" },
+				{ "application/pkcs-12", ".p12" },
+				{ "application/pkcs10", ".p10" },
+				{ "application/pkcs7-mime", ".p7m" },
+				{ "application/pkcs7-signature", ".p7s" },
+				{ "application/pkix-cert", ".cer" },
+				{ "application/pkix-crl", ".crl" },
+				{ "application/postscript", ".ps" },
+				{ "application/pro_eng", ".part" },
+				{ "application/ringing-tones", ".rng" },
+				{ "application/rss+xml", ".rss" },
+				{ "application/sdp", ".sdp" },
+				{ "application/sea", ".sea" },
+				{ "application/set", ".set" },
+				{ "application/set-payment-initiation", ".setpay" },
+				{ "application/set-registration-initiation", ".setreg" },
+				{ "application/sla", ".stl" },
+				{ "application/smil", ".smi" },
+				{ "application/solids", ".sol" },
+				{ "application/sounder", ".sdr" },
+				{ "application/step", ".step" },
+				{ "application/streamingmedia", ".ssm" },
+				{ "application/toolbook", ".tbk" },
+				{ "application/vda", ".vda" },
+				{ "application/vnd.bw-fontobject", ".eot" },
+				{ "application/vnd.fdf", ".fdf" },
+				{ "application/vnd.hp-HPGL", ".hgl" },
+				{ "application/vnd.ms-excel", ".xls" },
+				{ "application/vnd.ms-excel.addin.macroEnabled.12", ".xlam" },
+				{ "application/vnd.ms-excel.sheet.binary.macroEnabled.12", ".xlsb" },
+				{ "application/vnd.ms-excel.sheet.macroEnabled.12", ".xlsm" },
+				{ "application/vnd.ms-excel.template.macroEnabled.12", ".xltm" },
+				{ "application/vnd.ms-pki.certstore", ".sst" },
+				{ "application/vnd.ms-pki.pko", ".pko" },
+				{ "application/vnd.ms-pki.seccat", ".cat" },
+				{ "application/vnd.ms-powerpoint", ".ppt" },
+				{ "application/vnd.ms-powerpoint.addin.macroEnabled.12", ".ppam" },
+				{ "application/vnd.ms-powerpoint.presentation.macroEnabled.12", ".pptm" },
+				{ "application/vnd.ms-powerpoint.slideshow.macroEnabled.12", ".ppsm" },
+				{ "application/vnd.ms-powerpoint.template.macroEnabled.12", ".potm" },
+				{ "application/vnd.ms-project", ".mpp" },
+				{ "application/vnd.ms-word.document.macroEnabled.12", ".docm" },
+				{ "application/vnd.ms-word.template.macroEnabled.12", ".dotm" },
+				{ "application/vnd.ms-works", ".wcm" },
+				{ "application/vnd.ms-xpsdocument", ".xps" },
+				{ "application/vnd.nokia.configuration-message", ".ncm" },
+				{ "application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx" },
+				{ "application/vnd.openxmlformats-officedocument.presentationml.slideshow", ".ppsx" },
+				{ "application/vnd.openxmlformats-officedocument.presentationml.template", ".potx" },
+				{ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx" },
+				{ "application/vnd.openxmlformats-officedocument.spreadsheetml.template", ".xltx" },
+				{ "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx" },
+				{ "application/vnd.openxmlformats-officedocument.wordprocessingml.template", ".dotx" },
+				{ "application/vnd.rn-realmedia", ".rm" },
+				{ "application/vnd.rn-realplayer", ".rnx" },
+				{ "application/vnd.wap.wmlc", ".wmlc" },
+				{ "application/vnd.wap.wmlscriptc", ".wmlsc" },
+				{ "application/vnd.xara", ".web" },
+				{ "application/vocaltec-media-desc", ".vmd" },
+				{ "application/vocaltec-media-file", ".vmf" },
+				{ "application/wordperfect", ".wp5" },
+				{ "application/wordperfect6.0", ".w60" },
+				{ "application/wordperfect6.1", ".w61" },
+				{ "application/x-123", ".wk1" },
+				{ "application/x-7z-compressed", ".7z" },
+				{ "application/x-aim", ".aim" },
+				{ "application/x-authorware-bin", ".aab" },
+				{ "application/x-authorware-map", ".aam" },
+				{ "application/x-authorware-seg", ".aas" },
+				{ "application/x-bcpio", ".bcpio" },
+				{ "application/x-bsh", ".bsh" },
+				{ "application/x-bytecode.python", ".pyc" },
+				{ "application/x-bzip", ".bz" },
+				{ "application/x-bzip2", ".bz2" },
+				{ "application/x-cdlink", ".vcd" },
+				{ "application/x-chat", ".cha" },
+				{ "application/x-cmu-raster", ".ras" },
+				{ "application/x-cocoa", ".cco" },
+				{ "application/x-compressed", ".z" },
+				{ "application/x-conference", ".nsc" },
+				{ "application/x-cpio", ".cpio" },
+				{ "application/x-cpt", ".cpt" },
+				{ "application/x-csh", ".csh" },
+				{ "application/x-deb", ".deb" },
+				{ "application/x-deepv", ".deepv" },
+				{ "application/x-director", ".dcr" },
+				{ "application/x-dvi", ".dvi" },
+				{ "application/x-elc", ".elc" },
+				{ "application/x-esrehber", ".es" },
+				{ "application/x-font-ttf", ".ttf" },
+				{ "application/x-freelance", ".pre" },
+				{ "application/x-gsp", ".gsp" },
+				{ "application/x-gss", ".gss" },
+				{ "application/x-gtar", ".gtar" },
+				{ "application/x-gzip", ".gz" },
+				{ "application/x-hdf", ".hdf" },
+				{ "application/x-helpfile", ".help" },
+				{ "application/x-httpd-imap", ".imap" },
+				{ "application/x-ima", ".ima" },
+				{ "application/x-internet-signup", ".isp" },
+				{ "application/x-internett-signup", ".ins" },
+				{ "application/x-inventor", ".iv" },
+				{ "application/x-ip2", ".ip" },
+				{ "application/x-iphone", ".iii" },
+				{ "application/x-java-applet", ".class" },
+				{ "application/x-java-commerce", ".jcm" },
+				{ "application/x-koan", ".skd" },
+				{ "application/x-latex", ".latex" },
+				{ "application/x-lisp", ".lsp" },
+				{ "application/x-livescreen", ".ivy" },
+				{ "application/x-lotus", ".wq1" },
+				{ "application/x-lotusscreencam", ".scm" },
+				{ "application/x-magic-cap-package-1.0", ".mc$" },
+				{ "application/x-mif", ".mif" },
+				{ "application/x-mix-transfer", ".nix" },
+				{ "application/x-mplayer2", ".asx" },
+				{ "application/x-ms-application", ".application" },
+				{ "application/x-ms-manifest", ".manifest" },
+				{ "application/x-ms-xbap", ".xbap" },
+				{ "application/x-msaccess", ".mdb" },
+				{ "application/x-mscardfile", ".crd" },
+				{ "application/x-msclip", ".clp" },
+				{ "application/x-msdownload", ".dll" },
+				{ "application/x-msmediaview", ".m13" },
+				{ "application/x-msmoney", ".mny" },
+				{ "application/x-mspublisher", ".pub" },
+				{ "application/x-msschedule", ".scd" },
+				{ "application/x-msterminal", ".trm" },
+				{ "application/x-navi-animation", ".ani" },
+				{ "application/x-navidoc", ".nvd" },
+				{ "application/x-navimap", ".map" },
+				{ "application/x-netcdf", ".nc" },
+				{ "application/x-newton-compatible-pkg", ".pkg" },
+				{ "application/x-nokia-9000-communicator-add-on-software", ".aos" },
+				{ "application/x-omc", ".omc" },
+				{ "application/x-omcdatamaker", ".omcd" },
+				{ "application/x-omcregerator", ".omcr" },
+				{ "application/x-pagemaker", ".pm4" },
+				{ "application/x-pcl", ".pcl" },
+				{ "application/x-perfmon", ".pma" },
+				{ "application/x-PiXCLscript", ".plx" },
+				{ "application/x-pkcs12", ".pfx" },
+				{ "application/x-pkcs7-certificates", ".p7b" },
+				{ "application/x-pkcs7-certreqresp", ".p7r" },
+				{ "application/x-pkcs7-signature", ".p7a" },
+				{ "application/x-portable-anymap", ".pnm" },
+				{ "application/x-project", ".mpc" },
+				{ "application/x-qpro", ".wb1" },
+				{ "application/x-seelogo", ".sl" },
+				{ "application/x-shockwave-flash", ".swf" },
+				{ "application/x-silverlight-app", ".xap" },
+				{ "application/x-sit", ".sit" },
+				{ "application/x-sprite", ".spr" },
+				{ "application/x-sv4cpio", ".sv4cpio" },
+				{ "application/x-sv4crc", ".sv4crc" },
+				{ "application/x-tar", ".tar" },
+				{ "application/x-tbook", ".sbk" },
+				{ "application/x-tex", ".tex" },
+				{ "application/x-texinfo", ".texi" },
+				{ "application/x-troff", ".roff" },
+				{ "application/x-troff-man", ".man" },
+				{ "application/x-troff-me", ".me" },
+				{ "application/x-troff-ms", ".ms" },
+				{ "application/x-visio", ".vsd" },
+				{ "application/x-vnd.AudioExplosion.mzz", ".mzz" },
+				{ "application/x-vnd.ls-xpix", ".xpix" },
+				{ "application/x-vrml", ".vrml" },
+				{ "application/x-wais-source", ".src" },
+				{ "application/x-wintalk", ".wtk" },
+				{ "application/x-woff", ".woff" },
+				{ "application/x-world", ".svr" },
+				{ "application/x-x509-ca-cert", ".der" },
+				{ "application/x-xpinstall", ".xpi" },
+				{ "application/xaml+xml", ".xaml" },
+				{ "application/xhtml+xml", ".xhtml" },
+				{ "application/xml", ".xml" },
+				{ "application/xml-dtd", ".dtd" },
+				{ "application/zip", ".zip" },
+				{ "audio/aac", ".aac" },
+				{ "audio/aiff", ".aiff" },
+				{ "audio/basic", ".snd" },
+				{ "audio/it", ".it" },
+				{ "audio/mid", ".rmi" },
+				{ "audio/midi", ".mid" },
+				{ "audio/mod", ".mod" },
+				{ "audio/mp4", ".mp4" },
+				{ "audio/mpeg", ".mp3" },
+				{ "audio/nspaudio", ".la" },
+				{ "audio/ogg", ".ogg" },
+				{ "audio/s3m", ".s3m" },
+				{ "audio/tsp-audio", ".tsi" },
+				{ "audio/tsplayer", ".tsp" },
+				{ "audio/vnd.qcelp", ".qcp" },
+				{ "audio/voc", ".voc" },
+				{ "audio/vorbis", ".ogg" },
+				{ "audio/voxware", ".vox" },
+				{ "audio/wav", ".wav" },
+				{ "audio/x-au", ".au" },
+				{ "audio/x-flac", ".flac" },
+				{ "audio/x-gsm", ".gsd" },
+				{ "audio/x-jam", ".jam" },
+				{ "audio/x-liveaudio", ".lam" },
+				{ "audio/x-mpequrl", ".m3u" },
+				{ "audio/x-pn-realaudio", ".ra" },
+				{ "audio/x-pn-realaudio-plugin", ".rpm" },
+				{ "audio/x-psid", ".sid" },
+				{ "audio/x-twinvq", ".vqf" },
+				{ "audio/x-twinvq-plugin", ".vqe" },
+				{ "audio/x-vnd.AudioExplosion.MjuiceMediaFile", ".mjf" },
+				{ "audio/xm", ".xm" },
+				{ "image/bmp", ".bmp" },
+				{ "image/cis-cod", ".cod" },
+				{ "image/cmu-raster", ".rast" },
+				{ "image/fif", ".fif" },
+				{ "image/florian", ".flo" },
+				{ "image/g3fax", ".g3" },
+				{ "image/gif", ".gif" },
+				{ "image/ief", ".ief" },
+				{ "image/jpeg", ".jpg" },
+				{ "image/jutvision", ".jut" },
+				{ "image/naplps", ".nap" },
+				{ "image/pict", ".pic" },
+				{ "image/png", ".png" },
+				{ "image/svg+xml", ".svg" },
+				{ "image/tiff", ".tif" },
+				{ "image/vasa", ".mcf" },
+				{ "image/vnd.fpx", ".fpx" },
+				{ "image/vnd.rn-realflash", ".rf" },
+				{ "image/vnd.rn-realpix", ".rp" },
+				{ "image/vnd.wap.wbmp", ".wbmp" },
+				{ "image/vnd.xiff", ".xif" },
+				{ "image/wmf", ".wmf" },
+				{ "image/x-cmx", ".cmx" },
+				{ "image/x-dwg", ".svf" },
+				{ "image/x-icon", ".ico" },
+				{ "image/x-jg", ".art" },
+				{ "image/x-jps", ".jps" },
+				{ "image/x-niff", ".niff" },
+				{ "image/x-pcx", ".pcx" },
+				{ "image/x-pict", ".pct" },
+				{ "image/x-png", ".png" },
+				{ "image/x-portable-bitmap", ".pbm" },
+				{ "image/x-portable-graymap", ".pgm" },
+				{ "image/x-portable-pixmap", ".ppm" },
+				{ "image/x-quicktime", ".qif" },
+				{ "image/x-rgb", ".rgb" },
+				{ "image/x-xbitmap", ".xbm" },
+				{ "image/x-xpixmap", ".pm" },
+				{ "image/x-xwd", ".xwd" },
+				{ "image/xpm", ".xpm" },
+				{ "message/rfc822", ".eml" },
+				{ "model/iges", ".iges" },
+				{ "model/mesh", ".mesh" },
+				{ "model/vrml", ".wrz" },
+				{ "model/x-pov", ".pov" },
+				{ "model/x3d+fastinfoset", ".x3db" },
+				{ "model/x3d+xml", ".x3d" },
+				{ "model/x3d-vrml", ".x3dv" },
+				{ "multipart/x-ustar", ".ustar" },
+				{ "text/asp", ".asp" },
+				{ "text/cache-manifest", ".appcache" },
+				{ "text/calendar", ".ics" },
+				{ "text/css", ".css" },
+				{ "text/csv", ".csv" },
+				{ "text/h323", ".323" },
+				{ "text/html", ".html" },
+				{ "text/iuls", ".uls" },
+				{ "text/markdown", ".md" },
+				{ "text/pascal", ".pas" },
+				{ "text/plain", ".txt" },
+				{ "text/richtext", ".rtx" },
+				{ "text/rtf", ".rtf" },
+				{ "text/scriplet", ".wsc" },
+				{ "text/scriptlet", ".sct" },
+				{ "text/sgml", ".sgml" },
+				{ "text/tab-separated-values", ".tsv" },
+				{ "text/uri-list", ".uri" },
+				{ "text/vcard", ".vcf" },
+				{ "text/vnd.abc", ".abc" },
+				{ "text/vnd.fmi.flexstor", ".flx" },
+				{ "text/vnd.wap.wml", ".wml" },
+				{ "text/vnd.wap.wmlscript", ".wmls" },
+				{ "text/webviewhtml", ".htt" },
+				{ "text/x-asm", ".asm" },
+				{ "text/x-audiosoft-intra", ".aip" },
+				{ "text/x-coffeescript", ".coffee" },
+				{ "text/x-component", ".htc" },
+				{ "text/x-la-asf", ".lsx" },
+				{ "text/x-pascal", ".p" },
+				{ "text/x-script", ".hlb" },
+				{ "text/x-script.elisp", ".el" },
+				{ "text/x-script.ksh", ".ksh" },
+				{ "text/x-script.phyton", ".py" },
+				{ "text/x-script.rexx", ".rexx" },
+				{ "text/x-script.sh", ".sh" },
+				{ "text/x-script.tcl", ".tcl" },
+				{ "text/x-script.tcsh", ".tcsh" },
+				{ "text/x-script.zsh", ".zsh" },
+				{ "text/x-server-parsed-html", ".ssi" },
+				{ "text/x-setext", ".etx" },
+				{ "text/x-speech", ".talk" },
+				{ "text/x-typescript", ".ts" },
+				{ "text/x-uil", ".uil" },
+				{ "text/x-uuencode", ".uu" },
+				{ "text/x-vcalendar", ".vcs" },
+				{ "text/xml", ".xml" },
+				{ "video/3gpp", ".3gp" },
+				{ "video/3gpp2", ".3g2" },
+				{ "video/animaflex", ".afl" },
+				{ "video/avi", ".avi" },
+				{ "video/avs-video", ".avs" },
+				{ "video/dl", ".dl" },
+				{ "video/fli", ".fli" },
+				{ "video/gl", ".gl" },
+				{ "video/mp4", ".mp4" },
+				{ "video/mpeg", ".mpg" },
+				{ "video/ogg", ".ogv" },
+				{ "video/quicktime", ".mov" },
+				{ "video/vdo", ".vdo" },
+				{ "video/vnd.rn-realvideo", ".rv" },
+				{ "video/vnd.vivo", ".vivo" },
+				{ "video/vosaic", ".vos" },
+				{ "video/webm", ".webm" },
+				{ "video/x-amt-demorun", ".xdr" },
+				{ "video/x-amt-showrun", ".xsr" },
+				{ "video/x-atomic3d-feature", ".fmf" },
+				{ "video/x-dv", ".dif" },
+				{ "video/x-isvideo", ".isu" },
+				{ "video/x-ivf", ".ivf" },
+				{ "video/x-motion-jpeg", ".mjpg" },
+				{ "video/x-ms-asf", ".asf" },
+				{ "video/x-ms-wmp", ".wmp" },
+				{ "video/x-ms-wmv", ".wmv" },
+				{ "video/x-ms-wmx", ".wmx" },
+				{ "video/x-ms-wvx", ".wvx" },
+				{ "video/x-qtc", ".qtc" },
+				{ "video/x-sgi-movie", ".movie" }
+			};
 		}
 
 		/// <summary>
-		/// Gets the MIME-type of the file.
+		/// Get the MIME-type of a file.
 		/// </summary>
 		/// <remarks>
-		/// Gets the MIME-type of the file based on the file extension.
+		/// Gets the MIME-type of a file based on the file extension.
 		/// </remarks>
 		/// <returns>The MIME-type.</returns>
 		/// <param name="fileName">The file name.</param>
@@ -621,10 +997,27 @@ namespace MimeKit {
 			if (dot != -1 && fileName.Length > dot + 1)
 				mimeTypes.TryGetValue (fileName.Substring (dot + 1), out mimeType);
 
-			if (mimeType == null)
-				mimeType = "application/octet-stream";
+			return mimeType ?? "application/octet-stream";
+		}
 
-			return mimeType;
+		/// <summary>
+		/// Get the standard file extension for a MIME-type.
+		/// </summary>
+		/// <remarks>
+		/// Gets the standard file extension for a MIME-type.
+		/// </remarks>
+		/// <returns><c>true</c> if the extension is known for the specified MIME-type; otherwise, <c>false</c>.</returns>
+		/// <param name="mimeType">The MIME-type.</param>
+		/// <param name="extension">The file name extension for the specified MIME-type.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mimeType"/> is <c>null</c>.
+		/// </exception>
+		public static bool TryGetExtension (string mimeType, out string extension)
+		{
+			if (mimeType == null)
+				throw new ArgumentNullException (nameof (mimeType));
+
+			return extensions.TryGetValue (mimeType, out extension);
 		}
 	}
 }
