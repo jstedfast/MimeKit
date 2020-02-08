@@ -740,7 +740,6 @@ namespace MimeKit {
 							if (IsBlank (*inptr)) {
 								blank = true;
 							} else if (blank || IsControl (*inptr)) {
-								char c = (char) *inptr;
 								valid = false;
 								break;
 							}
@@ -749,7 +748,7 @@ namespace MimeKit {
 						}
 
 						if (inptr == inend) {
-							// we don't have enough input data
+							// we don't have enough input data; restore state back to the beginning of the line
 							left = (int) (inend - start);
 							inputIndex = (int) (start - inbuf);
 							needInput = true;
@@ -878,7 +877,7 @@ namespace MimeKit {
 			ResetRawHeaderData ();
 			headers.Clear ();
 
-			ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
+			ReadAhead (ReadAheadSize, 0, cancellationToken);
 
 			do {
 				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
@@ -1558,9 +1557,8 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
+			contentEnd = 0;
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
-				contentEnd = 0;
-
 				for (int i = 0; i < headers.Count; i++) {
 					if (headers[i].Id != HeaderId.ContentLength)
 						continue;
