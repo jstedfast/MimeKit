@@ -712,7 +712,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParseLatin1EncodedAddrspec ()
+		public void TestParseMailboxWithLatin1EncodedAddrspec ()
 		{
 			const string text = "Name <æøå@example.com>";
 			var buffer = CharsetUtils.Latin1.GetBytes (text);
@@ -765,6 +765,22 @@ namespace UnitTests {
 			AssertParse (text);
 
 			AssertParseFailure (text, false, 0, 0, RfcComplianceMode.Strict);
+		}
+
+		[Test]
+		public void TestParseAddrspecWithUnicodeLocalPart ()
+		{
+			const string text = "test.täst@test.net";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseAddrspecWitheroWidthSpace ()
+		{
+			const string text = "\u200Btest@test.co.uk";
+
+			AssertParse (text);
 		}
 	}
 }

@@ -118,9 +118,9 @@ namespace MimeKit.Utils {
 					table[i] |= CharType.IsAscii;
 				} else {
 					if (i == 127)
-						table[i] |= CharType.IsAscii | CharType.IsPhraseAtom;
+						table[i] |= CharType.IsAscii;
 					else
-						table[i] |= CharType.IsAtom;
+						table[i] |= CharType.IsAtom | CharType.IsPhraseAtom;
 
 					table[i] |= CharType.IsControl;
 				}
