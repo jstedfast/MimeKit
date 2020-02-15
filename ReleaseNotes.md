@@ -1,5 +1,14 @@
 # Release Notes
 
+### MimeKit 2.5.1 (2020-02-15)
+
+* Fixed parsing of email addresses containing unicode or other types of 8-bit text.
+  (issue [#536](https://github.com/jstedfast/MimeKit/issues/536))
+* Added a MimeTypes.TryGetExtension() method to try and get a file name extension
+  based on a mime-type.
+  (issue [#534](https://github.com/jstedfast/MimeKit/issues/534))
+* Updated mime-type mappings.
+
 ### MimeKit 2.5.0 (2020-01-18)
 
 * Fixed message reserialization after prepending headers.
