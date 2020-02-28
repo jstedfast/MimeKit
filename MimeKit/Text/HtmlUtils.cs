@@ -110,7 +110,7 @@ namespace MimeKit.Text {
 					}
 
 					if (c > 255 && char.IsSurrogate (c)) {
-						if (index + 1 < endIndex && char.IsSurrogatePair (c, value[index])) {
+						if (index < endIndex && char.IsSurrogatePair (c, value[index])) {
 							unichar = char.ConvertToUtf32 (c, value[index]);
 							index++;
 						} else {
@@ -171,7 +171,7 @@ namespace MimeKit.Text {
 				throw new ArgumentOutOfRangeException (nameof (count));
 
 			if (quote != '"' && quote != '\'')
-				throw new ArgumentException (nameof (quote));
+				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
 			HtmlAttributeEncode (output, new CharArray (value), startIndex, count, quote);
 		}
@@ -209,7 +209,7 @@ namespace MimeKit.Text {
 				throw new ArgumentOutOfRangeException (nameof (count));
 
 			if (quote != '"' && quote != '\'')
-				throw new ArgumentException (nameof (quote));
+				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
 			var encoded = new StringBuilder ();
 
@@ -257,7 +257,7 @@ namespace MimeKit.Text {
 				throw new ArgumentOutOfRangeException (nameof (count));
 
 			if (quote != '"' && quote != '\'')
-				throw new ArgumentException (nameof (quote));
+				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
 			HtmlAttributeEncode (output, new CharString (value), startIndex, count, quote);
 		}
@@ -288,7 +288,7 @@ namespace MimeKit.Text {
 				throw new ArgumentNullException (nameof (value));
 
 			if (quote != '"' && quote != '\'')
-				throw new ArgumentException (nameof (quote));
+				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
 			HtmlAttributeEncode (output, new CharString (value), 0, value.Length, quote);
 		}
@@ -326,7 +326,7 @@ namespace MimeKit.Text {
 				throw new ArgumentOutOfRangeException (nameof (count));
 
 			if (quote != '"' && quote != '\'')
-				throw new ArgumentException (nameof (quote));
+				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
 			var encoded = new StringBuilder ();
 
@@ -357,7 +357,7 @@ namespace MimeKit.Text {
 				throw new ArgumentNullException (nameof (value));
 
 			if (quote != '"' && quote != '\'')
-				throw new ArgumentException (nameof (quote));
+				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
 			var encoded = new StringBuilder ();
 
@@ -414,7 +414,7 @@ namespace MimeKit.Text {
 					}
 
 					if (c > 255 && char.IsSurrogate (c)) {
-						if (index + 1 <= endIndex && char.IsSurrogatePair (c, data[index])) {
+						if (index < endIndex && char.IsSurrogatePair (c, data[index])) {
 							unichar = char.ConvertToUtf32 (c, data[index]);
 							index++;
 						} else {
@@ -667,9 +667,6 @@ namespace MimeKit.Text {
 
 					output.Write (entity.GetValue ());
 					entity.Reset ();
-
-					if (index < endIndex && data[index] == ';')
-						index++;
 				} else {
 					output.Write (data[index++]);
 				}
