@@ -576,12 +576,12 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public bool ReadNextProperty ()
 		{
+			while (ReadNextValue ()) {
+				// skip over the remaining value(s) for the current property...
+			}
+
 			if (propertyIndex >= propertyCount)
 				return false;
-
-			while (ReadNextValue ()) {
-				// skip over the value...
-			}
 
 			try {
 				var type = (TnefPropertyType) ReadInt16 ();
@@ -624,12 +624,12 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public bool ReadNextRow ()
 		{
+			while (ReadNextProperty ()) {
+				// skip over the remaining property/properties in the current row...
+			}
+
 			if (rowIndex >= rowCount)
 				return false;
-
-			while (ReadNextProperty ()) {
-				// skip over the property...
-			}
 
 			try {
 				LoadPropertyCount ();

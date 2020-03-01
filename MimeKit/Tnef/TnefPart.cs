@@ -106,12 +106,6 @@ namespace MimeKit.Tnef {
 						// (since the SmtpAddress is meant to be used in the RCPT TO command).
 						addr = prop.ReadValueAsString ();
 						break;
-					case TnefPropertyId.Rowid:
-						prop.ReadValueAsInt32 ();
-						break;
-					default:
-						prop.ReadValue ();
-						break;
 					}
 				}
 
