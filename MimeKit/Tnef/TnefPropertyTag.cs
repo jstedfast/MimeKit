@@ -4309,6 +4309,22 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag RecipientCertificate = new TnefPropertyTag (TnefPropertyId.RecipientCertificate, TnefPropertyType.Binary);
 
 		/// <summary>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecipientDisplayNameA = new TnefPropertyTag (TnefPropertyId.RecipientDisplayName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecipientDisplayNameW = new TnefPropertyTag (TnefPropertyId.RecipientDisplayName, TnefPropertyType.Unicode);
+
+		/// <summary>
 		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.
 		/// </summary>
 		/// <remarks>

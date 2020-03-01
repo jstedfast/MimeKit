@@ -1953,6 +1953,11 @@ namespace MimeKit.Tnef {
 		RecipientCertificate                     = 0x0C13,
 
 		/// <summary>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </summary>
+		RecipientDisplayName                     = 0x5FF6,
+
+		/// <summary>
 		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.
 		/// </summary>
 		RecipientNumberForAdvice                 = 0x0C14,

@@ -94,6 +94,10 @@ namespace MimeKit.Tnef {
 						if (string.IsNullOrEmpty (name))
 							name = prop.ReadValueAsString ();
 						break;
+					case TnefPropertyId.RecipientDisplayName:
+						if (string.IsNullOrEmpty (name))
+							name = prop.ReadValueAsString ();
+						break;
 					case TnefPropertyId.DisplayName:
 						name = prop.ReadValueAsString ();
 						break;
