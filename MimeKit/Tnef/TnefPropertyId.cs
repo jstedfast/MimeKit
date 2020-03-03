@@ -1118,6 +1118,11 @@ namespace MimeKit.Tnef {
 		LastModificationTime                     = 0x3008,
 
 		/// <summary>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </summary>
+		LastModifierName                         = 0x3FFA,
+
+		/// <summary>
 		/// The MAPI property PR_LATEST_DELIVERY_TIME.
 		/// </summary>
 		LatestDeliveryTime                       = 0x0019,

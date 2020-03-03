@@ -2484,6 +2484,22 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag LastModificationTime = new TnefPropertyTag (TnefPropertyId.LastModificationTime, TnefPropertyType.SysTime);
 
 		/// <summary>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag LastModifierNameA = new TnefPropertyTag (TnefPropertyId.LastModifierName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag LastModifierNameW = new TnefPropertyTag (TnefPropertyId.LastModifierName, TnefPropertyType.Unicode);
+
+		/// <summary>
 		/// The MAPI property PR_LATEST_DELIVERY_TIME.
 		/// </summary>
 		/// <remarks>
