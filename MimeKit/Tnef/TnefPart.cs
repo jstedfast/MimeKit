@@ -77,8 +77,11 @@ namespace MimeKit.Tnef {
 
 			// Note: The RecipientTable uses rows of properties...
 			while (prop.ReadNextRow ()) {
+				string transmitableDisplayName = null;
+				string recipientDisplayName = null;
+				string displayName = string.Empty;
 				InternetAddressList list = null;
-				string name = null, addr = null;
+				string addr = null;
 
 				while (prop.ReadNextProperty ()) {
 					switch (prop.PropertyTag.Id) {
@@ -91,15 +94,13 @@ namespace MimeKit.Tnef {
 						}
 						break;
 					case TnefPropertyId.TransmitableDisplayName:
-						if (string.IsNullOrEmpty (name))
-							name = prop.ReadValueAsString ();
+						transmitableDisplayName = prop.ReadValueAsString ();
 						break;
 					case TnefPropertyId.RecipientDisplayName:
-						if (string.IsNullOrEmpty (name))
-							name = prop.ReadValueAsString ();
+						recipientDisplayName = prop.ReadValueAsString ();
 						break;
 					case TnefPropertyId.DisplayName:
-						name = prop.ReadValueAsString ();
+						displayName = prop.ReadValueAsString ();
 						break;
 					case TnefPropertyId.EmailAddress:
 						if (string.IsNullOrEmpty (addr))
@@ -113,8 +114,11 @@ namespace MimeKit.Tnef {
 					}
 				}
 
-				if (list != null && !string.IsNullOrEmpty (addr))
+				if (list != null && !string.IsNullOrEmpty (addr)) {
+					var name = recipientDisplayName ?? transmitableDisplayName ?? displayName;
+
 					list.Add (new MailboxAddress (name, addr));
+				}
 			}
 		}
 
