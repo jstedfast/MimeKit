@@ -369,6 +369,22 @@ namespace MimeKit.Tnef {
 				message.To.Add (mailbox);
 		}
 
+		static TnefPart PromoteToTnefPart (MimePart part)
+		{
+			var tnef = new TnefPart ();
+
+			foreach (var param in part.ContentType.Parameters)
+				tnef.ContentType.Parameters[param.Name] = param.Value;
+
+			if (part.ContentDisposition != null)
+				tnef.ContentDisposition = part.ContentDisposition;
+
+			tnef.ContentTransferEncoding = part.ContentTransferEncoding;
+			tnef.Content = part.Content;
+
+			return tnef;
+		}
+
 		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
 		{
 			var attachMethod = TnefAttachMethod.ByValue;
@@ -424,17 +440,8 @@ namespace MimeKit.Tnef {
 								attachment.ContentDisposition = disposition;
 							break;
 						case TnefPropertyId.AttachData:
-							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
-								var tnef = new TnefPart ();
-
-								foreach (var param in attachment.ContentType.Parameters)
-									tnef.ContentType.Parameters[param.Name] = param.Value;
-
-								if (attachment.ContentDisposition != null)
-									tnef.ContentDisposition = attachment.ContentDisposition;
-
-								attachment = tnef;
-							}
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage)
+								attachment = PromoteToTnefPart (attachment);
 
 							attachData = prop.ReadValueAsBytes ();
 							filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
@@ -446,6 +453,12 @@ namespace MimeKit.Tnef {
 							break;
 						case TnefPropertyId.AttachMethod:
 							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
+								builder.Attachments.Remove (attachment);
+								attachment = PromoteToTnefPart (attachment);
+								builder.Attachments.Add (attachment);
+							}
 							break;
 						case TnefPropertyId.AttachMimeTag:
 							mimeType = prop.ReadValueAsString ().Split ('/');
