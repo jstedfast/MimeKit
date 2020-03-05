@@ -178,6 +178,26 @@ namespace MimeKit.Tnef {
 		AttachLongPathname                       = 0x370D,
 
 		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_CONTACTPHOTO.
+		/// </summary>
+		AttachmentContactPhoto                   = 0x7FFF,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_FLAGS.
+		/// </summary>
+		AttachmentFlags                          = 0x7FFD,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_HIDDEN.
+		/// </summary>
+		AttachmentHidden                         = 0x7FFE,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_LINKID.
+		/// </summary>
+		AttachmentLinkId                         = 0x7FFA,
+
+		/// <summary>
 		/// The MAPI property PR_ATTACHMENT_X400_PARAMETERS.
 		/// </summary>
 		AttachmentX400Parameters                 = 0x3700,
@@ -726,6 +746,16 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_ENTRYID.
 		/// </summary>
 		EntryId                                  = 0x0FFF,
+
+		/// <summary>
+		/// The MAPI property PR_EXCEPTION_STARTTIME.
+		/// </summary>
+		ExceptionStartTime                       = 0x7FFB,
+
+		/// <summary>
+		/// The MAPI property PR_EXCEPTION_ENDTIME.
+		/// </summary>
+		ExceptionEndTime                         = 0x7FFC,
 
 		/// <summary>
 		/// The MAPI property PR_EXPAND_BEGIN_TIME.

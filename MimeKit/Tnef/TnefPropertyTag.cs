@@ -380,6 +380,38 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag AttachLongPathnameW = new TnefPropertyTag (TnefPropertyId.AttachLongPathname, TnefPropertyType.Unicode);
 
 		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_CONTACTPHOTO.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_CONTACTPHOTO.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentContactPhoto = new TnefPropertyTag (TnefPropertyId.AttachmentContactPhoto, TnefPropertyType.Boolean);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_FLAGS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_FLAGS.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentFlags = new TnefPropertyTag (TnefPropertyId.AttachmentFlags, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_HIDDEN.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_HIDDEN.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentHidden = new TnefPropertyTag (TnefPropertyId.AttachmentHidden, TnefPropertyType.Boolean);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_LINKID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_LINKID.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentLinkId = new TnefPropertyTag (TnefPropertyId.AttachmentLinkId, TnefPropertyType.Long);
+
+		/// <summary>
 		/// The MAPI property PR_ATTACHMENT_X400_PARAMETERS.
 		/// </summary>
 		/// <remarks>
