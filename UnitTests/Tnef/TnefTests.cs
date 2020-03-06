@@ -993,7 +993,7 @@ namespace UnitTests.Tnef {
 			Assert.AreEqual (9217, task1.ContentDisposition.Size, "Size");
 
 			var task2 = (MimePart) multipart[3];
-			Assert.AreEqual ("application/octet-stream", task2.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("application/vnd.ms-tnef", task2.ContentType.MimeType, "MimeType");
 			Assert.AreEqual ("Build a train table", task2.ContentType.Name, "Name");
 			Assert.AreEqual ("attachment", task2.ContentDisposition.Disposition, "Disposition");
 			Assert.AreEqual ("Untitled Attachment", task2.ContentDisposition.FileName, "FileName");
@@ -1009,7 +1009,7 @@ namespace UnitTests.Tnef {
 			Assert.AreEqual (387453, appointment1.ContentDisposition.Size, "Size");
 
 			var appointment2 = (MimePart) multipart[5];
-			Assert.AreEqual ("application/octet-stream", appointment2.ContentType.MimeType, "MimeType");
+			Assert.AreEqual ("application/vnd.ms-tnef", appointment2.ContentType.MimeType, "MimeType");
 			Assert.AreEqual ("Christmas Celebration!", appointment2.ContentType.Name, "Name");
 			Assert.AreEqual ("attachment", appointment2.ContentDisposition.Disposition, "Disposition");
 			Assert.AreEqual ("Untitled Attachment", appointment2.ContentDisposition.FileName, "FileName");

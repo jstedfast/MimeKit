@@ -380,7 +380,6 @@ namespace MimeKit.Tnef {
 				tnef.ContentDisposition = part.ContentDisposition;
 
 			tnef.ContentTransferEncoding = part.ContentTransferEncoding;
-			tnef.Content = part.Content;
 
 			return tnef;
 		}
@@ -409,6 +408,8 @@ namespace MimeKit.Tnef {
 				case TnefAttributeTag.Attachment:
 					if (attachment == null)
 						break;
+
+					attachData = null;
 
 					while (prop.ReadNextProperty ()) {
 						switch (prop.PropertyTag.Id) {
@@ -440,25 +441,10 @@ namespace MimeKit.Tnef {
 								attachment.ContentDisposition = disposition;
 							break;
 						case TnefPropertyId.AttachData:
-							if (attachMethod == TnefAttachMethod.EmbeddedMessage)
-								attachment = PromoteToTnefPart (attachment);
-
 							attachData = prop.ReadValueAsBytes ();
-							filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
-							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-							attachment.Content = new MimeContent (new MemoryStream (attachData, false));
-							filter.Reset ();
-
-							builder.Attachments.Add (attachment);
 							break;
 						case TnefPropertyId.AttachMethod:
 							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
-
-							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
-								builder.Attachments.Remove (attachment);
-								attachment = PromoteToTnefPart (attachment);
-								builder.Attachments.Add (attachment);
-							}
 							break;
 						case TnefPropertyId.AttachMimeTag:
 							mimeType = prop.ReadValueAsString ().Split ('/');
@@ -486,6 +472,25 @@ namespace MimeKit.Tnef {
 							attachment.ContentType.Name = prop.ReadValueAsString ();
 							break;
 						}
+					}
+
+					if (attachData != null) {
+						int count = attachData.Length;
+						int index = 0;
+
+						if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
+							attachment.ContentTransferEncoding = ContentEncoding.Base64;
+							attachment = PromoteToTnefPart (attachment);
+							count -= 16;
+							index = 16;
+						} else {
+							filter.Flush (attachData, index, count, out outIndex, out outLength);
+							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+							filter.Reset ();
+						}
+
+						attachment.Content = new MimeContent (new MemoryStream (attachData, index, count, false));
+						builder.Attachments.Add (attachment);
 					}
 					break;
 				case TnefAttributeTag.AttachCreateDate:
