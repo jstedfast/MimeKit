@@ -68,13 +68,13 @@
         <dependency id="BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="net46">
-        <dependency id="BouncyCastle" version="1.8.5" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="net47">
-        <dependency id="BouncyCastle" version="1.8.5" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="net48">
-        <dependency id="BouncyCastle" version="1.8.5" />
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="monoandroid" />
       <group targetFramework="xamarinios" />
