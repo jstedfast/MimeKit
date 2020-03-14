@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.5.1</version>
+    <version>2.5.2</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,9 +26,10 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed parsing of email addresses containing unicode or other types of 8-bit text. (issue #536)
-* Added a MimeTypes.TryGetExtension() method to try and get a file name extension based on a mime-type. (issue #534)
-* Updated mime-type mappings.
+* Updated net46, net47, and net48 builds to reference Portable.BouncyCastle instead of the standard BouncyCastle package, just like the netstandard builds. (issue #540)
+* Fixed extraction of TNEF EmbeddedMessage attachment data to skip the leading GUID. (issue #538)
+* Added a few more TNEF property tags.
+* Fixed the HtmlEntityDecoder to require some named attributes to end with a `;`.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

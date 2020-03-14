@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 2.5.2 (2020-03-14)
+
+* Updated net46, net47, and net48 builds to reference Portable.BouncyCastle instead of
+  the standard BouncyCastle package, just like the netstandard builds.
+  (issue [#540](https://github.com/jstedfast/MimeKit/issues/540))
+* Fixed extraction of TNEF EmbeddedMessage attachment data to skip the leading GUID.
+  (issue [#538](https://github.com/jstedfast/MimeKit/issues/538))
+* Added a few more TNEF property tags.
+* Fixed the HtmlEntityDecoder to require some named attributes to end with a `;`.
+
 ### MimeKit 2.5.1 (2020-02-15)
 
 * Fixed parsing of email addresses containing unicode or other types of 8-bit text.
