@@ -290,13 +290,12 @@ namespace MimeKit {
 				}
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string id))
 					throw new ArgumentException ("Invalid Content-Id format.", nameof (value));
 
-				contentId = mailbox.Address;
+				contentId = id;
 
 				SetHeader ("Content-Id", "<" + contentId + ">");
 			}
