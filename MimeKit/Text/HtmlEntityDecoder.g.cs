@@ -12326,9 +12326,6 @@ namespace MimeKit.Text {
 		{
 			int min = 0, max = transitions.Length;
 
-			if (max == 0)
-				return -1;
-
 			do {
 				int i = min + ((max - min) / 2);
 
