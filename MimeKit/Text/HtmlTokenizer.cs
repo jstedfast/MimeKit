@@ -94,6 +94,19 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Get or set whether or not the tokenizer should ignore truncated tags.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether or not the tokenizer should ignore truncated tags.</para>
+		/// <para>If <c>false</c> and the stream abrubtly ends in the middle of an HTML tag, it will be
+		/// treated as an <see cref="HtmlDataToken"/> instead.</para>
+		/// </remarks>
+		/// <value><c>true</c> if truncated tags should be ignored; otherwise, <c>false</c>.</value>
+		public bool IgnoreTruncatedTags {
+			get; set;
+		}
+
+		/// <summary>
 		/// Gets the current line number.
 		/// </summary>
 		/// <remarks>
@@ -116,7 +129,7 @@ namespace MimeKit.Text {
 		/// <para>Combined with <see cref="LineNumber"/>, a value of <c>1,1</c> indicates
 		/// the start of the document.</para>
 		/// </remarks>
-		/// <value>The current line number.</value>
+		/// <value>The column position of the current line.</value>
 		public int LinePosition {
 			get; private set;
 		}
@@ -319,10 +332,15 @@ namespace MimeKit.Text {
 			return token;
 		}
 
-		HtmlToken EmitDataToken (bool encodeEntities)
+		HtmlToken EmitDataToken (bool encodeEntities, bool truncated)
 		{
 			if (data.Length == 0)
 				return null;
+
+			if (truncated && IgnoreTruncatedTags) {
+				data.Length = 0;
+				return null;
+			}
 
 			var token = CreateDataToken (data.ToString ());
 			token.EncodeEntities = encodeEntities;
@@ -413,7 +431,7 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				data.Append ('&');
 
-				return EmitDataToken (true);
+				return EmitDataToken (true, false);
 			}
 
 			c = (char) nc;
@@ -439,7 +457,7 @@ namespace MimeKit.Text {
 					data.Append (entity.GetPushedInput ());
 					entity.Reset ();
 
-					return EmitDataToken (true);
+					return EmitDataToken (true, false);
 				}
 
 				c = (char) nc;
@@ -481,7 +499,7 @@ namespace MimeKit.Text {
 
 			if (nc == -1) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (decoded);
+				return EmitDataToken (decoded, true);
 			}
 
 			c = (char) nc;
@@ -510,7 +528,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (decoded);
+					return EmitDataToken (decoded, true);
 				}
 
 				c = (char) nc;
@@ -590,7 +608,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.Data);
 
-			return EmitDataToken (DecodeCharacterReferences);
+			return EmitDataToken (DecodeCharacterReferences, false);
 		}
 
 		// 8.2.4.2 Character reference in data state
@@ -623,14 +641,14 @@ namespace MimeKit.Text {
 					goto default;
 				case '<':
 					TokenizerState = HtmlTokenizerState.RcDataLessThan;
-					return EmitDataToken (DecodeCharacterReferences);
+					return EmitDataToken (DecodeCharacterReferences, false);
 				default:
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.RcData);
 
-			return EmitDataToken (DecodeCharacterReferences);
+			return EmitDataToken (DecodeCharacterReferences, false);
 		}
 
 		// 8.2.4.4 Character reference in RCDATA state
@@ -656,14 +674,14 @@ namespace MimeKit.Text {
 				switch (c) {
 				case '<':
 					TokenizerState = HtmlTokenizerState.RawTextLessThan;
-					return EmitDataToken (false);
+					return EmitDataToken (false, false);
 				default:
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.RawText);
 
-			return EmitDataToken (false);
+			return EmitDataToken (false, false);
 		}
 
 		// 8.2.4.6 Script data state
@@ -707,7 +725,7 @@ namespace MimeKit.Text {
 
 			TokenizerState = HtmlTokenizerState.EndOfFile;
 
-			return EmitDataToken (false);
+			return EmitDataToken (false, false);
 		}
 
 		// 8.2.4.8 Tag open state
@@ -717,8 +735,8 @@ namespace MimeKit.Text {
 			char c;
 
 			if (nc == -1) {
+				var token = IgnoreTruncatedTags ? null : CreateDataToken ("<");
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				var token = CreateDataToken ("<");
 				return token;
 			}
 
@@ -762,7 +780,7 @@ namespace MimeKit.Text {
 
 			if (nc == -1) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (false);
+				return EmitDataToken (false, true);
 			}
 
 			c = (char) nc;
@@ -802,7 +820,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1421,7 +1439,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					tag = null;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1460,7 +1478,7 @@ namespace MimeKit.Text {
 					name.Length = 0;
 					tag = null;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1504,7 +1522,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					tag = null;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1545,7 +1563,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					tag = null;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1590,7 +1608,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1631,7 +1649,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				c = (char) nc;
@@ -1677,7 +1695,7 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				name.Length = 0;
 
-				return EmitDataToken (false);
+				return EmitDataToken (false, true);
 			}
 
 			c = (char) nc;
@@ -1708,7 +1726,7 @@ namespace MimeKit.Text {
 						data.Append (entity.GetPushedInput ());
 						entity.Reset ();
 
-						return EmitDataToken (false);
+						return EmitDataToken (false, true);
 					}
 
 					c = (char) nc;
@@ -1747,7 +1765,7 @@ namespace MimeKit.Text {
 
 			if (nc == -1) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (false);
+				return EmitDataToken (false, true);
 			}
 
 			c = (char) nc;
@@ -1787,7 +1805,7 @@ namespace MimeKit.Text {
 
 			if (nc == -1) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (false);
+				return EmitDataToken (false, true);
 			}
 
 			c = (char) nc;
@@ -1839,7 +1857,7 @@ namespace MimeKit.Text {
 			while (count < 2) {
 				if ((nc = Peek ()) == -1) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					return EmitDataToken (false);
+					return EmitDataToken (false, true);
 				}
 
 				if ((c = (char) nc) != '-')
@@ -1870,7 +1888,7 @@ namespace MimeKit.Text {
 					while (count < 7) {
 						if ((nc = Read ()) == -1) {
 							TokenizerState = HtmlTokenizerState.EndOfFile;
-							return EmitDataToken (false);
+							return EmitDataToken (false, true);
 						}
 
 						c = (char) nc;
@@ -1902,7 +1920,7 @@ namespace MimeKit.Text {
 					while (count < 7) {
 						if ((nc = Read ()) == -1) {
 							TokenizerState = HtmlTokenizerState.EndOfFile;
-							return EmitDataToken (false);
+							return EmitDataToken (false, true);
 						}
 
 						c = (char) nc;
