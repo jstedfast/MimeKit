@@ -364,18 +364,10 @@ namespace MimeKit {
 
 			if (encoding == null) {
 				try {
-					var bom = new byte[2];
-					int n;
-
-					using (var content = Content.Open ())
-						n = content.Read (bom, 0, bom.Length);
-
-					if (bom.Length >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
-						encoding = Encoding.Unicode; // UTF-16LE
-					else if (bom.Length >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
-						encoding = Encoding.BigEndianUnicode; // UTF-16BE
-					else
-						encoding = CharsetUtils.UTF8;
+					using (var content = Content.Open ()) {
+						if (!CharsetUtils.TryGetBomEncoding (content, out encoding))
+							encoding = CharsetUtils.UTF8;
+					}
 
 					return GetText (encoding);
 				} catch (DecoderFallbackException) {

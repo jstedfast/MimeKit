@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
@@ -560,6 +561,30 @@ namespace MimeKit.Utils {
 			int count;
 
 			return new string (ConvertToUnicode (encoding, buffer, startIndex, length, out count), 0, count);
+		}
+
+		public static bool TryGetBomEncoding (byte[] buffer, int length, out Encoding encoding)
+		{
+			if (length >= 2 && buffer[0] == 0xFF && buffer[1] == 0xFE)
+				encoding = Encoding.Unicode; // UTF-16LE
+			else if (length >= 2 && buffer[0] == 0xFE && buffer[1] == 0xFF)
+				encoding = Encoding.BigEndianUnicode; // UTF-16BE
+			else if (length >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
+				encoding = UTF8; // UTF-8
+			else
+				encoding = null;
+
+			return encoding != null;
+		}
+
+		public static bool TryGetBomEncoding (Stream stream, out Encoding encoding)
+		{
+			var bom = new byte[3];
+			int n;
+
+			n = stream.Read (bom, 0, bom.Length);
+
+			return TryGetBomEncoding (bom, n, out encoding);
 		}
 	}
 }
