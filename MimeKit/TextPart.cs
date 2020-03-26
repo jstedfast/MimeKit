@@ -441,6 +441,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new CharsetFilter (encoding, CharsetUtils.UTF8));
 					filtered.Add (FormatOptions.Default.CreateNewLineFilter ());
+                    filtered.AddRange (FormatOptions.Default.AdditionalMimeFilters);
 					Content.DecodeTo (filtered);
 					filtered.Flush ();
 				}

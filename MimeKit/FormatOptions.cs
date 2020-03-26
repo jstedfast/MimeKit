@@ -26,7 +26,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using MimeKit.IO.Filters;
 
 namespace MimeKit {
@@ -76,6 +76,7 @@ namespace MimeKit {
 		bool ensureNewLine;
 		bool international;
 		int maxLineLength;
+
 
 		/// <summary>
 		/// The default formatting options.
@@ -193,6 +194,14 @@ namespace MimeKit {
 			get; private set;
 		}
 
+        /// <summary>
+        /// Gets or sets a list of extra mime filters that are invoked when reading or writing a Mime message.
+        /// </summary>
+        /// <para>This is primarily meant for extending writing mime message to a target stream.</para>
+        public IList<IMimeFilter> AdditionalMimeFilters {
+            get; private set;
+        }
+
 		/// <summary>
 		/// Gets or sets whether the new "Internationalized Email" formatting standards should be used.
 		/// </summary>
@@ -279,6 +288,8 @@ namespace MimeKit {
 			}
 		}
 
+
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
@@ -294,6 +305,7 @@ namespace MimeKit {
 		public FormatOptions ()
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
+            AdditionalMimeFilters = new List<IMimeFilter>();
 			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
 			maxLineLength = DefaultMaxLineLength;
 			allowMixedHeaderCharsets = false;
@@ -320,6 +332,7 @@ namespace MimeKit {
 			options.newLineFormat = newLineFormat;
 			options.ensureNewLine = ensureNewLine;
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
+            options.AdditionalMimeFilters = new List<IMimeFilter>(AdditionalMimeFilters);
 			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
 			options.parameterEncodingMethod = parameterEncodingMethod;
 			options.international = international;

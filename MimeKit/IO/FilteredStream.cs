@@ -109,6 +109,27 @@ namespace MimeKit.IO {
 			filters.Add (filter);
 		}
 
+        /// <summary>
+        /// Adds a list of specified filters 
+        /// </summary>
+        /// <remarks>
+        /// Adds the list of <paramref name="addFilters"/> to the end of the list of filters
+        /// that data will pass through as data is read from or written to the
+        /// underlying source stream. 
+        /// </remarks>
+        /// <param name="addFilters">The list of filters. A null list or null filters within the list will be ignored.</param>
+        public void AddRange(IEnumerable<IMimeFilter> addFilters)
+        {
+            if (addFilters == null)
+                return;
+
+            foreach (var addFilter in addFilters) {
+                if (addFilter != null) {
+                    filters.Add(addFilter);
+                }
+            }
+        }
+
 		/// <summary>
 		/// Checks if the filtered stream contains the specified filter.
 		/// </summary>

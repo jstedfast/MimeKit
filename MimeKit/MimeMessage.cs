@@ -1085,6 +1085,7 @@ namespace MimeKit {
 			if (Body != null) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
+                    filtered.AddRange (options.AdditionalMimeFilters);
 
 					foreach (var header in MergeHeaders ()) {
 						if (options.HiddenHeaders.Contains (header.Id))
@@ -1161,6 +1162,7 @@ namespace MimeKit {
 			if (Body != null) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
+                    filtered.AddRange (options.AdditionalMimeFilters);
 
 					foreach (var header in MergeHeaders ()) {
 						if (options.HiddenHeaders.Contains (header.Id))
@@ -1580,6 +1582,7 @@ namespace MimeKit {
 						dkim = new DkimSimpleBodyFilter ();
 
 					filtered.Add (options.CreateNewLineFilter ());
+                    filtered.AddRange (options.AdditionalMimeFilters);
 					filtered.Add (dkim);
 
 					if (Body != null) {

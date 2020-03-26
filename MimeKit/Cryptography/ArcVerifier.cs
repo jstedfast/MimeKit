@@ -325,6 +325,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
+					filtered.AddRange (options.AdditionalMimeFilters);
 
 					WriteHeaders (options, message, headers, headerAlgorithm, filtered);
 
@@ -373,6 +374,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = new DkimSignatureStream (CreateVerifyContext (algorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
+                    filtered.AddRange (options.AdditionalMimeFilters);
 
 					for (int j = 0; j < i; j++) {
 						WriteHeaderRelaxed (options, filtered, sets[j].ArcAuthenticationResult, false);
