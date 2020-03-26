@@ -69,6 +69,8 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Html, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Html), "IsFormat");
 
 			text = new TextPart (TextFormat.Plain);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
@@ -76,13 +78,18 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Plain, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Plain), "IsFormat");
 
 			text = new TextPart (TextFormat.Flowed);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
-			Assert.IsTrue (text.IsPlain, "IsPlain");
+			Assert.IsTrue (text.IsPlain, "IsPlain"); // special: Flowed is both Plain *and* Flowed
 			Assert.IsTrue (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Flowed, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Plain), "IsFormat"); // special: Flowed is both Plain *and* Flowed
+			Assert.IsTrue (text.IsFormat (TextFormat.Flowed), "IsFormat");
 
 			text = new TextPart (TextFormat.RichText);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
@@ -90,6 +97,8 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsTrue (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.RichText, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.RichText), "IsFormat");
 
 			text = new TextPart (TextFormat.Enriched);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
@@ -97,6 +106,8 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsTrue (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Enriched, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Enriched), "IsFormat");
 		}
 
 		[Test]

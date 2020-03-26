@@ -201,6 +201,42 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get the text format of the content.
+		/// </summary>
+		/// <remarks>
+		/// Gets the text format of the content.
+		/// </remarks>
+		/// <value>The text format of the content.</value>
+		public TextFormat Format {
+			get {
+				if (ContentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
+					if (ContentType.MediaSubtype.Equals ("plain")) {
+						string format;
+
+						if (ContentType.Parameters.TryGetValue ("format", out format)) {
+							format = format.Trim ();
+
+							if (format.Equals ("flowed", StringComparison.OrdinalIgnoreCase))
+								return TextFormat.Flowed;
+						}
+					} else if (ContentType.MediaSubtype.Equals ("html", StringComparison.OrdinalIgnoreCase)) {
+						return TextFormat.Html;
+					} else if (ContentType.MediaSubtype.Equals ("rtf", StringComparison.OrdinalIgnoreCase)) {
+						return TextFormat.RichText;
+					} else if (ContentType.MediaSubtype.Equals ("enriched", StringComparison.OrdinalIgnoreCase)) {
+						return TextFormat.Enriched;
+					} else if (ContentType.MediaSubtype.Equals ("richtext", StringComparison.OrdinalIgnoreCase)) {
+						return TextFormat.Enriched;
+					}
+				} else if (ContentType.IsMimeType ("application", "rtf")) {
+					return TextFormat.RichText;
+				}
+
+				return TextFormat.Plain;
+			}
+		}
+
+		/// <summary>
 		/// Gets whether or not this text part contains enriched text.
 		/// </summary>
 		/// <remarks>
@@ -232,7 +268,7 @@ namespace MimeKit {
 
 				format = format.Trim ();
 
-				return format.ToLowerInvariant () == "flowed";
+				return format.Equals ("flowed", StringComparison.OrdinalIgnoreCase);
 			}
 		}
 
