@@ -100,7 +100,26 @@ namespace UnitTests
 			Assert.AreEqual (TextFormat.RichText, text.Format, "Format");
 			Assert.IsTrue (text.IsFormat (TextFormat.RichText), "IsFormat");
 
+			text = new TextPart (new ContentType ("application", "rtf"));
+			Assert.IsFalse (text.IsHtml, "IsHtml");
+			Assert.IsFalse (text.IsPlain, "IsPlain");
+			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsFalse (text.IsEnriched, "IsEnriched");
+			Assert.IsTrue (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.RichText, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.RichText), "IsFormat");
+			Assert.IsFalse (text.IsFormat (TextFormat.CompressedRichText), "CompressedRichText");
+
 			text = new TextPart (TextFormat.Enriched);
+			Assert.IsFalse (text.IsHtml, "IsHtml");
+			Assert.IsFalse (text.IsPlain, "IsPlain");
+			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsTrue (text.IsEnriched, "IsEnriched");
+			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Enriched, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Enriched), "IsFormat");
+
+			text = new TextPart ("richtext");
 			Assert.IsFalse (text.IsHtml, "IsHtml");
 			Assert.IsFalse (text.IsPlain, "IsPlain");
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
