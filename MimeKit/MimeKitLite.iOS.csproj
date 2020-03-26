@@ -100,6 +100,7 @@
     <Compile Include="Text\HtmlTagCallback.cs" />
     <Compile Include="Text\HtmlTagContext.cs" />
     <Compile Include="Text\HtmlTagId.cs" />
+    <Compile Include="Text\HtmlTextPreviewer.cs" />
     <Compile Include="Text\HtmlToHtml.cs" />
     <Compile Include="Text\HtmlToken.cs" />
     <Compile Include="Text\HtmlTokenizer.cs" />
@@ -109,8 +110,10 @@
     <Compile Include="Text\HtmlWriter.cs" />
     <Compile Include="Text\HtmlWriterState.cs" />
     <Compile Include="Text\ICharArray.cs" />
+    <Compile Include="Text\PlainTextPreviewer.cs" />
     <Compile Include="Text\TextConverter.cs" />
     <Compile Include="Text\TextFormat.cs" />
+    <Compile Include="Text\TextPreviewer.cs" />
     <Compile Include="Text\TextToFlowed.cs" />
     <Compile Include="Text\TextToHtml.cs" />
     <Compile Include="Text\TextToText.cs" />

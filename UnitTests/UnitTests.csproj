@@ -57,7 +57,7 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.110.0\lib\net45\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.112.0\lib\net45\System.Data.SQLite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -112,13 +112,16 @@
     <Compile Include="Text\HtmlAttributeTests.cs" />
     <Compile Include="Text\HtmlEntityDecoderTests.cs" />
     <Compile Include="Text\HtmlTagIdTests.cs" />
+    <Compile Include="Text\HtmlTextPreviewerTests.cs" />
     <Compile Include="Text\HtmlToHtmlTests.cs" />
     <Compile Include="Text\HtmlTokenizerTests.cs" />
     <Compile Include="Text\HtmlTokenTests.cs" />
     <Compile Include="Text\HtmlUtilsTests.cs" />
     <Compile Include="Text\HtmlWriterTests.cs" />
+    <Compile Include="Text\PlainTextPreviewerTests.cs" />
     <Compile Include="Text\RtfCompressedToRtfTests.cs" />
     <Compile Include="Text\TextConverterTests.cs" />
+    <Compile Include="Text\TextPreviewerTests.cs" />
     <Compile Include="Text\TextToFlowedTests.cs" />
     <Compile Include="Text\TextToHtmlTests.cs" />
     <Compile Include="Text\TextToTextTests.cs" />
@@ -265,6 +268,10 @@
     <None Include="Npgsql.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestData\text\homedepot-check-inside-now.html" />
+    <None Include="TestData\text\mimekit.net.html" />
+    <None Include="TestData\text\planet-fitness.html" />
+    <None Include="TestData\text\planet-fitness.txt" />
     <None Include="TestData\tnef\attachments\bookmark.htm" />
     <None Include="TestData\tnef\attachments\message.rtf" />
     <None Include="TestData\tnef\attachments\zappa_av1.jpg" />
@@ -359,5 +366,5 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.110.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.110.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets')" />
 </Project>
