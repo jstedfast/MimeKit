@@ -148,7 +148,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
-                    filtered.AddRange (options.AdditionalMimeFilters);
+					filtered.AddRange (options.AdditionalMimeFilters);
 
 					WriteHeaders (options, message, headers, headerAlgorithm, filtered);
 

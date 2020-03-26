@@ -118,17 +118,17 @@ namespace MimeKit.IO {
         /// underlying source stream. 
         /// </remarks>
         /// <param name="addFilters">The list of filters. A null list or null filters within the list will be ignored.</param>
-        public void AddRange(IEnumerable<IMimeFilter> addFilters)
-        {
-            if (addFilters == null)
-                return;
+		public void AddRange(IEnumerable<IMimeFilter> addFilters)
+		{
+			if (addFilters == null)
+				return;
 
-            foreach (var addFilter in addFilters) {
-                if (addFilter != null) {
-                    filters.Add(addFilter);
-                }
-            }
-        }
+			foreach (var addFilter in addFilters) {
+				if (addFilter != null) {
+					filters.Add(addFilter);
+				}
+			}
+		}
 
 		/// <summary>
 		/// Checks if the filtered stream contains the specified filter.

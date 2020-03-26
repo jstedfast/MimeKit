@@ -588,12 +588,12 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (EncoderFilter.Create (encoding));
 
-                    if (encoding != ContentEncoding.Binary) {
-                        filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
-                        filtered.AddRange (options.AdditionalMimeFilters);
+					if (encoding != ContentEncoding.Binary) {
+						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+						filtered.AddRange (options.AdditionalMimeFilters);
 					}
-
-                    Content.DecodeTo (filtered, cancellationToken);
+					
+					Content.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
 
@@ -614,7 +614,7 @@ namespace MimeKit {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
 					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
-                    filtered.AddRange (options.AdditionalMimeFilters);
+					filtered.AddRange (options.AdditionalMimeFilters);
 					Content.WriteTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
@@ -666,8 +666,8 @@ namespace MimeKit {
 					filtered.Add (EncoderFilter.Create (encoding));
 
                     if (encoding != ContentEncoding.Binary) {
-                        filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
-                        filtered.AddRange (options.AdditionalMimeFilters);
+						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+						filtered.AddRange (options.AdditionalMimeFilters);
 					}
 
                     await Content.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
@@ -685,7 +685,7 @@ namespace MimeKit {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
 					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
-                    filtered.AddRange (options.AdditionalMimeFilters);
+					filtered.AddRange (options.AdditionalMimeFilters);
 					await Content.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}

@@ -317,7 +317,7 @@ namespace MimeKit.Cryptography {
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
-                    filtered.AddRange(options.AdditionalMimeFilters);
+					filtered.AddRange (options.AdditionalMimeFilters);
 
 					for (int i = 0; i < count; i++) {
 						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult, false);

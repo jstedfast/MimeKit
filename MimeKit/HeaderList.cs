@@ -693,7 +693,7 @@ namespace MimeKit {
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (options.CreateNewLineFilter ());
-                filtered.AddRange (options.AdditionalMimeFilters);
+				filtered.AddRange (options.AdditionalMimeFilters);
 
 				foreach (var header in headers) {
 					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
@@ -750,7 +750,7 @@ namespace MimeKit {
 
 			using (var filtered = new FilteredStream (stream)) {
 				filtered.Add (options.CreateNewLineFilter ());
-                filtered.AddRange (options.AdditionalMimeFilters);
+				filtered.AddRange (options.AdditionalMimeFilters);
 
 				foreach (var header in headers) {
 					await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
