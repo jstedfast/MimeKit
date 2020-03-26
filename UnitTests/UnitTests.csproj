@@ -265,9 +265,6 @@
     <None Include="TestData\smime\StartComCertificationAuthority.crt" />
     <None Include="TestData\smime\StartComClass1PrimaryIntermediateClientCA.crt" />
     <None Include="TestData\smime\thunderbird-signed.txt" />
-    <None Include="Npgsql.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="TestData\text\homedepot-check-inside-now.html" />
     <None Include="TestData\text\mimekit.net.html" />
     <None Include="TestData\text\planet-fitness.html" />
