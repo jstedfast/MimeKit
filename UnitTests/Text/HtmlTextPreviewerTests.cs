@@ -45,8 +45,6 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => previewer.MaximumPreviewLength = 0);
 			Assert.Throws<ArgumentOutOfRangeException> (() => previewer.MaximumPreviewLength = 1025);
 
-			Assert.Throws<ArgumentNullException> (() => TextPreviewer.GetPreviewText (null));
-
 			Assert.Throws<ArgumentNullException> (() => previewer.GetPreviewText ((string) null));
 			Assert.Throws<ArgumentNullException> (() => previewer.GetPreviewText ((TextReader) null));
 			Assert.Throws<ArgumentNullException> (() => previewer.GetPreviewText ((Stream) null, "charset"));

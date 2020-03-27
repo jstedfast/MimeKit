@@ -40,7 +40,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			Assert.Throws<ArgumentNullException> (() => TextPreviewer.GetPreviewText (null));
+			Assert.Throws<ArgumentNullException> (() => TextPreviewer.GetPreviewText ((TextPart) null));
 		}
 
 		static TextPart CreateTextPart (string path)
