@@ -111,14 +111,6 @@ namespace MimeKit.Text {
 				return string.Empty;
 
 			var encoding = body.ContentType.CharsetEncoding;
-
-			if (encoding == null) {
-				using (var content = body.Content.Open ()) {
-					if (!CharsetUtils.TryGetBomEncoding (content, out encoding))
-						encoding = CharsetUtils.UTF8;
-				}
-			}
-
 			var buffer = new byte[16 * 1024];
 			int nread = 0;
 

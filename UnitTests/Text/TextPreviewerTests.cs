@@ -94,5 +94,60 @@ namespace UnitTests.Text {
 
 			AssertPreviewText (path, TextFormat.Plain, expected);
 		}
+
+		[Test]
+		public void TestGetPreviewTextUnknownCharset ()
+		{
+			var encoding = Encoding.GetEncoding ("big5");
+			var builder = new StringBuilder ();
+
+			using (var memory = new MemoryStream ()) {
+				var bytes = encoding.GetBytes ("日月星辰");
+				string preview;
+
+				memory.Write (bytes, 0, bytes.Length);
+				memory.Position = 0;
+
+				var body = new TextPart ("plain") {
+					Content = new MimeContent (memory, ContentEncoding.Default)
+				};
+				body.ContentType.Charset = "x-unknown";
+
+				preview = TextPreviewer.GetPreviewText (body);
+				Assert.AreEqual ("¤é¤ë¬P¨°", preview, "chinese text x-unknown -> UTF-8 -> iso-8859-1");
+			}
+
+			using (var memory = new MemoryStream ()) {
+				var bytes = Encoding.UTF8.GetBytes ("日月星辰");
+				string preview;
+
+				memory.Write (bytes, 0, bytes.Length);
+				memory.Position = 0;
+
+				var body = new TextPart ("plain") {
+					Content = new MimeContent (memory, ContentEncoding.Default)
+				};
+				body.ContentType.Charset = "x-unknown";
+
+				preview = TextPreviewer.GetPreviewText (body);
+				Assert.AreEqual ("日月星辰", preview, "x-unknown -> UTF-8");
+			}
+
+			using (var memory = new MemoryStream ()) {
+				var bytes = Encoding.GetEncoding (28591).GetBytes ("L'encyclopédie libre");
+				string preview;
+
+				memory.Write (bytes, 0, bytes.Length);
+				memory.Position = 0;
+
+				var body = new TextPart ("plain") {
+					Content = new MimeContent (memory, ContentEncoding.Default)
+				};
+				body.ContentType.Charset = "x-unknown";
+
+				preview = TextPreviewer.GetPreviewText (body);
+				Assert.AreEqual ("L'encyclopédie libre", preview, "french text x-unknown -> UTF-8 -> iso-8859-1");
+			}
+		}
 	}
 }
