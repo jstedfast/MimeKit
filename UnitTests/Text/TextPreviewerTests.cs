@@ -71,7 +71,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestMimeKitHomepage ()
 		{
-			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> I\u2026";
+			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> Install-Package MimeKit PM> Install-Package MailKit or Install via VS Package Management window. Direct Download ZIP fil\u2026";
 			var path = Path.Combine ("..", "..", "TestData", "text", "mimekit.net.html");
 
 			AssertPreviewText (path, TextFormat.Html, expected);
@@ -89,7 +89,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestPlanetFitnessPlain ()
 		{
-			const string expected = "Planet Fitness https://view.email.planetfitness.com/?qs=9a098a031cabde68c0a4260051cd6fe473a2e997a53678ff26b4b…";
+			const string expected = "Planet Fitness https://view.email.planetfitness.com/?qs=9a098a031cabde68c0a4260051cd6fe473a2e997a53678ff26b4b199a711a9d2ad0536530d6f837c246b09f644d42016ecfb298f930b7af058e9e454b34f3d818ceb3052ae317b1ac4594aab28a2d788 View web ver…";
 			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.txt");
 
 			AssertPreviewText (path, TextFormat.Plain, expected);

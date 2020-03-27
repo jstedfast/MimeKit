@@ -49,7 +49,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		protected TextPreviewer ()
 		{
-			maximumPreviewLength = 110;
+			maximumPreviewLength = 230;
 		}
 
 		/// <summary>
@@ -67,7 +67,8 @@ namespace MimeKit.Text {
 		/// Get or set the maximum text preview length.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the maximum text preview length.
+		/// <para>Gets or sets the maximum text preview length.</para>
+		/// <para>The default value is <c>230</c> which is what the GMail web API seems to use.</para>
 		/// </remarks>
 		/// <value>The maximum text preview length.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
