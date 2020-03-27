@@ -447,7 +447,7 @@ namespace MimeKit.Cryptography
 		/// Build a certificate chain.
 		/// </summary>
 		/// <remarks>
-		/// <para>Builds a certificate chain for the provided certificate.</para>
+		/// <para>Builds a certificate chain for the provided certificate to include when signing.</para>
 		/// <para>This method is ideal for use with custom <see cref="GetCmsSigner"/>
 		/// implementations when it is desirable to include the certificate chain
 		/// in the signature.</para>
