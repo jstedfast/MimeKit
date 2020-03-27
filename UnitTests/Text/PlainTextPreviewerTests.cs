@@ -53,12 +53,30 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => previewer.GetPreviewText (Stream.Null, (Encoding) null));
 		}
 
+		[Test]
+		public void TestEmptyText ()
+		{
+			var previewer = new PlainTextPreviewer ();
+
+			Assert.AreEqual (string.Empty, previewer.GetPreviewText (string.Empty), "string");
+
+			using (var reader = new StringReader (string.Empty))
+				Assert.AreEqual (string.Empty, previewer.GetPreviewText (reader), "TextReader");
+
+			using (var stream = new MemoryStream (new byte[0], false)) {
+				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, "x-unknown"), "Stream, string");
+				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, Encoding.UTF8), "Stream, Encoding");
+			}
+		}
+
 		void AssertPreviewText (string path, string expected)
 		{
 			var previewer = new PlainTextPreviewer ();
 			var buffer = new byte[16 * 1024];
 			string actual;
 			int nread;
+
+			Assert.AreEqual (TextFormat.Plain, previewer.InputFormat);
 
 			using (var stream = File.OpenRead (path))
 				nread = stream.Read (buffer, 0, buffer.Length);

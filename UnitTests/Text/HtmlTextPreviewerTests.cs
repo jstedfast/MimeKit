@@ -53,12 +53,30 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => previewer.GetPreviewText (Stream.Null, (Encoding) null));
 		}
 
-		void AssertPreviewText (string path, string expected)
+		[Test]
+		public void TestEmptyText ()
 		{
 			var previewer = new HtmlTextPreviewer ();
+
+			Assert.AreEqual (string.Empty, previewer.GetPreviewText (string.Empty), "string");
+
+			using (var reader = new StringReader (string.Empty))
+				Assert.AreEqual (string.Empty, previewer.GetPreviewText (reader), "TextReader");
+
+			using (var stream = new MemoryStream (new byte[0], false)) {
+				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, "x-unknown"), "Stream, string");
+				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, Encoding.UTF8), "Stream, Encoding");
+			}
+		}
+
+		void AssertPreviewText (string path, string expected, int maxPreviewLen)
+		{
+			var previewer = new HtmlTextPreviewer { MaximumPreviewLength = maxPreviewLen };
 			var buffer = new byte[16 * 1024];
 			string actual;
 			int nread;
+
+			Assert.AreEqual (TextFormat.Html, previewer.InputFormat);
 
 			using (var stream = File.OpenRead (path))
 				nread = stream.Read (buffer, 0, buffer.Length);
@@ -84,30 +102,57 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
-		public void TestHomeDepotCheckInsideNOW ()
+		public void TestHomeDepot110 ()
 		{
 			var path = Path.Combine ("..", "..", "TestData", "text", "homedepot-check-inside-now.html");
 			const string expected = "FREE DELIVERY Appliance Purchases $396 or More";
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, expected, 110);
 		}
 
 		[Test]
-		public void TestMimeKitHomepage ()
+		public void TestHomeDepot230 ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "text", "homedepot-check-inside-now.html");
+			const string expected = "FREE DELIVERY Appliance Purchases $396 or More";
+
+			AssertPreviewText (path, expected, 230);
+		}
+
+		[Test]
+		public void TestMimeKitHomepage110 ()
 		{
 			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> I\u2026";
 			var path = Path.Combine ("..", "..", "TestData", "text", "mimekit.net.html");
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, expected, 110);
 		}
 
 		[Test]
-		public void TestPlanetFitness ()
+		public void TestMimeKitHomepage230 ()
+		{
+			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> Install-Package MimeKit PM> Install-Package MailKit or Install via VS Package Management window. Direct Download ZIP fil\u2026";
+			var path = Path.Combine ("..", "..", "TestData", "text", "mimekit.net.html");
+
+			AssertPreviewText (path, expected, 230);
+		}
+
+		[Test]
+		public void TestPlanetFitness110 ()
 		{
 			string expected = "Don’t miss our celebrity guest Monday evening";
 			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.html");
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, expected, 110);
+		}
+
+		[Test]
+		public void TestPlanetFitness230 ()
+		{
+			string expected = "Don’t miss our celebrity guest Monday evening";
+			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.html");
+
+			AssertPreviewText (path, expected, 230);
 		}
 	}
 }

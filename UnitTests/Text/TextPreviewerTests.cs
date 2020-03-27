@@ -43,17 +43,16 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => TextPreviewer.GetPreviewText ((TextPart) null));
 		}
 
-		static TextPart CreateTextPart (string path)
+		static TextPart CreateTextPart (string path, TextFormat format)
 		{
-			var subtype = Path.GetExtension (path) == ".html" ? "html" : "plain";
 			var text = File.ReadAllText (path);
 
-			return new TextPart (subtype) { Text = text };
+			return new TextPart (format) { Text = text };
 		}
 
-		void AssertPreviewText (string path, string expected)
+		void AssertPreviewText (string path, TextFormat format, string expected)
 		{
-			var body = CreateTextPart (path);
+			var body = CreateTextPart (path, format);
 			string actual;
 
 			actual = TextPreviewer.GetPreviewText (body);
@@ -66,7 +65,7 @@ namespace UnitTests.Text {
 			var path = Path.Combine ("..", "..", "TestData", "text", "homedepot-check-inside-now.html");
 			const string expected = "FREE DELIVERY Appliance Purchases $396 or More";
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, TextFormat.Html, expected);
 		}
 
 		[Test]
@@ -75,7 +74,7 @@ namespace UnitTests.Text {
 			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> I\u2026";
 			var path = Path.Combine ("..", "..", "TestData", "text", "mimekit.net.html");
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, TextFormat.Html, expected);
 		}
 
 		[Test]
@@ -84,7 +83,7 @@ namespace UnitTests.Text {
 			string expected = "Don’t miss our celebrity guest Monday evening";
 			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.html");
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, TextFormat.Html, expected);
 		}
 
 		[Test]
@@ -93,7 +92,7 @@ namespace UnitTests.Text {
 			const string expected = "Planet Fitness https://view.email.planetfitness.com/?qs=9a098a031cabde68c0a4260051cd6fe473a2e997a53678ff26b4b…";
 			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.txt");
 
-			AssertPreviewText (path, expected);
+			AssertPreviewText (path, TextFormat.Plain, expected);
 		}
 	}
 }
