@@ -291,7 +291,7 @@ namespace MimeKit.Cryptography {
 							command.AddParameterWithValue ("@ID", record.Id);
 							command.AddParameterWithValue ("@ANCHOR", record.IsAnchor);
 							command.AddParameterWithValue ("@SUBJECTNAME", record.SubjectName);
-							command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", record.SubjectKeyIdentifier.AsHex ());
+							command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", record.SubjectKeyIdentifier?.AsHex ());
 							command.CommandType = CommandType.Text;
 							command.CommandText = statement;
 
