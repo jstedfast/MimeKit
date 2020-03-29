@@ -55,12 +55,6 @@
     <Reference Include="Mono.Data.Sqlite" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.Android.csproj">
-      <Project>{A0D302CB-8866-4AB1-98B9-F0772EABF5DF}</Project>
-      <Name>BouncyCastle.Android</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
     <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
