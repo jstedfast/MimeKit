@@ -277,8 +277,19 @@ namespace MimeKit {
 		{
 		}
 
-		// Note: this .ctor is only used by Clone()
-		internal Header (ParserOptions options, HeaderId id, string name, byte[] field, byte[] value)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new message or entity header with the specified values.</para>
+		/// <para>This constructor is used by <see cref="Clone"/>.</para>
+		/// </remarks>
+		/// <param name="options">The parser options used.</param>
+		/// <param name="id">The id of the header.</param>
+		/// <param name="name">The name of the header field.</param>
+		/// <param name="field">The raw header field.</param>
+		/// <param name="value">The raw value of the header.</param>
+		protected Header (ParserOptions options, HeaderId id, string name, byte[] field, byte[] value)
 		{
 			Options = options;
 			rawField = field;
@@ -287,7 +298,19 @@ namespace MimeKit {
 			Id = id;
 		}
 
-		internal Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new message or entity header with the specified raw values.</para>
+		/// <para>This constructor is used by the
+		/// <a href="Overload_MimeKit_Header_TryParse.htm">TryParse</a> methods.</para>
+		/// </remarks>
+		/// <param name="options">The parser options used.</param>
+		/// <param name="field">The raw header field.</param>
+		/// <param name="value">The raw value of the header.</param>
+		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+		internal protected Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
 		{
 			var chars = new char[field.Length];
 			int count = 0;
@@ -306,7 +329,18 @@ namespace MimeKit {
 			IsInvalid = invalid;
 		}
 
-		internal Header (ParserOptions options, HeaderId id, string field, byte[] value)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new message or entity header with the specified raw values.</para>
+		/// <para>This constructor is used by <see cref="MimeMessage"/> and <see cref="MimeEntity"/>
+		/// when serializing new values for headers.</para>
+		/// </remarks>
+		/// <param name="options">The parser options used.</param>
+		/// <param name="field">The raw header field.</param>
+		/// <param name="value">The raw value of the header.</param>
+		internal protected Header (ParserOptions options, HeaderId id, string field, byte[] value)
 		{
 			Options = options;
 			rawField = Encoding.ASCII.GetBytes (field);
@@ -463,7 +497,7 @@ namespace MimeKit {
 			return GetValue (encoding);
 		}
 
-		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var encoded = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
@@ -481,9 +515,9 @@ namespace MimeKit {
 			return Encoding.ASCII.GetBytes (encoded.ToString ());
 		}
 
-		static byte[] EncodeMessageIdHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeMessageIdHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			return charset.GetBytes (" " + value + format.NewLine);
+			return encoding.GetBytes (" " + value + format.NewLine);
 		}
 
 		delegate void ReceivedTokenSkipValueFunc (byte[] text, ref int index);
@@ -587,10 +621,10 @@ namespace MimeKit {
 			}
 		}
 
-		static byte[] EncodeReceivedHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeReceivedHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var tokens = new List<ReceivedTokenValue> ();
-			var rawValue = charset.GetBytes (value);
+			var rawValue = encoding.GetBytes (value);
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
 			bool date = false;
@@ -609,7 +643,7 @@ namespace MimeKit {
 				while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
 					index++;
 
-				var atom = charset.GetString (rawValue, startIndex, index - startIndex);
+				var atom = encoding.GetString (rawValue, startIndex, index - startIndex);
 
 				for (int i = 0; i < ReceivedTokens.Length; i++) {
 					if (atom == ReceivedTokens[i].Atom) {
@@ -648,7 +682,7 @@ namespace MimeKit {
 			}
 
 			foreach (var token in tokens) {
-				var text = charset.GetString (rawValue, token.StartIndex, token.Length).TrimEnd ();
+				var text = encoding.GetString (rawValue, token.StartIndex, token.Length).TrimEnd ();
 
 				if (count > 0 && lineLength + text.Length + 1 > format.MaxLineLength) {
 					encoded.Append (format.NewLine);
@@ -667,22 +701,22 @@ namespace MimeKit {
 
 			encoded.Append (format.NewLine);
 
-			return charset.GetBytes (encoded.ToString ());
+			return encoding.GetBytes (encoded.ToString ());
 		}
 
-		static byte[] EncodeAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var buffer = Encoding.UTF8.GetBytes (value);
 
 			if (!AuthenticationResults.TryParse (buffer, out AuthenticationResults authres))
-				return EncodeUnstructuredHeader (options, format, charset, field, value);
+				return EncodeUnstructuredHeader (options, format, encoding, field, value);
 
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
 
 			authres.Encode (format, encoded, lineLength);
 
-			return charset.GetBytes (encoded.ToString ());
+			return encoding.GetBytes (encoded.ToString ());
 		}
 
 		static void EncodeDkimLongValue (FormatOptions format, StringBuilder encoded, ref int lineLength, string value)
@@ -735,7 +769,7 @@ namespace MimeKit {
 			}
 		}
 
-		static byte[] EncodeDkimOrArcSignatureHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeDkimOrArcSignatureHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
@@ -799,10 +833,10 @@ namespace MimeKit {
 
 			encoded.Append (format.NewLine);
 
-			return charset.GetBytes (encoded.ToString ());
+			return encoding.GetBytes (encoded.ToString ());
 		}
 
-		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var encoded = new StringBuilder ();
 			int lineLength = field.Length + 1;
@@ -826,7 +860,7 @@ namespace MimeKit {
 
 			encoded.Append (format.NewLine);
 
-			return charset.GetBytes (encoded.ToString ());
+			return encoding.GetBytes (encoded.ToString ());
 		}
 
 		static bool IsWhiteSpace (char c)
@@ -955,23 +989,23 @@ namespace MimeKit {
 			return folded.ToString ();
 		}
 
-		static byte[] EncodeContentDisposition (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeContentDisposition (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var disposition = ContentDisposition.Parse (options, value);
-			var encoded = disposition.Encode (format, charset);
+			var encoded = disposition.Encode (format, encoding);
 
 			return Encoding.UTF8.GetBytes (encoded);
 		}
 
-		static byte[] EncodeContentType (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeContentType (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var contentType = ContentType.Parse (options, value);
-			var encoded = contentType.Encode (format, charset);
+			var encoded = contentType.Encode (format, encoding);
 
 			return Encoding.UTF8.GetBytes (encoded);
 		}
 
-		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding charset, string field, string value)
+		static byte[] EncodeUnstructuredHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			if (format.International) {
 				var folded = Fold (format, field, value);
@@ -979,12 +1013,24 @@ namespace MimeKit {
 				return Encoding.UTF8.GetBytes (folded);
 			}
 
-			var encoded = Rfc2047.EncodeText (format, charset, value);
+			var encoded = Rfc2047.EncodeText (format, encoding, value);
 
 			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
 		}
 
-		byte[] FormatRawValue (FormatOptions format, Encoding encoding)
+		/// <summary>
+		/// Format the raw value of the header to conform with the specified formatting options.
+		/// </summary>
+		/// <remarks>
+		/// This method will called by the <a href="Overload_MimeKit_Header_SetValue.htm">SetValue</a>
+		/// methods and may also be conditionally called when the header is being written to a
+		/// <see cref="Stream"/>.
+		/// </remarks>
+		/// <param name="format">The formatting options.</param>
+		/// <param name="encoding">The character encoding to be used.</param>
+		/// <param name="value">The decoded (and unfolded) header value.</param>
+		/// <returns>A byte array containing the raw header value that should be written.</returns>
+		protected virtual byte[] FormatRawValue (FormatOptions format, Encoding encoding, string value)
 		{
 			switch (Id) {
 			case HeaderId.DispositionNotificationTo:
@@ -1000,29 +1046,29 @@ namespace MimeKit {
 			case HeaderId.Bcc:
 			case HeaderId.Cc:
 			case HeaderId.To:
-				return EncodeAddressHeader (Options, format, encoding, Field, textValue);
+				return EncodeAddressHeader (Options, format, encoding, Field, value);
 			case HeaderId.Received:
-				return EncodeReceivedHeader (Options, format, encoding, Field, textValue);
+				return EncodeReceivedHeader (Options, format, encoding, Field, value);
 			case HeaderId.ResentMessageId:
 			case HeaderId.InReplyTo:
 			case HeaderId.MessageId:
 			case HeaderId.ContentId:
-				return EncodeMessageIdHeader (Options, format, encoding, Field, textValue);
+				return EncodeMessageIdHeader (Options, format, encoding, Field, value);
 			case HeaderId.References:
-				return EncodeReferencesHeader (Options, format, encoding, Field, textValue);
+				return EncodeReferencesHeader (Options, format, encoding, Field, value);
 			case HeaderId.ContentDisposition:
-				return EncodeContentDisposition (Options, format, encoding, Field, textValue);
+				return EncodeContentDisposition (Options, format, encoding, Field, value);
 			case HeaderId.ContentType:
-				return EncodeContentType (Options, format, encoding, Field, textValue);
+				return EncodeContentType (Options, format, encoding, Field, value);
 			case HeaderId.ArcAuthenticationResults:
 			case HeaderId.AuthenticationResults:
-				return EncodeAuthenticationResultsHeader (Options, format, encoding, Field, textValue);
+				return EncodeAuthenticationResultsHeader (Options, format, encoding, Field, value);
 			case HeaderId.ArcMessageSignature:
 			case HeaderId.ArcSeal:
 			case HeaderId.DkimSignature:
-				return EncodeDkimOrArcSignatureHeader (Options, format, encoding, Field, textValue);
+				return EncodeDkimOrArcSignatureHeader (Options, format, encoding, Field, value);
 			default:
-				return EncodeUnstructuredHeader (Options, format, encoding, Field, textValue);
+				return EncodeUnstructuredHeader (Options, format, encoding, Field, value);
 			}
 		}
 
@@ -1033,7 +1079,7 @@ namespace MimeKit {
 					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
 
 				// Note: if we're reformatting to be International, then charset doesn't matter.
-				return FormatRawValue (format, CharsetUtils.UTF8);
+				return FormatRawValue (format, CharsetUtils.UTF8, textValue);
 			}
 
 			return rawValue;
@@ -1070,7 +1116,7 @@ namespace MimeKit {
 
 			textValue = Unfold (value.Trim ());
 
-			rawValue = FormatRawValue (format, encoding);
+			rawValue = FormatRawValue (format, encoding, textValue);
 
 			// cache the formatting options that change the way the header is formatted
 			//allowMixedHeaderCharsets = format.AllowMixedHeaderCharsets;
