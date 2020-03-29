@@ -41,6 +41,14 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefTests
 	{
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var tnef = new TnefPart ();
+
+			Assert.Throws<ArgumentNullException> (() => tnef.Accept (null));
+		}
+
 		static void ExtractRecipientTable (TnefReader reader, MimeMessage message)
 		{
 			var prop = reader.TnefPropertyReader;

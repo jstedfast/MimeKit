@@ -71,6 +71,29 @@ namespace MimeKit.Tnef {
 			FileName = "winmail.dat";
 		}
 
+		/// <summary>
+		/// Dispatches to the specific visit method for this MIME entity.
+		/// </summary>
+		/// <remarks>
+		/// This default implementation for <see cref="MimeKit.TnefPart"/> nodes
+		/// calls <see cref="MimeKit.MimeVisitor.VisitTnefPart"/>. Override this
+		/// method to call into a more specific method on a derived visitor class
+		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// support unknown visitors by calling
+		/// <see cref="MimeKit.MimeVisitor.VisitTnefPart"/>.
+		/// </remarks>
+		/// <param name="visitor">The visitor.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="visitor"/> is <c>null</c>.
+		/// </exception>
+		public override void Accept (MimeVisitor visitor)
+		{
+			if (visitor == null)
+				throw new ArgumentNullException (nameof (visitor));
+
+			visitor.VisitTnefPart (this);
+		}
+
 		static void ExtractRecipientTable (TnefReader reader, MimeMessage message)
 		{
 			var prop = reader.TnefPropertyReader;
