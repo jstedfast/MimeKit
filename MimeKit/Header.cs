@@ -50,6 +50,7 @@ namespace MimeKit {
 		//Encoding charset = CharsetUtils.UTF8;
 
 		readonly byte[] rawField;
+		bool explicitRawValue;
 		string textValue;
 		byte[] rawValue;
 
@@ -359,6 +360,7 @@ namespace MimeKit {
 		public Header Clone ()
 		{
 			var header = new Header (Options, Id, Field, rawField, rawValue) {
+				explicitRawValue = explicitRawValue,
 				IsInvalid = IsInvalid
 			};
 
@@ -1074,7 +1076,7 @@ namespace MimeKit {
 
 		internal byte[] GetRawValue (FormatOptions format)
 		{
-			if (format.International) {
+			if (format.International && !explicitRawValue) {
 				if (textValue == null)
 					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
 
@@ -1207,6 +1209,36 @@ namespace MimeKit {
 			var encoding = CharsetUtils.GetEncoding (charset);
 
 			SetValue (FormatOptions.Default, encoding, value);
+		}
+
+		/// <summary>
+		/// Set the raw header value.
+		/// </summary>
+		/// <remarks>
+		/// <para>Sets the raw header value.</para>
+		/// <para>This method can be used to override default encoding and folding behavior
+		/// for a particular header.</para>
+		/// </remarks>
+		/// <param name="value">The raw header value.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> does not end with a new-line character.
+		/// </exception>
+		public void SetRawValue (byte[] value)
+		{
+			if (value == null)
+				throw new ArgumentNullException (nameof (value));
+
+			if (value.Length == 0 || value[value.Length - 1] != (byte) '\n')
+				throw new ArgumentException ("The raw value MUST end with a new-line character.", nameof (value));
+
+			explicitRawValue = true;
+			rawValue = value;
+			textValue = null;
+
+			OnChanged ();
 		}
 
 		internal event EventHandler Changed;
