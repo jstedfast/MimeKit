@@ -675,12 +675,11 @@ namespace MimeKit {
 				return;
 
 			fixed (byte* buf = headerBuffer) {
-				Header header;
-
-				Header.TryParse (options, buf, headerIndex, false, out header);
-				header.Offset = headerOffset;
-				headers.Add (header);
-				headerIndex = 0;
+				if (Header.TryParse (options, buf, headerIndex, false, out var header)) {
+					header.Offset = headerOffset;
+					headers.Add (header);
+					headerIndex = 0;
+				}
 			}
 		}
 
