@@ -1048,7 +1048,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="mimeType"/> is empty.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="extension"/> is empty or does not begin with a '.'.</para>
+		/// <para><paramref name="extension"/> is empty.</para>
 		/// </exception>
 		public static void Register (string mimeType, string extension)
 		{
@@ -1065,7 +1065,7 @@ namespace MimeKit {
 				throw new ArgumentException ("Cannot register an empty file extension.", nameof (extension));
 
 			if (extension[0] != '.')
-				throw new ArgumentException ("File extensions must start with a '.' character.", nameof (extension));
+				extension = "." + extension;
 
 			mimeTypes[extension] = mimeType;
 			extensions[mimeType] = extension;
