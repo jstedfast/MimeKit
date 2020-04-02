@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -223,7 +223,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
-			return new RealCmsRecipient (RealSubjectIdentifierType.SubjectKeyIdentifier, certificate);
+			return new RealCmsRecipient (certificate);
 		}
 
 		/// <summary>
@@ -260,13 +260,28 @@ namespace MimeKit.Cryptography {
 			foreach (var recipient in recipients) {
 				var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
 				RealSubjectIdentifierType type;
+				RealCmsRecipient real;
 
-				if (recipient.RecipientIdentifierType == SubjectIdentifierType.IssuerAndSerialNumber)
+				if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 					type = RealSubjectIdentifierType.IssuerAndSerialNumber;
 				else
 					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
 
-				collection.Add (new RealCmsRecipient (type, certificate));
+#if NETCOREAPP3_0
+				var padding = recipient.RsaEncryptionPadding?.AsRSAEncryptionPadding ();
+
+				if (padding != null)
+					real = new RealCmsRecipient (type, certificate, padding);
+				else
+					real = new RealCmsRecipient (type, certificate);
+#else
+				if (recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep)
+					throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+
+				real = new RealCmsRecipient (type, certificate);
+#endif
+
+				collection.Add (real);
 			}
 
 			return collection;
@@ -324,14 +339,14 @@ namespace MimeKit.Cryptography {
 
 		AsnEncodedData GetSecureMimeCapabilities ()
 		{
-			var attr = GetSecureMimeCapabilitiesAttribute ();
+			var attr = GetSecureMimeCapabilitiesAttribute (false);
 
 			return new AsnEncodedData (attr.AttrType.Id, attr.AttrValues[0].GetEncoded ());
 		}
 
-		RealCmsSigner GetRealCmsSigner (X509Certificate2 certificate, DigestAlgorithm digestAlgo)
+		RealCmsSigner GetRealCmsSigner (RealSubjectIdentifierType type, X509Certificate2 certificate, DigestAlgorithm digestAlgo)
 		{
-			var signer = new RealCmsSigner (certificate);
+			var signer = new RealCmsSigner (type, certificate);
 			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
 			signer.SignedAttributes.Add (GetSecureMimeCapabilities ());
 			signer.SignedAttributes.Add (new Pkcs9SigningTime ());
@@ -341,11 +356,20 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (CmsSigner signer)
 		{
+			if (signer.RsaSignaturePadding == RsaSignaturePadding.Pss)
+				throw new NotSupportedException ("The RSASSA-PSS signature padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+
 			var certificate = signer.Certificate.AsX509Certificate2 ();
+			RealSubjectIdentifierType type;
+
+			if (signer.SignerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
+				type = RealSubjectIdentifierType.IssuerAndSerialNumber;
+			else
+				type = RealSubjectIdentifierType.SubjectKeyIdentifier;
 
 			certificate.PrivateKey = signer.PrivateKey.AsAsymmetricAlgorithm ();
 
-			return GetRealCmsSigner (certificate, signer.DigestAlgorithm);
+			return GetRealCmsSigner (type, certificate, signer.DigestAlgorithm);
 		}
 
 		/// <summary>
@@ -371,7 +395,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetSignerCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
-			return GetRealCmsSigner (certificate, digestAlgo);
+			return GetRealCmsSigner (RealSubjectIdentifierType.IssuerAndSerialNumber, certificate, digestAlgo);
 		}
 
 		/// <summary>
@@ -970,9 +994,22 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (encryptedData));
 
 			var enveloped = new EnvelopedCms ();
+			CryptographicException ce = null;
 
 			enveloped.Decode (ReadAllBytes (encryptedData));
-			enveloped.Decrypt ();
+
+			foreach (var recipient in enveloped.RecipientInfos) {
+				try {
+					enveloped.Decrypt (recipient);
+					ce = null;
+					break;
+				} catch (CryptographicException ex) {
+					ce = ex;
+				}
+			}
+
+			if (ce != null)
+				throw ce;
 
 			var decryptedData = enveloped.Encode ();
 
@@ -1198,9 +1235,9 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("No mailboxes specified.", nameof (mailboxes));
 
 			var cms = new CmsSignedDataStreamGenerator ();
-			var memory = new MemoryBlockStream ();
-
 			cms.AddCertificates (certificates);
+
+			var memory = new MemoryBlockStream ();
 			cms.Open (memory).Dispose ();
 			memory.Position = 0;
 

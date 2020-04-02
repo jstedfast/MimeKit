@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -542,10 +542,9 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextFactory != null)
 						return SecureMimeContextFactory ();
 
-#if !PORTABLE
 					if (!SqliteCertificateDatabase.IsAvailable) {
 						const string format = "SQLite is not available. Either install the {0} nuget or subclass MimeKit.Cryptography.SecureMimeContext and register it with MimeKit.Cryptography.CryptographyContext.Register().";
-#if NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 						throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
 #else
 						throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
@@ -553,9 +552,6 @@ namespace MimeKit.Cryptography {
 					}
 
 					return new DefaultSecureMimeContext ();
-#else
-					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.SecureMimeContext"));
-#endif
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":
 				case "application/x-pgp-encrypted":
@@ -571,22 +567,6 @@ namespace MimeKit.Cryptography {
 				}
 			}
 		}
-
-#if PORTABLE
-		static ConstructorInfo GetConstructor (TypeInfo type)
-		{
-			foreach (var ctor in type.DeclaredConstructors) {
-				var args = ctor.GetParameters ();
-
-				if (args.Length != 0)
-					continue;
-
-				return ctor;
-			}
-
-			return null;
-		}
-#endif
 
 		/// <summary>
 		/// Registers a default <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.
@@ -611,17 +591,13 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-#if PORTABLE || NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;
 #endif
-
-#if PORTABLE
-			var ctor = GetConstructor (info);
-#else
 			var ctor = type.GetConstructor (new Type[0]);
-#endif
+
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", nameof (type));
 

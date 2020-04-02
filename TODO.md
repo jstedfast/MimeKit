@@ -10,6 +10,8 @@
 * S/MIME
   * BouncyCastleSecureMimeContext
     * Add support for downloading CRLs via FTP? Is this needed or at all common?
+  * Add a RECORDVERSION table column to the SQL database so we can add columns
+    in the future and work around gaps in the row data?
 
 ### Pie-in-the-sky Ideas
 

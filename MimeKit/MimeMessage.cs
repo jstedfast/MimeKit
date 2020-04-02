@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,10 +32,6 @@ using System.Threading;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
 
 #if ENABLE_SNM
 using System.Net.Mail;
@@ -1000,7 +996,7 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (FormatOptions.Default, memory);
 
-#if !PORTABLE && !NETSTANDARD
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				var buffer = memory.GetBuffer ();
 #else
 				var buffer = memory.ToArray ();
@@ -1100,11 +1096,14 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						var rawValue = header.GetRawValue (options);
-
 						filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
-						filtered.Write (Header.Colon, 0, Header.Colon.Length, cancellationToken);
-						filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
+
+						if (!header.IsInvalid) {
+							var rawValue = header.GetRawValue (options);
+
+							filtered.Write (Header.Colon, 0, Header.Colon.Length, cancellationToken);
+							filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
+						}
 					}
 
 					filtered.Flush (cancellationToken);
@@ -1173,11 +1172,14 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						var rawValue = header.GetRawValue (options);
-
 						await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
-						await filtered.WriteAsync (Header.Colon, 0, Header.Colon.Length, cancellationToken).ConfigureAwait (false);
-						await filtered.WriteAsync (rawValue, 0, rawValue.Length, cancellationToken).ConfigureAwait (false);
+
+						if (!header.IsInvalid) {
+							var rawValue = header.GetRawValue (options);
+
+							await filtered.WriteAsync (Header.Colon, 0, Header.Colon.Length, cancellationToken).ConfigureAwait (false);
+							await filtered.WriteAsync (rawValue, 0, rawValue.Length, cancellationToken).ConfigureAwait (false);
+						}
 					}
 
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
@@ -1341,7 +1343,6 @@ namespace MimeKit {
 			return WriteToAsync (FormatOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Write the message to the specified file.
 		/// </summary>
@@ -1384,8 +1385,10 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
 				WriteTo (options, stream, cancellationToken);
+				stream.Flush ();
+			}
 		}
 
 		/// <summary>
@@ -1431,8 +1434,10 @@ namespace MimeKit {
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
 				await WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+				await stream.FlushAsync (cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		/// <summary>
@@ -1468,11 +1473,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				WriteTo (FormatOptions.Default, stream, cancellationToken);
+			WriteTo (FormatOptions.Default, fileName, cancellationToken);
 		}
 
 		/// <summary>
@@ -1507,15 +1508,10 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
-				await WriteToAsync (FormatOptions.Default, stream, cancellationToken).ConfigureAwait (false);
+			return WriteToAsync (FormatOptions.Default, fileName, cancellationToken);
 		}
-#endif
 
 		MailboxAddress GetMessageSigner ()
 		{
@@ -2153,6 +2149,17 @@ namespace MimeKit {
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 
+			// write all of the prepended message headers first
+			while (mesgIndex < Headers.Count) {
+				var mesgHeader = Headers[mesgIndex];
+				if (mesgHeader.Offset.HasValue)
+					break;
+
+				yield return mesgHeader;
+				mesgIndex++;
+			}
+
+			// now merge the message and body headers as they appeared in the raw message
 			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
 				var bodyHeader = Body.Headers[bodyIndex];
 				if (!bodyHeader.Offset.HasValue)
@@ -2795,7 +2802,6 @@ namespace MimeKit {
 			return LoadAsync (ParserOptions.Default, stream, false, cancellationToken);
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
@@ -2979,7 +2985,6 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
-#endif // !PORTABLE
 
 #if ENABLE_SNM
 		static MimePart GetMimePart (AttachmentBase item)

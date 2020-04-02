@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.2.0</version>
+    <version>2.5.2</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
     <license type="expression">MIT</license>
     <projectUrl>http://www.mimekit.net</projectUrl>
     <repository type="git" url="https://github.com/jstedfast/MimeKit" />
-    <iconUrl>https://raw.github.com/jstedfast/MimeKit/master/nuget/mimekit-50.png</iconUrl>
+    <icon>icons\mimekit-50.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
@@ -26,23 +26,35 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added support for [ARC](https://arc-spec.org).
-* Added AuthenticationResults class for parsing and constructing Authentication-Results and ARC-Authentication-Results headers.
-* Added support for the Ed25519-SHA256 DKIM signature algorithm.
-* Obsoleted MimeMessage DKIM API's in favor of the newer DKIM API's:
-  - MimeMessage.Sign (DkimSigner, ...) has been replaced by DkimSigner.Sign (MimeMessage, ...).
-  - MimeMessage.Verify (Header, ...) has been replaced by DkimVerifier.Verify (MimeMessage, Header, ...).
-* Added DkimPublicKeyLocatorBase to help simplify implementing IDkimPublicKeyLocator.
+* Updated net46, net47, and net48 builds to reference Portable.BouncyCastle instead of the standard BouncyCastle package, just like the netstandard builds. (issue #540)
+* Fixed extraction of TNEF EmbeddedMessage attachment data to skip the leading GUID. (issue #538)
+* Added a few more TNEF property tags.
+* Fixed the HtmlEntityDecoder to require some named attributes to end with a `;`.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
-    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid win8 wp81</tags>
+    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.8" />
       <frameworkAssembly assemblyName="System" targetFramework="monoandroid" />
       <frameworkAssembly assemblyName="System.Core" targetFramework="monoandroid" />
       <frameworkAssembly assemblyName="System.Data" targetFramework="monoandroid" />
@@ -56,8 +68,21 @@
       <group targetFramework="net45">
         <dependency id="BouncyCastle" version="1.8.5" />
       </group>
-      <group targetFramework="monoandroid" />
-      <group targetFramework="xamarinios" />
+      <group targetFramework="net46">
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
+      </group>
+      <group targetFramework="net47">
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
+      </group>
+      <group targetFramework="net48">
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
+      </group>
+      <group targetFramework="monoandroid">
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
+      </group>
+      <group targetFramework="xamarinios">
+        <dependency id="Portable.BouncyCastle" version="1.8.5" />
+      </group>
       <group targetFramework="netstandard1.3">
         <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
@@ -79,12 +104,6 @@
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
-      <group targetFramework="portable-net45+win8">
-        <dependency id="Portable.BouncyCastle" version="1.8.5" />
-      </group>
-      <group targetFramework="portable-net45+win8+wpa81">
-        <dependency id="Portable.BouncyCastle" version="1.8.5" />
-      </group>
     </dependencies>
   </metadata>
   <files>
@@ -94,19 +113,18 @@
     <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKit.xml" target="lib\netstandard1.6\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll" target="lib\netstandard2.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.xml" target="lib\netstandard2.0\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\MonoAndroid\BouncyCastle.dll" target="lib\monoandroid\BouncyCastle.dll" />
     <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.dll" target="lib\monoandroid\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.xml" target="lib\monoandroid\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\Xamarin.iOS\BouncyCastle.dll" target="lib\xamarinios\BouncyCastle.dll" />
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.dll" target="lib\xamarinios\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.xml" target="lib\xamarinios\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\portable\MimeKit.dll" target="lib\portable-net45+win8\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\portable\MimeKit.xml" target="lib\portable-net45+win8\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win8\Portable.Text.Encoding.dll" />
-    <file src="..\MimeKit\bin\Release\wpa81\MimeKit.dll" target="lib\portable-net45+win8+wpa81\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\wpa81\MimeKit.xml" target="lib\portable-net45+win8+wpa81\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\wpa81\Portable.Text.Encoding.dll" target="lib\portable-net45+win8+wpa81\Portable.Text.Encoding.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKit.dll" target="lib\net46\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKit.xml" target="lib\net46\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKit.dll" target="lib\net48\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKit.xml" target="lib\net48\MimeKit.xml" />
+    <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>

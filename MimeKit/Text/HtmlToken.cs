@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ namespace MimeKit.Text {
 	public abstract class HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlToken"/>.
@@ -73,12 +73,12 @@ namespace MimeKit.Text {
 		public abstract void WriteTo (TextWriter output);
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Text.HtmlToken"/>.
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="HtmlToken"/>.
 		/// </summary>
 		/// <remarks>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Text.HtmlToken"/>.
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="HtmlToken"/>.
 		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Text.HtmlToken"/>.</returns>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="HtmlToken"/>.</returns>
 		public override string ToString ()
 		{
 			using (var output = new StringWriter ()) {
@@ -98,7 +98,7 @@ namespace MimeKit.Text {
 	public class HtmlCommentToken : HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlCommentToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlCommentToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlCommentToken"/>.
@@ -181,7 +181,7 @@ namespace MimeKit.Text {
 	public class HtmlDataToken : HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlDataToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlDataToken"/>.
@@ -211,7 +211,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlDataToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlDataToken"/>.
@@ -277,7 +277,7 @@ namespace MimeKit.Text {
 	public class HtmlCDataToken : HtmlDataToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlCDataToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlCDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlCDataToken"/>.
@@ -321,7 +321,7 @@ namespace MimeKit.Text {
 	public class HtmlScriptDataToken : HtmlDataToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlScriptDataToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlScriptDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlScriptDataToken"/>.
@@ -363,7 +363,7 @@ namespace MimeKit.Text {
 	public class HtmlTagToken : HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlTagToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlTagToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlTagToken"/>.
@@ -391,7 +391,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlTagToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlTagToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlTagToken"/>.
@@ -512,7 +512,7 @@ namespace MimeKit.Text {
 		string systemIdentifier;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlDocTypeToken"/> class.
+		/// Initializes a new instance of the <see cref="HtmlDocTypeToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlDocTypeToken"/>.

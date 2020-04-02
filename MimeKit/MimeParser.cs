@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
 
 using MimeKit.Utils;
 using MimeKit.IO;
@@ -679,19 +675,11 @@ namespace MimeKit {
 				return;
 
 			fixed (byte* buf = headerBuffer) {
-				Header header;
-
-				if (!Header.TryParse (options, buf, headerIndex, false, out header)) {
-#if DEBUG
-					Debug.WriteLine (string.Format ("Invalid header at offset {0}: {1}", headerOffset, ConvertToCString (headerBuffer, 0, headerIndex)));
-#endif
+				if (Header.TryParse (options, buf, headerIndex, false, out var header)) {
+					header.Offset = headerOffset;
+					headers.Add (header);
 					headerIndex = 0;
-					return;
 				}
-
-				header.Offset = headerOffset;
-				headers.Add (header);
-				headerIndex = 0;
 			}
 		}
 
@@ -751,7 +739,6 @@ namespace MimeKit {
 							if (IsBlank (*inptr)) {
 								blank = true;
 							} else if (blank || IsControl (*inptr)) {
-								char c = (char) *inptr;
 								valid = false;
 								break;
 							}
@@ -760,7 +747,7 @@ namespace MimeKit {
 						}
 
 						if (inptr == inend) {
-							// we don't have enough input data
+							// we don't have enough input data; restore state back to the beginning of the line
 							left = (int) (inend - start);
 							inputIndex = (int) (start - inbuf);
 							needInput = true;
@@ -889,7 +876,7 @@ namespace MimeKit {
 			ResetRawHeaderData ();
 			headers.Clear ();
 
-			ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
+			ReadAhead (ReadAheadSize, 0, cancellationToken);
 
 			do {
 				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
@@ -1257,6 +1244,8 @@ namespace MimeKit {
 
 			if (!empty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding);
+			else
+				content.Dispose ();
 
 			return found;
 		}
@@ -1567,9 +1556,8 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
+			contentEnd = 0;
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
-				contentEnd = 0;
-
 				for (int i = 0; i < headers.Count; i++) {
 					if (headers[i].Id != HeaderId.ContentLength)
 						continue;

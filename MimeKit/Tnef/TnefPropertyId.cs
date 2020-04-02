@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -176,6 +176,26 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_ATTACH_LONG_PATHNAME.
 		/// </summary>
 		AttachLongPathname                       = 0x370D,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_CONTACTPHOTO.
+		/// </summary>
+		AttachmentContactPhoto                   = 0x7FFF,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_FLAGS.
+		/// </summary>
+		AttachmentFlags                          = 0x7FFD,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_HIDDEN.
+		/// </summary>
+		AttachmentHidden                         = 0x7FFE,
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_LINKID.
+		/// </summary>
+		AttachmentLinkId                         = 0x7FFA,
 
 		/// <summary>
 		/// The MAPI property PR_ATTACHMENT_X400_PARAMETERS.
@@ -728,6 +748,16 @@ namespace MimeKit.Tnef {
 		EntryId                                  = 0x0FFF,
 
 		/// <summary>
+		/// The MAPI property PR_EXCEPTION_STARTTIME.
+		/// </summary>
+		ExceptionStartTime                       = 0x7FFB,
+
+		/// <summary>
+		/// The MAPI property PR_EXCEPTION_ENDTIME.
+		/// </summary>
+		ExceptionEndTime                         = 0x7FFC,
+
+		/// <summary>
 		/// The MAPI property PR_EXPAND_BEGIN_TIME.
 		/// </summary>
 		ExpandBeginTime                          = 0x3618,
@@ -1116,6 +1146,11 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_LAST_MODIFICATION_TIME.
 		/// </summary>
 		LastModificationTime                     = 0x3008,
+
+		/// <summary>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </summary>
+		LastModifierName                         = 0x3FFA,
 
 		/// <summary>
 		/// The MAPI property PR_LATEST_DELIVERY_TIME.
@@ -1951,6 +1986,11 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_RECIPIENT_CERTIFICATE.
 		/// </summary>
 		RecipientCertificate                     = 0x0C13,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </summary>
+		RecipientDisplayName                     = 0x5FF6,
 
 		/// <summary>
 		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.

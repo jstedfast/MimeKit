@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,9 @@
 //
 
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
-
-#if PORTABLE
-using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
-using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
-using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
-using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
-using EncoderFallbackException = Portable.Text.EncoderFallbackException;
-using DecoderFallbackException = Portable.Text.DecoderFallbackException;
-using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
-using DecoderFallback = Portable.Text.DecoderFallback;
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
 
 namespace MimeKit.Utils {
 	static class CharsetUtils
@@ -574,6 +561,30 @@ namespace MimeKit.Utils {
 			int count;
 
 			return new string (ConvertToUnicode (encoding, buffer, startIndex, length, out count), 0, count);
+		}
+
+		public static bool TryGetBomEncoding (byte[] buffer, int length, out Encoding encoding)
+		{
+			if (length >= 2 && buffer[0] == 0xFF && buffer[1] == 0xFE)
+				encoding = Encoding.Unicode; // UTF-16LE
+			else if (length >= 2 && buffer[0] == 0xFE && buffer[1] == 0xFF)
+				encoding = Encoding.BigEndianUnicode; // UTF-16BE
+			else if (length >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
+				encoding = UTF8; // UTF-8
+			else
+				encoding = null;
+
+			return encoding != null;
+		}
+
+		public static bool TryGetBomEncoding (Stream stream, out Encoding encoding)
+		{
+			var bom = new byte[3];
+			int n;
+
+			n = stream.Read (bom, 0, bom.Length);
+
+			return TryGetBomEncoding (bom, n, out encoding);
 		}
 	}
 }

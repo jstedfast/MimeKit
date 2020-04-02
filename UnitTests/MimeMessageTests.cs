@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -102,6 +102,40 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.SignAndEncrypt (null));
 
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.CreateFromMailMessage (null));
+		}
+
+		[Test]
+		public void TestPrependHeader ()
+		{
+			string rawMessageText = @"Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
+From: MimeKit Unit Tests <unit.tests@mimekit.org>
+To: MimeKit Unit Tests <unit.tests@mimekit.org>
+Subject: This is a test off prepending headers.
+Message-Id: <id@localhost.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+
+This is the message body.
+".Replace ("\r\n", "\n");
+			string expected = "X-Prepended: This is the prepended header\n" + rawMessageText;
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				message.Headers.Insert (0, new Header ("X-Prepended", "This is the prepended header"));
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (expected, result, "Reserialized message is not identical to the original.");
+				}
+			}
 		}
 
 		[Test]
@@ -388,6 +422,292 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReserializationEpilogue ()
+		{
+			string rawMessageText = @"From: Example Test <test@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+   boundary=""simple boundary""
+
+This is the preamble.
+
+--simple boundary
+Content-TypeS: text/plain
+
+This is a test.
+
+--simple boundary
+Content-Type: text/plain
+Content-Disposition: attachment
+Content-Transfer-Encoding: 7bit
+
+Another test.
+
+--simple boundary--
+
+
+This is the epilogue.".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized message is not identical to the original (EnsureNewLine).");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized (async) message is not identical to the original (EnsureNewLine).");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReserializationMultipartPreambleNoBoundary ()
+		{
+			string rawMessageText = @"From: Example Test <test@example.com>
+Content-Type: multipart/mixed
+
+This is the preamble.
+.".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized message is not identical to the original (EnsureNewLine).");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized (async) message is not identical to the original (EnsureNewLine).");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReserializationInvalidHeaders ()
+		{
+			string rawMessageText = @"From: Example Test <test@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+   boundary=""simple boundary""
+Example: test
+Test
+Test Test
+Test:
+Test: 
+Test: Test
+Test Example:
+
+This is the preamble.
+
+--simple boundary
+Content-TypeS: text/plain
+
+This is a test.
+
+--simple boundary
+Content-Type: text/plain;
+Content-Disposition: attachment;
+Content-Transfer-Encoding: test;
+Content-Transfer-Encoding: binary;
+Test Test Test: Test Test
+Te$t($)*$= Test Test: Abc def
+test test = test
+test test :: test
+filename=""test.txt""
+
+Another test.
+
+--simple boundary--
+
+
+This is the epilogue.
+".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReserializationDeliveryStatusReportWithEnsureNewLine ()
+		{
+			string rawMessageText = @"From: est@somwhere.com
+Date: Fri, 15 Feb 2019 16:00:08 +0000
+Subject: report_with_no_body
+To: tom@to.com
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary=""A41C7.838631588=_/mm1""
+
+
+Processing your mail message caused the following errors:
+
+error: err.nosuchuser: newsletter-request@imusic.com
+
+--A41C7.838631588=_/mm1
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mm1
+Arrival-Date: Mon, 29 Jul 1996 02:12:50 -0700
+
+Final-Recipient: RFC822; newsletter-request@imusic.com
+Action: failed
+Diagnostic-Code: X-LOCAL; 500 (err.nosuchuser)
+
+--A41C7.838631588=_/mm1
+Content-Type: message/rfc822
+
+Received: from urchin.netscape.com ([198.95.250.59]) by mm1.sprynet.com with ESMTP id <148217-12799>; Mon, 29 Jul 1996 02:12:50 -0700
+Received: from gruntle (gruntle.mcom.com [205.217.230.10]) by urchin.netscape.com (8.7.5/8.7.3) with SMTP id CAA24688 for <newsletter-request@imusic.com>; Mon, 29 Jul 1996 02:04:53 -0700 (PDT)
+Sender: jwz@netscape.com
+Message-ID: <31FC7EB4.41C6@netscape.com>
+Date: Mon, 29 Jul 1996 02:04:52 -0700
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.0b6 (X11; U; IRIX 5.3 IP22)
+MIME-Version: 1.0
+To: newsletter-request@imusic.com
+Subject: unsubscribe
+References: <96Jul29.013736-0700pdt.148116-12799+675@mm1.sprynet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+unsubscribe
+--A41C7.838631588=_/mm1--
+".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				var parser = new MimeParser (source, MimeFormat.Default);
+				var message = parser.ParseMessage ();
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+					options.EnsureNewLine = true;
 
 					await message.WriteToAsync (options, serialized);
 

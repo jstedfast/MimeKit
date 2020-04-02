@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -712,7 +712,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParseLatin1EncodedAddrspec ()
+		public void TestParseMailboxWithLatin1EncodedAddrspec ()
 		{
 			const string text = "Name <æøå@example.com>";
 			var buffer = CharsetUtils.Latin1.GetBytes (text);
@@ -756,5 +756,31 @@ namespace UnitTests {
 		}
 
 		#endregion
+
+		[Test]
+		public void TestParseMailboxWithSquareBracketsInDisplayName ()
+		{
+			const string text = "[Invalid Sender] <sender@tk2-201-10422.vs.sakura.ne.jp>";
+
+			AssertParse (text);
+
+			AssertParseFailure (text, false, 0, 0, RfcComplianceMode.Strict);
+		}
+
+		[Test]
+		public void TestParseAddrspecWithUnicodeLocalPart ()
+		{
+			const string text = "test.täst@test.net";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseAddrspecWitheroWidthSpace ()
+		{
+			const string text = "\u200Btest@test.co.uk";
+
+			AssertParse (text);
+		}
 	}
 }

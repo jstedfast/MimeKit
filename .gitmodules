@@ -1,7 +1,0 @@
-[submodule "submodules/Portable.Text.Encoding"]
-	path = submodules/Portable.Text.Encoding
-	url = https://github.com/jstedfast/Portable.Text.Encoding.git
-[submodule "submodules/bc-csharp"]
-	path = submodules/bc-csharp
-	url = https://github.com/jstedfast/bc-csharp.git
-	branch = build-fix

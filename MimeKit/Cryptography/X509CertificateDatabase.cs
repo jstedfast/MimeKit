@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -131,7 +131,7 @@ namespace MimeKit.Cryptography {
 
 		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
 		{
-#if NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			buffer = reader.GetFieldValue<byte[]> (column);
 			return (int) buffer.Length;
 #else
@@ -373,7 +373,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected abstract DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -384,11 +384,11 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select certificate records matching the specified selector.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		/// <param name="selector">Selector.</param>
-		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be matched.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key.</param>
+		/// <param name="selector">The certificate selector.</param>
+		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
+		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the column names for the specified fields.
@@ -487,11 +487,14 @@ namespace MimeKit.Cryptography {
 			//case "ID": return record.Id;
 			case "BASICCONSTRAINTS": return record.BasicConstraints;
 			case "TRUSTED": return record.IsTrusted;
+			case "ANCHOR": return record.IsAnchor;
 			case "KEYUSAGE": return (int) record.KeyUsage;
 			case "NOTBEFORE": return record.NotBefore.ToUniversalTime ();
 			case "NOTAFTER": return record.NotAfter.ToUniversalTime ();
 			case "ISSUERNAME": return record.IssuerName;
 			case "SERIALNUMBER": return record.SerialNumber;
+			case "SUBJECTNAME": return record.SubjectName;
+			case "SUBJECTKEYIDENTIFIER": return record.SubjectKeyIdentifier?.AsHex ();
 			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;
 			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
 			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
@@ -587,21 +590,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			using (var command = GetSelectCommand (certificate, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CertificateParser ();
 						var buffer = new byte[4096];
 
 						return LoadCertificateRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -620,9 +615,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<X509Certificate> FindCertificates (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (selector, false, false, X509CertificateRecordFields.Certificate)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
@@ -631,12 +624,6 @@ namespace MimeKit.Cryptography {
 						if (selector == null || selector.Match (record.Certificate))
 							yield return record.Certificate;
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -655,9 +642,7 @@ namespace MimeKit.Cryptography {
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (selector, false, true, PrivateKeyFields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
@@ -667,12 +652,6 @@ namespace MimeKit.Cryptography {
 						if (selector == null || selector.Match (record.Certificate))
 							yield return record.PrivateKey;
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -701,21 +680,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			using (var command = GetSelectCommand (mailbox, now, requirePrivateKey, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
 						yield return LoadCertificateRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -731,14 +702,12 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
-		/// <param name="trustedOnly"><c>true</c> if only trusted certificates should be returned.</param>
+		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
-		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedOnly, X509CertificateRecordFields fields)
+		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
-			using (var command = GetSelectCommand (selector, trustedOnly, false, fields | X509CertificateRecordFields.Certificate)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+			using (var command = GetSelectCommand (selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
@@ -748,12 +717,6 @@ namespace MimeKit.Cryptography {
 						if (selector == null || selector.Match (record.Certificate))
 							yield return record;
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -837,21 +800,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (issuer));
 
 			using (var command = GetSelectCommand (issuer, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
 						yield return LoadCrlRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -877,21 +832,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (crl));
 
 			using (var command = GetSelectCommand (crl, fields)) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CrlParser ();
 						var buffer = new byte[4096];
 
 						return LoadCrlRecord (reader, parser, ref buffer);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 
@@ -961,15 +908,13 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets a certificate revocation list store.
 		/// </remarks>
-		/// <returns>A certificate recovation list store.</returns>
+		/// <returns>A certificate revocation list store.</returns>
 		public IX509Store GetCrlStore ()
 		{
 			var crls = new List<X509Crl> ();
 
 			using (var command = GetSelectAllCrlsCommand ()) {
-				var reader = command.ExecuteReader ();
-
-				try {
+				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
 
@@ -977,12 +922,6 @@ namespace MimeKit.Cryptography {
 						var record = LoadCrlRecord (reader, parser, ref buffer);
 						crls.Add (record.Crl);
 					}
-				} finally {
-#if NETSTANDARD
-					reader.Dispose ();
-#else
-					reader.Close ();
-#endif
 				}
 			}
 

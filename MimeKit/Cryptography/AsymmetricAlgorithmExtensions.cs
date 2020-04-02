@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,7 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
-		static void GetAsymmetricKeyParameters (DSACryptoServiceProvider dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
+		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
 			var dp = dsa.ExportParameters (!publicOnly);
 			var validationParameters = dp.Seed != null ? new DsaValidationParameters (dp.Seed, dp.Counter) : null;
@@ -76,7 +76,7 @@ namespace MimeKit.Cryptography
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
-		static void GetAsymmetricKeyParameters (RSACryptoServiceProvider rsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
+		static void GetAsymmetricKeyParameters (RSA rsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
 			var rp = rsa.ExportParameters (!publicOnly);
 			var modulus = new BigInteger (1, rp.Modulus);
@@ -116,6 +116,26 @@ namespace MimeKit.Cryptography
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
+#if NET46 || NET47 || NET48 || NETCOREAPP3_0 || __MOBILE__
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACng rsa)
+		{
+			AsymmetricKeyParameter pub, key;
+
+			GetAsymmetricKeyParameters (rsa, false, out pub, out key);
+
+			return key;
+		}
+
+		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (RSACng rsa)
+		{
+			AsymmetricKeyParameter pub, key;
+
+			GetAsymmetricKeyParameters (rsa, false, out pub, out key);
+
+			return new AsymmetricCipherKeyPair (pub, key);
+		}
+#endif
+
 		/// <summary>
 		/// Convert an AsymmetricAlgorithm into a BouncyCastle AsymmetricKeyParameter.
 		/// </summary>
@@ -141,6 +161,11 @@ namespace MimeKit.Cryptography
 
 			if (key is RSACryptoServiceProvider)
 				return GetAsymmetricKeyParameter ((RSACryptoServiceProvider) key);
+
+#if NET46 || NET47 || NET48 || NETCOREAPP3_0 || __MOBILE__
+			if (key is RSACng)
+				return GetAsymmetricKeyParameter ((RSACng) key);
+#endif
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
@@ -175,6 +200,11 @@ namespace MimeKit.Cryptography
 
 			if (key is RSACryptoServiceProvider)
 				return GetAsymmetricCipherKeyPair ((RSACryptoServiceProvider) key);
+
+#if NET46 || NET47 || NET48 || NETCOREAPP3_0 || __MOBILE__
+			if (key is RSACng)
+				return GetAsymmetricCipherKeyPair ((RSACng) key);
+#endif
 
 			// TODO: support ECDiffieHellman and ECDsa?
 

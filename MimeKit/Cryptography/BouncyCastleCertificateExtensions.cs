@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,9 +36,7 @@ using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 
-#if !PORTABLE
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
-#endif
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -49,7 +47,6 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public static class BouncyCastleCertificateExtensions
 	{
-#if !PORTABLE
 		/// <summary>
 		/// Convert a BouncyCastle certificate into an X509Certificate2.
 		/// </summary>
@@ -68,7 +65,11 @@ namespace MimeKit.Cryptography {
 
 			return new X509Certificate2 (certificate.GetEncoded ());
 		}
-#endif
+
+		internal static bool IsSelfSigned (this X509Certificate certificate)
+		{
+			return certificate.SubjectDN.Equivalent (certificate.IssuerDN);
+		}
 
 		/// <summary>
 		/// Gets the issuer name info.
@@ -189,6 +190,16 @@ namespace MimeKit.Cryptography {
 			return null;
 		}
 
+		internal static string AsHex (this byte[] blob)
+		{
+			var hex = new StringBuilder (blob.Length * 2);
+
+			for (int i = 0; i < blob.Length; i++)
+				hex.Append (blob[i].ToString ("x2"));
+
+			return hex.ToString ();
+		}
+
 		/// <summary>
 		/// Gets the fingerprint of the certificate.
 		/// </summary>
@@ -207,17 +218,13 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			var encoded = certificate.GetEncoded ();
-			var fingerprint = new StringBuilder ();
+			var fingerprint = new byte[20];
 			var sha1 = new Sha1Digest ();
-			var data = new byte[20];
 
 			sha1.BlockUpdate (encoded, 0, encoded.Length);
-			sha1.DoFinal (data, 0);
+			sha1.DoFinal (fingerprint, 0);
 
-			for (int i = 0; i < data.Length; i++)
-				fingerprint.Append (data[i].ToString ("x2"));
-
-			return fingerprint.ToString ();
+			return fingerprint.AsHex ();
 		}
 
 		/// <summary>
@@ -352,7 +359,7 @@ namespace MimeKit.Cryptography {
 		{
 			var critical = crl.GetCriticalExtensionOids ();
 
-			return critical.Contains (X509Extensions.DeltaCrlIndicator.Id);
+			return critical != null ? critical.Contains (X509Extensions.DeltaCrlIndicator.Id) : false;
 		}
 	}
 }

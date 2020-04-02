@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -62,16 +62,17 @@ namespace UnitTests.Cryptography {
 
 		static void AssertDefaultValues (CmsRecipient recipient, X509Certificate certificate)
 		{
-			Assert.AreEqual (certificate, recipient.Certificate);
-			Assert.AreEqual (1, recipient.EncryptionAlgorithms.Length);
-			Assert.AreEqual (EncryptionAlgorithm.TripleDes, recipient.EncryptionAlgorithms[0]);
-			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, recipient.RecipientIdentifierType);
+			Assert.AreEqual (certificate, recipient.Certificate, "Certificate");
+			Assert.AreEqual (1, recipient.EncryptionAlgorithms.Length, "EncryptionAlgorithms");
+			Assert.AreEqual (EncryptionAlgorithm.TripleDes, recipient.EncryptionAlgorithms[0], "EncryptionAlgorithm");
+			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, recipient.RecipientIdentifierType, "RecipientIdentifierType");
+			Assert.IsNull (recipient.RsaEncryptionPadding, "RsaEncryptionPadding");
 		}
 
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "certificate-authority.crt");
+			var path = Path.Combine ("..", "..", "TestData", "smime", "StartComCertificationAuthority.crt");
 			var recipient = new CmsRecipient (path);
 			var certificate = recipient.Certificate;
 
@@ -92,9 +93,29 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestRecipientIdentifierType ()
+		{
+			var path = Path.Combine ("..", "..", "TestData", "smime", "StartComCertificationAuthority.crt");
+			var recipient = new CmsRecipient (path, SubjectIdentifierType.SubjectKeyIdentifier);
+			var certificate = recipient.Certificate;
+
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+
+			using (var stream = File.OpenRead (path))
+				recipient = new CmsRecipient (stream, SubjectIdentifierType.SubjectKeyIdentifier);
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+
+			recipient = new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier);
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+
+			recipient = new CmsRecipient (new X509Certificate2 (File.ReadAllBytes (path)), SubjectIdentifierType.SubjectKeyIdentifier);
+			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+		}
+
+		[Test]
 		public void TestCollectionAddRemove ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "certificate-authority.crt");
+			var path = Path.Combine ("..", "..", "TestData", "smime", "StartComCertificationAuthority.crt");
 			var recipients = new CmsRecipientCollection ();
 			var recipient = new CmsRecipient (path);
 			var array = new CmsRecipient[1];

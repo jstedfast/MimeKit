@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,7 @@ namespace MimeKit.Text {
 	{
 		readonly char[] pushed;
 		readonly int[] states;
+		bool semicolon;
 		bool numeric;
 		byte digits;
 		byte xbase;
@@ -122,6 +123,9 @@ namespace MimeKit.Text {
 		/// </exception>
 		public bool Push (char c)
 		{
+			if (semicolon)
+				return false;
+
 			if (index == 0) {
 				if (c != '&')
 					throw new ArgumentOutOfRangeException (nameof (c), "The first character that is pushed MUST be the '&' character.");
@@ -135,9 +139,6 @@ namespace MimeKit.Text {
 			if (index + 1 > MaxEntityLength)
 				return false;
 
-			if (c == ';')
-				return false;
-
 			if (index == 1 && c == '#') {
 				pushed[index] = '#';
 				states[index] = 0;
@@ -146,12 +147,25 @@ namespace MimeKit.Text {
 				return true;
 			}
 
-			return numeric ? PushNumericEntity (c) : PushNamedEntity (c);
+			semicolon = c == ';';
+
+			if (numeric) {
+				if (c == ';') {
+					states[index] = states[index - 1];
+					pushed[index] = ';';
+					index++;
+					return true;
+				}
+
+				return PushNumericEntity (c);
+			}
+
+			return PushNamedEntity (c);
 		}
 
 		string GetNumericEntityValue ()
 		{
-			if (digits == 0)
+			if (digits == 0 || !semicolon)
 				return new string (pushed, 0, index);
 
 			int state = states[index - 1];
@@ -234,6 +248,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public void Reset ()
 		{
+			semicolon = false;
 			numeric = false;
 			digits = 0;
 			xbase = 0;

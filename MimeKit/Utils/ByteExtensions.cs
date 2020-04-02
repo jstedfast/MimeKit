@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,7 @@ namespace MimeKit.Utils {
 		IsTokenSpecial        = (1 << 11),
 		IsWhitespace          = (1 << 12),
 		IsXDigit              = (1 << 13),
+		IsPhraseAtom          = (1 << 14),
 
 		IsAsciiAtom           = IsAscii | IsAtom,
 	}
@@ -56,8 +57,8 @@ namespace MimeKit.Utils {
 		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
 		const string EncodedWordSpecials = "()<>@,;:\"/[]?.=_";  // rfc2047 5.1
 		const string EncodedPhraseSpecials = "!*+-/=_";          // rfc2047 5.3
-		const string Specials = "()<>@,;:\\\".[]";
-		internal const string TokenSpecials = "()<>@,;:\\\"/[]?=";
+		const string Specials = "()<>[]:;@\\,.\"";               // rfc5322 3.2.3
+		internal const string TokenSpecials = "()<>@,;:\\\"/[]?="; // rfc2045 5.1
 		const string Whitespace = " \t\r\n";
 
 		static readonly CharType[] table = new CharType[256];
@@ -110,7 +111,7 @@ namespace MimeKit.Utils {
 					if ((i >= 33 && i <= 60) || (i >= 62 && i <= 126) || i == 32)
 						table[i] |= (CharType.IsQuotedPrintableSafe | CharType.IsEncodedWordSafe);
 					if ((i >= '0' && i <= '9') || (i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z'))
-						table[i] |= CharType.IsEncodedPhraseSafe | CharType.IsAtom;
+						table[i] |= CharType.IsEncodedPhraseSafe | CharType.IsAtom | CharType.IsPhraseAtom;
 					if ((i >= '0' && i <= '9') || (i >= 'a' && i <= 'f') || (i >= 'A' && i <= 'F'))
 						table[i] |= CharType.IsXDigit;
 
@@ -119,7 +120,7 @@ namespace MimeKit.Utils {
 					if (i == 127)
 						table[i] |= CharType.IsAscii;
 					else
-						table[i] |= CharType.IsAtom;
+						table[i] |= CharType.IsAtom | CharType.IsPhraseAtom;
 
 					table[i] |= CharType.IsControl;
 				}
@@ -129,14 +130,18 @@ namespace MimeKit.Utils {
 			table[' '] |= CharType.IsSpace | CharType.IsBlank;
 
 			SetFlags (Whitespace, CharType.IsWhitespace, CharType.None, false);
-			SetFlags (AtomSafeCharacters, CharType.IsAtom, CharType.None, false);
+			SetFlags (AtomSafeCharacters, CharType.IsAtom | CharType.IsPhraseAtom, CharType.None, false);
 			SetFlags (TokenSpecials, CharType.IsTokenSpecial, CharType.IsControl, false);
 			SetFlags (Specials, CharType.IsSpecial, CharType.None, false);
 			SetFlags (DomainSpecials, CharType.IsDomainSafe, CharType.None, true);
-			RemoveFlags (Specials, CharType.IsAtom);
+			RemoveFlags (Specials, CharType.IsAtom | CharType.IsPhraseAtom);
 			RemoveFlags (EncodedWordSpecials, CharType.IsEncodedWordSafe);
 			RemoveFlags (AttributeSpecials + TokenSpecials, CharType.IsAttrChar);
 			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None, false);
+
+			// Note: Allow '[' and ']' in the display-name of a mailbox address
+			table['['] |= CharType.IsPhraseAtom;
+			table[']'] |= CharType.IsPhraseAtom;
 		}
 
 		//public static bool IsAscii (this byte c)
@@ -147,6 +152,11 @@ namespace MimeKit.Utils {
 		public static bool IsAsciiAtom (this byte c)
 		{
 			return (table[c] & CharType.IsAsciiAtom) == CharType.IsAsciiAtom;
+		}
+
+		public static bool IsPhraseAtom (this byte c)
+		{
+			return (table[c] & CharType.IsPhraseAtom) != 0;
 		}
 
 		public static bool IsAtom (this byte c)

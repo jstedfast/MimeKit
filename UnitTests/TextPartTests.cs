@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -69,6 +69,8 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Html, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Html), "IsFormat");
 
 			text = new TextPart (TextFormat.Plain);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
@@ -76,13 +78,18 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Plain, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Plain), "IsFormat");
 
 			text = new TextPart (TextFormat.Flowed);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
-			Assert.IsTrue (text.IsPlain, "IsPlain");
+			Assert.IsTrue (text.IsPlain, "IsPlain"); // special: Flowed is both Plain *and* Flowed
 			Assert.IsTrue (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Flowed, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Plain), "IsFormat"); // special: Flowed is both Plain *and* Flowed
+			Assert.IsTrue (text.IsFormat (TextFormat.Flowed), "IsFormat");
 
 			text = new TextPart (TextFormat.RichText);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
@@ -90,6 +97,18 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsFalse (text.IsEnriched, "IsEnriched");
 			Assert.IsTrue (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.RichText, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.RichText), "IsFormat");
+
+			text = new TextPart (new ContentType ("application", "rtf"));
+			Assert.IsFalse (text.IsHtml, "IsHtml");
+			Assert.IsFalse (text.IsPlain, "IsPlain");
+			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsFalse (text.IsEnriched, "IsEnriched");
+			Assert.IsTrue (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.RichText, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.RichText), "IsFormat");
+			Assert.IsFalse (text.IsFormat (TextFormat.CompressedRichText), "CompressedRichText");
 
 			text = new TextPart (TextFormat.Enriched);
 			Assert.IsFalse (text.IsHtml, "IsHtml");
@@ -97,6 +116,17 @@ namespace UnitTests
 			Assert.IsFalse (text.IsFlowed, "IsFlowed");
 			Assert.IsTrue (text.IsEnriched, "IsEnriched");
 			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Enriched, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Enriched), "IsFormat");
+
+			text = new TextPart ("richtext");
+			Assert.IsFalse (text.IsHtml, "IsHtml");
+			Assert.IsFalse (text.IsPlain, "IsPlain");
+			Assert.IsFalse (text.IsFlowed, "IsFlowed");
+			Assert.IsTrue (text.IsEnriched, "IsEnriched");
+			Assert.IsFalse (text.IsRichText, "IsRichText");
+			Assert.AreEqual (TextFormat.Enriched, text.Format, "Format");
+			Assert.IsTrue (text.IsFormat (TextFormat.Enriched), "IsFormat");
 		}
 
 		[Test]
@@ -114,24 +144,64 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestInvalidCharset ()
+		{
+			const string text = "This is some Låtín1 text.";
+
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
+			var part = new TextPart ("plain");
+
+			part.SetText ("iso-8859-1", text);
+			part.ContentType.Charset = "flubber";
+
+			Assert.AreEqual (text, part.Text);
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (text, actual, "GetText(out Encoding)");
+			Assert.AreEqual (latin1.CodePage, encoding.CodePage, "Encoding");
+		}
+
+		[Test]
+		public void TestNullContentIsAscii ()
+		{
+			var part = new TextPart ("plain");
+
+			Assert.AreEqual (string.Empty, part.Text, "Text");
+			Assert.AreEqual (string.Empty, part.GetText (Encoding.ASCII), "GetText");
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (string.Empty, actual, "GetText(out Encoding)");
+			Assert.AreEqual (Encoding.ASCII.CodePage, encoding.CodePage, "Encoding");
+		}
+
+		[Test]
 		public void TestLatin1 ()
 		{
 			const string text = "This is some Låtín1 text.";
 
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
 			var memory = new MemoryStream ();
-			var buffer = Encoding.GetEncoding ("iso-8859-1").GetBytes (text);
+			var buffer = latin1.GetBytes (text);
 			memory.Write (buffer, 0, buffer.Length);
 			memory.Position = 0;
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
 			Assert.AreEqual (text, part.Text);
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (text, actual, "GetText(out Encoding)");
+			Assert.AreEqual (latin1.CodePage, encoding.CodePage, "Encoding");
 		}
 
 		[Test]
 		public void TestUTF16BE ()
 		{
 			const string text = "This is some UTF-16BE text.\r\nThis is line #2.";
+			var expected = text.Replace ("\r\n", Environment.NewLine);
 
 			var memory = new MemoryStream ();
 			memory.WriteByte (0xfe);
@@ -143,13 +213,19 @@ namespace UnitTests
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
-			Assert.AreEqual (text.Replace ("\r\n", Environment.NewLine), part.Text.Substring (1));
+			Assert.AreEqual (expected, part.Text.Substring (1));
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (expected, actual.Substring (1), "GetText(out Encoding)");
+			Assert.AreEqual (Encoding.BigEndianUnicode.CodePage, encoding.CodePage, "Encoding");
 		}
 
 		[Test]
 		public void TestUTF16LE ()
 		{
 			const string text = "This is some UTF-16LE text.\r\nThis is line #2.";
+			var expected = text.Replace ("\r\n", Environment.NewLine);
 
 			var memory = new MemoryStream ();
 			memory.WriteByte (0xff);
@@ -161,7 +237,12 @@ namespace UnitTests
 
 			var part = new TextPart ("plain") { Content = new MimeContent (memory) };
 
-			Assert.AreEqual (text.Replace ("\r\n", Environment.NewLine), part.Text.Substring (1));
+			Assert.AreEqual (expected, part.Text.Substring (1));
+
+			var actual = part.GetText (out Encoding encoding);
+
+			Assert.AreEqual (expected, actual.Substring (1), "GetText(out Encoding)");
+			Assert.AreEqual (Encoding.Unicode.CodePage, encoding.CodePage, "Encoding");
 		}
 	}
 }

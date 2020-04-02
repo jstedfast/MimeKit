@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,6 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -493,7 +489,7 @@ namespace MimeKit.Cryptography {
 
 			Array.Resize (ref rawValue, length);
 
-			return new Header (header.Options, header.RawField, rawValue);
+			return new Header (header.Options, header.RawField, rawValue, false);
 		}
 	}
 }

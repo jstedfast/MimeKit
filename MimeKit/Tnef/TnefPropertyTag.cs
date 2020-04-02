@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -378,6 +378,38 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_ATTACH_LONG_PATHNAME.
 		/// </remarks>
 		public static readonly TnefPropertyTag AttachLongPathnameW = new TnefPropertyTag (TnefPropertyId.AttachLongPathname, TnefPropertyType.Unicode);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_CONTACTPHOTO.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_CONTACTPHOTO.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentContactPhoto = new TnefPropertyTag (TnefPropertyId.AttachmentContactPhoto, TnefPropertyType.Boolean);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_FLAGS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_FLAGS.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentFlags = new TnefPropertyTag (TnefPropertyId.AttachmentFlags, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_HIDDEN.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_HIDDEN.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentHidden = new TnefPropertyTag (TnefPropertyId.AttachmentHidden, TnefPropertyType.Boolean);
+
+		/// <summary>
+		/// The MAPI property PR_ATTACHMENT_LINKID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_ATTACHMENT_LINKID.
+		/// </remarks>
+		public static readonly TnefPropertyTag AttachmentLinkId = new TnefPropertyTag (TnefPropertyId.AttachmentLinkId, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_ATTACHMENT_X400_PARAMETERS.
@@ -2484,6 +2516,22 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag LastModificationTime = new TnefPropertyTag (TnefPropertyId.LastModificationTime, TnefPropertyType.SysTime);
 
 		/// <summary>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag LastModifierNameA = new TnefPropertyTag (TnefPropertyId.LastModifierName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_LAST_MODIFIER_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag LastModifierNameW = new TnefPropertyTag (TnefPropertyId.LastModifierName, TnefPropertyType.Unicode);
+
+		/// <summary>
 		/// The MAPI property PR_LATEST_DELIVERY_TIME.
 		/// </summary>
 		/// <remarks>
@@ -4307,6 +4355,22 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_RECIPIENT_CERTIFICATE.
 		/// </remarks>
 		public static readonly TnefPropertyTag RecipientCertificate = new TnefPropertyTag (TnefPropertyId.RecipientCertificate, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecipientDisplayNameA = new TnefPropertyTag (TnefPropertyId.RecipientDisplayName, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECIPIENT_DISPLAY_NAME.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecipientDisplayNameW = new TnefPropertyTag (TnefPropertyId.RecipientDisplayName, TnefPropertyType.Unicode);
 
 		/// <summary>
 		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.

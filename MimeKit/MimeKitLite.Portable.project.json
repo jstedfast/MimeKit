@@ -1,8 +1,0 @@
-﻿{
-  "frameworks": {
-    ".NETPortable,Version=v4.5,Profile=Profile7": {}
-  },
-  "runtimes": {
-    "win-anycpu": {}
-  },
-}

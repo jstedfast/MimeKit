@@ -86,7 +86,7 @@ How does your MIME parser compare?
 
 ## License Information
 
-MimeKit is Copyright (C) 2012-2018 Xamarin Inc. and is licensed under the MIT license:
+MimeKit is Copyright (C) 2012-2020 Xamarin Inc. and is licensed under the MIT license:
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -149,8 +149,8 @@ directory and select **Git Sync...** in the menu. Once you do that, you'll need 
 
 In the top-level MimeKit directory, there are a number of solution files; they are:
 
-* **MimeKit.sln** - includes projects for .NET 4.5, .NETStandard, PCL (Profile7 and Profile111),
-  Xamarin.Android, and Xamarin.iOS as well as the unit tests.
+* **MimeKit.sln** - includes projects for .NET 4.5, .NETStandard, Xamarin.Android, and Xamarin.iOS
+  as well as the unit tests.
 * **MimeKit.Mobile.sln** - includes only the Xamarin.Android and Xamarin.iOS projects.
 * **MimeKit.Net45.sln** - includes only the .NET 4.5 project and the unit tests.
 
@@ -1210,13 +1210,21 @@ tracker and look for something that might pique your interest!
 
 ## Reporting Bugs
 
-Have a bug or a feature request? [Please open a new issue](https://github.com/jstedfast/MimeKit/issues).
+Have a bug or a feature request? Please open a new
+[bug report](https://github.com/jstedfast/MimeKit/issues/new?template=bug_report.md)
+or
+[feature request](https://github.com/jstedfast/MimeKit/issues/new?template=feature_request.md).
 
-Before opening a new issue, please search for existing issues to avoid submitting duplicates.
+Before opening a new issue, please search through any [existing issues](https://github.com/jstedfast/MimeKit/issues)
+to avoid submitting duplicates. It may also be worth checking the
+[FAQ](https://github.com/jstedfast/MimeKit/blob/master/FAQ.md) for common questions that other developers
+have had.
+
+If you are getting an exception from somewhere within MimeKit, don't just provide the `Exception.Message`
+string. Please include the `Exception.StackTrace` as well. The `Message`, by itself, is often useless.
 
 ## Documentation
 
 API documentation can be found at [http://www.mimekit.net/docs](http://www.mimekit.net/docs).
 
-A copy of the xml formatted API documentation is also included in the NuGet and/or
-Xamarin Component package.
+A copy of the XML-formatted API reference documentation is also included in the NuGet package.

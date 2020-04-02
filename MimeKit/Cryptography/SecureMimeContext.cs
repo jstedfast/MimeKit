@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,11 @@ using System.Threading;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Kisa;
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.Smime;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -508,7 +509,7 @@ namespace MimeKit.Cryptography {
 			content.ContentStream.CopyTo (output, 4096);
 		}
 
-		internal SmimeCapabilitiesAttribute GetSecureMimeCapabilitiesAttribute ()
+		internal SmimeCapabilitiesAttribute GetSecureMimeCapabilitiesAttribute (bool includeRsaesOaep)
 		{
 			var capabilities = new SmimeCapabilityVector ();
 
@@ -566,6 +567,13 @@ namespace MimeKit.Cryptography {
 				//	capabilities.AddCapability (Twofish);
 				//	break;
 				}
+			}
+
+			if (includeRsaesOaep) {
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha1.GetRsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha256.GetRsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha384.GetRsaesOaepParameters ());
+				capabilities.AddCapability (PkcsObjectIdentifiers.IdRsaesOaep, RsaEncryptionPadding.OaepSha512.GetRsaesOaepParameters ());
 			}
 
 			return new SmimeCapabilitiesAttribute (capabilities);
@@ -727,7 +735,6 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public abstract void Import (Stream stream, string password);
 
-#if !PORTABLE
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12 file.
 		/// </summary>
@@ -776,7 +783,6 @@ namespace MimeKit.Cryptography {
 			using (var stream = File.OpenRead (fileName))
 				Import (stream, password);
 		}
-#endif
 
 		/// <summary>
 		/// Imports the specified certificate.

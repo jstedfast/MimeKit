@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,12 +52,6 @@
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.iOS.csproj">
-      <Project>{0249241C-205E-4AC0-828B-90F822359B9E}</Project>
-      <Name>BouncyCastle.iOS</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Cryptography\ApplicationPgpEncrypted.cs" />
     <Compile Include="Cryptography\ApplicationPgpSignature.cs" />
     <Compile Include="Cryptography\ApplicationPkcs7Mime.cs" />
@@ -109,6 +103,10 @@
     <Compile Include="Cryptography\PrivateKeyNotFoundException.cs" />
     <Compile Include="Cryptography\PublicKeyAlgorithm.cs" />
     <Compile Include="Cryptography\PublicKeyNotFoundException.cs" />
+    <Compile Include="Cryptography\RsaEncryptionPadding.cs" />
+    <Compile Include="Cryptography\RsaEncryptionPaddingScheme.cs" />
+    <Compile Include="Cryptography\RsaSignaturePadding.cs" />
+    <Compile Include="Cryptography\RsaSignaturePaddingScheme.cs" />
     <Compile Include="Cryptography\SecureMailboxAddress.cs" />
     <Compile Include="Cryptography\SecureMimeContext.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalCertificate.cs" />
@@ -158,6 +156,7 @@
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />
     <Compile Include="IO\Filters\Unix2DosFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Text\CharBuffer.cs" />
     <Compile Include="Text\FlowedToHtml.cs" />
     <Compile Include="Text\FlowedToText.cs" />
     <Compile Include="Text\HeaderFooterFormat.cs" />
@@ -172,6 +171,7 @@
     <Compile Include="Text\HtmlTagCallback.cs" />
     <Compile Include="Text\HtmlTagContext.cs" />
     <Compile Include="Text\HtmlTagId.cs" />
+    <Compile Include="Text\HtmlTextPreviewer.cs" />
     <Compile Include="Text\HtmlToHtml.cs" />
     <Compile Include="Text\HtmlToken.cs" />
     <Compile Include="Text\HtmlTokenizer.cs" />
@@ -181,8 +181,10 @@
     <Compile Include="Text\HtmlWriter.cs" />
     <Compile Include="Text\HtmlWriterState.cs" />
     <Compile Include="Text\ICharArray.cs" />
+    <Compile Include="Text\PlainTextPreviewer.cs" />
     <Compile Include="Text\TextConverter.cs" />
     <Compile Include="Text\TextFormat.cs" />
+    <Compile Include="Text\TextPreviewer.cs" />
     <Compile Include="Text\TextToFlowed.cs" />
     <Compile Include="Text\TextToHtml.cs" />
     <Compile Include="Text\TextToText.cs" />

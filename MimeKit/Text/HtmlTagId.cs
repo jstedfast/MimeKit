@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -654,9 +654,9 @@ namespace MimeKit.Text {
 		TH,
 
 		/// <summary>
-		/// The HTML &lt;thread&gt; tag.
+		/// The HTML &lt;thead&gt; tag.
 		/// </summary>
-		Thread,
+		THead,
 
 		/// <summary>
 		/// The HTML &lt;time&gt; tag.
@@ -766,7 +766,7 @@ namespace MimeKit.Text {
 
 			var name = value.ToString ();
 
-#if PORTABLE || NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			var field = typeof (HtmlTagId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlTagNameAttribute), false).ToArray ();
 #else

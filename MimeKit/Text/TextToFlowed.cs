@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -74,30 +74,6 @@ namespace MimeKit.Text {
 			get { return TextFormat.Flowed; }
 		}
 
-		/// <summary>
-		/// Get or set the text that will be appended to the end of the output.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets or sets the text that will be appended to the end of the output.</para>
-		/// <para>The footer must be set before conversion begins.</para>
-		/// </remarks>
-		/// <value>The footer.</value>
-		public string Footer {
-			get; set;
-		}
-
-		/// <summary>
-		/// Get or set text that will be prepended to the beginning of the output.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets or sets the text that will be prepended to the beginning of the output.</para>
-		/// <para>The header must be set before conversion begins.</para>
-		/// </remarks>
-		/// <value>The header.</value>
-		public string Header {
-			get; set;
-		}
-
 		static string Unquote (string line, out int quoteDepth)
 		{
 			int index = 0;
@@ -139,7 +115,7 @@ namespace MimeKit.Text {
 				flowed.Append ('>', quoteDepth);
 
 			// Space-stuffed lines which start with a space, "From ", or ">".
-			if (quoteDepth > 0 || StartsWith (line, index, "From "))
+			if (quoteDepth > 0 || (line.Length > 0 && line[0] == ' ') || StartsWith (line, index, "From "))
 				flowed.Append (' ');
 
 			if (flowed.Length + (line.Length - index) <= MaxLineLength) {

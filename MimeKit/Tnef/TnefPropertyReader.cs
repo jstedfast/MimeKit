@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,20 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-
-#if PORTABLE
-using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
-using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
-using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
-using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
-using EncoderFallbackException = Portable.Text.EncoderFallbackException;
-using DecoderFallbackException = Portable.Text.DecoderFallbackException;
-using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
-using DecoderFallback = Portable.Text.DecoderFallback;
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -590,12 +576,12 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public bool ReadNextProperty ()
 		{
+			while (ReadNextValue ()) {
+				// skip over the remaining value(s) for the current property...
+			}
+
 			if (propertyIndex >= propertyCount)
 				return false;
-
-			while (ReadNextValue ()) {
-				// skip over the value...
-			}
 
 			try {
 				var type = (TnefPropertyType) ReadInt16 ();
@@ -638,12 +624,12 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public bool ReadNextRow ()
 		{
+			while (ReadNextProperty ()) {
+				// skip over the remaining property/properties in the current row...
+			}
+
 			if (rowIndex >= rowCount)
 				return false;
-
-			while (ReadNextProperty ()) {
-				// skip over the property...
-			}
 
 			try {
 				LoadPropertyCount ();

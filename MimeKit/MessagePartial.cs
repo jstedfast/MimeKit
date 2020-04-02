@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -203,9 +203,40 @@ namespace MimeKit {
 			if (maxSize < 1)
 				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
+			var options = FormatOptions.Default.Clone ();
+			foreach (HeaderId id in Enum.GetValues (typeof (HeaderId))) {
+				switch (id) {
+				case HeaderId.Subject:
+				case HeaderId.MessageId:
+				case HeaderId.Encrypted:
+				case HeaderId.MimeVersion:
+				case HeaderId.ContentAlternative:
+				case HeaderId.ContentBase:
+				case HeaderId.ContentClass:
+				case HeaderId.ContentDescription:
+				case HeaderId.ContentDisposition:
+				case HeaderId.ContentDuration:
+				case HeaderId.ContentFeatures:
+				case HeaderId.ContentId:
+				case HeaderId.ContentIdentifier:
+				case HeaderId.ContentLanguage:
+				case HeaderId.ContentLength:
+				case HeaderId.ContentLocation:
+				case HeaderId.ContentMd5:
+				case HeaderId.ContentReturn:
+				case HeaderId.ContentTransferEncoding:
+				case HeaderId.ContentTranslationType:
+				case HeaderId.ContentType:
+					break;
+				default:
+					options.HiddenHeaders.Add (id);
+					break;
+				}
+			}
+
 			var memory = new MemoryStream ();
 
-			message.WriteTo (memory);
+			message.WriteTo (options, memory);
 			memory.Seek (0, SeekOrigin.Begin);
 
 			if (memory.Length <= maxSize) {
@@ -216,7 +247,7 @@ namespace MimeKit {
 			}
 
 			var streams = new List<Stream> ();
-#if !PORTABLE && !NETSTANDARD
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			var buf = memory.GetBuffer ();
 #else
 			var buf = memory.ToArray ();
@@ -242,12 +273,13 @@ namespace MimeKit {
 				startIndex = endIndex;
 			}
 
-			var id = message.MessageId ?? MimeUtils.GenerateMessageId ();
+			var msgid = message.MessageId ?? MimeUtils.GenerateMessageId ();
 			int number = 1;
 
 			foreach (var stream in streams) {
-				var part = new MessagePartial (id, number++, streams.Count);
-				part.Content = new MimeContent (stream);
+				var part = new MessagePartial (msgid, number++, streams.Count) {
+					Content = new MimeContent (stream)
+				};
 
 				var submessage = CloneMessage (message);
 				submessage.MessageId = MimeUtils.GenerateMessageId ();
@@ -267,32 +299,76 @@ namespace MimeKit {
 			return partial1.Number.Value - partial2.Number.Value;
 		}
 
-		/// <summary>
-		/// Joins the specified message/partial parts into the complete message.
-		/// </summary>
-		/// <remarks>
-		/// Combines all of the message/partial fragments into its original,
-		/// complete, message.
-		/// </remarks>
-		/// <returns>The re-combined message.</returns>
-		/// <param name="options">The parser options to use.</param>
-		/// <param name="partials">The list of partial message parts.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="partials"/>is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para>The last partial does not have a Total.</para>
-		/// <para>-or-</para>
-		/// <para>The number of partials provided does not match the expected count.</para>
-		/// <para>-or-</para>
-		/// <para>One or more partials is missing.</para>
-		/// </exception>
-		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
+		static void CombineHeaders (MimeMessage message, MimeMessage joined)
+		{
+			var headers = new List<Header> ();
+			int i = 0;
+
+			// RFC2046: Any header fields in the enclosed message which do not start with "Content-"
+			// (except for the "Subject", "Message-ID", "Encrypted", and "MIME-Version" fields) will
+			// be ignored and dropped.
+			while (i < joined.Headers.Count) {
+				var header = joined.Headers[i];
+
+				switch (header.Id) {
+				case HeaderId.Subject:
+				case HeaderId.MessageId:
+				case HeaderId.Encrypted:
+				case HeaderId.MimeVersion:
+					headers.Add (header);
+					header.Offset = null;
+					i++;
+					break;
+				default:
+					joined.Headers.RemoveAt (i);
+					break;
+				}
+			}
+
+			// RFC2046: All of the header fields from the initial enclosing message, except
+			// those that start with "Content-" and the specific header fields "Subject",
+			// "Message-ID", "Encrypted", and "MIME-Version", must be copied, in order,
+			// to the new message.
+			i = 0;
+			foreach (var header in message.Headers) {
+				switch (header.Id) {
+				case HeaderId.Subject:
+				case HeaderId.MessageId:
+				case HeaderId.Encrypted:
+				case HeaderId.MimeVersion:
+					for (int j = 0; j < headers.Count; j++) {
+						if (headers[j].Id == header.Id) {
+							var original = headers[j];
+
+							joined.Headers.Remove (original);
+							joined.Headers.Insert (i++, original);
+							headers.RemoveAt (j);
+							break;
+						}
+					}
+					break;
+				default:
+					var clone = header.Clone ();
+					clone.Offset = null;
+
+					joined.Headers.Insert (i++, clone);
+					break;
+				}
+			}
+
+			if (joined.Body != null) {
+				foreach (var header in joined.Body.Headers)
+					header.Offset = null;
+			}
+		}
+
+		static MimeMessage Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials, bool allowNullMessage)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
+
+			if (!allowNullMessage && message == null)
+				throw new ArgumentNullException (nameof (message));
 
 			if (partials == null)
 				throw new ArgumentNullException (nameof (partials));
@@ -327,9 +403,91 @@ namespace MimeKit {
 				}
 
 				var parser = new MimeParser (options, chained);
+				var joined = parser.ParseMessage ();
 
-				return parser.ParseMessage ();
+				if (message != null)
+					CombineHeaders (message, joined);
+
+				return joined;
 			}
+		}
+
+		/// <summary>
+		/// Joins the specified message/partial parts into the complete message.
+		/// </summary>
+		/// <remarks>
+		/// Combines all of the message/partial fragments into its original,
+		/// complete, message.
+		/// </remarks>
+		/// <returns>The re-combined message.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="message">The message that contains the first `message/partial` part.</param>
+		/// <param name="partials">The list of partial message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="message"/>is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>The last partial does not have a Total.</para>
+		/// <para>-or-</para>
+		/// <para>The number of partials provided does not match the expected count.</para>
+		/// <para>-or-</para>
+		/// <para>One or more partials is missing.</para>
+		/// </exception>
+		public static MimeMessage Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
+		{
+			return Join (options, message, partials, false);
+		}
+
+		/// <summary>
+		/// Joins the specified message/partial parts into the complete message.
+		/// </summary>
+		/// <remarks>
+		/// Combines all of the message/partial fragments into its original,
+		/// complete, message.
+		/// </remarks>
+		/// <returns>The re-combined message.</returns>
+		/// <param name="message">The message that contains the first `message/partial` part.</param>
+		/// <param name="partials">The list of partial message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="message"/>is <c>null</c></para>.
+		/// <para>-or-</para>
+		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// </exception>
+		public static MimeMessage Join (MimeMessage message, IEnumerable<MessagePartial> partials)
+		{
+			return Join (ParserOptions.Default, message, partials, false);
+		}
+
+		/// <summary>
+		/// Joins the specified message/partial parts into the complete message.
+		/// </summary>
+		/// <remarks>
+		/// Combines all of the message/partial fragments into its original,
+		/// complete, message.
+		/// </remarks>
+		/// <returns>The re-combined message.</returns>
+		/// <param name="options">The parser options to use.</param>
+		/// <param name="partials">The list of partial message parts.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>The last partial does not have a Total.</para>
+		/// <para>-or-</para>
+		/// <para>The number of partials provided does not match the expected count.</para>
+		/// <para>-or-</para>
+		/// <para>One or more partials is missing.</para>
+		/// </exception>
+		[Obsolete ("Use MessagePartial.Join (ParserOptions, MimeMessage, IEnumerable<MessagePartial>) instead.")]
+		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
+		{
+			return Join (options, null, partials, true);
 		}
 
 		/// <summary>
@@ -344,9 +502,10 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="partials"/>is <c>null</c>.
 		/// </exception>
+		[Obsolete ("Use MessagePartial.Join (MimeMessage, IEnumerable<MessagePartial>) instead.")]
 		public static MimeMessage Join (IEnumerable<MessagePartial> partials)
 		{
-			return Join (ParserOptions.Default, partials);
+			return Join (ParserOptions.Default, null, partials, true);
 		}
 	}
 }

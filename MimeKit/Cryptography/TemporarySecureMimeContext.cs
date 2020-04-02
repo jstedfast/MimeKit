@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -168,8 +168,12 @@ namespace MimeKit.Cryptography {
 		{
 			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
 
-			foreach (var certificate in certificates)
-				anchors.Add (new TrustAnchor (certificate, null));
+			foreach (var certificate in certificates) {
+				var keyUsage = certificate.GetKeyUsage ();
+
+				if (keyUsage != null && keyUsage[(int) X509KeyUsageBits.KeyCertSign] && certificate.IsSelfSigned ())
+					anchors.Add (new TrustAnchor (certificate, null));
+			}
 
 			return anchors;
 		}
@@ -185,12 +189,16 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IX509Store GetIntermediateCertificates ()
 		{
-			var store = new X509CertificateStore ();
+			var intermediates = new X509CertificateStore ();
 
-			foreach (var certificate in certificates)
-				store.Add (certificate);
+			foreach (var certificate in certificates) {
+				var keyUsage = certificate.GetKeyUsage ();
 
-			return store;
+				if (keyUsage != null && keyUsage[(int) X509KeyUsageBits.KeyCertSign] && !certificate.IsSelfSigned ())
+					intermediates.Add (certificate);
+			}
+
+			return intermediates;
 		}
 
 		/// <summary>
@@ -351,7 +359,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetCmsSignerCertificate (mailbox, out key)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
-			return new CmsSigner (certificate, key) {
+			return new CmsSigner (BuildCertificateChain (certificate), key) {
 				DigestAlgorithm = digestAlgo
 			};
 		}

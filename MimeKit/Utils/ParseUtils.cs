@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,28 +26,12 @@
 
 using System;
 using System.Text;
-#if !PORTABLE
 using System.Globalization;
-#else
-using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
-using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
-using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
-using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
-using EncoderFallbackException = Portable.Text.EncoderFallbackException;
-using DecoderFallbackException = Portable.Text.DecoderFallbackException;
-using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
-using DecoderFallback = Portable.Text.DecoderFallback;
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
 
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
-#if !PORTABLE
 		static readonly IdnMapping idn = new IdnMapping ();
-#endif
 
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
@@ -232,6 +216,17 @@ namespace MimeKit.Utils {
 			return index > start;
 		}
 
+		// Note: a "phrase atom" is a more lenient atom (e.g. mailbox display-name phrase atom)
+		public static bool SkipPhraseAtom (byte[] text, ref int index, int endIndex)
+		{
+			int start = index;
+
+			while (index < endIndex && text[index].IsPhraseAtom ())
+				index++;
+
+			return index > start;
+		}
+
 		public static bool SkipToken (byte[] text, ref int index, int endIndex)
 		{
 			int start = index;
@@ -374,7 +369,7 @@ namespace MimeKit.Utils {
 
 		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{
-			const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
+			//const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
 			var angleAddr = false;
 
 			msgid = null;
@@ -417,7 +412,7 @@ namespace MimeKit.Utils {
 					if (!SkipQuoted (text, ref index, endIndex, throwOnError))
 						return false;
 				} else {
-					while (index < endIndex && text[index] != (byte) '.' && text[index] != (byte) '@' && text[index] != '>' && !text[index].IsType (SpaceOrControl))
+					while (index < endIndex && text[index] != (byte) '.' && text[index] != (byte) '@' && text[index] != '>' && !text[index].IsWhitespace ())
 						index++;
 				}
 
@@ -542,7 +537,6 @@ namespace MimeKit.Utils {
 			return value.IndexOf (".xn--", StringComparison.Ordinal) != -1;
 		}
 
-#if !PORTABLE
 		public static string IdnEncode (string unicode)
 		{
 			try {
@@ -560,16 +554,5 @@ namespace MimeKit.Utils {
 				return ascii;
 			}
 		}
-#else
-		public static string IdnEncode (string unicode)
-		{
-			return unicode;
-		}
-
-		public static string IdnDecode (string ascii)
-		{
-			return ascii;
-		}
-#endif
     }
 }

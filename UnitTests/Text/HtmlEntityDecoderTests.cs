@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.IO;
 
 using NUnit.Framework;
@@ -79,7 +78,7 @@ namespace UnitTests.Text {
 					if (!json.Read () || json.TokenType != JsonToken.EndObject)
 						break;
 
-					for (int i = 0; i < name.Length && name[i] != ';'; i++)
+					for (int i = 0; i < name.Length; i++)
 						Assert.IsTrue (decoder.Push (name[i]), "Failed to push char #{0} of \"{1}\".", i, name);
 
 					Assert.AreEqual (value, decoder.GetValue (), "Decoded entity did not match for \"{0}\".", name);
@@ -102,44 +101,44 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestDecodeNumericEntities ()
 		{
-			TestDecodeNumericEntity ("&#x00", "\uFFFD"); // REPLACEMENT CHARACTER
-			TestDecodeNumericEntity ("&#x80", "\u20AC"); // EURO SIGN (€)
-			TestDecodeNumericEntity ("&#x82", "\u201A"); // SINGLE LOW-9 QUOTATION MARK (‚)
-			TestDecodeNumericEntity ("&#x83", "\u0192"); // LATIN SMALL LETTER F WITH HOOK (ƒ)
-			TestDecodeNumericEntity ("&#x84", "\u201E"); // DOUBLE LOW-9 QUOTATION MARK („)
-			TestDecodeNumericEntity ("&#x85", "\u2026"); // HORIZONTAL ELLIPSIS (…)
-			TestDecodeNumericEntity ("&#x86", "\u2020"); // DAGGER (†)
-			TestDecodeNumericEntity ("&#x87", "\u2021"); // DOUBLE DAGGER (‡)
-			TestDecodeNumericEntity ("&#x88", "\u02C6"); // MODIFIER LETTER CIRCUMFLEX ACCENT (ˆ)
-			TestDecodeNumericEntity ("&#x89", "\u2030"); // PER MILLE SIGN (‰)
-			TestDecodeNumericEntity ("&#x8A", "\u0160"); // LATIN CAPITAL LETTER S WITH CARON (Š)
-			TestDecodeNumericEntity ("&#x8B", "\u2039"); // SINGLE LEFT-POINTING ANGLE QUOTATION MARK (‹)
-			TestDecodeNumericEntity ("&#x8C", "\u0152"); // LATIN CAPITAL LIGATURE OE (Œ)
-			TestDecodeNumericEntity ("&#x8E", "\u017D"); // LATIN CAPITAL LETTER Z WITH CARON (Ž)
-			TestDecodeNumericEntity ("&#x91", "\u2018"); // LEFT SINGLE QUOTATION MARK (‘)
-			TestDecodeNumericEntity ("&#x92", "\u2019"); // RIGHT SINGLE QUOTATION MARK (’)
-			TestDecodeNumericEntity ("&#x93", "\u201C"); // LEFT DOUBLE QUOTATION MARK (“)
-			TestDecodeNumericEntity ("&#x94", "\u201D"); // RIGHT DOUBLE QUOTATION MARK (”)
-			TestDecodeNumericEntity ("&#x95", "\u2022"); // BULLET (•)
-			TestDecodeNumericEntity ("&#x96", "\u2013"); // EN DASH (–)
-			TestDecodeNumericEntity ("&#x97", "\u2014"); // EM DASH (—)
-			TestDecodeNumericEntity ("&#x98", "\u02DC"); // SMALL TILDE (˜)
-			TestDecodeNumericEntity ("&#x99", "\u2122"); // TRADE MARK SIGN (™)
-			TestDecodeNumericEntity ("&#x9A", "\u0161"); // LATIN SMALL LETTER S WITH CARON (š)
-			TestDecodeNumericEntity ("&#x9B", "\u203A"); // SINGLE RIGHT-POINTING ANGLE QUOTATION MARK (›)
-			TestDecodeNumericEntity ("&#x9C", "\u0153"); // LATIN SMALL LIGATURE OE (œ)
-			TestDecodeNumericEntity ("&#x9E", "\u017E"); // LATIN SMALL LETTER Z WITH CARON (ž)
-			TestDecodeNumericEntity ("&#x9F", "\u0178"); // LATIN CAPITAL LETTER Y WITH DIAERESIS (Ÿ)
+			TestDecodeNumericEntity ("&#x00;", "\uFFFD"); // REPLACEMENT CHARACTER
+			TestDecodeNumericEntity ("&#x80;", "\u20AC"); // EURO SIGN (€)
+			TestDecodeNumericEntity ("&#x82;", "\u201A"); // SINGLE LOW-9 QUOTATION MARK (‚)
+			TestDecodeNumericEntity ("&#x83;", "\u0192"); // LATIN SMALL LETTER F WITH HOOK (ƒ)
+			TestDecodeNumericEntity ("&#x84;", "\u201E"); // DOUBLE LOW-9 QUOTATION MARK („)
+			TestDecodeNumericEntity ("&#x85;", "\u2026"); // HORIZONTAL ELLIPSIS (…)
+			TestDecodeNumericEntity ("&#x86;", "\u2020"); // DAGGER (†)
+			TestDecodeNumericEntity ("&#x87;", "\u2021"); // DOUBLE DAGGER (‡)
+			TestDecodeNumericEntity ("&#x88;", "\u02C6"); // MODIFIER LETTER CIRCUMFLEX ACCENT (ˆ)
+			TestDecodeNumericEntity ("&#x89;", "\u2030"); // PER MILLE SIGN (‰)
+			TestDecodeNumericEntity ("&#x8A;", "\u0160"); // LATIN CAPITAL LETTER S WITH CARON (Š)
+			TestDecodeNumericEntity ("&#x8B;", "\u2039"); // SINGLE LEFT-POINTING ANGLE QUOTATION MARK (‹)
+			TestDecodeNumericEntity ("&#x8C;", "\u0152"); // LATIN CAPITAL LIGATURE OE (Œ)
+			TestDecodeNumericEntity ("&#x8E;", "\u017D"); // LATIN CAPITAL LETTER Z WITH CARON (Ž)
+			TestDecodeNumericEntity ("&#x91;", "\u2018"); // LEFT SINGLE QUOTATION MARK (‘)
+			TestDecodeNumericEntity ("&#x92;", "\u2019"); // RIGHT SINGLE QUOTATION MARK (’)
+			TestDecodeNumericEntity ("&#x93;", "\u201C"); // LEFT DOUBLE QUOTATION MARK (“)
+			TestDecodeNumericEntity ("&#x94;", "\u201D"); // RIGHT DOUBLE QUOTATION MARK (”)
+			TestDecodeNumericEntity ("&#x95;", "\u2022"); // BULLET (•)
+			TestDecodeNumericEntity ("&#x96;", "\u2013"); // EN DASH (–)
+			TestDecodeNumericEntity ("&#x97;", "\u2014"); // EM DASH (—)
+			TestDecodeNumericEntity ("&#x98;", "\u02DC"); // SMALL TILDE (˜)
+			TestDecodeNumericEntity ("&#x99;", "\u2122"); // TRADE MARK SIGN (™)
+			TestDecodeNumericEntity ("&#x9A;", "\u0161"); // LATIN SMALL LETTER S WITH CARON (š)
+			TestDecodeNumericEntity ("&#x9B;", "\u203A"); // SINGLE RIGHT-POINTING ANGLE QUOTATION MARK (›)
+			TestDecodeNumericEntity ("&#x9C;", "\u0153"); // LATIN SMALL LIGATURE OE (œ)
+			TestDecodeNumericEntity ("&#x9E;", "\u017E"); // LATIN SMALL LETTER Z WITH CARON (ž)
+			TestDecodeNumericEntity ("&#x9F;", "\u0178"); // LATIN CAPITAL LETTER Y WITH DIAERESIS (Ÿ)
 
 			// parse error
-			TestDecodeNumericEntity ("&#X10FFFF", "&#X10FFFF");
+			TestDecodeNumericEntity ("&#X10FFFF;", "&#X10FFFF;");
 
-			TestDecodeNumericEntity ("&#xD800", "\uFFFD");
+			TestDecodeNumericEntity ("&#xD800;", "\uFFFD");
 
-			TestDecodeNumericEntity ("&#1", "&#1");
+			TestDecodeNumericEntity ("&#1;", "&#1;");
 
-			TestDecodeNumericEntity ("&#32", " ");
-			TestDecodeNumericEntity ("&#x7a", "z");
+			TestDecodeNumericEntity ("&#32;", " ");
+			TestDecodeNumericEntity ("&#x7a;", "z");
 		}
 	}
 }

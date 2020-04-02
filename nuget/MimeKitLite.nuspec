@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.2.0</version>
+    <version>2.5.2</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
     <license type="expression">MIT</license>
     <projectUrl>http://www.mimekit.net</projectUrl>
     <repository type="git" url="https://github.com/jstedfast/MimeKit" />
-    <iconUrl>https://raw.github.com/jstedfast/MimeKit/master/nuget/mimekit-50.png</iconUrl>
+    <icon>icons\mimekit-50.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       MimeKit is an Open Source library for creating and parsing MIME messages. It also supports parsing of Unix mbox files.
@@ -26,15 +26,27 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added AuthenticationResults class for parsing and constructing Authentication-Results and ARC-Authentication-Results headers.
+* Updated net46, net47, and net48 builds to reference Portable.BouncyCastle instead of the standard BouncyCastle package, just like the netstandard builds. (issue #540)
+* Fixed extraction of TNEF EmbeddedMessage attachment data to skip the leading GUID. (issue #538)
+* Added a few more TNEF property tags.
+* Fixed the HtmlEntityDecoder to require some named attributes to end with a `;`.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
-    <tags>mime mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid win8 wp81</tags>
+    <tags>mime mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
       <frameworkAssembly assemblyName="System" targetFramework="monoandroid" />
       <frameworkAssembly assemblyName="System.Core" targetFramework="monoandroid" />
       <frameworkAssembly assemblyName="System" targetFramework="xamarinios" />
@@ -42,6 +54,9 @@
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net45" />
+      <group targetFramework="net46" />
+      <group targetFramework="net47" />
+      <group targetFramework="net48" />
       <group targetFramework="monoandroid" />
       <group targetFramework="xamarinios" />
       <group targetFramework="netstandard1.3">
@@ -59,8 +74,6 @@
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
       </group>
-      <group targetFramework="portable-net45+win8" />
-      <group targetFramework="wpa81" />
     </dependencies>
   </metadata>
   <files>
@@ -76,11 +89,12 @@
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKitLite.xml" target="lib\xamarinios\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net45\MimeKitLite.xml" target="lib\net45\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\portable\MimeKitLite.dll" target="lib\portable-net45+win8\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\portable\MimeKitLite.xml" target="lib\portable-net45+win8\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\portable\Portable.Text.Encoding.dll" target="lib\portable-net45+win8\Portable.Text.Encoding.dll" />
-    <file src="..\MimeKit\bin\Release\wpa81\MimeKitLite.dll" target="lib\wpa81\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\wpa81\MimeKitLite.xml" target="lib\wpa81\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\wpa81\Portable.Text.Encoding.dll" target="lib\wpa81\Portable.Text.Encoding.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKitLite.dll" target="lib\net46\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKitLite.xml" target="lib\net46\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll" target="lib\net47\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKitLite.xml" target="lib\net47\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll" target="lib\net48\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKitLite.xml" target="lib\net48\MimeKitLite.xml" />
+    <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>

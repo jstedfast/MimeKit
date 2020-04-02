@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -105,6 +105,11 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => header.SetValue (Encoding.UTF8, null));
 			Assert.Throws<ArgumentNullException> (() => header.SetValue ((string) null, "value"));
 			Assert.Throws<ArgumentNullException> (() => header.SetValue ("utf-8", null));
+
+			// SetRawValue
+			Assert.Throws<ArgumentNullException> (() => header.SetRawValue (null));
+			Assert.Throws<ArgumentException> (() => header.SetRawValue (new byte[0]));
+			Assert.Throws<ArgumentException> (() => header.SetRawValue (Encoding.ASCII.GetBytes ("abc")));
 		}
 
 		[Test]
@@ -374,6 +379,22 @@ namespace UnitTests {
 			parsed = "X-MadeUp-Header".ToHeaderId ();
 
 			Assert.AreEqual (HeaderId.Unknown, parsed, "Failed to parse the made-up header value");
+		}
+
+		[Test]
+		public void TestSetRawValue ()
+		{
+			var header = new Header (HeaderId.Subject, "This is the subject");
+			var rawValue = Encoding.ASCII.GetBytes ("This is the\n raw subject\n");
+			var format = FormatOptions.Default.Clone ();
+			format.International = true;
+
+			header.SetRawValue (rawValue);
+
+			var value = header.GetRawValue (format);
+			Assert.AreEqual (rawValue.Length, value.Length, "Length");
+			for (int i = 0; i < rawValue.Length; i++)
+				Assert.AreEqual (rawValue[i], value[i], "rawValue[{0}]", i);
 		}
 	}
 }

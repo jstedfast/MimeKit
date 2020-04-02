@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,27 +35,50 @@ namespace UnitTests {
 	public class MimeTypeTests
 	{
 		[Test]
-		public void TestNullFileName ()
+		public void TestGetMimeTypeNullFileName ()
 		{
 			Assert.Throws<ArgumentNullException> (() => MimeTypes.GetMimeType (null));
 		}
 
 		[Test]
-		public void TestNoFileExtension ()
+		public void TestGetMimeTypeNoFileExtension ()
 		{
 			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename"));
 		}
 
 		[Test]
-		public void TestFileNameDot ()
+		public void TestGetMimeTypeFileNameDot ()
 		{
 			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename."));
 		}
 
 		[Test]
-		public void TestFileExtensionTxt ()
+		public void TestGetMimeTypeFileExtensionTxt ()
 		{
 			Assert.AreEqual ("text/plain", MimeTypes.GetMimeType ("filename.txt"));
+		}
+
+		[Test]
+		public void TestGetMimeTypeFileExtensionCsv ()
+		{
+			Assert.AreEqual ("text/csv", MimeTypes.GetMimeType ("filename.csv"));
+		}
+
+		[Test]
+		public void TestTryGetExtensionTextPlain ()
+		{
+			string extension;
+
+			Assert.IsTrue (MimeTypes.TryGetExtension ("text/plain", out extension));
+			Assert.AreEqual (".txt", extension);
+		}
+
+		[Test]
+		public void TestTryGetExtensionUnknownMimeType ()
+		{
+			string extension;
+
+			Assert.IsFalse (MimeTypes.TryGetExtension ("application/x-vnd.fake-mime-type", out extension));
 		}
 	}
 }

@@ -54,10 +54,10 @@
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.110.0\lib\net45\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.112.0\lib\net45\System.Data.SQLite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -88,8 +88,11 @@
     <Compile Include="Cryptography\DummyOpenPgpContext.cs" />
     <Compile Include="Cryptography\LdapUriTests.cs" />
     <Compile Include="Cryptography\PgpMimeTests.cs" />
+    <Compile Include="Cryptography\RsaEncryptionPaddingTests.cs" />
+    <Compile Include="Cryptography\RsaSignaturePaddingTests.cs" />
     <Compile Include="Cryptography\SecureMimeDigitalCertificateTests.cs" />
     <Compile Include="Cryptography\SecureMimeTests.cs" />
+    <Compile Include="Cryptography\SqliteCertificateDatabaseTests.cs" />
     <Compile Include="Cryptography\X509CertificateChainTests.cs" />
     <Compile Include="Cryptography\X509CertificateRecordTests.cs" />
     <Compile Include="Cryptography\X509CertificateStoreTests.cs" />
@@ -104,16 +107,24 @@
     <Compile Include="IO\MemoryBlockStreamTests.cs" />
     <Compile Include="IO\ReadOneByteStream.cs" />
     <Compile Include="IO\TimeoutStream.cs" />
+    <Compile Include="Text\FlowedToHtmlTests.cs" />
+    <Compile Include="Text\FlowedToTextTests.cs" />
     <Compile Include="Text\HtmlAttributeTests.cs" />
     <Compile Include="Text\HtmlEntityDecoderTests.cs" />
+    <Compile Include="Text\HtmlTagIdTests.cs" />
+    <Compile Include="Text\HtmlTextPreviewerTests.cs" />
     <Compile Include="Text\HtmlToHtmlTests.cs" />
     <Compile Include="Text\HtmlTokenizerTests.cs" />
     <Compile Include="Text\HtmlTokenTests.cs" />
     <Compile Include="Text\HtmlUtilsTests.cs" />
     <Compile Include="Text\HtmlWriterTests.cs" />
+    <Compile Include="Text\PlainTextPreviewerTests.cs" />
     <Compile Include="Text\RtfCompressedToRtfTests.cs" />
     <Compile Include="Text\TextConverterTests.cs" />
+    <Compile Include="Text\TextPreviewerTests.cs" />
+    <Compile Include="Text\TextToFlowedTests.cs" />
     <Compile Include="Text\TextToHtmlTests.cs" />
+    <Compile Include="Text\TextToTextTests.cs" />
     <Compile Include="Text\TrieTests.cs" />
     <Compile Include="Text\UrlScannerTests.cs" />
     <Compile Include="Tnef\RtfCompressedToRtfTests.cs" />
@@ -235,7 +246,6 @@
     <None Include="TestData\partial\message-partial.0.eml" />
     <None Include="TestData\partial\message-partial.1.eml" />
     <None Include="TestData\partial\message-partial.2.eml" />
-    <None Include="TestData\smime\certificate-authority.crt" />
     <None Include="TestData\smime\certificate-authority.key" />
     <None Include="TestData\smime\gencerts.sh" />
     <None Include="TestData\smime\smdh.pem" />
@@ -246,8 +256,6 @@
     <None Include="TestData\smime\smec1.pem" />
     <None Include="TestData\smime\smec2.pem" />
     <None Include="TestData\smime\smec3.pem" />
-    <None Include="TestData\smime\smime.crt" />
-    <None Include="TestData\smime\smime.csr" />
     <None Include="TestData\smime\smime.key" />
     <None Include="TestData\smime\smime.p12" />
     <None Include="TestData\smime\smroot.pem" />
@@ -257,9 +265,10 @@
     <None Include="TestData\smime\StartComCertificationAuthority.crt" />
     <None Include="TestData\smime\StartComClass1PrimaryIntermediateClientCA.crt" />
     <None Include="TestData\smime\thunderbird-signed.txt" />
-    <None Include="Npgsql.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="TestData\text\homedepot-check-inside-now.html" />
+    <None Include="TestData\text\mimekit.net.html" />
+    <None Include="TestData\text\planet-fitness.html" />
+    <None Include="TestData\text\planet-fitness.txt" />
     <None Include="TestData\tnef\attachments\bookmark.htm" />
     <None Include="TestData\tnef\attachments\message.rtf" />
     <None Include="TestData\tnef\attachments\zappa_av1.jpg" />
@@ -354,5 +363,5 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.110.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.110.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets')" />
 </Project>

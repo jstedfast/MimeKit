@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -621,7 +621,7 @@ namespace MimeKit.Text {
 		{
 			var name = value.ToString ();
 
-#if PORTABLE || NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			var field = typeof (HtmlAttributeId).GetTypeInfo ().GetDeclaredField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false).ToArray ();
 #else

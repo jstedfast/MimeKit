@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,20 +27,6 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-
-#if PORTABLE
-using EncoderReplacementFallback = Portable.Text.EncoderReplacementFallback;
-using DecoderReplacementFallback = Portable.Text.DecoderReplacementFallback;
-using EncoderExceptionFallback = Portable.Text.EncoderExceptionFallback;
-using DecoderExceptionFallback = Portable.Text.DecoderExceptionFallback;
-using EncoderFallbackException = Portable.Text.EncoderFallbackException;
-using DecoderFallbackException = Portable.Text.DecoderFallbackException;
-using DecoderFallbackBuffer = Portable.Text.DecoderFallbackBuffer;
-using DecoderFallback = Portable.Text.DecoderFallback;
-using Encoding = Portable.Text.Encoding;
-using Encoder = Portable.Text.Encoder;
-using Decoder = Portable.Text.Decoder;
-#endif
 
 using MimeKit.Utils;
 
@@ -630,7 +616,7 @@ namespace MimeKit {
 
 						ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
 
-						if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
+						if (!ParseUtils.SkipPhraseAtom (text, ref index, endIndex)) {
 							if (throwOnError)
 								throw new ParseException (string.Format ("Incomplete quoted-string token at offset {0}", qstringIndex), qstringIndex, endIndex);
 
@@ -641,7 +627,7 @@ namespace MimeKit {
 							trimLeadingQuote = true;
 					}
 				} else {
-					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
+					if (!ParseUtils.SkipPhraseAtom (text, ref index, endIndex))
 						break;
 				}
 

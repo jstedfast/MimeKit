@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,6 @@ using System;
 using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
 
 #if ENABLE_CRYPTO
 using MimeKit.Cryptography;
@@ -210,27 +206,6 @@ namespace MimeKit {
 			return options;
 		}
 
-#if PORTABLE
-		static ConstructorInfo GetConstructor (TypeInfo type, Type[] argTypes)
-		{
-			foreach (var ctor in type.DeclaredConstructors) {
-				var args = ctor.GetParameters ();
-
-				if (args.Length != ConstructorArgTypes.Length)
-					continue;
-
-				bool matched = true;
-				for (int i = 0; i < argTypes.Length && matched; i++)
-					matched = matched && args[i].ParameterType == argTypes[i];
-
-				if (matched)
-					return ctor;
-			}
-
-			return null;
-		}
-#endif
-
 		/// <summary>
 		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
 		/// </summary>
@@ -264,7 +239,7 @@ namespace MimeKit {
 
 			mimeType = mimeType.ToLowerInvariant ();
 
-#if PORTABLE || NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			var info = type.GetTypeInfo ();
 #else
 			var info = type;
@@ -275,11 +250,7 @@ namespace MimeKit {
 				!info.IsSubclassOf (typeof (MimePart)))
 				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", nameof (type));
 
-#if PORTABLE
-			var ctor = GetConstructor (info, ConstructorArgTypes);
-#else
 			var ctor = type.GetConstructor (ConstructorArgTypes);
-#endif
 
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", nameof (type));
@@ -335,13 +306,19 @@ namespace MimeKit {
 			// actually handle that w/o any problems.
 			if (type == "message") {
 				switch (subtype) {
+				case "global-disposition-notification":
 				case "disposition-notification":
 					return new MessageDispositionNotification (args);
+				case "global-delivery-status":
 				case "delivery-status":
 					return new MessageDeliveryStatus (args);
 				case "partial":
 					if (!IsEncoded (headers))
 						return new MessagePartial (args);
+					break;
+				case "global-headers":
+					if (!IsEncoded (headers))
+						return new TextRfc822Headers (args);
 					break;
 				case "external-body":
 				case "rfc2822":

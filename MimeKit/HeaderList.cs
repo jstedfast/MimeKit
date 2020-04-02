@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,6 @@ using System.Threading;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
-#if PORTABLE
-using Encoding = Portable.Text.Encoding;
-#endif
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -699,11 +695,14 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					var rawValue = header.GetRawValue (options);
-
 					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
-					filtered.Write (Header.Colon, 0, Header.Colon.Length, cancellationToken);
-					filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
+
+					if (!header.IsInvalid) {
+						var rawValue = header.GetRawValue (options);
+
+						filtered.Write (Header.Colon, 0, Header.Colon.Length, cancellationToken);
+						filtered.Write (rawValue, 0, rawValue.Length, cancellationToken);
+					}
 				}
 
 				filtered.Flush (cancellationToken);
@@ -752,11 +751,14 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					var rawValue = header.GetRawValue (options);
-
 					await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
-					await filtered.WriteAsync (Header.Colon, 0, Header.Colon.Length, cancellationToken).ConfigureAwait (false);
-					await filtered.WriteAsync (rawValue, 0, rawValue.Length, cancellationToken).ConfigureAwait (false);
+
+					if (!header.IsInvalid) {
+						var rawValue = header.GetRawValue (options);
+
+						await filtered.WriteAsync (Header.Colon, 0, Header.Colon.Length, cancellationToken).ConfigureAwait (false);
+						await filtered.WriteAsync (rawValue, 0, rawValue.Length, cancellationToken).ConfigureAwait (false);
+					}
 				}
 
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
@@ -1362,7 +1364,6 @@ namespace MimeKit {
 			return LoadAsync (ParserOptions.Default, stream, cancellationToken);
 		}
 
-#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="HeaderList"/> from the specified file.
 		/// </summary>
@@ -1546,6 +1547,5 @@ namespace MimeKit {
 		{
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
-#endif // !PORTABLE
 	}
 }

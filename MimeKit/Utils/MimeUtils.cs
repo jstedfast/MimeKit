@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2019 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,11 +27,8 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-
-#if !PORTABLE
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
-#endif
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -42,9 +39,6 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
-#if PORTABLE
-		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
-#endif
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		/// <summary>
@@ -57,14 +51,8 @@ namespace MimeKit.Utils {
 
 		internal static void GetRandomBytes (byte[] buffer)
 		{
-#if !PORTABLE
 			using (var random = RandomNumberGenerator.Create ())
 				random.GetBytes (buffer);
-#else
-			lock (random) {
-				random.NextBytes (buffer);
-			}
-#endif
 		}
 
 		/// <summary>
@@ -125,7 +113,7 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
-#if PORTABLE || NETSTANDARD
+#if NETSTANDARD1_3 || NETSTANDARD1_6
 			return GenerateMessageId ("localhost.localdomain");
 #else
 			var properties = IPGlobalProperties.GetIPGlobalProperties ();

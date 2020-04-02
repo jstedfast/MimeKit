@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2018 Xamarin Inc. (www.xamarin.com)
+// Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -1028,6 +1028,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<![CDATA", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1259,6 +1264,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1281,6 +1291,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<nam", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1292,6 +1307,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name ", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1303,6 +1323,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1314,6 +1339,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr  ", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1325,6 +1355,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name/", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1336,6 +1371,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name /", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1347,6 +1387,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr/", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1358,6 +1403,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr /", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1369,6 +1419,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr =", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1380,6 +1435,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr = ", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1391,6 +1451,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=\"value", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1402,6 +1467,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=\"one & two", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1413,6 +1483,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=value", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1424,6 +1499,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=&", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1435,6 +1515,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=&am", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1461,6 +1546,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=\"value\"", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1489,6 +1579,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=\"value\"/", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1500,6 +1595,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=  /", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1542,6 +1642,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("<name attr=value  ", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
@@ -1553,6 +1658,11 @@ namespace UnitTests.Text {
 			Assert.IsTrue (tokenizer.ReadNextToken (out HtmlToken token));
 			Assert.AreEqual (HtmlTokenKind.Data, token.Kind);
 			Assert.AreEqual ("</", ((HtmlDataToken) token).Data);
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.IsFalse (tokenizer.ReadNextToken (out token));
 		}
 
 		[Test]
