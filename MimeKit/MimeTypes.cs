@@ -1030,5 +1030,20 @@ namespace MimeKit {
 
 			return extensions.TryGetValue (mimeType, out extension);
 		}
+
+		/// <summary>
+		/// Registers a mapping between a mime type and a file extension.
+		/// </summary>
+		/// <param name="mimeType">The mime type to register.</param>
+		/// <param name="extension">The file extension to register.</param>
+		public static void Register(string mimeType, string extension)
+		{
+			if (mimeType == null)
+				throw new ArgumentNullException(nameof(mimeType));
+			if (extension == null)
+				throw new ArgumentNullException(nameof(extension));
+			mimeTypes.Add(extension, mimeType);
+			extensions.Add(mimeType, extension);
+		}
 	}
 }
