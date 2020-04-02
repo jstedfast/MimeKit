@@ -84,11 +84,11 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeTypeRegister()
 		{
-			Assert.Throws<Exception>(() => MimeTypes.GetMimeType(".msg"));
+			Assert.AreEqual("application/octet-stream", MimeTypes.GetMimeType(".msg"));
 			Assert.False(MimeTypes.TryGetExtension("application/vnd.ms-outlook", out var ext1));
 			MimeTypes.Register("application/vnd.ms-outlook", ".msg");
 			Assert.True(MimeTypes.TryGetExtension("application/vnd.ms-outlook", out var ext2));
-			Assert.Equals(".msg", ext2);
+			Assert.AreEqual(".msg", ext2);
 		}
 	}
 }
