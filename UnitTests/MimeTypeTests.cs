@@ -80,5 +80,17 @@ namespace UnitTests {
 
 			Assert.IsFalse (MimeTypes.TryGetExtension ("application/x-vnd.fake-mime-type", out extension));
 		}
+
+		[Test]
+		public void TestMimeTypeRegister ()
+		{
+			string extension;
+
+			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("message.msg"));
+			Assert.False (MimeTypes.TryGetExtension ("application/vnd.ms-outlook", out extension));
+			MimeTypes.Register ("application/vnd.ms-outlook", ".msg");
+			Assert.True (MimeTypes.TryGetExtension ("application/vnd.ms-outlook", out extension));
+			Assert.AreEqual (".msg", extension);
+		}
 	}
 }
