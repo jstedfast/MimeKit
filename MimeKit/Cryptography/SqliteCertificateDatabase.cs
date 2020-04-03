@@ -63,8 +63,7 @@ namespace MimeKit.Cryptography {
 		{
 #if __MOBILE__
 			IsAvailable = true;
-#endif
-
+#else // !__MOBILE__
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP3_0
 			var platform = Environment.OSVersion.Platform;
 #endif
@@ -76,14 +75,15 @@ namespace MimeKit.Cryptography {
 					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnectionStringBuilder");
 
 					// Make sure that the runtime can load the native sqlite library
-					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+					VerifySQLiteAssemblyUsability ();
 
 					IsAvailable = true;
 					return;
 				}
-			} catch (FileNotFoundException) {
-			} catch (FileLoadException) {
+			} catch (IOException) {
+			} catch (TypeLoadException) {
 			} catch (BadImageFormatException) {
+			} catch (TypeInitializationException) {
 			}
 #endif
 
@@ -96,16 +96,16 @@ namespace MimeKit.Cryptography {
 						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
 
 						// Make sure that the runtime can load the native sqlite3 library
-						var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
-						sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+						VerifySQLiteAssemblyUsability ();
 
 						IsAvailable = true;
 						return;
 					}
 				}
-			} catch (FileNotFoundException) {
-			} catch (FileLoadException) {
+			} catch (IOException) {
+			} catch (TypeLoadException) {
 			} catch (BadImageFormatException) {
+			} catch (TypeInitializationException) {
 			}
 #endif
 
@@ -116,18 +116,43 @@ namespace MimeKit.Cryptography {
 					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnectionStringBuilder");
 
 					// Make sure that the runtime can load the native sqlite3 library
-					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
-					sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+					VerifySQLiteAssemblyUsability ();
 
 					IsAvailable = true;
 					return;
 				}
-			} catch (FileNotFoundException) {
-			} catch (FileLoadException) {
+			} catch (IOException) {
+			} catch (TypeLoadException) {
 			} catch (BadImageFormatException) {
+			} catch (TypeInitializationException) {
 			}
 #endif
+#endif // __MOBILE__
 		}
+
+#if !__MOBILE__
+		static void VerifySQLiteAssemblyUsability ()
+		{
+			// Make sure that the runtime can load the native sqlite3 library
+			var dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
+			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+			var fileName = Path.GetTempFileName ();
+
+			try {
+				sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
+
+				if (dateTimeFormat != null)
+					dateTimeFormat.SetValue (builder, 0, null);
+
+				var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
+				var connection = (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new[] { connectionString });
+				connection.Dispose ();
+			} catch {
+				File.Delete (fileName);
+				throw;
+			}
+		}
+#endif
 
 		internal static bool IsAvailable {
 			get; private set;
