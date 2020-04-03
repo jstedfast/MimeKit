@@ -793,6 +793,9 @@ namespace UnitTests.Tnef {
 						case ".ini":
 							isText = true;
 							break;
+						case "":
+							isText = part.FileName == "AUTHORS";
+							break;
 						}
 
 						fileName = part.FileName;
