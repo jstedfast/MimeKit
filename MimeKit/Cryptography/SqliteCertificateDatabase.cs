@@ -114,8 +114,8 @@ namespace MimeKit.Cryptography {
 #endif
 
 #if NETFRAMEWORK || NETCOREAPP3_0
-			// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
-			if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
+			// Mono.Data.Sqlite will only work on Unix-based platforms.
+			if (platform == PlatformID.Unix || platform == PlatformID.MacOSX) {
 				if ((sqliteAssembly = SQLiteAssembly.Load ("Mono.Data.Sqlite")) != null) {
 					// Make sure that the runtime can load the native sqlite3 library
 					if (VerifySQLiteAssemblyIsUsable ()) {
