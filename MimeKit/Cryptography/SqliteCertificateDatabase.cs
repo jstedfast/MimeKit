@@ -133,23 +133,14 @@ namespace MimeKit.Cryptography {
 #if !__MOBILE__
 		static void VerifySQLiteAssemblyUsability ()
 		{
-			// Make sure that the runtime can load the native sqlite3 library
-			var dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
-			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+			// Make sure that the runtime can load the native sqlite3 library.
 			var fileName = Path.GetTempFileName ();
 
 			try {
-				sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
-
-				if (dateTimeFormat != null)
-					dateTimeFormat.SetValue (builder, 0, null);
-
-				var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
-				var connection = (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new[] { connectionString });
+				var connection = CreateConnection (fileName);
 				connection.Dispose ();
-			} catch {
+			} finally {
 				File.Delete (fileName);
-				throw;
 			}
 		}
 #endif
@@ -180,15 +171,17 @@ namespace MimeKit.Cryptography {
 			}
 
 #if !__MOBILE__
-			var dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
+			var connectionStringProperty = sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString");
+			var dateTimeFormatProperty = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
+			var dataSourceProperty = sqliteConnectionStringBuilderClass.GetProperty ("DataSource");
 			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
 
-			sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
+			dataSourceProperty.SetValue (builder, fileName, null);
 
-			if (dateTimeFormat != null)
-				dateTimeFormat.SetValue (builder, 0, null);
+			if (dateTimeFormatProperty != null)
+				dateTimeFormatProperty.SetValue (builder, 0, null);
 
-			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
+			var connectionString = (string) connectionStringProperty.GetValue (builder, null);
 
 			return (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
 #else
