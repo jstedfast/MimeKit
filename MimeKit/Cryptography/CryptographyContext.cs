@@ -542,15 +542,6 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextFactory != null)
 						return SecureMimeContextFactory ();
 
-					if (!SqliteCertificateDatabase.IsAvailable) {
-						const string format = "SQLite is not available. Either install the {0} nuget or subclass MimeKit.Cryptography.SecureMimeContext and register it with MimeKit.Cryptography.CryptographyContext.Register().";
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-						throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
-#else
-						throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
-#endif
-					}
-
 					return new DefaultSecureMimeContext ();
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":

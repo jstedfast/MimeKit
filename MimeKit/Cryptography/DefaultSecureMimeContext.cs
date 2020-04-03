@@ -83,6 +83,18 @@ namespace MimeKit.Cryptography {
 			DefaultDatabasePath = Path.Combine (path, "smime.db");
 		}
 
+		static void CheckIsAvailable ()
+		{
+			if (!SqliteCertificateDatabase.IsAvailable) {
+				const string format = "SQLite is not available. Install the {0} nuget.";
+#if NETSTANDARD1_3 || NETSTANDARD1_6
+				throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
+#else
+				throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
+#endif
+			}
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
@@ -118,8 +130,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
-			if (!SqliteCertificateDatabase.IsAvailable)
-				throw new NotSupportedException ("Mono.Data.Sqlite is not available.");
+			CheckIsAvailable ();
 
 			var dir = Path.GetDirectoryName (fileName);
 			var exists = File.Exists (fileName);
