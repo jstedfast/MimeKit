@@ -65,11 +65,8 @@ namespace MimeKit.Cryptography {
 				try {
 					int dot = assemblyName.LastIndexOf ('.');
 					var prefix = assemblyName.Substring (dot + 1);
-					Assembly assembly;
 
-					if ((assembly = Assembly.Load (new AssemblyName (assemblyName))) == null)
-						return null;
-
+					var assembly = Assembly.Load (new AssemblyName (assemblyName));
 					var builderType = assembly.GetType (assemblyName + "." + prefix + "ConnectionStringBuilder");
 					var connectionType = assembly.GetType (assemblyName + "." + prefix + "Connection");
 					var connectionString = builderType.GetProperty ("ConnectionString");
