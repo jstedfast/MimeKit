@@ -50,13 +50,47 @@ namespace MimeKit.Cryptography {
 	public class SqliteCertificateDatabase : SqlCertificateDatabase
 	{
 #if !__MOBILE__
-		static readonly Type sqliteConnectionStringBuilderClass;
-		static readonly Type sqliteConnectionClass;
-		static readonly Assembly sqliteAssembly;
+		class SQLiteAssembly
+		{
+			public Type ConnectionStringBuilderType { get; private set; }
+			public Type ConnectionType { get; private set; }
+			public Assembly Assembly { get; private set; }
 
-		static readonly PropertyInfo connectionStringProperty;
-		static readonly PropertyInfo dateTimeFormatProperty;
-		static readonly PropertyInfo dataSourceProperty;
+			public PropertyInfo ConnectionStringProperty { get; private set; }
+			public PropertyInfo DateTimeFormatProperty { get; private set; }
+			public PropertyInfo DataSourceProperty { get; private set; }
+
+			public static SQLiteAssembly Load (string assemblyName)
+			{
+				try {
+					int dot = assemblyName.LastIndexOf ('.');
+					var prefix = assemblyName.Substring (dot + 1);
+					Assembly assembly;
+
+					if ((assembly = Assembly.Load (new AssemblyName (assemblyName))) == null)
+						return null;
+
+					var builderType = assembly.GetType (assemblyName + "." + prefix + "ConnectionStringBuilder");
+					var connectionType = assembly.GetType (assemblyName + "." + prefix + "Connection");
+					var connectionString = builderType.GetProperty ("ConnectionString");
+					var dateTimeFormat = builderType.GetProperty ("DateTimeFormat");
+					var dataSource = builderType.GetProperty ("DataSource");
+
+					return new SQLiteAssembly {
+						Assembly = assembly,
+						ConnectionType = connectionType,
+						ConnectionStringBuilderType = builderType,
+						ConnectionStringProperty = connectionString,
+						DateTimeFormatProperty = dateTimeFormat,
+						DataSourceProperty = dataSource
+					};
+				} catch {
+					return null;
+				}
+			}
+		}
+
+		static readonly SQLiteAssembly sqliteAssembly;
 #endif
 
 		// At class initialization we try to use reflection to load the
@@ -73,83 +107,42 @@ namespace MimeKit.Cryptography {
 #endif
 
 #if NETSTANDARD1_3 || NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP3_0
-			try {
-				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
-					sqliteConnectionClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnection");
-					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnectionStringBuilder");
-
-					GetSQLiteConnectionStringBuilderProperties (out connectionStringProperty, out dateTimeFormatProperty, out dataSourceProperty);
-
-					// Make sure that the runtime can load the native sqlite library
-					VerifySQLiteAssemblyUsability ();
-
+			if ((sqliteAssembly = SQLiteAssembly.Load ("Microsoft.Data.Sqlite")) != null) {
+				// Make sure that the runtime can load the native sqlite library
+				if (VerifySQLiteAssemblyIsUsable ()) {
 					IsAvailable = true;
 					return;
 				}
-			} catch (IOException) {
-			} catch (TypeLoadException) {
-			} catch (BadImageFormatException) {
-			} catch (TypeInitializationException) {
 			}
 #endif
 
 #if NETFRAMEWORK || NETCOREAPP3_0
-			try {
-				// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
-				if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
-					if ((sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite")) != null) {
-						sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
-						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
-
-						GetSQLiteConnectionStringBuilderProperties (out connectionStringProperty, out dateTimeFormatProperty, out dataSourceProperty);
-
-						// Make sure that the runtime can load the native sqlite3 library
-						VerifySQLiteAssemblyUsability ();
-
+			// Mono.Data.Sqlite will only work on Unix-based platforms and 32-bit Windows platforms.
+			if (platform == PlatformID.Unix || platform == PlatformID.MacOSX || IntPtr.Size == 4) {
+				if ((sqliteAssembly = SQLiteAssembly.Load ("Mono.Data.Sqlite")) != null) {
+					// Make sure that the runtime can load the native sqlite3 library
+					if (VerifySQLiteAssemblyIsUsable ()) {
 						IsAvailable = true;
 						return;
 					}
 				}
-			} catch (IOException) {
-			} catch (TypeLoadException) {
-			} catch (BadImageFormatException) {
-			} catch (TypeInitializationException) {
 			}
 #endif
 
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP3_0
-			try {
-				if ((sqliteAssembly = Assembly.Load ("System.Data.SQLite")) != null) {
-					sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");
-					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnectionStringBuilder");
-
-					GetSQLiteConnectionStringBuilderProperties (out connectionStringProperty, out dateTimeFormatProperty, out dataSourceProperty);
-
-					// Make sure that the runtime can load the native sqlite3 library
-					VerifySQLiteAssemblyUsability ();
-
+			if ((sqliteAssembly = SQLiteAssembly.Load ("System.Data.SQLite")) != null) {
+				// Make sure that the runtime can load the native sqlite3 library
+				if (VerifySQLiteAssemblyIsUsable ()) {
 					IsAvailable = true;
 					return;
 				}
-			} catch (IOException) {
-			} catch (TypeLoadException) {
-			} catch (BadImageFormatException) {
-			} catch (TypeInitializationException) {
 			}
 #endif
 #endif // __MOBILE__
 		}
 
 #if !__MOBILE__
-		static void GetSQLiteConnectionStringBuilderProperties (out PropertyInfo connectionString, out PropertyInfo dateTimeFormat, out PropertyInfo dataSource)
-		{
-			// Get and cache various PropertyInfo's that we'll be using.
-			connectionString = sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString");
-			dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
-			dataSource = sqliteConnectionStringBuilderClass.GetProperty ("DataSource");
-		}
-
-		static void VerifySQLiteAssemblyUsability ()
+		static bool VerifySQLiteAssemblyIsUsable ()
 		{
 			// Make sure that the runtime can load the native sqlite3 library.
 			var fileName = Path.GetTempFileName ();
@@ -157,6 +150,9 @@ namespace MimeKit.Cryptography {
 			try {
 				var connection = CreateConnection (fileName);
 				connection.Dispose ();
+				return true;
+			} catch {
+				return false;
 			} finally {
 				File.Delete (fileName);
 			}
@@ -189,14 +185,14 @@ namespace MimeKit.Cryptography {
 			}
 
 #if !__MOBILE__
-			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+			var builder = Activator.CreateInstance (sqliteAssembly.ConnectionStringBuilderType);
 
-			dataSourceProperty.SetValue (builder, fileName, null);
-			dateTimeFormatProperty?.SetValue (builder, 0, null);
+			sqliteAssembly.DataSourceProperty.SetValue (builder, fileName, null);
+			sqliteAssembly.DateTimeFormatProperty?.SetValue (builder, 0, null);
 
-			var connectionString = (string) connectionStringProperty.GetValue (builder, null);
+			var connectionString = (string) sqliteAssembly.ConnectionStringProperty.GetValue (builder, null);
 
-			return (DbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
+			return (DbConnection) Activator.CreateInstance (sqliteAssembly.ConnectionType, new [] { connectionString });
 #else
 			var builder = new SqliteConnectionStringBuilder ();
 			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
