@@ -53,6 +53,10 @@ namespace MimeKit.Cryptography {
 		static readonly Type sqliteConnectionStringBuilderClass;
 		static readonly Type sqliteConnectionClass;
 		static readonly Assembly sqliteAssembly;
+
+		static readonly PropertyInfo connectionStringProperty;
+		static readonly PropertyInfo dateTimeFormatProperty;
+		static readonly PropertyInfo dataSourceProperty;
 #endif
 
 		// At class initialization we try to use reflection to load the
@@ -73,6 +77,8 @@ namespace MimeKit.Cryptography {
 				if ((sqliteAssembly = Assembly.Load (new AssemblyName ("Microsoft.Data.Sqlite"))) != null) {
 					sqliteConnectionClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnection");
 					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Microsoft.Data.Sqlite.SqliteConnectionStringBuilder");
+
+					GetSQLiteConnectionStringBuilderProperties (out connectionStringProperty, out dateTimeFormatProperty, out dataSourceProperty);
 
 					// Make sure that the runtime can load the native sqlite library
 					VerifySQLiteAssemblyUsability ();
@@ -95,6 +101,8 @@ namespace MimeKit.Cryptography {
 						sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
 						sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
 
+						GetSQLiteConnectionStringBuilderProperties (out connectionStringProperty, out dateTimeFormatProperty, out dataSourceProperty);
+
 						// Make sure that the runtime can load the native sqlite3 library
 						VerifySQLiteAssemblyUsability ();
 
@@ -115,6 +123,8 @@ namespace MimeKit.Cryptography {
 					sqliteConnectionClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnection");
 					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("System.Data.SQLite.SQLiteConnectionStringBuilder");
 
+					GetSQLiteConnectionStringBuilderProperties (out connectionStringProperty, out dateTimeFormatProperty, out dataSourceProperty);
+
 					// Make sure that the runtime can load the native sqlite3 library
 					VerifySQLiteAssemblyUsability ();
 
@@ -131,6 +141,14 @@ namespace MimeKit.Cryptography {
 		}
 
 #if !__MOBILE__
+		static void GetSQLiteConnectionStringBuilderProperties (out PropertyInfo connectionString, out PropertyInfo dateTimeFormat, out PropertyInfo dataSource)
+		{
+			// Get and cache various PropertyInfo's that we'll be using.
+			connectionString = sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString");
+			dateTimeFormat = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
+			dataSource = sqliteConnectionStringBuilderClass.GetProperty ("DataSource");
+		}
+
 		static void VerifySQLiteAssemblyUsability ()
 		{
 			// Make sure that the runtime can load the native sqlite3 library.
@@ -171,15 +189,10 @@ namespace MimeKit.Cryptography {
 			}
 
 #if !__MOBILE__
-			var connectionStringProperty = sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString");
-			var dateTimeFormatProperty = sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat");
-			var dataSourceProperty = sqliteConnectionStringBuilderClass.GetProperty ("DataSource");
 			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
 
 			dataSourceProperty.SetValue (builder, fileName, null);
-
-			if (dateTimeFormatProperty != null)
-				dateTimeFormatProperty.SetValue (builder, 0, null);
+			dateTimeFormatProperty?.SetValue (builder, 0, null);
 
 			var connectionString = (string) connectionStringProperty.GetValue (builder, null);
 
