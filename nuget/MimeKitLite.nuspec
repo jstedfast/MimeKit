@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.5.2</version>
+    <version>2.6.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,10 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Updated net46, net47, and net48 builds to reference Portable.BouncyCastle instead of the standard BouncyCastle package, just like the netstandard builds. (issue #540)
-* Fixed extraction of TNEF EmbeddedMessage attachment data to skip the leading GUID. (issue #538)
-* Added a few more TNEF property tags.
-* Fixed the HtmlEntityDecoder to require some named attributes to end with a `;`.
+* Fixed the MimeEntity.ContentId setter to use ParseUtils.TryParseMsgId() instead of MailboxAddress.TryParse() so that it is more lenient in what it accepts. (issue #542)
+* Added an HtmlTokenizer.IgnoreTruncatedTags property which is useful when working with truncated HTML.
+* Optimized the heck out of HtmlEntityDecoder.
+* Added a TextPart.Format property for a quick way to determine the type of text it contains.
+* Added text/plain and text/html preview/snippet generators (PlainTextPreviewer and HtmlTextPreviewer, respectively). This is part of a larger improvement to MailKit's text preview feature for IMAP. (MailKit issue #1001)
+* Fixed SqlCertificateDatabase to accept null SubjectKeyIdentifiers.
+* Changed Header.FormatRawValue() to be protected virtual and added Header.SetRawValue() to allow developers to override the default formatting behavior by either subclassing Header or by calling header.SetRawValue(). (issue #546)
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>

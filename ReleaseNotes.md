@@ -1,5 +1,28 @@
 # Release Notes
 
+### MimeKit 2.6.0 (2020-04-03)
+
+* Fixed the MimeEntity.ContentId setter to use ParseUtils.TryParseMsgId() instead of
+  MailboxAddress.TryParse() so that it is more lenient in what it accepts.
+  (issue [#542](https://github.com/jstedfast/MimeKit/issues/542))
+* Added an HtmlTokenizer.IgnoreTruncatedTags property which is useful when working with
+  truncated HTML.
+* Optimized the heck out of HtmlEntityDecoder.
+* Added a TextPart.Format property for a quick way to determine the type of text it
+  contains.
+* Added text/plain and text/html preview/snippet generators (PlainTextPreviewer and
+  HtmlTextPreviewer, respectively). This is part of a larger improvement to MailKit's
+  text preview feature for IMAP.
+  (MailKit issue [#1001](https://github.com/jstedfast/MailKit/issues/1001))
+* Fixed SqlCertificateDatabase to accept null SubjectKeyIdentifiers.
+* Changed Header.FormatRawValue() to be protected virtual and added Header.SetRawValue()
+  to allow developers to override the default formatting behavior by either subclassing
+  Header or by calling header.SetRawValue().
+  (issue [#546](https://github.com/jstedfast/MimeKit/issues/546))
+* Switched MimeKit for Android and iOS over to using Portable.BouncyCastle.
+* Added MimeTypes.Register() to allow developers to register their own mime-type mappings
+  to file extensions.
+
 ### MimeKit 2.5.2 (2020-03-14)
 
 * Updated net46, net47, and net48 builds to reference Portable.BouncyCastle instead of
