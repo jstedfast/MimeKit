@@ -204,7 +204,7 @@ namespace MimeKit.Text {
 		/// Get a text preview of a stream of text in the specified encoding.
 		/// </remarks>
 		/// <param name="stream">The original text stream.</param>
-		/// <param name="charset">The encoding of the stream.</param>
+		/// <param name="encoding">The encoding of the stream.</param>
 		/// <returns>A string representing a shortened preview of the original text.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>

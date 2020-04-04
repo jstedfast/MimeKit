@@ -339,6 +339,7 @@ namespace MimeKit {
 		/// when serializing new values for headers.</para>
 		/// </remarks>
 		/// <param name="options">The parser options used.</param>
+		/// <param name="id">The id of the header.</param>
 		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
 		internal protected Header (ParserOptions options, HeaderId id, string field, byte[] value)

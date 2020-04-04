@@ -75,7 +75,7 @@ namespace MimeKit.Tnef {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.TnefPart"/> nodes
+		/// This default implementation for <see cref="MimeKit.Tnef.TnefPart"/> nodes
 		/// calls <see cref="MimeKit.MimeVisitor.VisitTnefPart"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
 		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
