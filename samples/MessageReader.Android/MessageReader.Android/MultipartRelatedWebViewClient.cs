@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2014-2019 Jeffrey Stedfast
+// Copyright (c) 2014-2020 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -59,9 +59,7 @@ namespace MessageReader.Android {
 				if ((index = related.IndexOf (uri)) == -1)
 					continue;
 
-				var part = related[index] as MimePart;
-
-				if (part != null) {
+				if (related[index] is MimePart part) {
 					var mimeType = part.ContentType.MimeType;
 					var charset = part.ContentType.Charset;
 					var stream = part.Content.Open ();

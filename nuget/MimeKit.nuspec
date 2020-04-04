@@ -34,6 +34,7 @@
 * Fixed SqlCertificateDatabase to accept null SubjectKeyIdentifiers.
 * Changed Header.FormatRawValue() to be protected virtual and added Header.SetRawValue() to allow developers to override the default formatting behavior by either subclassing Header or by calling header.SetRawValue(). (issue #546)
 * Switched MimeKit for Android and iOS over to using Portable.BouncyCastle.
+* Added MimeTypes.Register() to allow developers to register their own mime-type mappings to file extensions.
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
