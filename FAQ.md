@@ -680,13 +680,12 @@ if (attachment.ContentDisposition.Parameters.TryGetValue ("filename", out param)
     param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
 ```
 
-The other way is to use a [FormatOptions](http://www.mimekit.net/docs/html/T_MimeKit_FormatOptions.htm):
+Or
 
 ```csharp
-var options = FormatOptions.Default.Clone ();
-options.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047;
-
-message.WriteTo (options, stream);
+foreach (var param in attachment.ContentDisposition.Parameters) {
+    param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+}
 ```
 
 ### <a name="DecryptInlinePGP">Q: How do I decrypt PGP messages that are embedded in the main message text?</a>
