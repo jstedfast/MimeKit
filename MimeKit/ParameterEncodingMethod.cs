@@ -35,6 +35,9 @@ namespace MimeKit {
 	/// some older email clients to improperly encode using the method described in
 	/// <a href="https://tools.ietf.org/html/rfc2047">rfc2047</a> instead.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ParameterExamples.cs" region="OverrideAllParameterEncodings"/>
+	/// </example>
 	public enum ParameterEncodingMethod {
 		/// <summary>
 		/// Use the default encoding method set on the <see cref="FormatOptions"/>.

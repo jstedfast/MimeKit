@@ -211,6 +211,9 @@ namespace MimeKit {
 		/// <para>If set to <see cref="ParameterEncodingMethod.Default"/>, the encoding
 		/// method used will default to the value set on the <see cref="FormatOptions"/>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ParameterExamples.cs" region="OverrideAllParameterEncodings"/>
+		/// </example>
 		/// <value>The encoding method.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is not a valid value.

@@ -159,6 +159,9 @@ namespace MimeKit {
 		/// contain parameters to provide further information to the receiving client
 		/// such as the file attributes.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ParameterExamples.cs" region="OverrideFileNameParameterEncoding"/>
+		/// </example>
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }

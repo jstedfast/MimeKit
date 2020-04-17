@@ -276,6 +276,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the parameter with the specified name.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ParameterExamples.cs" region="OverrideFileNameParameterEncoding"/>
+		/// </example>
 		/// <returns><c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="param">The parameter.</param>
