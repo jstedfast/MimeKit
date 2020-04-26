@@ -287,7 +287,7 @@ namespace MimeKit {
 			return results.Boundary;
 		}
 
-		async Task<BoundaryType> ConstructMessagePartAsync (MessagePart part, CancellationToken cancellationToken)
+		async Task<BoundaryType> ConstructMessagePartAsync (MessagePart part, int depth, CancellationToken cancellationToken)
 		{
 			BoundaryType found;
 
@@ -342,13 +342,13 @@ namespace MimeKit {
 				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
 			}
 
-			var entity = options.CreateEntity (type, headers, true);
+			var entity = options.CreateEntity (type, headers, true, depth);
 			message.Body = entity;
 
 			if (entity is Multipart)
-				found = await ConstructMultipartAsync ((Multipart) entity, cancellationToken).ConfigureAwait (false);
+				found = await ConstructMultipartAsync ((Multipart) entity, depth + 1, cancellationToken).ConfigureAwait (false);
 			else if (entity is MessagePart)
-				found = await ConstructMessagePartAsync ((MessagePart) entity, cancellationToken).ConfigureAwait (false);
+				found = await ConstructMessagePartAsync ((MessagePart) entity, depth + 1, cancellationToken).ConfigureAwait (false);
 			else
 				found = await ConstructMimePartAsync ((MimePart) entity, cancellationToken).ConfigureAwait (false);
 
@@ -375,7 +375,7 @@ namespace MimeKit {
 			}
 		}
 
-		async Task<BoundaryType> MultipartScanSubpartsAsync (Multipart multipart, CancellationToken cancellationToken)
+		async Task<BoundaryType> MultipartScanSubpartsAsync (Multipart multipart, int depth, CancellationToken cancellationToken)
 		{
 			BoundaryType found;
 
@@ -393,12 +393,12 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = options.CreateEntity (type, headers, false);
+				var entity = options.CreateEntity (type, headers, false, depth);
 
 				if (entity is Multipart)
-					found = await ConstructMultipartAsync ((Multipart) entity, cancellationToken).ConfigureAwait (false);
+					found = await ConstructMultipartAsync ((Multipart) entity, depth + 1, cancellationToken).ConfigureAwait (false);
 				else if (entity is MessagePart)
-					found = await ConstructMessagePartAsync ((MessagePart) entity, cancellationToken).ConfigureAwait (false);
+					found = await ConstructMessagePartAsync ((MessagePart) entity, depth + 1, cancellationToken).ConfigureAwait (false);
 				else
 					found = await ConstructMimePartAsync ((MimePart) entity, cancellationToken).ConfigureAwait (false);
 
@@ -408,7 +408,7 @@ namespace MimeKit {
 			return found;
 		}
 
-		async Task<BoundaryType> ConstructMultipartAsync (Multipart multipart, CancellationToken cancellationToken)
+		async Task<BoundaryType> ConstructMultipartAsync (Multipart multipart, int depth, CancellationToken cancellationToken)
 		{
 			var boundary = multipart.Boundary;
 
@@ -425,7 +425,7 @@ namespace MimeKit {
 
 			var found = await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
 			if (found == BoundaryType.ImmediateBoundary)
-				found = await MultipartScanSubpartsAsync (multipart, cancellationToken).ConfigureAwait (false);
+				found = await MultipartScanSubpartsAsync (multipart, depth, cancellationToken).ConfigureAwait (false);
 
 			if (found == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
@@ -522,11 +522,11 @@ namespace MimeKit {
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all of the headers.
-			var entity = options.CreateEntity (type, headers, false);
+			var entity = options.CreateEntity (type, headers, false, 0);
 			if (entity is Multipart)
-				found = await ConstructMultipartAsync ((Multipart) entity, cancellationToken).ConfigureAwait (false);
+				found = await ConstructMultipartAsync ((Multipart) entity, 0, cancellationToken).ConfigureAwait (false);
 			else if (entity is MessagePart)
-				found = await ConstructMessagePartAsync ((MessagePart) entity, cancellationToken).ConfigureAwait (false);
+				found = await ConstructMessagePartAsync ((MessagePart) entity, 0, cancellationToken).ConfigureAwait (false);
 			else
 				found = await ConstructMimePartAsync ((MimePart) entity, cancellationToken).ConfigureAwait (false);
 
@@ -607,13 +607,13 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true);
+			var entity = options.CreateEntity (type, headers, true, 0);
 			message.Body = entity;
 
 			if (entity is Multipart)
-				found = await ConstructMultipartAsync ((Multipart) entity, cancellationToken).ConfigureAwait (false);
+				found = await ConstructMultipartAsync ((Multipart) entity, 0, cancellationToken).ConfigureAwait (false);
 			else if (entity is MessagePart)
-				found = await ConstructMessagePartAsync ((MessagePart) entity, cancellationToken).ConfigureAwait (false);
+				found = await ConstructMessagePartAsync ((MessagePart) entity, 0, cancellationToken).ConfigureAwait (false);
 			else
 				found = await ConstructMimePartAsync ((MimePart) entity, cancellationToken).ConfigureAwait (false);
 

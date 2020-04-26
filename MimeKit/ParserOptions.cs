@@ -106,8 +106,20 @@ namespace MimeKit {
 		/// formed. If the value is set too large, then it is possible that a maliciously formed set of
 		/// recursive group addresses could cause a stack overflow.</para>
 		/// </remarks>
-		/// <value>The max address group depth.</value>
+		/// <value>The maximum address group depth.</value>
 		public int MaxAddressGroupDepth { get; set; }
+
+		/// <summary>
+		/// Gets or sets the maximum MIME nesting depth the parser should accept.
+		/// </summary>
+		/// <remarks>
+		/// <para>This option exists in order to define the maximum recursive depth of MIME parts that the parser
+		/// should accept before treating further nesting as a leaf-node MIME part and not recursing any further.
+		/// If the value is set too large, then it is possible that a maliciously formed set of rdeeply nested
+		/// multipart MIME parts could cause a stack overflow.</para>
+		/// </remarks>
+		/// <value>The maximum MIME nesting depth.</value>
+		public int MaxMimeDepth { get; set; }
 
 		/// <summary>
 		/// Gets or sets the compliance mode that should be used when parsing Content-Type and Content-Disposition parameters.
@@ -178,6 +190,7 @@ namespace MimeKit {
 			AllowAddressesWithoutDomain = true;
 			RespectContentLength = false;
 			MaxAddressGroupDepth = 3;
+			MaxMimeDepth = 1024;
 		}
 
 		/// <summary>
@@ -199,6 +212,7 @@ namespace MimeKit {
 			options.MaxAddressGroupDepth = MaxAddressGroupDepth;
 			options.RespectContentLength = RespectContentLength;
 			options.CharsetEncoding = CharsetEncoding;
+			options.MaxMimeDepth = MaxMimeDepth;
 
 			foreach (var mimeType in mimeTypes)
 				options.mimeTypes.Add (mimeType.Key, mimeType.Value);
@@ -281,9 +295,13 @@ namespace MimeKit {
 			return false;
 		}
 
-		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel)
+		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel, int depth)
 		{
 			var args = new MimeEntityConstructorArgs (this, contentType, headers, toplevel);
+
+			if (depth >= MaxMimeDepth)
+				return new MimePart (args);
+
 			var subtype = contentType.MediaSubtype.ToLowerInvariant ();
 			var type = contentType.MediaType.ToLowerInvariant ();
 

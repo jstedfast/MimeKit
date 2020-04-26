@@ -1250,7 +1250,7 @@ namespace MimeKit {
 			return found;
 		}
 
-		unsafe BoundaryType ConstructMessagePart (MessagePart part, byte* inbuf, CancellationToken cancellationToken)
+		unsafe BoundaryType ConstructMessagePart (MessagePart part, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			BoundaryType found;
 
@@ -1301,13 +1301,13 @@ namespace MimeKit {
 				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
 			}
 
-			var entity = options.CreateEntity (type, headers, true);
+			var entity = options.CreateEntity (type, headers, true, depth);
 			message.Body = entity;
 
 			if (entity is Multipart)
-				found = ConstructMultipart ((Multipart) entity, inbuf, cancellationToken);
+				found = ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
 			else if (entity is MessagePart)
-				found = ConstructMessagePart ((MessagePart) entity, inbuf, cancellationToken);
+				found = ConstructMessagePart ((MessagePart) entity, inbuf, depth + 1, cancellationToken);
 			else
 				found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
@@ -1338,7 +1338,7 @@ namespace MimeKit {
 			}
 		}
 
-		unsafe BoundaryType MultipartScanSubparts (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
+		unsafe BoundaryType MultipartScanSubparts (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			BoundaryType found;
 
@@ -1356,12 +1356,12 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = options.CreateEntity (type, headers, false);
+				var entity = options.CreateEntity (type, headers, false, depth);
 
 				if (entity is Multipart)
-					found = ConstructMultipart ((Multipart) entity, inbuf, cancellationToken);
+					found = ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
 				else if (entity is MessagePart)
-					found = ConstructMessagePart ((MessagePart) entity, inbuf, cancellationToken);
+					found = ConstructMessagePart ((MessagePart) entity, inbuf, depth + 1, cancellationToken);
 				else
 					found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
@@ -1384,7 +1384,7 @@ namespace MimeKit {
 			bounds.RemoveAt (0);
 		}
 
-		unsafe BoundaryType ConstructMultipart (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
+		unsafe BoundaryType ConstructMultipart (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			var boundary = multipart.Boundary;
 
@@ -1401,7 +1401,7 @@ namespace MimeKit {
 
 			var found = MultipartScanPreamble (multipart, inbuf, cancellationToken);
 			if (found == BoundaryType.ImmediateBoundary)
-				found = MultipartScanSubparts (multipart, inbuf, cancellationToken);
+				found = MultipartScanSubparts (multipart, inbuf, depth, cancellationToken);
 
 			if (found == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
@@ -1486,11 +1486,11 @@ namespace MimeKit {
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all of the headers.
-			var entity = options.CreateEntity (type, headers, false);
+			var entity = options.CreateEntity (type, headers, false, 0);
 			if (entity is Multipart)
-				found = ConstructMultipart ((Multipart) entity, inbuf, cancellationToken);
+				found = ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);
 			else if (entity is MessagePart)
-				found = ConstructMessagePart ((MessagePart) entity, inbuf, cancellationToken);
+				found = ConstructMessagePart ((MessagePart) entity, inbuf, 0, cancellationToken);
 			else
 				found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
@@ -1579,13 +1579,13 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true);
+			var entity = options.CreateEntity (type, headers, true, 0);
 			message.Body = entity;
 
 			if (entity is Multipart)
-				found = ConstructMultipart ((Multipart) entity, inbuf, cancellationToken);
+				found = ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);
 			else if (entity is MessagePart)
-				found = ConstructMessagePart ((MessagePart) entity, inbuf, cancellationToken);
+				found = ConstructMessagePart ((MessagePart) entity, inbuf, 0, cancellationToken);
 			else
 				found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
