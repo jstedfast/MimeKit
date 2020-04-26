@@ -90,6 +90,7 @@ namespace MimeKit {
 		MessageHeaders,
 		Headers,
 		Content,
+		Boundary,
 		Complete,
 		Eos
 	}
@@ -132,6 +133,7 @@ namespace MimeKit {
 		readonly List<Header> headers = new List<Header> ();
 
 		MimeParserState state;
+		BoundaryType boundary;
 		MimeFormat format;
 		bool persistent;
 		bool toplevel;
@@ -343,6 +345,7 @@ namespace MimeKit {
 			}
 
 			state = MimeParserState.Initialized;
+			boundary = BoundaryType.None;
 		}
 
 		/// <summary>
@@ -830,6 +833,13 @@ namespace MimeKit {
 
 				length = (inptr + 1) - start;
 
+				if ((boundary = CheckBoundary ((int) (start - inbuf), start, (int) length)) != BoundaryType.None) {
+					inputIndex = (int) (start - inbuf);
+					state = MimeParserState.Boundary;
+					headerIndex = 0;
+					return false;
+				}
+
 				if (!valid && headers.Count == 0) {
 					if (length > 0 && preHeaderLength == 0) {
 						if (inptr[-1] == (byte) '\r')
@@ -873,6 +883,7 @@ namespace MimeKit {
 			bool valid = true;
 			int left = 0;
 
+			boundary = BoundaryType.None;
 			ResetRawHeaderData ();
 			headers.Clear ();
 
@@ -1110,7 +1121,7 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline, ref BoundaryType found)
+		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
@@ -1120,7 +1131,7 @@ namespace MimeKit {
 			contentIndex = inputIndex;
 
 			if (midline && length == nleft)
-				found = BoundaryType.Eos;
+				boundary = BoundaryType.Eos;
 
 			*inend = (byte) '\n';
 
@@ -1154,8 +1165,7 @@ namespace MimeKit {
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
-					found = CheckBoundary (startIndex, start, length);
-					if (found != BoundaryType.None)
+					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
 						break;
 
 					length++;
@@ -1164,13 +1174,12 @@ namespace MimeKit {
 					// didn't find the end of the line...
 					midline = true;
 
-					if (found == BoundaryType.None) {
+					if (boundary == BoundaryType.None) {
 						// not enough to tell if we found a boundary
 						break;
 					}
 
-					found = CheckBoundary (startIndex, start, length);
-					if (found != BoundaryType.None)
+					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
 						break;
 				}
 
@@ -1180,10 +1189,9 @@ namespace MimeKit {
 			inputIndex = startIndex;
 		}
 
-		unsafe BoundaryType ScanContent (byte* inbuf, Stream content, bool trimNewLine, out bool empty, CancellationToken cancellationToken)
+		unsafe bool ScanContent (byte* inbuf, Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
-			BoundaryType found = BoundaryType.None;
 			int contentIndex = inputIndex;
 			bool midline = false;
 			int nleft;
@@ -1194,20 +1202,20 @@ namespace MimeKit {
 
 				nleft = inputEnd - inputIndex;
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
+					boundary = BoundaryType.Eos;
 					contentIndex = inputIndex;
-					found = BoundaryType.Eos;
 					break;
 				}
 
-				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref found);
-			} while (found == BoundaryType.None);
+				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline);
+			} while (boundary == BoundaryType.None);
 
 			if (contentIndex < inputIndex)
 				content.Write (input, contentIndex, inputIndex - contentIndex);
 
-			empty = content.Length == 0;
+			var isEmpty = content.Length == 0;
 
-			if (found != BoundaryType.Eos && trimNewLine) {
+			if (boundary != BoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (content.Length > 0) {
 					if (input[inputIndex - 2] == (byte) '\r')
@@ -1217,48 +1225,45 @@ namespace MimeKit {
 				}
 			}
 
-			return found;
+			return isEmpty;
 		}
 
-		unsafe BoundaryType ConstructMimePart (MimePart part, byte* inbuf, CancellationToken cancellationToken)
+		unsafe void ConstructMimePart (MimePart part, byte* inbuf, CancellationToken cancellationToken)
 		{
-			BoundaryType found;
 			Stream content;
-			bool empty;
+			bool isEmpty;
 
 			if (persistent) {
 				long begin = GetOffset (inputIndex);
 				long end;
 
 				using (var measured = new MeasuringStream ()) {
-					found = ScanContent (inbuf, measured, true, out empty, cancellationToken);
+					isEmpty = ScanContent (inbuf, measured, true, cancellationToken);
 					end = begin + measured.Length;
 				}
 
 				content = new BoundStream (stream, begin, end, true);
 			} else {
 				content = new MemoryBlockStream ();
-				found = ScanContent (inbuf, content, true, out empty, cancellationToken);
+				isEmpty = ScanContent (inbuf, content, true, cancellationToken);
 				content.Seek (0, SeekOrigin.Begin);
 			}
 
-			if (!empty)
+			if (!isEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding);
 			else
 				content.Dispose ();
-
-			return found;
 		}
 
-		unsafe BoundaryType ConstructMessagePart (MessagePart part, byte* inbuf, int depth, CancellationToken cancellationToken)
+		unsafe void ConstructMessagePart (MessagePart part, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
-			BoundaryType found;
-
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
-				if (ReadAhead (atleast, 0, cancellationToken) <= 0)
-					return BoundaryType.Eos;
+				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
+					boundary = BoundaryType.Eos;
+					return;
+				}
 
 				byte* start = inbuf + inputIndex;
 				byte* inend = inbuf + inputEnd;
@@ -1269,17 +1274,17 @@ namespace MimeKit {
 				while (*inptr != (byte) '\n')
 					inptr++;
 
-				found = CheckBoundary (inputIndex, start, (int) (inptr - start));
+				boundary = CheckBoundary (inputIndex, start, (int) (inptr - start));
 
-				switch (found) {
+				switch (boundary) {
 				case BoundaryType.ImmediateEndBoundary:
 				case BoundaryType.ImmediateBoundary:
 				case BoundaryType.ParentBoundary:
-					return found;
+					return;
 				case BoundaryType.ParentEndBoundary:
 					// ignore "From " boundaries, broken mailers tend to include these...
 					if (!IsMboxMarker (start))
-						return found;
+						return;
 					break;
 				}
 			}
@@ -1290,7 +1295,8 @@ namespace MimeKit {
 				// Note: this either means that StepHeaders() found the end of the stream
 				// or an invalid header field name at the start of the message headers,
 				// which likely means that this is not a valid MIME stream?
-				return BoundaryType.Eos;
+				boundary = BoundaryType.Eos;
+				return;
 			}
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
@@ -1305,52 +1311,57 @@ namespace MimeKit {
 			message.Body = entity;
 
 			if (entity is Multipart)
-				found = ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
+				ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
 			else if (entity is MessagePart)
-				found = ConstructMessagePart ((MessagePart) entity, inbuf, depth + 1, cancellationToken);
+				ConstructMessagePart ((MessagePart) entity, inbuf, depth + 1, cancellationToken);
 			else
-				found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
+				ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
 			part.Message = message;
-
-			return found;
 		}
 
-		unsafe BoundaryType MultipartScanPreamble (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
+		unsafe void MultipartScanPreamble (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				bool empty;
-
-				var found = ScanContent (inbuf, memory, false, out empty, cancellationToken);
+				ScanContent (inbuf, memory, false, cancellationToken);
 				multipart.RawPreamble = memory.ToArray ();
-				return found;
 			}
 		}
 
-		unsafe BoundaryType MultipartScanEpilogue (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
+		unsafe void MultipartScanEpilogue (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				bool empty;
-
-				var found = ScanContent (inbuf, memory, true, out empty, cancellationToken);
-				multipart.RawEpilogue = empty ? null : memory.ToArray ();
-				return found;
+				var isEmpty = ScanContent (inbuf, memory, true, cancellationToken);
+				multipart.RawEpilogue = isEmpty ? null : memory.ToArray ();
 			}
 		}
 
-		unsafe BoundaryType MultipartScanSubparts (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
+		unsafe void MultipartScanSubparts (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
-			BoundaryType found;
-
 			do {
 				// skip over the boundary marker
-				if (!SkipLine (inbuf, true, cancellationToken))
-					return BoundaryType.Eos;
+				if (!SkipLine (inbuf, true, cancellationToken)) {
+					boundary = BoundaryType.Eos;
+					break;
+				}
 
 				// parse the headers
 				state = MimeParserState.Headers;
-				if (Step (inbuf, cancellationToken) == MimeParserState.Error)
-					return BoundaryType.Eos;
+				if (Step (inbuf, cancellationToken) == MimeParserState.Error) {
+					boundary = BoundaryType.Eos;
+					break;
+				}
+
+				if (state == MimeParserState.Boundary) {
+					if (headers.Count == 0) {
+						if (boundary == BoundaryType.ImmediateBoundary)
+							continue;
+						break;
+					}
+
+					// This part has no content, but that will be handled in ConstructMultipart()
+					// or ConstructMimePart().
+				}
 
 				//if (state == ParserState.Complete && headers.Count == 0)
 				//	return BoundaryType.EndBoundary;
@@ -1359,16 +1370,14 @@ namespace MimeKit {
 				var entity = options.CreateEntity (type, headers, false, depth);
 
 				if (entity is Multipart)
-					found = ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
+					ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
 				else if (entity is MessagePart)
-					found = ConstructMessagePart ((MessagePart) entity, inbuf, depth + 1, cancellationToken);
+					ConstructMessagePart ((MessagePart) entity, inbuf, depth + 1, cancellationToken);
 				else
-					found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
+					ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
 				multipart.Add (entity);
-			} while (found == BoundaryType.ImmediateBoundary);
-
-			return found;
+			} while (boundary == BoundaryType.ImmediateBoundary);
 		}
 
 		void PushBoundary (string boundary)
@@ -1384,32 +1393,34 @@ namespace MimeKit {
 			bounds.RemoveAt (0);
 		}
 
-		unsafe BoundaryType ConstructMultipart (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
+		unsafe void ConstructMultipart (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
-			var boundary = multipart.Boundary;
+			var marker = multipart.Boundary;
 
-			if (boundary == null) {
+			if (marker == null) {
 #if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
 #endif
 
 				// Note: this will scan all content into the preamble...
-				return MultipartScanPreamble (multipart, inbuf, cancellationToken);
+				MultipartScanPreamble (multipart, inbuf, cancellationToken);
+				return;
 			}
 
-			PushBoundary (boundary);
+			PushBoundary (marker);
 
-			var found = MultipartScanPreamble (multipart, inbuf, cancellationToken);
-			if (found == BoundaryType.ImmediateBoundary)
-				found = MultipartScanSubparts (multipart, inbuf, depth, cancellationToken);
+			MultipartScanPreamble (multipart, inbuf, cancellationToken);
+			if (boundary == BoundaryType.ImmediateBoundary)
+				MultipartScanSubparts (multipart, inbuf, depth, cancellationToken);
 
-			if (found == BoundaryType.ImmediateEndBoundary) {
+			if (boundary == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
 				multipart.WriteEndBoundary = true;
 				SkipLine (inbuf, false, cancellationToken);
 				PopBoundary ();
 
-				return MultipartScanEpilogue (multipart, inbuf, cancellationToken);
+				MultipartScanEpilogue (multipart, inbuf, cancellationToken);
+				return;
 			}
 
 			multipart.WriteEndBoundary = false;
@@ -1417,13 +1428,10 @@ namespace MimeKit {
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
 
-			if (found == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
-				return BoundaryType.ImmediateEndBoundary;
-
-			if (found == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
-				return BoundaryType.ImmediateBoundary;
-
-			return found;
+			if (boundary == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
+				boundary = BoundaryType.ImmediateEndBoundary;
+			else if (boundary == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
+				boundary = BoundaryType.ImmediateBoundary;
 		}
 
 		unsafe HeaderList ParseHeaders (byte* inbuf, CancellationToken cancellationToken)
@@ -1482,19 +1490,18 @@ namespace MimeKit {
 				throw new FormatException ("Failed to parse entity headers.");
 
 			var type = GetContentType (null);
-			BoundaryType found;
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all of the headers.
 			var entity = options.CreateEntity (type, headers, false, 0);
 			if (entity is Multipart)
-				found = ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);
+				ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);
 			else if (entity is MessagePart)
-				found = ConstructMessagePart ((MessagePart) entity, inbuf, 0, cancellationToken);
+				ConstructMessagePart ((MessagePart) entity, inbuf, 0, cancellationToken);
 			else
-				found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
+				ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-			if (found != BoundaryType.Eos)
+			if (boundary != BoundaryType.Eos)
 				state = MimeParserState.Complete;
 			else
 				state = MimeParserState.Eos;
@@ -1530,8 +1537,6 @@ namespace MimeKit {
 
 		unsafe MimeMessage ParseMessage (byte* inbuf, CancellationToken cancellationToken)
 		{
-			BoundaryType found;
-
 			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be
 			// reset.
@@ -1583,13 +1588,13 @@ namespace MimeKit {
 			message.Body = entity;
 
 			if (entity is Multipart)
-				found = ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);
+				ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);
 			else if (entity is MessagePart)
-				found = ConstructMessagePart ((MessagePart) entity, inbuf, 0, cancellationToken);
+				ConstructMessagePart ((MessagePart) entity, inbuf, 0, cancellationToken);
 			else
-				found = ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
+				ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-			if (found != BoundaryType.Eos) {
+			if (boundary != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
 					state = MimeParserState.MboxMarker;
 				else
