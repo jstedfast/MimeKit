@@ -334,12 +334,12 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (FormatOptions.Default, message, null));
 			Assert.Throws<ArgumentException> (() => verifier.Verify (FormatOptions.Default, message, arcHeader));
 
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (null, dkimHeader));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (message, null));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (null, message, dkimHeader));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, null, dkimHeader));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, message, null));
-			Assert.Throws<ArgumentException> (async () => await verifier.VerifyAsync (FormatOptions.Default, message, arcHeader));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (null, dkimHeader));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (message, null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (null, message, dkimHeader));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, null, dkimHeader));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, message, null));
+			Assert.ThrowsAsync<ArgumentException> (async () => await verifier.VerifyAsync (FormatOptions.Default, message, arcHeader));
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<HeaderId>) null));
@@ -370,12 +370,12 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => message.Verify (FormatOptions.Default, dkimHeader, null));
 			Assert.Throws<ArgumentException> (() => message.Verify (FormatOptions.Default, arcHeader, locator));
 
-			Assert.Throws<ArgumentNullException> (async () => await message.VerifyAsync (null, locator));
-			Assert.Throws<ArgumentNullException> (async () => await message.VerifyAsync (dkimHeader, null));
-			Assert.Throws<ArgumentNullException> (async () => await message.VerifyAsync (null, dkimHeader, locator));
-			Assert.Throws<ArgumentNullException> (async () => await message.VerifyAsync (FormatOptions.Default, null, locator));
-			Assert.Throws<ArgumentNullException> (async () => await message.VerifyAsync (FormatOptions.Default, dkimHeader, null));
-			Assert.Throws<ArgumentException> (async () => await message.VerifyAsync (FormatOptions.Default, arcHeader, locator));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (null, locator));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (dkimHeader, null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (null, dkimHeader, locator));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (FormatOptions.Default, null, locator));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (FormatOptions.Default, dkimHeader, null));
+			Assert.ThrowsAsync<ArgumentException> (async () => await message.VerifyAsync (FormatOptions.Default, arcHeader, locator));
 		}
 
 		[Test]

@@ -32,7 +32,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using MimeKit;
-using MimeKit.IO;
 
 namespace UnitTests {
 	[TestFixture]
@@ -45,9 +44,9 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => new MimeContent (null));
 			Assert.Throws<ArgumentNullException> (() => content.WriteTo (null));
-			Assert.Throws<ArgumentNullException> (async () => await content.WriteToAsync (null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await content.WriteToAsync (null));
 			Assert.Throws<ArgumentNullException> (() => content.DecodeTo (null));
-			Assert.Throws<ArgumentNullException> (async () => await content.DecodeToAsync (null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await content.DecodeToAsync (null));
 		}
 
 		[Test]
@@ -62,7 +61,7 @@ namespace UnitTests {
 					Assert.Throws<OperationCanceledException> (() => content.WriteTo (dest, source.Token));
 					Assert.AreEqual (0, dest.Length);
 
-					Assert.Throws<TaskCanceledException> (async () => await content.WriteToAsync (dest, source.Token));
+					Assert.ThrowsAsync<TaskCanceledException> (async () => await content.WriteToAsync (dest, source.Token));
 					Assert.AreEqual (0, dest.Length);
 				}
 			}

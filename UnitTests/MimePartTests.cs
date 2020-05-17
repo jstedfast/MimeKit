@@ -69,22 +69,22 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (string) null));
 
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null, true));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ParserOptions) null, Stream.Null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, Stream.Null, true));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ParserOptions) null, Stream.Null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, Stream.Null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null, true));
 
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ContentType) null, Stream.Null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (new ContentType ("application", "octet-stream"), null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, new ContentType ("application", "octet-stream"), Stream.Null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, null, Stream.Null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, new ContentType ("application", "octet-stream"), null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ContentType) null, Stream.Null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (new ContentType ("application", "octet-stream"), null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, new ContentType ("application", "octet-stream"), Stream.Null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, null, Stream.Null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, new ContentType ("application", "octet-stream"), null));
 
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((string) null));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, "fileName"));
-			Assert.Throws<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (string) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((string) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, "fileName"));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (string) null));
 
 			Assert.Throws<ArgumentNullException> (() => part.Accept (null));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo ((string) null));
@@ -101,18 +101,18 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (string) null, false));
 			Assert.Throws<ArgumentException> (() => part.ContentId = "this is some text and stuff");
 
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((string) null));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((string) null, false));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null, false));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, Stream.Null));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName"));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, Stream.Null, false));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null, false));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName", false));
-			Assert.Throws<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null, false));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync ((string) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync ((string) null, false));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null, false));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (null, Stream.Null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName"));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (null, Stream.Null, false));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (Stream) null, false));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (null, "fileName", false));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync (FormatOptions.Default, (string) null, false));
 		}
 
 		[Test]

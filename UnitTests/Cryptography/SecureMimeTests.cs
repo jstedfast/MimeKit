@@ -239,8 +239,8 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out signatures));
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, out entity));
-				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (null, stream));
-				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (stream, null));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await ctx.VerifyAsync (null, stream));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await ctx.VerifyAsync (stream, null));
 
 				entity = new MimePart { Content = new MimeContent (stream) };
 

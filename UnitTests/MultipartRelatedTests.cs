@@ -77,7 +77,8 @@ namespace UnitTests {
 			Assert.AreEqual (3, related.Count, "Count");
 			Assert.AreEqual (root, related.Root, "Root");
 			Assert.AreEqual (root, related[2], "Root should be the 3rd item.");
-			Assert.IsNotNullOrEmpty (root.ContentId, "Root's Content-Id should not be null.");
+			Assert.IsNotNull (root.ContentId, "Root's Content-Id should not be null.");
+			Assert.IsNotEmpty (root.ContentId, "Root's Content-Id should not be empty.");
 
 			start = "<" + root.ContentId + ">";
 

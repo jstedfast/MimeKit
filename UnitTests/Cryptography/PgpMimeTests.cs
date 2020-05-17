@@ -1014,8 +1014,8 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.DecryptTo (stream, null), "DecryptTo");
 
 				// DecryptToAsync
-				Assert.Throws<ArgumentNullException> (async () => await ctx.DecryptToAsync (null, stream), "DecryptToAsync");
-				Assert.Throws<ArgumentNullException> (async () => await ctx.DecryptToAsync (stream, null), "DecryptToAsync");
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await ctx.DecryptToAsync (null, stream), "DecryptToAsync");
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await ctx.DecryptToAsync (stream, null), "DecryptToAsync");
 
 				// GetDigestAlgorithmName
 				Assert.Throws<ArgumentOutOfRangeException> (() => ctx.GetDigestAlgorithmName (DigestAlgorithm.None), "GetDigestAlgorithmName");
@@ -1063,9 +1063,9 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (null, stream), "Verify");
 				Assert.Throws<ArgumentNullException> (() => ctx.Verify (stream, null), "Verify");
 
-				// Verify
-				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (null, stream), "VerifyAsync");
-				Assert.Throws<ArgumentNullException> (async () => await ctx.VerifyAsync (stream, null), "VerifyAsync");
+				// VerifyAsync
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await ctx.VerifyAsync (null, stream), "VerifyAsync");
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await ctx.VerifyAsync (stream, null), "VerifyAsync");
 
 				// MultipartEncrypted
 
@@ -1175,7 +1175,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => signed.Accept (null));
 
 				Assert.Throws<ArgumentNullException> (() => signed.Verify (null));
-				Assert.Throws<ArgumentNullException> (async () => await signed.VerifyAsync (null));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await signed.VerifyAsync (null));
 			}
 		}
 

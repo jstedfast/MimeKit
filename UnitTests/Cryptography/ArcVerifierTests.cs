@@ -50,12 +50,12 @@ namespace UnitTests.Cryptography
 			Assert.Throws<ArgumentNullException> (() => new ArcHeaderValidationResult (null, ArcSignatureValidationResult.Fail));
 
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (null));
 
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null, message));
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (FormatOptions.Default, null));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (null, message));
-			Assert.Throws<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, null));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (null, message));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, null));
 		}
 
 		[Test]
@@ -4353,8 +4353,9 @@ This is a modified test message.
 		}
 
 		[Test]
-		[Ignore] // Note: apparently if c is missing, assume c=relaxed/relaxed? MimeKit defaults to simple/simple like https://www.ietf.org/rfc/rfc6376.txt says
-		public void ams_fields_c_na ()
+		[Ignore ("This test assumes that if the c property is missing, it should assume c=relaxed/relaxed. MimeKit defaults to simple/simple like https://www.ietf.org/rfc/rfc6376.txt says.")]
+
+        public void ams_fields_c_na ()
 		{
 			const string input = @"MIME-Version: 1.0
 Return-Path: <jqd@d1.example.org>
@@ -5433,8 +5434,9 @@ This is a test message.
 		}
 
 		[Test]
-		[Ignore] // Note: I think this is expected to fail because AMS2's h= includes arc-seal, but MimeKit passes because the signature is valid
-		public void ams_fields_h_includes_as ()
+		[Ignore ("I think this is expected to fail because AMS2's h= includes arc-seal, but MimeKit passes because the signature is valid")]
+
+        public void ams_fields_h_includes_as ()
 		{
 			const string input = @"MIME-Version: 1.0
 Return-Path: <jqd@d1.example.org>

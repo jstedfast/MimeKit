@@ -273,7 +273,7 @@ namespace UnitTests {
 
 				parser.SetStream (stream, MimeFormat.Entity);
 
-				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
 			}
 		}
 
@@ -298,7 +298,7 @@ namespace UnitTests {
 
 				parser.SetStream (stream, MimeFormat.Entity);
 
-				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
 			}
 		}
 
@@ -319,7 +319,7 @@ namespace UnitTests {
 
 				stream.Position = 0;
 
-				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "MboxAsync");
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync (), "MboxAsync");
 
 				stream.Position = 0;
 
@@ -331,7 +331,7 @@ namespace UnitTests {
 
 				parser.SetStream (stream, MimeFormat.Entity);
 
-				Assert.Throws<FormatException> (async () => await parser.ParseMessageAsync (), "EntityAsync");
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync (), "EntityAsync");
 			}
 		}
 

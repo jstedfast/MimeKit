@@ -970,7 +970,7 @@ namespace UnitTests.Tnef {
 
 			message = tnef.ConvertToMessage ();
 
-			Assert.IsNullOrEmpty (message.Subject, "Subject");
+			Assert.IsEmpty (message.Subject, "Subject");
 			Assert.AreEqual (DateTimeOffset.MinValue, message.Date, "Date");
 			Assert.AreEqual ("DM5PR21MB0828DA2B8C88048BC03EFFA6CFA20@DM5PR21MB0828.namprd21.prod.outlook.com", message.MessageId, "Message-Id");
 

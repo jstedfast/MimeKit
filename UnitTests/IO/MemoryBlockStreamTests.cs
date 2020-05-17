@@ -34,7 +34,7 @@ using MimeKit.IO;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class MemoryBlockStreamTests
+	public class MemoryBlockStreamTests : IDisposable
 	{
 		MemoryBlockStream blocks;
 		MemoryStream master;
@@ -67,8 +67,7 @@ namespace UnitTests.IO {
 			blocks.Seek (0, SeekOrigin.Begin);
 		}
 
-		[TestFixtureTearDown]
-		public void TearDown ()
+		public void Dispose ()
 		{
 			blocks.Dispose ();
 			master.Dispose ();

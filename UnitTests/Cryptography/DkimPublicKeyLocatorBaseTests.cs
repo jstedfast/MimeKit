@@ -42,7 +42,7 @@ namespace UnitTests.Cryptography {
 			locator.Add ("dummy._domainkey.example.org", null);
 
 			Assert.Throws<ArgumentNullException> (() => locator.LocatePublicKey ("dns/txt", "example.org", "dummy"));
-			Assert.Throws<ArgumentNullException> (async () => await locator.LocatePublicKeyAsync ("dns/txt", "example.org", "dummy"));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await locator.LocatePublicKeyAsync ("dns/txt", "example.org", "dummy"));
 		}
 
 		[Test]
