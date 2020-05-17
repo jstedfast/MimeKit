@@ -14,7 +14,7 @@
     <description>
       MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
-      Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and over 100x faster than AE.Net.Mail and MailSystem.NET).
+      Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers.
 
       MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
 
@@ -113,22 +113,31 @@
   </metadata>
   <files>
     <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.dll" target="lib\netstandard1.3\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.pdb" target="lib\netstandard1.3\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKit.xml" target="lib\netstandard1.3\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKit.dll" target="lib\netstandard1.6\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKit.pdb" target="lib\netstandard1.6\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKit.xml" target="lib\netstandard1.6\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll" target="lib\netstandard2.0\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.pdb" target="lib\netstandard2.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.xml" target="lib\netstandard2.0\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.dll" target="lib\monoandroid\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.pdb" target="lib\monoandroid\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKit.xml" target="lib\monoandroid\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.dll" target="lib\xamarinios\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.pdb" target="lib\xamarinios\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKit.xml" target="lib\xamarinios\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net45\MimeKit.pdb" target="lib\net45\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net46\MimeKit.dll" target="lib\net46\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKit.pdb" target="lib\net46\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net46\MimeKit.xml" target="lib\net46\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.pdb" target="lib\net47\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.dll" target="lib\net48\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKit.pdb" target="lib\net48\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.xml" target="lib\net48\MimeKit.xml" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>

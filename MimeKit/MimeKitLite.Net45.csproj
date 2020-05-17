@@ -25,6 +25,8 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\net45</OutputPath>
     <IntermediateOutputPath>obj\Release\net45</IntermediateOutputPath>

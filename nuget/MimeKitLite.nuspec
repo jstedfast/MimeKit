@@ -14,7 +14,7 @@
     <description>
       MimeKit is an Open Source library for creating and parsing MIME messages. It also supports parsing of Unix mbox files.
 
-      Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers (more than 25x faster than OpenPOP.NET and over 100x faster than AE.Net.Mail and MailSystem.NET).
+      Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers.
 
       MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
 
@@ -81,22 +81,31 @@
   </metadata>
   <files>
     <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKitLite.dll" target="lib\netstandard1.3\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKitLite.pdb" target="lib\netstandard1.3\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKitLite.xml" target="lib\netstandard1.3\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKitLite.dll" target="lib\netstandard1.6\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKitLite.pdb" target="lib\netstandard1.6\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKitLite.xml" target="lib\netstandard1.6\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.dll" target="lib\netstandard2.0\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.pdb" target="lib\netstandard2.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.xml" target="lib\netstandard2.0\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKitLite.dll" target="lib\monoandroid\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKitLite.pdb" target="lib\monoandroid\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\MonoAndroid\MimeKitLite.xml" target="lib\monoandroid\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKitLite.dll" target="lib\xamarinios\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKitLite.pdb" target="lib\xamarinios\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\Xamarin.iOS\MimeKitLite.xml" target="lib\xamarinios\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net45\MimeKitLite.pdb" target="lib\net45\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net45\MimeKitLite.xml" target="lib\net45\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net46\MimeKitLite.dll" target="lib\net46\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net46\MimeKitLite.pdb" target="lib\net46\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net46\MimeKitLite.xml" target="lib\net46\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll" target="lib\net47\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKitLite.pdb" target="lib\net47\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.xml" target="lib\net47\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll" target="lib\net48\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKitLite.pdb" target="lib\net48\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.xml" target="lib\net48\MimeKitLite.xml" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
