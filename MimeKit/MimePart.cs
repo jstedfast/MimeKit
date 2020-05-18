@@ -607,7 +607,10 @@ namespace MimeKit {
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
 				}
-			} else if (encoding != ContentEncoding.Binary) {
+			} else if (encoding == ContentEncoding.Binary || encoding == ContentEncoding.Default) {
+				// Do not alter binary content.
+				Content.WriteTo (stream, cancellationToken);
+			} else {
 				using (var filtered = new FilteredStream (stream)) {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
@@ -615,8 +618,6 @@ namespace MimeKit {
 					Content.WriteTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
-			} else {
-				Content.WriteTo (stream, cancellationToken);
 			}
 		}
 
