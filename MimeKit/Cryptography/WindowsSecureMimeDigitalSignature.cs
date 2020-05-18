@@ -178,11 +178,27 @@ namespace MimeKit.Cryptography
 		/// </exception>
 		public bool Verify ()
 		{
+			return Verify (false);
+		}
+
+		/// <summary>
+		/// Verifies the digital signature.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signature.
+		/// </remarks>
+		/// <param name="verifySignatureOnly"><c>true</c> if only the signature itself should be verified; otherwise, both the signature and the certificate chain are validated.</param>
+		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <exception cref="DigitalSignatureVerifyException">
+		/// An error verifying the signature has occurred.
+		/// </exception>
+		public bool Verify (bool verifySignatureOnly)
+		{
 			if (vex != null)
 				throw vex;
 
 			try {
-				SignerInfo.CheckSignature (false);
+				SignerInfo.CheckSignature (verifySignatureOnly);
 				return true;
 			} catch (Exception ex) {
 				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);

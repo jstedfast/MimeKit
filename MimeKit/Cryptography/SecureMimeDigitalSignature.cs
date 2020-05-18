@@ -209,15 +209,28 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the digital signature.
 		/// </remarks>
-		/// <returns><c>true</c> if the signature is valid; otherwise <c>false</c>.</returns>
+		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>
 		public bool Verify ()
 		{
-			if (valid.HasValue)
-				return valid.Value;
+			return Verify (false);
+		}
 
+		/// <summary>
+		/// Verifies the digital signature.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the digital signature.
+		/// </remarks>
+		/// <param name="verifySignatureOnly"><c>true</c> if only the signature itself should be verified; otherwise, both the signature and the certificate chain are validated.</param>
+		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <exception cref="DigitalSignatureVerifyException">
+		/// An error verifying the signature has occurred.
+		/// </exception>
+		public bool Verify (bool verifySignatureOnly)
+		{
 			if (vex != null)
 				throw vex;
 
@@ -227,21 +240,24 @@ namespace MimeKit.Cryptography {
 				throw vex;
 			}
 
-			if (ChainException != null) {
-				var message = string.Format ("Failed to verify digital signature: {0}", ChainException.Message);
-				vex = new DigitalSignatureVerifyException (message, ChainException);
-				throw vex;
+			if (!valid.HasValue) {
+				try {
+					var certificate = ((SecureMimeDigitalCertificate) SignerCertificate).Certificate;
+					valid = SignerInfo.Verify (certificate);
+				} catch (Exception ex) {
+					var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);
+					vex = new DigitalSignatureVerifyException (message, ex);
+					throw vex;
+				}
 			}
 
-			try {
-				var certificate = ((SecureMimeDigitalCertificate) SignerCertificate).Certificate;
-				valid = SignerInfo.Verify (certificate);
-				return valid.Value;
-			} catch (Exception ex) {
-				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);
-				vex = new DigitalSignatureVerifyException (message, ex);
-				throw vex;
+			if (!verifySignatureOnly && ChainException != null) {
+				var message = string.Format ("Failed to verify digital signature chain: {0}", ChainException.Message);
+
+				throw new DigitalSignatureVerifyException (message, ChainException);
 			}
+
+			return valid.Value;
 		}
 
 		#endregion
