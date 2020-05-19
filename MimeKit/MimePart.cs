@@ -607,7 +607,7 @@ namespace MimeKit {
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
 				}
-			} else if (encoding == ContentEncoding.Binary || encoding == ContentEncoding.Default) {
+			} else if (encoding == ContentEncoding.Binary || (encoding == ContentEncoding.Default && !ContentType.IsMimeType("text", "*"))) {
 				// Do not alter binary content.
 				Content.WriteTo (stream, cancellationToken);
 			} else {
