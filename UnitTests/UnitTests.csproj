@@ -249,6 +249,7 @@
     <None Include="TestData\partial\message-partial.2.eml" />
     <None Include="TestData\smime\certificate-authority.key" />
     <None Include="TestData\smime\gencerts.sh" />
+    <None Include="TestData\smime\octet-stream-with-mixed-line-endings.dat" />
     <None Include="TestData\smime\smdh.pem" />
     <None Include="TestData\smime\smdsa1.pem" />
     <None Include="TestData\smime\smdsa2.pem" />
