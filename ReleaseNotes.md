@@ -1,5 +1,20 @@
 # Release Notes
 
+### MimeKit 2.7.0 (2020-05-19)
+
+* Fixed InternetAddressList.Insert() to allow inserting at the end of the list.
+  (issue [#559](https://github.com/jstedfast/MimeKit/issues/559))
+* Added ParserOptions.MaxMimeDepth to allow developers to set the max nesting depth
+  allowed by the parser.
+* Added logic to handle multipart children without any headers or content.
+* Added a new Verify(bool verifySignatureOnly) method to IDigitalSignature for
+  developers who just want to be able to verify the signature without worrying
+  about the certificate chain.
+* Fixed MimePart.WriteTo() to avoid canonicalizing line endings for MimeParts that
+  do not define a Content-Transfer-Encoding.
+  (issue [#569](https://github.com/jstedfast/MimeKit/issues/569))
+* NuGet packages now include the portable pdb's.
+
 ### MimeKit 2.6.0 (2020-04-03)
 
 * Fixed the MimeEntity.ContentId setter to use ParseUtils.TryParseMsgId() instead of
