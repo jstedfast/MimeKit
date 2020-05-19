@@ -32,7 +32,7 @@ using System.Runtime.Serialization;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An exception that is thrown when an error occurrs in <see cref="IDigitalSignature.Verify"/>.
+	/// An exception that is thrown when an error occurrs in <see cref="IDigitalSignature.Verify()"/>.
 	/// </summary>
 	/// <remarks>
 	/// For more information about the error condition, check the <see cref="System.Exception.InnerException"/> property.

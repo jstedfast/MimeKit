@@ -1027,7 +1027,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// This method will called by the <a href="Overload_MimeKit_Header_SetValue.htm">SetValue</a>
 		/// methods and may also be conditionally called when the header is being written to a
-		/// <see cref="Stream"/>.
+		/// <see cref="System.IO.Stream"/>.
 		/// </remarks>
 		/// <param name="format">The formatting options.</param>
 		/// <param name="encoding">The character encoding to be used.</param>
