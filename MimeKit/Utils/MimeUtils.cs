@@ -363,6 +363,7 @@ namespace MimeKit.Utils {
 			case "quoted-printable": encoding = ContentEncoding.QuotedPrintable; break;
 			case "x-uuencode":       encoding = ContentEncoding.UUEncode; break;
 			case "uuencode":         encoding = ContentEncoding.UUEncode; break;
+			case "x-uue":            encoding = ContentEncoding.UUEncode; break;
 			default:                 encoding = ContentEncoding.Default; break;
 			}
 

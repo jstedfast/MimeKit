@@ -580,54 +580,43 @@ namespace UnitTests {
 				File.WriteAllText (path, actual);
 
 			var summary = File.ReadAllText (path).Replace ("\r\n", "\n");
-			var original = new MemoryBlockStream ();
 			var expected = new byte[4096];
 			var buffer = new byte[4096];
 			int nx, n;
 
 			Assert.AreEqual (summary, actual, "Summaries do not match for {0}.mbox", baseName);
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
-				using (var filtered = new FilteredStream (original)) {
-					filtered.Add (new Dos2UnixFilter ());
-					stream.CopyTo (filtered);
-					filtered.Flush ();
-				}
+			using (var original = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+				output.Position = 0;
+
+				Assert.AreEqual (original.Length, output.Length, "The length of the mbox did not match.");
+
+				do {
+					var position = original.Position;
+
+					nx = original.Read (expected, 0, expected.Length);
+					n = output.Read (buffer, 0, nx);
+
+					if (nx == 0)
+						break;
+
+					for (int i = 0; i < nx; i++) {
+						if (buffer[i] == expected[i])
+							continue;
+
+						var strExpected = CharsetUtils.Latin1.GetString (expected, 0, nx);
+						var strActual = CharsetUtils.Latin1.GetString (buffer, 0, n);
+
+						Assert.AreEqual (strExpected, strActual, "The mbox differs at position {0}", position + i);
+					}
+				} while (true);
 			}
-
-			original.Position = 0;
-			output.Position = 0;
-
-			Assert.AreEqual (original.Length, output.Length, "The length of the mbox did not match.");
-
-			do {
-				var position = original.Position;
-
-				nx = original.Read (expected, 0, expected.Length);
-				n = output.Read (buffer, 0, buffer.Length);
-
-				if (nx == 0)
-					break;
-
-				for (int i = 0; i < nx; i++) {
-					if (buffer[i] == expected[i])
-						continue;
-
-					var strExpected = CharsetUtils.Latin1.GetString (expected, 0, nx);
-					var strActual = CharsetUtils.Latin1.GetString (buffer, 0, n);
-
-					Assert.AreEqual (strExpected, strActual, "The mbox differs at position {0}", position + i);
-				}
-			} while (true);
 		}
 
 		void TestMbox (ParserOptions options, string baseName)
 		{
-			var format = FormatOptions.Default.Clone ();
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
-
-			format.NewLineFormat = NewLineFormat.Unix;
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
 				var parser = options != null ? new MimeParser (options, stream, MimeFormat.Mbox) : new MimeParser (stream, MimeFormat.Mbox);
@@ -646,9 +635,9 @@ namespace UnitTests {
 					DumpMimeTree (builder, message);
 					builder.Append ('\n');
 
-					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? Environment.NewLine : string.Empty) + parser.MboxMarker + Environment.NewLine);
 					output.Write (marker, 0, marker.Length);
-					message.WriteTo (format, output);
+					message.WriteTo (output);
 					count++;
 				}
 			}
@@ -658,11 +647,8 @@ namespace UnitTests {
 
 		async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
-			var format = FormatOptions.Default.Clone ();
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
-
-			format.NewLineFormat = NewLineFormat.Unix;
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
 				var parser = options != null ? new MimeParser (options, stream, MimeFormat.Mbox) : new MimeParser (stream, MimeFormat.Mbox);
@@ -681,9 +667,9 @@ namespace UnitTests {
 					DumpMimeTree (builder, message);
 					builder.Append ('\n');
 
-					var marker = Encoding.UTF8.GetBytes ((count > 0 ? "\n" : string.Empty) + parser.MboxMarker + "\n");
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? Environment.NewLine : string.Empty) + parser.MboxMarker + Environment.NewLine);
 					await output.WriteAsync (marker, 0, marker.Length);
-					await message.WriteToAsync (format, output);
+					await message.WriteToAsync (output);
 					count++;
 				}
 			}

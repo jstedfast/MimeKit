@@ -539,6 +539,15 @@ namespace MimeKit {
 			ContentTransferEncoding = best;
 		}
 
+		bool IsTextBasedContent {
+			get {
+				if (encoding != ContentEncoding.Binary && encoding != ContentEncoding.Default)
+					return true;
+
+				return ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*");
+            }
+        }
+
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
@@ -607,7 +616,7 @@ namespace MimeKit {
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
 				}
-			} else if (encoding == ContentEncoding.Binary || (encoding == ContentEncoding.Default && !ContentType.IsMimeType("text", "*"))) {
+			} else if (encoding == ContentEncoding.Binary || !IsTextBasedContent) {
 				// Do not alter binary content.
 				Content.WriteTo (stream, cancellationToken);
 			} else {
@@ -650,6 +659,8 @@ namespace MimeKit {
 			if (Content == null)
 				return;
 
+			var isText = ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*");
+
 			if (Content.Encoding != encoding) {
 				if (encoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
@@ -676,7 +687,8 @@ namespace MimeKit {
 					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
 					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 				}
-			} else if (encoding == ContentEncoding.Binary || (encoding == ContentEncoding.Default && !ContentType.IsMimeType("text", "*"))) {
+			} else if (encoding == ContentEncoding.Binary || !IsTextBasedContent) {
+				// Do not alter binary content.
 				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {
