@@ -1,5 +1,6 @@
 MimeKit/Resources/Resource.designer.cs
 Mono.Data.Sqlite/Documentation
+project.nuget.cache
 *project.lock.json
 *.csproj.nuget.cache
 *.csproj.nuget.dgspec.json
