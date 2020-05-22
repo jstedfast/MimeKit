@@ -39,6 +39,8 @@ namespace UnitTests.Encodings {
 	[TestFixture]
 	public class YEncodingTests
 	{
+		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "yenc");
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -48,7 +50,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestYDecodeSimpleMessage ()
 		{
-			using (var file = File.OpenRead ("../../TestData/yenc/simple.msg")) {
+			using (var file = File.OpenRead (Path.Combine (DataDir, "simple.msg"))) {
 				var message = MimeMessage.Load (file);
 
 				using (var decoded = new MemoryStream ()) {
@@ -112,10 +114,10 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestYDecodeMultiPart ()
 		{
-			var expected = File.ReadAllBytes ("../../TestData/yenc/joystick.jpg");
+			var expected = File.ReadAllBytes (Path.Combine (DataDir, "joystick.jpg"));
 
 			using (var decoded = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/yenc/00000020.ntx")) {
+				using (var file = File.OpenRead (Path.Combine (DataDir, "00000020.ntx"))) {
 					var ydec = new YDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
@@ -128,7 +130,7 @@ namespace UnitTests.Encodings {
 					Assert.AreEqual (0xbfae5c0b, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match (part 1).");
 				}
 
-				using (var file = File.OpenRead ("../../TestData/yenc/00000021.ntx")) {
+				using (var file = File.OpenRead (Path.Combine (DataDir, "00000021.ntx"))) {
 					var ydec = new YDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
@@ -151,7 +153,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestYDecodeStateTransitions ()
 		{
-			using (var file = File.OpenRead ("../../TestData/yenc/state-changes.ntx")) {
+			using (var file = File.OpenRead (Path.Combine (DataDir, "state-changes.ntx"))) {
 				using (var decoded = new MemoryStream ()) {
 					var ydec = new YDecoder ();
 

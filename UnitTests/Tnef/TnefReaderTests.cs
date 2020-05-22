@@ -35,10 +35,12 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefReaderTests
 	{
+		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "tnef");
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			using (var stream = File.OpenRead ("../../TestData/tnef/winmail.tnef")) {
+			using (var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"))) {
 				Assert.Throws<ArgumentNullException> (() => new TnefReader (null, 0, TnefComplianceMode.Strict));
 				Assert.Throws<ArgumentOutOfRangeException> (() => new TnefReader (stream, -1, TnefComplianceMode.Strict));
 
@@ -55,7 +57,7 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestSetComplianceError ()
 		{
-			using (var stream = File.OpenRead ("../../TestData/tnef/winmail.tnef")) {
+			using (var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"))) {
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
 					foreach (TnefComplianceStatus error in Enum.GetValues (typeof (TnefComplianceStatus))) {
 						if (error == TnefComplianceStatus.Compliant) {

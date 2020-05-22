@@ -49,7 +49,7 @@ namespace UnitTests.Cryptography {
 
 		public SqliteCertificateDatabaseTests ()
 		{
-			dataDir = Path.Combine ("..", "..", "TestData", "smime");
+			dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var path = Path.Combine (dataDir, "smime.pfx");
 
 			if (File.Exists ("sqlite.db"))

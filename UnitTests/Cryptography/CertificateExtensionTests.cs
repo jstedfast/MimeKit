@@ -76,7 +76,7 @@ namespace UnitTests.Cryptography {
 		public void TestCertificateConversion ()
 		{
 			var fileNames = new string[] { "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt" };
-			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var parser = new X509CertificateParser ();
 
 			foreach (var fileName in fileNames) {

@@ -83,7 +83,7 @@ namespace UnitTests.Encodings {
 			"fo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8AAQ=="
 		};
 
-		static readonly string dataDir = Path.Combine ("..", "..", "TestData", "encoders");
+		static readonly string dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
 		static readonly byte[] wikipedia_unix;
 		static readonly byte[] wikipedia_dos;
 		static readonly byte[] photo;
@@ -168,33 +168,34 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		void TestDecoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
+		void TestDecoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize, bool unix = false)
 		{
 			int n;
 
-			using (var original = new MemoryStream (rawData, false)) {
-				using (var decoded = new MemoryStream ()) {
-					using (var filtered = new FilteredStream (decoded)) {
-						filtered.Add (DecoderFilter.Create (encoding));
+			using (var decoded = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (decoded)) {
+					filtered.Add (DecoderFilter.Create (encoding));
 
-						using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
-							var buffer = new byte[bufferSize];
+					if (unix)
+						filtered.Add (new Dos2UnixFilter ());
 
-							while ((n = file.Read (buffer, 0, bufferSize)) > 0)
-								filtered.Write (buffer, 0, n);
-						}
+					using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
+						var buffer = new byte[bufferSize];
 
-						filtered.Flush ();
+						while ((n = file.Read (buffer, 0, bufferSize)) > 0)
+							filtered.Write (buffer, 0, n);
 					}
 
-					var buf = decoded.GetBuffer ();
-					n = rawData.Length;
-
-					Assert.AreEqual (rawData.Length, decoded.Length, "Decoded length is incorrect.");
-
-					for (int i = 0; i < n; i++)
-						Assert.AreEqual (rawData[i], buf[i], "The byte at offset {0} does not match.", i);
+					filtered.Flush ();
 				}
+
+				var buf = decoded.GetBuffer ();
+				n = rawData.Length;
+
+				Assert.AreEqual (rawData.Length, decoded.Length, "Decoded length is incorrect.");
+
+				for (int i = 0; i < n; i++)
+					Assert.AreEqual (rawData[i], buf[i], "The byte at offset {0} does not match.", i);
 			}
 		}
 
@@ -330,7 +331,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestQuotedPrintableDecode (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.QuotedPrintable, wikipedia_unix, "wikipedia.qp", bufferSize);
+			TestDecoder (ContentEncoding.QuotedPrintable, wikipedia_unix, "wikipedia.qp", bufferSize, true);
 		}
 
 		[Test]

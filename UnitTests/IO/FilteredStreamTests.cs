@@ -38,6 +38,8 @@ namespace UnitTests.IO {
 	[TestFixture]
 	public class FilteredStreamTests
 	{
+		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
+
 		[Test]
 		public void TestCanReadWriteSeekTimeout ()
 		{
@@ -96,11 +98,11 @@ namespace UnitTests.IO {
 		public void TestRead ()
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
+				using (var file = File.OpenRead (Path.Combine (DataDir, "photo.jpg")))
 					file.CopyTo (original, 4096);
 
 				using (var decoded = new MemoryStream ()) {
-					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
+					using (var file = File.OpenRead (Path.Combine (DataDir, "photo.b64"))) {
 						using (var filtered = new FilteredStream (file)) {
 							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
 							filtered.CopyTo (decoded, 4096);
@@ -123,11 +125,11 @@ namespace UnitTests.IO {
 		public async Task TestReadAsync ()
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
+				using (var file = File.OpenRead (Path.Combine (DataDir, "photo.jpg")))
 					file.CopyTo (original, 4096);
 
 				using (var decoded = new MemoryStream ()) {
-					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
+					using (var file = File.OpenRead (Path.Combine (DataDir, "photo.b64"))) {
 						using (var filtered = new FilteredStream (file)) {
 							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
 							await filtered.CopyToAsync (decoded, 4096);
@@ -150,11 +152,11 @@ namespace UnitTests.IO {
 		public void TestWrite ()
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
+				using (var file = File.OpenRead (Path.Combine (DataDir, "photo.jpg")))
 					file.CopyTo (original, 4096);
 
 				using (var decoded = new MemoryStream ()) {
-					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
+					using (var file = File.OpenRead (Path.Combine (DataDir, "photo.b64"))) {
 						using (var filtered = new FilteredStream (decoded)) {
 							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
 							file.CopyTo (filtered, 4096);
@@ -178,11 +180,11 @@ namespace UnitTests.IO {
 		public async Task TestWriteAsync ()
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead ("../../TestData/encoders/photo.jpg"))
+				using (var file = File.OpenRead (Path.Combine (DataDir, "photo.jpg")))
 					file.CopyTo (original, 4096);
 
 				using (var decoded = new MemoryStream ()) {
-					using (var file = File.OpenRead ("../../TestData/encoders/photo.b64")) {
+					using (var file = File.OpenRead (Path.Combine (DataDir, "photo.b64"))) {
 						using (var filtered = new FilteredStream (decoded)) {
 							filtered.Add (DecoderFilter.Create (ContentEncoding.Base64));
 							await file.CopyToAsync (filtered, 4096);

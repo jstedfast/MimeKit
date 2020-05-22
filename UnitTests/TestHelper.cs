@@ -1,5 +1,5 @@
 ﻿//
-// X509CertificateRecordTests.cs
+// TestHelper.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,37 +24,34 @@
 // THE SOFTWARE.
 //
 
+
 using System;
 using System.IO;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
+namespace UnitTests
+{
+    static class TestHelper
+    {
+        public static readonly string ProjectDir;
 
-using NUnit.Framework;
+        static TestHelper ()
+        {
+            var codeBase = typeof (TestHelper).Assembly.CodeBase;
+            if (codeBase.StartsWith ("file://", StringComparison.OrdinalIgnoreCase))
+                codeBase = codeBase.Substring ("file://".Length);
 
-using MimeKit.Cryptography;
+            if (Path.DirectorySeparatorChar == '\\') {
+                if (codeBase[0] == '/')
+                    codeBase = codeBase.Substring (1);
 
-namespace UnitTests.Cryptography {
-	[TestFixture]
-	public class X509CertificateRecordTests
-	{
-		[Test]
-		public void TestArgumentExceptions ()
-		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12"), "no.secret");
-			AsymmetricCipherKeyPair keyPair;
+                codeBase = codeBase.Replace ('/', '\\');
+            }
 
-			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
-				var reader = new PemReader (stream);
+            var codeBaseDir = Path.GetDirectoryName (codeBase);
+            var binDir = Path.Combine (codeBaseDir, "..");
+            var projectDir = Path.Combine (binDir, "..");
 
-				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
-
-			Assert.Throws<ArgumentNullException> (() => new X509CrlRecord (null));
-			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null));
-			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null, keyPair.Private));
-			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (signer.Certificate, null));
-			Assert.Throws<ArgumentException> (() => new X509CertificateRecord (signer.Certificate, keyPair.Public));
-		}
-	}
+            ProjectDir = Path.GetFullPath (projectDir);
+        }
+    }
 }

@@ -100,7 +100,7 @@ namespace UnitTests {
 		[Test]
 		public void TestDocumentRootByType ()
 		{
-			var related = (MultipartRelated) MimeEntity.Load (Path.Combine ("..", "..", "TestData", "messages", "multipart-related-mhtml.txt"));
+			var related = (MultipartRelated) MimeEntity.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "multipart-related-mhtml.txt"));
 
 			Assert.AreEqual (2, related.Count, "Count");
 

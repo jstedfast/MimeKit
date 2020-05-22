@@ -676,7 +676,9 @@ namespace MimeKit {
 					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
 					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 				}
-			} else if (encoding != ContentEncoding.Binary) {
+			} else if (encoding == ContentEncoding.Binary || (encoding == ContentEncoding.Default && !ContentType.IsMimeType("text", "*"))) {
+				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
+			} else {
 				using (var filtered = new FilteredStream (stream)) {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
@@ -684,8 +686,6 @@ namespace MimeKit {
 					await Content.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
-			} else {
-				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			}
 		}
 

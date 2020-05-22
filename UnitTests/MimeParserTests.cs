@@ -41,8 +41,8 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeParserTests
 	{
-		static string MessagesDataDir = Path.Combine ("..", "..", "TestData", "messages");
-		static string MboxDataDir = Path.Combine ("..", "..", "TestData", "mbox");
+		static string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
+		static string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
 		static FormatOptions UnixFormatOptions;
 
 		public MimeParserTests ()

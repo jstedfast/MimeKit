@@ -41,7 +41,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeVisitor ()
 		{
-			var dataDir = Path.Combine ("..", "..", "TestData", "mbox");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
 			var visitor = new HtmlPreviewVisitor ();
 			int index = 0;
 

@@ -104,7 +104,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestHomeDepot110 ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "text", "homedepot-check-inside-now.html");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "homedepot-check-inside-now.html");
 			const string expected = "FREE DELIVERY Appliance Purchases $396 or More";
 
 			AssertPreviewText (path, expected, 110);
@@ -113,7 +113,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestHomeDepot230 ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "text", "homedepot-check-inside-now.html");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "homedepot-check-inside-now.html");
 			const string expected = "FREE DELIVERY Appliance Purchases $396 or More";
 
 			AssertPreviewText (path, expected, 230);
@@ -123,7 +123,7 @@ namespace UnitTests.Text {
 		public void TestMimeKitHomepage110 ()
 		{
 			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> I\u2026";
-			var path = Path.Combine ("..", "..", "TestData", "text", "mimekit.net.html");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "mimekit.net.html");
 
 			AssertPreviewText (path, expected, 110);
 		}
@@ -132,7 +132,7 @@ namespace UnitTests.Text {
 		public void TestMimeKitHomepage230 ()
 		{
 			string expected = "Toggle navigation MimeKit Home About Help Documentation Donate \u00D7 Install with NuGet (recommended) NuGet PM> Install-Package MimeKit PM> Install-Package MailKit or Install via VS Package Management window. Direct Download ZIP fil\u2026";
-			var path = Path.Combine ("..", "..", "TestData", "text", "mimekit.net.html");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "mimekit.net.html");
 
 			AssertPreviewText (path, expected, 230);
 		}
@@ -141,7 +141,7 @@ namespace UnitTests.Text {
 		public void TestPlanetFitness110 ()
 		{
 			string expected = "Don’t miss our celebrity guest Monday evening";
-			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.html");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "planet-fitness.html");
 
 			AssertPreviewText (path, expected, 110);
 		}
@@ -150,7 +150,7 @@ namespace UnitTests.Text {
 		public void TestPlanetFitness230 ()
 		{
 			string expected = "Don’t miss our celebrity guest Monday evening";
-			var path = Path.Combine ("..", "..", "TestData", "text", "planet-fitness.html");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "planet-fitness.html");
 
 			AssertPreviewText (path, expected, 230);
 		}

@@ -45,7 +45,7 @@ namespace UnitTests.Cryptography {
 
 		static string GetTestDataPath (string relative)
 		{
-			return Path.Combine ("..", "..", "TestData", "smime", relative);
+			return Path.Combine (TestHelper.ProjectDir, "TestData", "smime", relative);
 		}
 
 		[Test]

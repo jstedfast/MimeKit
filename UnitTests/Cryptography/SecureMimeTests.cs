@@ -70,7 +70,7 @@ namespace UnitTests.Cryptography {
 				return;
 
 			using (var ctx = CreateContext ()) {
-				var dataDir = Path.Combine ("..", "..", "TestData", "smime");
+				var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 				string path;
 
 				if (ctx is TemporarySecureMimeContext)
@@ -186,7 +186,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.Tiger192));
 
 			using (var ctx = CreateContext ()) {
-				var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret");
+				var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
 				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
 				var recipients = new CmsRecipientCollection ();
 				DigitalSignatureCollection signatures;
@@ -486,7 +486,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
 			var signed = ApplicationPkcs7Mime.Sign (signer, cleartext);
@@ -528,7 +528,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithContextAndCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {
@@ -561,7 +561,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret");
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
 			var multipart = MultipartSigned.Create (signer, body);
@@ -610,7 +610,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithContextAndCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret");
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {
@@ -676,7 +676,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithRsaSsaPss ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.pfx"), "no.secret") {
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret") {
 				RsaSignaturePadding = RsaSignaturePadding.Pss
 			};
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -889,7 +889,7 @@ namespace UnitTests.Cryptography {
 		{
 			MimeMessage message;
 
-			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-signed.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
@@ -1145,13 +1145,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSecureMimeDecryptThunderbird ()
 		{
-			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
+			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
 			MimeMessage message;
 
 			if (!File.Exists (p12))
 				return;
 
-			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-encrypted.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
@@ -1272,13 +1272,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSecureMimeDecryptVerifyThunderbird ()
 		{
-			var p12 = Path.Combine ("..", "..", "TestData", "smime", "gnome.p12");
+			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
 			MimeMessage message;
 
 			if (!File.Exists (p12))
 				return;
 
-			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
@@ -1387,7 +1387,7 @@ namespace UnitTests.Cryptography {
 		{
 			MimeMessage message;
 
-			using (var file = File.OpenRead (Path.Combine ("..", "..", "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}

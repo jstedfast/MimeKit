@@ -38,7 +38,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestDecodeNamedEntities ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "html", "HtmlEntities.json");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "html", "HtmlEntities.json");
 			var decoder = new HtmlEntityDecoder ();
 
 			using (var json = new JsonTextReader (new StreamReader (path))) {

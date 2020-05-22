@@ -1279,39 +1279,39 @@ unsubscribe
 			const string TextBody = "This is the text body.";
 			MimeMessage message;
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.1.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt"));
 			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.1.txt.");
 			Assert.AreEqual (null, message.HtmlBody, "The HTML bodies do not match for body.1.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.2.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.2.txt"));
 			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.2.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.2.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.3.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.3.txt"));
 			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.3.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.3.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.4.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.4.txt"));
 			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.4.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.4.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.5.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.5.txt"));
 			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.5.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.5.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.6.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.6.txt"));
 			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.6.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.6.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.7.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.7.txt"));
 			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.7.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.7.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.8.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.8.txt"));
 			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.8.txt.");
 			Assert.AreEqual (null, message.HtmlBody, "The HTML bodies do not match for body.8.txt.");
 
-			message = MimeMessage.Load (Path.Combine ("..", "..", "TestData", "messages", "body.9.txt"));
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"));
 			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.9.txt.");
 			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.9.txt.");
 		}

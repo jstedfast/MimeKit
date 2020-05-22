@@ -708,8 +708,9 @@ namespace UnitTests.Tnef {
 			}
 		}
 
-		static void TestTnefParser (string path, TnefComplianceStatus expected = TnefComplianceStatus.Compliant)
+		static void TestTnefParser (string baseFileName, TnefComplianceStatus expected = TnefComplianceStatus.Compliant)
 		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", baseFileName);
 			var message = ParseTnefMessage (path + ".tnef", expected);
 			var tnefName = Path.GetFileName (path + ".tnef");
 			var names = File.ReadAllLines (path + ".list");
@@ -791,10 +792,11 @@ namespace UnitTests.Tnef {
 						case ".dat":
 						case ".htm":
 						case ".ini":
+						case ".src":
 							isText = true;
 							break;
 						case "":
-							isText = part.FileName == "AUTHORS";
+							isText = part.FileName == "AUTHORS" || part.FileName == "README";
 							break;
 						}
 
@@ -827,25 +829,25 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestAttachments ()
 		{
-			TestTnefParser ("../../TestData/tnef/attachments");
+			TestTnefParser ("attachments");
 		}
 
 		[Test]
 		public void TestBody ()
 		{
-			TestTnefParser ("../../TestData/tnef/body");
+			TestTnefParser ("body");
 		}
 
 		[Test]
 		public void TestChristmas ()
 		{
-			TestTnefParser ("../../TestData/tnef/christmas", TnefComplianceStatus.UnsupportedPropertyType);
+			TestTnefParser ("christmas", TnefComplianceStatus.UnsupportedPropertyType);
 		}
 
 		[Test]
 		public void TestDataBeforeName ()
 		{
-			TestTnefParser ("../../TestData/tnef/data-before-name");
+			TestTnefParser ("data-before-name");
 		}
 
 		[Test]
@@ -853,98 +855,98 @@ namespace UnitTests.Tnef {
 		{
 			const TnefComplianceStatus errors = TnefComplianceStatus.InvalidAttributeLevel | TnefComplianceStatus.StreamTruncated;
 
-			TestTnefParser ("../../TestData/tnef/garbage-at-end", errors);
+			TestTnefParser ("garbage-at-end", errors);
 		}
 
 		[Test]
 		public void TestLongFileName ()
 		{
-			TestTnefParser ("../../TestData/tnef/long-filename");
+			TestTnefParser ("long-filename");
 		}
 
 		[Test]
 		public void TestMapiAttachDataObj ()
 		{
-			TestTnefParser ("../../TestData/tnef/MAPI_ATTACH_DATA_OBJ");
+			TestTnefParser ("MAPI_ATTACH_DATA_OBJ");
 		}
 
 		[Test]
 		public void TestMapiObject ()
 		{
-			TestTnefParser ("../../TestData/tnef/MAPI_OBJECT");
+			TestTnefParser ("MAPI_OBJECT");
 		}
 
 		[Test]
 		public void TestMissingFileNames ()
 		{
-			TestTnefParser ("../../TestData/tnef/missing-filenames");
+			TestTnefParser ("missing-filenames");
 		}
 
 		[Test]
 		public void TestMultiNameProperty ()
 		{
-			TestTnefParser ("../../TestData/tnef/multi-name-property");
+			TestTnefParser ("multi-name-property");
 		}
 
 		[Test]
 		public void TestMultiValueAttribute ()
 		{
-			TestTnefParser ("../../TestData/tnef/multi-value-attribute");
+			TestTnefParser ("multi-value-attribute");
 		}
 
 		[Test]
 		public void TestOneFile ()
 		{
-			TestTnefParser ("../../TestData/tnef/one-file");
+			TestTnefParser ("one-file");
 		}
 
 		[Test]
 		public void TestPanic ()
 		{
-			TestTnefParser ("../../TestData/tnef/panic", TnefComplianceStatus.InvalidAttribute | TnefComplianceStatus.InvalidAttributeLevel);
+			TestTnefParser ("panic", TnefComplianceStatus.InvalidAttribute | TnefComplianceStatus.InvalidAttributeLevel);
 		}
 
 		[Test]
 		public void TestRtf ()
 		{
-			TestTnefParser ("../../TestData/tnef/rtf");
+			TestTnefParser ("rtf");
 		}
 
 		[Test]
 		public void TestTriples ()
 		{
-			TestTnefParser ("../../TestData/tnef/triples");
+			TestTnefParser ("triples");
 		}
 
 		[Test]
 		public void TestTwoFiles ()
 		{
-			TestTnefParser ("../../TestData/tnef/two-files");
+			TestTnefParser ("two-files");
 		}
 
 		[Test]
 		public void TestUnicodeMapiAttrName ()
 		{
-			TestTnefParser ("../../TestData/tnef/unicode-mapi-attr-name");
+			TestTnefParser ("unicode-mapi-attr-name");
 		}
 
 		[Test]
 		public void TestUnicodeMapiAttr ()
 		{
-			TestTnefParser ("../../TestData/tnef/unicode-mapi-attr");
+			TestTnefParser ("unicode-mapi-attr");
 		}
 
 		[Test]
 		public void TestWinMail ()
 		{
-			TestTnefParser ("../../TestData/tnef/winmail");
+			TestTnefParser ("winmail");
 		}
 
 		[Test]
 		public void TestExtractedCharset ()
 		{
 			const string expected = "<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=koi8-r\">\r\n<style type=\"text/css\" style=\"display:none;\"><!-- P {margin-top:0;margin-bottom:0;} --></style>\r\n</head>\r\n<body dir=\"ltr\">\r\n<div id=\"divtagdefaultwrapper\" style=\"font-size:12pt;color:#000000;font-family:Calibri,Helvetica,sans-serif;\" dir=\"ltr\">\r\n<p>ЫПУФЙК</p>\r\n<p><br>\r\n</p>\r\n<p>{EMAILSIGNATURE}</p>\r\n<p><br>\r\n</p>\r\n<div id=\"Signature\"><br>\r\n<font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 10pt;\"><br>\r\n<font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 12pt;\"><b>RR Test 1</b></font>\r\n</font>\r\n<p><font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 10pt;\">&nbsp;</font></p>\r\n</div>\r\n</div>\r\n</body>\r\n</html>\r\n";
-			var message = MimeMessage.Load ("../../TestData/tnef/ukr.eml");
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "ukr.eml"));
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
 
 			message = tnef.ConvertToMessage ();
@@ -964,7 +966,7 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestRichTextEml ()
 		{
-			var message = MimeMessage.Load ("../../TestData/tnef/rich-text.eml");
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "rich-text.eml"));
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
 			var mtime = new DateTimeOffset (new DateTime (2018, 12, 15, 10, 17, 38));
 

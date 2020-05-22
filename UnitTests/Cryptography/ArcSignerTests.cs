@@ -46,14 +46,14 @@ namespace UnitTests.Cryptography {
 		public void TestArcSignerCtors ()
 		{
 			Assert.DoesNotThrow (() => {
-				var signer = new DummyArcSigner (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+				var signer = new DummyArcSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
 					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256
 				};
 			});
 
 			AsymmetricCipherKeyPair keys;
 
-			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"))) {
+			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
 				var reader = new PemReader (stream);
 
 				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
@@ -69,7 +69,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArcSignerDefaults ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "dkim", "example.pem");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem");
 			AsymmetricCipherKeyPair keys;
 			ArcSigner signer;
 
@@ -94,7 +94,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "dkim", "example.pem");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem");
 			var locator = new DkimPublicKeyLocator ();
 			var verifier = new DkimVerifier (locator);
 			var dkimHeader = new Header (HeaderId.DkimSignature, "value");

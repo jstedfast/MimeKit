@@ -90,7 +90,7 @@ namespace UnitTests.Cryptography {
 		public void TestImportCertificates ()
 		{
 			var database = new SqliteCertificateDatabase ("smime.db", "no.secret");
-			var dataDir = Path.Combine ("..", "..", "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var certificates = new List<X509Certificate> ();
 
 			using (var ctx = new DefaultSecureMimeContext (database)) {

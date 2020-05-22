@@ -43,7 +43,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12"), "no.secret");
 
 			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalCertificate (null));
 			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalSignature (null, signer.Certificate));
@@ -54,7 +54,7 @@ namespace UnitTests.Cryptography {
 
 		static X509Certificate GetCertificate (string fileName)
 		{
-			using (var stream = File.OpenText (Path.Combine ("..", "..", "TestData", "smime", fileName))) {
+			using (var stream = File.OpenText (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", fileName))) {
 				var reader = new PemReader (stream);
 				object item;
 

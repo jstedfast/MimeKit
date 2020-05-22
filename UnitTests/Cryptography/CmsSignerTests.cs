@@ -48,12 +48,12 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var signer = new CmsSigner (Path.Combine ("..", "..", "TestData", "smime", "smime.p12"), "no.secret");
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12"), "no.secret");
 			var certificate = new X509Certificate2 (signer.Certificate.GetEncoded ());
 			var chain = new[] { DotNetUtilities.FromX509Certificate (certificate) };
 			AsymmetricCipherKeyPair keyPair;
 
-			using (var stream = new StreamReader (Path.Combine ("..", "..", "TestData", "dkim", "example.pem"))) {
+			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
 				var reader = new PemReader (stream);
 
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
@@ -118,7 +118,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestConstructors ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12");
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
@@ -161,7 +161,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12");
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
@@ -199,7 +199,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSignerIdentifierType ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12");
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
@@ -237,7 +237,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestRsaSignaturePadding ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "smime", "smime.p12");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12");
 			var signer = new CmsSigner (path, "no.secret");
 
 			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "Default RsaSignaturePaddingScheme");

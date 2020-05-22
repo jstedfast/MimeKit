@@ -378,7 +378,7 @@ namespace UnitTests
 		[Test]
 		public void TestTranscoding ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var expected = File.ReadAllBytes (path);
 
 			var part = new MimePart ("image", "jpeg") {
@@ -420,7 +420,7 @@ namespace UnitTests
 		[Test]
 		public async Task TestTranscodingAsync ()
 		{
-			var path = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var expected = File.ReadAllBytes (path);
 
 			var part = new MimePart ("image", "jpeg") {

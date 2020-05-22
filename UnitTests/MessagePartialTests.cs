@@ -87,10 +87,10 @@ namespace UnitTests {
 		[Test]
 		public void TestReassembleGirlOnTrainPhotoExample ()
 		{
-			var message0 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.0.eml"));
-			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.1.eml"));
-			var message2 = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.2.eml"));
-			var original = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.eml"));
+			var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.0.eml"));
+			var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.1.eml"));
+			var message2 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.2.eml"));
+			var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 
 			Assert.IsNotNull (message0, "Failed to parse message-partial.0.eml");
 			Assert.IsNotNull (message1, "Failed to parse message-partial.1.eml");
@@ -125,9 +125,9 @@ namespace UnitTests {
 		[Test]
 		public void TestReassembleRfc2046Example ()
 		{
-			var message0 = Load (Path.Combine ("..", "..", "TestData", "partial", "rfc2046.0.eml"));
-			var message1 = Load (Path.Combine ("..", "..", "TestData", "partial", "rfc2046.1.eml"));
-			var original = Load (Path.Combine ("..", "..", "TestData", "partial", "rfc2046.eml"));
+			var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.0.eml"));
+			var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.1.eml"));
+			var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.eml"));
 
 			Assert.IsNotNull (message0, "Failed to parse rfc2046.0.eml");
 			Assert.IsNotNull (message1, "Failed to parse rfc2046.1.eml");
@@ -152,7 +152,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSplit ()
 		{
-			var message = Load (Path.Combine ("..", "..", "TestData", "partial", "message-partial.eml"));
+			var message = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
 			var parts = new List<MessagePartial> ();
 

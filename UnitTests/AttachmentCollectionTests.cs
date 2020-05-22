@@ -91,7 +91,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddFileName ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -111,7 +111,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddFileNameContentType ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -132,7 +132,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddData ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -152,7 +152,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddDataContentType ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -173,7 +173,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddStream ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -195,7 +195,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddStreamContentType ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "images", "girl.jpg");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -218,7 +218,7 @@ namespace UnitTests
 		[Test]
 		public void TestAddEmailMessage ()
 		{
-			var fileName = Path.Combine ("..", "..", "TestData", "messages", "body.1.txt");
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
 			var attachments = new AttachmentCollection ();
 			MimeEntity attachment;
 
