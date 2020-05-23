@@ -1408,6 +1408,33 @@ namespace UnitTests.Cryptography {
 				}
 			}
 		}
+
+		[Test]
+		public async Task TestSecureMimeVerifyMixedLineEndingsAsync ()
+		{
+			MimeMessage message;
+
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
+				var parser = new MimeParser (file, MimeFormat.Default);
+				message = await parser.ParseMessageAsync ();
+			}
+
+			Assert.IsInstanceOf<MultipartSigned> (message.Body, "THe message body is not multipart/signed as expected.");
+
+			var signed = (MultipartSigned) message.Body;
+
+			using (var ctx = CreateContext ()) {
+				foreach (var signature in await signed.VerifyAsync (ctx)) {
+					try {
+						bool valid = signature.Verify (true);
+
+						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.Fail ("Failed to verify signature: {0}", ex);
+					}
+				}
+			}
+		}
 	}
 
 	[TestFixture]
