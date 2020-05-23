@@ -203,10 +203,11 @@ namespace MimeKit {
 			return state;
 		}
 
-		async Task<bool> ScanContentAsync (Stream content, bool trimNewLine, CancellationToken cancellationToken)
+		async Task<ScanContentResult> ScanContentAsync (Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			int contentIndex = inputIndex;
+			var formats = new bool[2];
 			bool midline = false;
 			int nleft;
 
@@ -223,7 +224,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						ScanContent (inbuf, ref contentIndex, ref nleft, ref midline);
+						ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref formats);
 					}
 				}
 			} while (boundary == BoundaryType.None);
@@ -243,32 +244,32 @@ namespace MimeKit {
 				}
 			}
 
-			return isEmpty;
+			return new ScanContentResult (formats, isEmpty);
 		}
 
 		async Task ConstructMimePartAsync (MimePart part, CancellationToken cancellationToken)
 		{
+			ScanContentResult result;
 			Stream content;
-			bool isEmpty;
 
 			if (persistent) {
 				long begin = GetOffset (inputIndex);
 				long end;
 
 				using (var measured = new MeasuringStream ()) {
-					isEmpty = await ScanContentAsync (measured, true, cancellationToken).ConfigureAwait (false);
+					result = await ScanContentAsync (measured, true, cancellationToken).ConfigureAwait (false);
 					end = begin + measured.Length;
 				}
 
 				content = new BoundStream (stream, begin, end, true);
 			} else {
 				content = new MemoryBlockStream ();
-				isEmpty = await ScanContentAsync (content, true, cancellationToken).ConfigureAwait (false);
+				result = await ScanContentAsync (content, true, cancellationToken).ConfigureAwait (false);
 				content.Seek (0, SeekOrigin.Begin);
 			}
 
-			if (!isEmpty)
-				part.Content = new MimeContent (content, part.ContentTransferEncoding);
+			if (!result.IsEmpty)
+				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
 			else
 				content.Dispose ();
 		}
@@ -353,8 +354,8 @@ namespace MimeKit {
 		async Task MultipartScanEpilogueAsync (Multipart multipart, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				var isEmpty = await ScanContentAsync (memory, true, cancellationToken).ConfigureAwait (false);
-				multipart.RawEpilogue = isEmpty ? null : memory.ToArray ();
+				var result = await ScanContentAsync (memory, true, cancellationToken).ConfigureAwait (false);
+				multipart.RawEpilogue = result.IsEmpty ? null : memory.ToArray ();
 			}
 		}
 

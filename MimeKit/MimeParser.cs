@@ -1121,7 +1121,7 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline)
+		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
@@ -1168,6 +1168,11 @@ namespace MimeKit {
 					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
 						break;
 
+					if (length > 0 && *(inptr - 1) == (byte) '\r')
+						formats[(int) NewLineFormat.Dos] = true;
+					else
+						formats[(int) NewLineFormat.Unix] = true;
+
 					length++;
 					inptr++;
 				} else {
@@ -1189,10 +1194,30 @@ namespace MimeKit {
 			inputIndex = startIndex;
 		}
 
-		unsafe bool ScanContent (byte* inbuf, Stream content, bool trimNewLine, CancellationToken cancellationToken)
+		class ScanContentResult
+		{
+			public readonly NewLineFormat? Format;
+			public readonly bool IsEmpty;
+
+			public ScanContentResult (bool[] formats, bool isEmpty)
+			{
+				if (formats[(int) NewLineFormat.Unix] && formats[(int) NewLineFormat.Dos])
+					Format = NewLineFormat.Mixed;
+				else if (formats[(int) NewLineFormat.Unix])
+					Format = NewLineFormat.Unix;
+				else if (formats[(int) NewLineFormat.Dos])
+					Format = NewLineFormat.Dos;
+				else
+					Format = null;
+				IsEmpty = isEmpty;
+			}
+		}
+
+		unsafe ScanContentResult ScanContent (byte* inbuf, Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			int contentIndex = inputIndex;
+			var formats = new bool[2];
 			bool midline = false;
 			int nleft;
 
@@ -1207,7 +1232,7 @@ namespace MimeKit {
 					break;
 				}
 
-				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline);
+				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref formats);
 			} while (boundary == BoundaryType.None);
 
 			if (contentIndex < inputIndex)
@@ -1225,11 +1250,12 @@ namespace MimeKit {
 				}
 			}
 
-			return isEmpty;
+			return new ScanContentResult (formats, isEmpty);
 		}
 
 		unsafe void ConstructMimePart (MimePart part, byte* inbuf, CancellationToken cancellationToken)
 		{
+			ScanContentResult result;
 			Stream content;
 			bool isEmpty;
 
@@ -1238,19 +1264,19 @@ namespace MimeKit {
 				long end;
 
 				using (var measured = new MeasuringStream ()) {
-					isEmpty = ScanContent (inbuf, measured, true, cancellationToken);
+					result = ScanContent (inbuf, measured, true, cancellationToken);
 					end = begin + measured.Length;
 				}
 
 				content = new BoundStream (stream, begin, end, true);
 			} else {
 				content = new MemoryBlockStream ();
-				isEmpty = ScanContent (inbuf, content, true, cancellationToken);
+				result = ScanContent (inbuf, content, true, cancellationToken);
 				content.Seek (0, SeekOrigin.Begin);
 			}
 
-			if (!isEmpty)
-				part.Content = new MimeContent (content, part.ContentTransferEncoding);
+			if (!result.IsEmpty)
+				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
 			else
 				content.Dispose ();
 		}
@@ -1331,8 +1357,8 @@ namespace MimeKit {
 		unsafe void MultipartScanEpilogue (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				var isEmpty = ScanContent (inbuf, memory, true, cancellationToken);
-				multipart.RawEpilogue = isEmpty ? null : memory.ToArray ();
+				var result = ScanContent (inbuf, memory, true, cancellationToken);
+				multipart.RawEpilogue = result.IsEmpty ? null : memory.ToArray ();
 			}
 		}
 

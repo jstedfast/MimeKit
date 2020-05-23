@@ -41,7 +41,7 @@ namespace MimeKit {
 	public interface IMimeContent
 	{
 		/// <summary>
-		/// Gets the content encoding.
+		/// Get the content encoding.
 		/// </summary>
         /// <remarks>
         /// If the <see cref="Stream"/> is not encoded, this value will be
@@ -52,7 +52,18 @@ namespace MimeKit {
 		ContentEncoding Encoding { get; }
 
 		/// <summary>
-		/// Gets the content stream.
+		/// Get the new-line format, if known.
+		/// </summary>
+		/// <remarks>
+		/// <para>This property is typically only set by the <see cref="MimeParser"/> as it parses
+		/// the content of a <see cref="MimePart"/> and is only used as a hint when verifying
+		/// digital signatures.</para>
+		/// </remarks>
+		/// <value>The new-line format, if known.</value>
+		NewLineFormat? NewLineFormat { get; }
+
+		/// <summary>
+		/// Get the content stream.
 		/// </summary>
 		/// <remarks>
 		/// Gets the content stream.
@@ -61,7 +72,7 @@ namespace MimeKit {
 		Stream Stream { get; }
 
 		/// <summary>
-		/// Opens the decoded content stream.
+		/// Open the decoded content stream.
 		/// </summary>
 		/// <remarks>
 		/// Provides a means of reading the decoded content without having to first write it to another
@@ -71,7 +82,7 @@ namespace MimeKit {
 		Stream Open ();
 
 		/// <summary>
-		/// Decodes the content stream into another stream.
+		/// Decode the content stream into another stream.
 		/// </summary>
 		/// <remarks>
 		/// If the content stream is encoded, this method will decode it into the output stream
@@ -95,7 +106,7 @@ namespace MimeKit {
 		void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Asynchronously decodes the content stream into another stream.
+		/// Asynchronously decode the content stream into another stream.
 		/// </summary>
 		/// <remarks>
 		/// If the content stream is encoded, this method will decode it into the output stream
@@ -120,7 +131,7 @@ namespace MimeKit {
 		Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Copies the content stream to the specified output stream.
+		/// Copy the content stream to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>This is equivalent to simply using <see cref="System.IO.Stream.CopyTo(System.IO.Stream)"/>
@@ -142,7 +153,7 @@ namespace MimeKit {
 		void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Asynchronously copies the content stream to the specified output stream.
+		/// Asynchronously copy the content stream to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>This is equivalent to simply using <see cref="System.IO.Stream.CopyTo(System.IO.Stream)"/>

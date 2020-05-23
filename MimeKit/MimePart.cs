@@ -537,15 +537,6 @@ namespace MimeKit {
 			ContentTransferEncoding = best;
 		}
 
-		bool IsTextBasedContent {
-			get {
-				if (encoding != ContentEncoding.Binary && encoding != ContentEncoding.Default)
-					return true;
-
-				return ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*");
-            }
-        }
-
 		/// <summary>
 		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
 		/// </summary>
@@ -614,8 +605,14 @@ namespace MimeKit {
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
 				}
-			} else if (encoding == ContentEncoding.Binary || !IsTextBasedContent) {
+			} else if (encoding == ContentEncoding.Binary) {
 				// Do not alter binary content.
+				Content.WriteTo (stream, cancellationToken);
+			} else if (options.VerifyingSignature && Content.NewLineFormat.HasValue && Content.NewLineFormat.Value == NewLineFormat.Mixed) {
+				// Allow pass-through of the original parsed content without canonicalization when verifying signatures
+				// if the content contains a mix of line-endings.
+				//
+				// See https://github.com/jstedfast/MimeKit/issues/569 for details.
 				Content.WriteTo (stream, cancellationToken);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {
@@ -685,8 +682,14 @@ namespace MimeKit {
 					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
 					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 				}
-			} else if (encoding == ContentEncoding.Binary || !IsTextBasedContent) {
+			} else if (encoding == ContentEncoding.Binary) {
 				// Do not alter binary content.
+				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
+			} else if (options.VerifyingSignature && Content.NewLineFormat.HasValue && Content.NewLineFormat.Value == NewLineFormat.Mixed) {
+				// Allow pass-through of the original parsed content without canonicalization when verifying signatures
+				// if the content contains a mix of line-endings.
+				//
+				// See https://github.com/jstedfast/MimeKit/issues/569 for details.
 				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {

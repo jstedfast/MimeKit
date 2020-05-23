@@ -436,6 +436,7 @@ namespace MimeKit.Cryptography {
 					// Note: see rfc2015 or rfc3156, section 5.1
 					var options = FormatOptions.CloneDefault ();
 					options.NewLineFormat = NewLineFormat.Dos;
+					options.VerifyingSignature = true;
 
 					this[0].WriteTo (options, cleartext);
 					cleartext.Position = 0;
@@ -501,6 +502,7 @@ namespace MimeKit.Cryptography {
 					// Note: see rfc2015 or rfc3156, section 5.1
 					var options = FormatOptions.CloneDefault ();
 					options.NewLineFormat = NewLineFormat.Dos;
+					options.VerifyingSignature = true;
 
 					await this[0].WriteToAsync (options, cleartext, cancellationToken);
 					cleartext.Position = 0;

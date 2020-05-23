@@ -50,6 +50,12 @@ namespace MimeKit {
 		/// The DOS New-Line format (<c>"\r\n"</c>).
 		/// </summary>
 		Dos,
+
+		/// <summary>
+		/// A mixed New-Line format where some lines use Unix-based line endings and
+		/// other lines use DOS-based line endings.
+		/// </summary>
+		Mixed,
 	}
 
 	/// <summary>
@@ -73,6 +79,7 @@ namespace MimeKit {
 		ParameterEncodingMethod parameterEncodingMethod;
 		bool allowMixedHeaderCharsets;
 		NewLineFormat newLineFormat;
+		bool verifyingSignature;
 		bool ensureNewLine;
 		bool international;
 		int maxLineLength;
@@ -115,13 +122,16 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the new-line format.
+		/// Get or set the new-line format.
 		/// </summary>
 		/// <remarks>
 		/// Specifies the new-line encoding to use when writing the message
 		/// or entity to a stream.
 		/// </remarks>
 		/// <value>The new-line format.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"> is not a valid <see cref="NewLineFormat"/>.</paramref>
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// <see cref="Default"/> cannot be changed.
 		/// </exception>
@@ -131,12 +141,19 @@ namespace MimeKit {
 				if (this == Default)
 					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
-				newLineFormat = value;
+				switch (newLineFormat) {
+				case NewLineFormat.Unix:
+				case NewLineFormat.Dos:
+					newLineFormat = value;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException (nameof (value));
+				}
 			}
 		}
 
 		/// <summary>
-		/// Gets or sets whether the formatter should ensure that messages end with a new-line sequence.
+		/// Get or set whether the formatter should ensure that messages end with a new-line sequence.
 		/// </summary>
 		/// <remarks>
 		/// <para>By default, when writing a <see cref="MimeMessage"/> to a stream, the serializer attempts to
@@ -178,8 +195,13 @@ namespace MimeKit {
 			get { return NewLineFormats[(int) NewLineFormat]; }
 		}
 
+		internal bool VerifyingSignature {
+			get { return verifyingSignature; }
+			set { verifyingSignature = value; }
+		}
+
 		/// <summary>
-		/// Gets the message headers that should be hidden.
+		/// Get the message headers that should be hidden.
 		/// </summary>
 		/// <remarks>
 		/// <para>Specifies the set of headers that should be removed when
@@ -194,7 +216,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets whether the new "Internationalized Email" formatting standards should be used.
+		/// Get or set whether the new "Internationalized Email" formatting standards should be used.
 		/// </summary>
 		/// <remarks>
 		/// <para>The new "Internationalized Email" format is defined by
@@ -220,7 +242,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets whether the formatter should allow mixed charsets in the headers.
+		/// Get or set whether the formatter should allow mixed charsets in the headers.
 		/// </summary>
 		/// <remarks>
 		/// <para>When this option is enabled, the MIME formatter will try to use us-ascii and/or
@@ -246,7 +268,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// The method to use for encoding Content-Type and Content-Disposition parameter values.
+		/// Get or set the method to use for encoding Content-Type and Content-Disposition parameter values.
 		/// </summary>
 		/// <remarks>
 		/// <para>The method to use for encoding Content-Type and Content-Disposition parameter
@@ -322,6 +344,7 @@ namespace MimeKit {
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
 			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
 			options.parameterEncodingMethod = parameterEncodingMethod;
+			options.verifyingSignature = verifyingSignature;
 			options.international = international;
 			return options;
 		}
