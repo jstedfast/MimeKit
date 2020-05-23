@@ -72,8 +72,7 @@ namespace MimeKit {
 				if (obj == null || TryInit (obj))
 					continue;
 
-				var mesg = obj as MimeMessage;
-				if (mesg != null) {
+				if (obj is MimeMessage mesg) {
 					if (message != null)
 						throw new ArgumentException ("MimeMessage should not be specified more than once.");
 

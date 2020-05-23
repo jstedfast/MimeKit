@@ -106,8 +106,7 @@ namespace MimeKit {
 				if (obj == null || TryInit (obj))
 					continue;
 
-				var entity = obj as MimeEntity;
-				if (entity != null) {
+				if (obj is MimeEntity entity) {
 					Add (entity);
 					continue;
 				}

@@ -102,8 +102,7 @@ namespace MimeKit {
 				if (obj == null || TryInit (obj))
 					continue;
 
-				var enc = obj as Encoding;
-				if (enc != null) {
+				if (obj is Encoding enc) {
 					if (encoding != null)
 						throw new ArgumentException ("An encoding should not be specified more than once.");
 
@@ -111,8 +110,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				var str = obj as string;
-				if (str != null) {
+				if (obj is string str) {
 					if (text != null)
 						throw new ArgumentException ("The text should not be specified more than once.");
 

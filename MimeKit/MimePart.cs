@@ -105,8 +105,7 @@ namespace MimeKit {
 				if (obj == null || TryInit (obj))
 					continue;
 
-				var co = obj as IMimeContent;
-				if (co != null) {
+				if (obj is IMimeContent co) {
 					if (content != null)
 						throw new ArgumentException ("IMimeContent should not be specified more than once.");
 
@@ -114,8 +113,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				var stream = obj as Stream;
-				if (stream != null) {
+				if (obj is Stream stream) {
 					if (content != null)
 						throw new ArgumentException ("Stream (used as content) should not be specified more than once.");
 
