@@ -1,8 +1,0 @@
-﻿{
-  "frameworks": {
-    "Xamarin.Mac,Version=v2.0": {}
-  },
-  "dependencies": {
-    "Portable.BouncyCastle": "1.8.5"
-  }
-}

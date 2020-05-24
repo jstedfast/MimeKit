@@ -1,15 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Net45", "MimeKit\MimeKitLite.Net45.csproj", "{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Android", "MimeKit\MimeKitLite.Android.csproj", "{D95A2734-2A81-4C75-985E-A33B15CC62BC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.iOS", "MimeKit\MimeKitLite.iOS.csproj", "{5F211544-940D-46C9-98EB-4FD8F62506AD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.NetStandard", "MimeKit\MimeKitLite.NetStandard.csproj", "{23F999AF-CF50-42FF-A011-D56D68E60FB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKitLite.NetStandard", "MimeKit\MimeKitLite.NetStandard.csproj", "{23F999AF-CF50-42FF-A011-D56D68E60FB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +17,6 @@ Global
 		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D95A2734-2A81-4C75-985E-A33B15CC62BC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F211544-940D-46C9-98EB-4FD8F62506AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -36,6 +24,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E07F961-6E08-4E6A-AF55-EC1428E15EAD}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = MimeKit\MimeKitLite.Net45.csproj

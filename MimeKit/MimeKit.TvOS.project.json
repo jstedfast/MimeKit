@@ -1,8 +1,0 @@
-{
-  "frameworks": {
-    "Xamarin.TVOS,Version=v1.0": {}
-  },
-  "dependencies": {
-    "Portable.BouncyCastle": "1.8.5"
-  }
-}
