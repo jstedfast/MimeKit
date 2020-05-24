@@ -112,6 +112,22 @@ namespace MimeKit.Cryptography
 		}
 #endif
 
+#if NET47 || NET48 || NETSTANDARD2_0
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACng dsa)
+		{
+			GetAsymmetricKeyParameters (dsa, false, out _, out var key);
+
+			return key;
+		}
+
+		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (DSACng dsa)
+		{
+			GetAsymmetricKeyParameters (dsa, false, out var pub, out var key);
+
+			return new AsymmetricCipherKeyPair (pub, key);
+		}
+#endif
+
 #if !NET45
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACng rsa)
 		{
@@ -153,6 +169,11 @@ namespace MimeKit.Cryptography
 				return GetAsymmetricKeyParameter (rsaCng);
 #endif
 
+#if NET47 || NET48 || NETSTANDARD2_0
+			if (key is DSACng dsaCng)
+				return GetAsymmetricKeyParameter (dsaCng);
+#endif
+
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			if (key is RSACryptoServiceProvider rsaKey)
 				return GetAsymmetricKeyParameter (rsaKey);
@@ -192,6 +213,11 @@ namespace MimeKit.Cryptography
 #if !NET45
 			if (key is RSACng rsaCng)
 				return GetAsymmetricCipherKeyPair (rsaCng);
+#endif
+
+#if NET47 || NET48 || NETSTANDARD2_0
+			if (key is DSACng dsaCng)
+				return GetAsymmetricCipherKeyPair (dsaCng);
 #endif
 
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
@@ -246,7 +272,12 @@ namespace MimeKit.Cryptography
 			if (pub != null)
 				parameters.Y = pub.Y.ToByteArrayUnsigned ();
 
+#if NET45 || NET46 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
+#else
+			var dsa = new DSACng ();
+#endif
+
 			dsa.ImportParameters (parameters);
 
 			return dsa;
@@ -257,14 +288,19 @@ namespace MimeKit.Cryptography
 			var parameters = GetDSAParameters (key);
 			parameters.Y = key.Y.ToByteArrayUnsigned ();
 
+#if NET45 || NET46 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
+#else
+			var dsa = new DSACng ();
+#endif
+
 			dsa.ImportParameters (parameters);
 
 			return dsa;
 		}
 #endif
 
-		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
+			static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
 		{
 			var parameters = new RSAParameters ();
 
