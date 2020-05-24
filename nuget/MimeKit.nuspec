@@ -35,7 +35,7 @@
     </releaseNotes>
     <copyright>Xamarin Inc.</copyright>
     <language>en-US</language>
-    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net45 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid</tags>
+    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net45 net46 net47 net48 netstandard netstandard1.3 netstandard1.6 netstandard2.0 xamarin android ios monodroid monoandroid</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
@@ -86,24 +86,25 @@
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="netstandard1.3">
-        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
+        <dependency id="System.Security.Cryptography.Cng" version="4.4.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="netstandard1.6">
-        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
+        <dependency id="System.Security.Cryptography.Cng" version="4.4.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Globalization.Extensions" version="4.3.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="System.Data.Common" version="4.3.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
-        <dependency id="System.Globalization.Extensions" version="4.3.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
-        <dependency id="System.Data.Common" version="4.3.0" />
+        <dependency id="System.Security.Cryptography.Cng" version="4.4.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
     </dependencies>

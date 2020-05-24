@@ -10,7 +10,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AssemblyName>MimeKit</AssemblyName>
     <PackageId>MimeKit</PackageId>
-    <PackageTags>mime;encryption;dkim;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef;net45;netstandard;netstandard1.3;netstandard1.6;netstandard2.0;xamarin;android;ios;monodroid;monoandroid</PackageTags>
+    <PackageTags>mime;encryption;dkim;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef;net45;net46;net47;net48;netstandard;netstandard1.3;netstandard1.6;netstandard2.0;xamarin;android;ios;monodroid;monoandroid</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -38,27 +38,26 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('netcoreapp3.')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard1.')) ">
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.4.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.6.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
-    <PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.4.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
   </ItemGroup>
 
@@ -76,7 +75,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\ArcSigner.cs" />
     <Compile Include="Cryptography\ArcVerifier.cs" />
-    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('netcoreapp3.'))" />
+    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard'))" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />
@@ -135,10 +134,10 @@
     <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
-    <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netcoreapp3.'))" />
-    <Compile Include="Cryptography\WindowsSecureMimeDigitalCertificate.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netcoreapp3.'))" />
-    <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netcoreapp3.'))" />
-    <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('netcoreapp3.'))" />
+    <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
+    <Compile Include="Cryptography\WindowsSecureMimeDigitalCertificate.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
+    <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
+    <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateRecord.cs" />
