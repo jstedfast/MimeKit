@@ -254,11 +254,9 @@ namespace MimeKit {
 
 				if (value.Length > 0) {
 					var buffer = CharsetUtils.UTF8.GetBytes (value);
-					string addrspec;
 					int index = 0;
-					int atIndex;
 
-					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], true, out addrspec, out atIndex);
+					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], true, out string addrspec, out int atIndex);
 
 					if (index != buffer.Length)
 						throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
@@ -339,10 +337,9 @@ namespace MimeKit {
 				return addrspec;
 
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
-			int at, index = 0;
-			string address;
+			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], false, out address, out at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], false, out string address, out int at))
 				return addrspec;
 
 			return EncodeAddrspec (address, at);
@@ -386,14 +383,29 @@ namespace MimeKit {
 				return addrspec;
 
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
-			int at, index = 0;
-			string address;
+			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], false, out address, out at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], false, out string address, out int at))
 				return addrspec;
 
 			return DecodeAddrspec (address, at);
 		}
+
+		/// <summary>
+		/// Get the mailbox address, optionally encoded according to IDN encoding rules.
+		/// </summary>
+		/// <remarks>
+		/// If <see cref="idnEncode"/> is <c>true</c>, then the returned mailbox address will be encoded according to the IDN encoding rules.
+		/// </remarks>
+		/// <param name="idnEncode"><c>true</c> if the address should be encoded according to IDN encoding rules; otherwise, <c>false</c>.</param>
+		/// <returns>The mailbox address.</returns>
+		public string GetAddress (bool idnEncode)
+        {
+			if (idnEncode)
+				return EncodeAddrspec (address, at);
+
+			return DecodeAddrspec (address, at);
+        }
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
 		{
@@ -401,11 +413,7 @@ namespace MimeKit {
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
 
-			string addrspec;
-			if (options.International)
-				addrspec = DecodeAddrspec (address, at);
-			else
-				addrspec = EncodeAddrspec (address, at);
+			var addrspec = GetAddress (!options.International);
 
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;

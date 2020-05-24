@@ -356,6 +356,9 @@ namespace MimeKit {
 
 			localpart = token.ToString ();
 
+			if (ParseUtils.IsIdnEncoded (localpart))
+				localpart = ParseUtils.IdnDecode (localpart);
+
 			return true;
 		}
 

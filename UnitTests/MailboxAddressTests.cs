@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -564,35 +565,84 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestGetAddress ()
+		{
+			var idn = new IdnMapping ();
+			MailboxAddress mailbox;
+
+			mailbox = new MailboxAddress ("Unit Test", "點看@domain.com");
+			Assert.AreEqual ("點看@domain.com", mailbox.GetAddress (false), "IDN-decode #1");
+			Assert.AreEqual (idn.GetAscii ("點看") + "@domain.com", mailbox.GetAddress (true), "IDN-encode #1");
+
+			mailbox = new MailboxAddress ("Unit Test", idn.GetAscii ("點看") + "@domain.com");
+			Assert.AreEqual ("點看@domain.com", mailbox.GetAddress (false), "IDN-decode #2");
+			Assert.AreEqual (idn.GetAscii ("點看") + "@domain.com", mailbox.GetAddress (true), "IDN-encode #2");
+
+			mailbox = new MailboxAddress ("Unit Test", "user@名がドメイン.com");
+			Assert.AreEqual ("user@名がドメイン.com", mailbox.GetAddress (false), "IDN-decode #3");
+			Assert.AreEqual ("user@" + idn.GetAscii ("名がドメイン.com"), mailbox.GetAddress (true), "IDN-encode #3");
+
+			mailbox = new MailboxAddress ("Unit Test", "user@" + idn.GetAscii ("名がドメイン.com"));
+			Assert.AreEqual ("user@名がドメイン.com", mailbox.GetAddress (false), "IDN-decode #4");
+			Assert.AreEqual ("user@" + idn.GetAscii ("名がドメイン.com"), mailbox.GetAddress (true), "IDN-encode #4");
+
+			mailbox = new MailboxAddress ("Unit Test", "點看@名がドメイン.com");
+			Assert.AreEqual ("點看@名がドメイン.com", mailbox.GetAddress (false), "IDN-decode #5");
+			Assert.AreEqual (idn.GetAscii ("點看") + "@" + idn.GetAscii ("名がドメイン.com"), mailbox.GetAddress (true), "IDN-encode #5");
+
+			mailbox = new MailboxAddress ("Unit Test", idn.GetAscii ("點看") + "@" + idn.GetAscii ("名がドメイン.com"));
+			Assert.AreEqual ("點看@名がドメイン.com", mailbox.GetAddress (false), "IDN-decode #6");
+			Assert.AreEqual (idn.GetAscii ("點看") + "@" + idn.GetAscii ("名がドメイン.com"), mailbox.GetAddress (true), "IDN-encode #6");
+		}
+
+		[Test]
 		public void TestIsInternational ()
 		{
-			var mailbox = new MailboxAddress ("Kristoffer Brånemyr", "brånemyr@swipenet.se");
-			const string expected = "Kristoffer Brånemyr <brånemyr@swipenet.se>";
 			var options = FormatOptions.Default.Clone ();
+			options.International = true;
+			var idn = new IdnMapping ();
+			MailboxAddress mailbox;
 			string encoded;
 
-			options.International = true;
-
+			// Test IsInternational local-parts
+			mailbox = new MailboxAddress ("Unit Test", "點看@domain.com");
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational local-part");
 			encoded = mailbox.ToString (options, true);
-			Assert.AreEqual (expected, encoded, "ToString");
+			Assert.AreEqual ("Unit Test <點看@domain.com>", encoded, "ToString local-part");
 
-			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
+			// Test IsInternational IDN-encoded local-parts
+			mailbox = new MailboxAddress ("Unit Test", idn.GetAscii ("點看") + "@domain.com");
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational IDN-encoded local-part");
+			encoded = mailbox.ToString (options, true);
+			Assert.AreEqual ("Unit Test <點看@domain.com>", encoded, "ToString IDN-encoded local-part");
 
-			mailbox = new MailboxAddress ("Kristoffer Brånemyr", "ztion@swipenet.se");
+			// Test IsInternational domain
+			mailbox = new MailboxAddress ("Unit Test", "user@名がドメイン.com");
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational domain");
+			encoded = mailbox.ToString (options, true);
+			Assert.AreEqual ("Unit Test <user@名がドメイン.com>", encoded, "ToString domain");
 
+			// Test IsInternational IDN-encoded domain
+			mailbox = new MailboxAddress ("Unit Test", "user@" + idn.GetAscii ("名がドメイン.com"));
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational IDN-encoded domain");
+			encoded = mailbox.ToString (options, true);
+			Assert.AreEqual ("Unit Test <user@名がドメイン.com>", encoded, "ToString IDN-encoded domain");
+
+			// Test IsInternational routes
+			mailbox = new MailboxAddress ("Unit Test", "user@domain.com");
 			Assert.IsFalse (mailbox.IsInternational, "IsInternational");
-
-			mailbox.Route.Add ("kristoffer"); // non-international route
-			mailbox.Route.Add ("brånemyr");   // international route
-
-			Assert.IsTrue (mailbox.IsInternational, "IsInternational");
+			mailbox.Route.Add ("route1");          // non-international route
+			mailbox.Route.Add ("名がドメイン.com"); // international route
+			Assert.IsTrue (mailbox.IsInternational, "IsInternational route");
+			encoded = mailbox.ToString (options, true);
+			Assert.AreEqual ("Unit Test <@route1,@名がドメイン.com:user@domain.com>", encoded, "ToString route");
 		}
 
 		[Test]
 		public void TestIdnEncoding ()
 		{
-			//const string userAscii = "xn--c1yn36f@domain";
-			//const string userUnicode = "點看@domain";
+			const string userAscii = "xn--c1yn36f@domain.com";
+			const string userUnicode = "點看@domain.com";
 			const string domainAscii = "user@xn--v8jxj3d1dzdz08w.com";
 			const string domainUnicode = "user@名がドメイン.com";
 			string encoded;
@@ -603,11 +653,11 @@ namespace UnitTests {
 			encoded = MailboxAddress.DecodeAddrspec (domainAscii);
 			Assert.AreEqual (domainUnicode, encoded, "Domain (Decode)");
 
-			//encoded = MailboxAddress.EncodeAddrspec (userUnicode);
-			//Assert.AreEqual (userAscii, encoded, "Local-part (Encode)");
+			encoded = MailboxAddress.EncodeAddrspec (userUnicode);
+			Assert.AreEqual (userAscii, encoded, "Local-part (Encode)");
 
-			//encoded = MailboxAddress.DecodeAddrspec (userAscii);
-			//Assert.AreEqual (userUnicode, encoded, "Local-part (Decode)");
+			encoded = MailboxAddress.DecodeAddrspec (userAscii);
+			Assert.AreEqual (userUnicode, encoded, "Local-part (Decode)");
 		}
 
 		[Test]
