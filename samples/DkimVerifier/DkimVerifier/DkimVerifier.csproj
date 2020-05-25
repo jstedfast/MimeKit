@@ -2,47 +2,41 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>DkimVerifier</RootNamespace>
     <AssemblyName>DkimVerifier</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ExternalConsole>true</ExternalConsole>
-    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ExternalConsole>true</ExternalConsole>
-    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
-    <Reference Include="MimeKit, Version=2.7.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
-      <HintPath>..\packages\MimeKit.2.7.0\lib\net45\MimeKit.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="Heijden.Dns">
-      <HintPath>..\packages\Heijden.Dns.2.0.0\lib\net35\Heijden.Dns.dll</HintPath>
-    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle" version="1.8.5" />
+    <PackageReference Include="Heijden.Dns" version="2.0.0" />
+    <PackageReference Include="MimeKit" version="2.7.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -50,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
