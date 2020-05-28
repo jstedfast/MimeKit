@@ -58,7 +58,7 @@ namespace MimeKit.IO {
 		bool disposed;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.MemoryBlockStream"/> class.
+		/// Initialize a new instance of the <see cref="MemoryBlockStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MemoryBlockStream"/> with an initial memory block

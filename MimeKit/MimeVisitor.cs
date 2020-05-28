@@ -239,10 +239,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Visit the children of a <see cref="MimeKit.Multipart"/>.
+		/// Visit the children of a <see cref="Multipart"/>.
 		/// </summary>
 		/// <remarks>
-		/// Visits the children of a <see cref="MimeKit.Multipart"/>.
+		/// Visits the children of a <see cref="Multipart"/>.
 		/// </remarks>
 		/// <param name="multipart">Multipart.</param>
 		protected virtual void VisitChildren (Multipart multipart)

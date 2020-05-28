@@ -50,7 +50,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationResults"/> class.
+		/// Initialize a new instance of the <see cref="AuthenticationResults"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="AuthenticationResults"/>.
@@ -835,7 +835,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="AuthenticationResults"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="AuthenticationResults"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses an Authentication-Results header value from the supplied buffer starting at the given index
@@ -863,7 +863,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="AuthenticationResults"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="AuthenticationResults"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses an Authentication-Results header value from the supplied buffer.
@@ -954,7 +954,7 @@ namespace MimeKit.Cryptography {
 	public class AuthenticationMethodResult
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationMethodResult"/> class.
+		/// Initialize a new instance of the <see cref="AuthenticationMethodResult"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="AuthenticationMethodResult"/>.
@@ -973,7 +973,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationMethodResult"/> class.
+		/// Initialize a new instance of the <see cref="AuthenticationMethodResult"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="AuthenticationMethodResult"/>.
@@ -1241,7 +1241,7 @@ namespace MimeKit.Cryptography {
 		bool? quoted;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationMethodProperty"/> class.
+		/// Initialize a new instance of the <see cref="AuthenticationMethodProperty"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="AuthenticationMethodProperty"/>.
@@ -1275,7 +1275,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.AuthenticationMethodProperty"/> class.
+		/// Initialize a new instance of the <see cref="AuthenticationMethodProperty"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="AuthenticationMethodProperty"/>.

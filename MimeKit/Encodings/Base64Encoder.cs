@@ -52,7 +52,7 @@ namespace MimeKit.Encodings {
 		byte saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
+		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new base64 encoder.
@@ -72,7 +72,7 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Encoder"/> class.
+		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new base64 encoder.

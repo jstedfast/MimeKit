@@ -135,7 +135,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
+		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MimeMessage"/>.
@@ -145,7 +145,7 @@ namespace MimeKit {
 		/// <paramref name="args"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.MimeEntity"/>.</para>
+		/// <para><paramref name="args"/> contains more than one <see cref="MimeEntity"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
 		/// </exception>
@@ -210,7 +210,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
+		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new MIME message, specifying details at creation time.
@@ -228,7 +228,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeMessage"/> class.
+		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new MIME message.
@@ -242,7 +242,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the mbox marker.
+		/// Get or set the mbox marker.
 		/// </summary>
 		/// <remarks>
 		/// Set by the <see cref="MimeParser"/> when parsing attached message/rfc822 parts
@@ -254,7 +254,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of headers.
+		/// Get the list of headers.
 		/// </summary>
 		/// <remarks>
 		/// <para>Represents the list of headers for a message. Typically, the headers of
@@ -383,7 +383,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the address in the Sender header.
+		/// Get or set the address in the Sender header.
 		/// </summary>
 		/// <remarks>
 		/// The sender may differ from the addresses in <see cref="From"/> if
@@ -418,7 +418,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the address in the Resent-Sender header.
+		/// Get or set the address in the Resent-Sender header.
 		/// </summary>
 		/// <remarks>
 		/// The resent sender may differ from the addresses in <see cref="ResentFrom"/> if
@@ -453,7 +453,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the From header.
+		/// Get the list of addresses in the From header.
 		/// </summary>
 		/// <remarks>
 		/// <para>The "From" header specifies the author(s) of the message.</para>
@@ -468,7 +468,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Resent-From header.
+		/// Get the list of addresses in the Resent-From header.
 		/// </summary>
 		/// <remarks>
 		/// <para>The "Resent-From" header specifies the author(s) of the messagebeing
@@ -484,7 +484,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Reply-To header.
+		/// Get the list of addresses in the Reply-To header.
 		/// </summary>
 		/// <remarks>
 		/// <para>When the list of addresses in the Reply-To header is not empty,
@@ -500,7 +500,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Resent-Reply-To header.
+		/// Get the list of addresses in the Resent-Reply-To header.
 		/// </summary>
 		/// <remarks>
 		/// <para>When the list of addresses in the Resent-Reply-To header is not empty,
@@ -516,7 +516,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the To header.
+		/// Get the list of addresses in the To header.
 		/// </summary>
 		/// <remarks>
 		/// The addresses in the To header are the primary recipients of
@@ -528,7 +528,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Resent-To header.
+		/// Get the list of addresses in the Resent-To header.
 		/// </summary>
 		/// <remarks>
 		/// The addresses in the Resent-To header are the primary recipients of
@@ -540,7 +540,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Cc header.
+		/// Get the list of addresses in the Cc header.
 		/// </summary>
 		/// <remarks>
 		/// The addresses in the Cc header are secondary recipients of the message
@@ -553,7 +553,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Resent-Cc header.
+		/// Get the list of addresses in the Resent-Cc header.
 		/// </summary>
 		/// <remarks>
 		/// The addresses in the Resent-Cc header are secondary recipients of the message
@@ -566,7 +566,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Bcc header.
+		/// Get the list of addresses in the Bcc header.
 		/// </summary>
 		/// <remarks>
 		/// Recipients in the Blind-Carpbon-Copy list will not be visible to
@@ -578,7 +578,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of addresses in the Resent-Bcc header.
+		/// Get the list of addresses in the Resent-Bcc header.
 		/// </summary>
 		/// <remarks>
 		/// Recipients in the Resent-Bcc list will not be visible to
@@ -590,7 +590,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the subject of the message.
+		/// Get or set the subject of the message.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Subject is typically a short string denoting the topic of the message.</para>
@@ -611,7 +611,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the date of the message.
+		/// Get or set the date of the message.
 		/// </summary>
 		/// <remarks>
 		/// If the date is not explicitly set before the message is written to a stream,
@@ -630,7 +630,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the Resent-Date of the message.
+		/// Get or set the Resent-Date of the message.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the Resent-Date of the message.
@@ -648,7 +648,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the list of references to other messages.
+		/// Get the list of references to other messages.
 		/// </summary>
 		/// <remarks>
 		/// The References header contains a chain of Message-Ids back to the
@@ -660,7 +660,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the Message-Id that this message is in reply to.
+		/// Get or set the Message-Id that this message is replying to.
 		/// </summary>
 		/// <remarks>
 		/// If the message is a reply to another message, it will typically
@@ -697,12 +697,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the message identifier.
+		/// Get or set the message identifier.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Message-Id is meant to be a globally unique identifier for
 		/// a message.</para>
-		/// <para><see cref="MimeKit.Utils.MimeUtils.GenerateMessageId()"/> can be used
+		/// <para><see cref="MimeUtils.GenerateMessageId()"/> can be used
 		/// to generate this value.</para>
 		/// </remarks>
 		/// <value>The message identifier.</value>
@@ -735,12 +735,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the Resent-Message-Id header.
+		/// Get or set the Resent-Message-Id header.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Resent-Message-Id is meant to be a globally unique identifier for
 		/// a message.</para>
-		/// <para><see cref="MimeKit.Utils.MimeUtils.GenerateMessageId()"/> can be used
+		/// <para><see cref="MimeUtils.GenerateMessageId()"/> can be used
 		/// to generate this value.</para>
 		/// </remarks>
 		/// <value>The Resent-Message-Id.</value>
@@ -773,7 +773,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the MIME-Version.
+		/// Get or set the MIME-Version.
 		/// </summary>
 		/// <remarks>
 		/// The MIME-Version header specifies the version of the MIME specification
@@ -798,7 +798,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the body of the message.
+		/// Get or set the body of the message.
 		/// </summary>
 		/// <remarks>
 		/// <para>The body of the message can either be plain text or it can be a
@@ -878,7 +878,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the text body of the message if it exists.
+		/// Get the text body of the message if it exists.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
@@ -890,7 +890,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the html body of the message if it exists.
+		/// Get the html body of the message if it exists.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
@@ -901,7 +901,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the text body in the specified format.
+		/// Get the text body in the specified format.
 		/// </summary>
 		/// <remarks>
 		/// Gets the text body in the specified format, if it exists.
@@ -947,7 +947,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the body parts of the message.
+		/// Get the body parts of the message.
 		/// </summary>
 		/// <remarks>
 		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects,
@@ -962,7 +962,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the attachments.
+		/// Get the attachments.
 		/// </summary>
 		/// <remarks>
 		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects that
@@ -977,14 +977,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeMessage"/>.
 		/// </summary>
 		/// <remarks>
-		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</para>
+		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeMessage"/>.</para>
 		/// <note type="warning">In general, the string returned from this method SHOULD NOT be used for serializing
 		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</note>
 		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeMessage"/>.</returns>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeMessage"/>.</returns>
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
@@ -1005,12 +1005,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME message.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.MimeMessage"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMimeMessage"/>. Override this
+		/// This default implementation for <see cref="MimeMessage"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMimeMessage"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMimeMessage"/>.
+		/// <see cref="MimeVisitor.VisitMimeMessage"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -2536,7 +2536,7 @@ namespace MimeKit {
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
@@ -2580,7 +2580,7 @@ namespace MimeKit {
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
@@ -2684,7 +2684,7 @@ namespace MimeKit {
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
@@ -2717,7 +2717,7 @@ namespace MimeKit {
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>

@@ -250,7 +250,7 @@ namespace MimeKit.Cryptography {
 		public AsymmetricKeyParameter PrivateKey { get; set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateRecord"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new certificate record with a private key for storing in a
@@ -283,7 +283,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateRecord"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new certificate record for storing in a <see cref="IX509CertificateDatabase"/>.
@@ -302,7 +302,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateRecord"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
 		/// </summary>
 		/// <remarks>
 		/// This constructor is only meant to be used by implementors of <see cref="IX509CertificateDatabase"/>

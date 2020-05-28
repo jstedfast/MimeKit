@@ -54,7 +54,7 @@ namespace MimeKit.Text {
 		//}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlToHtml"/> class.
+		/// Initialize a new instance of the <see cref="HtmlToHtml"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new HTML to HTML converter.

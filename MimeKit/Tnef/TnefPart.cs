@@ -45,10 +45,10 @@ namespace MimeKit.Tnef {
 	public class TnefPart : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPart"/> class.
+		/// Initialize a new instance of the <see cref="TnefPart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -59,7 +59,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPart"/> class.
+		/// Initialize a new instance of the <see cref="TnefPart"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TnefPart"/> with a Content-Type of application/vnd.ms-tnef
@@ -75,12 +75,12 @@ namespace MimeKit.Tnef {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.Tnef.TnefPart"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitTnefPart"/>. Override this
+		/// This default implementation for <see cref="TnefPart"/> nodes
+		/// calls <see cref="MimeVisitor.VisitTnefPart"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitTnefPart"/>.
+		/// <see cref="MimeVisitor.VisitTnefPart"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -596,16 +596,16 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Converts the TNEF content into a <see cref="MimeKit.MimeMessage"/>.
+		/// Converts the TNEF content into a <see cref="MimeMessage"/>.
 		/// </summary>
 		/// <remarks>
-		/// TNEF data often contains properties that map to <see cref="MimeKit.MimeMessage"/>
+		/// TNEF data often contains properties that map to <see cref="MimeMessage"/>
 		/// headers. TNEF data also often contains file attachments which will be
 		/// mapped to MIME parts.
 		/// </remarks>
 		/// <returns>A message representing the TNEF data in MIME format.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="MimeKit.MimePart.Content"/> property is <c>null</c>.
+		/// The <see cref="MimePart.Content"/> property is <c>null</c>.
 		/// </exception>
 		public MimeMessage ConvertToMessage ()
 		{
@@ -632,7 +632,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <returns>The attachments.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="MimeKit.MimePart.Content"/> property is <c>null</c>.
+		/// The <see cref="MimePart.Content"/> property is <c>null</c>.
 		/// </exception>
 		public IEnumerable<MimeEntity> ExtractAttachments ()
 		{

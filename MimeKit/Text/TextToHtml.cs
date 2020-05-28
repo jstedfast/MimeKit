@@ -43,7 +43,7 @@ namespace MimeKit.Text {
 		readonly UrlScanner scanner;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.TextToHtml"/> class.
+		/// Initialize a new instance of the <see cref="TextToHtml"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new text to HTML converter.

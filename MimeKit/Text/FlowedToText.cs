@@ -38,7 +38,7 @@ namespace MimeKit.Text {
 	public class FlowedToText : TextConverter
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.FlowedToText"/> class.
+		/// Initialize a new instance of the <see cref="FlowedToText"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new flowed text to text converter.

@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace MimeKit {
 	/// <summary>
-	/// An interface for content stream encapsulation as used by <see cref="MimeKit.MimePart"/>.
+	/// An interface for content stream encapsulation as used by <see cref="MimePart"/>.
 	/// </summary>
     /// <remarks>
     /// Implemented by <see cref="MimeContent"/>.

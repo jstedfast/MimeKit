@@ -43,7 +43,7 @@ namespace MimeKit {
 		readonly List<string> references;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MessageIdList"/> class.
+		/// Initialize a new instance of the <see cref="MessageIdList"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new, empty, <see cref="MessageIdList"/>.
@@ -73,7 +73,7 @@ namespace MimeKit {
 		#region IList implementation
 
 		/// <summary>
-		/// Gets the index of the requested Message-Id, if it exists.
+		/// Get the index of the requested Message-Id, if it exists.
 		/// </summary>
 		/// <remarks>
 		/// Finds the index of the specified Message-Id, if it exists.
@@ -123,7 +123,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the Message-Id at the specified index.
+		/// Remove the Message-Id at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Removes the Message-Id at the specified index.
@@ -139,7 +139,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="MimeKit.MessageIdList"/> at the specified index.
+		/// Get or set the Message-Id at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the Message-Id at the specified index.
@@ -211,7 +211,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the Message-Id list.
+		/// Clear the Message-Id list.
 		/// </summary>
 		/// <remarks>
 		/// Removes all of the Message-Ids in the list.
@@ -223,7 +223,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="MessageIdList"/> contains the specified Message-Id.
+		/// Check if the <see cref="MessageIdList"/> contains the specified Message-Id.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the list contains the specified Message-Id.
@@ -243,7 +243,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the Message-Ids in the <see cref="MessageIdList"/> to the specified array.
+		/// Copy all of the Message-Ids in the <see cref="MessageIdList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
 		/// Copies all of the Message-Ids within the <see cref="MessageIdList"/> into the array,
@@ -263,7 +263,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the specified Message-Id.
+		/// Remove a Message-Id from the <see cref="MessageIdList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Removes the first instance of the specified Message-Id from the list if it exists.
@@ -288,7 +288,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the number of Message-Ids in the <see cref="MimeKit.MessageIdList"/>.
+		/// Get the number of Message-Ids in the <see cref="MessageIdList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Indicates the number of Message-Ids in the list.
@@ -299,7 +299,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
+		/// Get a value indicating whether the <see cref="MessageIdList"/> is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="MessageIdList"/> is never read-only.
@@ -314,7 +314,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of Message-Ids.
+		/// Get an enumerator for the list of Message-Ids.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the list of Message-Ids.
@@ -330,7 +330,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of Message-Ids.
+		/// Get an enumerator for the list of Message-Ids.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the list of Message-Ids.
@@ -344,7 +344,7 @@ namespace MimeKit {
 		#endregion
 
 		/// <summary>
-		/// Returns a string representation of the list of Message-Ids.
+		/// Serialize a <see cref="MessageIdList"/> to a string.
 		/// </summary>
 		/// <remarks>
 		/// <para>Each Message-Id will be surrounded by angle brackets.</para>

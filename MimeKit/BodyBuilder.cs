@@ -39,7 +39,7 @@ namespace MimeKit {
 	public class BodyBuilder
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.BodyBuilder"/> class.
+		/// Initialize a new instance of the <see cref="BodyBuilder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="BodyBuilder"/>.
@@ -54,7 +54,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the attachments.
+		/// Get the attachments.
 		/// </summary>
 		/// <remarks>
 		/// Represents a collection of file attachments that will be included in the message.
@@ -68,7 +68,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the linked resources.
+		/// Get the linked resources.
 		/// </summary>
 		/// <remarks>
 		/// Linked resources are a special type of attachment which are linked to from the <see cref="HtmlBody"/>.
@@ -82,7 +82,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the text body.
+		/// Get or set the text body.
 		/// </summary>
 		/// <remarks>
 		/// Represents the plain-text formatted version of the message body.
@@ -96,7 +96,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the html body.
+		/// Get or set the html body.
 		/// </summary>
 		/// <remarks>
 		/// Represents the html formatted version of the message body and may link to any of the <see cref="LinkedResources"/>.
@@ -110,7 +110,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Constructs the message body based on the text-based bodies, the linked resources, and the attachments.
+		/// Construct the message body based on the text-based bodies, the linked resources, and the attachments.
 		/// </summary>
 		/// <remarks>
 		/// Combines the <see cref="Attachments"/>, <see cref="LinkedResources"/>, <see cref="TextBody"/>,

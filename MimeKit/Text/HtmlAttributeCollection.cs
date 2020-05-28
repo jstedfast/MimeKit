@@ -48,7 +48,7 @@ namespace MimeKit.Text {
 		readonly List<HtmlAttribute> attributes = new List<HtmlAttribute> ();
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlAttributeCollection"/> class.
+		/// Initialize a new instance of the <see cref="HtmlAttributeCollection"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlAttributeCollection"/>.

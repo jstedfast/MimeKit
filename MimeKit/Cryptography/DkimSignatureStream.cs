@@ -42,7 +42,7 @@ namespace MimeKit.Cryptography {
 		long length;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSignatureStream"/> class.
+		/// Initialize a new instance of the <see cref="DkimSignatureStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DkimSignatureStream"/>.

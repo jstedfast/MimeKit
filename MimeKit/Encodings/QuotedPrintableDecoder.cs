@@ -51,7 +51,7 @@ namespace MimeKit.Encodings {
 		byte saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
+		/// Initialize a new instance of the <see cref="QuotedPrintableDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new quoted-printable decoder.
@@ -65,7 +65,7 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableDecoder"/> class.
+		/// Initialize a new instance of the <see cref="QuotedPrintableDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new quoted-printable decoder.

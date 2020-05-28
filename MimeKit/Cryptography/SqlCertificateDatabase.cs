@@ -58,7 +58,7 @@ namespace MimeKit.Cryptography {
 		bool disposed;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqlCertificateDatabase"/> class.
+		/// Initialize a new instance of the <see cref="SqlCertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SqlCertificateDatabase"/> using the provided database connection.

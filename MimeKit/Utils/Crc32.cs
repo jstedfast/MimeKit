@@ -75,7 +75,7 @@ namespace MimeKit.Utils {
 		int crc;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Utils.Crc32"/> class.
+		/// Initialize a new instance of the <see cref="Crc32"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new CRC32 context.

@@ -72,7 +72,7 @@ namespace MimeKit.Cryptography
 		HttpClient client;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="SecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="BouncyCastleSecureMimeContext"/>
@@ -299,7 +299,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Cryptographically signs and encapsulates the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
@@ -328,7 +328,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -369,7 +369,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Signature"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
@@ -398,7 +398,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -1131,7 +1131,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the encrypted content.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -1160,7 +1160,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -1195,7 +1195,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Decrypts the specified encryptedData.
 		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1277,7 +1277,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Exports the certificates for the specified mailboxes.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">

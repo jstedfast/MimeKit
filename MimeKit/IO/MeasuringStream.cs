@@ -46,7 +46,7 @@ namespace MimeKit.IO {
 		long length;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.MeasuringStream"/> class.
+		/// Initialize a new instance of the <see cref="MeasuringStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MeasuringStream"/>.

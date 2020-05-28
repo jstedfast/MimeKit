@@ -70,10 +70,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.TextConverter"/> class.
+		/// Initialize a new instance of the <see cref="TextConverter"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.TextConverter"/> class.
+		/// Initialize a new instance of the <see cref="TextConverter"/> class.
 		/// </remarks>
 		protected TextConverter ()
 		{

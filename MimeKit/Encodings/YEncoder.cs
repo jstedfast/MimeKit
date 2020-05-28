@@ -44,7 +44,7 @@ namespace MimeKit.Encodings {
 		Crc32 crc;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.YEncoder"/> class.
+		/// Initialize a new instance of the <see cref="YEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new yEnc encoder.

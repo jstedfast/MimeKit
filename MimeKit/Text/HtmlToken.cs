@@ -38,7 +38,7 @@ namespace MimeKit.Text {
 	public abstract class HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlToken"/>.
@@ -98,7 +98,7 @@ namespace MimeKit.Text {
 	public class HtmlCommentToken : HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlCommentToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlCommentToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlCommentToken"/>.
@@ -181,7 +181,7 @@ namespace MimeKit.Text {
 	public class HtmlDataToken : HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlDataToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlDataToken"/>.
@@ -211,7 +211,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlDataToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlDataToken"/>.
@@ -277,7 +277,7 @@ namespace MimeKit.Text {
 	public class HtmlCDataToken : HtmlDataToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlCDataToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlCDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlCDataToken"/>.
@@ -321,7 +321,7 @@ namespace MimeKit.Text {
 	public class HtmlScriptDataToken : HtmlDataToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlScriptDataToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlScriptDataToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlScriptDataToken"/>.
@@ -363,7 +363,7 @@ namespace MimeKit.Text {
 	public class HtmlTagToken : HtmlToken
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlTagToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlTagToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlTagToken"/>.
@@ -391,7 +391,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlTagToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlTagToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlTagToken"/>.
@@ -512,7 +512,7 @@ namespace MimeKit.Text {
 		string systemIdentifier;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlDocTypeToken"/> class.
+		/// Initialize a new instance of the <see cref="HtmlDocTypeToken"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlDocTypeToken"/>.

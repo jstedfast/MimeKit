@@ -37,7 +37,7 @@ namespace MimeKit.Text {
 	public class PlainTextPreviewer : TextPreviewer
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="PlainTextPreviewer"/> class.
+		/// Initialize a new instance of the <see cref="PlainTextPreviewer"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new previewer for plain text.

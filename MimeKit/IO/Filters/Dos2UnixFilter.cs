@@ -37,7 +37,7 @@ namespace MimeKit.IO.Filters {
 		byte pc;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.Dos2UnixFilter"/> class.
+		/// Initialize a new instance of the <see cref="Dos2UnixFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Dos2UnixFilter"/>.

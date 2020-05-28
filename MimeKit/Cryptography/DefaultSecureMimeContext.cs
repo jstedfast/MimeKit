@@ -96,7 +96,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Allows the program to specify its own location for the SQLite database. If the file does not exist,
@@ -146,7 +146,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Allows the program to specify its own password for the default database.</para>
@@ -167,7 +167,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Not recommended for production use as the password to unlock the private keys is hard-coded.</para>
@@ -187,7 +187,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// This constructor is useful for supplying a custom <see cref="IX509CertificateDatabase"/>.

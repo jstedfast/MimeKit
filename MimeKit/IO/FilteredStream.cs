@@ -58,7 +58,7 @@ namespace MimeKit.IO {
 		bool flushed;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.FilteredStream"/> class.
+		/// Initialize a new instance of the <see cref="FilteredStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a filtered stream using the specified source stream.

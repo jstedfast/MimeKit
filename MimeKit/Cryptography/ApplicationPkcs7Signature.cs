@@ -41,10 +41,10 @@ namespace MimeKit.Cryptography {
 	public class ApplicationPkcs7Signature : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> class.
+		/// Initialize a new instance of the <see cref="ApplicationPkcs7Signature"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -55,7 +55,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/>
+		/// Initialize a new instance of the <see cref="ApplicationPkcs7Signature"/>
 		/// class with a Content-Type of application/pkcs7-signature.
 		/// </summary>
 		/// <remarks>
@@ -83,12 +83,12 @@ namespace MimeKit.Cryptography {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitApplicationPkcs7Signature"/>. Override this
+		/// This default implementation for <see cref="ApplicationPkcs7Signature"/> nodes
+		/// calls <see cref="MimeVisitor.VisitApplicationPkcs7Signature"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitApplicationPkcs7Signature"/>.
+		/// <see cref="MimeVisitor.VisitApplicationPkcs7Signature"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">

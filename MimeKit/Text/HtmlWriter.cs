@@ -44,7 +44,7 @@ namespace MimeKit.Text {
 		bool empty;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlWriter"/> class.
+		/// Initialize a new instance of the <see cref="HtmlWriter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlWriter"/>.
@@ -68,7 +68,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlWriter"/> class.
+		/// Initialize a new instance of the <see cref="HtmlWriter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlWriter"/>.
@@ -87,11 +87,11 @@ namespace MimeKit.Text {
 
 		/// <summary>
 		/// Releas unmanaged resources and perform other cleanup operations before the
-		/// <see cref="MimeKit.Text.HtmlWriter"/> is reclaimed by garbage collection.
+		/// <see cref="HtmlWriter"/> is reclaimed by garbage collection.
 		/// </summary>
 		/// <remarks>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Text.HtmlWriter"/> is reclaimed by garbage collection.
+		/// <see cref="HtmlWriter"/> is reclaimed by garbage collection.
 		/// </remarks>
 		~HtmlWriter ()
 		{
@@ -912,12 +912,12 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="MimeKit.Text.HtmlWriter"/> object.
+		/// Releases all resource used by the <see cref="HtmlWriter"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Text.HtmlWriter"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Text.HtmlWriter"/> in an unusable state. After calling
-		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Text.HtmlWriter"/> so the garbage
-		/// collector can reclaim the memory that the <see cref="MimeKit.Text.HtmlWriter"/> was occupying.</remarks>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="HtmlWriter"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="HtmlWriter"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="HtmlWriter"/> so the garbage
+		/// collector can reclaim the memory that the <see cref="HtmlWriter"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

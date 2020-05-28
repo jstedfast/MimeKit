@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	public abstract class DkimSignerBase
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DkimSignerBase"/> class.
+		/// Initialize a new instance of the <see cref="DkimSignerBase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="DkimSignerBase"/>.</para>

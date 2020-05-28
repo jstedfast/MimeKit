@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		int max;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimHashStream"/> class.
+		/// Initialize a new instance of the <see cref="DkimHashStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DkimHashStream"/>.

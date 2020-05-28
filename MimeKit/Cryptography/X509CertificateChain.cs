@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 		readonly List<X509Certificate> certificates;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateChain"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateChain"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new X.509 certificate chain.
@@ -54,7 +54,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateChain"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateChain"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new X.509 certificate chain based on the specified collection of certificates.
@@ -168,7 +168,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
+		/// Get a value indicating whether the <see cref="X509CertificateChain"/> is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="X509CertificateChain"/> is never read-only.

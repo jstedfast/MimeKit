@@ -273,7 +273,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>The method to use for encoding Content-Type and Content-Disposition parameter
 		/// values when the <see cref="Parameter.EncodingMethod"/> is set to
-		/// <see cref="MimeKit.ParameterEncodingMethod.Default"/>.</para>
+		/// <see cref="ParameterEncodingMethod.Default"/>.</para>
 		/// <para>The MIME specifications specify that the proper method for encoding Content-Type
 		/// and Content-Disposition parameter values is the method described in
 		/// <a href="https://tools.ietf.org/html/rfc2231">rfc2231</a>. However, it is common for
@@ -307,7 +307,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.FormatOptions"/> class.
+		/// Initialize a new instance of the <see cref="FormatOptions"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new set of formatting options for use with methods such as
@@ -329,7 +329,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clones an instance of <see cref="MimeKit.FormatOptions"/>.
+		/// Clones an instance of <see cref="FormatOptions"/>.
 		/// </summary>
 		/// <remarks>
 		/// Clones the formatting options.

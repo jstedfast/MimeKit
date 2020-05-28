@@ -54,7 +54,7 @@ namespace MimeKit.Cryptography {
 		int enabledDigestAlgorithms;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CryptographyContext"/> class.
+		/// Initialize a new instance of the <see cref="CryptographyContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CryptographyContext"/>.</para>
@@ -108,7 +108,7 @@ namespace MimeKit.Cryptography {
 
 #if NOT_YET
 		/// <summary>
-		/// Gets or sets a value indicating whether this <see cref="MimeKit.Cryptography.CryptographyContext"/> allows online
+		/// Gets or sets a value indicating whether this <see cref="CryptographyContext"/> allows online
 		/// certificate retrieval.
 		/// </summary>
 		/// <value><c>true</c> if online certificate retrieval should be allowed; otherwise, <c>false</c>.</value>
@@ -349,7 +349,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -416,7 +416,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the encrypted data.</returns>
+		/// <returns>A new <see cref="MimePart"/> instance containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -435,7 +435,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Decrypts the specified encryptedData.
 		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -467,7 +467,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the keys for the specified mailboxes.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported keys.</returns>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
@@ -495,12 +495,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.Cryptography.CryptographyContext"/> object.
+		/// Releases all resources used by the <see cref="CryptographyContext"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Cryptography.CryptographyContext"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Cryptography.CryptographyContext"/> in an unusable state. After
-		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Cryptography.CryptographyContext"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.Cryptography.CryptographyContext"/> was occupying.</remarks>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="CryptographyContext"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="CryptographyContext"/> in an unusable state. After
+		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="CryptographyContext"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="CryptographyContext"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

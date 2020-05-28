@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 		readonly IList<CmsRecipient> recipients;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipientCollection"/> class.
+		/// Initialize a new instance of the <see cref="CmsRecipientCollection"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="CmsRecipientCollection"/>.
@@ -67,7 +67,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
+		/// Get a value indicating whether the <see cref="CmsRecipientCollection"/> is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="CmsRecipientCollection"/> is never read-only.

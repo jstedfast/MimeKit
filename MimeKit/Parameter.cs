@@ -45,7 +45,7 @@ namespace MimeKit {
 		string text;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Parameter"/> class.
+		/// Initialize a new instance of the <see cref="Parameter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new parameter with the specified name and value.
@@ -81,7 +81,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Parameter"/> class.
+		/// Initialize a new instance of the <see cref="Parameter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new parameter with the specified name and value.
@@ -124,7 +124,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Parameter"/> class.
+		/// Initialize a new instance of the <see cref="Parameter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new parameter with the specified name and value.

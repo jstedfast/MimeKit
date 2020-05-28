@@ -49,7 +49,7 @@ namespace MimeKit.IO {
 		bool eos;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.ChainedStream"/> class.
+		/// Initialize a new instance of the <see cref="ChainedStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ChainedStream"/>.

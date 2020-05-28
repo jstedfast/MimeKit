@@ -38,7 +38,7 @@ namespace MimeKit.Utils {
 	sealed class OptimizedOrdinalIgnoreCaseComparer : IEqualityComparer<string>
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Utils.OptimizedOrdinalIgnoreCaseComparer"/> class.
+		/// Initialize a new instance of the <see cref="OptimizedOrdinalIgnoreCaseComparer"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="OptimizedOrdinalIgnoreCaseComparer"/>.

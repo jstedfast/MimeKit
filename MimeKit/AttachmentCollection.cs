@@ -48,7 +48,7 @@ namespace MimeKit {
 		readonly bool linked;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
+		/// Initialize a new instance of the <see cref="AttachmentCollection"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="AttachmentCollection"/>.</para>
@@ -63,7 +63,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.AttachmentCollection"/> class.
+		/// Initialize a new instance of the <see cref="AttachmentCollection"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="AttachmentCollection"/>.
@@ -97,10 +97,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
+		/// Gets or sets the <see cref=".MimeEntity"/> at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the <see cref="MimeKit.MimeEntity"/> at the specified index.
+		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
 		/// </remarks>
 		/// <value>The attachment at the specified index.</value>
 		/// <param name="index">The index.</param>

@@ -52,7 +52,7 @@ namespace MimeKit.Encodings {
 		short saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QuotedPrintableEncoder"/> class.
+		/// Initialize a new instance of the <see cref="QuotedPrintableEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new quoted-printable encoder.

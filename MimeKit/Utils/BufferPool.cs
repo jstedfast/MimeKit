@@ -53,7 +53,7 @@ namespace MimeKit.Utils
 		int index;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:MimeKit.Utils.BufferPool"/> class.
+		/// Initialize a new instance of the <see cref="BufferPool"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new buffer pool.

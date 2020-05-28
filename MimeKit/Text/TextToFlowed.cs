@@ -43,7 +43,7 @@ namespace MimeKit.Text {
 		const int MaxLineLength = 78;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.TextToFlowed"/> class.
+		/// Initialize a new instance of the <see cref="TextToFlowed"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new text to flowed text converter.

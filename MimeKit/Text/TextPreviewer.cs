@@ -42,10 +42,10 @@ namespace MimeKit.Text {
 		int maximumPreviewLength;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TextPreviewer"/> class.
+		/// Initialize a new instance of the <see cref="TextPreviewer"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Initializes a new instance of the <see cref="TextPreviewer"/> class.
+		/// Initialize a new instance of the <see cref="TextPreviewer"/> class.
 		/// </remarks>
 		protected TextPreviewer ()
 		{

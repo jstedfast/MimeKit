@@ -44,7 +44,7 @@ namespace MimeKit.Encodings {
 		};
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.HexEncoder"/> class.
+		/// Initialize a new instance of the <see cref="HexEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new hex encoder.

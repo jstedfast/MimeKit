@@ -49,7 +49,7 @@ namespace MimeKit.Cryptography {
 		readonly List<X509Certificate> certs;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateStore"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateStore"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="X509CertificateStore"/>.

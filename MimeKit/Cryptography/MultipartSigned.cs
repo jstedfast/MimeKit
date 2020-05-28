@@ -46,9 +46,9 @@ namespace MimeKit.Cryptography {
 	public class MultipartSigned : Multipart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartSigned"/> class.
+		/// Initialize a new instance of the <see cref="MultipartSigned"/> class.
 		/// </summary>
-		/// <remarks>This constructor is used by <see cref="MimeKit.MimeParser"/>.</remarks>
+		/// <remarks>This constructor is used by <see cref="MimeParser"/>.</remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <c>null</c>.
@@ -58,7 +58,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MultipartSigned"/> class.
+		/// Initialize a new instance of the <see cref="MultipartSigned"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MultipartSigned"/>.
@@ -71,12 +71,12 @@ namespace MimeKit.Cryptography {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.Cryptography.MultipartSigned"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMultipartSigned"/>. Override this
+		/// This default implementation for <see cref="MultipartSigned"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMultipartSigned"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMultipartSigned"/>.
+		/// <see cref="MimeVisitor.VisitMultipartSigned"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">

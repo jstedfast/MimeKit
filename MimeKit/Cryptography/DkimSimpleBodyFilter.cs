@@ -34,7 +34,7 @@ namespace MimeKit.Cryptography {
 	class DkimSimpleBodyFilter : DkimBodyFilter
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSimpleBodyFilter"/> class.
+		/// Initialize a new instance of the <see cref="DkimSimpleBodyFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DkimSimpleBodyFilter"/>.

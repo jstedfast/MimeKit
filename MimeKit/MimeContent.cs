@@ -34,7 +34,7 @@ using MimeKit.IO.Filters;
 
 namespace MimeKit {
 	/// <summary>
-	/// Encapsulates a content stream used by <see cref="MimeKit.MimePart"/>.
+	/// Encapsulates a content stream used by <see cref="MimePart"/>.
 	/// </summary>
 	/// <remarks>
 	/// A <see cref="MimeContent"/> represents the content of a <see cref="MimePart"/>.
@@ -44,11 +44,11 @@ namespace MimeKit {
 	public class ContentObject : MimeContent
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.ContentObject"/> class.
+		/// Initialize a new instance of the <see cref="ContentObject"/> class.
 		/// </summary>
 		/// <remarks>
-		/// When creating new <see cref="MimeKit.MimePart"/>s, the <paramref name="encoding"/>
-		/// should typically be <see cref="MimeKit.ContentEncoding.Default"/> unless the
+		/// When creating new <see cref="MimePart"/>s, the <paramref name="encoding"/>
+		/// should typically be <see cref="ContentEncoding.Default"/> unless the
 		/// <paramref name="stream"/> has already been encoded.
 		/// </remarks>
 		/// <param name="stream">The content stream.</param>
@@ -66,7 +66,7 @@ namespace MimeKit {
 	}
 
 	/// <summary>
-	/// Encapsulates a content stream used by <see cref="MimeKit.MimePart"/>.
+	/// Encapsulates a content stream used by <see cref="MimePart"/>.
 	/// </summary>
 	/// <remarks>
 	/// A <see cref="MimeContent"/> represents the content of a <see cref="MimePart"/>.
@@ -78,11 +78,11 @@ namespace MimeKit {
 	public class MimeContent : IMimeContent
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeContent"/> class.
+		/// Initialize a new instance of the <see cref="MimeContent"/> class.
 		/// </summary>
 		/// <remarks>
-		/// When creating new <see cref="MimeKit.MimePart"/>s, the <paramref name="encoding"/>
-		/// should typically be <see cref="MimeKit.ContentEncoding.Default"/> unless the
+		/// When creating new <see cref="MimePart"/>s, the <paramref name="encoding"/>
+		/// should typically be <see cref="ContentEncoding.Default"/> unless the
 		/// <paramref name="stream"/> has already been encoded.
 		/// </remarks>
 		/// <param name="stream">The content stream.</param>

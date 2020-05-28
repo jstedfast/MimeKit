@@ -39,7 +39,7 @@ namespace MimeKit.Text {
 	public abstract class HtmlTagContext
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlTagContext"/> class.
+		/// Initialize a new instance of the <see cref="HtmlTagContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlTagContext"/>.

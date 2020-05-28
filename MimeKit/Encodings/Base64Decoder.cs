@@ -61,7 +61,7 @@ namespace MimeKit.Encodings {
 		byte npad;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Decoder"/> class.
+		/// Initialize a new instance of the <see cref="Base64Decoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new base64 decoder.

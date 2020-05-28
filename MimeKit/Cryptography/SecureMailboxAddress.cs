@@ -44,7 +44,7 @@ namespace MimeKit.Cryptography {
 	public class SecureMailboxAddress : MailboxAddress
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
@@ -95,7 +95,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
@@ -118,7 +118,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
@@ -142,7 +142,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
@@ -163,7 +163,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SecureMailboxAddress"/> class.
+		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MailboxAddress"/> with the specified address.</para>

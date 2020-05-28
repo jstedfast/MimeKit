@@ -44,7 +44,7 @@ namespace MimeKit {
 		readonly List<string> domains;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.DomainList"/> class.
+		/// Initialize a new instance of the <see cref="DomainList"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DomainList"/> based on the domains provided.
@@ -62,7 +62,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.DomainList"/> class.
+		/// Initialize a new instance of the <see cref="DomainList"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DomainList"/>.
@@ -216,7 +216,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the domains in the <see cref="MimeKit.DomainList"/> to the specified array.
+		/// Copies all of the domains in the <see cref="DomainList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
 		/// Copies all of the domains within the <see cref="DomainList"/> into the array,
@@ -260,7 +260,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the number of domains in the <see cref="MimeKit.DomainList"/>.
+		/// Gets the number of domains in the <see cref="DomainList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Indicates the number of domains in the list.
@@ -271,7 +271,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
+		/// Get a value indicating whether the <see cref="DomainList"/> is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="DomainList"/> is never read-only.
@@ -389,7 +389,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse a list of domains.
+		/// Try to parse a list of domains.
 		/// </summary>
 		/// <remarks>
 		/// Attempts to parse a <see cref="DomainList"/> from the text buffer starting at the
@@ -449,7 +449,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse a list of domains.
+		/// Try to parse a list of domains.
 		/// </summary>
 		/// <remarks>
 		/// Attempts to parse a <see cref="DomainList"/> from the supplied text. The index

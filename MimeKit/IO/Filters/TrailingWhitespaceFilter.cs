@@ -38,7 +38,7 @@ namespace MimeKit.IO.Filters {
 		readonly PackedByteArray lwsp = new PackedByteArray ();
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.TrailingWhitespaceFilter"/> class.
+		/// Initialize a new instance of the <see cref="TrailingWhitespaceFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TrailingWhitespaceFilter"/>.

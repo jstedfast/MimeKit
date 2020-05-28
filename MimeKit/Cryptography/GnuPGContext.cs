@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.GnuPGContext"/> class.
+		/// Initialize a new instance of the <see cref="GnuPGContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="GnuPGContext"/>.

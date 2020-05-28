@@ -55,7 +55,7 @@ namespace MimeKit {
 		byte[] rawValue;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
@@ -94,7 +94,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
@@ -137,7 +137,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
@@ -156,7 +156,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
@@ -205,7 +205,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
@@ -258,7 +258,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new message or entity header for the specified field and
@@ -279,7 +279,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new message or entity header with the specified values.</para>
@@ -300,7 +300,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new message or entity header with the specified raw values.</para>
@@ -331,7 +331,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Header"/> class.
+		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new message or entity header with the specified raw values.</para>
@@ -1388,7 +1388,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the given index
@@ -1421,7 +1421,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the given index
@@ -1445,7 +1445,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the specified index.
@@ -1477,7 +1477,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the specified index.
@@ -1498,7 +1498,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the specified buffer.
@@ -1518,7 +1518,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the specified buffer.
@@ -1535,7 +1535,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given text into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given text into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the specified text.
@@ -1563,7 +1563,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Tries to parse the given text into a new <see cref="MimeKit.Header"/> instance.
+		/// Try to parse the given text into a new <see cref="Header"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses a header from the specified text.

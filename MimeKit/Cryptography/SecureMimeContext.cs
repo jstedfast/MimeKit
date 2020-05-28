@@ -55,7 +55,7 @@ namespace MimeKit.Cryptography {
 		internal static readonly DerObjectIdentifier Twofish = new DerObjectIdentifier ("1.3.6.1.4.1.25258.3.3");
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="SecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Enables the following encryption algorithms by default:</para>
@@ -432,7 +432,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Compresses the specified stream.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the compressed content.</returns>
 		/// <param name="stream">The stream to compress.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -585,7 +585,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encapsulates the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
@@ -602,7 +602,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -632,7 +632,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Signature"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
@@ -691,7 +691,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the encrypted content.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>

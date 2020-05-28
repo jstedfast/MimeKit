@@ -520,7 +520,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses an rfc822 date and time from the supplied buffer starting at the given index
@@ -563,7 +563,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
@@ -601,7 +601,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses an rfc822 date and time from the specified buffer.
@@ -631,7 +631,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
+		/// Try to parse the given input buffer into a new <see cref="System.DateTimeOffset"/> instance.
 		/// </summary>
 		/// <remarks>
 		/// Parses an rfc822 date and time from the specified text.

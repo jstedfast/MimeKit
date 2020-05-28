@@ -55,7 +55,7 @@ namespace MimeKit.Text {
 		char quote;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlTokenizer"/> class.
+		/// Initialize a new instance of the <see cref="HtmlTokenizer"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlTokenizer"/>.

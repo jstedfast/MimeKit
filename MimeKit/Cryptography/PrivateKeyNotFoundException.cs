@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	{
 #if SERIALIZABLE
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PrivateKeyNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="PrivateKeyNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
@@ -62,7 +62,7 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PrivateKeyNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="PrivateKeyNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
@@ -81,7 +81,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="PrivateKeyNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
@@ -100,7 +100,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="PrivateKeyNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.

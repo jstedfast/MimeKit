@@ -70,7 +70,7 @@ namespace MimeKit.Cryptography {
 		ulong count;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MD5"/> class.
+		/// Initialize a new instance of the <see cref="MD5"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new instance of an MD5 hash algorithm context.
@@ -85,7 +85,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.MD5"/> class.
+		/// Initialize a new instance of the <see cref="MD5"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new instance of an MD5 hash algorithm context.
@@ -97,11 +97,11 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Cryptography.MD5"/> is reclaimed by garbage collection.
+		/// <see cref="MD5"/> is reclaimed by garbage collection.
 		/// </summary>
 		/// <remarks>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Cryptography.MD5"/> is reclaimed by garbage collection.
+		/// <see cref="MD5"/> is reclaimed by garbage collection.
 		/// </remarks>
 		~MD5 ()
 		{
@@ -733,12 +733,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="MimeKit.Cryptography.MD5"/> object.
+		/// Releases all resource used by the <see cref="MD5"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Cryptography.MD5"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Cryptography.MD5"/> in an unusable state. After calling
-		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Cryptography.MD5"/> so the
-		/// garbage collector can reclaim the memory that the <see cref="MimeKit.Cryptography.MD5"/> was occupying.</remarks>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MD5"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MD5"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MD5"/> so the
+		/// garbage collector can reclaim the memory that the <see cref="MD5"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

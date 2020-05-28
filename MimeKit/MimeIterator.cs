@@ -60,7 +60,7 @@ namespace MimeKit {
 		int index = -1;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeIterator"/> class.
+		/// Initialize a new instance of the <see cref="MimeIterator"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MimeIterator"/> for the specified message.
@@ -82,11 +82,11 @@ namespace MimeKit {
 
 		/// <summary>
 		/// Releases unmanaged resources and performs other cleanup operations before
-		/// the <see cref="MimeKit.MimeIterator"/> is reclaimed by garbage collection.
+		/// the <see cref="MimeIterator"/> is reclaimed by garbage collection.
 		/// </summary>
 		/// <remarks>
 		/// Releases unmanaged resources and performs other cleanup operations before
-		/// the <see cref="MimeKit.MimeIterator"/> is reclaimed by garbage collection.
+		/// the <see cref="MimeIterator"/> is reclaimed by garbage collection.
 		/// </remarks>
 		~MimeIterator ()
 		{
@@ -426,11 +426,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MimeKit.MimeIterator"/> and
+		/// Releases the unmanaged resources used by the <see cref="MimeIterator"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MimeKit.MimeIterator"/> and
+		/// Releases the unmanaged resources used by the <see cref="MimeIterator"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
@@ -440,12 +440,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases all resources used by the <see cref="MimeKit.MimeIterator"/> object.
+		/// Releases all resources used by the <see cref="MimeIterator"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.MimeIterator"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.MimeIterator"/> in an unusable state. After
-		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.MimeIterator"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeKit.MimeIterator"/> was occupying.</remarks>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeIterator"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeIterator"/> in an unusable state. After
+		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeIterator"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="MimeIterator"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

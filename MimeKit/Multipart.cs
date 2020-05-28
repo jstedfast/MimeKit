@@ -67,10 +67,10 @@ namespace MimeKit {
 		string preamble, epilogue;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// Initialize a new instance of the <see cref="Multipart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -82,7 +82,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// Initialize a new instance of the <see cref="Multipart"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Multipart"/> with the specified subtype.
@@ -116,7 +116,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// Initialize a new instance of the <see cref="Multipart"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Multipart"/> with the specified subtype.
@@ -133,7 +133,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Multipart"/> class.
+		/// Initialize a new instance of the <see cref="Multipart"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Multipart"/> with a ContentType of multipart/mixed.
@@ -157,7 +157,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the boundary.
+		/// Get or set the boundary.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the boundary parameter on the Content-Type header.
@@ -184,7 +184,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the preamble.
+		/// Get or set the preamble.
 		/// </summary>
 		/// <remarks>
 		/// A multipart preamble appears before the first child entity of the
@@ -223,7 +223,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the epilogue.
+		/// Get or set the epilogue.
 		/// </summary>
 		/// <remarks>
 		/// A multipart epiloque is the text that appears after the closing boundary
@@ -266,7 +266,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets whether the end boundary should be written.
+		/// Get or set whether the end boundary should be written.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets whether the end boundary should be written.
@@ -280,12 +280,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.Multipart"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMultipart"/>. Override this
+		/// This default implementation for <see cref="Multipart"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMultipart"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMultipart"/>.
+		/// <see cref="MimeVisitor.VisitMultipart"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -400,7 +400,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
+		/// Write the <see cref="Multipart"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Writes the multipart MIME entity and its subparts to the output stream.
@@ -510,7 +510,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously writes the <see cref="MimeKit.Multipart"/> to the specified output stream.
+		/// Asynchronously write the <see cref="Multipart"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously writes the multipart MIME entity and its subparts to the output stream.
@@ -585,7 +585,7 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Gets the number of parts in the multipart.
+		/// Get the number of parts in the multipart.
 		/// </summary>
 		/// <remarks>
 		/// Indicates the number of parts in the multipart.
@@ -596,7 +596,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this instance is read only.
+		/// Get a value indicating whether this instance is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="Multipart"/> is never read-only.
@@ -607,7 +607,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Adds the specified part.
+		/// Add an entity to the multipart.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified part to the multipart.
@@ -626,7 +626,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the multipart.
+		/// Clear a multipart.
 		/// </summary>
 		/// <remarks>
 		/// Removes all of the parts within the multipart.
@@ -638,7 +638,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="Multipart"/> contains the specified part.
+		/// Check if the <see cref="Multipart"/> contains the specified part.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the multipart contains the specified part.
@@ -658,7 +658,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the entities in the <see cref="Multipart"/> to the specified array.
+		/// Copy all of the entities in the <see cref="Multipart"/> to the specified array.
 		/// </summary>
 		/// <remarks>
 		/// Copies all of the entities within the <see cref="Multipart"/> into the array,
@@ -678,7 +678,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the specified part.
+		/// Remove an entity from the multipart.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified part, if it exists within the multipart.
@@ -706,7 +706,7 @@ namespace MimeKit {
 		#region IList implementation
 
 		/// <summary>
-		/// Gets the index of the specified part.
+		/// Get the index of an entity.
 		/// </summary>
 		/// <remarks>
 		/// Finds the index of the specified part, if it exists.
@@ -725,7 +725,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Inserts the part at the specified index.
+		/// Insert an entity into the <see cref="Multipart"/> at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Inserts the part into the multipart at the specified index.
@@ -751,10 +751,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the part at the specified index.
+		/// Remove an entity from the <see cref="Multipart"/> at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Removes the part at the specified index.
+		/// Removes the entity at the specified index.
 		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -767,7 +767,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
+		/// Get or set the <see cref="MimeEntity"/> at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
@@ -796,7 +796,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+		/// Get the enumerator for the children of the <see cref="Multipart"/>.
 		/// </summary>
 		/// <remarks>
 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
@@ -812,7 +812,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
+		/// Get the enumerator for the children of the <see cref="Multipart"/>.
 		/// </summary>
 		/// <remarks>
 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.

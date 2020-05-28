@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 	public class WindowsSecureMimeDigitalCertificate : IDigitalCertificate
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeDigitalCertificate"/> class.
+		/// Initialize a new instance of the <see cref="WindowsSecureMimeDigitalCertificate"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="WindowsSecureMimeDigitalCertificate"/>.

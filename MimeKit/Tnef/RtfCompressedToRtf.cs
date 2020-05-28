@@ -71,10 +71,10 @@ namespace MimeKit.Tnef {
 		int size;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> class.
+		/// Initialize a new instance of the <see cref="RtfCompressedToRtf"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MimeKit.Tnef.RtfCompressedToRtf"/> converter filter.
+		/// Creates a new <see cref="RtfCompressedToRtf"/> converter filter.
 		/// </remarks>
 		public RtfCompressedToRtf ()
 		{

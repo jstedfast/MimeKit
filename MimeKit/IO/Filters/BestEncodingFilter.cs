@@ -45,7 +45,7 @@ namespace MimeKit.IO.Filters {
 		byte pc;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="BestEncodingFilter"/> class.
+		/// Initialize a new instance of the <see cref="BestEncodingFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="BestEncodingFilter"/>.

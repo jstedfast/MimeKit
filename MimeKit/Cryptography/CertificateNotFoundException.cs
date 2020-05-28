@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	{
 #if SERIALIZABLE
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="CertificateNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="CertificateNotFoundException"/>.
@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CertificateNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="CertificateNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="CertificateNotFoundException"/>.

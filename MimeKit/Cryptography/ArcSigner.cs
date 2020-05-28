@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		static readonly string[] ArcShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "arc-seal" };
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.ArcSigner"/> class.
+		/// Initialize a new instance of the <see cref="ArcSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.
@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcSigner"/> class.
+		/// Initialize a new instance of the <see cref="ArcSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.
@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcSigner"/> class.
+		/// Initialize a new instance of the <see cref="ArcSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.
@@ -154,7 +154,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcSigner"/> class.
+		/// Initialize a new instance of the <see cref="ArcSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.

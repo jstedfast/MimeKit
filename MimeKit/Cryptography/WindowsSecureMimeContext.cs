@@ -60,7 +60,7 @@ namespace MimeKit.Cryptography {
 		const X509KeyStorageFlags DefaultKeyStorageFlags = X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="WindowsSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="WindowsSecureMimeContext"/>.
@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="WindowsSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Constructs an S/MIME context using the current user's X.509 store location.
@@ -466,7 +466,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encapsulates the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
@@ -497,7 +497,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Sign and encapsulate the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -538,7 +538,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Signature"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Signature"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
@@ -569,7 +569,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Sign the content using the specified signer.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -910,7 +910,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the encrypted content.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -939,7 +939,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -976,7 +976,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Decrypt the encrypted data.
 		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1199,7 +1199,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the certificates for the specified mailboxes.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.Cryptography.ApplicationPkcs7Mime"/> instance containing
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">

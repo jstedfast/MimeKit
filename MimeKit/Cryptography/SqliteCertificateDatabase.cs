@@ -200,7 +200,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
+		/// Initialize a new instance of the <see cref="SqliteCertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="SqliteCertificateDatabase"/> and opens a connection to the
@@ -231,7 +231,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
+		/// Initialize a new instance of the <see cref="SqliteCertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SqliteCertificateDatabase"/> using the provided SQLite database connection.

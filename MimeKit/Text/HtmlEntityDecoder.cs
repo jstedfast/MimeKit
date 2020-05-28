@@ -44,7 +44,7 @@ namespace MimeKit.Text {
 		int index;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.HtmlEntityDecoder"/> class.
+		/// Initialize a new instance of the <see cref="HtmlEntityDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="HtmlEntityDecoder"/>.

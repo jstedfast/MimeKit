@@ -66,7 +66,7 @@ namespace MimeKit.Text {
 		bool icase;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.Trie"/> class.
+		/// Initialize a new instance of the <see cref="Trie"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.
@@ -80,7 +80,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.Trie"/> class.
+		/// Initialize a new instance of the <see cref="Trie"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.

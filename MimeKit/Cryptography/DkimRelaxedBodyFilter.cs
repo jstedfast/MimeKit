@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 		bool lwsp, cr;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimRelaxedBodyFilter"/> class.
+		/// Initialize a new instance of the <see cref="DkimRelaxedBodyFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DkimRelaxedBodyFilter"/>.

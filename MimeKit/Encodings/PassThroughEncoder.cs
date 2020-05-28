@@ -36,7 +36,7 @@ namespace MimeKit.Encodings {
 	public class PassThroughEncoder : IMimeEncoder
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughEncoder"/> class.
+		/// Initialize a new instance of the <see cref="PassThroughEncoder"/> class.
 		/// </summary>
 		/// <param name="encoding">The encoding to return in the <see cref="Encoding"/> property.</param>
 		/// <remarks>

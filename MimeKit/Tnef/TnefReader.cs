@@ -210,7 +210,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReader"/> class.
+		/// Initialize a new instance of the <see cref="TnefReader"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>When reading a TNEF stream using the <see cref="TnefComplianceMode.Strict"/> mode,
@@ -259,7 +259,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReader"/> class.
+		/// Initialize a new instance of the <see cref="TnefReader"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TnefReader"/> for the specified input stream.
@@ -274,11 +274,11 @@ namespace MimeKit.Tnef {
 
 		/// <summary>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Tnef.TnefReader"/> is reclaimed by garbage collection.
+		/// <see cref="TnefReader"/> is reclaimed by garbage collection.
 		/// </summary>
 		/// <remarks>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Tnef.TnefReader"/> is reclaimed by garbage collection.
+		/// <see cref="TnefReader"/> is reclaimed by garbage collection.
 		/// </remarks>
 		~TnefReader ()
 		{
@@ -740,12 +740,12 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="MimeKit.Tnef.TnefReader"/> object.
+		/// Releases all resource used by the <see cref="TnefReader"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeKit.Tnef.TnefReader"/>. The
-		/// <see cref="Dispose()"/> method leaves the <see cref="MimeKit.Tnef.TnefReader"/> in an unusable state. After calling
-		/// <see cref="Dispose()"/>, you must release all references to the <see cref="MimeKit.Tnef.TnefReader"/> so the garbage
-		/// collector can reclaim the memory that the <see cref="MimeKit.Tnef.TnefReader"/> was occupying.</remarks>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="TnefReader"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="TnefReader"/> in an unusable state. After calling
+		/// <see cref="Dispose()"/>, you must release all references to the <see cref="TnefReader"/> so the garbage
+		/// collector can reclaim the memory that the <see cref="TnefReader"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

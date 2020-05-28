@@ -39,7 +39,7 @@ namespace MimeKit.Text {
 	public class HtmlTextPreviewer : TextPreviewer
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HtmlTextPreviewer"/> class.
+		/// Initialize a new instance of the <see cref="HtmlTextPreviewer"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new previewer for HTML.

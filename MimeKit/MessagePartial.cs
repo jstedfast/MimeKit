@@ -45,10 +45,10 @@ namespace MimeKit {
 	public class MessagePartial : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MessagePartial"/> class.
+		/// Initialize a new instance of the <see cref="MessagePartial"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -59,7 +59,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MessagePartial"/> class.
+		/// Initialize a new instance of the <see cref="MessagePartial"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new message/partial entity.</para>
@@ -149,12 +149,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.MessagePartial"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMessagePartial"/>. Override this
+		/// This default implementation for <see cref="MessagePartial"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMessagePartial"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMessagePartial"/>.
+		/// <see cref="MimeVisitor.VisitMessagePartial"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">

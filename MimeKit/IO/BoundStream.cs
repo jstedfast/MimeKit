@@ -46,7 +46,7 @@ namespace MimeKit.IO {
 		bool eos;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.BoundStream"/> class.
+		/// Initialize a new instance of the <see cref="BoundStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// If the <paramref name="endBoundary"/> is less than <c>0</c>, then the end of the stream
@@ -123,11 +123,11 @@ namespace MimeKit.IO {
 
 		/// <summary>
 		/// Checks whether or not the underlying stream will remain open after
-		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
+		/// the <see cref="BoundStream"/> is disposed.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether or not the underlying stream will remain open after
-		/// the <see cref="MimeKit.IO.BoundStream"/> is disposed.
+		/// the <see cref="BoundStream"/> is disposed.
 		/// </remarks>
 		/// <value><c>true</c> if the underlying stream should remain open after the
 		/// <see cref="BoundStream"/> is disposed; otherwise, <c>false</c>.</value>

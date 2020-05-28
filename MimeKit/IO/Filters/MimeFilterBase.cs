@@ -41,7 +41,7 @@ namespace MimeKit.IO.Filters {
 		byte[] inbuf;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.MimeFilterBase"/> class.
+		/// Initialize a new instance of the <see cref="MimeFilterBase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MimeFilterBase"/>.

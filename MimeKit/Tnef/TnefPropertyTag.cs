@@ -5620,7 +5620,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPropertyTag"/> struct.
+		/// Initialize a new instance of the <see cref="TnefPropertyTag"/> struct.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TnefPropertyTag"/> based on a 32-bit integer tag as read from
@@ -5640,7 +5640,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefPropertyTag"/> struct.
+		/// Initialize a new instance of the <see cref="TnefPropertyTag"/> struct.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TnefPropertyTag"/> based on a <see cref="TnefPropertyId"/>
@@ -5681,10 +5681,10 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyTag"/> object.
+		/// Serves as a hash function for a <see cref="TnefPropertyTag"/> object.
 		/// </summary>
 		/// <remarks>
-		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyTag"/> object.
+		/// Serves as a hash function for a <see cref="TnefPropertyTag"/> object.
 		/// </remarks>
 		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
 		/// and data structures such as a hash table.</returns>
@@ -5694,14 +5694,14 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyTag"/>.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyTag"/>.
 		/// </remarks>
-		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.</param>
+		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefPropertyTag"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
-		/// <see cref="MimeKit.Tnef.TnefPropertyTag"/>; otherwise, <c>false</c>.</returns>
+		/// <see cref="TnefPropertyTag"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
 			if (!(obj is TnefPropertyTag))
@@ -5713,12 +5713,12 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.
 		/// </summary>
 		/// <remarks>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.
 		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.Tnef.TnefPropertyTag"/>.</returns>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.</returns>
 		public override string ToString ()
 		{
 			return string.Format ("{0} ({1})", Id, ValueTnefType);

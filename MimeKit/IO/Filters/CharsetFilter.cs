@@ -52,7 +52,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
+		/// Initialize a new instance of the <see cref="CharsetFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="CharsetFilter"/> to convert text from the specified
@@ -77,7 +77,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
+		/// Initialize a new instance of the <see cref="CharsetFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="CharsetFilter"/> to convert text from the specified
@@ -101,7 +101,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.CharsetFilter"/> class.
+		/// Initialize a new instance of the <see cref="CharsetFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="CharsetFilter"/> to convert text from the specified

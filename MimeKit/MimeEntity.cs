@@ -55,7 +55,7 @@ namespace MimeKit {
 		Uri baseUri;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class
+		/// Initialize a new instance of the <see cref="MimeEntity"/> class
 		/// based on the <see cref="MimeEntityConstructorArgs"/>.
 		/// </summary>
 		/// <remarks>
@@ -86,7 +86,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
+		/// Initialize a new instance of the <see cref="MimeEntity"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Initializes the <see cref="ContentType"/> based on the provided media type and subtype.
@@ -103,7 +103,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimeEntity"/> class.
+		/// Initialize a new instance of the <see cref="MimeEntity"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Initializes the <see cref="ContentType"/> to the one provided.
@@ -323,14 +323,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeEntity"/>.
 		/// </summary>
 		/// <remarks>
-		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</para>
+		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeEntity"/>.</para>
 		/// <note type="warning">In general, the string returned from this method SHOULD NOT be used for serializing
 		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</note>
 		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeEntity"/>.</returns>
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
@@ -351,12 +351,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.MimeEntity"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMimeEntity"/>. Override this
+		/// This default implementation for <see cref="MimeEntity"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMimeEntity"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMimeEntity"/>.
+		/// <see cref="MimeVisitor.VisitMimeEntity"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -386,7 +386,7 @@ namespace MimeKit {
 		public abstract void Prepare (EncodingConstraint constraint, int maxLineLength = 78);
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
@@ -420,7 +420,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line.</para>
@@ -457,7 +457,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
@@ -483,7 +483,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line.</para>
@@ -510,7 +510,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Writes the entity to the output stream.
@@ -533,7 +533,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously writes the entity to the output stream.
@@ -557,7 +557,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Writes the entity to the output stream.
@@ -579,7 +579,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified output stream.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously writes the entity to the output stream.
@@ -602,10 +602,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// Writes the entity to the specified file using the provided formatting options.
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
@@ -649,10 +649,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// Asynchronously writes the entity to the specified file using the provided formatting options.
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
@@ -697,10 +697,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// Writes the entity to the specified file using the provided formatting options.
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
@@ -745,10 +745,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the provided formatting options.
+		/// Asynchronously writes the entity to the specified file using the provided formatting options.
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
@@ -794,10 +794,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Write the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// Writes the entity to the specified file using the default formatting options.
 		/// </remarks>
 		/// <param name="fileName">The file.</param>
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
@@ -831,10 +831,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously write the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// Asynchronously writes the entity to the specified file using the default formatting options.
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
@@ -869,10 +869,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// Writes the entity to the specified file using the default formatting options.
 		/// </remarks>
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -905,10 +905,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file.
+		/// Asynchronously write the <see cref="MimeEntity"/> to the specified file.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously writes the <see cref="MimeKit.MimeEntity"/> to the specified file using the default formatting options.
+		/// Asynchronously writes the entity to the specified file using the default formatting options.
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
@@ -942,7 +942,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the header.
+		/// Remove a header by name.
 		/// </summary>
 		/// <remarks>
 		/// Removes all headers matching the specified name without
@@ -961,7 +961,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the header.
+		/// Set the value of a header.
 		/// </summary>
 		/// <remarks>
 		/// Sets the header to the specified value without
@@ -981,7 +981,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the header using the raw value.
+		/// Set the value of a header using the raw value.
 		/// </summary>
 		/// <remarks>
 		/// Sets the header to the specified value without
@@ -1128,7 +1128,7 @@ namespace MimeKit {
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
@@ -1172,7 +1172,7 @@ namespace MimeKit {
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
@@ -1276,7 +1276,7 @@ namespace MimeKit {
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
@@ -1309,7 +1309,7 @@ namespace MimeKit {
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="MimeKit.IO.BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>

@@ -57,11 +57,11 @@ namespace MimeKit {
 		int? duration;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// Initialize a new instance of the <see cref="MimePart"/> class
 		/// based on the <see cref="MimeEntityConstructorArgs"/>.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -72,7 +72,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// Initialize a new instance of the <see cref="MimePart"/> class
 		/// with the specified media type and subtype.
 		/// </summary>
 		/// <remarks>
@@ -89,7 +89,7 @@ namespace MimeKit {
 		/// <para><paramref name="args"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="args"/> contains more than one <see cref="MimeKit.IMimeContent"/> or
+		/// <para><paramref name="args"/> contains more than one <see cref="IMimeContent"/> or
 		/// <see cref="System.IO.Stream"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="args"/> contains one or more arguments of an unknown type.</para>
@@ -130,7 +130,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// Initialize a new instance of the <see cref="MimePart"/> class
 		/// with the specified media type and subtype.
 		/// </summary>
 		/// <remarks>
@@ -148,7 +148,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// Initialize a new instance of the <see cref="MimePart"/> class
 		/// with the specified content type.
 		/// </summary>
 		/// <remarks>
@@ -163,7 +163,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// Initialize a new instance of the <see cref="MimePart"/> class
 		/// with the specified content type.
 		/// </summary>
 		/// <remarks>
@@ -181,7 +181,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MimePart"/> class
+		/// Initialize a new instance of the <see cref="MimePart"/> class
 		/// with the default Content-Type of application/octet-stream.
 		/// </summary>
 		/// <remarks>
@@ -351,12 +351,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.MimePart"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMimePart"/>. Override this
+		/// This default implementation for <see cref="MimePart"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMimePart"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMimePart"/>.
+		/// <see cref="MimeVisitor.VisitMimePart"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -538,7 +538,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
+		/// Write the <see cref="MimePart"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Writes the MIME part to the output stream.
@@ -626,7 +626,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously writes the <see cref="MimeKit.MimePart"/> to the specified output stream.
+		/// Asynchronously write the <see cref="MimePart"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously writes the MIME part to the output stream.

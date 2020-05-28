@@ -45,7 +45,7 @@ namespace MimeKit.IO.Filters {
 		bool midline;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ArmoredFromFilter"/> class.
+		/// Initialize a new instance of the <see cref="ArmoredFromFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArmoredFromFilter"/>.

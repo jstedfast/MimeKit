@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	{
 #if SERIALIZABLE
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PublicKeyNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="PublicKeyNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PublicKeyNotFoundException"/>.
@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.PublicKeyNotFoundException"/> class.
+		/// Initialize a new instance of the <see cref="PublicKeyNotFoundException"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PublicKeyNotFoundException"/>.

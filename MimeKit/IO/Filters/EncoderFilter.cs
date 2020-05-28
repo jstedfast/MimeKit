@@ -61,7 +61,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.EncoderFilter"/> class.
+		/// Initialize a new instance of the <see cref="EncoderFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="IMimeFilter"/> using the specified encoder.

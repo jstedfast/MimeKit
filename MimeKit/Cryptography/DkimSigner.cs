@@ -50,7 +50,7 @@ namespace MimeKit.Cryptography {
 		static readonly string[] DkimShouldNotInclude = { "return-path", "received", "comments", "keywords", "bcc", "resent-bcc", "dkim-signature" };
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.DkimSigner"/> class.
+		/// Initialize a new instance of the <see cref="DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
@@ -72,7 +72,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
+		/// Initialize a new instance of the <see cref="DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
@@ -107,7 +107,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
+		/// Initialize a new instance of the <see cref="DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="DkimSigner"/>.</para>
@@ -163,7 +163,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimSigner"/> class.
+		/// Initialize a new instance of the <see cref="DkimSigner"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="DkimSigner"/>.</para>

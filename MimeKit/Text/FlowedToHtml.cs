@@ -44,7 +44,7 @@ namespace MimeKit.Text {
 		readonly UrlScanner scanner;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.FlowedToHtml"/> class.
+		/// Initialize a new instance of the <see cref="FlowedToHtml"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new flowed text to HTML converter.

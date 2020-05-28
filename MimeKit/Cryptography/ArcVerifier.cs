@@ -75,7 +75,7 @@ namespace MimeKit.Cryptography {
 	public class ArcHeaderValidationResult
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcHeaderValidationResult"/> class.
+		/// Initialize a new instance of the <see cref="ArcHeaderValidationResult"/> class.
 		/// </summary>
 		/// <param name="header">The ARC header.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcHeaderValidationResult"/> class.
+		/// Initialize a new instance of the <see cref="ArcHeaderValidationResult"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcHeaderValidationResult"/>.
@@ -152,7 +152,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcValidationResult"/> class.
+		/// Initialize a new instance of the <see cref="ArcValidationResult"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcValidationResult"/>.
@@ -260,7 +260,7 @@ namespace MimeKit.Cryptography {
 	public class ArcVerifier : DkimVerifierBase
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.ArcVerifier"/> class.
+		/// Initialize a new instance of the <see cref="ArcVerifier"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="ArcVerifier"/>.

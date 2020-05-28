@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 		Uri keyServer;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Subclasses choosing to use this constructor MUST set the <see cref="PublicKeyRingPath"/>,
@@ -113,7 +113,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// Initialize a new instance of the <see cref=".OpenPgpContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyring paths.
@@ -1214,7 +1214,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -1258,7 +1258,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -1588,7 +1588,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -1623,7 +1623,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
@@ -1662,7 +1662,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
@@ -1719,7 +1719,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
@@ -1744,7 +1744,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -1802,7 +1802,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -1854,7 +1854,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -1983,7 +1983,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Cryptographically signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance
+		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
@@ -2242,7 +2242,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
 		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -2279,7 +2279,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Decrypts the specified encryptedData.
 		/// </remarks>
-		/// <returns>The decrypted <see cref="MimeKit.MimeEntity"/>.</returns>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -2505,7 +2505,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the public keys for the specified mailboxes.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="mailboxes">The mailboxes associated with the public keys to export.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
@@ -2533,7 +2533,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the specified public keys.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The public keys to export.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
@@ -2555,7 +2555,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the specified public keys.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The public keys to export.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
@@ -2617,7 +2617,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the specified public keys.
 		/// </remarks>
-		/// <returns>A new <see cref="MimeKit.MimePart"/> instance containing the exported public keys.</returns>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The public keys to export.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>

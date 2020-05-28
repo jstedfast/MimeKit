@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		readonly List<X509Crl> crls;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.TemporarySecureMimeContext"/> class.
+		/// Initialize a new instance of the <see cref="TemporarySecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TemporarySecureMimeContext"/>.

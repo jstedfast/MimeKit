@@ -242,7 +242,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse a version from a header such as Mime-Version.
+		/// Try to parse a version from a header such as Mime-Version.
 		/// </summary>
 		/// <remarks>
 		/// Parses a MIME version string from the supplied buffer starting at the given index
@@ -301,7 +301,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse a version from a header such as Mime-Version.
+		/// Try to parse a version from a header such as Mime-Version.
 		/// </summary>
 		/// <remarks>
 		/// Parses a MIME version string from the specified text.
@@ -323,7 +323,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Tries to parse the value of a Content-Transfer-Encoding header.
+		/// Try to parse the value of a Content-Transfer-Encoding header.
 		/// </summary>
 		/// <remarks>
 		/// Parses a Content-Transfer-Encoding header value.

@@ -37,7 +37,7 @@ namespace MimeKit.Text {
 	public class TextToText : TextConverter
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Text.TextToText"/> class.
+		/// Initialize a new instance of the <see cref="TextToText"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new text to text converter.

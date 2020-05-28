@@ -48,7 +48,7 @@ namespace MimeKit.Cryptography {
 		int enabledSignatureAlgorithms;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimVerifierBase"/> class.
+		/// Initialize a new instance of the <see cref="DkimVerifierBase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Initializes the <see cref="DkimVerifierBase"/>.

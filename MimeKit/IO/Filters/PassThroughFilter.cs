@@ -34,7 +34,7 @@ namespace MimeKit.IO.Filters {
 	public class PassThroughFilter : IMimeFilter
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.IO.Filters.PassThroughFilter"/> class.
+		/// Initialize a new instance of the <see cref="PassThroughFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="PassThroughFilter"/>.

@@ -85,7 +85,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefNameId"/> struct.
+		/// Initialize a new instance of the <see cref="TnefNameId"/> struct.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TnefNameId"/> with the specified integer identifier.
@@ -101,7 +101,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefNameId"/> struct.
+		/// Initialize a new instance of the <see cref="TnefNameId"/> struct.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="TnefNameId"/> with the specified string identifier.
@@ -117,10 +117,10 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefNameId"/> object.
+		/// Serves as a hash function for a <see cref="TnefNameId"/> object.
 		/// </summary>
 		/// <remarks>
-		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefNameId"/> object.
+		/// Serves as a hash function for a <see cref="TnefNameId"/> object.
 		/// </remarks>
 		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
 		/// and data structures such as a hash table.</returns>
@@ -132,14 +132,14 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefNameId"/>.
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefNameId"/>.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefNameId"/>.
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefNameId"/>.
 		/// </remarks>
-		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeKit.Tnef.TnefNameId"/>.</param>
+		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefNameId"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
-		/// <see cref="MimeKit.Tnef.TnefNameId"/>; otherwise, <c>false</c>.</returns>
+		/// <see cref="TnefNameId"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
 			if (!(obj is TnefNameId))

@@ -1536,10 +1536,10 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyReader"/> object.
+		/// Serves as a hash function for a <see cref="TnefPropertyReader"/> object.
 		/// </summary>
 		/// <remarks>
-		/// Serves as a hash function for a <see cref="MimeKit.Tnef.TnefPropertyReader"/> object.
+		/// Serves as a hash function for a <see cref="TnefPropertyReader"/> object.
 		/// </remarks>
 		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
 		/// and data structures such as a hash table.</returns>
@@ -1549,14 +1549,14 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyReader"/>.
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyReader"/>.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeKit.Tnef.TnefPropertyReader"/>.
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyReader"/>.
 		/// </remarks>
-		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeKit.Tnef.TnefPropertyReader"/>.</param>
+		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefPropertyReader"/>.</param>
 		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
-		/// <see cref="MimeKit.Tnef.TnefPropertyReader"/>; otherwise, <c>false</c>.</returns>
+		/// <see cref="TnefPropertyReader"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
 			var prop = obj as TnefPropertyReader;

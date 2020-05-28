@@ -47,7 +47,7 @@ namespace MimeKit.Cryptography {
 	public class DkimVerifier : DkimVerifierBase
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DkimVerifier"/> class.
+		/// Initialize a new instance of the <see cref="DkimVerifier"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="DkimVerifier"/>.

@@ -84,7 +84,7 @@ namespace MimeKit.Cryptography
 		bool midline;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:MimeKit.Cryptography.OpenPgpDetectionFilter"/> class.
+		/// Initialize a new instance of the <see cref="OpenPgpDetectionFilter"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="OpenPgpDetectionFilter"/>.

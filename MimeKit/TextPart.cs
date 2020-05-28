@@ -49,10 +49,10 @@ namespace MimeKit {
 	public class TextPart : MimePart
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/> class.
+		/// Initialize a new instance of the <see cref="TextPart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -63,7 +63,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
+		/// Initialize a new instance of the <see cref="TextPart"/>
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <remarks>
@@ -132,7 +132,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
+		/// Initialize a new instance of the <see cref="TextPart"/>
 		/// class with the specified text subtype.
 		/// </summary>
 		/// <remarks>
@@ -171,7 +171,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
+		/// Initialize a new instance of the <see cref="TextPart"/>
 		/// class with the specified text format.
 		/// </summary>
 		/// <remarks>
@@ -188,7 +188,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.TextPart"/>
+		/// Initialize a new instance of the <see cref="TextPart"/>
 		/// class with a Content-Type of text/plain.
 		/// </summary>
 		/// <remarks>
@@ -333,12 +333,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.TextPart"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitTextPart"/>. Override this
+		/// This default implementation for <see cref="TextPart"/> nodes
+		/// calls <see cref="MimeVisitor.VisitTextPart"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitTextPart"/>.
+		/// <see cref="MimeVisitor.VisitTextPart"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">

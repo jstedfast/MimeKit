@@ -41,7 +41,7 @@ namespace MimeKit.Tnef {
 		bool disposed;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Tnef.TnefReaderStream"/> class.
+		/// Initialize a new instance of the <see cref="TnefReaderStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a stream for reading a raw value from the <see cref="TnefReader"/>.

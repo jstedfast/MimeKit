@@ -66,7 +66,7 @@ namespace MimeKit.Encodings {
 		readonly CharType mask;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.QEncoder"/> class.
+		/// Initialize a new instance of the <see cref="QEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new rfc2047 quoted-printable encoder.

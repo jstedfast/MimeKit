@@ -60,7 +60,7 @@ namespace MimeKit.Cryptography {
 		readonly char[] passwd;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> class.
+		/// Initialize a new instance of the <see cref="X509CertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// The password is used to encrypt and decrypt private keys in the database and cannot be null.
@@ -83,11 +83,11 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> is reclaimed by garbage collection.
+		/// <see cref="X509CertificateDatabase"/> is reclaimed by garbage collection.
 		/// </summary>
 		/// <remarks>
 		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> is reclaimed by garbage collection.
+		/// <see cref="X509CertificateDatabase"/> is reclaimed by garbage collection.
 		/// </remarks>
 		~X509CertificateDatabase ()
 		{
@@ -966,14 +966,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> object.
+		/// Releases all resource used by the <see cref="X509CertificateDatabase"/> object.
 		/// </summary>
 		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the
-		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/>. The <see cref="Dispose()"/> method leaves the
-		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> in an unusable state. After calling
+		/// <see cref="X509CertificateDatabase"/>. The <see cref="Dispose()"/> method leaves the
+		/// <see cref="X509CertificateDatabase"/> in an unusable state. After calling
 		/// <see cref="Dispose()"/>, you must release all references to the
-		/// <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> so the garbage collector can reclaim the memory that
-		/// the <see cref="MimeKit.Cryptography.X509CertificateDatabase"/> was occupying.</remarks>
+		/// <see cref="X509CertificateDatabase"/> so the garbage collector can reclaim the memory that
+		/// the <see cref="X509CertificateDatabase"/> was occupying.</remarks>
 		public void Dispose ()
 		{
 			Dispose (true);

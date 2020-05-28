@@ -36,7 +36,7 @@ namespace MimeKit {
 	/// <para>A message delivery status MIME part is a machine readable notification denoting the
 	/// delivery status of a message and has a MIME-type of message/delivery-status.</para>
 	/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc3464">rfc3464</a>.</para>
-	/// <seealso cref="MimeKit.MultipartReport"/>
+	/// <seealso cref="MultipartReport"/>
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
@@ -46,10 +46,10 @@ namespace MimeKit {
 		HeaderListCollection groups;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MessageDeliveryStatus"/> class.
+		/// Initialize a new instance of the <see cref="MessageDeliveryStatus"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeKit.MimeParser"/>.
+		/// This constructor is used by <see cref="MimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -60,7 +60,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.MessageDeliveryStatus"/> class.
+		/// Initialize a new instance of the <see cref="MessageDeliveryStatus"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MessageDeliveryStatus"/>.
@@ -130,12 +130,12 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MimeKit.MessageDeliveryStatus"/> nodes
-		/// calls <see cref="MimeKit.MimeVisitor.VisitMessageDeliveryStatus"/>. Override this
+		/// This default implementation for <see cref="MessageDeliveryStatus"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMessageDeliveryStatus"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeKit.MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeKit.MimeVisitor.VisitMessageDeliveryStatus"/>.
+		/// <see cref="MimeVisitor.VisitMessageDeliveryStatus"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">

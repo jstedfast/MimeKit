@@ -46,7 +46,7 @@ namespace MimeKit.Cryptography
 		DigitalSignatureVerifyException vex;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.WindowsSecureMimeDigitalSignature"/> class.
+		/// Initialize a new instance of the <see cref="WindowsSecureMimeDigitalSignature"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="WindowsSecureMimeDigitalSignature"/>.

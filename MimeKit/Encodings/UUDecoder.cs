@@ -77,7 +77,7 @@ namespace MimeKit.Encodings {
 		uint saved;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
+		/// Initialize a new instance of the <see cref="UUDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new Unix-to-Unix decoder.
@@ -92,7 +92,7 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Encodings.UUDecoder"/> class.
+		/// Initialize a new instance of the <see cref="UUDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new Unix-to-Unix decoder.

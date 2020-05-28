@@ -44,7 +44,7 @@ namespace MimeKit.Cryptography {
 	public class CmsRecipient
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// Initialize a new instance of the <see cref="CmsRecipient"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CmsRecipient"/> based on the provided certificate.</para>
@@ -74,7 +74,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// Initialize a new instance of the <see cref="CmsRecipient"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CmsRecipient"/>, loading the certificate from the specified stream.</para>
@@ -116,7 +116,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// Initialize a new instance of the <see cref="CmsRecipient"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CmsRecipient"/>, loading the certificate from the specified file.</para>
@@ -175,7 +175,7 @@ namespace MimeKit.Cryptography {
 
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.CmsRecipient"/> class.
+		/// Initialize a new instance of the <see cref="CmsRecipient"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CmsRecipient"/> based on the provided certificate.</para>
