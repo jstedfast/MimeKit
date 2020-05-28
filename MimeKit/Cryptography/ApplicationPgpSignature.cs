@@ -42,7 +42,7 @@ namespace MimeKit.Cryptography {
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="ApplicationPgpSignature"/>
-		/// class based on the <see cref=".MimeEntityConstructorArgs"/>.
+		/// class based on the <see cref="MimeEntityConstructorArgs"/>.
 		/// </summary>
 		/// <remarks>
 		/// This constructor is used by <see cref="MimeParser"/>.
@@ -87,7 +87,7 @@ namespace MimeKit.Cryptography {
 		/// This default implementation for <see cref="ApplicationPgpSignature"/> nodes
 		/// calls <see cref="MimeVisitor.VisitApplicationPgpSignature"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref=".MimeVisitor"/> class. However, it should still
+		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
 		/// <see cref="MimeVisitor.VisitApplicationPgpSignature"/>.
 		/// </remarks>

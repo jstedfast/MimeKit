@@ -302,8 +302,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
 		/// The specified file could not be found.
@@ -381,8 +380,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.PathTooLongException">
 		/// The specified path exceeds the maximum allowed path length of the system.
@@ -477,8 +475,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.PathTooLongException">
 		/// The specified path exceeds the maximum allowed path length of the system.

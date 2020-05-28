@@ -1382,8 +1382,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.DirectoryNotFoundException">
 		/// <paramref name="fileName"/> is an invalid file path.
@@ -1433,8 +1432,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.DirectoryNotFoundException">
 		/// <paramref name="fileName"/> is an invalid file path.
@@ -1481,8 +1479,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.DirectoryNotFoundException">
 		/// <paramref name="fileName"/> is an invalid file path.
@@ -1522,8 +1519,7 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.
+		/// contains one or more invalid characters.
 		/// </exception>
 		/// <exception cref="System.IO.DirectoryNotFoundException">
 		/// <paramref name="fileName"/> is an invalid file path.

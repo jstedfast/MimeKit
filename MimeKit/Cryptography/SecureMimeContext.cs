@@ -750,8 +750,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="fileName"/> is a zero-length string, contains only white space, or
-		/// contains one or more invalid characters as defined by
-		/// <see cref="System.IO.Path.InvalidPathChars"/>.</para>
+		/// contains one or more invalid characters.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="fileName"/> does not contain a private key.</para>
 		/// <para>-or-</para>
