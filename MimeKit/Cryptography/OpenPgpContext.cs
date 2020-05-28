@@ -113,7 +113,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref=".OpenPgpContext"/> class.
+		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="OpenPgpContext"/> using the specified public and private keyring paths.

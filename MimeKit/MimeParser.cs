@@ -1257,7 +1257,6 @@ namespace MimeKit {
 		{
 			ScanContentResult result;
 			Stream content;
-			bool isEmpty;
 
 			if (persistent) {
 				long begin = GetOffset (inputIndex);

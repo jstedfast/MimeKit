@@ -97,7 +97,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref=".MimeEntity"/> at the specified index.
+		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.

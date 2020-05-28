@@ -397,7 +397,7 @@ namespace MimeKit {
 		/// Get the mailbox address, optionally encoded according to IDN encoding rules.
 		/// </summary>
 		/// <remarks>
-		/// If <see cref="idnEncode"/> is <c>true</c>, then the returned mailbox address will be encoded according to the IDN encoding rules.
+		/// If <paramref name="idnEncode"/> is <c>true</c>, then the returned mailbox address will be encoded according to the IDN encoding rules.
 		/// </remarks>
 		/// <param name="idnEncode"><c>true</c> if the address should be encoded according to IDN encoding rules; otherwise, <c>false</c>.</param>
 		/// <returns>The mailbox address.</returns>
