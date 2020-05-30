@@ -1,6 +1,6 @@
 # Release Notes
 
-### MimeKit 2.8.0 (2020-05-26)
+### MimeKit 2.8.0 (2020-05-30)
 
 * Improved logic for verifying signatures for MimeParts containing mixed line endings.
   (issue [#569](https://github.com/jstedfast/MimeKit/issues/569))
