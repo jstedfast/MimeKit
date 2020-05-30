@@ -1,5 +1,18 @@
 # Release Notes
 
+### MimeKit 2.8.0 (2020-05-26)
+
+* Improved logic for verifying signatures for MimeParts containing mixed line endings.
+  (issue [#569](https://github.com/jstedfast/MimeKit/issues/569))
+* Fixed MailboxAddress parser to decode IDN-encoded local-parts of email addresses.
+  (MailKit issue [#1026](https://github.com/jstedfast/MailKit/issues/1026))
+* Added new MailboxAddress.GetAddress(bool idnEncode) method.
+* Improved subclassability of OpenPgpContext by making a number of methods virtual.
+  (issue [#571](https://github.com/jstedfast/MimeKit/issues/571))
+* Added support for RSACng and DSACng.
+  (issue [#567](https://github.com/jstedfast/MimeKit/issues/567))
+* Dropped Xamarin platforms since they are compatible with netstandard2.0.
+
 ### MimeKit 2.7.0 (2020-05-19)
 
 * Fixed InternetAddressList.Insert() to allow inserting at the end of the list.

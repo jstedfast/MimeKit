@@ -36,7 +36,7 @@
   <ItemGroup>
     <PackageReference Include="BouncyCastle" version="1.8.5" />
     <PackageReference Include="Heijden.Dns" version="2.0.0" />
-    <PackageReference Include="MimeKit" version="2.7.0" />
+    <PackageReference Include="MimeKit" version="2.8.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
