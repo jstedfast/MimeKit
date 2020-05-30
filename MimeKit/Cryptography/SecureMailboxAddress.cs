@@ -110,6 +110,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
 		/// </exception>
+		[Obsolete ("Use new SecureMailboxAddress (string.Empty, route, address, fingerprint) instead.")]
 		public SecureMailboxAddress (IEnumerable<string> route, string address, string fingerprint) : base (route, address)
 		{
 			ValidateFingerprint (fingerprint);
@@ -182,6 +183,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
 		/// </exception>
+		[Obsolete ("Use new SecureMailboxAddress (string.Empty, address, fingerprint) instead.")]
 		public SecureMailboxAddress (string address, string fingerprint) : base (address)
 		{
 			ValidateFingerprint (fingerprint);
@@ -208,7 +210,7 @@ namespace MimeKit.Cryptography {
 		/// as a unique identifier for a particular certificate in a certificate store.
 		/// </remarks>
 		/// <seealso cref="System.Security.Cryptography.X509Certificates.X509Certificate2.Thumbprint"/>
-		/// <seealso cref="MimeKit.Cryptography.BouncyCastleCertificateExtensions"/>
+		/// <seealso cref="BouncyCastleCertificateExtensions"/>
 		/// <value>The fingerprint of the certificate.</value>
 		public string Fingerprint {
 			get; private set;
