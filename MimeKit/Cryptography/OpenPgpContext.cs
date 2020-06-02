@@ -884,7 +884,13 @@ namespace MimeKit.Cryptography {
 			throw new UnauthorizedAccessException ();
 		}
 
-		PgpSecretKey GetSecretKey (long keyId)
+
+		/// <summary>
+		/// Returns the secret key with the specified key ID
+		/// </summary>
+		/// <param name="keyId">ID of secret key to retrieve.</param>
+		/// <returns></returns>
+		public virtual PgpSecretKey GetSecretKey (long keyId)
 		{
 			foreach (var key in EnumerateSecretKeys ()) {
 				if (key.KeyId == keyId)
