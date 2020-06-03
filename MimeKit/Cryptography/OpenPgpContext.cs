@@ -507,7 +507,10 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		class KeyRetrievalResults
+		/// <summary>
+		/// Helper class to return both public keyring and public key associated with each other.
+		/// </summary>
+		public class KeyRetrievalResults
 		{
 			public readonly PgpPublicKeyRing KeyRing;
 			public readonly PgpPublicKey Key;
@@ -519,7 +522,14 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		async Task<KeyRetrievalResults> GetPublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
+		/// <summary>
+		/// Helper method to retrieve a public key, and its keyring, given a key's ID
+		/// </summary>
+		/// <param name="keyId"></param>
+		/// <param name="doAsync"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public virtual async Task<KeyRetrievalResults> GetPublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
 		{
 			foreach (PgpPublicKeyRing ring in PublicKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
