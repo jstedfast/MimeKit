@@ -526,27 +526,6 @@ namespace MimeKit.Cryptography
 			}
 
 			return false;
-    }
-
-		/// <summary>
-		/// Get the secret key for a specified key identifier.
-		/// </summary>
-		/// <remarks>
-		/// Gets the secret key for a specified key identifier.
-		/// </remarks>
-		/// <param name="keyId">The key identifier for the desired secret key.</param>
-		/// <returns>The secret key.</returns>
-		/// <exception cref="PrivateKeyNotFoundException">
-		/// The secret key specified by the <paramref name="keyId"/> could not be found.
-		/// </exception>
-		public virtual PgpSecretKey GetSecretKey (long keyId)
-		{
-			foreach (var key in EnumerateSecretKeys ()) {
-				if (key.KeyId == keyId)
-					return key;
-			}
-
-			throw new PrivateKeyNotFoundException (keyId, "The secret key could not be found.");
 		}
 
 #if false
