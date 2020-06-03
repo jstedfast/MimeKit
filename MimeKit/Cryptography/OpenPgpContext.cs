@@ -886,10 +886,16 @@ namespace MimeKit.Cryptography {
 
 
 		/// <summary>
-		/// Returns the secret key with the specified key ID
+		/// Get the secret key for a specified key identifier.
 		/// </summary>
-		/// <param name="keyId">ID of secret key to retrieve.</param>
-		/// <returns></returns>
+		/// <remarks>
+		/// Gets the secret key for a specified key identifier.
+		/// </remarks>
+		/// <param name="keyId">The key identifier for the desired secret key.</param>
+		/// <returns>The secret key.</returns>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The secret key specified by the <paramref name="keyId"/> could not be found.
+		/// </exception>
 		public virtual PgpSecretKey GetSecretKey (long keyId)
 		{
 			foreach (var key in EnumerateSecretKeys ()) {
@@ -897,7 +903,7 @@ namespace MimeKit.Cryptography {
 					return key;
 			}
 
-			throw new PrivateKeyNotFoundException (keyId, "The private key could not be found.");
+			throw new PrivateKeyNotFoundException (keyId, "The secret key could not be found.");
 		}
 
 #if false
