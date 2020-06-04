@@ -867,10 +867,12 @@ namespace MimeKit.Cryptography {
 
 		bool TryGetPublicKey (PgpPublicKeyRing keyring, long keyId, out PgpPublicKey pubkey)
 		{
-			foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
-				if (key.KeyId == keyId) {
-					pubkey = key;
-					return true;
+			if (keyring != null) {
+				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
+					if (key.KeyId == keyId) {
+						pubkey = key;
+						return true;
+					}
 				}
 			}
 
@@ -1583,7 +1585,7 @@ namespace MimeKit.Cryptography {
 								else
 									keyring = GetPublicKeyRing (onepass.KeyId, cancellationToken);
 
-								if (keyring == null || !TryGetPublicKey (keyring, onepass.KeyId, out var key)) {
+								if (!TryGetPublicKey (keyring, onepass.KeyId, out var key)) {
 									// too messy, pretend we never found a one-pass signature list
 									onepassList = null;
 									break;
