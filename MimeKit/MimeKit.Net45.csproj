@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -98,9 +98,11 @@
     <Compile Include="Cryptography\IDigitalSignature.cs" />
     <Compile Include="Cryptography\IDkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
+    <Compile Include="Cryptography\KeyRetrievalResults.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
+    <Compile Include="Cryptography\PgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDataType.cs" />
     <Compile Include="Cryptography\OpenPgpDetectionFilter.cs" />

@@ -109,9 +109,11 @@
     <Compile Include="Cryptography\IDkimPublicKeyLocator.cs" />
     <Compile Include="Cryptography\IX509CertificateDatabase.cs" />
     <Compile Include="Cryptography\MD5.cs" Condition="$(TargetFramework.StartsWith('netstandard1.'))" />
+    <Compile Include="Cryptography\KeyRetrievalResults.cs" />
     <Compile Include="Cryptography\MultipartEncrypted.cs" />
     <Compile Include="Cryptography\MultipartSigned.cs" />
     <Compile Include="Cryptography\OpenPgpBlockFilter.cs" />
+    <Compile Include="Cryptography\PgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpContext.cs" />
     <Compile Include="Cryptography\OpenPgpDataType.cs" />
     <Compile Include="Cryptography\OpenPgpDetectionFilter.cs" />
