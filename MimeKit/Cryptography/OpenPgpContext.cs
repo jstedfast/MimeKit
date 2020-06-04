@@ -43,20 +43,19 @@ using Org.BouncyCastle.Crypto.Parameters;
 using MimeKit.IO;
 using MimeKit.Utils;
 
-namespace MimeKit.Cryptography
-{
-	// NOTE: This class should really be called "GnuPGContext", since it's based upon the GnuPG way to handle keys.
-	// However, renaming it now is impossible, since that would break every single class currently inheriting form it :/
+namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME that is based upon GnuPG
-	/// files to store PGP keys.
+	/// An abstract OpenPGP cryptography context which can be used for OpenPGP and PGP/MIME that
+	/// manages keyrings stored on the local file system as keyring bundles.
 	/// </summary>
 	/// <remarks>
-	/// Generally speaking, applications should not use a <see cref="OpenPgpContext"/>
+	/// <para>PGP software such as older versions of GnuPG (pre 2.1.0) typically store the user's
+	/// keyrings on the file system using the OpenPGP Keyring Bundle format.</para>
+	/// <note type="note">Generally speaking, applications should not use a <see cref="OpenPgpContext"/>
 	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>
-	/// and <see cref="MultipartEncrypted"/>.
+	/// and <see cref="MultipartEncrypted"/>.</note>
 	/// </remarks>
-	public abstract class OpenPgpContext : PgpContext
+	public abstract class OpenPgpContext : OpenPgpContextBase
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
@@ -66,8 +65,9 @@ namespace MimeKit.Cryptography
 		/// <see cref="SecretKeyRingPath"/>, <see cref="PublicKeyRingBundle"/>, and the
 		/// <see cref="SecretKeyRingBundle"/> properties themselves.
 		/// </remarks>
-		protected OpenPgpContext () : base() // Base constructor sets all defaults.
-		{ }
+		protected OpenPgpContext () : base ()
+		{
+		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
@@ -160,28 +160,74 @@ namespace MimeKit.Cryptography
 			get; protected set;
 		}
 
-		/// <summary>
-		/// Helper method to retrieve a public key, and its keyring, given a key's ID
-		/// </summary>
-		/// <param name="keyId"></param>
-		/// <param name="doAsync"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public override async Task<KeyRetrievalResults> GetPublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
+		bool TryGetPublicKeyRing (long keyId, out PgpPublicKeyRing keyring)
 		{
 			foreach (PgpPublicKeyRing ring in PublicKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
-					if (key.KeyId == keyId)
-						return new KeyRetrievalResults (ring, key);
+					if (key.KeyId == keyId) {
+						keyring = ring;
+						return true;
+					}
 				}
 			}
 
-			if (AutoKeyRetrieve && IsValidKeyServer) {
-				var keyring = await RetrievePublicKeyRingAsync (keyId, doAsync, cancellationToken).ConfigureAwait (false);
-				return new KeyRetrievalResults (keyring, keyring.GetPublicKey (keyId));
-			}
+			keyring = null;
 
-			return new KeyRetrievalResults (null, null);
+			return false;
+		}
+
+		/// <summary>
+		/// Get the public keyring that contains the specified key.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the public keyring that contains the specified key.</para>
+		/// <note type="note">Implementations should first try to obtain the keyring stored (or cached) locally.
+		/// Failing that, if <see cref="OpenPgpContextBase.AutoKeyRetrieve"/> is enabled, they should use
+		/// <see cref="OpenPgpContextBase.RetrievePublicKeyRing(long, CancellationToken)"/> to attempt to
+		/// retrieve the keyring from the configured <see cref="OpenPgpContextBase.KeyServer"/>.</note>
+		/// </remarks>
+		/// <param name="keyId">The public key identifier.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled.
+		/// </exception>
+		protected override PgpPublicKeyRing GetPublicKeyRing (long keyId, CancellationToken cancellationToken)
+		{
+			if (TryGetPublicKeyRing (keyId, out var keyring))
+				return keyring;
+
+			if (AutoKeyRetrieve)
+				return RetrievePublicKeyRing (keyId, cancellationToken);
+
+			return null;
+		}
+
+		/// <summary>
+		/// Asynchronously get the public keyring that contains the specified key.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the public keyring that contains the specified key.</para>
+		/// <note type="note">Implementations should first try to obtain the keyring stored (or cached) locally.
+		/// Failing that, if <see cref="OpenPgpContextBase.AutoKeyRetrieve"/> is enabled, they should use
+		/// <see cref="OpenPgpContextBase.RetrievePublicKeyRingAsync(long, CancellationToken)"/> to attempt to
+		/// retrieve the keyring from the configured <see cref="OpenPgpContextBase.KeyServer"/>.</note>
+		/// </remarks>
+		/// <param name="keyId">The public key identifier.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled.
+		/// </exception>
+		protected override async Task<PgpPublicKeyRing> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken)
+		{
+			if (TryGetPublicKeyRing (keyId, out var keyring))
+				return keyring;
+
+			if (AutoKeyRetrieve)
+				return await RetrievePublicKeyRingAsync (keyId, cancellationToken).ConfigureAwait (false);
+
+			return null;
 		}
 
 		/// <summary>

@@ -44,7 +44,7 @@ namespace MimeKit.Cryptography {
 	{
 		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
 		static Func<SecureMimeContext> SecureMimeContextFactory;
-		static Func<PgpContext> PgpContextFactory;
+		static Func<OpenPgpContextBase> PgpContextFactory;
 		static readonly object mutex = new object ();
 
 		EncryptionAlgorithm[] encryptionAlgorithmRank;
@@ -596,9 +596,9 @@ namespace MimeKit.Cryptography {
 				lock (mutex) {
 					SecureMimeContextFactory = () => (SecureMimeContext) ctor.Invoke (new object[0]);
 				}
-			} else if (info.IsSubclassOf (typeof (PgpContext))) {
+			} else if (info.IsSubclassOf (typeof (OpenPgpContextBase))) {
 				lock (mutex) {
-					PgpContextFactory = () => (PgpContext) ctor.Invoke (new object[0]);
+					PgpContextFactory = () => (OpenPgpContextBase) ctor.Invoke (new object[0]);
 				}
 			} else {
 				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", nameof (type));
@@ -635,7 +635,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="factory"/> is <c>null</c>.
 		/// </exception>
-		public static void Register (Func<PgpContext> factory) 
+		public static void Register (Func<OpenPgpContextBase> factory)
 		{
 			if (factory == null)
 				throw new ArgumentNullException(nameof (factory));

@@ -1,7 +1,8 @@
 //
 // OpenPgpContext.cs
 //
-// Author: Jeffrey Stedfast <jestedfa@microsoft.com> and Thomas Hansen <thomas@servergardens.com>
+// Authors: Jeffrey Stedfast <jestedfa@microsoft.com>
+//          Thomas Hansen <thomas@servergardens.com>
 //
 // Copyright (c) 2013-2020 Xamarin Inc. (www.xamarin.com)
 //
@@ -39,25 +40,22 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME. This is a more
-	/// low level class than OpenPgpContext, since it allows you to persist your keys, any ways you
-	/// see fit, and is not dependent upon GnuPG in any ways.
+	/// An abstract OpenPGP cryptography context which can be used for PGP/MIME.
 	/// </summary>
 	/// <remarks>
-	/// Generally speaking, applications should not use a <see cref="PgpContext"/>
+	/// Generally speaking, applications should not use a <see cref="OpenPgpContextBase"/>
 	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>
 	/// and <see cref="MultipartEncrypted"/>.
 	/// </remarks>
-	public abstract partial class PgpContext : CryptographyContext
+	public abstract class OpenPgpContextBase : CryptographyContext
 	{
-		internal static readonly string[] ProtocolSubtypes = { "pgp-signature", "pgp-encrypted", "pgp-keys", "x-pgp-signature", "x-pgp-encrypted", "x-pgp-keys" };
-		protected const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
-		protected const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
+		static readonly string[] ProtocolSubtypes = { "pgp-signature", "pgp-encrypted", "pgp-keys", "x-pgp-signature", "x-pgp-encrypted", "x-pgp-keys" };
+		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
+		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
 
-		internal static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank = {
+		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank = {
 			EncryptionAlgorithm.Idea,
 			EncryptionAlgorithm.TripleDes,
 			EncryptionAlgorithm.Cast5,
@@ -71,7 +69,7 @@ namespace MimeKit.Cryptography
 			EncryptionAlgorithm.Camellia256
 		};
 
-		internal static readonly DigestAlgorithm[] DefaultDigestAlgorithmRank = {
+		static readonly DigestAlgorithm[] DefaultDigestAlgorithmRank = {
 			DigestAlgorithm.Sha1,
 			DigestAlgorithm.RipeMD160,
 			DigestAlgorithm.Sha256,
@@ -80,19 +78,17 @@ namespace MimeKit.Cryptography
 			DigestAlgorithm.Sha224
 		};
 
-		protected EncryptionAlgorithm defaultAlgorithm;
-		protected HttpClient client;
-		protected Uri keyServer;
+		EncryptionAlgorithm defaultAlgorithm;
+		HttpClient client;
+		Uri keyServer;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
+		/// Initialize a new instance of the <see cref="OpenPgpContextBase"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Subclasses choosing to use this constructor MUST set the <see cref="PublicKeyRingPath"/>,
-		/// <see cref="SecretKeyRingPath"/>, <see cref="PublicKeyRingBundle"/>, and the
-		/// <see cref="SecretKeyRingBundle"/> properties themselves.
+		/// Creates a new <see cref="OpenPgpContextBase"/>.
 		/// </remarks>
-		protected PgpContext ()
+		protected OpenPgpContextBase ()
 		{
 			EncryptionAlgorithmRank = DefaultEncryptionAlgorithmRank;
 			DigestAlgorithmRank = DefaultDigestAlgorithmRank;
@@ -109,32 +105,53 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Imports the specified public key ring bundle.
-		/// </summary>
-		/// <param name="bundle">Bundle of keys to import.</param>
-		public abstract void Import (PgpPublicKeyRingBundle bundle);
-
-		/// <summary>
-		/// Gets the password for key.
+		/// Get the password for a secret key.
 		/// </summary>
 		/// <remarks>
-		/// Gets the password for key.
+		/// Gets the password for a secret key.
 		/// </remarks>
-		/// <returns>The password for key.</returns>
-		/// <param name="key">The key.</param>
+		/// <returns>The password for the secret key.</returns>
+		/// <param name="key">The secret key.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password request.
 		/// </exception>
 		protected abstract string GetPasswordForKey (PgpSecretKey key);
 
 		/// <summary>
-		/// Helper method to retrieve a public key, and its keyring, given a key's ID
+		/// Get the public keyring that contains the specified key.
 		/// </summary>
-		/// <param name="keyId"></param>
-		/// <param name="doAsync"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public abstract Task<KeyRetrievalResults> GetPublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken);
+		/// <remarks>
+		/// <para>Gets the public keyring that contains the specified key.</para>
+		/// <note type="note">Implementations should first try to obtain the keyring stored (or cached) locally.
+		/// Failing that, if <see cref="AutoKeyRetrieve"/> is enabled, they should use
+		/// <see cref="RetrievePublicKeyRing(long, CancellationToken)"/> to attempt to
+		/// retrieve the keyring from the configured <see cref="KeyServer"/>.</note>
+		/// </remarks>
+		/// <param name="keyId">The public key identifier.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled.
+		/// </exception>
+		protected abstract PgpPublicKeyRing GetPublicKeyRing (long keyId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get the public keyring that contains the specified key asynchronously.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the public keyring that contains the specified key.</para>
+		/// <note type="note">Implementations should first try to obtain the keyring stored (or cached) locally.
+		/// Failing that, if <see cref="AutoKeyRetrieve"/> is enabled, they should use
+		/// <see cref="RetrievePublicKeyRingAsync(long, CancellationToken)"/> to attempt to
+		/// retrieve the keyring from the configured <see cref="KeyServer"/>.</note>
+		/// </remarks>
+		/// <param name="keyId">The public key identifier.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled.
+		/// </exception>
+		protected abstract Task<PgpPublicKeyRing> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the secret key for a specified key identifier.
@@ -187,7 +204,7 @@ namespace MimeKit.Cryptography
 			}
 		}
 
-		internal protected bool IsValidKeyServer {
+		bool IsValidKeyServer {
 			get {
 				if (keyServer == null)
 					return false;
@@ -486,12 +503,15 @@ namespace MimeKit.Cryptography
 		/// <summary>
 		/// Retrieves the public keyring, using the preferred key server, automatically importing it afterwards.
 		/// </summary>
-		/// <param name="keyId">ID of key to retrieve</param>
-		/// <param name="doAsync">whether or not this invocation should be handled as an async invocation.</param>
-		/// <param name="cancellationToken">Cancellation token for operation.</param>
-		/// <returns></returns>
-		public async Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
+		/// <param name="keyId">The identifier of the key to be retrieved.</param>
+		/// <param name="doAsync"><c>true</c> if this operation should be done asynchronously; otherweise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public key ring.</returns>
+		async Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
 		{
+			if (!IsValidKeyServer)
+				return null;
+
 			var scheme = keyServer.Scheme.ToLowerInvariant ();
 			var uri = new UriBuilder ();
 
@@ -541,6 +561,42 @@ namespace MimeKit.Cryptography
 					return bundle.GetPublicKeyRing (keyId);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Retrieve the public keyring using the configured key server.
+		/// </summary>
+		/// <remarks>
+		/// <para>Retrieves the public keyring specified by the <paramref name="keyId"/> from the key server
+		/// set on the <see cref="KeyServer"/> property. If the keyring is successfully retrieved, it will
+		/// be imported via <see cref="Import(PgpPublicKeyRingBundle)"/>.</para>
+		/// <para>This method should be called by <see cref="GetPublicKeyRing(long, CancellationToken)"/>
+		/// when the keyring is not available locally.</para>
+		/// </remarks>
+		/// <param name="keyId">The identifier of the public key to be retrieved.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public key ring.</returns>
+		protected PgpPublicKeyRing RetrievePublicKeyRing (long keyId, CancellationToken cancellationToken)
+		{
+			return RetrievePublicKeyRingAsync (keyId, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously retrieve the public keyring using the configured key server.
+		/// </summary>
+		/// <remarks>
+		/// <para>Retrieves the public keyring specified by the <paramref name="keyId"/> from the key server
+		/// set on the <see cref="KeyServer"/> property. If the keyring is successfully retrieved, it will
+		/// be imported via <see cref="Import(PgpPublicKeyRingBundle)"/>.</para>
+		/// <para>This method should be called by <see cref="GetPublicKeyRingAsync(long, CancellationToken)"/>
+		/// when the keyring is not available locally.</para>
+		/// </remarks>
+		/// <param name="keyId">The identifier of the public key to be retrieved.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns>The public key ring.</returns>
+		protected Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, CancellationToken cancellationToken)
+		{
+			return RetrievePublicKeyRingAsync (keyId, true, cancellationToken); 
 		}
 
 		/// <summary>
@@ -809,6 +865,20 @@ namespace MimeKit.Cryptography
 			}
 		}
 
+		bool TryGetPublicKey (PgpPublicKeyRing keyring, long keyId, out PgpPublicKey pubkey)
+		{
+			foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
+				if (key.KeyId == keyId) {
+					pubkey = key;
+					return true;
+				}
+			}
+
+			pubkey = null;
+
+			return false;
+		}
+
 		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (PgpSignatureList signatureList, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			var signatures = new List<IDigitalSignature> ();
@@ -817,21 +887,23 @@ namespace MimeKit.Cryptography
 
 			for (int i = 0; i < signatureList.Count; i++) {
 				long keyId = signatureList[i].KeyId;
-				KeyRetrievalResults results;
+				PgpPublicKeyRing keyring;
 
 				if (doAsync)
-					results = await GetPublicKeyRingAsync (keyId, doAsync, cancellationToken).ConfigureAwait (false);
+					keyring = await GetPublicKeyRingAsync (keyId, cancellationToken).ConfigureAwait (false);
 				else
-					results = GetPublicKeyRingAsync (keyId, doAsync, cancellationToken).GetAwaiter ().GetResult (); 
+					keyring = GetPublicKeyRing (keyId, cancellationToken);
 
-				var signature = new OpenPgpDigitalSignature (results.KeyRing, results.Key, signatureList[i]) {
+				TryGetPublicKey (keyring, keyId, out var key);
+
+				var signature = new OpenPgpDigitalSignature (keyring, key, signatureList[i]) {
 					PublicKeyAlgorithm = GetPublicKeyAlgorithm (signatureList[i].KeyAlgorithm),
 					DigestAlgorithm = GetDigestAlgorithm (signatureList[i].HashAlgorithm),
 					CreationDate = signatureList[i].CreationTime,
 				};
 
-				if (results.Key != null)
-					signatureList[i].InitVerify (results.Key);
+				if (key != null)
+					signatureList[i].InitVerify (key);
 
 				signatures.Add (signature);
 			}
@@ -1504,18 +1576,22 @@ namespace MimeKit.Cryptography
 
 							for (int i = 0; i < onepasses.Count; i++) {
 								var onepass = onepasses[i];
+								PgpPublicKeyRing keyring;
 
-								var results = await GetPublicKeyRingAsync (onepass.KeyId, doAsync, cancellationToken).ConfigureAwait (false);
+								if (doAsync)
+									keyring = await GetPublicKeyRingAsync (onepass.KeyId, cancellationToken).ConfigureAwait (false);
+								else
+									keyring = GetPublicKeyRing (onepass.KeyId, cancellationToken);
 
-								if (results.KeyRing == null) {
+								if (keyring == null || !TryGetPublicKey (keyring, onepass.KeyId, out var key)) {
 									// too messy, pretend we never found a one-pass signature list
 									onepassList = null;
 									break;
 								}
 
-								onepass.InitVerify (results.Key);
+								onepass.InitVerify (key);
 
-								var signature = new OpenPgpDigitalSignature (results.KeyRing, results.Key, onepass) {
+								var signature = new OpenPgpDigitalSignature (keyring, key, onepass) {
 									PublicKeyAlgorithm = GetPublicKeyAlgorithm (onepass.KeyAlgorithm),
 									DigestAlgorithm = GetDigestAlgorithm (onepass.HashAlgorithm),
 								};
@@ -1726,6 +1802,15 @@ namespace MimeKit.Cryptography
 				return MimeEntity.Load (decryptedData, cancellationToken);
 			}
 		}
+
+		/// <summary>
+		/// Import the specified public keyring bundle.
+		/// </summary>
+		/// <remarks>
+		/// Imports the specified public keyring bundle.
+		/// </remarks>
+		/// <param name="bundle">THe bundle of public keyrings to import.</param>
+		public abstract void Import (PgpPublicKeyRingBundle bundle);
 
 		/// <summary>
 		/// Releases all resources used by the <see cref="OpenPgpContext"/> object.
