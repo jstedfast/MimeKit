@@ -279,7 +279,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (var keyring in EnumeratePublicKeyRings ()) {
-				if (PgpPublicKeyMatches (keyring.GetPublicKey (), mailbox))
+				if (IsMatch (keyring.GetPublicKey (), mailbox))
 					yield return keyring;
 			}
 
@@ -356,7 +356,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (var keyring in EnumerateSecretKeyRings ()) {
-				if (PgpSecretKeyMatches (keyring.GetSecretKey (), mailbox))
+				if (IsMatch (keyring.GetSecretKey (), mailbox))
 					yield return keyring;
 			}
 
@@ -429,37 +429,12 @@ namespace MimeKit.Cryptography {
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
 
-			var recipients = new List<PgpPublicKey> ();
+			var keys = new List<PgpPublicKey> ();
 
 			foreach (var mailbox in mailboxes)
-				recipients.Add (GetPublicKey (mailbox));
+				keys.Add (GetPublicKey (mailbox));
 
-			return recipients;
-		}
-
-		static bool PgpSecretKeyMatches (PgpSecretKey key, MailboxAddress mailbox)
-		{
-			if (mailbox is SecureMailboxAddress secure && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				if (secure.Fingerprint.Length > 16) {
-					var fingerprint = HexEncode (key.PublicKey.GetFingerprint ());
-
-					return secure.Fingerprint.Equals (fingerprint, StringComparison.OrdinalIgnoreCase);
-				}
-
-				var id = ((int) key.KeyId).ToString ("X2");
-
-				return secure.Fingerprint.EndsWith (id, StringComparison.OrdinalIgnoreCase);
-			}
-
-			foreach (string userId in key.UserIds) {
-				if (!MailboxAddress.TryParse (userId, out var email))
-					continue;
-
-				if (mailbox.Address.Equals (email.Address, StringComparison.OrdinalIgnoreCase))
-					return true;
-			}
-
-			return false;
+			return keys;
 		}
 
 		/// <summary>
@@ -473,7 +448,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The secret key specified by the <paramref name="keyId"/> could not be found.
 		/// </exception>
-		public override PgpSecretKey GetSecretKey (long keyId)
+		protected override PgpSecretKey GetSecretKey (long keyId)
 		{
 			foreach (var key in EnumerateSecretKeys ()) {
 				if (key.KeyId == keyId)
@@ -495,7 +470,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="mailbox"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
-		/// A private key for the specified <paramref name="mailbox"/> could not be found.
+		/// A secret key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
 		public override PgpSecretKey GetSigningKey (MailboxAddress mailbox)
 		{

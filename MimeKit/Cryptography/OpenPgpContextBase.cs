@@ -115,7 +115,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password request.
 		/// </exception>
-		protected abstract string GetPasswordForKey (PgpSecretKey key);
+		protected abstract string GetPasswordForKey (PgpSecretKey key); // FIXME: rename this to GetPassword() in the future
 
 		/// <summary>
 		/// Get the public keyring that contains the specified key.
@@ -164,26 +164,38 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The secret key specified by the <paramref name="keyId"/> could not be found.
 		/// </exception>
-		public abstract PgpSecretKey GetSecretKey (long keyId);
+		protected abstract PgpSecretKey GetSecretKey (long keyId);
 
 		/// <summary>
-		/// Returns public keys associated with enumerable of MailboxAddresses.
-		/// Notice, input can also be SecureMailboxAddress, at which point it might contain
-		/// a fingerprint, allowing you to do lookups according to fingerprints, instead of identity
-		/// of key.
+		/// Get the public keys for the specified mailbox addresses.
 		/// </summary>
-		/// <param name="mailboxes">Address list to lookup key(s) for.</param>
-		/// <returns></returns>
+		/// <remarks>
+		/// Gets a list of valid public keys for the specified mailbox addresses that can be used for encryption.
+		/// </remarks>
+		/// <returns>The encryption keys.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
+		/// </exception>
 		public abstract IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes);
 
 		/// <summary>
-		/// Returns signing key for specified MailboxAddress.
-		/// Notice, input can also be SecureMailboxAddress, at which point it might contain
-		/// a fingerprint, allowing you to do lookups according to fingerprints, instead of identity
-		/// of key.
+		/// Get the signing key associated with the mailbox address.
 		/// </summary>
-		/// <param name="mailbox">Address to lookup key for.</param>
-		/// <returns></returns>
+		/// <remarks>
+		/// Gets the signing key associated with the mailbox address.
+		/// </remarks>
+		/// <returns>The signing key.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// A secret key for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
 		public abstract PgpSecretKey GetSigningKey (MailboxAddress mailbox);
 
 		/// <summary>
@@ -415,17 +427,32 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Returns true if the specified public key matches the specified MailboxAddress.
-		/// Might do a fingerprint lookup, if given address is of type SecureMailboxAddress.
+		/// Check that a public key is a match for the specified mailbox.
 		/// </summary>
-		/// <param name="key">Key to check</param>
-		/// <param name="mailbox">Address to check</param>
-		/// <returns>True if match.</returns>
-		public static bool PgpPublicKeyMatches (PgpPublicKey key, MailboxAddress mailbox)
+		/// <remarks>
+		/// <para>Checks that the public key is a match for the specified mailbox.</para>
+		/// <para>If the <paramref name="mailbox"/> is a <see cref="SecureMailboxAddress"/> with a non-empty
+		/// <see cref="SecureMailboxAddress.Fingerprint"/>, then the fingerprint is used to match the key's
+		/// fingerprint. Otherwise, the email address(es) contained within the key's user identifier strings
+		/// are compared to the mailbox address.</para>
+		/// </remarks>
+		/// <param name="key">The public key.</param>
+		/// <param name="mailbox">The mailbox address.</param>
+		/// <returns><c>true</c> if the key is a match for the specified mailbox; otherwise, <c>false</c>.</returns>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mailbox"/> is <c>null</c>.</para>
+		/// </exception>
+		protected static bool IsMatch (PgpPublicKey key, MailboxAddress mailbox)
 		{
-			var secure = mailbox as SecureMailboxAddress;
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
 
-			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
+			if (mailbox is SecureMailboxAddress secure && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				if (secure.Fingerprint.Length > 16) {
 					var fingerprint = HexEncode (key.GetFingerprint ());
 
@@ -438,9 +465,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			foreach (string userId in key.GetUserIds ()) {
-				MailboxAddress email;
-
-				if (!MailboxAddress.TryParse (userId, out email))
+				if (!MailboxAddress.TryParse (userId, out var email))
 					continue;
 
 				if (mailbox.Address.Equals (email.Address, StringComparison.OrdinalIgnoreCase))
@@ -451,14 +476,31 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Returns true if the specified secret key is matching the specified MailboxAddres.
-		/// Might do a fingerprint lookup, if given address is of type SecureMailboxAddress.
+		/// Check that a secret key is a match for the specified mailbox.
 		/// </summary>
-		/// <param name="key">Key to check</param>
-		/// <param name="mailbox">Address to check</param>
-		/// <returns>True if match.</returns>
-		public static bool PgpSecretKeyMatches (PgpSecretKey key, MailboxAddress mailbox)
+		/// <remarks>
+		/// <para>Checks that the secret key is a match for the specified mailbox.</para>
+		/// <para>If the <paramref name="mailbox"/> is a <see cref="SecureMailboxAddress"/> with a non-empty
+		/// <see cref="SecureMailboxAddress.Fingerprint"/>, then the fingerprint is used to match the key's
+		/// fingerprint. Otherwise, the email address(es) contained within the key's user identifier strings
+		/// are compared to the mailbox address.</para>
+		/// </remarks>
+		/// <param name="key">The secret key.</param>
+		/// <param name="mailbox">The mailbox address.</param>
+		/// <returns><c>true</c> if the key is a match for the specified mailbox; otherwise, <c>false</c>.</returns>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="mailbox"/> is <c>null</c>.</para>
+		/// </exception>
+		protected static bool IsMatch (PgpSecretKey key, MailboxAddress mailbox)
 		{
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
+
+			if (mailbox == null)
+				throw new ArgumentNullException (nameof (mailbox));
+
 			if (mailbox is SecureMailboxAddress secure && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				if (secure.Fingerprint.Length > 16) {
 					var fingerprint = HexEncode (key.PublicKey.GetFingerprint ());
@@ -483,16 +525,25 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Returns true if the specified public key is expired.
+		/// Check if a public key is expired.
 		/// </summary>
-		/// <param name="pubkey">Key to check.</param>
-		/// <returns>True if key is expired.</returns>
-		public static bool IsExpired (PgpPublicKey pubkey)
+		/// <remarks>
+		/// Checks if a public key is expired.
+		/// </remarks>
+		/// <param name="key">The public key.</param>
+		/// <returns><c>true</c> if the public key is expired; otherwise, <c>false</c>.</returns>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="key"/> is <c>null</c>.
+		/// </exception>
+		protected static bool IsExpired (PgpPublicKey key)
 		{
-			long seconds = pubkey.GetValidSeconds ();
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
+
+			long seconds = key.GetValidSeconds ();
 
 			if (seconds != 0) {
-				var expires = pubkey.CreationTime.AddSeconds ((double) seconds);
+				var expires = key.CreationTime.AddSeconds ((double) seconds);
 				if (expires <= DateTime.Now)
 					return true;
 			}
