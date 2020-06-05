@@ -73,7 +73,7 @@
     <Compile Include="Cryptography\ApplicationPkcs7Signature.cs" />
     <Compile Include="Cryptography\ArcSigner.cs" />
     <Compile Include="Cryptography\ArcVerifier.cs" />
-    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard'))" />
+    <Compile Include="Cryptography\AsymmetricAlgorithmExtensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2'))" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
     <Compile Include="Cryptography\BouncyCastleCertificateExtensions.cs" />
     <Compile Include="Cryptography\BouncyCastleSecureMimeContext.cs" />

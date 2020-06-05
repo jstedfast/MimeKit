@@ -41,7 +41,6 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
 			var dp = dsa.ExportParameters (!publicOnly);
@@ -72,7 +71,6 @@ namespace MimeKit.Cryptography
 
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
-#endif
 
 		static void GetAsymmetricKeyParameters (RSA rsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
@@ -93,7 +91,6 @@ namespace MimeKit.Cryptography
 			);
 		}
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACryptoServiceProvider rsa)
 		{
 			GetAsymmetricKeyParameters (rsa, rsa.PublicOnly, out var pub, out var key);
@@ -110,7 +107,6 @@ namespace MimeKit.Cryptography
 
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
-#endif
 
 #if NET47 || NET48
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACng dsa)
@@ -174,13 +170,11 @@ namespace MimeKit.Cryptography
 				return GetAsymmetricKeyParameter (dsaCng);
 #endif
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			if (key is RSACryptoServiceProvider rsaKey)
 				return GetAsymmetricKeyParameter (rsaKey);
 
 			if (key is DSACryptoServiceProvider dsaKey)
 				return GetAsymmetricKeyParameter (dsaKey);
-#endif
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
@@ -220,13 +214,11 @@ namespace MimeKit.Cryptography
 				return GetAsymmetricCipherKeyPair (dsaCng);
 #endif
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			if (key is RSACryptoServiceProvider rsaKey)
 				return GetAsymmetricCipherKeyPair (rsaKey);
 
 			if (key is DSACryptoServiceProvider dsaKey)
 				return GetAsymmetricCipherKeyPair (dsaKey);
-#endif
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
@@ -247,7 +239,6 @@ namespace MimeKit.Cryptography
 			return padded;
 		}
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		static DSAParameters GetDSAParameters (DsaKeyParameters key)
 		{
 			var parameters = new DSAParameters ();
@@ -272,7 +263,7 @@ namespace MimeKit.Cryptography
 			if (pub != null)
 				parameters.Y = pub.Y.ToByteArrayUnsigned ();
 
-#if NET45 || NET46 || __MOBILE__
+#if NET45 || NET46 || NETSTANDARD2_0 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
 #else
 			var dsa = new DSACng ();
@@ -288,7 +279,7 @@ namespace MimeKit.Cryptography
 			var parameters = GetDSAParameters (key);
 			parameters.Y = key.Y.ToByteArrayUnsigned ();
 
-#if NET45 || NET46 || __MOBILE__
+#if NET45 || NET46 || NETSTANDARD2_0 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
 #else
 			var dsa = new DSACng ();
@@ -298,9 +289,8 @@ namespace MimeKit.Cryptography
 
 			return dsa;
 		}
-#endif
 
-			static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
 		{
 			var parameters = new RSAParameters ();
 
@@ -314,7 +304,7 @@ namespace MimeKit.Cryptography
 			parameters.DP = GetPaddedByteArray (key.DP, parameters.P.Length);
 			parameters.DQ = GetPaddedByteArray (key.DQ, parameters.Q.Length);
 
-#if NET45 || __MOBILE__
+#if NET45 || NETSTANDARD2_0 || __MOBILE__
 			var rsa = new RSACryptoServiceProvider ();
 #else
 			var rsa = new RSACng ();
@@ -331,7 +321,7 @@ namespace MimeKit.Cryptography
 			parameters.Exponent = key.Exponent.ToByteArrayUnsigned ();
 			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
 
-#if NET45 || __MOBILE__
+#if NET45 || NETSTANDARD2_0 || __MOBILE__
 			var rsa = new RSACryptoServiceProvider ();
 #else
 			var rsa = new RSACng ();
@@ -366,18 +356,14 @@ namespace MimeKit.Cryptography
 				if (key is RsaPrivateCrtKeyParameters rsaPrivateKey)
 					return GetAsymmetricAlgorithm (rsaPrivateKey);
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				if (key is DsaPrivateKeyParameters dsaPrivateKey)
 					return GetAsymmetricAlgorithm (dsaPrivateKey, null);
-#endif
 			} else {
 				if (key is RsaKeyParameters rsaPublicKey)
 					return GetAsymmetricAlgorithm (rsaPublicKey);
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				if (key is DsaPublicKeyParameters dsaPublicKey)
 					return GetAsymmetricAlgorithm (dsaPublicKey);
-#endif
 			}
 
 			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.GetType ().Name));
@@ -406,10 +392,8 @@ namespace MimeKit.Cryptography
 			if (key.Private is RsaPrivateCrtKeyParameters rsaPrivateKey)
 				return GetAsymmetricAlgorithm (rsaPrivateKey);
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			if (key.Private is DsaPrivateKeyParameters dsaPrivateKey)
 				return GetAsymmetricAlgorithm (dsaPrivateKey, (DsaPublicKeyParameters) key.Public);
-#endif
 
 			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.GetType ().Name));
 		}
