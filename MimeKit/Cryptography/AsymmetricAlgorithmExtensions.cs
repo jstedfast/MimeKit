@@ -112,7 +112,7 @@ namespace MimeKit.Cryptography
 		}
 #endif
 
-#if NET47 || NET48 || NETSTANDARD2_0
+#if NET47 || NET48
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACng dsa)
 		{
 			GetAsymmetricKeyParameters (dsa, false, out _, out var key);
@@ -128,7 +128,7 @@ namespace MimeKit.Cryptography
 		}
 #endif
 
-#if !NET45
+#if NET46 || NET47 || NET48
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACng rsa)
 		{
 			GetAsymmetricKeyParameters (rsa, false, out _, out var key);
@@ -164,12 +164,12 @@ namespace MimeKit.Cryptography
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
-#if !NET45
+#if NET46 || NET47 || NET48
 			if (key is RSACng rsaCng)
 				return GetAsymmetricKeyParameter (rsaCng);
 #endif
 
-#if NET47 || NET48 || NETSTANDARD2_0
+#if NET47 || NET48
 			if (key is DSACng dsaCng)
 				return GetAsymmetricKeyParameter (dsaCng);
 #endif
@@ -210,12 +210,12 @@ namespace MimeKit.Cryptography
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
-#if !NET45
+#if NET46 || NET47 || NET48
 			if (key is RSACng rsaCng)
 				return GetAsymmetricCipherKeyPair (rsaCng);
 #endif
 
-#if NET47 || NET48 || NETSTANDARD2_0
+#if NET47 || NET48
 			if (key is DSACng dsaCng)
 				return GetAsymmetricCipherKeyPair (dsaCng);
 #endif
@@ -314,7 +314,7 @@ namespace MimeKit.Cryptography
 			parameters.DP = GetPaddedByteArray (key.DP, parameters.P.Length);
 			parameters.DQ = GetPaddedByteArray (key.DQ, parameters.Q.Length);
 
-#if NET45
+#if NET45 || __MOBILE__
 			var rsa = new RSACryptoServiceProvider ();
 #else
 			var rsa = new RSACng ();
@@ -331,7 +331,7 @@ namespace MimeKit.Cryptography
 			parameters.Exponent = key.Exponent.ToByteArrayUnsigned ();
 			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
 
-#if NET45
+#if NET45 || __MOBILE__
 			var rsa = new RSACryptoServiceProvider ();
 #else
 			var rsa = new RSACng ();
