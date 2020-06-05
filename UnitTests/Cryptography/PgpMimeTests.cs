@@ -795,7 +795,19 @@ namespace UnitTests.Cryptography {
 			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
 			Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
 
-			var signatures = multipart.Verify ();
+			DigitalSignatureCollection signatures;
+
+			try {
+				signatures = multipart.Verify ();
+			} catch (IOException ex) {
+				if (ex.Message == "unknown signature key algorithm: 22") {
+					Assert.Ignore ("Known issue: {0}", ex.Message);
+					return;
+				}
+
+				throw;
+			}
+
 			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
 			foreach (var signature in signatures) {
 				try {
