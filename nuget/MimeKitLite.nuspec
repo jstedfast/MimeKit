@@ -31,7 +31,7 @@
 * Added new MailboxAddress.GetAddress(bool idnEncode) method.
 * Dropped Xamarin platforms since they are compatible with netstandard2.0.
     </releaseNotes>
-    <copyright>Xamarin Inc.</copyright>
+    <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
     <tags>mime mbox mail email parser tnef net45 net46 net47 net48 netstandard netstandard1.3 netstandard1.6 netstandard2.0</tags>
     <frameworkAssemblies>
