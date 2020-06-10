@@ -24,34 +24,33 @@
 // THE SOFTWARE.
 //
 
-
 using System;
 using System.IO;
 
-namespace UnitTests
-{
-    static class TestHelper
-    {
-        public static readonly string ProjectDir;
+namespace UnitTests {
+	static class TestHelper
+	{
+		public static readonly string ProjectDir;
 
-        static TestHelper ()
-        {
-            var codeBase = typeof (TestHelper).Assembly.CodeBase;
-            if (codeBase.StartsWith ("file://", StringComparison.OrdinalIgnoreCase))
-                codeBase = codeBase.Substring ("file://".Length);
+		static TestHelper ()
+		{
+			var codeBase = typeof (TestHelper).Assembly.CodeBase;
+			if (codeBase.StartsWith ("file://", StringComparison.OrdinalIgnoreCase))
+				codeBase = codeBase.Substring ("file://".Length);
 
-            if (Path.DirectorySeparatorChar == '\\') {
-                if (codeBase[0] == '/')
-                    codeBase = codeBase.Substring (1);
+			if (Path.DirectorySeparatorChar == '\\') {
+				if (codeBase[0] == '/')
+					codeBase = codeBase.Substring (1);
 
-                codeBase = codeBase.Replace ('/', '\\');
-            }
+				codeBase = codeBase.Replace ('/', '\\');
+			}
+			
+			var dir = Path.GetDirectoryName (codeBase);
 
-            var codeBaseDir = Path.GetDirectoryName (codeBase);
-            var binDir = Path.Combine (codeBaseDir, "..");
-            var projectDir = Path.Combine (binDir, "..");
+			while (Path.GetFileName (dir) != "UnitTests")
+				dir = Path.GetFullPath (Path.Combine (dir, ".."));
 
-            ProjectDir = Path.GetFullPath (projectDir);
-        }
-    }
+			ProjectDir = Path.GetFullPath (dir);
+		}
+	}
 }
