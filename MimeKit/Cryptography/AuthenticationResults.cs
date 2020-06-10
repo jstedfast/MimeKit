@@ -654,7 +654,7 @@ namespace MimeKit.Cryptography {
 
 					int valueIndex = index;
 
-					if (!SkipPropertyValue (text, ref index, endIndex, out quoted)) {
+					if (index >= text.Length || !SkipPropertyValue (text, ref index, endIndex, out quoted)) {
 						if (throwOnError)
 							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
