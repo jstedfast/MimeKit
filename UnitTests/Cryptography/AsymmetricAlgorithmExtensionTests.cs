@@ -122,8 +122,8 @@ namespace UnitTests.Cryptography
 				// first, check private key conversion
 				var expected = rsa.ExportParameters (true);
 				var keyParameter = rsa.AsAsymmetricKeyParameter ();
-				var windows = keyParameter.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
-				var actual = windows.ExportParameters (true);
+				var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
+				var actual = asymmetricAlgorithm.ExportParameters (true);
 
 				AssertAreEqual (expected.D, actual.D, "D");
 				AssertAreEqual (expected.DP, actual.DP, "DP");
@@ -136,8 +136,8 @@ namespace UnitTests.Cryptography
 
 				// test AsymmetricCipherKeyPair conversion
 				var keyPair = rsa.AsAsymmetricCipherKeyPair ();
-				windows = keyPair.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
-				actual = windows.ExportParameters (true);
+				asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as RSA;
+				actual = asymmetricAlgorithm.ExportParameters (true);
 
 				AssertAreEqual (expected.D, actual.D, "D");
 				AssertAreEqual (expected.DP, actual.DP, "DP");
@@ -154,8 +154,8 @@ namespace UnitTests.Cryptography
 				pubrsa.ImportParameters (expected);
 
 				keyParameter = pubrsa.AsAsymmetricKeyParameter ();
-				windows = keyParameter.AsAsymmetricAlgorithm () as RSACryptoServiceProvider;
-				actual = windows.ExportParameters (false);
+				asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
+				actual = asymmetricAlgorithm.ExportParameters (false);
 
 				AssertAreEqual (expected.D, actual.D, "D");
 				AssertAreEqual (expected.DP, actual.DP, "DP");
