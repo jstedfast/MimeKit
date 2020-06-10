@@ -266,7 +266,7 @@ namespace MimeKit.Cryptography
 #if NET45 || NET46 || NETSTANDARD2_0 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
 #else
-			var dsa = new DSACng ();
+			var dsa = pub != null ? (DSA) new DSACng () : (DSA) new DSACryptoServiceProvider ();
 #endif
 
 			dsa.ImportParameters (parameters);

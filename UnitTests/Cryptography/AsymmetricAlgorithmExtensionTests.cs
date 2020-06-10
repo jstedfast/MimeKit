@@ -72,8 +72,8 @@ namespace UnitTests.Cryptography
 				// first, check private key conversion
 				var expected = dsa.ExportParameters (true);
 				var keyParameter = dsa.AsAsymmetricKeyParameter ();
-				var windows = keyParameter.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
-				var actual = windows.ExportParameters (true);
+				var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
+				var actual = asymmetricAlgorithm.ExportParameters (true);
 
 				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
 				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
@@ -85,8 +85,8 @@ namespace UnitTests.Cryptography
 
 				// test AsymmetricCipherKeyPair conversion
 				var keyPair = dsa.AsAsymmetricCipherKeyPair ();
-				windows = keyPair.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
-				actual = windows.ExportParameters (true);
+				asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as DSA;
+				actual = asymmetricAlgorithm.ExportParameters (true);
 
 				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
 				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
@@ -102,8 +102,8 @@ namespace UnitTests.Cryptography
 				pubdsa.ImportParameters (expected);
 
 				keyParameter = pubdsa.AsAsymmetricKeyParameter ();
-				windows = keyParameter.AsAsymmetricAlgorithm () as DSACryptoServiceProvider;
-				actual = windows.ExportParameters (false);
+				asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
+				actual = asymmetricAlgorithm.ExportParameters (false);
 
 				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
 				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
