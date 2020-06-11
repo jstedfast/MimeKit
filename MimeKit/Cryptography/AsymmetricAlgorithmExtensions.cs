@@ -263,11 +263,7 @@ namespace MimeKit.Cryptography
 			if (pub != null)
 				parameters.Y = pub.Y.ToByteArrayUnsigned ();
 
-#if NET45 || NET46 || NETSTANDARD2_0 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
-#else
-			var dsa = pub != null ? (DSA) new DSACng () : (DSA) new DSACryptoServiceProvider ();
-#endif
 
 			dsa.ImportParameters (parameters);
 
@@ -279,11 +275,7 @@ namespace MimeKit.Cryptography
 			var parameters = GetDSAParameters (key);
 			parameters.Y = key.Y.ToByteArrayUnsigned ();
 
-#if NET45 || NET46 || NETSTANDARD2_0 || __MOBILE__
 			var dsa = new DSACryptoServiceProvider ();
-#else
-			var dsa = new DSACng ();
-#endif
 
 			dsa.ImportParameters (parameters);
 
@@ -304,11 +296,7 @@ namespace MimeKit.Cryptography
 			parameters.DP = GetPaddedByteArray (key.DP, parameters.P.Length);
 			parameters.DQ = GetPaddedByteArray (key.DQ, parameters.Q.Length);
 
-#if NET45 || NETSTANDARD2_0 || __MOBILE__
 			var rsa = new RSACryptoServiceProvider ();
-#else
-			var rsa = new RSACng ();
-#endif
 
 			rsa.ImportParameters (parameters);
 
@@ -321,11 +309,7 @@ namespace MimeKit.Cryptography
 			parameters.Exponent = key.Exponent.ToByteArrayUnsigned ();
 			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
 
-#if NET45 || NETSTANDARD2_0 || __MOBILE__
 			var rsa = new RSACryptoServiceProvider ();
-#else
-			var rsa = new RSACng ();
-#endif
 
 			rsa.ImportParameters (parameters);
 
