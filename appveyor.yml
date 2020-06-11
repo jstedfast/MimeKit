@@ -24,3 +24,17 @@ build:
 
 test_script:
 - cmd: appveyor.bat
+- ps: >-
+    $NUnitConsoleRunner = Join-Path $Env.USERPROFILE ".nuget\packages\nunit.consolerunner\3.11.1\tools\nunit3-console.exe"
+
+    $Coveralls = Join-Path $Env.USERPROFILE ".nuget\packages\coveralls.net\0.7.0\tools\csmacnz.Coveralls.exe"
+
+    $OpenCover = Join-Path $Env.USERPROFILE ".nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe"
+
+    $OutputDir = "UnitTests\bin\Debug\net48"
+
+    $UnitTestAssembly = Join-Path $OutputDir "UnitTests.dll"
+
+    $OpenCover -filter:"+[MimeKit]* -[UnitTests]*" -target:"$NUnitConsoleRunner" -targetargs:"/domain:single $UnitTestAssembly" -output:opencover.xml
+
+    $Coveralls --opencover -i opencover.xml --repoToken $Env:COVERALLS_REPO_TOKEN --useRelativePaths --basePath $OutputDir --commitId $Env:APPVEYOR_REPO_COMMIT --commitBranch $Env:APPVEYOR_REPO_BRANCH --commitAuthor $Env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $Env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $Env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $Env:APPVEYOR_BUILD_NUMBER --serviceName appveyor
