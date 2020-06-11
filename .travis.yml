@@ -1,7 +1,7 @@
 language: csharp
-solution: MimeKit.Net45.sln
+solution: MimeKit.sln
 install:
-  - nuget restore MimeKit.Net45.sln
+  - dotnet restore MimeKit.sln
 script:
   - msbuild /p:Configuration=Debug MimeKit.Net45.sln
-  - mono ./packages/NUnit.ConsoleRunner.3.11.1/tools/nunit3-console.exe UnitTests/bin/Debug/UnitTests.dll
+  - dotnet ./packages/NUnit.ConsoleRunner.3.11.1/tools/nunit3-console.exe UnitTests/bin/Debug/UnitTests.dll
