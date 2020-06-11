@@ -23,11 +23,4 @@ build:
   parallel: true
 
 test_script:
-- cmd: >-
-    regsvr32 %USERPROFILE%\.nuget\packages\opencover\4.7.922\tools\x86\OpenCover.Profiler.dll
-
-    regsvr32 %USERPROFILE%\.nuget\packages\opencover\4.7.922\tools\x64\OpenCover.Profiler.dll
-
-    %USERPROFILE%\.nuget\packages\opencover\4.7.922\tools\x64\OpenCover.Console.exe -filter:"+[MimeKit]* -[UnitTests]* -[submodules]* -[Mono.Data.Sqlite]*" -target:"%USERPROFILE%\.nuget\packages\nunit.consolerunner\3.11.1\tools\nunit3-console.exe" -targetargs:"/domain:single UnitTests\bin\Debug\UnitTests.dll" -output:opencover.xml
-
-    %USERPROFILE%\.nuget\packages\coveralls.net\0.7.0\tools\csmacnz.Coveralls.exe --opencover -i opencover.xml --repoToken $Env:COVERALLS_REPO_TOKEN --useRelativePaths --basePath .\UnitTests\bin\Debug --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_BUILD_NUMBER --serviceName appveyor
+- cmd: appveyor.bat
