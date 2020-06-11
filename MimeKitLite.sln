@@ -3,14 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeKitLite.Net45", "MimeKit\MimeKitLite.Net45.csproj", "{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKitLite.NetStandard", "MimeKit\MimeKitLite.NetStandard.csproj", "{23F999AF-CF50-42FF-A011-D56D68E60FB9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A56B6ECE-F1EE-41A2-A92B-18D2BDAFB6A2}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKitLite", "MimeKit\MimeKitLite.csproj", "{23F999AF-CF50-42FF-A011-D56D68E60FB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,10 +16,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B4DA3323-F83C-4731-BE30-B1DA19B8C3E7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23F999AF-CF50-42FF-A011-D56D68E60FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -32,12 +26,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3E07F961-6E08-4E6A-AF55-EC1428E15EAD}
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = MimeKit\MimeKitLite.Net45.csproj
-		Policies = $0
-		$0.StandardHeader = $1
-		$1.Text = @\n${FileName}\n \nAuthor: ${AuthorName} <${AuthorEmail}>\n\nCopyright (c) ${Year} ${CopyrightHolder}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n
-		$0.TextStylePolicy = $4
 	EndGlobalSection
 EndGlobal

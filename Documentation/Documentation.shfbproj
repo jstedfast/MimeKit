@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <PropertyGroup>
     <!-- The configuration and platform will be used to determine which assemblies to include from solution and
 				 project documentation sources -->
@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>59115814-a1e3-46ae-ae30-4065ae8f4caf</ProjectGuid>
-    <SHFBSchemaVersion>1.9.9.0</SHFBSchemaVersion>
+    <SHFBSchemaVersion>2017.9.26.0</SHFBSchemaVersion>
     <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual Studio adds them anyway -->
     <AssemblyName>Documentation</AssemblyName>
     <RootNamespace>Documentation</RootNamespace>
@@ -117,14 +117,9 @@
     <Content Include="icons\Help.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\submodules\bc-csharp\crypto\BouncyCastle.csproj">
-      <Name>BouncyCastle</Name>
-      <Project>{4c235092-820c-4deb-9074-d356fb797d8b}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj">
       <Name>MimeKit</Name>
-      <Project>{d5f54a4f-d84b-430f-9271-f7861e285b3e}</Project>
+      <Project>{76894ada-0818-4556-83bd-6510d8ea2809}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

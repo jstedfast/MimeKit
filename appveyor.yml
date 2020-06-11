@@ -15,10 +15,10 @@ environment:
 
 install:
 - cmd: git submodule update --init --recursive
-- cmd: nuget restore MimeKit.Net45.sln
+- cmd: dotnet restore MimeKit.sln
 
 build:
-  project: MimeKit.Net45.sln
+  project: MimeKit.sln
   verbosity: minimal
   parallel: true
 
