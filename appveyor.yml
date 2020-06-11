@@ -23,7 +23,6 @@ build:
   parallel: true
 
 test_script:
-- cmd: appveyor.bat
 - ps: >-
     $NUnitConsoleRunner = Join-Path $Env.USERPROFILE ".nuget\packages\nunit.consolerunner\3.11.1\tools\nunit3-console.exe"
 
