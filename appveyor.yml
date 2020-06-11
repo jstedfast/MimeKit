@@ -28,7 +28,7 @@ test_script:
 
     $Coveralls = Join-Path $Home ".nuget\packages\coveralls.net\0.7.0\tools\csmacnz.Coveralls.exe"
 
-    $OpenCover = Join-Path $Home ".nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe"
+    $OpenCover = Join-Path $Home ".nuget\packages\opencover\4.6.519\tools\OpenCover.Console.exe"
 
     $OutputDir = "UnitTests\bin\Debug\net48"
 
