@@ -568,6 +568,26 @@ namespace UnitTests {
 			}
 		}
 
+		static NewLineFormat DetectNewLineFormat (string fileName)
+		{
+			using (var stream = File.OpenRead (fileName)) {
+				var buffer = new byte[1024];
+
+				var nread = stream.Read (buffer, 0, buffer.Length);
+
+				for (int i = 0; i < nread; i++) {
+					if (buffer[i] == (byte) '\n') {
+						if (i > 0 && buffer[i - 1] == (byte) '\r')
+							return NewLineFormat.Dos;
+
+						return NewLineFormat.Unix;
+					}
+				}
+			}
+
+			return NewLineFormat.Dos;
+		}
+
 		static void AssertMboxResults (string baseName, string actual, Stream output)
 		{
 			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
@@ -615,12 +635,16 @@ namespace UnitTests {
 
 		void TestMbox (ParserOptions options, string baseName)
 		{
+			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+			using (var stream = File.OpenRead (mbox)) {
 				var parser = options != null ? new MimeParser (options, stream, MimeFormat.Mbox) : new MimeParser (stream, MimeFormat.Mbox);
+				var format = FormatOptions.Default.Clone ();
 				int count = 0;
+
+				format.NewLineFormat = DetectNewLineFormat (mbox);
 
 				while (!parser.IsEndOfStream) {
 					var message = parser.ParseMessage ();
@@ -635,9 +659,9 @@ namespace UnitTests {
 					DumpMimeTree (builder, message);
 					builder.Append ('\n');
 
-					var marker = Encoding.UTF8.GetBytes ((count > 0 ? Environment.NewLine : string.Empty) + parser.MboxMarker + Environment.NewLine);
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? format.NewLine : string.Empty) + parser.MboxMarker + format.NewLine);
 					output.Write (marker, 0, marker.Length);
-					message.WriteTo (output);
+					message.WriteTo (format, output);
 					count++;
 				}
 			}
@@ -647,12 +671,16 @@ namespace UnitTests {
 
 		async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
+			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+			using (var stream = File.OpenRead (mbox)) {
 				var parser = options != null ? new MimeParser (options, stream, MimeFormat.Mbox) : new MimeParser (stream, MimeFormat.Mbox);
+				var format = FormatOptions.Default.Clone ();
 				int count = 0;
+
+				format.NewLineFormat = DetectNewLineFormat (mbox);
 
 				while (!parser.IsEndOfStream) {
 					var message = await parser.ParseMessageAsync ();
@@ -667,9 +695,9 @@ namespace UnitTests {
 					DumpMimeTree (builder, message);
 					builder.Append ('\n');
 
-					var marker = Encoding.UTF8.GetBytes ((count > 0 ? Environment.NewLine : string.Empty) + parser.MboxMarker + Environment.NewLine);
+					var marker = Encoding.UTF8.GetBytes ((count > 0 ? format.NewLine : string.Empty) + parser.MboxMarker + format.NewLine);
 					await output.WriteAsync (marker, 0, marker.Length);
-					await message.WriteToAsync (output);
+					await message.WriteToAsync (format, output);
 					count++;
 				}
 			}
