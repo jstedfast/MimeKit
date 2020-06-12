@@ -65,107 +65,129 @@ namespace UnitTests.Cryptography
 			Assert.AreEqual (expectedBigInteger, actualBigInteger, "{0} are not equal", paramName);
 		}
 
-		[Test]
-		public void TestDsa ()
+		static void AssertDSA (DSA dsa)
 		{
-			using (var dsa = new DSACryptoServiceProvider (1024)) {
-				// first, check private key conversion
-				var expected = dsa.ExportParameters (true);
-				var keyParameter = dsa.AsAsymmetricKeyParameter ();
-				var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
-				var actual = asymmetricAlgorithm.ExportParameters (true);
+			// first, check private key conversion
+			var expected = dsa.ExportParameters (true);
+			var keyParameter = dsa.AsAsymmetricKeyParameter ();
+			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
+			var actual = asymmetricAlgorithm.ExportParameters (true);
 
-				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
-				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
-				AssertAreEqual (expected.G, actual.G, "G");
-				AssertAreEqual (expected.P, actual.P, "P");
-				AssertAreEqual (expected.Q, actual.Q, "Q");
-				AssertAreEqual (expected.X, actual.X, "X");
-				AssertAreEqual (expected.Y, actual.Y, "Y");
+			Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
+			AssertAreEqual (expected.Seed, actual.Seed, "Seed");
+			AssertAreEqual (expected.G, actual.G, "G");
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.X, actual.X, "X");
+			AssertAreEqual (expected.Y, actual.Y, "Y");
 
-				// test AsymmetricCipherKeyPair conversion
-				var keyPair = dsa.AsAsymmetricCipherKeyPair ();
-				asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as DSA;
-				actual = asymmetricAlgorithm.ExportParameters (true);
+			// test AsymmetricCipherKeyPair conversion
+			var keyPair = dsa.AsAsymmetricCipherKeyPair ();
+			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as DSA;
+			actual = asymmetricAlgorithm.ExportParameters (true);
 
-				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
-				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
-				AssertAreEqual (expected.G, actual.G, "G");
-				AssertAreEqual (expected.P, actual.P, "P");
-				AssertAreEqual (expected.Q, actual.Q, "Q");
-				AssertAreEqual (expected.X, actual.X, "X");
-				AssertAreEqual (expected.Y, actual.Y, "Y");
+			Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
+			AssertAreEqual (expected.Seed, actual.Seed, "Seed");
+			AssertAreEqual (expected.G, actual.G, "G");
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.X, actual.X, "X");
+			AssertAreEqual (expected.Y, actual.Y, "Y");
 
-				// test public key conversion
-				expected = dsa.ExportParameters (false);
-				var pubdsa = new DSACryptoServiceProvider ();
-				pubdsa.ImportParameters (expected);
+			// test public key conversion
+			expected = dsa.ExportParameters (false);
+			var pubdsa = new DSACryptoServiceProvider ();
+			pubdsa.ImportParameters (expected);
 
-				keyParameter = pubdsa.AsAsymmetricKeyParameter ();
-				asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
-				actual = asymmetricAlgorithm.ExportParameters (false);
+			keyParameter = pubdsa.AsAsymmetricKeyParameter ();
+			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
+			actual = asymmetricAlgorithm.ExportParameters (false);
 
-				Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
-				AssertAreEqual (expected.Seed, actual.Seed, "Seed");
-				AssertAreEqual (expected.G, actual.G, "G");
-				AssertAreEqual (expected.P, actual.P, "P");
-				AssertAreEqual (expected.Q, actual.Q, "Q");
-				AssertAreEqual (expected.X, actual.X, "X");
-				AssertAreEqual (expected.Y, actual.Y, "Y");
-			}
+			Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
+			AssertAreEqual (expected.Seed, actual.Seed, "Seed");
+			AssertAreEqual (expected.G, actual.G, "G");
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.X, actual.X, "X");
+			AssertAreEqual (expected.Y, actual.Y, "Y");
 		}
 
 		[Test]
-		public void TestRsa ()
+		public void TestDSACryptoServiceProvider ()
 		{
-			using (var rsa = new RSACryptoServiceProvider (1024)) {
-				// first, check private key conversion
-				var expected = rsa.ExportParameters (true);
-				var keyParameter = rsa.AsAsymmetricKeyParameter ();
-				var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
-				var actual = asymmetricAlgorithm.ExportParameters (true);
+			using (var dsa = new DSACryptoServiceProvider (1024))
+				AssertDSA (dsa);
+		}
 
-				AssertAreEqual (expected.D, actual.D, "D");
-				AssertAreEqual (expected.DP, actual.DP, "DP");
-				AssertAreEqual (expected.DQ, actual.DQ, "DQ");
-				AssertAreEqual (expected.P, actual.P, "P");
-				AssertAreEqual (expected.Q, actual.Q, "Q");
-				AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
-				AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
-				AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+		[Test]
+		public void TestDSACng ()
+		{
+			using (var dsa = new DSACng (1024))
+				AssertDSA (dsa);
+		}
 
-				// test AsymmetricCipherKeyPair conversion
-				var keyPair = rsa.AsAsymmetricCipherKeyPair ();
-				asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as RSA;
-				actual = asymmetricAlgorithm.ExportParameters (true);
+		static void AssertRSA (RSA rsa)
+		{
+			// first, check private key conversion
+			var expected = rsa.ExportParameters (true);
+			var keyParameter = rsa.AsAsymmetricKeyParameter ();
+			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
+			var actual = asymmetricAlgorithm.ExportParameters (true);
 
-				AssertAreEqual (expected.D, actual.D, "D");
-				AssertAreEqual (expected.DP, actual.DP, "DP");
-				AssertAreEqual (expected.DQ, actual.DQ, "DQ");
-				AssertAreEqual (expected.P, actual.P, "P");
-				AssertAreEqual (expected.Q, actual.Q, "Q");
-				AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
-				AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
-				AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.DP, actual.DP, "DP");
+			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
+			AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
+			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
 
-				// test public key conversion
-				expected = rsa.ExportParameters (false);
-				var pubrsa = new RSACryptoServiceProvider ();
-				pubrsa.ImportParameters (expected);
+			// test AsymmetricCipherKeyPair conversion
+			var keyPair = rsa.AsAsymmetricCipherKeyPair ();
+			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as RSA;
+			actual = asymmetricAlgorithm.ExportParameters (true);
 
-				keyParameter = pubrsa.AsAsymmetricKeyParameter ();
-				asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
-				actual = asymmetricAlgorithm.ExportParameters (false);
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.DP, actual.DP, "DP");
+			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
+			AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
+			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
 
-				AssertAreEqual (expected.D, actual.D, "D");
-				AssertAreEqual (expected.DP, actual.DP, "DP");
-				AssertAreEqual (expected.DQ, actual.DQ, "DQ");
-				AssertAreEqual (expected.P, actual.P, "P");
-				AssertAreEqual (expected.Q, actual.Q, "Q");
-				AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
-				AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
-				AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
-			}
+			// test public key conversion
+			expected = rsa.ExportParameters (false);
+			var pubrsa = new RSACryptoServiceProvider ();
+			pubrsa.ImportParameters (expected);
+
+			keyParameter = pubrsa.AsAsymmetricKeyParameter ();
+			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
+			actual = asymmetricAlgorithm.ExportParameters (false);
+
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.DP, actual.DP, "DP");
+			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
+			AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
+			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+		}
+
+		[Test]
+		public void TestRSACryptoServiceProvider ()
+		{
+			using (var rsa = new RSACryptoServiceProvider (1024))
+				AssertRSA (rsa);
+		}
+
+		[Test]
+		public void TestRSACng ()
+		{
+			using (var rsa = new RSACng (1024))
+				AssertRSA (rsa);
 		}
 	}
 }
