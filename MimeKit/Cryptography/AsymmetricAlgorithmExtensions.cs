@@ -41,10 +41,6 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
-#if NET46 || NET47 || NET48
-		static readonly bool IsMonoRuntime = Type.GetType ("Mono.Runtime") != null;
-#endif
-
 		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
 			var dp = dsa.ExportParameters (!publicOnly);
@@ -171,13 +167,19 @@ namespace MimeKit.Cryptography
 				return GetAsymmetricKeyParameter (dsaKey);
 
 #if NET46 || NET47 || NET48
-			if (!IsMonoRuntime && key is RSACng rsaCng)
-				return GetAsymmetricKeyParameter (rsaCng);
+			try {
+				if (key is RSACng rsaCng)
+					return GetAsymmetricKeyParameter (rsaCng);
+			} catch (TypeLoadException) {
+			}
 #endif
 
 #if NET47 || NET48
-			if (!IsMonoRuntime && key is DSACng dsaCng)
-				return GetAsymmetricKeyParameter (dsaCng);
+			try {
+				if (key is DSACng dsaCng)
+					return GetAsymmetricKeyParameter (dsaCng);
+			} catch (TypeLoadException) {
+			}
 #endif
 
 			// TODO: support ECDiffieHellman and ECDsa?
@@ -215,13 +217,19 @@ namespace MimeKit.Cryptography
 				return GetAsymmetricCipherKeyPair (dsaKey);
 
 #if NET46 || NET47 || NET48
-			if (!IsMonoRuntime && key is RSACng rsaCng)
-				return GetAsymmetricCipherKeyPair (rsaCng);
+			try {
+				if (key is RSACng rsaCng)
+					return GetAsymmetricCipherKeyPair (rsaCng);
+			} catch (TypeLoadException) {
+			}
 #endif
 
 #if NET47 || NET48
-			if (!IsMonoRuntime && key is DSACng dsaCng)
-				return GetAsymmetricCipherKeyPair (dsaCng);
+			try {
+				if (key is DSACng dsaCng)
+					return GetAsymmetricCipherKeyPair (dsaCng);
+			} catch (TypeLoadException) {
+			}
 #endif
 
 			// TODO: support ECDiffieHellman and ECDsa?
