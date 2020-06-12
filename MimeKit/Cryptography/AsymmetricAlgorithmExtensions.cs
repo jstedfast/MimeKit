@@ -41,6 +41,10 @@ namespace MimeKit.Cryptography
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
+#if NET46 || NET47 || NET48
+		static readonly bool IsMonoRuntime = Type.GetType ("Mono.Runtime") != null;
+#endif
+
 		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
 			var dp = dsa.ExportParameters (!publicOnly);
@@ -161,12 +165,12 @@ namespace MimeKit.Cryptography
 				throw new ArgumentNullException (nameof (key));
 
 #if NET46 || NET47 || NET48
-			if (key is RSACng rsaCng)
+			if (!IsMonoRuntime && key is RSACng rsaCng)
 				return GetAsymmetricKeyParameter (rsaCng);
 #endif
 
 #if NET47 || NET48
-			if (key is DSACng dsaCng)
+			if (!IsMonoRuntime && key is DSACng dsaCng)
 				return GetAsymmetricKeyParameter (dsaCng);
 #endif
 
@@ -205,12 +209,12 @@ namespace MimeKit.Cryptography
 				throw new ArgumentNullException (nameof (key));
 
 #if NET46 || NET47 || NET48
-			if (key is RSACng rsaCng)
+			if (!IsMonoRuntime && key is RSACng rsaCng)
 				return GetAsymmetricCipherKeyPair (rsaCng);
 #endif
 
 #if NET47 || NET48
-			if (key is DSACng dsaCng)
+			if (!IsMonoRuntime && key is DSACng dsaCng)
 				return GetAsymmetricCipherKeyPair (dsaCng);
 #endif
 
