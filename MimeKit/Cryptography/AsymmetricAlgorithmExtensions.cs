@@ -164,6 +164,12 @@ namespace MimeKit.Cryptography
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
+			if (key is RSACryptoServiceProvider rsaKey)
+				return GetAsymmetricKeyParameter (rsaKey);
+
+			if (key is DSACryptoServiceProvider dsaKey)
+				return GetAsymmetricKeyParameter (dsaKey);
+
 #if NET46 || NET47 || NET48
 			if (!IsMonoRuntime && key is RSACng rsaCng)
 				return GetAsymmetricKeyParameter (rsaCng);
@@ -173,12 +179,6 @@ namespace MimeKit.Cryptography
 			if (!IsMonoRuntime && key is DSACng dsaCng)
 				return GetAsymmetricKeyParameter (dsaCng);
 #endif
-
-			if (key is RSACryptoServiceProvider rsaKey)
-				return GetAsymmetricKeyParameter (rsaKey);
-
-			if (key is DSACryptoServiceProvider dsaKey)
-				return GetAsymmetricKeyParameter (dsaKey);
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
@@ -208,6 +208,12 @@ namespace MimeKit.Cryptography
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
+			if (key is RSACryptoServiceProvider rsaKey)
+				return GetAsymmetricCipherKeyPair (rsaKey);
+
+			if (key is DSACryptoServiceProvider dsaKey)
+				return GetAsymmetricCipherKeyPair (dsaKey);
+
 #if NET46 || NET47 || NET48
 			if (!IsMonoRuntime && key is RSACng rsaCng)
 				return GetAsymmetricCipherKeyPair (rsaCng);
@@ -217,12 +223,6 @@ namespace MimeKit.Cryptography
 			if (!IsMonoRuntime && key is DSACng dsaCng)
 				return GetAsymmetricCipherKeyPair (dsaCng);
 #endif
-
-			if (key is RSACryptoServiceProvider rsaKey)
-				return GetAsymmetricCipherKeyPair (rsaKey);
-
-			if (key is DSACryptoServiceProvider dsaKey)
-				return GetAsymmetricCipherKeyPair (dsaKey);
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
