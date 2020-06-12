@@ -72,6 +72,20 @@ namespace MimeKit.Cryptography
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSA dsa)
+		{
+			GetAsymmetricKeyParameters (dsa, false, out _, out var key);
+
+			return key;
+		}
+
+		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (DSA dsa)
+		{
+			GetAsymmetricKeyParameters (dsa, false, out var pub, out var key);
+
+			return new AsymmetricCipherKeyPair (pub, key);
+		}
+
 		static void GetAsymmetricKeyParameters (RSA rsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
 		{
 			var rp = rsa.ExportParameters (!publicOnly);
@@ -108,37 +122,19 @@ namespace MimeKit.Cryptography
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
-#if NET47 || NET48
-		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACng dsa)
-		{
-			GetAsymmetricKeyParameters (dsa, false, out _, out var key);
-
-			return key;
-		}
-
-		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (DSACng dsa)
-		{
-			GetAsymmetricKeyParameters (dsa, false, out var pub, out var key);
-
-			return new AsymmetricCipherKeyPair (pub, key);
-		}
-#endif
-
-#if NET46 || NET47 || NET48
-		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSACng rsa)
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (RSA rsa)
 		{
 			GetAsymmetricKeyParameters (rsa, false, out _, out var key);
 
 			return key;
 		}
 
-		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (RSACng rsa)
+		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (RSA rsa)
 		{
 			GetAsymmetricKeyParameters (rsa, false, out var pub, out var key);
 
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
-#endif
 
 		/// <summary>
 		/// Convert an AsymmetricAlgorithm into a BouncyCastle AsymmetricKeyParameter.
@@ -163,24 +159,14 @@ namespace MimeKit.Cryptography
 			if (key is RSACryptoServiceProvider rsaKey)
 				return GetAsymmetricKeyParameter (rsaKey);
 
+			if (key is RSA rsa)
+				return GetAsymmetricKeyParameter (rsa);
+
 			if (key is DSACryptoServiceProvider dsaKey)
 				return GetAsymmetricKeyParameter (dsaKey);
 
-#if NET46 || NET47 || NET48
-			try {
-				if (key is RSACng rsaCng)
-					return GetAsymmetricKeyParameter (rsaCng);
-			} catch (TypeLoadException) {
-			}
-#endif
-
-#if NET47 || NET48
-			try {
-				if (key is DSACng dsaCng)
-					return GetAsymmetricKeyParameter (dsaCng);
-			} catch (TypeLoadException) {
-			}
-#endif
+			if (key is DSA dsa)
+				return GetAsymmetricKeyParameter (dsa);
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
@@ -213,24 +199,14 @@ namespace MimeKit.Cryptography
 			if (key is RSACryptoServiceProvider rsaKey)
 				return GetAsymmetricCipherKeyPair (rsaKey);
 
+			if (key is RSA rsa)
+				return GetAsymmetricCipherKeyPair (rsa);
+
 			if (key is DSACryptoServiceProvider dsaKey)
 				return GetAsymmetricCipherKeyPair (dsaKey);
 
-#if NET46 || NET47 || NET48
-			try {
-				if (key is RSACng rsaCng)
-					return GetAsymmetricCipherKeyPair (rsaCng);
-			} catch (TypeLoadException) {
-			}
-#endif
-
-#if NET47 || NET48
-			try {
-				if (key is DSACng dsaCng)
-					return GetAsymmetricCipherKeyPair (dsaCng);
-			} catch (TypeLoadException) {
-			}
-#endif
+			if (key is DSA dsa)
+				return GetAsymmetricCipherKeyPair (dsa);
 
 			// TODO: support ECDiffieHellman and ECDsa?
 
