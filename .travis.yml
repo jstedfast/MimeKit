@@ -1,9 +1,8 @@
 language: csharp
-mono: none
 dotnet: 2.1.807
 solution: MimeKit.sln
 install:
   - dotnet restore MimeKit.sln
 script:
-  - dotnet build -c Debug MimeKit.sln
-  - dotnet ~/.nuget/packages/nunit.consolerunner/3.11.1/tools/nunit3-console.exe UnitTests/bin/Debug/net48/UnitTests.dll
+  - msbuild /p:Configuration=Debug MimeKit.sln
+  - mono ~/.nuget/packages/nunit.consolerunner/3.11.1/tools/nunit3-console.exe UnitTests/bin/Debug/net48/UnitTests.dll
