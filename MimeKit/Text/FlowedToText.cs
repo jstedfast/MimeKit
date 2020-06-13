@@ -77,7 +77,7 @@ namespace MimeKit.Text {
 		/// <para>The flowed text format defines a Content-Type parameter called "delsp" which can
 		/// have a value of "yes" or "no". If the parameter exists and the value is "yes", then
 		/// <see cref="DeleteSpace"/> should be set to <c>true</c>, otherwise <see cref="DeleteSpace"/>
-		/// should be set to false.</para>
+		/// should be set to <c>false</c>.</para>
 		/// </remarks>
 		/// <value><c>true</c> if the trailing space on a wrapped line should be deleted; otherwise, <c>false</c>.</value>
 		public bool DeleteSpace {
