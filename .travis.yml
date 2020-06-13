@@ -4,5 +4,5 @@ solution: MimeKit.sln
 install:
   - dotnet restore MimeKit.sln
 script:
-  - msbuild /p:Configuration=Debug /p:DefineConstants=MONO MimeKit.sln
+  - msbuild /p:Configuration=Debug "/p:DefineConstants=$(DefineConstants);MONO" MimeKit.sln
   - mono ~/.nuget/packages/nunit.consolerunner/3.11.1/tools/nunit3-console.exe UnitTests/bin/Debug/net48/UnitTests.dll
