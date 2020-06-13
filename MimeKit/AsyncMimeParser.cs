@@ -127,10 +127,8 @@ namespace MimeKit {
 			do {
 				unsafe {
 					fixed (byte *inbuf = input) {
-						if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left)) {
-							headerBlockEnd = GetOffset (inputIndex);
-							return;
-						}
+						if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
+							break;
 					}
 				}
 
@@ -160,12 +158,13 @@ namespace MimeKit {
 
 						ParseAndAppendHeader ();
 
-						headerBlockEnd = GetOffset (inputIndex);
 						state = MimeParserState.Content;
 					}
-					return;
+					break;
 				}
 			} while (true);
+
+			headerBlockEnd = GetOffset (inputIndex);
 		}
 
 		async Task<bool> SkipLineAsync (bool consumeNewLine, CancellationToken cancellationToken)

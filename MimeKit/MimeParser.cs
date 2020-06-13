@@ -1112,10 +1112,8 @@ namespace MimeKit {
 			ReadAhead (ReadAheadSize, 0, cancellationToken);
 
 			do {
-				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left)) {
-					headerBlockEnd = GetOffset (inputIndex);
-					return;
-				}
+				if (!StepHeaders (inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left))
+					break;
 
 				var available = ReadAhead (left + 1, 0, cancellationToken);
 
@@ -1146,9 +1144,11 @@ namespace MimeKit {
 						headerBlockEnd = GetOffset (inputIndex);
 						state = MimeParserState.Content;
 					}
-					return;
+					break;
 				}
 			} while (true);
+
+			headerBlockEnd = GetOffset (inputIndex);
 		}
 
 		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine)
@@ -1689,7 +1689,7 @@ namespace MimeKit {
 
 				// Note: this will scan all content into the preamble...
 				MultipartScanPreamble (multipart, inbuf, cancellationToken);
-				OnMimeContentEnd (multipart, GetOffset (-1));
+				OnMimeContentEnd (multipart, GetOffset (inputIndex));
 				return;
 			}
 
@@ -1795,7 +1795,7 @@ namespace MimeKit {
 			else
 				ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-			OnMimeEntityEnd (entity, GetOffset (-1));
+			OnMimeEntityEnd (entity, GetOffset (inputIndex));
 
 			if (boundary != BoundaryType.Eos)
 				state = MimeParserState.Complete;
