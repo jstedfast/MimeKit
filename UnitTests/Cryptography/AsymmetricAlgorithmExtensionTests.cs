@@ -122,8 +122,12 @@ namespace UnitTests.Cryptography
 		[Test]
 		public void TestDSACng ()
 		{
-			using (var dsa = new DSACng (1024))
-				AssertDSA (dsa);
+			try {
+				using (var dsa = new DSACng (1024))
+					AssertDSA (dsa);
+			} catch (NotImplementedException) {
+				Assert.Ignore ("Mono does not implement DSACng");
+			}
 		}
 
 		static void AssertRSA (RSA rsa)
@@ -186,8 +190,12 @@ namespace UnitTests.Cryptography
 		[Test]
 		public void TestRSACng ()
 		{
-			using (var rsa = new RSACng (1024))
-				AssertRSA (rsa);
+			try {
+				using (var rsa = new RSACng (1024))
+					AssertRSA (rsa);
+			} catch (NotImplementedException) {
+				Assert.Ignore ("Mono does not implement RSACng");
+			}
 		}
 	}
 }
