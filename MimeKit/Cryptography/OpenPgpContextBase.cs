@@ -411,12 +411,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Helper method to turn a bunch of byte data, into a string. Useful for
-		/// among other things generating fingerprints.
+		/// Hex encode an array of bytes.
 		/// </summary>
-		/// <param name="data">Byte array that should be turned into string representation.</param>
-		/// <returns>Hexa encoded results from specified input data.</returns>
-		public static string HexEncode (byte[] data)
+		/// <remarks>
+		/// This method is used to hex-encode the PGP key fingerprints.
+		/// </remarks>
+		/// <param name="data">The data to encode.</param>
+		/// <returns>A string representing the hex-encoded data.</returns>
+		static string HexEncode (byte[] data)
 		{
 			var fingerprint = new StringBuilder ();
 
