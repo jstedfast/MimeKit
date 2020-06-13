@@ -6,7 +6,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
     <SignAssembly>true</SignAssembly>
-    <DefineConstants Condifition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
+    <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <IsPackable>false</IsPackable>
