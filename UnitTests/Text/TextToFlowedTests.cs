@@ -167,7 +167,7 @@ namespace UnitTests.Text {
 				"That birds would sing and think it were not night. " +
 				"See, how she leans her cheek upon her hand! " +
 				"O, that I were a glove upon that hand, " +
-				"That I might touch that cheek!\r\n";
+				"That I might touch that cheek!\n";
 			string expected = @"But, soft! what light through yonder window breaks? It is the east, and  
 Juliet is the sun. Arise, fair sun, and kill the envious moon, Who is  
 already sick and pale with grief, That thou her maid art far more fair than  
@@ -182,14 +182,14 @@ would shame those stars, As daylight doth a lamp; her eyes in heaven Would
 through the airy region stream so bright That birds would sing and think it  
 were not night. See, how she leans her cheek upon her hand! O, that I were a  
 glove upon that hand, That I might touch that cheek!
-".Replace ("\r\n", "\n").Replace ("\n", "\r\n");
+".Replace ("\r\n", "\n");
 			TextConverter converter = new TextToFlowed ();
-			string result = converter.Convert (text);
+			string result = converter.Convert (text).Replace ("\r\n", "\n");
 
 			Assert.AreEqual (expected, result);
 
 			converter = new FlowedToText () { DeleteSpace = true };
-			result = converter.Convert (expected);
+			result = converter.Convert (expected).Replace ("\r\n", "\n");
 
 			Assert.AreEqual (text, result);
 		}
@@ -197,8 +197,8 @@ glove upon that hand, That I might touch that cheek!
 		[Test]
 		public void TestFlowingLongQuotedLines ()
 		{
-			const string text = "A passage from Shakespear's Romeo + Juliet:\r\n" +
-				"> Begin quote\r\n" +
+			const string text = "A passage from Shakespear's Romeo + Juliet:\n" +
+				"> Begin quote\n" +
 				">> But, soft! what light through yonder window breaks? " +
 				"It is the east, and Juliet is the sun. " +
 				"Arise, fair sun, and kill the envious moon, " +
@@ -222,9 +222,9 @@ glove upon that hand, That I might touch that cheek!
 				"That birds would sing and think it were not night. " +
 				"See, how she leans her cheek upon her hand! " +
 				"O, that I were a glove upon that hand, " +
-				"That I might touch that cheek!\r\n" +
-				"> End quote\r\n\r\n" +
-				"Did that flow correctly?\r\n";
+				"That I might touch that cheek!\n" +
+				"> End quote\n\n" +
+				"Did that flow correctly?\n";
 			string expected = @"A passage from Shakespear's Romeo + Juliet:
 > Begin quote
 >> But, soft! what light through yonder window breaks? It is the east, and  
@@ -245,14 +245,14 @@ glove upon that hand, That I might touch that cheek!
 > End quote
 
 Did that flow correctly?
-".Replace ("\r\n", "\n").Replace ("\n", "\r\n");
+".Replace ("\r\n", "\n");
 			TextConverter converter = new TextToFlowed ();
-			string result = converter.Convert (text);
+			string result = converter.Convert (text).Replace ("\r\n", "\n");
 
 			Assert.AreEqual (expected, result);
 
 			converter = new FlowedToText () { DeleteSpace = true };
-			result = converter.Convert (expected);
+			result = converter.Convert (expected).Replace ("\r\n", "\n");
 
 			Assert.AreEqual (text, result);
 		}
