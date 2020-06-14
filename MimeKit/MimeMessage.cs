@@ -977,14 +977,16 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="MimeMessage"/>.
+		/// Returns a <see cref="String"/> that represents the <see cref="MimeMessage"/> for debugging purposes.
 		/// </summary>
 		/// <remarks>
-		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="MimeMessage"/>.</para>
-		/// <note type="warning">In general, the string returned from this method SHOULD NOT be used for serializing
-		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</note>
+		/// <para>Returns a <see cref="String"/> that represents the <see cref="MimeMessage"/> for debugging purposes.</para>
+		/// <note type="warning"><para>In general, the string returned from this method SHOULD NOT be used for serializing
+		/// the message to disk. It is recommended that you use <see cref="WriteTo(Stream,CancellationToken)"/> instead.</para>
+		/// <para>If this method is used for serializing the message to disk, the iso-8859-1 text encoding should be used for
+		/// conversion.</para></note>
 		/// </remarks>
-		/// <returns>A <see cref="System.String"/> that represents the current <see cref="MimeMessage"/>.</returns>
+		/// <returns>A <see cref="String"/> that represents the <see cref="MimeMessage"/> for debugging purposes.</returns>
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
