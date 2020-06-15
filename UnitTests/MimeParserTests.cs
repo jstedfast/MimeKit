@@ -609,7 +609,11 @@ namespace UnitTests {
 			MultipartPreambleBegin,
 			MultipartPreambleEnd,
 			MultipartEpilogueBegin,
-			MultipartEpilogueEnd
+			MultipartEpilogueEnd,
+
+			// These last 2 aren't really offsets, but we're recording them anyway to test them.
+			Octets,
+			Lines
 		}
 
 		class MimeParserOffset
@@ -744,6 +748,18 @@ namespace UnitTests {
 			protected override void OnMultipartEpilogueEnd (Multipart multipart, long offset)
 			{
 				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartEpilogueEnd, offset));
+			}
+
+			// These last 2 aren't really offsets, but we're recording them anyway to test them.
+
+			protected override void OnMimeContentOctets (MimeEntity entity, long octets)
+			{
+				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.Octets, octets));
+			}
+
+			protected override void OnMimeContentLines (MimeEntity entity, int lines)
+			{
+				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.Lines, lines));
 			}
 		}
 

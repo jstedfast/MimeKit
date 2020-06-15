@@ -143,6 +143,7 @@ namespace MimeKit {
 		long headerBlockBegin;
 		long headerBlockEnd;
 		long contentEnd;
+		int lineNumber;
 		Stream stream;
 		long position;
 
@@ -330,6 +331,7 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 			headerBlockBegin = 0;
 			headerBlockEnd = 0;
+			lineNumber = 0;
 			contentEnd = 0;
 
 			position = stream.CanSeek ? stream.Position : 0;
@@ -639,6 +641,30 @@ namespace MimeKit {
 		{
 		}
 
+		/// <summary>
+		/// Invoked for all MIME entities once the octet count for the content has been calculated.
+		/// </summary>
+		/// <remarks>
+		/// Invoked for all MIME entities once the octet count for the content has been calculated.
+		/// </remarks>
+		/// <param name="entity">The MIME entity.</param>
+		/// <param name="octets">The number of octets contained in the content of the entity.</param>
+		protected virtual void OnMimeContentOctets (MimeEntity entity, long octets)
+		{
+		}
+
+		/// <summary>
+		/// Invoked for all MIME entities once the line count for the content has been calculated.
+		/// </summary>
+		/// <remarks>
+		/// Invoked for all MIME entities once the line count for the content has been calculated.
+		/// </remarks>
+		/// <param name="entity">The MIME entity.</param>
+		/// <param name="lines">The number of lines contained in the content of the entity.</param>
+		protected virtual void OnMimeContentLines (MimeEntity entity, int lines)
+		{
+		}
+
 #if DEBUG
 		static string ConvertToCString (byte[] buffer, int startIndex, int length)
 		{
@@ -825,6 +851,8 @@ namespace MimeKit {
 					needInput = true;
 					break;
 				}
+
+				lineNumber++;
 
 				if (length >= 5 && IsMboxMarker (start)) {
 					int startIndex = (int) (start - inbuf);
@@ -1043,6 +1071,8 @@ namespace MimeKit {
 					break;
 				}
 
+				lineNumber++;
+
 				// check to see if we've reached the end of the headers
 				if (!midline && IsEoln (start)) {
 					inputIndex = (int) (inptr - inbuf) + 1;
@@ -1166,6 +1196,7 @@ namespace MimeKit {
 
 				if (consumeNewLine) {
 					inputIndex++;
+					lineNumber++;
 				} else if (*(inptr - 1) == (byte) '\r') {
 					inputIndex--;
 				}
@@ -1215,8 +1246,6 @@ namespace MimeKit {
 
 		ContentType GetContentType (ContentType parent)
 		{
-			ContentType type;
-
 			for (int i = 0; i < headers.Count; i++) {
 				if (!headers[i].Field.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
 					continue;
@@ -1224,7 +1253,7 @@ namespace MimeKit {
 				var rawValue = headers[i].RawValue;
 				int index = 0;
 
-				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out type) && type == null) {
+				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type == null) {
 					// if 'type' is null, then it means that even the mime-type was unintelligible
 					type = new ContentType ("application", "octet-stream");
 
@@ -1233,9 +1262,7 @@ namespace MimeKit {
 						index++;
 
 					if (++index < rawValue.Length) {
-						ParameterList parameters;
-
-						if (ParameterList.TryParse (options, rawValue, ref index, rawValue.Length, false, out parameters))
+						if (ParameterList.TryParse (options, rawValue, ref index, rawValue.Length, false, out var parameters))
 							type.Parameters = parameters;
 					}
 				}
@@ -1398,6 +1425,7 @@ namespace MimeKit {
 					else
 						formats[(int) NewLineFormat.Unix] = true;
 
+					lineNumber++;
 					length++;
 					inptr++;
 				} else {
@@ -1480,27 +1508,30 @@ namespace MimeKit {
 
 		unsafe void ConstructMimePart (MimePart part, byte* inbuf, CancellationToken cancellationToken)
 		{
-			long end, begin = GetOffset (inputIndex);
+			long endOffset, beginOffset = GetOffset (inputIndex);
+			var beginLineNumber = lineNumber;
 			ScanContentResult result;
 			Stream content;
 
-			OnMimeContentBegin (part, begin);
+			OnMimeContentBegin (part, beginOffset);
 
 			if (persistent) {
 				using (var measured = new MeasuringStream ()) {
 					result = ScanContent (inbuf, measured, true, cancellationToken);
-					end = begin + measured.Length;
+					endOffset = beginOffset + measured.Length;
 				}
 
-				content = new BoundStream (stream, begin, end, true);
+				content = new BoundStream (stream, beginOffset, endOffset, true);
 			} else {
 				content = new MemoryBlockStream ();
 				result = ScanContent (inbuf, content, true, cancellationToken);
 				content.Seek (0, SeekOrigin.Begin);
-				end = begin + content.Length;
+				endOffset = beginOffset + content.Length;
 			}
 
-			OnMimeContentEnd (part, end);
+			OnMimeContentEnd (part, endOffset);
+			OnMimeContentOctets (part, endOffset - beginOffset);
+			OnMimeContentLines (part, lineNumber - beginLineNumber);
 
 			if (!result.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
@@ -1510,7 +1541,10 @@ namespace MimeKit {
 
 		unsafe void ConstructMessagePart (MessagePart rfc822, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
-			OnMimeContentBegin (rfc822, GetOffset (inputIndex));
+			var beginOffset = GetOffset (inputIndex);
+			var beginLineNumber = lineNumber;
+
+			OnMimeContentBegin (rfc822, beginOffset);
 
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
@@ -1583,6 +1617,8 @@ namespace MimeKit {
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentEnd (rfc822, endOffset);
+			OnMimeContentOctets (rfc822, endOffset - beginOffset);
+			OnMimeContentLines (rfc822, lineNumber - beginLineNumber);
 		}
 
 		unsafe void MultipartScanPreamble (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
@@ -1678,9 +1714,12 @@ namespace MimeKit {
 
 		unsafe void ConstructMultipart (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
+			var beginOffset = GetOffset (inputIndex);
+			var beginLineNumber = lineNumber;
 			var marker = multipart.Boundary;
+			long endOffset;
 
-			OnMimeContentBegin (multipart, GetOffset (inputIndex));
+			OnMimeContentBegin (multipart, beginOffset);
 
 			if (marker == null) {
 #if DEBUG
@@ -1689,7 +1728,11 @@ namespace MimeKit {
 
 				// Note: this will scan all content into the preamble...
 				MultipartScanPreamble (multipart, inbuf, cancellationToken);
-				OnMimeContentEnd (multipart, GetOffset (inputIndex));
+				endOffset = GetOffset (inputIndex);
+
+				OnMimeContentEnd (multipart, endOffset);
+				OnMimeContentOctets (multipart, endOffset - beginOffset);
+				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
 			}
 
@@ -1710,8 +1753,19 @@ namespace MimeKit {
 				OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
 
 				MultipartScanEpilogue (multipart, inbuf, cancellationToken);
+				endOffset = GetOffset (inputIndex);
+
+				OnMimeContentEnd (multipart, endOffset);
+				OnMimeContentOctets (multipart, endOffset - beginOffset);
+				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
 			}
+
+			endOffset = GetOffset (inputIndex);
+
+			OnMimeContentEnd (multipart, endOffset);
+			OnMimeContentOctets (multipart, endOffset - beginOffset);
+			OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 
 			multipart.WriteEndBoundary = false;
 

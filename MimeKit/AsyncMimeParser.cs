@@ -252,27 +252,30 @@ namespace MimeKit {
 
 		async Task ConstructMimePartAsync (MimePart part, CancellationToken cancellationToken)
 		{
-			long end, begin = GetOffset (inputIndex);
+			long endOffset, beginOffset = GetOffset (inputIndex);
+			var beginLineNumber = lineNumber;
 			ScanContentResult result;
 			Stream content;
 
-			OnMimeContentBegin (part, begin);
+			OnMimeContentBegin (part, beginOffset);
 
 			if (persistent) {
 				using (var measured = new MeasuringStream ()) {
 					result = await ScanContentAsync (measured, true, cancellationToken).ConfigureAwait (false);
-					end = begin + measured.Length;
+					endOffset = beginOffset + measured.Length;
 				}
 
-				content = new BoundStream (stream, begin, end, true);
+				content = new BoundStream (stream, beginOffset, endOffset, true);
 			} else {
 				content = new MemoryBlockStream ();
 				result = await ScanContentAsync (content, true, cancellationToken).ConfigureAwait (false);
 				content.Seek (0, SeekOrigin.Begin);
-				end = begin + content.Length;
+				endOffset = beginOffset + content.Length;
 			}
 
-			OnMimeContentEnd (part, end);
+			OnMimeContentEnd (part, endOffset);
+			OnMimeContentOctets (part, endOffset - beginOffset);
+			OnMimeContentLines (part, lineNumber - beginLineNumber);
 
 			if (!result.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
@@ -282,7 +285,10 @@ namespace MimeKit {
 
 		async Task ConstructMessagePartAsync (MessagePart rfc822, int depth, CancellationToken cancellationToken)
 		{
-			OnMimeContentBegin (rfc822, GetOffset (inputIndex));
+			var beginOffset = GetOffset (inputIndex);
+			var beginLineNumber = lineNumber;
+
+			OnMimeContentBegin (rfc822, beginOffset);
 
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
@@ -359,6 +365,8 @@ namespace MimeKit {
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentEnd (rfc822, endOffset);
+			OnMimeContentOctets (rfc822, endOffset - beginOffset);
+			OnMimeContentLines (rfc822, lineNumber - beginLineNumber);
 		}
 
 		async Task MultipartScanPreambleAsync (Multipart multipart, CancellationToken cancellationToken)
@@ -441,9 +449,12 @@ namespace MimeKit {
 
 		async Task ConstructMultipartAsync (Multipart multipart, int depth, CancellationToken cancellationToken)
 		{
+			var beginOffset = GetOffset (inputIndex);
+			var beginLineNumber = lineNumber;
 			var marker = multipart.Boundary;
+			long endOffset;
 
-			OnMimeContentBegin (multipart, GetOffset (inputIndex));
+			OnMimeContentBegin (multipart, beginOffset);
 
 			if (marker == null) {
 #if DEBUG
@@ -452,7 +463,11 @@ namespace MimeKit {
 
 				// Note: this will scan all content into the preamble...
 				await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
-				OnMimeContentEnd (multipart, GetOffset (inputIndex));
+				endOffset = GetOffset (inputIndex);
+
+				OnMimeContentEnd (multipart, endOffset);
+				OnMimeContentOctets (multipart, endOffset - beginOffset);
+				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
 			}
 
@@ -473,8 +488,19 @@ namespace MimeKit {
 				OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
 
 				await MultipartScanEpilogueAsync (multipart, cancellationToken).ConfigureAwait (false);
+				endOffset = GetOffset (inputIndex);
+
+				OnMimeContentEnd (multipart, endOffset);
+				OnMimeContentOctets (multipart, endOffset - beginOffset);
+				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
 			}
+
+			endOffset = GetOffset (inputIndex);
+
+			OnMimeContentEnd (multipart, endOffset);
+			OnMimeContentOctets (multipart, endOffset - beginOffset);
+			OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 
 			multipart.WriteEndBoundary = false;
 
