@@ -818,7 +818,7 @@ namespace UnitTests {
 			n = 0;
 			foreach (var offset in EnumerateMimeParserOffsets (path)) {
 				Assert.AreEqual (offset.Location, offsets[n].Location, $"Offset Location #{n}");
-				Assert.AreEqual (offset.Offset, offsets[n].Offset, $"Stream Offset #{n}");
+				Assert.AreEqual (offset.Offset, offsets[n].Offset, $"Stream Offset #{n} ({offset.Location})");
 				n++;
 			}
 		}

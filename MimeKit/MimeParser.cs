@@ -264,7 +264,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The stream offset.</value>
 		public long Position {
-			get { return GetOffset (-1); }
+			get { return GetOffset (inputIndex); }
 		}
 
 		/// <summary>
@@ -752,10 +752,19 @@ namespace MimeKit {
 			if (position == -1)
 				return -1;
 
-			if (index == -1)
-				index = inputIndex;
-
 			return position - (inputEnd - index);
+		}
+
+		long GetEndOffset (int index)
+		{
+			if (index > 1 && input[index - 1] == (byte) '\n') {
+				index--;
+
+				if (index > 1 && input[index - 1] == (byte) '\r')
+					index--;
+			}
+
+			return GetOffset (index);
 		}
 
 		static unsafe bool CStringsEqual (byte* str1, byte* str2, int length)
@@ -1613,7 +1622,8 @@ namespace MimeKit {
 
 			rfc822.Message = message;
 
-			var endOffset = GetOffset (inputIndex);
+			var endOffset = GetEndOffset (inputIndex);
+
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentEnd (rfc822, endOffset);
@@ -1693,7 +1703,7 @@ namespace MimeKit {
 				else
 					ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-				OnMimeEntityEnd (entity, GetOffset (inputIndex));
+				OnMimeEntityEnd (entity, GetEndOffset (inputIndex));
 
 				multipart.Add (entity);
 			} while (boundary == BoundaryType.ImmediateBoundary);
@@ -1728,7 +1738,7 @@ namespace MimeKit {
 
 				// Note: this will scan all content into the preamble...
 				MultipartScanPreamble (multipart, inbuf, cancellationToken);
-				endOffset = GetOffset (inputIndex);
+				endOffset = GetEndOffset (inputIndex);
 
 				OnMimeContentEnd (multipart, endOffset);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
@@ -1753,7 +1763,7 @@ namespace MimeKit {
 				OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
 
 				MultipartScanEpilogue (multipart, inbuf, cancellationToken);
-				endOffset = GetOffset (inputIndex);
+				endOffset = GetEndOffset (inputIndex);
 
 				OnMimeContentEnd (multipart, endOffset);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
@@ -1761,7 +1771,7 @@ namespace MimeKit {
 				return;
 			}
 
-			endOffset = GetOffset (inputIndex);
+			endOffset = GetEndOffset (inputIndex);
 
 			OnMimeContentEnd (multipart, endOffset);
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
@@ -1849,7 +1859,7 @@ namespace MimeKit {
 			else
 				ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-			OnMimeEntityEnd (entity, GetOffset (inputIndex));
+			OnMimeEntityEnd (entity, GetEndOffset (inputIndex));
 
 			if (boundary != BoundaryType.Eos)
 				state = MimeParserState.Complete;
@@ -1948,7 +1958,7 @@ namespace MimeKit {
 			else
 				ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-			var endOffset = GetOffset (inputIndex);
+			var endOffset = GetEndOffset (inputIndex);
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 
