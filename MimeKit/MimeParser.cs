@@ -1559,6 +1559,9 @@ namespace MimeKit {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
+					OnMimeContentEnd (rfc822, beginOffset);
+					OnMimeContentOctets (rfc822, 0);
+					OnMimeContentLines (rfc822, 0);
 					boundary = BoundaryType.Eos;
 					return;
 				}
@@ -1581,8 +1584,12 @@ namespace MimeKit {
 					return;
 				case BoundaryType.ParentEndBoundary:
 					// ignore "From " boundaries, broken mailers tend to include these...
-					if (!IsMboxMarker (start))
+					if (!IsMboxMarker (start)) {
+						OnMimeContentEnd (rfc822, beginOffset);
+						OnMimeContentOctets (rfc822, 0);
+						OnMimeContentLines (rfc822, 0);
 						return;
+					}
 					break;
 				}
 			}
