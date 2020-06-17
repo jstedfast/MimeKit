@@ -67,7 +67,7 @@ namespace MimeKit.Cryptography {
 		protected AsymmetricKeyParameter GetPublicKey (string txt)
 		{
 			AsymmetricKeyParameter pubkey;
-			string k = null, p = null;
+			string k = "rsa", p = null;
 			int index = 0;
 
 			if (txt == null)
@@ -117,7 +117,7 @@ namespace MimeKit.Cryptography {
 				index++;
 			}
 
-			if (k != null && p != null) {
+			if (p != null) {
 				if (k == "ed25519") {
 					var decoded = Convert.FromBase64String (p);
 
