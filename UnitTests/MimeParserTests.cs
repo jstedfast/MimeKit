@@ -600,8 +600,6 @@ namespace UnitTests {
 			MimeEntityBegin,
 			MimeEntityHeadersEnd,
 			MimeEntityEnd,
-			MimeContentBegin,
-			MimeContentEnd,
 			MultipartBoundaryBegin,
 			MultipartBoundaryEnd,
 			MultipartEndBoundaryBegin,
@@ -698,16 +696,6 @@ namespace UnitTests {
 			protected override void OnMimeEntityHeadersEnd (MimeEntity entity, long offset)
 			{
 				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeEntityHeadersEnd, offset));
-			}
-
-			protected override void OnMimeContentBegin (MimeEntity entity, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeContentBegin, offset));
-			}
-
-			protected override void OnMimeContentEnd (MimeEntity entity, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeContentEnd, offset));
 			}
 
 			protected override void OnMultipartBoundaryBegin (Multipart multipart, long offset)

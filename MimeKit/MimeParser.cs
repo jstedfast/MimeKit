@@ -522,30 +522,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Invoked when the beginning of a MIME entity's content is found.
-		/// </summary>
-		/// <remarks>
-		/// Invoked when the beginning of a MIME entity's content is found, providing subclasses with the ability to track stream offsets.
-		/// </remarks>
-		/// <param name="entity">The MIME entity.</param>
-		/// <param name="offset">The stream offset at which the MIME entity's content begins.</param>
-		protected virtual void OnMimeContentBegin (MimeEntity entity, long offset)
-		{
-		}
-
-		/// <summary>
-		/// Invoked when the end of a MIME entity's content is found.
-		/// </summary>
-		/// <remarks>
-		/// Invoked when the end of a MIME entity's content is found, providing subclasses with the ability to track stream offsets.
-		/// </remarks>
-		/// <param name="entity">The MIME entity.</param>
-		/// <param name="offset">The stream offset at which the MIME entity's content ends.</param>
-		protected virtual void OnMimeContentEnd (MimeEntity entity, long offset)
-		{
-		}
-
-		/// <summary>
 		/// Invoked when a multipart boundary is found.
 		/// </summary>
 		/// <remarks>
@@ -1522,8 +1498,6 @@ namespace MimeKit {
 			ScanContentResult result;
 			Stream content;
 
-			OnMimeContentBegin (part, beginOffset);
-
 			if (persistent) {
 				using (var measured = new MeasuringStream ()) {
 					result = ScanContent (inbuf, measured, true, cancellationToken);
@@ -1538,7 +1512,6 @@ namespace MimeKit {
 				endOffset = beginOffset + content.Length;
 			}
 
-			OnMimeContentEnd (part, endOffset);
 			OnMimeContentOctets (part, endOffset - beginOffset);
 			OnMimeContentLines (part, lineNumber - beginLineNumber);
 
@@ -1553,13 +1526,10 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			OnMimeContentBegin (rfc822, beginOffset);
-
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
-					OnMimeContentEnd (rfc822, beginOffset);
 					OnMimeContentOctets (rfc822, 0);
 					OnMimeContentLines (rfc822, 0);
 					boundary = BoundaryType.Eos;
@@ -1585,7 +1555,6 @@ namespace MimeKit {
 				case BoundaryType.ParentEndBoundary:
 					// ignore "From " boundaries, broken mailers tend to include these...
 					if (!IsMboxMarker (start)) {
-						OnMimeContentEnd (rfc822, beginOffset);
 						OnMimeContentOctets (rfc822, 0);
 						OnMimeContentLines (rfc822, 0);
 						return;
@@ -1633,7 +1602,6 @@ namespace MimeKit {
 
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
-			OnMimeContentEnd (rfc822, endOffset);
 			OnMimeContentOctets (rfc822, endOffset - beginOffset);
 			OnMimeContentLines (rfc822, lineNumber - beginLineNumber);
 		}
@@ -1736,8 +1704,6 @@ namespace MimeKit {
 			var marker = multipart.Boundary;
 			long endOffset;
 
-			OnMimeContentBegin (multipart, beginOffset);
-
 			if (marker == null) {
 #if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
@@ -1747,7 +1713,6 @@ namespace MimeKit {
 				MultipartScanPreamble (multipart, inbuf, cancellationToken);
 				endOffset = GetEndOffset (inputIndex);
 
-				OnMimeContentEnd (multipart, endOffset);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
 				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
@@ -1772,7 +1737,6 @@ namespace MimeKit {
 				MultipartScanEpilogue (multipart, inbuf, cancellationToken);
 				endOffset = GetEndOffset (inputIndex);
 
-				OnMimeContentEnd (multipart, endOffset);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
 				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
@@ -1780,7 +1744,6 @@ namespace MimeKit {
 
 			endOffset = GetEndOffset (inputIndex);
 
-			OnMimeContentEnd (multipart, endOffset);
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
 			OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 

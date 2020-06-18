@@ -257,8 +257,6 @@ namespace MimeKit {
 			ScanContentResult result;
 			Stream content;
 
-			OnMimeContentBegin (part, beginOffset);
-
 			if (persistent) {
 				using (var measured = new MeasuringStream ()) {
 					result = await ScanContentAsync (measured, true, cancellationToken).ConfigureAwait (false);
@@ -273,7 +271,6 @@ namespace MimeKit {
 				endOffset = beginOffset + content.Length;
 			}
 
-			OnMimeContentEnd (part, endOffset);
 			OnMimeContentOctets (part, endOffset - beginOffset);
 			OnMimeContentLines (part, lineNumber - beginLineNumber);
 
@@ -288,13 +285,10 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			OnMimeContentBegin (rfc822, beginOffset);
-
 			if (bounds.Count > 0) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
-					OnMimeContentEnd (rfc822, beginOffset);
 					OnMimeContentOctets (rfc822, 0);
 					OnMimeContentLines (rfc822, 0);
 					boundary = BoundaryType.Eos;
@@ -322,7 +316,6 @@ namespace MimeKit {
 						case BoundaryType.ParentEndBoundary:
 							// ignore "From " boundaries, broken mailers tend to include these...
 							if (!IsMboxMarker (start)) {
-								OnMimeContentEnd (rfc822, beginOffset);
 								OnMimeContentOctets (rfc822, 0);
 								OnMimeContentLines (rfc822, 0);
 								return;
@@ -372,7 +365,6 @@ namespace MimeKit {
 
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
-			OnMimeContentEnd (rfc822, endOffset);
 			OnMimeContentOctets (rfc822, endOffset - beginOffset);
 			OnMimeContentLines (rfc822, lineNumber - beginLineNumber);
 		}
@@ -462,8 +454,6 @@ namespace MimeKit {
 			var marker = multipart.Boundary;
 			long endOffset;
 
-			OnMimeContentBegin (multipart, beginOffset);
-
 			if (marker == null) {
 #if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
@@ -473,7 +463,6 @@ namespace MimeKit {
 				await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
 				endOffset = GetEndOffset (inputIndex);
 
-				OnMimeContentEnd (multipart, endOffset);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
 				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
@@ -498,7 +487,6 @@ namespace MimeKit {
 				await MultipartScanEpilogueAsync (multipart, cancellationToken).ConfigureAwait (false);
 				endOffset = GetEndOffset (inputIndex);
 
-				OnMimeContentEnd (multipart, endOffset);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
 				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 				return;
@@ -506,7 +494,6 @@ namespace MimeKit {
 
 			endOffset = GetEndOffset (inputIndex);
 
-			OnMimeContentEnd (multipart, endOffset);
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
 			OnMimeContentLines (multipart, lineNumber - beginLineNumber);
 
