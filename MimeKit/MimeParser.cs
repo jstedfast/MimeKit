@@ -1897,9 +1897,6 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
-			OnMimeMessageBegin (message, headerBlockBegin);
-			OnMimeMessageHeadersEnd (message, headerBlockEnd);
-
 			contentEnd = 0;
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
 				for (int i = 0; i < headers.Count; i++) {
@@ -1924,8 +1921,10 @@ namespace MimeKit {
 			var entity = options.CreateEntity (type, headers, true, 0);
 			message.Body = entity;
 
+			OnMimeMessageBegin (message, headerBlockBegin);
 			OnMimeEntityBegin (entity, headerBlockBegin);
 			OnMimeEntityHeadersEnd (entity, headerBlockEnd);
+			OnMimeMessageHeadersEnd (message, headerBlockEnd);
 
 			if (entity is Multipart)
 				ConstructMultipart ((Multipart) entity, inbuf, 0, cancellationToken);

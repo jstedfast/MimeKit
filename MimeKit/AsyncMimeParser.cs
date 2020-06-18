@@ -650,9 +650,6 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 
-			OnMimeMessageBegin (message, headerBlockBegin);
-			OnMimeMessageHeadersEnd (message, headerBlockEnd);
-
 			if (format == MimeFormat.Mbox && options.RespectContentLength) {
 				contentEnd = 0;
 
@@ -678,8 +675,10 @@ namespace MimeKit {
 			var entity = options.CreateEntity (type, headers, true, 0);
 			message.Body = entity;
 
+			OnMimeMessageBegin (message, headerBlockBegin);
 			OnMimeEntityBegin (entity, headerBlockBegin);
 			OnMimeEntityHeadersEnd (entity, headerBlockEnd);
+			OnMimeMessageHeadersEnd (message, headerBlockEnd);
 
 			if (entity is Multipart)
 				await ConstructMultipartAsync ((Multipart) entity, 0, cancellationToken).ConfigureAwait (false);
