@@ -395,8 +395,10 @@ namespace MimeKit {
 
 		async Task MultipartScanSubpartsAsync (Multipart multipart, int depth, CancellationToken cancellationToken)
 		{
+			var beginOffset = GetOffset (inputIndex);
+
 			do {
-				OnMultipartBoundaryBegin (multipart, GetOffset (inputIndex));
+				OnMultipartBoundaryBegin (multipart, beginOffset);
 
 				// skip over the boundary marker
 				if (!await SkipLineAsync (true, cancellationToken).ConfigureAwait (false)) {
@@ -416,8 +418,10 @@ namespace MimeKit {
 
 				if (state == MimeParserState.Boundary) {
 					if (headers.Count == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary)
+						if (boundary == BoundaryType.ImmediateBoundary) {
+							beginOffset = GetOffset (inputIndex);
 							continue;
+						}
 						break;
 					}
 
@@ -441,7 +445,9 @@ namespace MimeKit {
 				else
 					await ConstructMimePartAsync ((MimePart) entity, cancellationToken).ConfigureAwait (false);
 
-				OnMimeEntityEnd (entity, GetEndOffset (inputIndex));
+				var endOffset = GetEndOffset (inputIndex);
+				OnMimeEntityEnd (entity, endOffset);
+				beginOffset = endOffset;
 
 				multipart.Add (entity);
 			} while (boundary == BoundaryType.ImmediateBoundary);
@@ -475,7 +481,7 @@ namespace MimeKit {
 				await MultipartScanSubpartsAsync (multipart, depth, cancellationToken).ConfigureAwait (false);
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
-				OnMultipartEndBoundaryBegin (multipart, GetOffset (inputIndex));
+				OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
 				multipart.WriteEndBoundary = true;

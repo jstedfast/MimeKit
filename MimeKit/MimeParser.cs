@@ -1632,8 +1632,10 @@ namespace MimeKit {
 
 		unsafe void MultipartScanSubparts (Multipart multipart, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
+			var beginOffset = GetOffset (inputIndex);
+
 			do {
-				OnMultipartBoundaryBegin (multipart, GetOffset (inputIndex));
+				OnMultipartBoundaryBegin (multipart, beginOffset);
 
 				// skip over the boundary marker
 				if (!SkipLine (inbuf, true, cancellationToken)) {
@@ -1653,8 +1655,10 @@ namespace MimeKit {
 
 				if (state == MimeParserState.Boundary) {
 					if (headers.Count == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary)
+						if (boundary == BoundaryType.ImmediateBoundary) {
+							beginOffset = GetOffset (inputIndex);
 							continue;
+						}
 						break;
 					}
 
@@ -1678,7 +1682,9 @@ namespace MimeKit {
 				else
 					ConstructMimePart ((MimePart) entity, inbuf, cancellationToken);
 
-				OnMimeEntityEnd (entity, GetEndOffset (inputIndex));
+				var endOffset = GetEndOffset (inputIndex);
+				OnMimeEntityEnd (entity, endOffset);
+				beginOffset = endOffset;
 
 				multipart.Add (entity);
 			} while (boundary == BoundaryType.ImmediateBoundary);
@@ -1725,7 +1731,7 @@ namespace MimeKit {
 				MultipartScanSubparts (multipart, inbuf, depth, cancellationToken);
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
-				OnMultipartEndBoundaryBegin (multipart, GetOffset (inputIndex));
+				OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
 				multipart.WriteEndBoundary = true;
