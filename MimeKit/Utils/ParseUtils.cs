@@ -161,7 +161,7 @@ namespace MimeKit.Utils {
 
 				if (!SkipComment (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete comment token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
@@ -195,7 +195,7 @@ namespace MimeKit.Utils {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete quoted-string token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
@@ -269,7 +269,7 @@ namespace MimeKit.Utils {
 			do {
 				if (!text[index].IsAtom ()) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid {0} token at offset {1}", tokenType, startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid {0} token at offset {1}", tokenType, startIndex), startIndex, index);
 
 					return false;
 				}
@@ -333,7 +333,7 @@ namespace MimeKit.Utils {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete domain literal token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete domain literal token at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
@@ -343,7 +343,7 @@ namespace MimeKit.Utils {
 
 				if (!text[index].IsDomain ()) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid domain literal token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid domain literal token at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
@@ -395,7 +395,7 @@ namespace MimeKit.Utils {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
 
 				return false;
 			}
@@ -431,7 +431,7 @@ namespace MimeKit.Utils {
 				if (index >= endIndex) {
 					if (angleAddr) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -445,7 +445,7 @@ namespace MimeKit.Utils {
 
 				if (text[index] != (byte) '.') {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid msg-id token at offset {0}", tokenIndex), tokenIndex, index);
 
 					return false;
 				}
@@ -458,7 +458,7 @@ namespace MimeKit.Utils {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete msg-id at offset {0}", tokenIndex), tokenIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id at offset {0}", tokenIndex), tokenIndex, index);
 
 					return false;
 				}
@@ -506,7 +506,7 @@ namespace MimeKit.Utils {
 
 			if (angleAddr && (index >= endIndex || text[index] != '>')) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
 
 				return false;
 			}

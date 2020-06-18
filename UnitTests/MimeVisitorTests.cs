@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 using NUnit.Framework;
 
@@ -49,7 +50,7 @@ namespace UnitTests {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					var filename = string.Format ("jwz.body.{0}.html", index);
+					var filename = string.Format (CultureInfo.InvariantCulture, "jwz.body.{0}.html", index);
 					var path = Path.Combine (dataDir, filename);
 					var message = parser.ParseMessage ();
 					string expected, actual;

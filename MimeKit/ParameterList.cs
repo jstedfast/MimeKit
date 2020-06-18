@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections;
+using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.Encodings;
@@ -711,7 +712,7 @@ namespace MimeKit {
 			startIndex = index;
 			if (!SkipParamName (text, ref index, endIndex)) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Invalid parameter name token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid parameter name token at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
@@ -723,7 +724,7 @@ namespace MimeKit {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
@@ -737,7 +738,7 @@ namespace MimeKit {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
@@ -749,7 +750,7 @@ namespace MimeKit {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
 						return false;
 					}
@@ -763,7 +764,7 @@ namespace MimeKit {
 
 						if (index >= endIndex) {
 							if (throwOnError)
-								throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
 							return false;
 						}
@@ -777,7 +778,7 @@ namespace MimeKit {
 
 			if (text[index] != (byte) '=') {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
@@ -789,7 +790,7 @@ namespace MimeKit {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Incomplete parameter at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete parameter at offset {0}", startIndex), startIndex, index);
 
 				return false;
 			}
@@ -973,7 +974,7 @@ namespace MimeKit {
 
 				if (text[index] != (byte) ';') {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid parameter list token at offset {0}", index), index, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid parameter list token at offset {0}", index), index, index);
 
 					return false;
 				}

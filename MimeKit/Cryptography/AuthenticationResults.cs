@@ -347,7 +347,7 @@ namespace MimeKit.Cryptography {
 				// skip the method name
 				if (!SkipKeyword (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid method token at offset {0}", methodIndex), methodIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid method token at offset {0}", methodIndex), methodIndex, index);
 
 					return false;
 				}
@@ -361,7 +361,7 @@ namespace MimeKit.Cryptography {
 
 					if (!SkipDomain (text, ref index, endIndex)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
 
 						return false;
 					}
@@ -373,14 +373,14 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Missing semi-colon after Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Missing semi-colon after Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
 
 						return false;
 					}
 
 					if (text[index] != (byte) ';') {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Unexpected token after Office365 authserv-id token at offset {0}", index), index, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token after Office365 authserv-id token at offset {0}", index), index, index);
 
 						return false;
 					}
@@ -399,14 +399,14 @@ namespace MimeKit.Cryptography {
 				if (index >= endIndex) {
 					if (method != "none") {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete methodspec token at offset {0}", methodIndex), methodIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete methodspec token at offset {0}", methodIndex), methodIndex, index);
 
 						return false;
 					}
 
 					if (authres.Results.Count > 0) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid no-result token at offset {0}", methodIndex), methodIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid no-result token at offset {0}", methodIndex), methodIndex, index);
 
 						return false;
 					}
@@ -431,7 +431,7 @@ namespace MimeKit.Cryptography {
 
 					if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int version)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid method-version token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid method-version token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -443,7 +443,7 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete methodspec token at offset {0}", methodIndex), methodIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete methodspec token at offset {0}", methodIndex), methodIndex, index);
 
 						return false;
 					}
@@ -451,7 +451,7 @@ namespace MimeKit.Cryptography {
 
 				if (text[index] != (byte) '=') {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid methodspec token at offset {0}", methodIndex), methodIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid methodspec token at offset {0}", methodIndex), methodIndex, index);
 
 					return false;
 				}
@@ -464,7 +464,7 @@ namespace MimeKit.Cryptography {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete methodspec token at offset {0}", methodIndex), methodIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete methodspec token at offset {0}", methodIndex), methodIndex, index);
 
 					return false;
 				}
@@ -473,7 +473,7 @@ namespace MimeKit.Cryptography {
 
 				if (!SkipKeyword (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid result token at offset {0}", tokenIndex), tokenIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid result token at offset {0}", tokenIndex), tokenIndex, index);
 
 					return false;
 				}
@@ -487,7 +487,7 @@ namespace MimeKit.Cryptography {
 
 					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete comment token at offset {0}", commentIndex), commentIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", commentIndex), commentIndex, index);
 
 						return false;
 					}
@@ -513,7 +513,7 @@ namespace MimeKit.Cryptography {
 
 				if (!SkipKeyword (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid reasonspec or propspec token at offset {0}", tokenIndex), tokenIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid reasonspec or propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 					return false;
 				}
@@ -526,14 +526,14 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete {0}spec token at offset {1}", value, tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete {0}spec token at offset {1}", value, tokenIndex), tokenIndex, index);
 
 						return false;
 					}
 
 					if (text[index] != (byte) '=') {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid {0}spec token at offset {1}", value, tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid {0}spec token at offset {1}", value, tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -547,7 +547,7 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid {0}spec value token at offset {1}", value, reasonIndex), reasonIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid {0}spec value token at offset {1}", value, reasonIndex), reasonIndex, index);
 
 						return false;
 					}
@@ -578,7 +578,7 @@ namespace MimeKit.Cryptography {
 
 					if (!SkipKeyword (text, ref index, endIndex)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -595,14 +595,14 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
 
 					if (text[index] != (byte) '.') {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -614,7 +614,7 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -623,7 +623,7 @@ namespace MimeKit.Cryptography {
 
 					if (!SkipKeyword (text, ref index, endIndex)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid property token at offset {0}", propertyIndex), propertyIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid property token at offset {0}", propertyIndex), propertyIndex, index);
 
 						return false;
 					}
@@ -635,14 +635,14 @@ namespace MimeKit.Cryptography {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
 
 					if (text[index] != (byte) '=') {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -656,7 +656,7 @@ namespace MimeKit.Cryptography {
 
 					if (index >= text.Length || !SkipPropertyValue (text, ref index, endIndex, out quoted)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -679,7 +679,7 @@ namespace MimeKit.Cryptography {
 
 					if (!SkipKeyword (text, ref index, endIndex)) {
 						if (throwOnError)
-							throw new ParseException (string.Format ("Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -711,7 +711,7 @@ namespace MimeKit.Cryptography {
 
 				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Incomplete authserv-id token at offset {0}", start), start, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete authserv-id token at offset {0}", start), start, index);
 
 					return false;
 				}
@@ -730,7 +730,7 @@ namespace MimeKit.Cryptography {
 						// probably i=#
 						if (instance.HasValue) {
 							if (throwOnError)
-								throw new ParseException (string.Format ("Invalid token at offset {0}", start), start, index);
+								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid token at offset {0}", start), start, index);
 
 							return false;
 						}
@@ -758,7 +758,7 @@ namespace MimeKit.Cryptography {
 
 						if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int i)) {
 							if (throwOnError)
-								throw new ParseException (string.Format ("Invalid instance value at offset {0}", start), start, index);
+								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid instance value at offset {0}", start), start, index);
 
 							return false;
 						}
@@ -770,14 +770,14 @@ namespace MimeKit.Cryptography {
 
 						if (index >= endIndex) {
 							if (throwOnError)
-								throw new ParseException (string.Format ("Missing semi-colon after instance value at offset {0}", start), start, index);
+								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Missing semi-colon after instance value at offset {0}", start), start, index);
 
 							return false;
 						}
 
 						if (text[index] != (byte) ';') {
 							if (throwOnError)
-								throw new ParseException (string.Format ("Unexpected token after instance value at offset {0}", index), index, index);
+								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token after instance value at offset {0}", index), index, index);
 
 							return false;
 						}
@@ -807,7 +807,7 @@ namespace MimeKit.Cryptography {
 
 				if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out int version)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid authres-version at offset {0}", start), start, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid authres-version at offset {0}", start), start, index);
 
 					return false;
 				}
@@ -822,7 +822,7 @@ namespace MimeKit.Cryptography {
 
 				if (text[index] != (byte) ';') {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Unknown token at offset {0}", index), index, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unknown token at offset {0}", index), index, index);
 
 					return false;
 				}

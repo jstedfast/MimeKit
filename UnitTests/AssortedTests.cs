@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 using NUnit.Framework;
 
@@ -201,7 +202,7 @@ namespace UnitTests {
 				int expected, codepage;
 				string name;
 
-				name = string.Format ("iso-8859-{0}", i);
+				name = string.Format (CultureInfo.InvariantCulture, "iso-8859-{0}", i);
 				codepage = CharsetUtils.GetCodePage (name);
 
 				switch (i) {
@@ -233,17 +234,17 @@ namespace UnitTests {
 				else
 					expected = -1;
 
-				name = string.Format ("windows-125{0}", i);
+				name = string.Format (CultureInfo.InvariantCulture, "windows-125{0}", i);
 				codepage = CharsetUtils.GetCodePage (name);
 
 				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
 
-				name = string.Format ("windows-cp125{0}", i);
+				name = string.Format (CultureInfo.InvariantCulture, "windows-cp125{0}", i);
 				codepage = CharsetUtils.GetCodePage (name);
 
 				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
 
-				name = string.Format ("cp125{0}", i);
+				name = string.Format (CultureInfo.InvariantCulture, "cp125{0}", i);
 				codepage = CharsetUtils.GetCodePage (name);
 
 				Assert.AreEqual (expected, codepage, "Invalid codepage for: {0}", name);
@@ -253,7 +254,7 @@ namespace UnitTests {
 				int codepage;
 				string name;
 
-				name = string.Format ("ibm-{0}", ibm);
+				name = string.Format (CultureInfo.InvariantCulture, "ibm-{0}", ibm);
 				codepage = CharsetUtils.GetCodePage (name);
 
 				Assert.AreEqual (ibm, codepage, "Invalid codepage for: {0}", name);

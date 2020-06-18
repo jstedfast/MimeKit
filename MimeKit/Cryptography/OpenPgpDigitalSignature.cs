@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Globalization;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -125,7 +126,7 @@ namespace MimeKit.Cryptography {
 				throw vex;
 
 			if (SignerCertificate == null) {
-				var message = string.Format ("Failed to verify digital signature: no public key found for {0:X8}", (int) Signature.KeyId);
+				var message = string.Format (CultureInfo.InvariantCulture, "Failed to verify digital signature: no public key found for {0:X8}", (int) Signature.KeyId);
 				vex = new DigitalSignatureVerifyException (Signature.KeyId, message);
 				throw vex;
 			}

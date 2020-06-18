@@ -287,7 +287,7 @@ namespace MimeKit.Cryptography {
 			ValidateCommonParameters ("ARC-Seal", parameters, out algorithm, out d, out s, out q, out b);
 
 			if (parameters.TryGetValue ("h", out string h))
-				throw new FormatException (string.Format ("Malformed ARC-Seal header: the 'h' parameter tag is not allowed."));
+				throw new FormatException ("Malformed ARC-Seal header: the 'h' parameter tag is not allowed.");
 		}
 
 		async Task<bool> VerifyArcMessageSignatureAsync (FormatOptions options, MimeMessage message, Header arcSignature, Dictionary<string, string> parameters, bool doAsync, CancellationToken cancellationToken)
@@ -429,7 +429,7 @@ namespace MimeKit.Cryptography {
 
 					if (instance < 1 || instance > 50) {
 						if (throwOnError)
-							throw new FormatException (string.Format ("Invalid instance tag in ARC-Authentication-Results header: i={0}", instance));
+							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid instance tag in ARC-Authentication-Results header: i={0}", instance));
 
 						return ArcSignatureValidationResult.Fail;
 					}
@@ -447,14 +447,14 @@ namespace MimeKit.Cryptography {
 
 					if (!parameters.TryGetValue ("i", out value)) {
 						if (throwOnError)
-							throw new FormatException (string.Format ("Missing instance tag in {0} header.", header.Id.ToHeaderName ()));
+							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing instance tag in {0} header.", header.Id.ToHeaderName ()));
 
 						return ArcSignatureValidationResult.Fail;
 					}
 
 					if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
 						if (throwOnError)
-							throw new FormatException (string.Format ("Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
+							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
 
 						return ArcSignatureValidationResult.Fail;
 					}
@@ -489,35 +489,35 @@ namespace MimeKit.Cryptography {
 
 				if (set == null) {
 					if (throwOnError)
-						throw new FormatException (string.Format ("Missing ARC headers for i={0}", i + 1));
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC headers for i={0}", i + 1));
 
 					return ArcSignatureValidationResult.Fail;
 				}
 
 				if (set.ArcAuthenticationResult == null) {
 					if (throwOnError)
-						throw new FormatException (string.Format ("Missing ARC-Authentication-Results header for i={0}", i + 1));
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC-Authentication-Results header for i={0}", i + 1));
 
 					return ArcSignatureValidationResult.Fail;
 				}
 
 				if (set.ArcMessageSignature == null) {
 					if (throwOnError)
-						throw new FormatException (string.Format ("Missing ARC-Message-Signature header for i={0}", i + 1));
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC-Message-Signature header for i={0}", i + 1));
 
 					return ArcSignatureValidationResult.Fail;
 				}
 
 				if (set.ArcSeal == null) {
 					if (throwOnError)
-						throw new FormatException (string.Format ("Missing ARC-Seal header for i={0}", i + 1));
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC-Seal header for i={0}", i + 1));
 
 					return ArcSignatureValidationResult.Fail;
 				}
 
 				if (!set.ArcSealParameters.TryGetValue ("cv", out string cv)) {
 					if (throwOnError)
-						throw new FormatException (string.Format ("Missing chain validation tag in ARC-Seal header for i={0}.", i + 1));
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing chain validation tag in ARC-Seal header for i={0}.", i + 1));
 
 					return ArcSignatureValidationResult.Fail;
 				}

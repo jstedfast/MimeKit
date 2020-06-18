@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -161,7 +162,7 @@ namespace MimeKit.Tnef {
 				} catch (Exception ex) {
 					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
 					if (ComplianceMode == TnefComplianceMode.Strict)
-						throw new TnefException (TnefComplianceStatus.InvalidMessageCodepage, string.Format ("Invalid message codepage: {0}", value), ex);
+						throw new TnefException (TnefComplianceStatus.InvalidMessageCodepage, string.Format (CultureInfo.InvariantCulture, "Invalid message codepage: {0}", value), ex);
 					codepage = 1252;
 				}
 			}
@@ -202,7 +203,7 @@ namespace MimeKit.Tnef {
 				if (value != 0x00010000) {
 					ComplianceStatus |= TnefComplianceStatus.InvalidTnefVersion;
 					if (ComplianceMode == TnefComplianceMode.Strict)
-						throw new TnefException (TnefComplianceStatus.InvalidTnefVersion, string.Format ("Invalid TNEF version: {0}", value));
+						throw new TnefException (TnefComplianceStatus.InvalidTnefVersion, string.Format (CultureInfo.InvariantCulture, "Invalid TNEF version: {0}", value));
 				}
 
 				version = value;

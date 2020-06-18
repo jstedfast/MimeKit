@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
 
 #if ENABLE_SNM
@@ -261,7 +262,7 @@ namespace MimeKit {
 					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], true, out string addrspec, out int atIndex);
 
 					if (index != buffer.Length)
-						throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
 					address = addrspec;
 					at = atIndex;
@@ -848,7 +849,7 @@ namespace MimeKit {
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
 			if (index != endIndex)
-				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
 			return mailbox;
 		}
@@ -915,7 +916,7 @@ namespace MimeKit {
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
 			if (index != endIndex)
-				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
 			return mailbox;
 		}
@@ -976,7 +977,7 @@ namespace MimeKit {
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
 			if (index != endIndex)
-				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
 			return mailbox;
 		}
@@ -1038,7 +1039,7 @@ namespace MimeKit {
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
 			if (index != endIndex)
-				throw new ParseException (string.Format ("Unexpected token at offset {0}", index), index, index);
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
 			return mailbox;
 		}

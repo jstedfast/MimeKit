@@ -27,9 +27,10 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using MimeKit.Utils;
 
@@ -326,7 +327,7 @@ namespace MimeKit.IO {
 			ValidateArguments (buffer, offset, count);
 
 			if (position + count >= MaxCapacity)
-				throw new IOException (string.Format ("Cannot exceed {0} bytes", MaxCapacity));
+				throw new IOException (string.Format (CultureInfo.InvariantCulture, "Cannot exceed {0} bytes", MaxCapacity));
 
 			int startIndex = (int) (position % BlockSize);
 			long capacity = blocks.Count * BlockSize;
@@ -433,7 +434,7 @@ namespace MimeKit.IO {
 				throw new IOException ("Cannot seek to a position before the beginning of the stream");
 
 			if (real > MaxCapacity)
-				throw new IOException (string.Format ("Cannot exceed {0} bytes", MaxCapacity));
+				throw new IOException (string.Format (CultureInfo.InvariantCulture, "Cannot exceed {0} bytes", MaxCapacity));
 
 			// short-cut if we are seeking to our current position
 			if (real == position)

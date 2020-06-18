@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 
 using MimeKit.Utils;
 
@@ -440,7 +441,7 @@ namespace MimeKit {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Expected atom token at position {0}", index), index, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected atom token at position {0}", index), index, index);
 
 				return false;
 			}
@@ -448,7 +449,7 @@ namespace MimeKit {
 			atom = index;
 			if (text[index] == '"') {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Unxpected qstring token at position {0}", atom), atom, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unxpected qstring token at position {0}", atom), atom, index);
 
 				// Note: This is a work-around for broken mailers that quote the disposition value...
 				//
@@ -464,7 +465,7 @@ namespace MimeKit {
 			} else {
 				if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format ("Invalid atom token at position {0}", atom), atom, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid atom token at position {0}", atom), atom, index);
 
 					// Note: this is a work-around for broken mailers that do not specify a disposition value...
 					//
@@ -489,7 +490,7 @@ namespace MimeKit {
 
 			if (text[index] != (byte) ';') {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Expected ';' at position {0}", index), index, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected ';' at position {0}", index), index, index);
 
 				return false;
 			}

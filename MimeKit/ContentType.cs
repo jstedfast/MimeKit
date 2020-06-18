@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 
 using MimeKit.Utils;
 
@@ -411,7 +412,7 @@ namespace MimeKit {
 			start = index;
 			if (!SkipType (text, ref index, endIndex)) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Invalid type token at position {0}", start), start, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid type token at position {0}", start), start, index);
 
 				return false;
 			}
@@ -423,7 +424,7 @@ namespace MimeKit {
 
 			if (index >= endIndex || text[index] != (byte) '/') {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Expected '/' at position {0}", index), index, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected '/' at position {0}", index), index, index);
 
 				return false;
 			}
@@ -437,7 +438,7 @@ namespace MimeKit {
 			start = index;
 			if (!ParseUtils.SkipToken (text, ref index, endIndex)) {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Invalid atom token at position {0}", start), start, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid atom token at position {0}", start), start, index);
 
 				return false;
 			}
@@ -454,7 +455,7 @@ namespace MimeKit {
 
 			if (text[index] != (byte) ';') {
 				if (throwOnError)
-					throw new ParseException (string.Format ("Expected ';' at position {0}", index), index, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected ';' at position {0}", index), index, index);
 
 				return false;
 			}

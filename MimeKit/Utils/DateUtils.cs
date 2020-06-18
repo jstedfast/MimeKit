@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace MimeKit.Utils {
@@ -715,7 +716,7 @@ namespace MimeKit.Utils {
 		/// <param name="date">The date.</param>
 		public static string FormatDate (DateTimeOffset date)
 		{
-			return string.Format ("{0}, {1:00} {2} {3:0000} {4:00}:{5:00}:{6:00} {7:+00;-00}{8:00}",
+			return string.Format (CultureInfo.InvariantCulture, "{0}, {1:00} {2} {3:0000} {4:00}:{5:00}:{6:00} {7:+00;-00}{8:00}",
 				WeekDays[(int) date.DayOfWeek], date.Day, Months[date.Month - 1], date.Year,
 				date.Hour, date.Minute, date.Second, date.Offset.Hours, date.Offset.Minutes);
 		}

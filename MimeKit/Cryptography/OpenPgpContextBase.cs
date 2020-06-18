@@ -32,6 +32,7 @@ using System.Text;
 using System.Net.Http;
 using System.Threading;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -579,7 +580,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			uri.Path = "/pks/lookup";
-			uri.Query = string.Format ("op=get&search=0x{0:X}", keyId);
+			uri.Query = string.Format (CultureInfo.InvariantCulture, "op=get&search=0x{0:X}", keyId);
 
 			using (var stream = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (stream)) {

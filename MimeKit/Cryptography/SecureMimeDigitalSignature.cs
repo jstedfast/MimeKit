@@ -235,7 +235,7 @@ namespace MimeKit.Cryptography {
 				throw vex;
 
 			if (SignerCertificate == null) {
-				var message = string.Format ("Failed to verify digital signature: missing certificate.");
+				var message = "Failed to verify digital signature: missing certificate.";
 				vex = new DigitalSignatureVerifyException (message);
 				throw vex;
 			}
