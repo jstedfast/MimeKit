@@ -498,7 +498,7 @@ namespace MimeKit.Utils {
 					// https://github.com/jstedfast/MimeKit/issues/102
 
 					//if (throwOnError)
-					//	throw new ParseException (string.Format ("Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+					//	throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
 
 					//return false;
 				}
