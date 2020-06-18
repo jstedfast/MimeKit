@@ -348,9 +348,9 @@ namespace MimeKit {
 			message.Body = entity;
 
 			OnMimeMessageBegin (message, headerBlockBegin);
-			OnMimeMessageHeadersEnd (message, headerBlockEnd);
 			OnMimeEntityBegin (entity, headerBlockBegin);
 			OnMimeEntityHeadersEnd (entity, headerBlockEnd);
+			OnMimeMessageHeadersEnd (message, headerBlockEnd);
 
 			if (entity is Multipart)
 				await ConstructMultipartAsync ((Multipart) entity, depth + 1, cancellationToken).ConfigureAwait (false);

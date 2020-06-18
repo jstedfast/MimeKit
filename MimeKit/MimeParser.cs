@@ -1585,9 +1585,9 @@ namespace MimeKit {
 			message.Body = entity;
 
 			OnMimeMessageBegin (message, headerBlockBegin);
-			OnMimeMessageHeadersEnd (message, headerBlockEnd);
 			OnMimeEntityBegin (entity, headerBlockBegin);
 			OnMimeEntityHeadersEnd (entity, headerBlockEnd);
+			OnMimeMessageHeadersEnd (message, headerBlockEnd);
 
 			if (entity is Multipart)
 				ConstructMultipart ((Multipart) entity, inbuf, depth + 1, cancellationToken);
