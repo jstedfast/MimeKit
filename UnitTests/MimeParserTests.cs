@@ -1284,5 +1284,35 @@ ABC
 				Assert.AreEqual (2, lines, "Line count");
 			}
 		}
+
+		[Test]
+		public void TestLineCountNonTerminatedSingleHeader ()
+		{
+			const string text = "From: mimekit@example.org";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountProperlyTerminatedSingleHeader ()
+		{
+			const string text = "From: mimekit@example.org\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
 	}
 }

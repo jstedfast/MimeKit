@@ -749,12 +749,8 @@ namespace MimeKit {
 		{
 			var lines = lineNumber - beginLineNumber;
 
-			if (boundary == BoundaryType.Eos) {
-				var offset = GetOffset (inputIndex);
-
-				if (offset > lineBeginOffset)
-					lines++;
-			}
+			if (boundary == BoundaryType.Eos && lineBeginOffset >= headerBlockEnd && position > lineBeginOffset)
+				lines++;
 
 			return lines;
 		}
