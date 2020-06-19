@@ -143,6 +143,7 @@ namespace MimeKit {
 		long headerBlockBegin;
 		long headerBlockEnd;
 		long contentEnd;
+		long lineBeginOffset;
 		int lineNumber;
 		Stream stream;
 		long position;
@@ -335,6 +336,7 @@ namespace MimeKit {
 			contentEnd = 0;
 
 			position = stream.CanSeek ? stream.Position : 0;
+			lineBeginOffset = position;
 			preHeaderLength = 0;
 			headers.Clear ();
 			headerOffset = 0;
@@ -733,7 +735,7 @@ namespace MimeKit {
 
 		long GetEndOffset (int index)
 		{
-			if (index > 1 && input[index - 1] == (byte) '\n') {
+			if (boundary != BoundaryType.Eos && index > 1 && input[index - 1] == (byte) '\n') {
 				index--;
 
 				if (index > 1 && input[index - 1] == (byte) '\r')
@@ -741,6 +743,20 @@ namespace MimeKit {
 			}
 
 			return GetOffset (index);
+		}
+
+		int GetLineCount (int beginLineNumber)
+		{
+			var lines = lineNumber - beginLineNumber;
+
+			if (boundary == BoundaryType.Eos) {
+				var offset = GetOffset (inputIndex);
+
+				if (offset > lineBeginOffset)
+					lines++;
+			}
+
+			return lines;
 		}
 
 		static unsafe bool CStringsEqual (byte* str1, byte* str2, int length)
@@ -807,7 +823,7 @@ namespace MimeKit {
 #endif
 		}
 
-		unsafe void StepMboxMarker (byte *inbuf, ref bool needInput, ref bool complete, ref int left)
+		unsafe bool StepMboxMarker (byte *inbuf, ref int left)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -833,10 +849,11 @@ namespace MimeKit {
 					// we don't have enough input data
 					inputIndex = (int) (start - inbuf);
 					left = (int) (inptr - start);
-					needInput = true;
-					break;
+					return false;
 				}
 
+				inputIndex = (int) (inptr - inbuf);
+				lineBeginOffset = GetOffset (inputIndex);
 				lineNumber++;
 
 				if (length >= 5 && IsMboxMarker (start)) {
@@ -852,21 +869,19 @@ namespace MimeKit {
 						Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
 
 					Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, (int) length);
-					complete = true;
-					break;
+
+					return true;
 				}
 			}
 
-			if (!needInput) {
-				inputIndex = (int) (inptr - inbuf);
-				left = 0;
-			}
+			left = 0;
+
+			return false;
 		}
 
 		unsafe void StepMboxMarker (byte* inbuf, CancellationToken cancellationToken)
 		{
-			bool complete = false;
-			bool needInput;
+			bool complete;
 			int left = 0;
 
 			mboxMarkerLength = 0;
@@ -881,9 +896,7 @@ namespace MimeKit {
 					return;
 				}
 
-				needInput = false;
-
-				StepMboxMarker (inbuf, ref needInput, ref complete, ref left);
+				complete = StepMboxMarker (inbuf, ref left);
 			} while (!complete);
 
 			state = MimeParserState.MessageHeaders;
@@ -1056,6 +1069,7 @@ namespace MimeKit {
 					break;
 				}
 
+				lineBeginOffset = GetOffset ((int) (inptr - inbuf) + 1);
 				lineNumber++;
 
 				// check to see if we've reached the end of the headers
@@ -1182,6 +1196,7 @@ namespace MimeKit {
 				if (consumeNewLine) {
 					inputIndex++;
 					lineNumber++;
+					lineBeginOffset = GetOffset (inputIndex);
 				} else if (*(inptr - 1) == (byte) '\r') {
 					inputIndex--;
 				}
@@ -1413,6 +1428,8 @@ namespace MimeKit {
 					lineNumber++;
 					length++;
 					inptr++;
+
+					lineBeginOffset = GetOffset ((int) (inptr - inbuf));
 				} else {
 					// didn't find the end of the line...
 					midline = true;
@@ -1513,7 +1530,7 @@ namespace MimeKit {
 			}
 
 			OnMimeContentOctets (part, endOffset - beginOffset);
-			OnMimeContentLines (part, lineNumber - beginLineNumber);
+			OnMimeContentLines (part, GetLineCount (beginLineNumber));
 
 			if (!result.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
@@ -1603,7 +1620,7 @@ namespace MimeKit {
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentOctets (rfc822, endOffset - beginOffset);
-			OnMimeContentLines (rfc822, lineNumber - beginLineNumber);
+			OnMimeContentLines (rfc822, GetLineCount (beginLineNumber));
 		}
 
 		unsafe void MultipartScanPreamble (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
@@ -1720,7 +1737,7 @@ namespace MimeKit {
 				endOffset = GetEndOffset (inputIndex);
 
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
 				return;
 			}
 
@@ -1744,14 +1761,14 @@ namespace MimeKit {
 				endOffset = GetEndOffset (inputIndex);
 
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
 				return;
 			}
 
 			endOffset = GetEndOffset (inputIndex);
 
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
-			OnMimeContentLines (multipart, lineNumber - beginLineNumber);
+			OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
 
 			multipart.WriteEndBoundary = false;
 

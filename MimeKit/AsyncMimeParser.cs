@@ -80,8 +80,7 @@ namespace MimeKit {
 
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)
 		{
-			bool complete = false;
-			bool needInput;
+			bool complete;
 			int left = 0;
 
 			mboxMarkerLength = 0;
@@ -96,11 +95,9 @@ namespace MimeKit {
 					return;
 				}
 
-				needInput = false;
-
 				unsafe {
 					fixed (byte* inbuf = input) {
-						StepMboxMarker (inbuf, ref needInput, ref complete, ref left);
+						complete = StepMboxMarker (inbuf, ref left);
 					}
 				}
 			} while (!complete);
@@ -272,7 +269,7 @@ namespace MimeKit {
 			}
 
 			OnMimeContentOctets (part, endOffset - beginOffset);
-			OnMimeContentLines (part, lineNumber - beginLineNumber);
+			OnMimeContentLines (part, GetLineCount (beginLineNumber));
 
 			if (!result.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
@@ -366,7 +363,7 @@ namespace MimeKit {
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentOctets (rfc822, endOffset - beginOffset);
-			OnMimeContentLines (rfc822, lineNumber - beginLineNumber);
+			OnMimeContentLines (rfc822, GetLineCount (beginLineNumber));
 		}
 
 		async Task MultipartScanPreambleAsync (Multipart multipart, CancellationToken cancellationToken)
@@ -470,7 +467,7 @@ namespace MimeKit {
 				endOffset = GetEndOffset (inputIndex);
 
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
 				return;
 			}
 
@@ -494,14 +491,14 @@ namespace MimeKit {
 				endOffset = GetEndOffset (inputIndex);
 
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, lineNumber - beginLineNumber);
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
 				return;
 			}
 
 			endOffset = GetEndOffset (inputIndex);
 
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
-			OnMimeContentLines (multipart, lineNumber - beginLineNumber);
+			OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
 
 			multipart.WriteEndBoundary = false;
 

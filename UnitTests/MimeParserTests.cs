@@ -38,6 +38,7 @@ using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
+using System.Linq;
 
 namespace UnitTests {
 	[TestFixture]
@@ -1171,6 +1172,116 @@ namespace UnitTests {
 					// make sure that the top-level MIME part is a multipart/alternative
 					Assert.IsInstanceOf (typeof (MultipartAlternative), message.Body);
 				}
+			}
+		}
+
+		[Test]
+		public void TestLineCountSingleLine ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountSingleLineCRLF ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountSingleLineInMultipart ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountOneLineOfTextFollowedByBlankLineInMultipart ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text followed by a blank line
+
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+
+				Assert.AreEqual (2, lines, "Line count");
 			}
 		}
 	}
