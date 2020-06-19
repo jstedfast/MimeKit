@@ -827,44 +827,44 @@ namespace MimeKit {
 			*inend = (byte) '\n';
 
 			while (inptr < inend) {
+				int startIndex = inputIndex;
 				byte* start = inptr;
 
 				// scan for the end of the line
 				while (*inptr != (byte) '\n')
 					inptr++;
 
-				long length = inptr - start;
+				var markerLength = (int) (inptr - start);
 
 				if (inptr > start && *(inptr - 1) == (byte) '\r')
-					length--;
+					markerLength--;
 
 				// consume the '\n'
 				inptr++;
 
+				var lineLength = (int) (inptr - start);
+
 				if (inptr >= inend) {
 					// we don't have enough input data
-					inputIndex = (int) (start - inbuf);
-					left = (int) (inptr - start);
+					left = lineLength;
 					return false;
 				}
 
-				inputIndex = (int) (inptr - inbuf);
+				inputIndex += lineLength;
 				lineBeginOffset = GetOffset (inputIndex);
 				lineNumber++;
 
-				if (length >= 5 && IsMboxMarker (start)) {
-					int startIndex = (int) (start - inbuf);
-
+				if (markerLength >= 5 && IsMboxMarker (start)) {
 					mboxMarkerOffset = GetOffset (startIndex);
-					mboxMarkerLength = (int) length;
+					mboxMarkerLength = markerLength;
 
 					OnMboxMarkerBegin (mboxMarkerOffset);
-					OnMboxMarkerEnd (mboxMarkerOffset + length);
+					OnMboxMarkerEnd (mboxMarkerOffset + lineLength);
 
 					if (mboxMarkerBuffer.Length < mboxMarkerLength)
 						Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
 
-					Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, (int) length);
+					Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, markerLength);
 
 					return true;
 				}

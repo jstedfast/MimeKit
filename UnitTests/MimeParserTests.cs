@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Globalization;
@@ -38,7 +39,6 @@ using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
-using System.Linq;
 
 namespace UnitTests {
 	[TestFixture]
