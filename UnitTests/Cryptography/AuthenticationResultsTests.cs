@@ -953,6 +953,56 @@ namespace UnitTests.Cryptography {
 			Assert.AreEqual (expected, encoded.ToString ());
 		}
 
+		// Tests work-around for https://github.com/jstedfast/MimeKit/issues/584
+		[Test]
+		public void TestParseMethodResultWithUnderscore ()
+		{
+			const string input = " atlas122.free.mail.gq1.yahoo.com; dkim=dkim_pass header.i=@news.aegeanair.com header.s=@aegeanair2; spf=pass smtp.mailfrom=news.aegeanair.com; dmarc=success(p=REJECT) header.from=news.aegeanair.com;";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
+			Assert.AreEqual ("atlas122.free.mail.gq1.yahoo.com", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual (3, authres.Results.Count, "methods");
+			Assert.AreEqual ("dkim", authres.Results[0].Method);
+			Assert.AreEqual ("dkim_pass", authres.Results[0].Result);
+			Assert.AreEqual (null, authres.Results[0].ResultComment);
+			Assert.AreEqual (2, authres.Results[0].Properties.Count, "dkim properties");
+			Assert.AreEqual ("header", authres.Results[0].Properties[0].PropertyType);
+			Assert.AreEqual ("i", authres.Results[0].Properties[0].Property);
+			Assert.AreEqual ("@news.aegeanair.com", authres.Results[0].Properties[0].Value);
+			Assert.AreEqual ("header", authres.Results[0].Properties[1].PropertyType);
+			Assert.AreEqual ("s", authres.Results[0].Properties[1].Property);
+			Assert.AreEqual ("@aegeanair2", authres.Results[0].Properties[1].Value);
+
+			Assert.AreEqual ("spf", authres.Results[1].Method);
+			Assert.AreEqual ("pass", authres.Results[1].Result);
+			Assert.AreEqual (null, authres.Results[1].ResultComment);
+			Assert.AreEqual (1, authres.Results[1].Properties.Count, "spf properties");
+			Assert.AreEqual ("smtp", authres.Results[1].Properties[0].PropertyType);
+			Assert.AreEqual ("mailfrom", authres.Results[1].Properties[0].Property);
+			Assert.AreEqual ("news.aegeanair.com", authres.Results[1].Properties[0].Value);
+
+			Assert.AreEqual ("dmarc", authres.Results[2].Method);
+			Assert.AreEqual ("success", authres.Results[2].Result);
+			Assert.AreEqual ("p=REJECT", authres.Results[2].ResultComment);
+			Assert.AreEqual (1, authres.Results[2].Properties.Count, "dmarc properties");
+			Assert.AreEqual ("header", authres.Results[2].Properties[0].PropertyType);
+			Assert.AreEqual ("from", authres.Results[2].Properties[0].Property);
+			Assert.AreEqual ("news.aegeanair.com", authres.Results[2].Properties[0].Value);
+
+			Assert.AreEqual ("atlas122.free.mail.gq1.yahoo.com; dkim=dkim_pass header.i=@news.aegeanair.com header.s=@aegeanair2; spf=pass smtp.mailfrom=news.aegeanair.com; dmarc=success (p=REJECT) header.from=news.aegeanair.com", authres.ToString ());
+
+			const string expected = " atlas122.free.mail.gq1.yahoo.com;\n\tdkim=dkim_pass header.i=@news.aegeanair.com header.s=@aegeanair2;\n\tspf=pass smtp.mailfrom=news.aegeanair.com;\n\tdmarc=success (p=REJECT) header.from=news.aegeanair.com\n";
+			var encoded = new StringBuilder ();
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, "Authentication-Results:".Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
 		static void AssertParseFailure (string input, int tokenIndex, int errorIndex)
 		{
 			var buffer = Encoding.ASCII.GetBytes (input);

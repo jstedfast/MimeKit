@@ -223,7 +223,7 @@ namespace MimeKit.Cryptography {
 			return (c >= (byte) 'A' && c <= (byte) 'Z') ||
 				(c >= (byte) 'a' && c <= (byte) 'z') ||
 				(c >= (byte) '0' && c <= (byte) '9') ||
-				c == (byte) '-';
+				c == (byte) '-' || c == (byte) '_';
 		}
 
 		static bool SkipKeyword (byte[] text, ref int index, int endIndex)
