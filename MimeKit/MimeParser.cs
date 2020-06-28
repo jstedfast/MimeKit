@@ -1166,7 +1166,6 @@ namespace MimeKit {
 
 						ParseAndAppendHeader ();
 
-						headerBlockEnd = GetOffset (inputIndex);
 						state = MimeParserState.Content;
 					}
 					break;
