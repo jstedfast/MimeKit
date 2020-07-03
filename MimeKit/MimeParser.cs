@@ -143,6 +143,7 @@ namespace MimeKit {
 		long headerBlockBegin;
 		long headerBlockEnd;
 		long contentEnd;
+		long prevLineBeginOffset;
 		long lineBeginOffset;
 		int lineNumber;
 		Stream stream;
@@ -332,10 +333,11 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 			headerBlockBegin = 0;
 			headerBlockEnd = 0;
-			lineNumber = 0;
+			lineNumber = 1;
 			contentEnd = 0;
 
 			position = stream.CanSeek ? stream.Position : 0;
+			prevLineBeginOffset = position;
 			lineBeginOffset = position;
 			preHeaderLength = 0;
 			headers.Clear ();
@@ -745,12 +747,15 @@ namespace MimeKit {
 			return GetOffset (index);
 		}
 
-		int GetLineCount (int beginLineNumber)
+		int GetLineCount (int beginLineNumber, long beginOffset, long endOffset)
 		{
 			var lines = lineNumber - beginLineNumber;
 
-			if (boundary == BoundaryType.Eos && lineBeginOffset >= headerBlockEnd && position > lineBeginOffset)
+			if (lineBeginOffset >= beginOffset && endOffset > lineBeginOffset)
 				lines++;
+
+			if (boundary != BoundaryType.Eos && endOffset == prevLineBeginOffset)
+				lines--;
 
 			return lines;
 		}
@@ -851,6 +856,7 @@ namespace MimeKit {
 				}
 
 				inputIndex += lineLength;
+				prevLineBeginOffset = lineBeginOffset;
 				lineBeginOffset = GetOffset (inputIndex);
 				lineNumber++;
 
@@ -1065,6 +1071,7 @@ namespace MimeKit {
 					break;
 				}
 
+				prevLineBeginOffset = lineBeginOffset;
 				lineBeginOffset = GetOffset ((int) (inptr - inbuf) + 1);
 				lineNumber++;
 
@@ -1191,6 +1198,7 @@ namespace MimeKit {
 				if (consumeNewLine) {
 					inputIndex++;
 					lineNumber++;
+					prevLineBeginOffset = lineBeginOffset;
 					lineBeginOffset = GetOffset (inputIndex);
 				} else if (*(inptr - 1) == (byte) '\r') {
 					inputIndex--;
@@ -1424,6 +1432,7 @@ namespace MimeKit {
 					length++;
 					inptr++;
 
+					prevLineBeginOffset = lineBeginOffset;
 					lineBeginOffset = GetOffset ((int) (inptr - inbuf));
 				} else {
 					// didn't find the end of the line...
@@ -1525,7 +1534,7 @@ namespace MimeKit {
 			}
 
 			OnMimeContentOctets (part, endOffset - beginOffset);
-			OnMimeContentLines (part, GetLineCount (beginLineNumber));
+			OnMimeContentLines (part, GetLineCount (beginLineNumber, beginOffset, endOffset));
 
 			if (!result.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
@@ -1615,7 +1624,7 @@ namespace MimeKit {
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentOctets (rfc822, endOffset - beginOffset);
-			OnMimeContentLines (rfc822, GetLineCount (beginLineNumber));
+			OnMimeContentLines (rfc822, GetLineCount (beginLineNumber, beginOffset, endOffset));
 		}
 
 		unsafe void MultipartScanPreamble (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
@@ -1729,10 +1738,10 @@ namespace MimeKit {
 
 				// Note: this will scan all content into the preamble...
 				MultipartScanPreamble (multipart, inbuf, cancellationToken);
-				endOffset = GetEndOffset (inputIndex);
 
+				endOffset = GetEndOffset (inputIndex);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber, beginOffset, endOffset));
 				return;
 			}
 
@@ -1753,17 +1762,16 @@ namespace MimeKit {
 				OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
 
 				MultipartScanEpilogue (multipart, inbuf, cancellationToken);
-				endOffset = GetEndOffset (inputIndex);
 
+				endOffset = GetEndOffset (inputIndex);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber, beginOffset, endOffset));
 				return;
 			}
 
 			endOffset = GetEndOffset (inputIndex);
-
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
-			OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
+			OnMimeContentLines (multipart, GetLineCount (beginLineNumber, beginOffset, endOffset));
 
 			multipart.WriteEndBoundary = false;
 

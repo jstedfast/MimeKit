@@ -269,7 +269,7 @@ namespace MimeKit {
 			}
 
 			OnMimeContentOctets (part, endOffset - beginOffset);
-			OnMimeContentLines (part, GetLineCount (beginLineNumber));
+			OnMimeContentLines (part, GetLineCount (beginLineNumber, beginOffset, endOffset));
 
 			if (!result.IsEmpty)
 				part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = result.Format };
@@ -363,7 +363,7 @@ namespace MimeKit {
 			OnMimeEntityEnd (entity, endOffset);
 			OnMimeMessageEnd (message, endOffset);
 			OnMimeContentOctets (rfc822, endOffset - beginOffset);
-			OnMimeContentLines (rfc822, GetLineCount (beginLineNumber));
+			OnMimeContentLines (rfc822, GetLineCount (beginLineNumber, beginOffset, endOffset));
 		}
 
 		async Task MultipartScanPreambleAsync (Multipart multipart, CancellationToken cancellationToken)
@@ -464,10 +464,10 @@ namespace MimeKit {
 
 				// Note: this will scan all content into the preamble...
 				await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
-				endOffset = GetEndOffset (inputIndex);
 
+				endOffset = GetEndOffset (inputIndex);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber, beginOffset, endOffset));
 				return;
 			}
 
@@ -488,17 +488,16 @@ namespace MimeKit {
 				OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
 
 				await MultipartScanEpilogueAsync (multipart, cancellationToken).ConfigureAwait (false);
-				endOffset = GetEndOffset (inputIndex);
 
+				endOffset = GetEndOffset (inputIndex);
 				OnMimeContentOctets (multipart, endOffset - beginOffset);
-				OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
+				OnMimeContentLines (multipart, GetLineCount (beginLineNumber, beginOffset, endOffset));
 				return;
 			}
 
 			endOffset = GetEndOffset (inputIndex);
-
 			OnMimeContentOctets (multipart, endOffset - beginOffset);
-			OnMimeContentLines (multipart, GetLineCount (beginLineNumber));
+			OnMimeContentLines (multipart, GetLineCount (beginLineNumber, beginOffset, endOffset));
 
 			multipart.WriteEndBoundary = false;
 

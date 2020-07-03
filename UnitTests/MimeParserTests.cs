@@ -1281,7 +1281,7 @@ ABC
 
 				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
 
-				Assert.AreEqual (2, lines, "Line count");
+				Assert.AreEqual (1, lines, "Line count");
 			}
 		}
 
