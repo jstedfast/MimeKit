@@ -1,5 +1,5 @@
 ﻿//
-// HeaderChangedEventArgs.cs
+// HeaderListChangedEventArgs.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
