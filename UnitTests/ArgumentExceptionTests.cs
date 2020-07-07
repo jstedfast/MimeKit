@@ -426,5 +426,37 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => collection[0] = null);
 			Assert.DoesNotThrow (() => collection[0] = new HeaderList ());
 		}
+
+		[Test]
+		public void TestMimeMessageBeginEventArgs ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new MimeMessageBeginEventArgs (null));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessageBeginEventArgs (null, new MessagePart ()));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessageBeginEventArgs (new MimeMessage (), null));
+		}
+
+		[Test]
+		public void TestMimeMessageEndEventArgs ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new MimeMessageEndEventArgs (null));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessageEndEventArgs (null, new MessagePart ()));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessageEndEventArgs (new MimeMessage (), null));
+		}
+
+		[Test]
+		public void TestMimeEntityBeginEventArgs ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new MimeEntityBeginEventArgs (null));
+			Assert.Throws<ArgumentNullException> (() => new MimeEntityBeginEventArgs (null, new Multipart ()));
+			Assert.Throws<ArgumentNullException> (() => new MimeEntityBeginEventArgs (new MimePart (), null));
+		}
+
+		[Test]
+		public void TestMimeEntityEndEventArgs ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new MimeEntityEndEventArgs (null));
+			Assert.Throws<ArgumentNullException> (() => new MimeEntityEndEventArgs (null, new Multipart ()));
+			Assert.Throws<ArgumentNullException> (() => new MimeEntityEndEventArgs (new MimePart (), null));
+		}
 	}
 }

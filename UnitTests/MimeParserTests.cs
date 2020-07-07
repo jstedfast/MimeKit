@@ -35,6 +35,8 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
+using Newtonsoft.Json;
+
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -591,65 +593,72 @@ namespace UnitTests {
 			return NewLineFormat.Dos;
 		}
 
-		enum MimeParserOffsetLocation
+		class MimeOffsets
 		{
-			MboxMarkerBegin,
-			MboxMarkerEnd,
-			MimeMessageBegin,
-			MimeMessageHeadersEnd,
-			MimeMessageEnd,
-			MimeEntityBegin,
-			MimeEntityHeadersEnd,
-			MimeEntityEnd,
-			MultipartBoundaryBegin,
-			MultipartBoundaryEnd,
-			MultipartEndBoundaryBegin,
-			MultipartEndBoundaryEnd,
-			MultipartPreambleBegin,
-			MultipartPreambleEnd,
-			MultipartEpilogueBegin,
-			MultipartEpilogueEnd,
+			[JsonProperty ("mimeType", NullValueHandling = NullValueHandling.Ignore)]
+			public string MimeType { get; set; }
 
-			// These last 2 aren't really offsets, but we're recording them anyway to test them.
-			Octets,
-			Lines
+			[JsonProperty ("mboxMarkerBegin", NullValueHandling = NullValueHandling.Ignore)]
+			public long? MboxMarkerBegin { get; set; }
+
+			[JsonProperty ("mboxMarkerLength", NullValueHandling = NullValueHandling.Ignore)]
+			public long? MboxMarkerLength { get; set; }
+
+			[JsonProperty ("begin")]
+			public long Begin { get; set; }
+
+			[JsonProperty ("headersEnd")]
+			public long HeadersEnd { get; set; }
+
+			[JsonProperty ("message", NullValueHandling = NullValueHandling.Ignore)]
+			public MimeOffsets Message { get; set; }
+
+			[JsonProperty ("body", NullValueHandling = NullValueHandling.Ignore)]
+			public MimeOffsets Body { get; set; }
+
+			[JsonProperty ("children", NullValueHandling = NullValueHandling.Ignore)]
+			public List<MimeOffsets> Children { get; set; }
+
+			[JsonProperty ("end")]
+			public long End { get; set; }
+
+			[JsonProperty ("octets")]
+			public long Octets { get; set; }
+
+			[JsonProperty ("lines")]
+			public int Lines { get; set; }
 		}
 
-		class MimeParserOffset
+		static void AssertMimeOffsets (MimeOffsets expected, MimeOffsets actual, int message, string partSpecifier)
 		{
-			public readonly MimeParserOffsetLocation Location;
-			public readonly long Offset;
+			Assert.AreEqual (expected.MimeType, actual.MimeType, $"mime-type differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.MboxMarkerBegin, actual.MboxMarkerBegin, $"mbox marker begin offset differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.MboxMarkerLength, actual.MboxMarkerLength, $"mbox marker length differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.Begin, actual.Begin, $"begin offset differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.HeadersEnd, actual.HeadersEnd, $"headers end offset differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.End, actual.End, $"end offset differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.Octets, actual.Octets, $"octets differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.Lines, actual.Lines, $"lines differs for message #{message}{partSpecifier}");
 
-			public MimeParserOffset (MimeParserOffsetLocation location, long offset)
-			{
-				Location = location;
-				Offset = offset;
-			}
-		}
-
-		static readonly char[] Space = new char[] { ' ' };
-
-		static IEnumerable<MimeParserOffset> EnumerateMimeParserOffsets (string fileName)
-		{
-			using (var reader = File.OpenText (fileName)) {
-				string line;
-
-				while ((line = reader.ReadLine ()) != null) {
-					var values = line.Split (Space, 2, StringSplitOptions.RemoveEmptyEntries);
-					MimeParserOffsetLocation location;
-					long offset;
-
-					if (!Enum.TryParse (values[0], out location) || !long.TryParse (values[1], NumberStyles.None, CultureInfo.InvariantCulture, out offset))
-						continue;
-
-					yield return new MimeParserOffset (location, offset);
-				}
+			if (expected.Message != null) {
+				Assert.NotNull (actual.Message, $"message content is null for message #{message}{partSpecifier}");
+				AssertMimeOffsets (expected.Message, actual.Message, message, partSpecifier + "/message");
+			} else if (expected.Body != null) {
+				Assert.NotNull (actual.Body, $"body content is null for message #{message}{partSpecifier}");
+				AssertMimeOffsets (expected.Body, actual.Body, message, partSpecifier + "/0");
+			} else if (expected.Children != null) {
+				Assert.AreEqual (expected.Children.Count, actual.Children.Count, $"children count differs for message #{message}{partSpecifier}");
+				for (int i = 0; i < expected.Children.Count; i++)
+					AssertMimeOffsets (expected.Children[i], actual.Children[i], message, partSpecifier + $".{i}");
 			}
 		}
 
 		class CustomMimeParser : MimeParser
 		{
-			public readonly List<MimeParserOffset> Offsets = new List<MimeParserOffset> ();
+			readonly Dictionary<MimeMessage, MimeOffsets> messages = new Dictionary<MimeMessage, MimeOffsets> ();
+			readonly Dictionary<MimeEntity, MimeOffsets> entities = new Dictionary<MimeEntity, MimeOffsets> ();
+			public readonly List<MimeOffsets> Offsets = new List<MimeOffsets> ();
+			MimeOffsets body;
 
 			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format) : base (options, stream, format)
 			{
@@ -659,100 +668,75 @@ namespace UnitTests {
 			{
 			}
 
-			protected override void OnMboxMarkerBegin (long offset)
+			protected override void OnMimeMessageBegin (MimeMessageBeginEventArgs args)
 			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MboxMarkerBegin, offset));
+				var offsets = new MimeOffsets {
+					Begin = args.BeginOffset,
+				};
+
+				if (args.Parent != null) {
+					if (entities.TryGetValue (args.Parent, out var parentOffsets))
+						parentOffsets.Message = offsets;
+					else
+						Console.WriteLine ("oops?");
+				} else {
+					offsets.MboxMarkerBegin = args.MboxMarkerOffset;
+					offsets.MboxMarkerLength = args.MboxMarkerLength;
+					Offsets.Add (offsets);
+				}
+
+				messages.Add (args.Message, offsets);
 			}
 
-			protected override void OnMboxMarkerEnd (long offset)
+			protected override void OnMimeMessageEnd (MimeMessageEndEventArgs args)
 			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MboxMarkerEnd, offset));
+				if (messages.TryGetValue (args.Message, out var offsets)) {
+					offsets.HeadersEnd = args.HeadersEndOffset;
+					offsets.End = args.EndOffset;
+					offsets.Octets = args.Octets;
+					offsets.Lines = args.Lines;
+					offsets.Body = body;
+				} else {
+					Console.WriteLine ("oops?");
+				}
+
+				messages.Remove (args.Message);
 			}
 
-			protected override void OnMimeMessageBegin (MimeMessage message, long offset)
+			protected override void OnMimeEntityBegin (MimeEntityBeginEventArgs args)
 			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeMessageBegin, offset));
+				var offsets = new MimeOffsets {
+					MimeType = args.Entity.ContentType.MimeType,
+					Begin = args.BeginOffset,
+				};
+
+				if (args.Parent != null && entities.TryGetValue (args.Parent, out var parentOffsets)) {
+					if (parentOffsets.Children == null)
+						parentOffsets.Children = new List<MimeOffsets> ();
+
+					parentOffsets.Children.Add (offsets);
+				}
+
+				entities.Add (args.Entity, offsets);
 			}
 
-			protected override void OnMimeMessageEnd (MimeMessage message, long offset)
+			protected override void OnMimeEntityEnd (MimeEntityEndEventArgs args)
 			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeMessageEnd, offset));
-			}
+				if (entities.TryGetValue (args.Entity, out var offsets)) {
+					offsets.HeadersEnd = args.HeadersEndOffset;
+					offsets.End = args.EndOffset;
+					offsets.Octets = args.Octets;
+					offsets.Lines = args.Lines;
+					body = offsets;
+				} else {
+					Console.WriteLine ("oops?");
+				}
 
-			protected override void OnMimeMessageHeadersEnd (MimeMessage message, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeMessageHeadersEnd, offset));
-			}
-
-			protected override void OnMimeEntityBegin (MimeEntity entity, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeEntityBegin, offset));
-			}
-
-			protected override void OnMimeEntityEnd (MimeEntity entity, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeEntityEnd, offset));
-			}
-
-			protected override void OnMimeEntityHeadersEnd (MimeEntity entity, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MimeEntityHeadersEnd, offset));
-			}
-
-			protected override void OnMultipartBoundaryBegin (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartBoundaryBegin, offset));
-			}
-
-			protected override void OnMultipartBoundaryEnd (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartBoundaryEnd, offset));
-			}
-
-			protected override void OnMultipartEndBoundaryBegin (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartEndBoundaryBegin, offset));
-			}
-
-			protected override void OnMultipartEndBoundaryEnd (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartEndBoundaryEnd, offset));
-			}
-
-			protected override void OnMultipartPreambleBegin (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartPreambleBegin, offset));
-			}
-
-			protected override void OnMultipartPreambleEnd (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartPreambleEnd, offset));
-			}
-
-			protected override void OnMultipartEpilogueBegin (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartEpilogueBegin, offset));
-			}
-
-			protected override void OnMultipartEpilogueEnd (Multipart multipart, long offset)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.MultipartEpilogueEnd, offset));
-			}
-
-			// These last 2 aren't really offsets, but we're recording them anyway to test them.
-
-			protected override void OnMimeContentOctets (MimeEntity entity, long octets)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.Octets, octets));
-			}
-
-			protected override void OnMimeContentLines (MimeEntity entity, int lines)
-			{
-				Offsets.Add (new MimeParserOffset (MimeParserOffsetLocation.Lines, lines));
+				entities.Remove (args.Entity);
 			}
 		}
 
-		static void AssertMboxResults (string baseName, string actual, Stream output, List<MimeParserOffset> offsets, NewLineFormat newLineFormat)
+		static void AssertMboxResults (string baseName, string actual, Stream output, List<MimeOffsets> offsets, NewLineFormat newLineFormat)
 		{
 			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
 			string iso2022jp = Encoding.GetEncoding ("iso-2022-jp").GetString (Convert.FromBase64String ("GyRAOjRGI0stGyhK"));
@@ -796,19 +780,23 @@ namespace UnitTests {
 				} while (true);
 			}
 
-			path = Path.Combine (MboxDataDir, baseName + "." + newLineFormat.ToString ().ToLowerInvariant () + "-offsets.txt");
+			var jsonSerializer = JsonSerializer.CreateDefault ();
+
+			path = Path.Combine (MboxDataDir, baseName + "." + newLineFormat.ToString ().ToLowerInvariant () + "-offsets.json");
 			if (!File.Exists (path)) {
-				using (var writer = new StreamWriter (path)) {
-					foreach (var offset in offsets)
-						writer.WriteLine ($"{offset.Location} {offset.Offset}");
-				}
+				jsonSerializer.Formatting = Formatting.Indented;
+
+				using (var writer = new StreamWriter (path))
+					jsonSerializer.Serialize (writer, offsets);
 			}
 
-			n = 0;
-			foreach (var offset in EnumerateMimeParserOffsets (path)) {
-				Assert.AreEqual (offset.Location, offsets[n].Location, $"Offset Location #{n}");
-				Assert.AreEqual (offset.Offset, offsets[n].Offset, $"Stream Offset #{n} ({offset.Location})");
-				n++;
+			using (var reader = new StreamReader (path)) {
+				var expectedOffsets = (List<MimeOffsets>) jsonSerializer.Deserialize (reader, typeof (List<MimeOffsets>));
+
+				Assert.AreEqual (expectedOffsets.Count, offsets.Count, "message count");
+
+				for (int i = 0; i < expectedOffsets.Count; i++)
+					AssertMimeOffsets (expectedOffsets[i], offsets[i], i, string.Empty);
 			}
 		}
 
@@ -817,8 +805,8 @@ namespace UnitTests {
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
-			List<MimeParserOffset> offsets;
 			NewLineFormat newLineFormat;
+			List<MimeOffsets> offsets;
 
 			using (var stream = File.OpenRead (mbox)) {
 				var parser = options != null ? new CustomMimeParser (options, stream, MimeFormat.Mbox) : new CustomMimeParser (stream, MimeFormat.Mbox);
@@ -857,8 +845,8 @@ namespace UnitTests {
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
-			List<MimeParserOffset> offsets;
 			NewLineFormat newLineFormat;
+			List<MimeOffsets> offsets;
 
 			using (var stream = File.OpenRead (mbox)) {
 				var parser = options != null ? new CustomMimeParser (options, stream, MimeFormat.Mbox) : new CustomMimeParser (stream, MimeFormat.Mbox);
@@ -1191,7 +1179,7 @@ This is a single line of text";
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+				var lines = parser.Offsets[0].Body.Lines;
 
 				Assert.AreEqual (1, lines, "Line count");
 			}
@@ -1214,7 +1202,7 @@ This is a single line of text
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+				var lines = parser.Offsets[0].Body.Lines;
 
 				Assert.AreEqual (1, lines, "Line count");
 			}
@@ -1246,7 +1234,7 @@ ABC
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
 				Assert.AreEqual (1, lines, "Line count");
 			}
@@ -1279,7 +1267,7 @@ ABC
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
 				Assert.AreEqual (1, lines, "Line count");
 			}
@@ -1294,7 +1282,7 @@ ABC
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+				var lines = parser.Offsets[0].Lines;
 
 				Assert.AreEqual (0, lines, "Line count");
 			}
@@ -1309,7 +1297,7 @@ ABC
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets.Where (x => x.Location == MimeParserOffsetLocation.Lines).Select (x => x.Offset).FirstOrDefault ();
+				var lines = parser.Offsets[0].Lines;
 
 				Assert.AreEqual (0, lines, "Line count");
 			}

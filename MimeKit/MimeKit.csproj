@@ -267,10 +267,14 @@
     <Compile Include="MessagePriority.cs" />
     <Compile Include="MimeContent.cs" />
     <Compile Include="MimeEntity.cs" />
+    <Compile Include="MimeEntityBeginEventArgs.cs" />
     <Compile Include="MimeEntityConstructorArgs.cs" />
+    <Compile Include="MimeEntityEndEventArgs.cs" />
     <Compile Include="MimeFormat.cs" />
     <Compile Include="MimeIterator.cs" />
     <Compile Include="MimeMessage.cs" />
+    <Compile Include="MimeMessageBeginEventArgs.cs" />
+    <Compile Include="MimeMessageEndEventArgs.cs" />
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
     <Compile Include="MimeTypes.cs" />
