@@ -268,7 +268,6 @@ namespace MimeKit {
 				endOffset = beginOffset + content.Length;
 			}
 
-			args.EndOffset = endOffset;
 			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
@@ -287,7 +286,6 @@ namespace MimeKit {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
-					args.EndOffset = beginOffset;
 					boundary = BoundaryType.Eos;
 					return;
 				}
@@ -313,7 +311,6 @@ namespace MimeKit {
 						case BoundaryType.ParentEndBoundary:
 							// ignore "From " boundaries, broken mailers tend to include these...
 							if (!IsMboxMarker (start)) {
-								args.EndOffset = beginOffset;
 								return;
 							}
 							break;
@@ -328,7 +325,6 @@ namespace MimeKit {
 				// Note: this either means that StepHeaders() found the end of the stream
 				// or an invalid header field name at the start of the message headers,
 				// which likely means that this is not a valid MIME stream?
-				args.EndOffset = GetOffset (inputIndex);
 				boundary = BoundaryType.Eos;
 				return;
 			}
@@ -368,16 +364,15 @@ namespace MimeKit {
 
 			rfc822.Message = message;
 
-			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset;
-			messageArgs.EndOffset = entityArgs.EndOffset;
+			var endOffset = GetEndOffset (inputIndex);
+			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
+			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
 			messageArgs.Octets = entityArgs.Octets;
 			messageArgs.Lines = entityArgs.Lines;
 
 			OnMimeEntityEnd (entityArgs);
 			OnMimeMessageEnd (messageArgs);
 
-			var endOffset = GetEndOffset (inputIndex);
-			args.EndOffset = endOffset;
 			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
@@ -461,9 +456,13 @@ namespace MimeKit {
 				else
 					await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
 
+				var endOffset = GetEndOffset (inputIndex);
+				entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
+				entityArgs.EndOffset = endOffset;
+
 				OnMimeEntityEnd (entityArgs);
 
-				//beginOffset = GetEndOffset (inputIndex);
+				//beginOffset = endOffset;
 				multipart.Add (entity);
 			} while (boundary == BoundaryType.ImmediateBoundary);
 		}
@@ -483,7 +482,7 @@ namespace MimeKit {
 				// Note: this will scan all content into the preamble...
 				await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
 
-				args.EndOffset = endOffset = GetEndOffset (inputIndex);
+				endOffset = GetEndOffset (inputIndex);
 				args.Octets = endOffset - beginOffset;
 				args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 				return;
@@ -507,13 +506,13 @@ namespace MimeKit {
 
 				await MultipartScanEpilogueAsync (multipart, cancellationToken).ConfigureAwait (false);
 
-				args.EndOffset = endOffset = GetEndOffset (inputIndex);
+				endOffset = GetEndOffset (inputIndex);
 				args.Octets = endOffset - beginOffset;
 				args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 				return;
 			}
 
-			args.EndOffset = endOffset = GetEndOffset (inputIndex);
+			endOffset = GetEndOffset (inputIndex);
 			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
@@ -613,6 +612,10 @@ namespace MimeKit {
 				await ConstructMessagePartAsync ((MessagePart) entity, entityArgs, 0, cancellationToken).ConfigureAwait (false);
 			else
 				await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
+
+			var endOffset = GetEndOffset (inputIndex);
+			entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
+			entityArgs.EndOffset = endOffset;
 
 			if (boundary != BoundaryType.Eos)
 				state = MimeParserState.Complete;
@@ -714,8 +717,9 @@ namespace MimeKit {
 			else
 				await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
 
-			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset;
-			messageArgs.EndOffset = entityArgs.EndOffset;
+			var endOffset = GetEndOffset (inputIndex);
+			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
+			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
 			messageArgs.Octets = entityArgs.Octets;
 			messageArgs.Lines = entityArgs.Lines;
 
