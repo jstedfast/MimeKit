@@ -602,7 +602,10 @@ namespace UnitTests {
 			public long? MboxMarkerBegin { get; set; }
 
 			[JsonProperty ("mboxMarkerLength", NullValueHandling = NullValueHandling.Ignore)]
-			public long? MboxMarkerLength { get; set; }
+			public int? MboxMarkerLength { get; set; }
+
+			[JsonProperty ("lineNumber")]
+			public int LineNumber { get; set; }
 
 			[JsonProperty ("begin")]
 			public long Begin { get; set; }
@@ -625,8 +628,8 @@ namespace UnitTests {
 			[JsonProperty ("octets")]
 			public long Octets { get; set; }
 
-			[JsonProperty ("lines")]
-			public int Lines { get; set; }
+			[JsonProperty ("lines", NullValueHandling = NullValueHandling.Ignore)]
+			public int? Lines { get; set; }
 		}
 
 		static void AssertMimeOffsets (MimeOffsets expected, MimeOffsets actual, int message, string partSpecifier)
@@ -635,6 +638,7 @@ namespace UnitTests {
 			Assert.AreEqual (expected.MboxMarkerBegin, actual.MboxMarkerBegin, $"mbox marker begin offset differs for message #{message}{partSpecifier}");
 			Assert.AreEqual (expected.MboxMarkerLength, actual.MboxMarkerLength, $"mbox marker length differs for message #{message}{partSpecifier}");
 			Assert.AreEqual (expected.Begin, actual.Begin, $"begin offset differs for message #{message}{partSpecifier}");
+			Assert.AreEqual (expected.LineNumber, actual.LineNumber, $"begin line differs for message #{message}{partSpecifier}");
 			Assert.AreEqual (expected.HeadersEnd, actual.HeadersEnd, $"headers end offset differs for message #{message}{partSpecifier}");
 			Assert.AreEqual (expected.End, actual.End, $"end offset differs for message #{message}{partSpecifier}");
 			Assert.AreEqual (expected.Octets, actual.Octets, $"octets differs for message #{message}{partSpecifier}");
@@ -672,6 +676,7 @@ namespace UnitTests {
 			{
 				var offsets = new MimeOffsets {
 					Begin = args.BeginOffset,
+					LineNumber = args.LineNumber
 				};
 
 				if (args.Parent != null) {
@@ -693,8 +698,7 @@ namespace UnitTests {
 				if (messages.TryGetValue (args.Message, out var offsets)) {
 					offsets.HeadersEnd = args.HeadersEndOffset;
 					offsets.End = args.EndOffset;
-					offsets.Octets = args.Octets;
-					offsets.Lines = args.Lines;
+					offsets.Octets = args.BodyOctets;
 					offsets.Body = body;
 				} else {
 					Console.WriteLine ("oops?");
@@ -708,6 +712,7 @@ namespace UnitTests {
 				var offsets = new MimeOffsets {
 					MimeType = args.Entity.ContentType.MimeType,
 					Begin = args.BeginOffset,
+					LineNumber = args.LineNumber
 				};
 
 				if (args.Parent != null && entities.TryGetValue (args.Parent, out var parentOffsets)) {
@@ -1282,7 +1287,7 @@ ABC
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets[0].Lines;
+				var lines = parser.Offsets[0].Body.Lines;
 
 				Assert.AreEqual (0, lines, "Line count");
 			}
@@ -1297,7 +1302,7 @@ ABC
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
-				var lines = parser.Offsets[0].Lines;
+				var lines = parser.Offsets[0].Body.Lines;
 
 				Assert.AreEqual (0, lines, "Line count");
 			}

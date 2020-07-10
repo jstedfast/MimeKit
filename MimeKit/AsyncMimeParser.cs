@@ -331,10 +331,9 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 			var messageArgs = new MimeMessageEndEventArgs (message, rfc822) {
-				MboxMarkerOffset = mboxMarkerOffset,
-				MboxMarkerLength = mboxMarkerLength,
 				HeadersEndOffset = headerBlockEnd,
-				BeginOffset = headerBlockBegin
+				BeginOffset = headerBlockBegin,
+				LineNumber = beginLineNumber
 			};
 
 			OnMimeMessageBegin (messageArgs);
@@ -348,7 +347,8 @@ namespace MimeKit {
 			var entity = options.CreateEntity (type, headers, true, depth);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
-				BeginOffset = headerBlockBegin
+				BeginOffset = headerBlockBegin,
+				LineNumber = beginLineNumber
 			};
 
 			OnMimeEntityBegin (entityArgs);
@@ -367,8 +367,7 @@ namespace MimeKit {
 			var endOffset = GetEndOffset (inputIndex);
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
-			messageArgs.Octets = entityArgs.Octets;
-			messageArgs.Lines = entityArgs.Lines;
+			messageArgs.BodyOctets = entityArgs.Octets;
 
 			OnMimeEntityEnd (entityArgs);
 			OnMimeMessageEnd (messageArgs);
@@ -417,6 +416,8 @@ namespace MimeKit {
 
 				//OnMultipartBoundaryEnd (multipart, GetOffset (inputIndex));
 
+				var beginLineNumber = lineNumber;
+
 				// parse the headers
 				state = MimeParserState.Headers;
 				if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
@@ -444,7 +445,8 @@ namespace MimeKit {
 				var entity = options.CreateEntity (type, headers, false, depth);
 				var entityArgs = new MimeEntityEndEventArgs (entity, multipart) {
 					HeadersEndOffset = headerBlockEnd,
-					BeginOffset = headerBlockBegin
+					BeginOffset = headerBlockBegin,
+					LineNumber = beginLineNumber
 				};
 
 				OnMimeEntityBegin (entityArgs);
@@ -588,6 +590,8 @@ namespace MimeKit {
 			if (persistent && stream.Position != position)
 				stream.Seek (position, SeekOrigin.Begin);
 
+			var beginLineNumber = lineNumber;
+
 			state = MimeParserState.Headers;
 			toplevel = true;
 
@@ -601,7 +605,8 @@ namespace MimeKit {
 			var entity = options.CreateEntity (type, headers, false, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
-				BeginOffset = headerBlockBegin
+				BeginOffset = headerBlockBegin,
+				LineNumber = beginLineNumber
 			};
 
 			OnMimeEntityBegin (entityArgs);
@@ -665,15 +670,17 @@ namespace MimeKit {
 			toplevel = true;
 
 			// parse the headers
+			var beginLineNumber = lineNumber;
 			if (state < MimeParserState.Content && await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse message headers.");
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 			var messageArgs = new MimeMessageEndEventArgs (message) {
-				MboxMarkerOffset = mboxMarkerOffset,
-				MboxMarkerLength = mboxMarkerLength,
+				MboxMarkerOffset = format == MimeFormat.Mbox ? (long?) mboxMarkerOffset : null,
+				MboxMarkerLength = format == MimeFormat.Mbox ? (int?) mboxMarkerLength : null,
 				HeadersEndOffset = headerBlockEnd,
-				BeginOffset = headerBlockBegin
+				BeginOffset = headerBlockBegin,
+				LineNumber = beginLineNumber
 			};
 
 			OnMimeMessageBegin (messageArgs);
@@ -703,7 +710,8 @@ namespace MimeKit {
 			var entity = options.CreateEntity (type, headers, true, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
-				BeginOffset = headerBlockBegin
+				BeginOffset = headerBlockBegin,
+				LineNumber = beginLineNumber
 			};
 
 			OnMimeEntityBegin (entityArgs);
@@ -720,8 +728,7 @@ namespace MimeKit {
 			var endOffset = GetEndOffset (inputIndex);
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
-			messageArgs.Octets = entityArgs.Octets;
-			messageArgs.Lines = entityArgs.Lines;
+			messageArgs.BodyOctets = entityArgs.Octets;
 
 			if (boundary != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)

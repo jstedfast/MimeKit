@@ -2,15 +2,18 @@
   {
     "mboxMarkerBegin": 0,
     "mboxMarkerLength": 7,
+    "lineNumber": 2,
     "begin": 9,
     "headersEnd": 675,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 2,
       "begin": 9,
       "headersEnd": 675,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 20,
           "begin": 725,
           "headersEnd": 753,
           "end": 831,
@@ -19,13 +22,16 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 28,
           "begin": 883,
           "headersEnd": 948,
           "message": {
+            "lineNumber": 31,
             "begin": 948,
             "headersEnd": 1747,
             "body": {
               "mimeType": "text/plain",
+              "lineNumber": 31,
               "begin": 948,
               "headersEnd": 1747,
               "end": 1887,
@@ -33,8 +39,7 @@
               "lines": 4
             },
             "end": 1887,
-            "octets": 140,
-            "lines": 4
+            "octets": 140
           },
           "end": 1887,
           "octets": 939,
@@ -46,28 +51,32 @@
       "lines": 34
     },
     "end": 1939,
-    "octets": 1264,
-    "lines": 34
+    "octets": 1264
   },
   {
     "mboxMarkerBegin": 1941,
     "mboxMarkerLength": 7,
+    "lineNumber": 54,
     "begin": 1950,
     "headersEnd": 2430,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 54,
       "begin": 1950,
       "headersEnd": 2430,
       "children": [
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 69,
           "begin": 2506,
           "headersEnd": 2655,
           "message": {
+            "lineNumber": 74,
             "begin": 2655,
             "headersEnd": 3095,
             "body": {
               "mimeType": "text/plain",
+              "lineNumber": 74,
               "begin": 2655,
               "headersEnd": 3095,
               "end": 3134,
@@ -75,8 +84,7 @@
               "lines": 2
             },
             "end": 3134,
-            "octets": 39,
-            "lines": 2
+            "octets": 39
           },
           "end": 3134,
           "octets": 479,
@@ -84,6 +92,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 89,
           "begin": 3164,
           "headersEnd": 3291,
           "end": 3755,
@@ -92,6 +101,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 101,
           "begin": 3785,
           "headersEnd": 3912,
           "end": 4404,
@@ -100,6 +110,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 113,
           "begin": 4434,
           "headersEnd": 4565,
           "end": 5099,
@@ -108,6 +119,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 126,
           "begin": 5129,
           "headersEnd": 5258,
           "end": 5762,
@@ -116,13 +128,16 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 138,
           "begin": 5792,
           "headersEnd": 5941,
           "message": {
+            "lineNumber": 143,
             "begin": 5941,
             "headersEnd": 6381,
             "body": {
               "mimeType": "text/plain",
+              "lineNumber": 143,
               "begin": 5941,
               "headersEnd": 6381,
               "end": 6419,
@@ -130,8 +145,7 @@
               "lines": 1
             },
             "end": 6419,
-            "octets": 38,
-            "lines": 1
+            "octets": 38
           },
           "end": 6419,
           "octets": 478,
@@ -139,27 +153,34 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 157,
           "begin": 6449,
           "headersEnd": 6625,
           "message": {
+            "lineNumber": 162,
             "begin": 6625,
             "headersEnd": 7210,
             "body": {
               "mimeType": "message/rfc822",
+              "lineNumber": 162,
               "begin": 6625,
               "headersEnd": 7210,
               "message": {
+                "lineNumber": 177,
                 "begin": 7210,
                 "headersEnd": 7735,
                 "body": {
                   "mimeType": "message/rfc822",
+                  "lineNumber": 177,
                   "begin": 7210,
                   "headersEnd": 7735,
                   "message": {
+                    "lineNumber": 191,
                     "begin": 7735,
                     "headersEnd": 8156,
                     "body": {
                       "mimeType": "text/plain",
+                      "lineNumber": 191,
                       "begin": 7735,
                       "headersEnd": 8156,
                       "end": 8162,
@@ -167,24 +188,21 @@
                       "lines": 1
                     },
                     "end": 8162,
-                    "octets": 6,
-                    "lines": 1
+                    "octets": 6
                   },
                   "end": 8162,
                   "octets": 427,
                   "lines": 12
                 },
                 "end": 8162,
-                "octets": 427,
-                "lines": 12
+                "octets": 427
               },
               "end": 8162,
               "octets": 952,
               "lines": 26
             },
             "end": 8162,
-            "octets": 952,
-            "lines": 26
+            "octets": 952
           },
           "end": 8162,
           "octets": 1537,
@@ -192,6 +210,7 @@
         },
         {
           "mimeType": "text/html",
+          "lineNumber": 205,
           "begin": 8192,
           "headersEnd": 8248,
           "end": 8301,
@@ -204,28 +223,32 @@
       "lines": 145
     },
     "end": 8331,
-    "octets": 5901,
-    "lines": 145
+    "octets": 5901
   },
   {
     "mboxMarkerBegin": 8333,
     "mboxMarkerLength": 7,
+    "lineNumber": 212,
     "begin": 8342,
     "headersEnd": 8825,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 212,
       "begin": 8342,
       "headersEnd": 8825,
       "children": [
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 227,
           "begin": 8901,
           "headersEnd": 9054,
           "message": {
+            "lineNumber": 232,
             "begin": 9054,
             "headersEnd": 9493,
             "body": {
               "mimeType": "text/plain",
+              "lineNumber": 232,
               "begin": 9054,
               "headersEnd": 9493,
               "end": 9532,
@@ -233,8 +256,7 @@
               "lines": 2
             },
             "end": 9532,
-            "octets": 39,
-            "lines": 2
+            "octets": 39
           },
           "end": 9532,
           "octets": 478,
@@ -242,6 +264,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 247,
           "begin": 9562,
           "headersEnd": 9693,
           "end": 10157,
@@ -250,6 +273,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 259,
           "begin": 10187,
           "headersEnd": 10318,
           "end": 10810,
@@ -258,6 +282,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 271,
           "begin": 10840,
           "headersEnd": 10975,
           "end": 11509,
@@ -266,6 +291,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 284,
           "begin": 11539,
           "headersEnd": 11672,
           "end": 12176,
@@ -274,13 +300,16 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 296,
           "begin": 12206,
           "headersEnd": 12359,
           "message": {
+            "lineNumber": 301,
             "begin": 12359,
             "headersEnd": 12798,
             "body": {
               "mimeType": "text/plain",
+              "lineNumber": 301,
               "begin": 12359,
               "headersEnd": 12798,
               "end": 12836,
@@ -288,8 +317,7 @@
               "lines": 1
             },
             "end": 12836,
-            "octets": 38,
-            "lines": 1
+            "octets": 38
           },
           "end": 12836,
           "octets": 477,
@@ -297,27 +325,34 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 315,
           "begin": 12866,
           "headersEnd": 13046,
           "message": {
+            "lineNumber": 320,
             "begin": 13046,
             "headersEnd": 13634,
             "body": {
               "mimeType": "message/rfc822",
+              "lineNumber": 320,
               "begin": 13046,
               "headersEnd": 13634,
               "message": {
+                "lineNumber": 335,
                 "begin": 13634,
                 "headersEnd": 14162,
                 "body": {
                   "mimeType": "message/rfc822",
+                  "lineNumber": 335,
                   "begin": 13634,
                   "headersEnd": 14162,
                   "message": {
+                    "lineNumber": 349,
                     "begin": 14162,
                     "headersEnd": 14582,
                     "body": {
                       "mimeType": "text/plain",
+                      "lineNumber": 349,
                       "begin": 14162,
                       "headersEnd": 14582,
                       "end": 14588,
@@ -325,24 +360,21 @@
                       "lines": 1
                     },
                     "end": 14588,
-                    "octets": 6,
-                    "lines": 1
+                    "octets": 6
                   },
                   "end": 14588,
                   "octets": 426,
                   "lines": 12
                 },
                 "end": 14588,
-                "octets": 426,
-                "lines": 12
+                "octets": 426
               },
               "end": 14588,
               "octets": 954,
               "lines": 26
             },
             "end": 14588,
-            "octets": 954,
-            "lines": 26
+            "octets": 954
           },
           "end": 14588,
           "octets": 1542,
@@ -350,6 +382,7 @@
         },
         {
           "mimeType": "text/html",
+          "lineNumber": 363,
           "begin": 14618,
           "headersEnd": 14678,
           "end": 14731,
@@ -362,21 +395,23 @@
       "lines": 145
     },
     "end": 14761,
-    "octets": 5936,
-    "lines": 145
+    "octets": 5936
   },
   {
     "mboxMarkerBegin": 14763,
     "mboxMarkerLength": 31,
+    "lineNumber": 370,
     "begin": 14796,
     "headersEnd": 16325,
     "body": {
       "mimeType": "multipart/related",
+      "lineNumber": 370,
       "begin": 14796,
       "headersEnd": 16325,
       "children": [
         {
           "mimeType": "text/html",
+          "lineNumber": 398,
           "begin": 16372,
           "headersEnd": 16466,
           "end": 21776,
@@ -385,6 +420,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 514,
           "begin": 21823,
           "headersEnd": 22028,
           "end": 22970,
@@ -397,21 +433,23 @@
       "lines": 139
     },
     "end": 23019,
-    "octets": 6694,
-    "lines": 139
+    "octets": 6694
   },
   {
     "mboxMarkerBegin": 23021,
     "mboxMarkerLength": 31,
+    "lineNumber": 537,
     "begin": 23054,
     "headersEnd": 24310,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 537,
       "begin": 23054,
       "headersEnd": 24310,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 562,
           "begin": 24397,
           "headersEnd": 24476,
           "end": 24506,
@@ -420,18 +458,22 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 570,
           "begin": 24547,
           "headersEnd": 24641,
           "message": {
+            "lineNumber": 574,
             "begin": 24641,
             "headersEnd": 25478,
             "body": {
               "mimeType": "multipart/alternative",
+              "lineNumber": 574,
               "begin": 24641,
               "headersEnd": 25478,
               "children": [
                 {
                   "mimeType": "text/plain",
+                  "lineNumber": 592,
                   "begin": 25520,
                   "headersEnd": 25599,
                   "end": 26242,
@@ -440,11 +482,13 @@
                 },
                 {
                   "mimeType": "multipart/related",
+                  "lineNumber": 613,
                   "begin": 26284,
                   "headersEnd": 26368,
                   "children": [
                     {
                       "mimeType": "text/html",
+                      "lineNumber": 617,
                       "begin": 26410,
                       "headersEnd": 26488,
                       "end": 27356,
@@ -453,6 +497,7 @@
                     },
                     {
                       "mimeType": "image/tiff",
+                      "lineNumber": 640,
                       "begin": 27398,
                       "headersEnd": 27587,
                       "end": 781745,
@@ -470,8 +515,7 @@
               "lines": 10252
             },
             "end": 781837,
-            "octets": 756359,
-            "lines": 10252
+            "octets": 756359
           },
           "end": 781837,
           "octets": 757196,
@@ -483,21 +527,23 @@
       "lines": 10285
     },
     "end": 781880,
-    "octets": 757570,
-    "lines": 10285
+    "octets": 757570
   },
   {
     "mboxMarkerBegin": 781882,
     "mboxMarkerLength": 31,
+    "lineNumber": 10846,
     "begin": 781915,
     "headersEnd": 783201,
     "body": {
       "mimeType": "multipart/related",
+      "lineNumber": 10846,
       "begin": 781915,
       "headersEnd": 783201,
       "children": [
         {
           "mimeType": "text/html",
+          "lineNumber": 10870,
           "begin": 783248,
           "headersEnd": 783342,
           "end": 785774,
@@ -506,6 +552,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 10925,
           "begin": 785821,
           "headersEnd": 785985,
           "end": 792087,
@@ -514,6 +561,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 11011,
           "begin": 792134,
           "headersEnd": 792297,
           "end": 804527,
@@ -522,6 +570,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 11175,
           "begin": 804574,
           "headersEnd": 804739,
           "end": 826735,
@@ -530,6 +579,7 @@
         },
         {
           "mimeType": "image/gif",
+          "lineNumber": 11464,
           "begin": 826782,
           "headersEnd": 826991,
           "end": 830429,
@@ -542,21 +592,23 @@
       "lines": 649
     },
     "end": 830478,
-    "octets": 47277,
-    "lines": 649
+    "octets": 47277
   },
   {
     "mboxMarkerBegin": 830480,
     "mboxMarkerLength": 7,
+    "lineNumber": 11519,
     "begin": 830489,
     "headersEnd": 831421,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 11519,
       "begin": 830489,
       "headersEnd": 831421,
       "children": [
         {
           "mimeType": "text/richtext",
+          "lineNumber": 11542,
           "begin": 831432,
           "headersEnd": 831463,
           "end": 834089,
@@ -569,21 +621,23 @@
       "lines": 102
     },
     "end": 834102,
-    "octets": 2681,
-    "lines": 102
+    "octets": 2681
   },
   {
     "mboxMarkerBegin": 834104,
     "mboxMarkerLength": 31,
+    "lineNumber": 11644,
     "begin": 834137,
     "headersEnd": 835308,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 11644,
       "begin": 834137,
       "headersEnd": 835308,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 11663,
           "begin": 835326,
           "headersEnd": 835328,
           "end": 836249,
@@ -592,6 +646,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 11686,
           "begin": 836269,
           "headersEnd": 836351,
           "end": 837111,
@@ -604,21 +659,23 @@
       "lines": 41
     },
     "end": 837133,
-    "octets": 1825,
-    "lines": 41
+    "octets": 1825
   },
   {
     "mboxMarkerBegin": 837135,
     "mboxMarkerLength": 31,
+    "lineNumber": 11705,
     "begin": 837168,
     "headersEnd": 838329,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 11705,
       "begin": 837168,
       "headersEnd": 838329,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 11728,
           "begin": 838513,
           "headersEnd": 838594,
           "end": 839348,
@@ -627,6 +684,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-mime",
+          "lineNumber": 11746,
           "begin": 839358,
           "headersEnd": 839541,
           "end": 841787,
@@ -639,21 +697,23 @@
       "lines": 60
     },
     "end": 841797,
-    "octets": 3468,
-    "lines": 60
+    "octets": 3468
   },
   {
     "mboxMarkerBegin": 841799,
     "mboxMarkerLength": 31,
+    "lineNumber": 11785,
     "begin": 841832,
     "headersEnd": 842992,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 11785,
       "begin": 841832,
       "headersEnd": 842992,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 11812,
           "begin": 843190,
           "headersEnd": 843271,
           "end": 846129,
@@ -662,6 +722,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-mime",
+          "lineNumber": 11863,
           "begin": 846153,
           "headersEnd": 846336,
           "end": 848918,
@@ -674,21 +735,23 @@
       "lines": 97
     },
     "end": 848942,
-    "octets": 5950,
-    "lines": 97
+    "octets": 5950
   },
   {
     "mboxMarkerBegin": 848944,
     "mboxMarkerLength": 31,
+    "lineNumber": 11906,
     "begin": 848977,
     "headersEnd": 849895,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 11906,
       "begin": 848977,
       "headersEnd": 849895,
       "children": [
         {
           "mimeType": "image/jpeg",
+          "lineNumber": 11927,
           "begin": 849971,
           "headersEnd": 850109,
           "end": 860977,
@@ -697,6 +760,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 12079,
           "begin": 861007,
           "headersEnd": 861162,
           "end": 865836,
@@ -709,16 +773,17 @@
       "lines": 224
     },
     "end": 865868,
-    "octets": 15973,
-    "lines": 224
+    "octets": 15973
   },
   {
     "mboxMarkerBegin": 865870,
     "mboxMarkerLength": 31,
+    "lineNumber": 12150,
     "begin": 865903,
     "headersEnd": 867318,
     "body": {
       "mimeType": "application/x-pkcs7-mime",
+      "lineNumber": 12150,
       "begin": 865903,
       "headersEnd": 867318,
       "end": 868768,
@@ -726,21 +791,23 @@
       "lines": 20
     },
     "end": 868768,
-    "octets": 1450,
-    "lines": 20
+    "octets": 1450
   },
   {
     "mboxMarkerBegin": 868770,
     "mboxMarkerLength": 31,
+    "lineNumber": 12195,
     "begin": 868803,
     "headersEnd": 870180,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 12195,
       "begin": 868803,
       "headersEnd": 870180,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 12221,
           "begin": 870227,
           "headersEnd": 870294,
           "end": 870404,
@@ -749,6 +816,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 12229,
           "begin": 870451,
           "headersEnd": 870606,
           "end": 874592,
@@ -761,16 +829,17 @@
       "lines": 69
     },
     "end": 874641,
-    "octets": 4461,
-    "lines": 69
+    "octets": 4461
   },
   {
     "mboxMarkerBegin": 874643,
     "mboxMarkerLength": 31,
+    "lineNumber": 12290,
     "begin": 874676,
     "headersEnd": 875907,
     "body": {
       "mimeType": "application/x-pkcs7-mime",
+      "lineNumber": 12290,
       "begin": 874676,
       "headersEnd": 875907,
       "end": 879457,
@@ -778,16 +847,17 @@
       "lines": 55
     },
     "end": 879457,
-    "octets": 3550,
-    "lines": 55
+    "octets": 3550
   },
   {
     "mboxMarkerBegin": 879459,
     "mboxMarkerLength": 31,
+    "lineNumber": 12368,
     "begin": 879492,
     "headersEnd": 880590,
     "body": {
       "mimeType": "application/x-pkcs7-mime",
+      "lineNumber": 12368,
       "begin": 879492,
       "headersEnd": 880590,
       "end": 881260,
@@ -795,23 +865,26 @@
       "lines": 10
     },
     "end": 881260,
-    "octets": 670,
-    "lines": 10
+    "octets": 670
   },
   {
     "mboxMarkerBegin": 881262,
     "mboxMarkerLength": 31,
+    "lineNumber": 12400,
     "begin": 881295,
     "headersEnd": 882097,
     "body": {
       "mimeType": "message/rfc822",
+      "lineNumber": 12400,
       "begin": 881295,
       "headersEnd": 882097,
       "message": {
+        "lineNumber": 12419,
         "begin": 882097,
         "headersEnd": 883500,
         "body": {
           "mimeType": "application/x-pkcs7-mime",
+          "lineNumber": 12419,
           "begin": 882097,
           "headersEnd": 883500,
           "end": 884952,
@@ -819,29 +892,30 @@
           "lines": 20
         },
         "end": 884952,
-        "octets": 1452,
-        "lines": 20
+        "octets": 1452
       },
       "end": 884952,
       "octets": 2855,
       "lines": 43
     },
     "end": 884952,
-    "octets": 2855,
-    "lines": 43
+    "octets": 2855
   },
   {
     "mboxMarkerBegin": 884954,
     "mboxMarkerLength": 31,
+    "lineNumber": 12464,
     "begin": 884987,
     "headersEnd": 885714,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 12464,
       "begin": 884987,
       "headersEnd": 885714,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 12484,
           "begin": 885790,
           "headersEnd": 885869,
           "end": 885885,
@@ -850,13 +924,16 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 12490,
           "begin": 885915,
           "headersEnd": 886073,
           "message": {
+            "lineNumber": 12494,
             "begin": 886073,
             "headersEnd": 887476,
             "body": {
               "mimeType": "application/x-pkcs7-mime",
+              "lineNumber": 12494,
               "begin": 886073,
               "headersEnd": 887476,
               "end": 888928,
@@ -864,8 +941,7 @@
               "lines": 20
             },
             "end": 888928,
-            "octets": 1452,
-            "lines": 20
+            "octets": 1452
           },
           "end": 888928,
           "octets": 2855,
@@ -877,21 +953,23 @@
       "lines": 58
     },
     "end": 888960,
-    "octets": 3246,
-    "lines": 58
+    "octets": 3246
   },
   {
     "mboxMarkerBegin": 888962,
     "mboxMarkerLength": 31,
+    "lineNumber": 12541,
     "begin": 888995,
     "headersEnd": 889676,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 12541,
       "begin": 888995,
       "headersEnd": 889676,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 12560,
           "begin": 889780,
           "headersEnd": 889859,
           "end": 889901,
@@ -900,6 +978,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 12566,
           "begin": 889945,
           "headersEnd": 890100,
           "end": 895732,
@@ -912,16 +991,17 @@
       "lines": 91
     },
     "end": 895778,
-    "octets": 6102,
-    "lines": 91
+    "octets": 6102
   },
   {
     "mboxMarkerBegin": 895780,
     "mboxMarkerLength": 31,
+    "lineNumber": 12650,
     "begin": 895813,
     "headersEnd": 896896,
     "body": {
       "mimeType": "application/x-pkcs7-mime",
+      "lineNumber": 12650,
       "begin": 895813,
       "headersEnd": 896896,
       "end": 907272,
@@ -929,21 +1009,23 @@
       "lines": 141
     },
     "end": 907272,
-    "octets": 10376,
-    "lines": 141
+    "octets": 10376
   },
   {
     "mboxMarkerBegin": 907274,
     "mboxMarkerLength": 31,
+    "lineNumber": 12813,
     "begin": 907307,
     "headersEnd": 908707,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 12813,
       "begin": 907307,
       "headersEnd": 908707,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 12840,
           "begin": 908811,
           "headersEnd": 908890,
           "end": 909517,
@@ -952,6 +1034,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 12861,
           "begin": 909561,
           "headersEnd": 909716,
           "end": 911528,
@@ -964,16 +1047,17 @@
       "lines": 54
     },
     "end": 911574,
-    "octets": 2867,
-    "lines": 54
+    "octets": 2867
   },
   {
     "mboxMarkerBegin": 911576,
     "mboxMarkerLength": 31,
+    "lineNumber": 12893,
     "begin": 911609,
     "headersEnd": 912172,
     "body": {
       "mimeType": "application/x-pkcs7-mime",
+      "lineNumber": 12893,
       "begin": 911609,
       "headersEnd": 912172,
       "end": 912702,
@@ -981,16 +1065,17 @@
       "lines": 8
     },
     "end": 912702,
-    "octets": 530,
-    "lines": 8
+    "octets": 530
   },
   {
     "mboxMarkerBegin": 912704,
     "mboxMarkerLength": 31,
+    "lineNumber": 12917,
     "begin": 912737,
     "headersEnd": 913972,
     "body": {
       "mimeType": "application/x-pkcs7-mime",
+      "lineNumber": 12917,
       "begin": 912737,
       "headersEnd": 913972,
       "end": 916892,
@@ -998,16 +1083,17 @@
       "lines": 38
     },
     "end": 916892,
-    "octets": 2920,
-    "lines": 38
+    "octets": 2920
   },
   {
     "mboxMarkerBegin": 916894,
     "mboxMarkerLength": 31,
+    "lineNumber": 12977,
     "begin": 916927,
     "headersEnd": 918106,
     "body": {
       "mimeType": "Application/x-pkcs7-mime",
+      "lineNumber": 12977,
       "begin": 916927,
       "headersEnd": 918106,
       "end": 920258,
@@ -1015,21 +1101,23 @@
       "lines": 30
     },
     "end": 920258,
-    "octets": 2152,
-    "lines": 30
+    "octets": 2152
   },
   {
     "mboxMarkerBegin": 920260,
     "mboxMarkerLength": 31,
+    "lineNumber": 13030,
     "begin": 920293,
     "headersEnd": 921392,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 13030,
       "begin": 920293,
       "headersEnd": 921392,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 13053,
           "begin": 921427,
           "headersEnd": 921494,
           "end": 921494,
@@ -1038,6 +1126,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 13058,
           "begin": 921529,
           "headersEnd": 921611,
           "end": 924365,
@@ -1050,21 +1139,23 @@
       "lines": 53
     },
     "end": 924402,
-    "octets": 3010,
-    "lines": 53
+    "octets": 3010
   },
   {
     "mboxMarkerBegin": 924404,
     "mboxMarkerLength": 31,
+    "lineNumber": 13106,
     "begin": 924437,
     "headersEnd": 925493,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 13106,
       "begin": 924437,
       "headersEnd": 925493,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 13127,
           "begin": 925536,
           "headersEnd": 925617,
           "end": 926083,
@@ -1073,6 +1164,7 @@
         },
         {
           "mimeType": "text/html",
+          "lineNumber": 13145,
           "begin": 926126,
           "headersEnd": 926204,
           "end": 927041,
@@ -1081,6 +1173,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 13176,
           "begin": 927084,
           "headersEnd": 927184,
           "end": 928400,
@@ -1093,21 +1186,23 @@
       "lines": 72
     },
     "end": 928445,
-    "octets": 2952,
-    "lines": 72
+    "octets": 2952
   },
   {
     "mboxMarkerBegin": 928447,
     "mboxMarkerLength": 31,
+    "lineNumber": 13199,
     "begin": 928480,
     "headersEnd": 929576,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 13199,
       "begin": 928480,
       "headersEnd": 929576,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 13222,
           "begin": 929621,
           "headersEnd": 929694,
           "end": 929853,
@@ -1116,6 +1211,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 13234,
           "begin": 929898,
           "headersEnd": 929980,
           "end": 934132,
@@ -1128,21 +1224,23 @@
       "lines": 75
     },
     "end": 934179,
-    "octets": 4603,
-    "lines": 75
+    "octets": 4603
   },
   {
     "mboxMarkerBegin": 934181,
     "mboxMarkerLength": 31,
+    "lineNumber": 13297,
     "begin": 934214,
     "headersEnd": 935337,
     "body": {
       "mimeType": "multipart/signed",
+      "lineNumber": 13297,
       "begin": 934214,
       "headersEnd": 935337,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 13320,
           "begin": 935373,
           "headersEnd": 935454,
           "end": 935532,
@@ -1151,6 +1249,7 @@
         },
         {
           "mimeType": "application/x-pkcs7-signature",
+          "lineNumber": 13329,
           "begin": 935568,
           "headersEnd": 935650,
           "end": 939424,
@@ -1163,21 +1262,23 @@
       "lines": 73
     },
     "end": 939460,
-    "octets": 4123,
-    "lines": 73
+    "octets": 4123
   },
   {
     "mboxMarkerBegin": 939462,
     "mboxMarkerLength": 31,
+    "lineNumber": 13392,
     "begin": 939495,
     "headersEnd": 940640,
     "body": {
       "mimeType": "multipart/report",
+      "lineNumber": 13392,
       "begin": 939495,
       "headersEnd": 940640,
       "children": [
         {
           "mimeType": "message/delivery-status",
+          "lineNumber": 13414,
           "begin": 940782,
           "headersEnd": 940823,
           "end": 941017,
@@ -1186,13 +1287,16 @@
         },
         {
           "mimeType": "message/rfc822",
+          "lineNumber": 13424,
           "begin": 941044,
           "headersEnd": 941076,
           "message": {
+            "lineNumber": 13426,
             "begin": 941076,
             "headersEnd": 941897,
             "body": {
               "mimeType": "text/plain",
+              "lineNumber": 13426,
               "begin": 941076,
               "headersEnd": 941897,
               "end": 941908,
@@ -1200,8 +1304,7 @@
               "lines": 1
             },
             "end": 941908,
-            "octets": 11,
-            "lines": 1
+            "octets": 11
           },
           "end": 941908,
           "octets": 832,
@@ -1213,21 +1316,23 @@
       "lines": 34
     },
     "end": 941937,
-    "octets": 1297,
-    "lines": 34
+    "octets": 1297
   },
   {
     "mboxMarkerBegin": 941939,
     "mboxMarkerLength": 31,
+    "lineNumber": 13445,
     "begin": 941972,
     "headersEnd": 943868,
     "body": {
       "mimeType": "multipart/mixed",
+      "lineNumber": 13445,
       "begin": 941972,
       "headersEnd": 943868,
       "children": [
         {
           "mimeType": "text/plain",
+          "lineNumber": 13477,
           "begin": 943913,
           "headersEnd": 943994,
           "end": 944875,
@@ -1236,6 +1341,7 @@
         },
         {
           "mimeType": "application/vcard",
+          "lineNumber": 13500,
           "begin": 944922,
           "headersEnd": 945088,
           "end": 948790,
@@ -1248,7 +1354,6 @@
       "lines": 92
     },
     "end": 948839,
-    "octets": 4971,
-    "lines": 92
+    "octets": 4971
   }
 ]

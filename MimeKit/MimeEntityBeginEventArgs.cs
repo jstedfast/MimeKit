@@ -106,12 +106,12 @@ namespace MimeKit {
 		public long BeginOffset { get; set; }
 
 		/// <summary>
-		/// Get or set the stream offset that marks the end of the entity's headers.
+		/// Get or set the line number of the beginning of the entity.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the stream offset that marks the end of the entity's headers.
+		/// Gets or sets the line number of the beginning of the entity.
 		/// </remarks>
-		/// <value>The stream offset.</value>
-		public long HeadersEndOffset { get; set; }
+		/// <value>The line number.</value>
+		internal int LineNumber { get; set; }
 	}
 }

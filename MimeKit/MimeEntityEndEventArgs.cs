@@ -67,6 +67,15 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get or set the stream offset that marks the end of the entity's headers.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the stream offset that marks the end of the entity's headers.
+		/// </remarks>
+		/// <value>The stream offset.</value>
+		public long HeadersEndOffset { get; set; }
+
+		/// <summary>
 		/// Get or set the stream offset that marks the end of the entity.
 		/// </summary>
 		/// <remarks>

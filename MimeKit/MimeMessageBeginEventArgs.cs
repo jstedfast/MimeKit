@@ -94,7 +94,7 @@ namespace MimeKit {
 		/// Gets the parent <see cref="MessagePart"/> if this message is an attachment.
 		/// </remarks>
 		/// <value>The parent <see cref="MessagePart"/>.</value>
-		public MessagePart Parent { get; set; }
+		public MessagePart Parent { get; }
 
 		/// <summary>
 		/// Get or set the stream offset that marks beginning of the mbox marker.
@@ -102,7 +102,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets the stream offset that marks the beginning of the mbox marker.
 		/// </remarks>
-		public long MboxMarkerOffset { get; set; }
+		public long? MboxMarkerOffset { get; set; }
 
 		/// <summary>
 		/// Get or set the stream offset that marks beginning of the mbox marker.
@@ -110,7 +110,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets the stream offset that marks the beginning of the mbox marker.
 		/// </remarks>
-		public long MboxMarkerLength { get; set; }
+		public int? MboxMarkerLength { get; set; }
 
 		/// <summary>
 		/// Get or set the stream offset that marks the beginning of the message.
@@ -122,12 +122,12 @@ namespace MimeKit {
 		public long BeginOffset { get; set; }
 
 		/// <summary>
-		/// Get or set the stream offset that marks the end of the message headers.
+		/// Get or set the line number of the beginning of the message.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the stream offset that marks the end of the message headers.
+		/// Gets or sets the line number of the beginning of the message.
 		/// </remarks>
-		/// <value>The stream offset.</value>
-		public long HeadersEndOffset { get; set; }
+		/// <value>The line number.</value>
+		internal int LineNumber { get; set; }
 	}
 }

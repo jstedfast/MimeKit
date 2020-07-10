@@ -67,30 +67,30 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get or set the stream offset that marks the end of the entity.
+		/// Get or set the stream offset that marks the end of the message headers.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the stream offset that marks the end of the entity.
+		/// Gets or sets the stream offset that marks the end of the message headers.
+		/// </remarks>
+		/// <value>The stream offset.</value>
+		public long HeadersEndOffset { get; set; }
+
+		/// <summary>
+		/// Get or set the stream offset that marks the end of the message.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the stream offset that marks the end of the message.
 		/// </remarks>
 		/// <value>The stream offset.</value>
 		public long EndOffset { get; set; }
 
 		/// <summary>
-		/// Get or set the content length of the entity as measured in octets.
+		/// Get or set the length of the message body as measured in octets.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the content length of the entity as measured in octets.
+		/// Gets or sets the length of the message body as measured in octets.
 		/// </remarks>
-		/// <value>The length of the content in bytes.</value>
-		public long Octets { get; set; }
-
-		/// <summary>
-		/// Get or set the content length of the entity as measured in lines.
-		/// </summary>
-		/// <remarks>
-		/// Get or set the content length of the entity as measured in lines.
-		/// </remarks>
-		/// <value>The length of the content in lines.</value>
-		public int Lines { get; set; }
+		/// <value>The length of the message body in bytes.</value>
+		public long BodyOctets { get; set; }
 	}
 }
