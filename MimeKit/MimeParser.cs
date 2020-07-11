@@ -1806,8 +1806,6 @@ namespace MimeKit {
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 			var messageArgs = new MimeMessageEndEventArgs (message) {
-				MboxMarkerOffset = format == MimeFormat.Mbox ? (long?) mboxMarkerOffset : null,
-				MboxMarkerLength = format == MimeFormat.Mbox ? (int?) mboxMarkerLength : null,
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
 				LineNumber = beginLineNumber
