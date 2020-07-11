@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle" Version="1.8.5" />
-    <PackageReference Include="MimeKit" Version="2.8.0" />
+    <PackageReference Include="MimeKit" Version="2.9.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MessageViewWindow.cs">

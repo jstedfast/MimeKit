@@ -1,5 +1,25 @@
 # Release Notes
 
+### MimeKit 2.9.0 (2020-07-11)
+
+* Refactored OpenPgpContext to separate out key storage implementation.
+  (issue [#576](https://github.com/jstedfast/MimeKit/issues/576))
+* Fixed the TextToFlowed converter.
+  (issue [#580](https://github.com/jstedfast/MimeKit/issues/580))
+* Protect against ABRs in AuthenticationResults.TryParse().
+  (issue [#581](https://github.com/jstedfast/MimeKit/issues/581))
+* The net45 version of MimeKit now depends on Portable.BouncyCastle instead of official
+  BouncyCastle.
+* Added MimeParser events to report stream offsets for MimeMessages and MimeEntities.
+  (issue [#582](https://github.com/jstedfast/MimeKit/issues/582))
+* Fixed DkimPublicKeyLocatorBase to treat unspecified 'k' values in DKIM DNS records as
+  "k=rsa".
+  (issue [#583](https://github.com/jstedfast/MimeKit/issues/583))
+* Fixed date format serializer to use CultureInfo.InvariantCulture.
+* Fixed AuthenticationResults parser to allow '_' characters in method results.
+  (issue [#584](https://github.com/jstedfast/MimeKit/issues/584))
+* Improved RSACng and DSACng support.
+
 ### MimeKit 2.8.0 (2020-05-30)
 
 * Improved logic for verifying signatures for MimeParts containing mixed line endings.
