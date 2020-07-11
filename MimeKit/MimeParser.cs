@@ -139,13 +139,15 @@ namespace MimeKit {
 		bool toplevel;
 		bool eos;
 
-		ParserOptions options;
+		ParserOptions options; // FIXME: might be better if devs passed ParserOptions into the Parse*() methods rather than .ctor and/or SetStream()
 		long headerBlockBegin;
 		long headerBlockEnd;
 		long contentEnd;
+
 		long prevLineBeginOffset;
 		long lineBeginOffset;
 		int lineNumber;
+
 		Stream stream;
 		long position;
 
