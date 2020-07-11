@@ -88,7 +88,9 @@ namespace MimeKit {
 		/// Get or set the content length of the entity as measured in lines.
 		/// </summary>
 		/// <remarks>
-		/// Get or set the content length of the entity as measured in lines.
+		/// <para>Get or set the content length of the entity as measured in lines.</para>
+		/// <note type="note">The line count reported by this property is the number of lines in its
+		/// content transfer encoding and not the resulting line count after any decoding.</note>
 		/// </remarks>
 		/// <value>The length of the content in lines.</value>
 		public int Lines { get; set; }
