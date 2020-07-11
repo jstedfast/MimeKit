@@ -432,6 +432,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// An event signifying the beginning of a new <see cref="MimeMessage"/> has been encountered.
+		/// </summary>
+		/// <remarks>
+		/// An event signifying the beginning of a new <see cref="MimeMessage"/> has been encountered.
+		/// </remarks>
+		public event EventHandler<MimeMessageBeginEventArgs> MimeMessageBegin;
+
+		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeMessage"/>.
 		/// </summary>
 		/// <remarks>
@@ -440,7 +448,16 @@ namespace MimeKit {
 		/// <param name="args">The parsed state.</param>
 		protected virtual void OnMimeMessageBegin (MimeMessageBeginEventArgs args)
 		{
+			MimeMessageBegin?.Invoke (this, args);
 		}
+
+		/// <summary>
+		/// An event signifying the end of a <see cref="MimeMessage"/> has been encountered.
+		/// </summary>
+		/// <remarks>
+		/// An event signifying the end of a <see cref="MimeMessage"/> has been encountered.
+		/// </remarks>
+		public event EventHandler<MimeMessageEndEventArgs> MimeMessageEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeMessage"/>.
@@ -451,7 +468,16 @@ namespace MimeKit {
 		/// <param name="args">The parsed state.</param>
 		protected virtual void OnMimeMessageEnd (MimeMessageEndEventArgs args)
 		{
+			MimeMessageEnd?.Invoke (this, args);
 		}
+
+		/// <summary>
+		/// An event signifying the beginning of a new <see cref="MimeEntity"/> has been encountered.
+		/// </summary>
+		/// <remarks>
+		/// An event signifying the beginning of a new <see cref="MimeEntity"/> has been encountered.
+		/// </remarks>
+		public event EventHandler<MimeEntityBeginEventArgs> MimeEntityBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeEntity"/>.
@@ -462,7 +488,16 @@ namespace MimeKit {
 		/// <param name="args">The parsed state.</param>
 		protected virtual void OnMimeEntityBegin (MimeEntityBeginEventArgs args)
 		{
+			MimeEntityBegin?.Invoke (this, args);
 		}
+
+		/// <summary>
+		/// An event signifying the end of a <see cref="MimeEntity"/> has been encountered.
+		/// </summary>
+		/// <remarks>
+		/// An event signifying the end of a <see cref="MimeEntity"/> has been encountered.
+		/// </remarks>
+		public event EventHandler<MimeEntityEndEventArgs> MimeEntityEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeEntity"/>.
@@ -473,6 +508,7 @@ namespace MimeKit {
 		/// <param name="args">The parsed state.</param>
 		protected virtual void OnMimeEntityEnd (MimeEntityEndEventArgs args)
 		{
+			MimeEntityEnd?.Invoke (this, args);
 		}
 
 #if DEBUG
@@ -1360,7 +1396,6 @@ namespace MimeKit {
 				endOffset = beginOffset + content.Length;
 			}
 
-			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
 			if (!result.IsEmpty)
@@ -1455,12 +1490,10 @@ namespace MimeKit {
 			var endOffset = GetEndOffset (inputIndex);
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min(entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
-			messageArgs.BodyOctets = entityArgs.Octets;
 
 			OnMimeEntityEnd (entityArgs);
 			OnMimeMessageEnd (messageArgs);
 
-			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
@@ -1586,7 +1619,6 @@ namespace MimeKit {
 				MultipartScanPreamble (multipart, inbuf, cancellationToken);
 
 				endOffset = GetEndOffset (inputIndex);
-				args.Octets = endOffset - beginOffset;
 				args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 				return;
 			}
@@ -1610,13 +1642,11 @@ namespace MimeKit {
 				MultipartScanEpilogue (multipart, inbuf, cancellationToken);
 
 				endOffset = GetEndOffset (inputIndex);
-				args.Octets = endOffset - beginOffset;
 				args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 				return;
 			}
 
 			endOffset = GetEndOffset (inputIndex);
-			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
 			multipart.WriteEndBoundary = false;
@@ -1825,7 +1855,6 @@ namespace MimeKit {
 			var endOffset = GetEndOffset (inputIndex);
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
-			messageArgs.BodyOctets = entityArgs.Octets;
 
 			if (boundary != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)

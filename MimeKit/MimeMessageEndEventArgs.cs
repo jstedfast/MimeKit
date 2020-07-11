@@ -83,14 +83,5 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The stream offset.</value>
 		public long EndOffset { get; set; }
-
-		/// <summary>
-		/// Get or set the length of the message body as measured in octets.
-		/// </summary>
-		/// <remarks>
-		/// Gets or sets the length of the message body as measured in octets.
-		/// </remarks>
-		/// <value>The length of the message body in bytes.</value>
-		public long BodyOctets { get; set; }
 	}
 }

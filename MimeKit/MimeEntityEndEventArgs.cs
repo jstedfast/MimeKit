@@ -85,15 +85,6 @@ namespace MimeKit {
 		public long EndOffset { get; set; }
 
 		/// <summary>
-		/// Get or set the content length of the entity as measured in octets.
-		/// </summary>
-		/// <remarks>
-		/// Gets or sets the content length of the entity as measured in octets.
-		/// </remarks>
-		/// <value>The length of the content in bytes.</value>
-		public long Octets { get; set; }
-
-		/// <summary>
 		/// Get or set the content length of the entity as measured in lines.
 		/// </summary>
 		/// <remarks>

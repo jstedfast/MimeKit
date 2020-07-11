@@ -691,20 +691,24 @@ namespace UnitTests {
 				}
 
 				messages.Add (args.Message, offsets);
+
+				base.OnMimeMessageBegin (args);
 			}
 
 			protected override void OnMimeMessageEnd (MimeMessageEndEventArgs args)
 			{
 				if (messages.TryGetValue (args.Message, out var offsets)) {
+					offsets.Octets = args.EndOffset - args.HeadersEndOffset;
 					offsets.HeadersEnd = args.HeadersEndOffset;
 					offsets.End = args.EndOffset;
-					offsets.Octets = args.BodyOctets;
 					offsets.Body = body;
 				} else {
 					Console.WriteLine ("oops?");
 				}
 
 				messages.Remove (args.Message);
+
+				base.OnMimeMessageEnd (args);
 			}
 
 			protected override void OnMimeEntityBegin (MimeEntityBeginEventArgs args)
@@ -723,14 +727,16 @@ namespace UnitTests {
 				}
 
 				entities.Add (args.Entity, offsets);
+
+				base.OnMimeEntityBegin (args);
 			}
 
 			protected override void OnMimeEntityEnd (MimeEntityEndEventArgs args)
 			{
 				if (entities.TryGetValue (args.Entity, out var offsets)) {
+					offsets.Octets = args.EndOffset - args.HeadersEndOffset;
 					offsets.HeadersEnd = args.HeadersEndOffset;
 					offsets.End = args.EndOffset;
-					offsets.Octets = args.Octets;
 					offsets.Lines = args.Lines;
 					body = offsets;
 				} else {
@@ -738,6 +744,8 @@ namespace UnitTests {
 				}
 
 				entities.Remove (args.Entity);
+
+				base.OnMimeEntityEnd (args);
 			}
 		}
 

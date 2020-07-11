@@ -268,7 +268,6 @@ namespace MimeKit {
 				endOffset = beginOffset + content.Length;
 			}
 
-			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
 			if (!result.IsEmpty)
@@ -367,12 +366,10 @@ namespace MimeKit {
 			var endOffset = GetEndOffset (inputIndex);
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
-			messageArgs.BodyOctets = entityArgs.Octets;
 
 			OnMimeEntityEnd (entityArgs);
 			OnMimeMessageEnd (messageArgs);
 
-			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
@@ -485,7 +482,6 @@ namespace MimeKit {
 				await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
 
 				endOffset = GetEndOffset (inputIndex);
-				args.Octets = endOffset - beginOffset;
 				args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 				return;
 			}
@@ -509,13 +505,11 @@ namespace MimeKit {
 				await MultipartScanEpilogueAsync (multipart, cancellationToken).ConfigureAwait (false);
 
 				endOffset = GetEndOffset (inputIndex);
-				args.Octets = endOffset - beginOffset;
 				args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 				return;
 			}
 
 			endOffset = GetEndOffset (inputIndex);
-			args.Octets = endOffset - beginOffset;
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
 			multipart.WriteEndBoundary = false;
@@ -728,7 +722,6 @@ namespace MimeKit {
 			var endOffset = GetEndOffset (inputIndex);
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
-			messageArgs.BodyOctets = entityArgs.Octets;
 
 			if (boundary != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)

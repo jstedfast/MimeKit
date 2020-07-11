@@ -100,7 +100,8 @@ namespace MimeKit {
 		/// Get or set the stream offset that marks beginning of the mbox marker.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the stream offset that marks the beginning of the mbox marker.
+		/// <para>Gets or sets the stream offset that marks the beginning of the mbox marker.</para>
+		/// <note type="note">This property is only ever set for top-level messages in an Mbox file or stream.</note>
 		/// </remarks>
 		public long? MboxMarkerOffset { get; set; }
 
@@ -108,7 +109,8 @@ namespace MimeKit {
 		/// Get or set the stream offset that marks beginning of the mbox marker.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the stream offset that marks the beginning of the mbox marker.
+		/// <para>Gets or sets the stream offset that marks the beginning of the mbox marker.</para>
+		/// <note type="note">This property is only ever set for top-level messages in an Mbox file or stream.</note>
 		/// </remarks>
 		public int? MboxMarkerLength { get; set; }
 
