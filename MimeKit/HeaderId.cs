@@ -540,6 +540,12 @@ namespace MimeKit {
 		RequireRecipientValidSince,
 
 		/// <summary>
+		/// The Require-TLS header field.
+		/// </summary>
+		[HeaderName ("Require-TLS")]
+		RequireTLS,
+
+		/// <summary>
 		/// The Resent-Bcc header field.
 		/// </summary>
 		ResentBcc,
