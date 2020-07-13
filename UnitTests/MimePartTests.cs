@@ -126,7 +126,16 @@ namespace UnitTests
 
 			Assert.AreEqual ("id@localhost.com", part.ContentId, "Content-Id");
 			Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Content-Transfer-Encoding");
-			Assert.AreEqual (expected, part.ToString ().Replace ("\r\n", "\n"), "ToString");
+
+			using (var stream = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Unix;
+
+				part.WriteTo (options, stream);
+
+				var serialized = Encoding.ASCII.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+				Assert.AreEqual (expected, serialized, "Serialized");
+			}
 		}
 
 		[Test]
