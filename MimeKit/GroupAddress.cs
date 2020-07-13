@@ -118,9 +118,13 @@ namespace MimeKit {
 		/// Gets the members of the group.
 		/// </summary>
 		/// <remarks>
-		/// Represents the member addresses of the group. Typically the member addresses
-		/// will be of the <see cref="MailboxAddress"/> variety, but it is possible
-		/// for groups to contain other groups.
+		/// <para>Represents the member addresses of the group. If the group address properly conforms
+		/// to the internet standards, every group member should be of the <see cref="MailboxAddress"/>
+		/// variety. When handling group addresses constructed by third-party software, it is possible
+		/// for groups to contain members of the <see cref="GroupAddress"/> variety.</para>
+		/// <para>When constructing new messages, it is recommended that address groups not contain
+		/// anything other than <see cref="MailboxAddress"/> members in order to comply with internet
+		/// standards.</para>
 		/// </remarks>
 		/// <value>The list of members.</value>
 		public InternetAddressList Members {
