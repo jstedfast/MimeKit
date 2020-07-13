@@ -76,10 +76,12 @@ namespace MimeKit {
 			return boundary;
 		}
 
+#if DEBUG_PARSER
 		public override string ToString ()
 		{
 			return Encoding.UTF8.GetString (Marker, 0, Marker.Length);
 		}
+#endif
 	}
 
 	enum MimeParserState : sbyte
@@ -513,7 +515,7 @@ namespace MimeKit {
 			MimeEntityEnd?.Invoke (this, args);
 		}
 
-#if DEBUG
+#if DEBUG_PARSER
 		static string ConvertToCString (byte[] buffer, int startIndex, int length)
 		{
 			var cstr = new StringBuilder ();
