@@ -266,24 +266,6 @@ namespace MimeKit.Cryptography {
 			return false;
 		}
 
-		// pvalue := [CFWS] ( value / [ [ local-part ] "@" ] domain-name ) [CFWS]
-		// value  := token / quoted-string
-		// token  := 1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
-		// tspecials :=  "(" / ")" / "<" / ">" / "@" / "," / ";" / ":" / "\" / <"> / "/" / "[" / "]" / "?" / "="
-		static bool IsPValueToken (byte c)
-		{
-			// Note: We're allowing '/' because it is a base64 character
-			//
-			// See https://github.com/jstedfast/MimeKit/issues/518 for details.
-			return c.IsToken () || c == (byte) '/';
-		}
-
-		static void SkipPValueToken (byte[] text, ref int index, int endIndex)
-		{
-			while (index < endIndex && IsPValueToken (text[index]))
-				index++;
-		}
-
 		static bool SkipPropertyValue (byte[] text, ref int index, int endIndex, out bool quoted)
 		{
 			// pvalue := [CFWS] ( value / [ [ local-part ] "@" ] domain-name ) [CFWS]
@@ -302,27 +284,11 @@ namespace MimeKit.Cryptography {
 
 			quoted = false;
 
-			if (text[index] == (byte) '@') {
-				// "@" domain-name
+			// Note: we're forced to accept even tspecials in the property value because they are used in the real-world.
+			// See https://github.com/jstedfast/MimeKit/issues/518 ('/') and https://github.com/jstedfast/MimeKit/issues/590 ('=')
+			// for details.
+			while (index < endIndex && !text[index].IsWhitespace() && text[index] != (byte) ';' && text[index] != (byte) '(')
 				index++;
-
-				if (!SkipDomain (text, ref index, endIndex))
-					return false;
-
-				return true;
-			}
-
-			SkipPValueToken (text, ref index, endIndex);
-
-			if (index < endIndex) {
-				if (text[index] == (byte) '@') {
-					// local-part@domain-name
-					index++;
-
-					if (!SkipDomain (text, ref index, endIndex))
-						return false;
-				}
-			}
 
 			return true;
 		}
