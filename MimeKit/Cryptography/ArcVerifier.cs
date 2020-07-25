@@ -660,12 +660,8 @@ namespace MimeKit.Cryptography {
 				// "fail". For ARC Sets with instance values > 1, the values
 				// MUST be "pass". For the ARC Set with instance value = 1, the
 				// value MUST be "none".
-				if (!cv.Equals (i == 0 ? "none" : "pass", StringComparison.Ordinal)) {
-					if (throwOnError)
-						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid chain validation value in ARC-Seal header for i={0}.", i + 1));
-
+				if (!cv.Equals (i == 0 ? "none" : "pass", StringComparison.Ordinal))
 					errors |= ArcValidationErrors.InvalidArcSealChainValidationValue;
-				}
 			}
 
 			return errors == ArcValidationErrors.None ? ArcSignatureValidationResult.Pass : ArcSignatureValidationResult.Fail;
