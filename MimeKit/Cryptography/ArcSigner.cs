@@ -343,7 +343,7 @@ namespace MimeKit.Cryptography {
 
 		async Task ArcSignAsync (FormatOptions options, MimeMessage message, IList<string> headers, bool doAsync, CancellationToken cancellationToken)
 		{
-			ArcVerifier.GetArcHeaderSets (message, true, out ArcHeaderSet[] sets, out int count);
+			ArcVerifier.GetArcHeaderSets (message, true, out ArcHeaderSet[] sets, out int count, out _);
 			AuthenticationResults authres;
 			int instance = count + 1;
 			string cv;

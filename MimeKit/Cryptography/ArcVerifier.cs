@@ -64,6 +64,86 @@ namespace MimeKit.Cryptography {
 	}
 
 	/// <summary>
+	/// An enumeration of possible ARC validation errors.
+	/// </summary>
+	/// <remarks>
+	/// An enumeration of possible ARC validation errors.
+	/// </remarks>
+	[Flags]
+	public enum ArcValidationErrors
+	{
+		/// <summary>
+		/// No errors.
+		/// </summary>
+		None                               = 0,
+
+		/// <summary>
+		/// One or more duplicate ARC-Authentication-Results headers exist.
+		/// </summary>
+		DuplicateArcAuthenticationResults  = 1 << 0,
+
+		/// <summary>
+		/// One or more duplicate ARC-Message-Signature headers exist.
+		/// </summary>
+		DuplicateArcMessageSignature       = 1 << 1,
+
+		/// <summary>
+		/// One or more duplicate ARC-Seal headers exist.
+		/// </summary>
+		DuplicateArcSeal                   = 1 << 2,
+
+		/// <summary>
+		/// One or more ARC-Authentication-Results headers are missing.
+		/// </summary>
+		MissingArcAuthenticationResults    = 1 << 3,
+
+		/// <summary>
+		/// One or more ARC-Message-Signature headers are missing.
+		/// </summary>
+		MissingArcMessageSignature         = 1 << 4,
+
+		/// <summary>
+		/// One or more ARC-Seal headers are missing.
+		/// </summary>
+		MissingArcSeal                     = 1 << 5,
+
+		/// <summary>
+		/// One or more ARC-Authentication-Results headers could not be parsed.
+		/// </summary>
+		InvalidArcAuthenticationResults    = 1 << 6,
+
+		/// <summary>
+		/// One or more ARC-Message-Signature headers could not be parsed.
+		/// </summary>
+		InvalidArcMessageSignature         = 1 << 7,
+
+		/// <summary>
+		/// One or more ARC-Seal headers could not be parsed.
+		/// </summary>
+		InvalidArcSeal                     = 1 << 8,
+
+		/// <summary>
+		/// One or more ARC-Seal headers have an invalid <c>cv</c> value.
+		/// </summary>
+		InvalidArcSealChainValidationValue = 1 << 9,
+
+		/// <summary>
+		/// One or more ARC-Seal headers are missing a <c>cv</c> value.
+		/// </summary>
+		MissingArcSealChainValidationValue = 1 << 10,
+
+		/// <summary>
+		/// Validation failed for the most recent ARC-Message-Signature header.
+		/// </summary>
+		MessageSignatureValidationFailed   = 1 << 11,
+
+		/// <summary>
+		/// Validation failed for one or more of the ARC-Seal headers.
+		/// </summary>
+		SealValidationFailed               = 1 << 12
+	}
+
+	/// <summary>
 	/// An ARC header validation result.
 	/// </summary>
 	/// <remarks>
@@ -203,6 +283,17 @@ namespace MimeKit.Cryptography {
 		/// </example>
 		/// <value>The signature validation results of the entire chain.</value>
 		public ArcSignatureValidationResult Chain {
+			get; internal set;
+		}
+
+		/// <summary>
+		/// Get the chain validation errors.
+		/// </summary>
+		/// <remarks>
+		/// Gets the chain validation errors.
+		/// </remarks>
+		/// <value>The chain validation errors.</value>
+		public ArcValidationErrors ChainErrors {
 			get; internal set;
 		}
 	}
@@ -396,17 +487,18 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		internal static ArcSignatureValidationResult GetArcHeaderSets (MimeMessage message, bool throwOnError, out ArcHeaderSet[] sets, out int count)
+		internal static ArcSignatureValidationResult GetArcHeaderSets (MimeMessage message, bool throwOnError, out ArcHeaderSet[] sets, out int count, out ArcValidationErrors errors)
 		{
 			ArcHeaderSet set;
 
+			errors = ArcValidationErrors.None;
 			sets = new ArcHeaderSet[50];
 			count = 0;
 
 			for (int i = 0; i < message.Headers.Count; i++) {
 				Dictionary<string, string> parameters = null;
 				var header = message.Headers[i];
-				int instance;
+				int instance = 0;
 				string value;
 
 				switch (header.Id) {
@@ -415,14 +507,16 @@ namespace MimeKit.Cryptography {
 						if (throwOnError)
 							throw new FormatException ("Invalid ARC-Authentication-Results header.");
 
-						return ArcSignatureValidationResult.Fail;
+						errors |= ArcValidationErrors.InvalidArcAuthenticationResults;
+						break;
 					}
 
 					if (!authres.Instance.HasValue) {
 						if (throwOnError)
 							throw new FormatException ("Missing instance tag in ARC-Authentication-Results header.");
 
-						return ArcSignatureValidationResult.Fail;
+						errors |= ArcValidationErrors.InvalidArcAuthenticationResults;
+						break;
 					}
 
 					instance = authres.Instance.Value;
@@ -431,7 +525,9 @@ namespace MimeKit.Cryptography {
 						if (throwOnError)
 							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid instance tag in ARC-Authentication-Results header: i={0}", instance));
 
-						return ArcSignatureValidationResult.Fail;
+						errors |= ArcValidationErrors.InvalidArcAuthenticationResults;
+						instance = 0;
+						break;
 					}
 					break;
 				case HeaderId.ArcMessageSignature:
@@ -442,25 +538,38 @@ namespace MimeKit.Cryptography {
 						if (throwOnError)
 							throw;
 
-						return ArcSignatureValidationResult.Fail;
+						if (header.Id == HeaderId.ArcMessageSignature)
+							errors |= ArcValidationErrors.InvalidArcMessageSignature;
+						else
+							errors |= ArcValidationErrors.InvalidArcSeal;
+
+						break;
 					}
 
 					if (!parameters.TryGetValue ("i", out value)) {
 						if (throwOnError)
 							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing instance tag in {0} header.", header.Id.ToHeaderName ()));
 
-						return ArcSignatureValidationResult.Fail;
+						if (header.Id == HeaderId.ArcMessageSignature)
+							errors |= ArcValidationErrors.InvalidArcMessageSignature;
+						else
+							errors |= ArcValidationErrors.InvalidArcSeal;
+
+						break;
 					}
 
 					if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
 						if (throwOnError)
 							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
 
-						return ArcSignatureValidationResult.Fail;
+						if (header.Id == HeaderId.ArcMessageSignature)
+							errors |= ArcValidationErrors.InvalidArcMessageSignature;
+						else
+							errors |= ArcValidationErrors.InvalidArcSeal;
+
+						instance = 0;
+						break;
 					}
-					break;
-				default:
-					instance = 0;
 					break;
 				}
 
@@ -471,8 +580,22 @@ namespace MimeKit.Cryptography {
 				if (set == null)
 					sets[instance - 1] = set = new ArcHeaderSet ();
 
-				if (!set.Add (header, parameters))
-					return ArcSignatureValidationResult.Fail;
+				if (!set.Add (header, parameters)) {
+					if (throwOnError)
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Duplicate {0} header for i={1}", header.Id.ToHeaderName (), instance));
+
+					switch (header.Id) {
+					case HeaderId.ArcAuthenticationResults:
+						errors |= ArcValidationErrors.DuplicateArcAuthenticationResults;
+						break;
+					case HeaderId.ArcMessageSignature:
+						errors |= ArcValidationErrors.DuplicateArcMessageSignature;
+						break;
+					case HeaderId.ArcSeal:
+						errors |= ArcValidationErrors.DuplicateArcSeal;
+						break;
+					}
+				}
 
 				if (instance > count)
 					count = instance;
@@ -491,50 +614,67 @@ namespace MimeKit.Cryptography {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC headers for i={0}", i + 1));
 
-					return ArcSignatureValidationResult.Fail;
+					if ((errors & ArcValidationErrors.InvalidArcAuthenticationResults) == 0)
+						errors |= ArcValidationErrors.MissingArcAuthenticationResults;
+					if ((errors & ArcValidationErrors.InvalidArcMessageSignature) == 0)
+						errors |= ArcValidationErrors.MissingArcMessageSignature;
+					if ((errors & ArcValidationErrors.InvalidArcSeal) == 0)
+						errors |= ArcValidationErrors.MissingArcSeal;
+					continue;
 				}
 
 				if (set.ArcAuthenticationResult == null) {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC-Authentication-Results header for i={0}", i + 1));
 
-					return ArcSignatureValidationResult.Fail;
+					if ((errors & ArcValidationErrors.InvalidArcAuthenticationResults) == 0)
+						errors |= ArcValidationErrors.MissingArcAuthenticationResults;
 				}
 
 				if (set.ArcMessageSignature == null) {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC-Message-Signature header for i={0}", i + 1));
 
-					return ArcSignatureValidationResult.Fail;
+					if ((errors & ArcValidationErrors.InvalidArcMessageSignature) == 0)
+						errors |= ArcValidationErrors.MissingArcMessageSignature;
 				}
 
 				if (set.ArcSeal == null) {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing ARC-Seal header for i={0}", i + 1));
 
-					return ArcSignatureValidationResult.Fail;
+					if ((errors & ArcValidationErrors.InvalidArcSeal) == 0)
+						errors |= ArcValidationErrors.MissingArcSeal;
+					continue;
 				}
 
 				if (!set.ArcSealParameters.TryGetValue ("cv", out string cv)) {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing chain validation tag in ARC-Seal header for i={0}.", i + 1));
 
-					return ArcSignatureValidationResult.Fail;
+					errors |= ArcValidationErrors.MissingArcSealChainValidationValue;
+					continue;
 				}
 
 				// The "cv" value for all ARC-Seal header fields MUST NOT be
 				// "fail". For ARC Sets with instance values > 1, the values
 				// MUST be "pass". For the ARC Set with instance value = 1, the
 				// value MUST be "none".
-				if (!cv.Equals (i == 0 ? "none" : "pass", StringComparison.Ordinal))
-					return ArcSignatureValidationResult.Fail;
+				if (!cv.Equals (i == 0 ? "none" : "pass", StringComparison.Ordinal)) {
+					if (throwOnError)
+						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid chain validation value in ARC-Seal header for i={0}.", i + 1));
+
+					errors |= ArcValidationErrors.InvalidArcSealChainValidationValue;
+				}
 			}
 
-			return ArcSignatureValidationResult.Pass;
+			return errors == ArcValidationErrors.None ? ArcSignatureValidationResult.Pass : ArcSignatureValidationResult.Fail;
 		}
 
 		async Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, bool doAsync, CancellationToken cancellationToken)
 		{
+			const ArcValidationErrors ArcSealCvParamErrors = ArcValidationErrors.InvalidArcSealChainValidationValue | ArcValidationErrors.MissingArcSealChainValidationValue;
+
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
 
@@ -543,17 +683,25 @@ namespace MimeKit.Cryptography {
 
 			var result = new ArcValidationResult ();
 
-			switch (GetArcHeaderSets (message, false, out ArcHeaderSet[] sets, out int count)) {
+			switch (GetArcHeaderSets (message, false, out ArcHeaderSet[] sets, out int count, out var errors)) {
 			case ArcSignatureValidationResult.None: return result;
 			case ArcSignatureValidationResult.Fail:
 				result.Chain = ArcSignatureValidationResult.Fail;
+				result.ChainErrors = errors;
+
+				// If the only error(s) are invalid or missing 'cv' values, ignore the errors for now.
+				if ((errors & ~ArcSealCvParamErrors) == 0)
+					break;
+
 				return result;
+			default:
+				result.Chain = ArcSignatureValidationResult.Pass;
+				break;
 			}
 
 			int newest = count - 1;
 
 			result.Seals = new ArcHeaderValidationResult[count];
-			result.Chain = ArcSignatureValidationResult.Pass;
 
 			// validate the most recent Arc-Message-Signature
 			try {
@@ -566,10 +714,12 @@ namespace MimeKit.Cryptography {
 					result.MessageSignature.Signature = ArcSignatureValidationResult.Pass;
 				} else {
 					result.MessageSignature.Signature = ArcSignatureValidationResult.Fail;
+					result.ChainErrors |= ArcValidationErrors.MessageSignatureValidationFailed;
 					result.Chain = ArcSignatureValidationResult.Fail;
 				}
 			} catch {
 				result.MessageSignature.Signature = ArcSignatureValidationResult.Fail;
+				result.ChainErrors |= ArcValidationErrors.MessageSignatureValidationFailed;
 				result.Chain = ArcSignatureValidationResult.Fail;
 			}
 
@@ -582,10 +732,12 @@ namespace MimeKit.Cryptography {
 						result.Seals[i].Signature = ArcSignatureValidationResult.Pass;
 					} else {
 						result.Seals[i].Signature = ArcSignatureValidationResult.Fail;
+						result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
 						result.Chain = ArcSignatureValidationResult.Fail;
 					}
 				} catch {
 					result.Seals[i].Signature = ArcSignatureValidationResult.Fail;
+					result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
 					result.Chain = ArcSignatureValidationResult.Fail;
 				}
 			}
