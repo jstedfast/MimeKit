@@ -973,13 +973,16 @@ namespace MimeKit {
 					break;
 
 				if (text[index] != (byte) ';') {
-					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid parameter list token at offset {0}", index), index, index);
+					if (options.ParameterComplianceMode == RfcComplianceMode.Strict) {
+						if (throwOnError)
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid parameter list token at offset {0}", index), index, index);
 
-					return false;
+						return false;
+					}
+				} else {
+					// Skip over ';'
+					index++;
 				}
-
-				index++;
 			} while (true);
 
 			paramList = new ParameterList ();
