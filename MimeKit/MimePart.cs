@@ -416,20 +416,24 @@ namespace MimeKit {
 		/// </exception>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (Content == null)
-				return ContentEncoding.SevenBit;
+			if (ContentType.IsMimeType ("text", "*")) {
+				if (Content == null)
+					return ContentEncoding.SevenBit;
 
-			using (var measure = new MeasuringStream ()) {
-				using (var filtered = new FilteredStream (measure)) {
-					var filter = new BestEncodingFilter ();
+				using (var measure = new MeasuringStream ()) {
+					using (var filtered = new FilteredStream (measure)) {
+						var filter = new BestEncodingFilter ();
 
-					filtered.Add (filter);
-					Content.DecodeTo (filtered, cancellationToken);
-					filtered.Flush ();
+						filtered.Add (filter);
+						Content.DecodeTo (filtered, cancellationToken);
+						filtered.Flush ();
 
-					return filter.GetBestEncoding (constraint, maxLineLength);
+						return filter.GetBestEncoding (constraint, maxLineLength);
+					}
 				}
 			}
+
+			return constraint == EncodingConstraint.None ? ContentEncoding.Binary : ContentEncoding.Base64;
 		}
 
 		/// <summary>

@@ -506,10 +506,12 @@ namespace MimeKit.Tnef {
 							attachment = PromoteToTnefPart (attachment);
 							count -= 16;
 							index = 16;
-						} else {
+						} else if (attachment.ContentType.IsMimeType ("text", "*")) {
 							filter.Flush (attachData, index, count, out outIndex, out outLength);
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 							filter.Reset ();
+						} else {
+							attachment.ContentTransferEncoding = ContentEncoding.Base64;
 						}
 
 						attachment.Content = new MimeContent (new MemoryStream (attachData, index, count, false));
@@ -547,11 +549,16 @@ namespace MimeKit.Tnef {
 						break;
 
 					attachData = prop.ReadValueAsBytes ();
-					filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
-					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
-					filter.Reset ();
 
+					if (attachment.ContentType.IsMimeType ("text", "*")) {
+						filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
+						attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+						filter.Reset ();
+					} else {
+						attachment.ContentTransferEncoding = ContentEncoding.Base64;
+					}
+
+					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
 					builder.Attachments.Add (attachment);
 					break;
 				}

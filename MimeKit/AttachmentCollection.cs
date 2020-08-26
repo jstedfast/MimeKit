@@ -131,20 +131,28 @@ namespace MimeKit {
 		static void LoadContent (MimePart attachment, Stream stream)
 		{
 			var content = new MemoryBlockStream ();
-			var filter = new BestEncodingFilter ();
-			var buf = new byte[4096];
-			int index, length;
-			int nread;
 
-			while ((nread = stream.Read (buf, 0, buf.Length)) > 0) {
-				filter.Filter (buf, 0, nread, out index, out length);
-				content.Write (buf, 0, nread);
+			if (attachment.ContentType.IsMimeType ("text", "*")) {
+				var filter = new BestEncodingFilter ();
+				var buf = new byte[4096];
+				int index, length;
+				int nread;
+
+				while ((nread = stream.Read (buf, 0, buf.Length)) > 0) {
+					filter.Filter (buf, 0, nread, out index, out length);
+					content.Write (buf, 0, nread);
+				}
+
+				filter.Flush (buf, 0, 0, out index, out length);
+
+				attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+			} else {
+				attachment.ContentTransferEncoding = ContentEncoding.Base64;
+				stream.CopyTo (content, 4096);
 			}
 
-			filter.Flush (buf, 0, 0, out index, out length);
 			content.Position = 0;
 
-			attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 			attachment.Content = new MimeContent (content);
 		}
 
