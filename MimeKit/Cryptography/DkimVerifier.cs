@@ -35,6 +35,57 @@ using Org.BouncyCastle.Crypto.Parameters;
 using MimeKit.IO;
 
 namespace MimeKit.Cryptography {
+
+	/// <summary>
+	/// An DKIM validation result.
+	/// </summary>
+	/// <remarks>
+	/// <para>Represents the results of <a href="Overload_MimeKit_Cryptography_DkimVerifier_Verify">DkimVerifier.Verify</a>
+	/// or <a href="Overload_MimeKit_Cryptography_DkimcVerifier_VerifyAsync">DkimVerifier.VerifyAsync</a>.</para>
+	/// <para>A dkim signature should only be considered to Pass if both BodySignatureValid and HeaderSignatureValid pass.</para>
+	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
+	/// </example>
+	public class DkimValidationResult
+	{
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DkimValidationResult"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DkimValidationResult"/>.
+		/// </remarks>
+		/// <param name="bodySignatureValid"><c>true</c> if the body portion of the DKIM-Signature is valid; otherwise, <c>false</c>.</param>
+		/// <param name="headerSignatureValid"><c>true</c> if the header portion of the DKIM-Signature is valid; otherwise, <c>false</c>.</param>
+		public DkimValidationResult (bool bodySignatureValid, bool headerSignatureValid)
+		{
+			BodySignatureValid = bodySignatureValid;
+			HeaderSignatureValid = headerSignatureValid;
+		}
+
+		/// <summary>
+		/// Get the validation results for the body portion of the DKIM-Signature header.
+		/// </summary>
+		/// <remarks>
+		/// Get the validation results for the body portion of the DKIM-Signature header.
+		/// </remarks>
+		/// <value>The validation results for the body portion of the DKIM-Signature header.</value>
+		public bool BodySignatureValid {
+			get; internal set;
+		}
+
+		/// <summary>
+		/// Get the validation results for the header portion of the DKIM-Signature header.
+		/// </summary>
+		/// <remarks>
+		/// Get the validation results for the header portion of the DKIM-Signature header.
+		/// </remarks>
+		/// <value>The validation results for the header portion of the DKIM-Signature header.</value>
+		public bool HeaderSignatureValid {
+			get; internal set;
+		}
+	}
+
 	/// <summary>
 	/// A DKIM-Signature verifier.
 	/// </summary>
@@ -100,7 +151,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		async Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, bool doAsync, CancellationToken cancellationToken)
+		async Task<DkimValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -126,7 +177,7 @@ namespace MimeKit.Cryptography {
 				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
 			if (!IsEnabled (signatureAlgorithm))
-				return false;
+				return new DkimValidationResult(false, false);
 
 			if (doAsync)
 				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
@@ -134,16 +185,13 @@ namespace MimeKit.Cryptography {
 				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
 			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
-				return false;
+				return new DkimValidationResult (false, false);
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
 			var hash = Convert.ToBase64String (message.HashBody (options, signatureAlgorithm, bodyAlgorithm, maxLength));
-
-			if (hash != bh)
-				return false;
 
 			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -167,7 +215,7 @@ namespace MimeKit.Cryptography {
 					filtered.Flush ();
 				}
 
-				return stream.VerifySignature (b);
+				return new DkimValidationResult (hash == bh, stream.VerifySignature (b));
 			}
 		}
 
@@ -201,7 +249,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public DkimValidationResult Verify (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return VerifyAsync (options, message, dkimSignature, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -236,7 +284,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<DkimValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return VerifyAsync (options, message, dkimSignature, true, cancellationToken);
 		}
@@ -268,7 +316,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public DkimValidationResult Verify (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return Verify (FormatOptions.Default, message, dkimSignature, cancellationToken);
 		}
@@ -300,7 +348,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<DkimValidationResult> VerifyAsync (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return VerifyAsync (FormatOptions.Default, message, dkimSignature, cancellationToken);
 		}

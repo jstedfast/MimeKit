@@ -263,13 +263,14 @@ namespace UnitTests.Cryptography {
 			var dkim = message.Headers[0];
 
 			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
-				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+				var verificationResultNoSha1 = verifier.Verify (message, dkim);
+				Assert.IsFalse (verificationResultNoSha1.BodySignatureValid && verificationResultNoSha1.HeaderSignatureValid, "DKIM-Signature using rsa-sha1 should not verify.");
 
 				// now enable rsa-sha1 to verify again, this time it should pass...
 				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
 			}
-
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
+			var verificationResult = verifier.Verify (message, dkim);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
@@ -486,13 +487,15 @@ namespace UnitTests.Cryptography {
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
 			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
-				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+				var verificationResultNoSha1 = verifier.Verify (message, dkim);
+				Assert.IsFalse (verificationResultNoSha1.BodySignatureValid && verificationResultNoSha1.HeaderSignatureValid, "DKIM-Signature using rsa-sha1 should not verify.");
 
 				// now enable rsa-sha1 to verify again, this time it should pass...
 				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
 			}
+			var verificationResult = verifier.Verify (message, dkim);
 
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
@@ -527,7 +530,8 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
+			var verificationResult = verifier.Verify (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -538,7 +542,34 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+			var verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.HeaderSignatureValid && verificationResult.BodySignatureValid, "Failed to verify GMail signature.");
+		}
+
+		[Test]
+		public async Task TestVerifyGoogleMailHeadersWithModifiedBodyAsync ()
+		{
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail-fail-body.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
+
+			var verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsFalse (verificationResult.BodySignatureValid, "Modified body should not verify");
+			Assert.IsTrue (verificationResult.HeaderSignatureValid, "Failed to verify headers when body fails.");
+		}
+
+		[Test]
+		public async Task TestVerifyGoogleMailBodyWithModifiedHeadersAsync ()
+		{
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail-fail-headers.msg"));
+			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
+			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (locator);
+
+			var verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsFalse (verificationResult.HeaderSignatureValid, "Modified headers should not verify");
+			Assert.IsTrue (verificationResult.BodySignatureValid, "Failed to verify body when headers fails.");
 		}
 
 		[Test]
@@ -549,7 +580,8 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
+			var verificationResult = verifier.Verify (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -560,7 +592,8 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+			var verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -571,7 +604,8 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
+			var verificationResult = verifier.Verify (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -582,7 +616,8 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+			var verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -606,7 +641,8 @@ namespace UnitTests.Cryptography {
 			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
 			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+			var verificationResult = verifier.Verify (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify ed25519-sha256");
 		}
 
 		[Test]
@@ -622,11 +658,13 @@ namespace UnitTests.Cryptography {
 
 			// the last DKIM-Signature uses rsa-sha256
 			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify rsa-sha256");
+			var verificationResult = verifier.Verify (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify rsa-sha256");
 
 			// the first DKIM-Signature uses ed25519-sha256
 			index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+			verificationResult = verifier.Verify (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify ed25519-sha256");
 		}
 
 		[Test]
@@ -642,11 +680,13 @@ namespace UnitTests.Cryptography {
 
 			// the last DKIM-Signature uses rsa-sha256
 			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify rsa-sha256");
+			var verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify rsa-sha256");
 
 			// the first DKIM-Signature uses ed25519-sha256
 			index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+			verificationResult = await verifier.VerifyAsync (message, message.Headers[index]);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify ed25519-sha256");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
@@ -660,13 +700,15 @@ namespace UnitTests.Cryptography {
 			var dkim = message.Headers[0];
 
 			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
-				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+				var verificationResultSha1 = verifier.Verify (message, dkim);
+				Assert.IsFalse (verificationResultSha1.HeaderSignatureValid || verificationResultSha1.BodySignatureValid, "DKIM-Signature using rsa-sha1 should not verify.");
 
 				// now enable rsa-sha1 to verify again, this time it should pass...
 				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
 			}
 
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
+			var verificationResult = verifier.Verify (message, dkim);
+			Assert.IsTrue (verificationResult.BodySignatureValid && verificationResult.HeaderSignatureValid, "Failed to verify DKIM-Signature.");
 
 			message.Headers.RemoveAt (0);
 		}

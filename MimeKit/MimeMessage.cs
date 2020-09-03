@@ -1748,7 +1748,7 @@ namespace MimeKit {
 			Sign (FormatOptions.Default, signer, headers, headerCanonicalizationAlgorithm, bodyCanonicalizationAlgorithm);
 		}
 
-		Task<bool> DkimVerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
+		async Task<bool> DkimVerifyAsync (FormatOptions options, Header dkimSignature, IDkimPublicKeyLocator publicKeyLocator, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -1761,10 +1761,13 @@ namespace MimeKit {
 
 			var verifier = new DkimVerifier (publicKeyLocator);
 
+			DkimValidationResult dkimResult;
 			if (doAsync)
-				return verifier.VerifyAsync (options, this, dkimSignature, cancellationToken);
+				dkimResult = await verifier.VerifyAsync (options, this, dkimSignature, cancellationToken);
+			else
+				dkimResult = verifier.Verify (options, this, dkimSignature, cancellationToken);
 
-			return Task.FromResult (verifier.Verify (options, this, dkimSignature, cancellationToken));
+			return dkimResult.HeaderSignatureValid && dkimResult.BodySignatureValid;
 		}
 
 		/// <summary>
