@@ -56,6 +56,7 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
   </ItemGroup>
 
@@ -133,9 +134,9 @@
     <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
-    <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
-    <Compile Include="Cryptography\WindowsSecureMimeDigitalCertificate.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
-    <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" Condition="$(TargetFramework.StartsWith('net4'))" />
+    <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
+    <Compile Include="Cryptography\WindowsSecureMimeDigitalCertificate.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
+    <Compile Include="Cryptography\WindowsSecureMimeDigitalSignature.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
     <Compile Include="Cryptography\X509Certificate2Extensions.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
     <Compile Include="Cryptography\X509CertificateChain.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
