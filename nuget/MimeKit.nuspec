@@ -97,6 +97,7 @@
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
       </group>
       <group targetFramework="netstandard2.0">
+        <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="Portable.BouncyCastle" version="1.8.5" />
