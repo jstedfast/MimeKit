@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.9.1</version>
+    <version>2.9.2</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,15 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-      * Refactored OpenPgpContext to separate out key storage implementation. (issue #576)
-      * Fixed the TextToFlowed converter. (issue #580)
-      * Protect against ABRs in AuthenticationResults.TryParse(). (issue #581)
-      * The net45 version of MimeKit now depends on Portable.BouncyCastle instead of official BouncyCastle.
-      * Added MimeParser events to report stream offsets for MimeMessages and MimeEntities. (issue #582)
-      * Fixed DkimPublicKeyLocatorBase to treat unspecified 'k' values in DKIM DNS records as "k=rsa". (issue #583)
-      * Fixed date format serializer to use CultureInfo.InvariantCulture.
-      * Fixed AuthenticationResults parser to allow '_' characters in method results. (issue #584)
-      * Improved RSACng and DSACng support.
+* Include WindowsSecureMimeContext in the .NET Standard 2.x build. (issue #600)
+* Fixed message.Prepare() to never choose the quoted-printable encoding for non-text based MimeParts. (issue #598)
+* Added work-around for mailers that don't use a ';' between Content-Type and Content-Disposition parameters. (issue #595)
+* Added improved error reporting for ArcVerifier. (issue #591)
+* Added another work-around for parsing Authentication-Results headers. (issue #590)
+* MimeMessage.ToString() now adds an X-MimeKit-Warning header to the beginning of the output string to make it clear to developers doing this that they are Doing it Wrong(tm).
+* Added a TLS-Required HeaderId enum value.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

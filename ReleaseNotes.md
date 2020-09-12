@@ -1,6 +1,25 @@
 # Release Notes
 
-### MimeKit 2.9.0 (2020-07-11)
+### MimeKit 2.9.2 (2020-09-12)
+
+* Include WindowsSecureMimeContext in the .NET Standard 2.x build.
+  (issue [#600](https://github.com/jstedfast/MimeKit/issues/600))
+* Fixed message.Prepare() to never choose the quoted-printable encoding
+  for non-text based MimeParts.
+  (issue [#598](https://github.com/jstedfast/MimeKit/issues/598))
+* Added work-around for mailers that don't use a ';' between Content-Type
+  and Content-Disposition parameters.
+  (issue [#595](https://github.com/jstedfast/MimeKit/issues/595))
+* Added improved error reporting for ArcVerifier.
+  (issue [#591](https://github.com/jstedfast/MimeKit/issues/591))
+*  Added another work-around for parsing Authentication-Results headers.
+  (issue [#590](https://github.com/jstedfast/MimeKit/issues/590))
+* MimeMessage.ToString() now adds an X-MimeKit-Warning header to the
+  beginning of the output string to make it clear to developers doing this
+  that they are Doing it Wrong(tm).
+* Added a TLS-Required HeaderId enum value.
+
+### MimeKit 2.9.1 (2020-07-11)
 
 * Refactored OpenPgpContext to separate out key storage implementation.
   (issue [#576](https://github.com/jstedfast/MimeKit/issues/576))
