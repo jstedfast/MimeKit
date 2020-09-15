@@ -32,8 +32,6 @@ using System.Collections.Generic;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 
-using MimeKit.IO;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A DKIM-Signature verifier.
@@ -128,6 +126,13 @@ namespace MimeKit.Cryptography {
 			if (!IsEnabled (signatureAlgorithm))
 				return false;
 
+			options = options.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			// first check the body hash (if that's invalid, then the entire signature is invalid)
+			if (!VerifyBodyHash (options, message, signatureAlgorithm, bodyAlgorithm, maxLength, bh))
+				return false;
+
 			if (doAsync)
 				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
 			else
@@ -136,39 +141,7 @@ namespace MimeKit.Cryptography {
 			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
 				return false;
 
-			options = options.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
-
-			// first check the body hash (if that's invalid, then the entire signature is invalid)
-			var hash = Convert.ToBase64String (message.HashBody (options, signatureAlgorithm, bodyAlgorithm, maxLength));
-
-			if (hash != bh)
-				return false;
-
-			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
-				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (options.CreateNewLineFilter ());
-
-					WriteHeaders (options, message, headers, headerAlgorithm, filtered);
-
-					// now include the DKIM-Signature header that we are verifying,
-					// but only after removing the "b=" signature value.
-					var header = GetSignedSignatureHeader (dkimSignature);
-
-					switch (headerAlgorithm) {
-					case DkimCanonicalizationAlgorithm.Relaxed:
-						WriteHeaderRelaxed (options, filtered, header, true);
-						break;
-					default:
-						WriteHeaderSimple (options, filtered, header, true);
-						break;
-					}
-
-					filtered.Flush ();
-				}
-
-				return stream.VerifySignature (b);
-			}
+			return VerifySignature (options, message, dkimSignature, signatureAlgorithm, key, headers, headerAlgorithm, b);
 		}
 
 		/// <summary>

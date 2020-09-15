@@ -34,6 +34,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Signers;
 
+using MimeKit.IO;
 using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
@@ -490,6 +491,69 @@ namespace MimeKit.Cryptography {
 			Array.Resize (ref rawValue, length);
 
 			return new Header (header.Options, header.RawField, rawValue, false);
+		}
+
+		/// <summary>
+		/// Verify the hash of the message body.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the hash of the message body.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="message">The signed MIME message.</param>
+		/// <param name="signatureAlgorithm">The algorithm used to sign the message.</param>
+		/// <param name="canonicalizationAlgorithm">The algorithm used to canonicalize the message body.</param>
+		/// <param name="maxLength">The max length of the message body to hash or <c>-1</c> to hash the entire message body.</param>
+		/// <param name="bodyHash">The expected message body hash encoded in base64.</param>
+		/// <returns><c>true</c> if the calculated body hash matches <paramref name="bodyHash"/>; otherwise, <c>false</c>.</returns>
+		protected bool VerifyBodyHash (FormatOptions options, MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, int maxLength, string bodyHash)
+		{
+			var hash = Convert.ToBase64String (message.HashBody (options, signatureAlgorithm, canonicalizationAlgorithm, maxLength));
+
+			return hash == bodyHash;
+		}
+
+		/// <summary>
+		/// Verify the signature of the message headers.
+		/// </summary>
+		/// <remarks>
+		/// Verifies the signature of the message headers.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="message">The signed MIME message.</param>
+		/// <param name="dkimSignature">The DKIM-Signature or ARC-Message-Signature header.</param>
+		/// <param name="signatureAlgorithm">The algorithm used to sign the message headers.</param>
+		/// <param name="key">The public key used to verify the signature.</param>
+		/// <param name="headers">The list of headers that were signed.</param>
+		/// <param name="canonicalizationAlgorithm">The algorithm used to canonicalize the headers.</param>
+		/// <param name="signature">The expected signature of the headers encoded in base64.</param>
+		/// <returns><c>true</c> if the calculated signature matches <paramref name="signature"/>; otherwise, <c>false</c>.</returns>
+		protected bool VerifySignature (FormatOptions options, MimeMessage message, Header dkimSignature, DkimSignatureAlgorithm signatureAlgorithm, AsymmetricKeyParameter key, string[] headers, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, string signature)
+		{
+			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (options.CreateNewLineFilter ());
+
+					WriteHeaders (options, message, headers, canonicalizationAlgorithm, filtered);
+
+					// now include the DKIM-Signature header that we are verifying,
+					// but only after removing the "b=" signature value.
+					var header = GetSignedSignatureHeader (dkimSignature);
+
+					switch (canonicalizationAlgorithm) {
+					case DkimCanonicalizationAlgorithm.Relaxed:
+						WriteHeaderRelaxed (options, filtered, header, true);
+						break;
+					default:
+						WriteHeaderSimple (options, filtered, header, true);
+						break;
+					}
+
+					filtered.Flush ();
+				}
+
+				return stream.VerifySignature (signature);
+			}
 		}
 	}
 }
