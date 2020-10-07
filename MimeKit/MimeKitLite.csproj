@@ -1,16 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
     <AssemblyTitle>MimeKit Lite</AssemblyTitle>
     <VersionPrefix>2.9.2</VersionPrefix>
     <Authors>Jeffrey Stedfast</Authors>
-    <TargetFrameworks>netstandard1.3;netstandard1.6;netstandard2.0;net45;net46;net47;net48</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;net46;net47;net48</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AssemblyName>MimeKitLite</AssemblyName>
     <PackageId>MimeKitLite</PackageId>
-    <PackageTags>mime;mbox;mail;email;parser;tnef;net45;netstandard;netstandard1.3;netstandard1.6;netstandard2.0</PackageTags>
+    <PackageTags>mime;mbox;mail;email;parser;tnef;net45;netstandard;netstandard2.0</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -43,18 +43,11 @@
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard1.')) ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
-    <PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
-  </ItemGroup>
-
+   
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.0')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
   </ItemGroup>
 
   <ItemGroup>
