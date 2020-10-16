@@ -40,6 +40,9 @@ namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6
+		static string DefaultHostName = null;
+#endif
 
 		/// <summary>
 		/// A string comparer that performs a case-insensitive ordinal string comparison.
@@ -116,9 +119,13 @@ namespace MimeKit.Utils {
 #if NETSTANDARD1_3 || NETSTANDARD1_6
 			return GenerateMessageId ("localhost.localdomain");
 #else
-			var properties = IPGlobalProperties.GetIPGlobalProperties ();
+			if (DefaultHostName == null) {
+				var properties = IPGlobalProperties.GetIPGlobalProperties ();
 
-			return GenerateMessageId (properties.HostName);
+				DefaultHostName = properties.HostName;
+			}
+
+			return GenerateMessageId (DefaultHostName);
 #endif
 		}
 
