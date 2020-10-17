@@ -143,7 +143,6 @@ namespace MimeKit {
 				var text = new TextPart ("html");
 				MimeEntity html;
 
-				text.ContentId = MimeUtils.GenerateMessageId ();
 				text.Text = HtmlBody;
 
 				if (LinkedResources.Count > 0) {
