@@ -159,17 +159,18 @@ namespace MimeKit {
 					index = 0;
 				}
 
-				if (string.IsNullOrEmpty (value.ContentId))
-					value.ContentId = MimeUtils.GenerateMessageId ();
-
 				ContentType.Parameters["type"] = value.ContentType.MediaType + "/" + value.ContentType.MediaSubtype;
 
 				// Note: we only use a "start" parameter if the index of the root entity is not at index 0 in order
 				// to work around the following Thunderbird bug: https://bugzilla.mozilla.org/show_bug.cgi?id=471402
-				if (index > 0)
+				if (index > 0) {
+					if (string.IsNullOrEmpty (value.ContentId))
+						value.ContentId = MimeUtils.GenerateMessageId ();
+
 					ContentType.Parameters["start"] = "<" + value.ContentId + ">";
-				else
+				} else {
 					ContentType.Parameters.Remove ("start");
+				}
 			}
 		}
 
