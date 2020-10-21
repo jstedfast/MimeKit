@@ -377,6 +377,7 @@ var message = new MimeMessage ();
 message.From.Add (new MailboxAddress ("Joey", "joey@friends.com"));
 message.To.Add (new MailboxAddress ("Alice", "alice@wonderland.com"));
 message.Subject = "How you doin?";
+message.MessageId = MimeKit.Utils.MimeUtils.GenerateMessageId();
 
 message.Body = new TextPart ("plain") {
     Text = @"Hey Alice,
@@ -396,6 +397,8 @@ specifies the media-subtype, in this case, "plain". Another media subtype you ar
 is the "html" subtype. Some other examples include "enriched", "rtf", and "csv".
 
 The `Text` property is the easiest way to both get and set the string content of the MIME part.
+
+Although the 'MessageId' property is optional, every message SHOULD have a "Message-ID:" field. Without it DKIM validation can fail.
 
 ### Creating a Message with Attachments
 
