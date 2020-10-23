@@ -163,8 +163,16 @@ namespace MimeKit {
 			return ContentType.Parse (mimeType);
 		}
 
-		MimeEntity CreateAttachment (ContentType contentType, string fileName, Stream stream)
+		static string GetFileName (string path)
 		{
+			int index = path.LastIndexOf (Path.DirectorySeparatorChar);
+
+			return index > 0 ? path.Substring (index + 1) : path;
+		}
+
+		MimeEntity CreateAttachment (ContentType contentType, string path, Stream stream)
+		{
+			var fileName = GetFileName (path);
 			MimeEntity attachment;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
@@ -172,8 +180,8 @@ namespace MimeKit {
 				var rfc822 = new MessagePart { Message = message };
 
 				rfc822.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment);
-				rfc822.ContentDisposition.FileName = Path.GetFileName (fileName);
-				rfc822.ContentType.Name = Path.GetFileName (fileName);
+				rfc822.ContentDisposition.FileName = fileName;
+				rfc822.ContentType.Name = fileName;
 
 				attachment = rfc822;
 			} else {
@@ -186,15 +194,15 @@ namespace MimeKit {
 					part = new MimePart (contentType);
 				}
 
-				part.FileName = Path.GetFileName (fileName);
 				part.IsAttachment = !linked;
+				part.FileName = fileName;
 
 				LoadContent (part, stream);
 				attachment = part;
 			}
 
 			if (linked)
-				attachment.ContentLocation = new Uri (Path.GetFileName (fileName), UriKind.Relative);
+				attachment.ContentLocation = new Uri (fileName, UriKind.Relative);
 
 			return attachment;
 		}
