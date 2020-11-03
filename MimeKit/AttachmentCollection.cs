@@ -31,6 +31,7 @@ using System.Collections.Generic;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using System.Buffers;
 
 namespace MimeKit {
 	/// <summary>
@@ -134,16 +135,19 @@ namespace MimeKit {
 
 			if (attachment.ContentType.IsMimeType ("text", "*")) {
 				var filter = new BestEncodingFilter ();
-				var buf = new byte[4096];
+				int bufLength = 4096;
+				var buf = ArrayPool<byte>.Shared.Rent (bufLength);
 				int index, length;
 				int nread;
 
-				while ((nread = stream.Read (buf, 0, buf.Length)) > 0) {
+				while ((nread = stream.Read (buf, 0, bufLength)) > 0) {
 					filter.Filter (buf, 0, nread, out index, out length);
 					content.Write (buf, 0, nread);
 				}
 
 				filter.Flush (buf, 0, 0, out index, out length);
+
+				ArrayPool<byte>.Shared.Return (buf);
 
 				attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 			} else {
