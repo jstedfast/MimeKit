@@ -144,7 +144,7 @@ namespace UnitTests {
 			// Note: MimeKit no longer sets the "start" parameter if the root is the first MIME part due to a bug in Thunderbird.
 			Assert.IsNull (related.ContentType.Parameters["start"], "The start parameter should be null.");
 
-			for (int i = 0; i < related.Count; i++) {
+			for (int i = 1; i < related.Count; i++) {
 				var cid = new Uri (string.Format ("cid:{0}", related[i].ContentId));
 				string mimeType, charset;
 
