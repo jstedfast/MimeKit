@@ -135,7 +135,7 @@ namespace MimeKit {
 
 			if (attachment.ContentType.IsMimeType ("text", "*")) {
 				var filter = new BestEncodingFilter ();
-				int bufLength = 4096;
+				const int BufLength = 4096;
 				var buf = ArrayPool<byte>.Shared.Rent (bufLength);
 				int index, length;
 				int nread;
