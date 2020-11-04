@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -44,6 +45,8 @@ namespace MimeKit {
 	/// </example>
 	public class AttachmentCollection : IList<MimeEntity>
 	{
+		const int BufferLength = 4096;
+		
 		readonly List<MimeEntity> attachments;
 		readonly bool linked;
 
@@ -133,17 +136,21 @@ namespace MimeKit {
 			var content = new MemoryBlockStream ();
 
 			if (attachment.ContentType.IsMimeType ("text", "*")) {
+				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 				var filter = new BestEncodingFilter ();
-				var buf = new byte[4096];
 				int index, length;
 				int nread;
 
-				while ((nread = stream.Read (buf, 0, buf.Length)) > 0) {
-					filter.Filter (buf, 0, nread, out index, out length);
-					content.Write (buf, 0, nread);
-				}
+				try {
+					while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
+						filter.Filter (buf, 0, nread, out index, out length);
+						content.Write (buf, 0, nread);
+					}
 
-				filter.Flush (buf, 0, 0, out index, out length);
+					filter.Flush (buf, 0, 0, out index, out length);
+				} finally {
+					ArrayPool<byte>.Shared.Return (buf);
+				}
 
 				attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 			} else {
