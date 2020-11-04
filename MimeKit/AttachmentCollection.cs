@@ -45,6 +45,8 @@ namespace MimeKit {
 	/// </example>
 	public class AttachmentCollection : IList<MimeEntity>
 	{
+		const int BufferLength = 4096;
+		
 		readonly List<MimeEntity> attachments;
 		readonly bool linked;
 
@@ -134,21 +136,18 @@ namespace MimeKit {
 			var content = new MemoryBlockStream ();
 
 			if (attachment.ContentType.IsMimeType ("text", "*")) {
+				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 				var filter = new BestEncodingFilter ();
-				const int BufLength = 4096;
-				var buf  = ArrayPool<byte>.Shared.Rent (BufLength);
 				int index, length;
 				int nread;
 
 				try {
-
-					while ((nread = stream.Read (buf, 0, BufLength)) > 0) {
+					while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
 						filter.Filter (buf, 0, nread, out index, out length);
 						content.Write (buf, 0, nread);
 					}
 
 					filter.Flush (buf, 0, 0, out index, out length);
-
 				} finally {
 					ArrayPool<byte>.Shared.Return (buf);
 				}
