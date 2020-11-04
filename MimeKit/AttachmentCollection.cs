@@ -26,12 +26,12 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
-using System.Buffers;
 
 namespace MimeKit {
 	/// <summary>
