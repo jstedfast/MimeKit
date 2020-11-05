@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -77,6 +78,8 @@ namespace MimeKit {
 	/// </example>
 	public class MimeContent : IMimeContent
 	{
+		const int BufferLength = 4096;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeContent"/> class.
 		/// </summary>
@@ -190,21 +193,21 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
+			Stream.Seek (0, SeekOrigin.Begin);
+
+			var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 			var readable = Stream as ICancellableStream;
 			var writable = stream as ICancellableStream;
-			var buf = new byte[4096];
 			int nread;
-
-			Stream.Seek (0, SeekOrigin.Begin);
 
 			try {
 				do {
 					if (readable != null) {
-						if ((nread = readable.Read (buf, 0, buf.Length, cancellationToken)) <= 0)
+						if ((nread = readable.Read (buf, 0, BufferLength, cancellationToken)) <= 0)
 							break;
 					} else {
 						cancellationToken.ThrowIfCancellationRequested ();
-						if ((nread = Stream.Read (buf, 0, buf.Length)) <= 0)
+						if ((nread = Stream.Read (buf, 0, BufferLength)) <= 0)
 							break;
 					}
 
@@ -225,6 +228,8 @@ namespace MimeKit {
 				}
 
 				throw;
+			} finally {
+				ArrayPool<byte>.Shared.Return (buf);
 			}
 		}
 
@@ -254,10 +259,10 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var buf = new byte[4096];
-			int nread;
-
 			Stream.Seek (0, SeekOrigin.Begin);
+
+			var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+			int nread;
 
 			try {
 				do {
@@ -276,6 +281,8 @@ namespace MimeKit {
 				}
 
 				throw;
+			} finally {
+				ArrayPool<byte>.Shared.Return (buf);
 			}
 		}
 

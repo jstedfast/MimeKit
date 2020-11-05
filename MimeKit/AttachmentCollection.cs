@@ -46,7 +46,7 @@ namespace MimeKit {
 	public class AttachmentCollection : IList<MimeEntity>
 	{
 		const int BufferLength = 4096;
-		
+
 		readonly List<MimeEntity> attachments;
 		readonly bool linked;
 

@@ -29,6 +29,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Buffers;
 using System.Net.Http;
 using System.Threading;
 using System.Diagnostics;
@@ -55,6 +56,7 @@ namespace MimeKit.Cryptography {
 		static readonly string[] ProtocolSubtypes = { "pgp-signature", "pgp-encrypted", "pgp-keys", "x-pgp-signature", "x-pgp-encrypted", "x-pgp-keys" };
 		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
 		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
+		const int BufferLength = 4096;
 
 		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank = {
 			EncryptionAlgorithm.Idea,
@@ -831,13 +833,17 @@ namespace MimeKit.Cryptography {
 				var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 				using (var compressed = compresser.Open (armored)) {
 					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
-					var buf = new byte[4096];
+					var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 					int nread;
 
-					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
+					try {
+						signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
 
-					while ((nread = content.Read (buf, 0, buf.Length)) > 0)
-						signatureGenerator.Update (buf, 0, nread);
+						while ((nread = content.Read (buf, 0, BufferLength)) > 0)
+							signatureGenerator.Update (buf, 0, nread);
+					} finally {
+						ArrayPool<byte>.Shared.Return (buf);
+					}
 
 					var signature = signatureGenerator.Generate ();
 
@@ -938,8 +944,6 @@ namespace MimeKit.Cryptography {
 		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (PgpSignatureList signatureList, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			var signatures = new List<IDigitalSignature> ();
-			var buf = new byte[4096];
-			int nread;
 
 			for (int i = 0; i < signatureList.Count; i++) {
 				long keyId = signatureList[i].KeyId;
@@ -964,13 +968,20 @@ namespace MimeKit.Cryptography {
 				signatures.Add (signature);
 			}
 
-			while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
-				for (int i = 0; i < signatures.Count; i++) {
-					if (signatures[i].SignerCertificate != null) {
-						var pgp = (OpenPgpDigitalSignature) signatures[i];
-						pgp.Signature.Update (buf, 0, nread);
+			var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+			int nread;
+
+			try {
+				while ((nread = content.Read (buf, 0, BufferLength)) > 0) {
+					for (int i = 0; i < signatures.Count; i++) {
+						if (signatures[i].SignerCertificate != null) {
+							var pgp = (OpenPgpDigitalSignature) signatures[i];
+							pgp.Signature.Update (buf, 0, nread);
+						}
 					}
 				}
+			} finally {
+				ArrayPool<byte>.Shared.Return (buf);
 			}
 
 			return new DigitalSignatureCollection (signatures);
@@ -1056,7 +1067,7 @@ namespace MimeKit.Cryptography {
 			return VerifyAsync (content, signatureData, true, cancellationToken);
 		}
 
-		static Stream Compress (Stream content, byte[] buf)
+		static Stream Compress (Stream content, byte[] buf, int bufferLength)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 			var memory = new MemoryBlockStream ();
@@ -1067,7 +1078,7 @@ namespace MimeKit.Cryptography {
 				using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
 					int nread;
 
-					while ((nread = content.Read (buf, 0, buf.Length)) > 0)
+					while ((nread = content.Read (buf, 0, bufferLength)) > 0)
 						literal.Write (buf, 0, nread);
 
 					literal.Flush ();
@@ -1086,22 +1097,30 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryBlockStream ();
 
 			using (var armored = new ArmoredOutputStream (memory)) {
-				var buf = new byte[4096];
+				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 
-				armored.SetHeader ("Version", null);
+				try {
+					armored.SetHeader ("Version", null);
 
-				using (var compressed = Compress (content, buf)) {
-					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
-						int nread;
+					using (var compressed = Compress (content, buf, BufferLength)) {
+						using (var encrypted = encrypter.Open (armored, compressed.Length)) {
+							int nread;
 
-						while ((nread = compressed.Read (buf, 0, buf.Length)) > 0)
-							encrypted.Write (buf, 0, nread);
+							try {
+								while ((nread = compressed.Read (buf, 0, BufferLength)) > 0)
+									encrypted.Write (buf, 0, nread);
+							} finally {
+								ArrayPool<byte>.Shared.Return (buf);
+							}
 
-						encrypted.Flush ();
+							encrypted.Flush ();
+						}
 					}
-				}
 
-				armored.Flush ();
+					armored.Flush ();
+				} finally {
+					ArrayPool<byte>.Shared.Return (buf);
+				}
 			}
 
 			memory.Position = 0;
@@ -1447,8 +1466,7 @@ namespace MimeKit.Cryptography {
 			var encrypter = new PgpEncryptedDataGenerator (GetSymmetricKeyAlgorithm (cipherAlgo), true);
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var unique = new HashSet<long> ();
-			var buf = new byte[4096];
-			int nread, count = 0;
+			int count = 0;
 
 			foreach (var recipient in recipients) {
 				if (!recipient.IsEncryptionKey)
@@ -1483,9 +1501,16 @@ namespace MimeKit.Cryptography {
 
 					var literalGenerator = new PgpLiteralDataGenerator ();
 					using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
-						while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
-							signatureGenerator.Update (buf, 0, nread);
-							literal.Write (buf, 0, nread);
+						var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+						int nread;
+
+						try {
+							while ((nread = content.Read (buf, 0, BufferLength)) > 0) {
+								signatureGenerator.Update (buf, 0, nread);
+								literal.Write (buf, 0, nread);
+							}
+						} finally {
+							ArrayPool<byte>.Shared.Return (buf);
 						}
 
 						literal.Flush ();
@@ -1505,8 +1530,15 @@ namespace MimeKit.Cryptography {
 					armored.SetHeader ("Version", null);
 
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
-						while ((nread = compressed.Read (buf, 0, buf.Length)) > 0)
-							encrypted.Write (buf, 0, nread);
+						var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+						int nread;
+
+						try {
+							while ((nread = compressed.Read (buf, 0, BufferLength)) > 0)
+								encrypted.Write (buf, 0, nread);
+						} finally {
+							ArrayPool<byte>.Shared.Return (buf);
+						}
 
 						encrypted.Flush ();
 					}
@@ -1661,28 +1693,32 @@ namespace MimeKit.Cryptography {
 						var literal = (PgpLiteralData) obj;
 
 						using (var stream = literal.GetDataStream ()) {
-							var buffer = new byte[4096];
+							var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 							int nread;
 
-							while ((nread = stream.Read (buffer, 0, buffer.Length)) > 0) {
-								if (onepassList != null) {
-									// update our one-pass signatures...
-									for (int index = 0; index < nread; index++) {
-										byte c = buffer[index];
+							try {
+								while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
+									if (onepassList != null) {
+										// update our one-pass signatures...
+										for (int index = 0; index < nread; index++) {
+											byte c = buf[index];
 
-										for (int i = 0; i < onepassList.Count; i++) {
-											var pgp = (OpenPgpDigitalSignature) onepassList[i];
-											pgp.OnePassSignature.Update (c);
+											for (int i = 0; i < onepassList.Count; i++) {
+												var pgp = (OpenPgpDigitalSignature) onepassList[i];
+												pgp.OnePassSignature.Update (c);
+											}
 										}
 									}
+
+									if (doAsync)
+										await decryptedData.WriteAsync (buf, 0, nread, cancellationToken).ConfigureAwait (false);
+									else
+										decryptedData.Write (buf, 0, nread);
+
+									nwritten += nread;
 								}
-
-								if (doAsync)
-									await decryptedData.WriteAsync (buffer, 0, nread, cancellationToken).ConfigureAwait (false);
-								else
-									decryptedData.Write (buffer, 0, nread);
-
-								nwritten += nread;
+							} finally {
+								ArrayPool<byte>.Shared.Return (buf);
 							}
 						}
 					}

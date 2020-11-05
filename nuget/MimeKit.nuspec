@@ -84,6 +84,7 @@
         <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
+        <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="Portable.BouncyCastle" version="1.8.8" />
       </group>
     </dependencies>
