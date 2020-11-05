@@ -216,6 +216,26 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestAddTextFileName ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			attachment = (MimePart) attachments.Add (fileName);
+			Assert.AreEqual ("text/plain", attachment.ContentType.MimeType);
+			Assert.AreEqual ("lorem-ipsum.txt", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.SevenBit, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
 		public void TestAddEmailMessage ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
