@@ -129,5 +129,17 @@ namespace UnitTests.Utils {
 			Assert.IsFalse (MimeUtils.TryParse ("(unterminated comment", out version), "unterminated comment");
 			Assert.IsFalse (MimeUtils.TryParse ("1 (unterminated comment", out version), "1 + unterminated comment");
 		}
+
+		[Test]
+		public void TestGenerateMessageIdWithInternationalDomain ()
+		{
+			const string domain = "MjÃ¶lnir";
+
+			var msgid = MimeUtils.GenerateMessageId (domain);
+			int at = msgid.IndexOf ('@');
+			var idn = msgid.Substring (at + 1);
+
+			Assert.AreEqual ("xn--mjlnir-4ka37a", idn);
+		}
 	}
 }

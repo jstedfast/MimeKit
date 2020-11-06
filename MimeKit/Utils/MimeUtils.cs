@@ -102,7 +102,7 @@ namespace MimeKit.Utils {
 				value /= 36;
 			} while (value != 0);
 
-			id.Append ('@').Append (domain);
+			id.Append ('@').Append (ParseUtils.IdnEncode (domain));
 
 			return id.ToString ();
 		}
