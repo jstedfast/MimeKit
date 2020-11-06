@@ -133,13 +133,13 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestGenerateMessageIdWithInternationalDomain ()
 		{
-			const string domain = "MjÃ¶lnir";
+			const string domain = "Mjölnir";
 
 			var msgid = MimeUtils.GenerateMessageId (domain);
 			int at = msgid.IndexOf ('@');
 			var idn = msgid.Substring (at + 1);
 
-			Assert.AreEqual ("xn--mjlnir-4ka37a", idn);
+			Assert.AreEqual ("xn--mjlnir-xxa", idn);
 		}
 	}
 }
