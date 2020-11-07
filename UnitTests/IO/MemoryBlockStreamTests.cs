@@ -195,7 +195,7 @@ namespace UnitTests.IO {
 		public void TestSeek ()
 		{
 			for (int attempt = 0; attempt < 10; attempt++) {
-				long offset = random.Next () % master.Length;
+				long offset = random.Next (1, (int) master.Length);
 
 				long expected = master.Seek (offset, SeekOrigin.Begin);
 				long actual = blocks.Seek (offset, SeekOrigin.Begin);
