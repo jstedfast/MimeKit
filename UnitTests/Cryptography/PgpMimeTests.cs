@@ -800,7 +800,7 @@ namespace UnitTests.Cryptography {
 			try {
 				signatures = multipart.Verify ();
 			} catch (IOException ex) {
-				if (ex.Message == "unknown signature key algorithm: 22") {
+				if (ex.Message == "unknown signature key algorithm: EdDsa") {
 					Assert.Ignore ("Known issue: {0}", ex.Message);
 					return;
 				}
