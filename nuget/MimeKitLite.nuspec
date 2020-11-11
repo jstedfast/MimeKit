@@ -48,39 +48,20 @@
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
-      <frameworkAssembly assemblyName="System" targetFramework="monoandroid" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="monoandroid" />
-      <frameworkAssembly assemblyName="System" targetFramework="xamarinios" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="xamarinios" />
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net45" />
       <group targetFramework="net46" />
       <group targetFramework="net47" />
       <group targetFramework="net48" />
-      <group targetFramework="netstandard1.3">
-        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
-        <dependency id="System.Globalization.Extensions" version="4.3.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
-      </group>
-      <group targetFramework="netstandard1.6">
-        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
-        <dependency id="System.Globalization.Extensions" version="4.3.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
-      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
+        <dependency id="System.Buffers" version="4.5.1" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKitLite.dll" target="lib\netstandard1.3\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKitLite.pdb" target="lib\netstandard1.3\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\netstandard1.3\MimeKitLite.xml" target="lib\netstandard1.3\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKitLite.dll" target="lib\netstandard1.6\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKitLite.pdb" target="lib\netstandard1.6\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\netstandard1.6\MimeKitLite.xml" target="lib\netstandard1.6\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.dll" target="lib\netstandard2.0\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.pdb" target="lib\netstandard2.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.xml" target="lib\netstandard2.0\MimeKitLite.xml" />
