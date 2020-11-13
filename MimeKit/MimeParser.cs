@@ -1271,7 +1271,7 @@ namespace MimeKit {
 				*aligned = c;
 
 				if (inptr == aligned && c != (byte) '\n') {
-					// -funroll-loops, bitches.
+					// -funroll-loops, yippee ki-yay.
 					uint* dword = (uint*) inptr;
 
 					do {
