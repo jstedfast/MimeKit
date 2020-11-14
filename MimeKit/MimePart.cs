@@ -27,15 +27,16 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MD5 = System.Security.Cryptography.MD5;
 
-using MimeKit.IO.Filters;
-using MimeKit.Encodings;
-using MimeKit.Utils;
 using MimeKit.IO;
+using MimeKit.Utils;
+using MimeKit.Encodings;
+using MimeKit.IO.Filters;
 
 namespace MimeKit {
 	/// <summary>
@@ -464,10 +465,15 @@ namespace MimeKit {
 				}
 
 				var base64 = new Base64Encoder (true);
-				var digest = new byte[base64.EstimateOutputLength (checksum.Length)];
-				int n = base64.Flush (checksum, 0, checksum.Length, digest);
+				var digest = ArrayPool<byte>.Shared.Rent (base64.EstimateOutputLength (checksum.Length));
 
-				return Encoding.ASCII.GetString (digest, 0, n);
+				try {
+					int n = base64.Flush (checksum, 0, checksum.Length, digest);
+
+					return Encoding.ASCII.GetString (digest, 0, n);
+				} finally {
+					ArrayPool<byte>.Shared.Return (digest);
+				}
 			}
 		}
 
