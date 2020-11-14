@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Buffers;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Math.EC.Rfc8032;
@@ -74,15 +75,21 @@ namespace MimeKit.Cryptography {
 			if (privateKey == null)
 				throw new InvalidOperationException ("Ed25519DigestSigner not initialised for signature generation.");
 
-			var hash = new byte[digest.GetDigestSize ()];
-			digest.DoFinal (hash, 0);
+			var hashLength = digest.GetDigestSize ();
+			var hash = ArrayPool<byte>.Shared.Rent (hashLength);
 
-			var signature = new byte[Ed25519PrivateKeyParameters.SignatureSize];
-			privateKey.Sign (Ed25519.Algorithm.Ed25519, publicKey, null, hash, 0, hash.Length, signature, 0);
+			try {
+				digest.DoFinal (hash, 0);
 
-			Reset ();
+				var signature = new byte[Ed25519PrivateKeyParameters.SignatureSize];
+				privateKey.Sign (Ed25519.Algorithm.Ed25519, publicKey, null, hash, 0, hashLength, signature, 0);
 
-			return signature;
+				Reset ();
+
+				return signature;
+			} finally {
+				ArrayPool<byte>.Shared.Return (hash);
+			}
 		}
 
 		public bool VerifySignature (byte[] signature)
@@ -93,15 +100,21 @@ namespace MimeKit.Cryptography {
 			if (Ed25519.SignatureSize != signature.Length)
 				return false;
 
-			byte[] hash = new byte[digest.GetDigestSize ()];
-			digest.DoFinal (hash, 0);
+			var hashLength = digest.GetDigestSize ();
+			var hash = ArrayPool<byte>.Shared.Rent (hashLength);
 
-			var pk = publicKey.GetEncoded ();
-			var result = Ed25519.Verify (signature, 0, pk, 0, hash, 0, hash.Length);
+			try {
+				digest.DoFinal (hash, 0);
 
-			Reset ();
+				var pk = publicKey.GetEncoded ();
+				var result = Ed25519.Verify (signature, 0, pk, 0, hash, 0, hashLength);
 
-			return result;
+				Reset ();
+
+				return result;
+			} finally {
+				ArrayPool<byte>.Shared.Return (hash);
+			}
 		}
 
 		public void Reset ()
