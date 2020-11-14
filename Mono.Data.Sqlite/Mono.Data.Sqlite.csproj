@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -45,18 +45,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembly\AssemblyInfo.cs" />
-    <Compile Include="LINQ\SQLiteConnection_Linq.cs" />
+    <Compile Include="LINQ\SQLiteConnection_Linq.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="LINQ\SQLiteFactory_Linq.cs" />
     <Compile Include="SQLite3.cs" />
     <Compile Include="SQLite3_UTF16.cs" />
     <Compile Include="SQLiteBase.cs" />
-    <Compile Include="SQLiteCommand.cs" />
-    <Compile Include="SQLiteCommandBuilder.cs" />
-    <Compile Include="SQLiteConnection.cs" />
+    <Compile Include="SQLiteCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SQLiteCommandBuilder.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SQLiteConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="SQLiteConnectionPool.cs" />
     <Compile Include="SQLiteConnectionStringBuilder.cs" />
     <Compile Include="SQLiteConvert.cs" />
-    <Compile Include="SQLiteDataAdapter.cs" />
+    <Compile Include="SQLiteDataAdapter.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="SQLiteDataReader.cs" />
     <Compile Include="SqliteDataSourceEnumerator.cs" />
     <Compile Include="SQLiteEnlistment.cs" />
@@ -81,9 +91,7 @@
   <ItemGroup>
     <None Include="resources\SR.resx" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
