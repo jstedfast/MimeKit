@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -179,9 +180,13 @@ namespace MimeKit.Tnef {
 
 			if (dataLeft == 0 && valueEndOffset > reader.StreamOffset) {
 				int valueLeft = valueEndOffset - reader.StreamOffset;
-				var buf = new byte[valueLeft];
+				var buf = ArrayPool<byte>.Shared.Rent (valueLeft);
 
-				reader.ReadAttributeRawValue (buf, 0, buf.Length);
+				try {
+					reader.ReadAttributeRawValue (buf, 0, valueLeft);
+				} finally {
+					ArrayPool<byte>.Shared.Return (buf);
+				}
 			}
 
 			return nread;
