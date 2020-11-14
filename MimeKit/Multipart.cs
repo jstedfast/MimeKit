@@ -27,14 +27,15 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers;
 using System.Threading;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-using MimeKit.Encodings;
-using MimeKit.Utils;
 using MimeKit.IO;
+using MimeKit.Utils;
+using MimeKit.Encodings;
 
 namespace MimeKit {
 	/// <summary>
@@ -146,14 +147,19 @@ namespace MimeKit {
 		{
 			var base64 = new Base64Encoder (true);
 			var digest = new byte[16];
-			var buf = new byte[24];
 			int length;
 
 			MimeUtils.GetRandomBytes (digest);
 
-			length = base64.Flush (digest, 0, digest.Length, buf);
+			var buf = ArrayPool<byte>.Shared.Rent (24);
 
-			return "=-" + Encoding.ASCII.GetString (buf, 0, length);
+			try {
+				length = base64.Flush (digest, 0, digest.Length, buf);
+
+				return "=-" + Encoding.ASCII.GetString (buf, 0, length);
+			} finally {
+				ArrayPool<byte>.Shared.Return (buf);
+			}
 		}
 
 		/// <summary>
