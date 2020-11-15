@@ -170,15 +170,15 @@ namespace MimeKit.Tnef {
 			{
 				string addr;
 
-				mailbox = null;
-
 				if (string.IsNullOrEmpty (Addr) && CanUseSearchKey)
 					addr = SearchKey.Substring (AddrType.Length + 1);
 				else
 					addr = Addr;
 
-				if (string.IsNullOrEmpty (addr) || !MailboxAddress.TryParse (addr, out mailbox))
+				if (string.IsNullOrEmpty (addr) || !MailboxAddress.TryParse (addr, out mailbox)) {
+					mailbox = null;
 					return false;
+				}
 
 				mailbox.Name = Name;
 

@@ -1139,7 +1139,12 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
 
-			foreach (Org.BouncyCastle.X509.X509Certificate certificate in crl.GetRevokedCertificates ())
+			var revoked = crl.GetRevokedCertificates ();
+
+			if (revoked == null)
+				return;
+
+			foreach (Org.BouncyCastle.X509.X509Certificate certificate in revoked)
 				Import (StoreName.Disallowed, certificate);
 		}
 

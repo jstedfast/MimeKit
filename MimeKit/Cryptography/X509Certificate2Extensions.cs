@@ -62,8 +62,10 @@ namespace MimeKit.Cryptography
 				throw new ArgumentNullException (nameof (certificate));
 
 			var rawData = certificate.GetRawCertData ();
+			var parser = new X509CertificateParser ();
+			var cert = parser.ReadCertificate (rawData);
 
-			return new X509CertificateParser ().ReadCertificate (rawData);
+			return cert;
 		}
 
 		/// <summary>
