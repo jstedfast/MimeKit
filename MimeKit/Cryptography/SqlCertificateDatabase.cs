@@ -286,16 +286,17 @@ namespace MimeKit.Cryptography {
 
 						foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
 							var statement = "UPDATE CERTIFICATES SET ANCHOR = @ANCHOR, SUBJECTNAME = @SUBJECTNAME, SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER WHERE ID = @ID";
-							var command = connection.CreateCommand ();
 
-							command.AddParameterWithValue ("@ID", record.Id);
-							command.AddParameterWithValue ("@ANCHOR", record.IsAnchor);
-							command.AddParameterWithValue ("@SUBJECTNAME", record.SubjectName);
-							command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", record.SubjectKeyIdentifier?.AsHex ());
-							command.CommandType = CommandType.Text;
-							command.CommandText = statement;
+							using (var command = connection.CreateCommand ()) {
+								command.AddParameterWithValue ("@ID", record.Id);
+								command.AddParameterWithValue ("@ANCHOR", record.IsAnchor);
+								command.AddParameterWithValue ("@SUBJECTNAME", record.SubjectName);
+								command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", record.SubjectKeyIdentifier?.AsHex ());
+								command.CommandType = CommandType.Text;
+								command.CommandText = statement;
 
-							command.ExecuteNonQuery ();
+								command.ExecuteNonQuery ();
+							}
 						}
 
 						transaction.Commit ();
