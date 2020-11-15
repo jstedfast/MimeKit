@@ -1395,8 +1395,15 @@ namespace MimeKit {
 				content = new BoundStream (stream, beginOffset, endOffset, true);
 			} else {
 				content = new MemoryBlockStream ();
-				result = ScanContent (inbuf, content, true, cancellationToken);
-				content.Seek (0, SeekOrigin.Begin);
+
+				try {
+					result = ScanContent (inbuf, content, true, cancellationToken);
+					content.Seek (0, SeekOrigin.Begin);
+				} catch {
+					content.Dispose ();
+					throw;
+				}
+
 				endOffset = beginOffset + content.Length;
 			}
 
