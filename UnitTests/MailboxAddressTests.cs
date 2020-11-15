@@ -818,6 +818,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithSquareBracketsAnd8BitTextInDisplayName ()
+		{
+			const string text = "Tom Doe [Cörp Öne] <tom.doe@corpone.com>";
+
+			AssertParse (text);
+
+			AssertParseFailure (text, false, 0, 8, RfcComplianceMode.Strict);
+		}
+
+		[Test]
 		public void TestParseAddrspecWithUnicodeLocalPart ()
 		{
 			const string text = "test.täst@test.net";
