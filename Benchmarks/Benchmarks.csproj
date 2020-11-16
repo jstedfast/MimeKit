@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net48;netcoreapp3.1</TargetFrameworks>
+    <SignAssembly>true</SignAssembly>
+    <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
+    <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
+    <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="BenchmarkHelper.cs" />
+    <Compile Include="MimeParserBenchmarks.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+</Project>
