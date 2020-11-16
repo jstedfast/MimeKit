@@ -63,12 +63,12 @@ namespace MimeKit {
 	/// </remarks>
 	public class MimeMessage
 	{
-		static readonly string[] StandardAddressHeaders = {
-			"Resent-From", "Resent-Reply-To", "Resent-To", "Resent-Cc", "Resent-Bcc",
-			"From", "Reply-To", "To", "Cc", "Bcc"
+		static readonly HeaderId[] StandardAddressHeaders = {
+			HeaderId.ResentFrom, HeaderId.ResentReplyTo, HeaderId.ResentTo, HeaderId.ResentCc, HeaderId.ResentBcc,
+			HeaderId.From, HeaderId.ReplyTo, HeaderId.To, HeaderId.Cc, HeaderId.Bcc
 		};
 
-		readonly Dictionary<string, InternetAddressList> addresses;
+		readonly Dictionary<HeaderId, InternetAddressList> addresses;
 		MessageImportance importance = MessageImportance.Normal;
 		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
@@ -86,16 +86,16 @@ namespace MimeKit {
 		// Note: this .ctor is used only by the MimeParser and MimeMessage.CreateFromMailMessage()
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
 		{
-			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
+			addresses = new Dictionary<HeaderId, InternetAddressList> ();
 			Headers = new HeaderList (options);
 
 			compliance = mode;
 
 			// initialize our address lists
-			foreach (var name in StandardAddressHeaders) {
+			foreach (var id in StandardAddressHeaders) {
 				var list = new InternetAddressList ();
 				list.Changed += InternetAddressListChanged;
-				addresses.Add (name, list);
+				addresses.Add (id, list);
 			}
 
 			references = new MessageIdList ();
@@ -115,16 +115,16 @@ namespace MimeKit {
 
 		internal MimeMessage (ParserOptions options)
 		{
-			addresses = new Dictionary<string, InternetAddressList> (MimeUtils.OrdinalIgnoreCase);
+			addresses = new Dictionary<HeaderId, InternetAddressList> ();
 			Headers = new HeaderList (options);
 
 			compliance = RfcComplianceMode.Strict;
 
 			// initialize our address lists
-			foreach (var name in StandardAddressHeaders) {
+			foreach (var id in StandardAddressHeaders) {
 				var list = new InternetAddressList ();
 				list.Changed += InternetAddressListChanged;
-				addresses.Add (name, list);
+				addresses.Add (id, list);
 			}
 
 			references = new MessageIdList ();
@@ -464,7 +464,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the From header.</value>
 		public InternetAddressList From {
-			get { return addresses["From"]; }
+			get { return addresses[HeaderId.From]; }
 		}
 
 		/// <summary>
@@ -480,7 +480,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-From header.</value>
 		public InternetAddressList ResentFrom {
-			get { return addresses["Resent-From"]; }
+			get { return addresses[HeaderId.ResentFrom]; }
 		}
 
 		/// <summary>
@@ -496,7 +496,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
-			get { return addresses["Reply-To"]; }
+			get { return addresses[HeaderId.ReplyTo]; }
 		}
 
 		/// <summary>
@@ -512,7 +512,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Reply-To header.</value>
 		public InternetAddressList ResentReplyTo {
-			get { return addresses["Resent-Reply-To"]; }
+			get { return addresses[HeaderId.ResentReplyTo]; }
 		}
 
 		/// <summary>
@@ -524,7 +524,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the To header.</value>
 		public InternetAddressList To {
-			get { return addresses["To"]; }
+			get { return addresses[HeaderId.To]; }
 		}
 
 		/// <summary>
@@ -536,7 +536,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-To header.</value>
 		public InternetAddressList ResentTo {
-			get { return addresses["Resent-To"]; }
+			get { return addresses[HeaderId.ResentTo]; }
 		}
 
 		/// <summary>
@@ -549,7 +549,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Cc header.</value>
 		public InternetAddressList Cc {
-			get { return addresses["Cc"]; }
+			get { return addresses[HeaderId.Cc]; }
 		}
 
 		/// <summary>
@@ -562,7 +562,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Cc header.</value>
 		public InternetAddressList ResentCc {
-			get { return addresses["Resent-Cc"]; }
+			get { return addresses[HeaderId.ResentCc]; }
 		}
 
 		/// <summary>
@@ -574,7 +574,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
-			get { return addresses["Bcc"]; }
+			get { return addresses[HeaderId.Bcc]; }
 		}
 
 		/// <summary>
@@ -586,7 +586,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Bcc header.</value>
 		public InternetAddressList ResentBcc {
-			get { return addresses["Resent-Bcc"]; }
+			get { return addresses[HeaderId.ResentBcc]; }
 		}
 
 		/// <summary>
@@ -2215,15 +2215,16 @@ namespace MimeKit {
 			}
 		}
 
-		void SerializeAddressList (string field, InternetAddressList list)
+		void SerializeAddressList (HeaderId id, InternetAddressList list)
 		{
 			if (list.Count == 0) {
-				RemoveHeader (field.ToHeaderId ());
+				RemoveHeader (id);
 				return;
 			}
 
 			var builder = new StringBuilder (" ");
 			var options = FormatOptions.Default;
+			var field = id.ToHeaderName ();
 			int lineLength = field.Length + 2;
 
 			list.Encode (options, builder, true, ref lineLength);
@@ -2231,16 +2232,16 @@ namespace MimeKit {
 
 			var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
-			ReplaceHeader (field.ToHeaderId (), field, raw);
+			ReplaceHeader (id, field, raw);
 		}
 
 		void InternetAddressListChanged (object addrlist, EventArgs e)
 		{
 			var list = (InternetAddressList) addrlist;
 
-			foreach (var name in StandardAddressHeaders) {
-				if (addresses[name] == list) {
-					SerializeAddressList (name, list);
+			foreach (var id in StandardAddressHeaders) {
+				if (addresses[id] == list) {
+					SerializeAddressList (id, list);
 					break;
 				}
 			}
@@ -2432,7 +2433,7 @@ namespace MimeKit {
 
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
-				if (addresses.TryGetValue (e.Header.Field, out list)) {
+				if (addresses.TryGetValue (e.Header.Id, out list)) {
 					AddAddresses (e.Header, list);
 					break;
 				}
@@ -2497,7 +2498,7 @@ namespace MimeKit {
 				break;
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
-				if (addresses.TryGetValue (e.Header.Field, out list)) {
+				if (addresses.TryGetValue (e.Header.Id, out list)) {
 					ReloadAddressList (e.Header.Id, list);
 					break;
 				}
