@@ -45,7 +45,7 @@ namespace Benchmarks {
 
 				codeBase = codeBase.Replace ('/', '\\');
 			}
-			
+
 			var dir = Path.GetDirectoryName (codeBase);
 
 			while (Path.GetFileName (dir) != "Benchmarks")
