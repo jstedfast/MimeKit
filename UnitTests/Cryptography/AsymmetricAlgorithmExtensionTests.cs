@@ -31,6 +31,7 @@ using NUnit.Framework;
 
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit.Cryptography;
 
@@ -70,7 +71,16 @@ namespace UnitTests.Cryptography
 			// first, check private key conversion
 			var expected = dsa.ExportParameters (true);
 			var keyParameter = dsa.AsAsymmetricKeyParameter ();
-			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
+			DSA asymmetricAlgorithm;
+
+			try {
+				asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
+			} catch {
+				Console.WriteLine ("System.Security DSA X parameter = {0}", expected.X.AsHex ());
+				Console.WriteLine ("Bouncy Castle DSA X parameter   = {0}", ((DsaPrivateKeyParameters) keyParameter).X.ToByteArrayUnsigned ().AsHex ());
+				throw;
+			}
+
 			var actual = asymmetricAlgorithm.ExportParameters (true);
 
 			Assert.AreEqual (expected.Counter, actual.Counter, "Counter");
