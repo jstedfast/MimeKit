@@ -390,25 +390,6 @@ namespace MimeKit.Cryptography {
 				command.ExecuteNonQuery ();
 			}
 		}
-		protected override void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
-		{
-			var indexName = GetIndexName (tableName, columnNames);
-			var query = string.Format ("CREATE INDEX IF NOT EXISTS {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
 
-			using (var command = connection.CreateCommand ()) {
-				command.CommandText = query;
-				command.ExecuteNonQuery ();
-			}
-		}
-		protected override void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
-		{
-			var indexName = GetIndexName (tableName, columnNames);
-			var query = string.Format ("DROP INDEX IF EXISTS {0}", indexName);
-
-			using (var command = connection.CreateCommand ()) {
-				command.CommandText = query;
-				command.ExecuteNonQuery ();
-			}
-		}
 	}
 }
