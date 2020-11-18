@@ -229,32 +229,12 @@ namespace MimeKit.Cryptography {
 		/// <param name="column">The column to add.</param>
 		protected abstract void AddTableColumn (DbConnection connection, DataTable table, DataColumn column);
 
-		static string GetIndexName (string tableName, string[] columnNames)
+		public static string GetIndexName (string tableName, string[] columnNames)
 		{
 			return string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
 		}
-
-		static void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
-		{
-			var indexName = GetIndexName (tableName, columnNames);
-			var query = string.Format ("CREATE INDEX IF NOT EXISTS {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
-
-			using (var command = connection.CreateCommand ()) {
-				command.CommandText = query;
-				command.ExecuteNonQuery ();
-			}
-		}
-
-		static void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
-		{
-			var indexName = GetIndexName (tableName, columnNames);
-			var query = string.Format ("DROP INDEX IF EXISTS {0}", indexName);
-
-			using (var command = connection.CreateCommand ()) {
-				command.CommandText = query;
-				command.ExecuteNonQuery ();
-			}
-		}
+		protected abstract void CreateIndex (DbConnection connection, string tableName, string[] columnNames);
+		protected abstract void RemoveIndex (DbConnection connection, string tableName, string[] columnNames);
 
 		void CreateCertificatesTable (DataTable table)
 		{
