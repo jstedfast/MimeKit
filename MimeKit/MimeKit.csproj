@@ -67,6 +67,7 @@
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -134,6 +135,7 @@
     <Compile Include="Cryptography\SecureMimeType.cs" />
     <Compile Include="Cryptography\SqlCertificateDatabase.cs" />
     <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
+    <Compile Include="Cryptography\SQLServerCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
     <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.'))" />
