@@ -29,6 +29,10 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 
+using MimeKit.Utils;
+
+using Org.BouncyCastle.X509;
+
 namespace MimeKit.Cryptography
 {
     public class SQLServerCertificateDatabase : SqlCertificateDatabase
@@ -88,7 +92,9 @@ namespace MimeKit.Cryptography
             {
                 if (column.AutoIncrement)
                     statement.Append("int identity(1,1)");
-                else
+                else if (column.DataType == typeof (long))
+					statement.Append ("DateTime");
+				else
                     statement.Append("int");
             }
             else if (column.DataType == typeof(bool))
@@ -108,7 +114,6 @@ namespace MimeKit.Cryptography
                 throw new NotImplementedException();
             }
 
-            bool isPrimaryKey = false;
             if (table != null && table.PrimaryKey != null && primaryKeys < table.PrimaryKey.Length)
             {
                 for (int i = 0; i < table.PrimaryKey.Length; i++)
@@ -116,15 +121,11 @@ namespace MimeKit.Cryptography
                     if (column == table.PrimaryKey[i])
                     {
                         statement.Append(" PRIMARY KEY Clustered");
-                        isPrimaryKey = true;
                         primaryKeys++;
                         break;
                     }
                 }
             }
-
-            if (column.Unique && !isPrimaryKey)
-                statement.Append(" UNIQUE");
 
             if (!column.AllowDBNull)
                 statement.Append(" NOT NULL");
@@ -171,5 +172,69 @@ namespace MimeKit.Cryptography
                 command.ExecuteNonQuery();
             }
         }
-    }
+
+		/// <summary>
+		/// Gets the database command to select the record matching the specified certificate.
+		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record matching the specified certificate.
+		/// </remarks>
+		/// <returns>The database command.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="fields">The fields to return.</param>
+		protected override DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+		{
+			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
+			var serialNumber = certificate.SerialNumber.ToString ();
+			var issuerName = certificate.IssuerDN.ToString ();
+			var command = connection.CreateCommand ();
+			var query = CreateSelectQuery (fields).Replace("SELECT","SELECT top 1");
+
+			// FIXME: Is this really the best way to query for an exact match of a certificate?
+			query = query.Append (" WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT");
+			command.AddParameterWithValue ("@ISSUERNAME", issuerName);
+			command.AddParameterWithValue ("@SERIALNUMBER", serialNumber);
+			command.AddParameterWithValue ("@FINGERPRINT", fingerprint);
+
+			command.CommandText = query.ToString ();
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+
+		protected override DbCommand GetInsertCommand (X509CertificateRecord record)
+		{
+			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
+			var variables = new StringBuilder ("VALUES(");
+			var command = connection.CreateCommand ();
+			var columns = certificatesTable.Columns;
+
+			for (int i = 1; i < columns.Count; i++) {
+				if (i > 1) {
+					statement.Append (", ");
+					variables.Append (", ");
+				}
+
+				var value = GetValue (record, columns[i].ColumnName);
+				if (value.GetType () == typeof (DateTime)) {
+					value =  ((DateTime) value < DateUtils.UnixEpoch) ? DateUtils.UnixEpoch : (DateTime)value;
+				}
+
+				if (columns[i].ColumnName == "PRIVATEKEY" && value.GetType()==typeof(DBNull)) { value = new byte[] { }; }
+				var variable = "@" + columns[i];
+
+				command.AddParameterWithValue (variable, value);
+				statement.Append (columns[i]);
+				variables.Append (variable);
+			}
+
+			statement.Append (')');
+			variables.Append (')');
+
+			command.CommandText = statement + " " + variables;
+			command.CommandType = CommandType.Text;
+
+			return command;
+		}
+	}
 }

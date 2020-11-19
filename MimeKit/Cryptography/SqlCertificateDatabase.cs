@@ -53,8 +53,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SqlCertificateDatabase : X509CertificateDatabase
 	{
-		readonly DataTable certificatesTable, crlsTable;
-		readonly DbConnection connection;
+		protected readonly DataTable certificatesTable, crlsTable;
+		protected readonly DbConnection connection;
 		bool disposed;
 
 		/// <summary>
@@ -336,7 +336,7 @@ namespace MimeKit.Cryptography {
 			CreateIndex (connection, table.TableName, new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
-		static StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
+		protected StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
 		{
 			var query = new StringBuilder ("SELECT ");
 			var columns = GetColumnNames (fields);
@@ -551,7 +551,7 @@ namespace MimeKit.Cryptography {
 				query.Length = baseQueryLength;
 			}
 
-			command.CommandText = query.ToString ();
+			command.CommandText = query.ToString();
 			command.CommandType = CommandType.Text;
 
 			return command;
