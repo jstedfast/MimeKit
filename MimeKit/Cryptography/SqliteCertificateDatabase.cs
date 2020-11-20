@@ -390,6 +390,5 @@ namespace MimeKit.Cryptography {
 				command.ExecuteNonQuery ();
 			}
 		}
-
 	}
 }
