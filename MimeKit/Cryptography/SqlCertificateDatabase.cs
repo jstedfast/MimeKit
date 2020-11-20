@@ -229,11 +229,29 @@ namespace MimeKit.Cryptography {
 		/// <param name="column">The column to add.</param>
 		protected abstract void AddTableColumn (DbConnection connection, DataTable table, DataColumn column);
 
+		/// <summary>
+		/// Gets the name of an index based on the table and columns that it is built against.
+		/// </summary>
+		/// <remarks>
+		/// Gets the name of an index based on the table and columns that it is built against.
+		/// </remarks>
+		/// <param name="tableName">The name of the table.</param>
+		/// <param name="columnNames">The names of the columns that are indexed.</param>
+		/// <returns></returns>
 		protected string GetIndexName (string tableName, string[] columnNames)
 		{
 			return string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
 		}
 
+		/// <summary>
+		/// Creates an index for faster table lookups.
+		/// </summary>
+		/// <remarks>
+		/// Creates an index for faster table lookups.
+		/// </remarks>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="tableName">The name of the table.</param>
+		/// <param name="columnNames">The names of the columns to index.</param>
 		protected virtual void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
@@ -245,6 +263,15 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		/// <summary>
+		/// Removes an index that is no longer needed.
+		/// </summary>
+		/// <remarks>
+		/// Removes an index that is no longer needed.
+		/// </remarks>
+		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="tableName">The name of the table.</param>
+		/// <param name="columnNames">The names of the columns that were indexed.</param>
 		protected virtual void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
@@ -337,6 +364,14 @@ namespace MimeKit.Cryptography {
 			CreateIndex (connection, table.TableName, new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
+		/// <summary>
+		/// Creates a SELECT query string builder for the specified fields of an X.509 certificate record.
+		/// </summary>
+		/// <remarks>
+		/// Creates a SELECT query string builder for the specified fields of an X.509 certificate record.
+		/// </remarks>
+		/// <param name="fields">THe X.509 certificate fields.</param>
+		/// <returns>A <see cref="StringBuilder"/> containing a basic SELECT query string.</returns>
 		protected StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
 		{
 			var query = new StringBuilder ("SELECT ");
