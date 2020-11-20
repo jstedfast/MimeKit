@@ -244,6 +244,7 @@ namespace MimeKit.Cryptography {
 				command.ExecuteNonQuery ();
 			}
 		}
+
 		protected virtual void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
