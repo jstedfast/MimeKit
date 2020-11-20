@@ -552,7 +552,7 @@ namespace MimeKit.Cryptography {
 				query.Length = baseQueryLength;
 			}
 
-			command.CommandText = query.ToString();
+			command.CommandText = query.ToString ();
 			command.CommandType = CommandType.Text;
 
 			return command;
