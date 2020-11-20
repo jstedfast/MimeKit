@@ -53,8 +53,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SqlCertificateDatabase : X509CertificateDatabase
 	{
-		readonly DataTable certificatesTable, crlsTable;
-		readonly DbConnection connection;
+		protected readonly DataTable certificatesTable, crlsTable;
+		protected readonly DbConnection connection;
 		bool disposed;
 
 		/// <summary>
@@ -229,12 +229,12 @@ namespace MimeKit.Cryptography {
 		/// <param name="column">The column to add.</param>
 		protected abstract void AddTableColumn (DbConnection connection, DataTable table, DataColumn column);
 
-		static string GetIndexName (string tableName, string[] columnNames)
+		protected string GetIndexName (string tableName, string[] columnNames)
 		{
 			return string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
 		}
 
-		static void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
+		protected virtual void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("CREATE INDEX IF NOT EXISTS {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
@@ -245,7 +245,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
+		protected virtual void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("DROP INDEX IF EXISTS {0}", indexName);
@@ -337,7 +337,7 @@ namespace MimeKit.Cryptography {
 			CreateIndex (connection, table.TableName, new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
-		static StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
+		protected StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
 		{
 			var query = new StringBuilder ("SELECT ");
 			var columns = GetColumnNames (fields);
