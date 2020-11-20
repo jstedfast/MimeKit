@@ -23,104 +23,90 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
 using System;
-using System.Collections.Generic;
+using System.Text;
 using System.Data;
 using System.Data.Common;
-using System.Text;
+using System.Collections.Generic;
 
 using MimeKit.Utils;
 
 using Org.BouncyCastle.X509;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
     public class SQLServerCertificateDatabase : SqlCertificateDatabase
     {
-        public SQLServerCertificateDatabase(DbConnection connection, string password) : base(connection, password)
+        public SQLServerCertificateDatabase (DbConnection connection, string password) : base (connection, password)
         {
         }
 
-        protected override void AddTableColumn(DbConnection connection, DataTable table, DataColumn column)
+        protected override void AddTableColumn (DbConnection connection, DataTable table, DataColumn column)
         {
-            var statement = new StringBuilder("ALTER TABLE ");
+            var statement = new StringBuilder ("ALTER TABLE ");
             int primaryKeys = table.PrimaryKey?.Length ?? 0;
 
-            statement.Append(table.TableName);
-            statement.Append(" ADD COLUMN ");
-            Build(statement, table, column, ref primaryKeys);
+            statement.Append (table.TableName);
+            statement.Append (" ADD COLUMN ");
+            Build (statement, table, column, ref primaryKeys);
 
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = statement.ToString();
+            using (var command = connection.CreateCommand ()) {
+                command.CommandText = statement.ToString ();
                 command.CommandType = CommandType.Text;
-                command.ExecuteNonQuery();
+                command.ExecuteNonQuery ();
             }
         }
 
-        protected override void CreateTable(DbConnection connection, DataTable table)
+        protected override void CreateTable (DbConnection connection, DataTable table)
         {
-            var statement = new StringBuilder($"if not exists (select * from sysobjects where name='{table.TableName}' and xtype='U') ");
+            var statement = new StringBuilder ($"if not exists (select * from sysobjects where name='{table.TableName}' and xtype='U') ");
             int primaryKeys = 0;
 
-            statement.Append($"Create table {table.TableName} (");
+            statement.Append ($"Create table {table.TableName} (");
 
-            foreach (DataColumn column in table.Columns)
-            {
-                Build(statement, table, column, ref primaryKeys);
-                statement.Append(", ");
+            foreach (DataColumn column in table.Columns) {
+                Build (statement, table, column, ref primaryKeys);
+                statement.Append (", ");
             }
 
             if (table.Columns.Count > 0)
                 statement.Length -= 2;
 
-            statement.Append(')');
+            statement.Append (')');
 
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = statement.ToString();
+            using (var command = connection.CreateCommand ()) {
+                command.CommandText = statement.ToString ();
                 command.CommandType = CommandType.Text;
-                command.ExecuteNonQuery();
+                command.ExecuteNonQuery ();
             }
         }
-        static void Build(StringBuilder statement, DataTable table, DataColumn column, ref int primaryKeys)
-        {
-            statement.Append(column.ColumnName);
-            statement.Append(' ');
 
-            if (column.DataType == typeof(long) || column.DataType == typeof(int))
-            {
+        static void Build (StringBuilder statement, DataTable table, DataColumn column, ref int primaryKeys)
+        {
+            statement.Append (column.ColumnName);
+            statement.Append (' ');
+
+            if (column.DataType == typeof (long) || column.DataType == typeof (int)) {
                 if (column.AutoIncrement)
-                    statement.Append("int identity(1,1)");
+                    statement.Append ("int identity(1,1)");
                 else if (column.DataType == typeof (long))
 					statement.Append ("DateTime");
 				else
-                    statement.Append("int");
-            }
-            else if (column.DataType == typeof(bool))
-            {
-                statement.Append("bit");
-            }
-            else if (column.DataType == typeof(byte[]))
-            {
-                statement.Append($"varbinary(4096)");
-            }
-            else if (column.DataType == typeof(string))
-            {
-                statement.Append("varchar(256)");
-            }
-            else
-            {
-                throw new NotImplementedException();
+                    statement.Append ("int");
+            } else if (column.DataType == typeof (bool)) {
+                statement.Append ("bit");
+            } else if (column.DataType == typeof (byte[])) {
+                statement.Append ($"varbinary(4096)");
+            } else if (column.DataType == typeof (string)) {
+                statement.Append ("varchar(256)");
+            } else {
+                throw new NotImplementedException ();
             }
 
-            if (table != null && table.PrimaryKey != null && primaryKeys < table.PrimaryKey.Length)
-            {
-                for (int i = 0; i < table.PrimaryKey.Length; i++)
-                {
-                    if (column == table.PrimaryKey[i])
-                    {
-                        statement.Append(" PRIMARY KEY Clustered");
+            if (table != null && table.PrimaryKey != null && primaryKeys < table.PrimaryKey.Length) {
+                for (int i = 0; i < table.PrimaryKey.Length; i++) {
+                    if (column == table.PrimaryKey[i]) {
+                        statement.Append (" PRIMARY KEY Clustered");
                         primaryKeys++;
                         break;
                     }
@@ -128,48 +114,44 @@ namespace MimeKit.Cryptography
             }
 
             if (!column.AllowDBNull)
-                statement.Append(" NOT NULL");
+                statement.Append (" NOT NULL");
         }
-        protected override IList<DataColumn> GetTableColumns(DbConnection connection, string tableName)
+
+        protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
         {
-            using (var command = connection.CreateCommand())
-            {
+            using (var command = connection.CreateCommand ()) {
                 command.CommandText = $"select top 1 * from {tableName}";
-                using (var reader = command.ExecuteReader())
-                {
-                    var columns = new List<DataColumn>();
-                    var table = reader.GetSchemaTable();
+                using (var reader = command.ExecuteReader ()) {
+                    var columns = new List<DataColumn> ();
+                    var table = reader.GetSchemaTable ();
+
                     foreach (DataRow row in table.Rows)
-                    {
-                        columns.Add(new DataColumn { ColumnName = row.Field<string>("ColumnName") });
-                    }
+                        columns.Add (new DataColumn { ColumnName = row.Field<string> ("ColumnName") });
 
                     return columns;
                 }
             }
         }
 
-        protected override void CreateIndex(DbConnection connection, string tableName, string[] columnNames)
+        protected override void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
         {
-            var indexName = GetIndexName(tableName, columnNames);
-            var query = string.Format("IF NOT EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) CREATE INDEX {0} ON {1}({2})", indexName, tableName, string.Join(", ", columnNames));
+            var indexName = GetIndexName (tableName, columnNames);
+            var query = string.Format ("IF NOT EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) CREATE INDEX {0} ON {1}({2})", indexName, tableName, string.Join(", ", columnNames));
 
-            using (var command = connection.CreateCommand())
-            {
+            using (var command = connection.CreateCommand ()) {
                 command.CommandText = query;
-                command.ExecuteNonQuery();
+                command.ExecuteNonQuery ();
             }
         }
 
-        protected override void RemoveIndex(DbConnection connection, string tableName, string[] columnNames)
+        protected override void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
         {
-            var indexName = GetIndexName(tableName, columnNames);
-            var query = string.Format("IF EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) DROP INDEX {0} ON {1}", indexName, tableName);
+            var indexName = GetIndexName (tableName, columnNames);
+            var query = string.Format ("IF EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) DROP INDEX {0} ON {1}", indexName, tableName);
 
-            using (var command = connection.CreateCommand())
-            {
+            using (var command = connection.CreateCommand ()) {
                 command.CommandText = query;
-                command.ExecuteNonQuery();
+                command.ExecuteNonQuery ();
             }
         }
 
@@ -188,7 +170,7 @@ namespace MimeKit.Cryptography
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var issuerName = certificate.IssuerDN.ToString ();
 			var command = connection.CreateCommand ();
-			var query = CreateSelectQuery (fields).Replace("SELECT","SELECT top 1");
+			var query = CreateSelectQuery (fields).Replace ("SELECT", "SELECT top 1");
 
 			// FIXME: Is this really the best way to query for an exact match of a certificate?
 			query = query.Append (" WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT");
@@ -216,11 +198,12 @@ namespace MimeKit.Cryptography
 				}
 
 				var value = GetValue (record, columns[i].ColumnName);
-				if (value.GetType () == typeof (DateTime)) {
-					value =  ((DateTime) value < DateUtils.UnixEpoch) ? DateUtils.UnixEpoch : (DateTime)value;
-				}
+				if (value.GetType () == typeof (DateTime))
+					value = ((DateTime) value < DateUtils.UnixEpoch) ? DateUtils.UnixEpoch : (DateTime) value;
 
-				if (columns[i].ColumnName == "PRIVATEKEY" && value.GetType()==typeof(DBNull)) { value = new byte[] { }; }
+				if (columns[i].ColumnName == "PRIVATEKEY" && value.GetType () == typeof (DBNull))
+					value = new byte[0];
+
 				var variable = "@" + columns[i];
 
 				command.AddParameterWithValue (variable, value);
