@@ -272,10 +272,10 @@ namespace MimeKit.Cryptography {
 				}
 
 				var value = GetValue (record, columns[i].ColumnName);
-				if (value.GetType () == typeof (DateTime))
-					value = ((DateTime) value < DateUtils.UnixEpoch) ? DateUtils.UnixEpoch : (DateTime) value;
+				if (value is DateTime dateTime && dateTime < DateUtils.UnixEpoch)
+					value = DateUtils.UnixEpoch;
 
-				if (columns[i].ColumnName == "PRIVATEKEY" && value.GetType () == typeof (DBNull))
+				if (columns[i].ColumnName == "PRIVATEKEY" && value is DBNull)
 					value = new byte[0];
 
 				var variable = "@" + columns[i];
