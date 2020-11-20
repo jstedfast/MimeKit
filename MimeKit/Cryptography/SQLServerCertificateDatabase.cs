@@ -235,7 +235,7 @@ namespace MimeKit.Cryptography {
 			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var issuerName = certificate.IssuerDN.ToString ();
-			var command = connection.CreateCommand ();
+			var command = Connection.CreateCommand ();
 			var query = CreateSelectQuery (fields).Replace ("SELECT", "SELECT top 1");
 
 			// FIXME: Is this really the best way to query for an exact match of a certificate?
@@ -262,8 +262,8 @@ namespace MimeKit.Cryptography {
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
 			var variables = new StringBuilder ("VALUES(");
-			var command = connection.CreateCommand ();
-			var columns = certificatesTable.Columns;
+			var command = Connection.CreateCommand ();
+			var columns = CertificatesTable.Columns;
 
 			for (int i = 1; i < columns.Count; i++) {
 				if (i > 1) {
