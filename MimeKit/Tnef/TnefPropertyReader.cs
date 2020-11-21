@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Buffers;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -294,13 +293,9 @@ namespace MimeKit.Tnef {
 				throw new InvalidOperationException ();
 
 			var stream = GetRawValueReadStream ();
-			var guid = ArrayPool<byte>.Shared.Rent (16);
+			var guid = new byte[16];
 
-			try {
-				stream.Read (guid, 0, 16);
-			} finally {
-				ArrayPool<byte>.Shared.Return (guid);
-			}
+			stream.Read (guid, 0, 16);
 
 			return new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode);
 		}
@@ -792,17 +787,13 @@ namespace MimeKit.Tnef {
 			if (n <= 0)
 				return 0;
 
-			var bytes = ArrayPool<byte>.Shared.Rent (n);
+			var bytes = new byte[n];
 
-			try {
-				n = reader.ReadAttributeRawValue (bytes, 0, n);
+			n = reader.ReadAttributeRawValue (bytes, 0, n);
 
-				var flush = reader.StreamOffset >= valueEndOffset;
+			var flush = reader.StreamOffset >= valueEndOffset;
 
-				return decoder.GetChars (bytes, 0, n, buffer, offset, flush);
-			} finally {
-				ArrayPool<byte>.Shared.Return (bytes);
-			}
+			return decoder.GetChars (bytes, 0, n, buffer, offset, flush);
 		}
 
 		bool TryGetPropertyValueLength (out int length)

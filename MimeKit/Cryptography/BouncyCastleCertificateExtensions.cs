@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Buffers;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Asn1;
@@ -191,19 +190,14 @@ namespace MimeKit.Cryptography {
 			return null;
 		}
 
-		static string AsHex (this byte[] blob, int length)
+		internal static string AsHex (this byte[] blob)
 		{
-			var hex = new StringBuilder (length * 2);
+			var hex = new StringBuilder (blob.Length * 2);
 
-			for (int i = 0; i < length; i++)
+			for (int i = 0; i < blob.Length; i++)
 				hex.Append (blob[i].ToString ("x2"));
 
 			return hex.ToString ();
-		}
-
-		internal static string AsHex (this byte[] blob)
-		{
-			return AsHex (blob, blob.Length);
 		}
 
 		/// <summary>
@@ -228,15 +222,10 @@ namespace MimeKit.Cryptography {
 
 			sha1.BlockUpdate (encoded, 0, encoded.Length);
 
-			var fingerprint = ArrayPool<byte>.Shared.Rent (20);
+			var fingerprint = new byte[20];
+			sha1.DoFinal (fingerprint, 0);
 
-			try {
-				sha1.DoFinal (fingerprint, 0);
-
-				return fingerprint.AsHex (20);
-			} finally {
-				ArrayPool<byte>.Shared.Return (fingerprint);
-			}
+			return fingerprint.AsHex ();
 		}
 
 		/// <summary>

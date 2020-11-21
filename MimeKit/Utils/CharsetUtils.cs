@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Buffers;
 using System.Collections.Generic;
 
 namespace MimeKit.Utils {
@@ -580,15 +579,11 @@ namespace MimeKit.Utils {
 
 		public static bool TryGetBomEncoding (Stream stream, out Encoding encoding)
 		{
-			var bom = ArrayPool<byte>.Shared.Rent (3);
+			var bom = new byte[3];
 
-			try {
-				int n = stream.Read (bom, 0, 3);
+			int n = stream.Read (bom, 0, bom.Length);
 
-				return TryGetBomEncoding (bom, n, out encoding);
-			} finally {
-				ArrayPool<byte>.Shared.Return (bom);
-			}
+			return TryGetBomEncoding (bom, n, out encoding);
 		}
 	}
 }

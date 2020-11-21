@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Buffers;
 using System.Collections;
 using System.Globalization;
 using System.Collections.Generic;
@@ -916,21 +915,17 @@ namespace MimeKit {
 			}
 
 			int length = endIndex - index;
-			var decoded = ArrayPool<byte>.Shared.Rent (hex.EstimateOutputLength (length));
+			var decoded = new byte[hex.EstimateOutputLength (length)];
 
-			try {
-				// hex decode...
-				length = hex.Decode (text, index, length, decoded);
+			// hex decode...
+			length = hex.Decode (text, index, length, decoded);
 
-				int outLength = decoder.GetCharCount (decoded, 0, length, flush);
-				var output = new char[outLength];
+			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
+			var output = new char[outLength];
 
-				outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
+			outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
 
-				return new string (output, 0, outLength);
-			} finally {
-				ArrayPool<byte>.Shared.Return (decoded);
-			}
+			return new string (output, 0, outLength);
 		}
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)

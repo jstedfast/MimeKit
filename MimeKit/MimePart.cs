@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -465,15 +464,10 @@ namespace MimeKit {
 				}
 
 				var base64 = new Base64Encoder (true);
-				var digest = ArrayPool<byte>.Shared.Rent (base64.EstimateOutputLength (checksum.Length));
+				var digest = new byte[base64.EstimateOutputLength (checksum.Length)];
+				int n = base64.Flush (checksum, 0, checksum.Length, digest);
 
-				try {
-					int n = base64.Flush (checksum, 0, checksum.Length, digest);
-
-					return Encoding.ASCII.GetString (digest, 0, n);
-				} finally {
-					ArrayPool<byte>.Shared.Return (digest);
-				}
+				return Encoding.ASCII.GetString (digest, 0, n);
 			}
 		}
 
