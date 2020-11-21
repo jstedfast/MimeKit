@@ -41,38 +41,6 @@ namespace MimeKit {
 	/// A <see cref="MimeContent"/> represents the content of a <see cref="MimePart"/>.
 	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
 	/// </remarks>
-	[Obsolete ("Use the MimeContent class instead.")]
-	public class ContentObject : MimeContent
-	{
-		/// <summary>
-		/// Initialize a new instance of the <see cref="ContentObject"/> class.
-		/// </summary>
-		/// <remarks>
-		/// When creating new <see cref="MimePart"/>s, the <paramref name="encoding"/>
-		/// should typically be <see cref="ContentEncoding.Default"/> unless the
-		/// <paramref name="stream"/> has already been encoded.
-		/// </remarks>
-		/// <param name="stream">The content stream.</param>
-		/// <param name="encoding">The stream encoding.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="stream"/> does not support reading.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> does not support seeking.</para>
-		/// </exception>
-		[Obsolete ("Use the MimeContent class instead.")]
-		public ContentObject (Stream stream, ContentEncoding encoding = ContentEncoding.Default) : base (stream, encoding) {}
-	}
-
-	/// <summary>
-	/// Encapsulates a content stream used by <see cref="MimePart"/>.
-	/// </summary>
-	/// <remarks>
-	/// A <see cref="MimeContent"/> represents the content of a <see cref="MimePart"/>.
-	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
-	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 	/// </example>

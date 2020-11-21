@@ -103,9 +103,7 @@ namespace UnitTests {
 			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body, (MessagePartial) message2.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message0, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((MimeMessage) null, partials));
-			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((ParserOptions) null, partials));
-			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null));
-			var message = MessagePartial.Join (partials);
+			var message = MessagePartial.Join (message0, partials);
 
 			Assert.IsNotNull (message, "Failed to reconstruct the message");
 			Assert.AreEqual ("Photo of a girl with feather earrings", message.Subject, "Subjects do not match");
@@ -138,8 +136,6 @@ namespace UnitTests {
 			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message0, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((MimeMessage) null, partials));
-			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((ParserOptions) null, partials));
-			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null));
 			var message = MessagePartial.Join (message0, partials);
 
 			Assert.IsNotNull (message, "Failed to reconstruct the message");

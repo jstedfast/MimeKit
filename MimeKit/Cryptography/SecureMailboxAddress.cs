@@ -100,30 +100,6 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
 		/// </remarks>
-		/// <param name="route">The route of the mailbox.</param>
-		/// <param name="address">The address of the mailbox.</param>
-		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="route"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
-		/// </exception>
-		[Obsolete ("Use new SecureMailboxAddress (string.Empty, route, address, fingerprint) instead.")]
-		public SecureMailboxAddress (IEnumerable<string> route, string address, string fingerprint) : base (route, address)
-		{
-			ValidateFingerprint (fingerprint);
-
-			Fingerprint = fingerprint;
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="SecureMailboxAddress"/> with the specified fingerprint.
-		/// </remarks>
 		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
@@ -157,34 +133,6 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
 		/// </exception>
 		public SecureMailboxAddress (string name, string address, string fingerprint) : base (name, address)
-		{
-			ValidateFingerprint (fingerprint);
-
-			Fingerprint = fingerprint;
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="SecureMailboxAddress"/> class.
-		/// </summary>
-		/// <remarks>
-		/// <para>Creates a new <see cref="MailboxAddress"/> with the specified address.</para>
-		/// <note type="note">
-		/// <para>The <paramref name="address"/> must be in the form <c>user@example.com</c>.</para>
-		/// <para>This method cannot be used to parse a free-form email address that includes
-		/// the name or encloses the address in angle brackets.</para>
-		/// <para>To parse a free-form email address, use <see cref="MailboxAddress.Parse(string)"/>
-		/// instead.</para>
-		/// </note>
-		/// </remarks>
-		/// <param name="address">The address of the mailbox.</param>
-		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
-		/// </exception>
-		[Obsolete ("Use new SecureMailboxAddress (string.Empty, address, fingerprint) instead.")]
-		public SecureMailboxAddress (string address, string fingerprint) : base (address)
 		{
 			ValidateFingerprint (fingerprint);
 

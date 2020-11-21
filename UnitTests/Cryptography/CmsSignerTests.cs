@@ -169,30 +169,25 @@ namespace UnitTests.Cryptography {
 
 			signer = new CmsSigner (path, password);
 			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (string, string)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			using (var stream = File.OpenRead (path))
 				signer = new CmsSigner (stream, password);
 			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (Stream, string)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			LoadPkcs12 (path, password, out certificates, out key);
 
 			signer = new CmsSigner (certificates, key);
 			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (chain, key)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			signer = new CmsSigner (certificates[0], key);
 			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (certificate, key)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			signer = new CmsSigner (new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable));
 			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, signer.SignerIdentifierType, "new CmsSigner (X509Certificate2)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 		}
 
@@ -207,30 +202,25 @@ namespace UnitTests.Cryptography {
 
 			signer = new CmsSigner (path, password, SubjectIdentifierType.SubjectKeyIdentifier);
 			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, signer.SignerIdentifierType, "new CmsSigner (string, string)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			using (var stream = File.OpenRead (path))
 				signer = new CmsSigner (stream, password, SubjectIdentifierType.SubjectKeyIdentifier);
 			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, signer.SignerIdentifierType, "new CmsSigner (Stream, string)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			LoadPkcs12 (path, password, out certificates, out key);
 
 			signer = new CmsSigner (certificates, key, SubjectIdentifierType.SubjectKeyIdentifier);
 			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, signer.SignerIdentifierType, "new CmsSigner (chain, key)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			signer = new CmsSigner (certificates[0], key, SubjectIdentifierType.SubjectKeyIdentifier);
 			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, signer.SignerIdentifierType, "new CmsSigner (certificate, key)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 
 			signer = new CmsSigner (new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable), SubjectIdentifierType.SubjectKeyIdentifier);
 			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, signer.SignerIdentifierType, "new CmsSigner (X509Certificate2)");
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "RsaSignaturePadding");
 		}
 
@@ -240,25 +230,18 @@ namespace UnitTests.Cryptography {
 			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12");
 			var signer = new CmsSigner (path, "no.secret");
 
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "Default RsaSignaturePaddingScheme");
 			Assert.IsNull (signer.RsaSignaturePadding, "Default RsaSignaturePadding");
 
-			Assert.Throws<ArgumentOutOfRangeException> (() => signer.RsaSignaturePaddingScheme = (RsaSignaturePaddingScheme) 555);
-
-			signer.RsaSignaturePaddingScheme = RsaSignaturePaddingScheme.Pkcs1;
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme #1");
+			signer.RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
 			Assert.AreEqual (RsaSignaturePadding.Pkcs1, signer.RsaSignaturePadding, "RsaSignaturePadding #1");
 
-			signer.RsaSignaturePaddingScheme = RsaSignaturePaddingScheme.Pss;
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pss, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme #2");
+			signer.RsaSignaturePadding = RsaSignaturePadding.Pss;
 			Assert.AreEqual (RsaSignaturePadding.Pss, signer.RsaSignaturePadding, "RsaSignaturePadding #2");
 
 			signer.RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pkcs1, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme #3");
 			Assert.AreEqual (RsaSignaturePadding.Pkcs1, signer.RsaSignaturePadding, "RsaSignaturePadding #3");
 
 			signer.RsaSignaturePadding = RsaSignaturePadding.Pss;
-			Assert.AreEqual (RsaSignaturePaddingScheme.Pss, signer.RsaSignaturePaddingScheme, "RsaSignaturePaddingScheme #4");
 			Assert.AreEqual (RsaSignaturePadding.Pss, signer.RsaSignaturePadding, "RsaSignaturePadding #4");
 		}
 	}

@@ -52,15 +52,10 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null, "johnny@example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", route, null));
 
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ((IEnumerable<string>) null, "johnny@example.com"));
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (route, null));
-
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null, "name", "johnny@example.com"));
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (Encoding.UTF8, "name", null));
 
 			Assert.Throws<ArgumentNullException> (() => new MailboxAddress ("name", null));
-
-			Assert.Throws<ArgumentNullException> (() => new MailboxAddress (null));
 
 			Assert.Throws<ArgumentNullException> (() => mailbox.Address = null);
 
@@ -85,11 +80,6 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", route, "johnny@example.com", null));
 			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("name", route, "johnny@example.com", "not hex encoded"));
 
-			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ((IEnumerable<string>) null, "johnny@example.com", "ffff"));
-			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (route, null, "ffff"));
-			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (route, "johnny@example.com", null));
-			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress (route, "johnny@example.com", "not hex encoded"));
-
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (null, "name", "johnny@example.com", "ffff"));
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", null, "ffff"));
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (Encoding.UTF8, "name", "johnny@example.com", null));
@@ -99,14 +89,8 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("name", "johnny@example.com", null));
 			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("name", "johnny@example.com", "not hex encoded"));
 
-			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress (null, "ffff"));
-			Assert.Throws<ArgumentNullException> (() => new SecureMailboxAddress ("johnny@example.com", null));
-			Assert.Throws<ArgumentException> (() => new SecureMailboxAddress ("johnny@example.com", "not hex encoded"));
-
-			Assert.DoesNotThrow (() => new SecureMailboxAddress ("user@domain.com", "ffff"));
 			Assert.DoesNotThrow (() => new SecureMailboxAddress ("Mailbox Address", "user@domain.com", "ffff"));
 			Assert.DoesNotThrow (() => new SecureMailboxAddress (Encoding.UTF8, "Mailbox Address", "user@domain.com", "ffff"));
-			Assert.DoesNotThrow (() => new SecureMailboxAddress (new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
 			Assert.DoesNotThrow (() => new SecureMailboxAddress ("Routed Address", new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
 			Assert.DoesNotThrow (() => new SecureMailboxAddress (Encoding.UTF8, "Routed Address", new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
 		}

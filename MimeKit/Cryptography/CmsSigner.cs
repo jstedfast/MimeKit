@@ -60,6 +60,7 @@ namespace MimeKit.Cryptography {
 		{
 			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
 			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
+			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
 			DigestAlgorithm = DigestAlgorithm.Sha256;
 		}
 
@@ -398,26 +399,6 @@ namespace MimeKit.Cryptography {
 		/// <value>The private key.</value>
 		public AsymmetricKeyParameter PrivateKey {
 			get; private set;
-		}
-
-		/// <summary>
-		/// Get or set the RSA signature padding scheme.
-		/// </summary>
-		/// <remarks>
-		/// <para>Gets or sets the signature padding scheme to use for signing when
-		/// the <see cref="PrivateKey"/> is an RSA key.</para>
-		/// </remarks>
-		/// <value>The signature padding scheme.</value>
-		[Obsolete ("Use RsaSignaturePadding instead.")]
-		public RsaSignaturePaddingScheme RsaSignaturePaddingScheme {
-			get { return RsaSignaturePadding?.Scheme ?? RsaSignaturePaddingScheme.Pkcs1; }
-			set {
-				switch (value) {
-				case RsaSignaturePaddingScheme.Pkcs1: RsaSignaturePadding = RsaSignaturePadding.Pkcs1; break;
-				case RsaSignaturePaddingScheme.Pss: RsaSignaturePadding = RsaSignaturePadding.Pss; break;
-				default: throw new ArgumentOutOfRangeException (nameof (value));
-				}
-			}
 		}
 
 		/// <summary>

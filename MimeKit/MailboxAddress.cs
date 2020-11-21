@@ -122,27 +122,6 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MailboxAddress"/> with the specified address and route.
-		/// </remarks>
-		/// <param name="route">The route of the mailbox.</param>
-		/// <param name="address">The address of the mailbox.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="route"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="ParseException">
-		/// <paramref name="address"/> is malformed.
-		/// </exception>
-		[Obsolete ("This constructor will be going away. Use new MailboxAddress(string name, IEnumerable<string> route, string address) instead.")]
-		public MailboxAddress (IEnumerable<string> route, string address) : this (Encoding.UTF8, null, route, address)
-		{
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="MailboxAddress"/> class.
-		/// </summary>
-		/// <remarks>
 		/// Creates a new <see cref="MailboxAddress"/> with the specified name and address. The
 		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
 		/// </remarks>
@@ -182,30 +161,6 @@ namespace MimeKit {
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
 		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
-		{
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="MailboxAddress"/> class.
-		/// </summary>
-		/// <remarks>
-		/// <para>Creates a new <see cref="MailboxAddress"/> with the specified address.</para>
-		/// <note type="note">
-		/// <para>The <paramref name="address"/> must be in the form <c>user@example.com</c>.</para>
-		/// <para>This method cannot be used to parse a free-form email address that includes
-		/// the name or encloses the address in angle brackets.</para>
-		/// <para>To parse a free-form email address, use <see cref="Parse(string)"/> instead.</para>
-		/// </note>
-		/// </remarks>
-		/// <param name="address">The address of the mailbox.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="address"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="ParseException">
-		/// <paramref name="address"/> is malformed.
-		/// </exception>
-		[Obsolete("This constructor will be going away due to it causing too much confusion. Use new MailboxAddress(string name, string address) or MailboxAddress.Parse(string) instead.")]
-		public MailboxAddress (string address) : this (Encoding.UTF8, null, address)
 		{
 		}
 

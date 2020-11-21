@@ -461,51 +461,5 @@ namespace MimeKit {
 		{
 			return Join (ParserOptions.Default, message, partials, false);
 		}
-
-		/// <summary>
-		/// Joins the specified message/partial parts into the complete message.
-		/// </summary>
-		/// <remarks>
-		/// Combines all of the message/partial fragments into its original,
-		/// complete, message.
-		/// </remarks>
-		/// <returns>The re-combined message.</returns>
-		/// <param name="options">The parser options to use.</param>
-		/// <param name="partials">The list of partial message parts.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="partials"/>is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para>The last partial does not have a Total.</para>
-		/// <para>-or-</para>
-		/// <para>The number of partials provided does not match the expected count.</para>
-		/// <para>-or-</para>
-		/// <para>One or more partials is missing.</para>
-		/// </exception>
-		[Obsolete ("Use MessagePartial.Join (ParserOptions, MimeMessage, IEnumerable<MessagePartial>) instead.")]
-		public static MimeMessage Join (ParserOptions options, IEnumerable<MessagePartial> partials)
-		{
-			return Join (options, null, partials, true);
-		}
-
-		/// <summary>
-		/// Joins the specified message/partial parts into the complete message.
-		/// </summary>
-		/// <remarks>
-		/// Combines all of the message/partial fragments into its original,
-		/// complete, message.
-		/// </remarks>
-		/// <returns>The re-combined message.</returns>
-		/// <param name="partials">The list of partial message parts.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="partials"/>is <c>null</c>.
-		/// </exception>
-		[Obsolete ("Use MessagePartial.Join (MimeMessage, IEnumerable<MessagePartial>) instead.")]
-		public static MimeMessage Join (IEnumerable<MessagePartial> partials)
-		{
-			return Join (ParserOptions.Default, null, partials, true);
-		}
 	}
 }

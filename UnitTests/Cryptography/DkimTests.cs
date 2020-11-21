@@ -340,42 +340,6 @@ namespace UnitTests.Cryptography {
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, null, dkimHeader));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await verifier.VerifyAsync (FormatOptions.Default, message, null));
 			Assert.ThrowsAsync<ArgumentException> (async () => await verifier.VerifyAsync (FormatOptions.Default, message, arcHeader));
-
-			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new HeaderId[] { HeaderId.From }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<HeaderId>) null));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new HeaderId[] { HeaderId.Unknown, HeaderId.From }));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new HeaderId[] { HeaderId.Received, HeaderId.From }));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new HeaderId[] { HeaderId.ContentType }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (null, new string[] { "From" }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (signer, (IList<string>) null));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { "", "From" }));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { null, "From" }));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { "Received", "From" }));
-			Assert.Throws<ArgumentException> (() => message.Sign (signer, new string[] { "Content-Type" }));
-
-			Assert.Throws<ArgumentNullException> (() => message.Sign (null, signer, new HeaderId[] { HeaderId.From }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (options, null, new HeaderId[] { HeaderId.From }));
-			Assert.Throws<ArgumentException> (() => message.Sign (options, signer, new HeaderId[] { HeaderId.From, HeaderId.Unknown }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (options, signer, (IList<HeaderId>) null));
-
-			Assert.Throws<ArgumentNullException> (() => message.Sign (null, signer, new string[] { "From" }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (options, null, new string[] { "From" }));
-			Assert.Throws<ArgumentException> (() => message.Sign (options, signer, new string[] { "From", null }));
-			Assert.Throws<ArgumentNullException> (() => message.Sign (options, signer, (IList<string>) null));
-
-			Assert.Throws<ArgumentNullException> (() => message.Verify (null, locator));
-			Assert.Throws<ArgumentNullException> (() => message.Verify (dkimHeader, null));
-			Assert.Throws<ArgumentNullException> (() => message.Verify (null, dkimHeader, locator));
-			Assert.Throws<ArgumentNullException> (() => message.Verify (FormatOptions.Default, null, locator));
-			Assert.Throws<ArgumentNullException> (() => message.Verify (FormatOptions.Default, dkimHeader, null));
-			Assert.Throws<ArgumentException> (() => message.Verify (FormatOptions.Default, arcHeader, locator));
-
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (null, locator));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (dkimHeader, null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (null, dkimHeader, locator));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (FormatOptions.Default, null, locator));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.VerifyAsync (FormatOptions.Default, dkimHeader, null));
-			Assert.ThrowsAsync<ArgumentException> (async () => await message.VerifyAsync (FormatOptions.Default, arcHeader, locator));
 		}
 
 		[Test]
