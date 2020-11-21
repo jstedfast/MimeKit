@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.9.2</version>
+    <version>2.10.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,11 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed message.Prepare() to never choose the quoted-printable encoding for non-text based MimeParts. (issue #598)
-* Added work-around for mailers that don't use a ';' between Content-Type and Content-Disposition parameters. (issue #595)
-* Added another work-around for parsing Authentication-Results headers. (issue #590)
-* MimeMessage.ToString() now adds an X-MimeKit-Warning header to the beginning of the output string to make it clear to developers doing this that they are Doing it Wrong(tm).
-* Added a TLS-Required HeaderId enum value.
+* Improved MimeParser performance.
+* Fixed potential leaks in MimeParser when loading MimePart content in exception cases.
+* Made use of ArrayPools for various buffers which may help performance. (issue #616)
+* Fixed MimeUtils.GenerateMessageId() to encode international domain names.
+* Fixed MimeUtils.GenerateMessageId() to cache the local hostname. (issue #612)
+* Modified AttachmentCollection to use a custom implementation of Path.GetFileName() that allows illegal path characters.
+* Only generate a ContentId for the MultipartRelated Root if it is not the first part.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
@@ -50,10 +52,18 @@
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
     </frameworkAssemblies>
     <dependencies>
-      <group targetFramework="net45" />
-      <group targetFramework="net46" />
-      <group targetFramework="net47" />
-      <group targetFramework="net48" />
+      <group targetFramework="net45">
+        <dependency id="System.Buffers" version="4.5.1" />
+      </group>
+      <group targetFramework="net46">
+        <dependency id="System.Buffers" version="4.5.1" />
+      </group>
+      <group targetFramework="net47">
+        <dependency id="System.Buffers" version="4.5.1" />
+      </group>
+      <group targetFramework="net48">
+        <dependency id="System.Buffers" version="4.5.1" />
+      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />

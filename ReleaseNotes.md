@@ -1,5 +1,23 @@
 # Release Notes
 
+### MimeKit 2.10.0 (2020-11-20)
+
+* Added SQL Server support. (issue [#619](https://github.com/jstedfast/MimeKit/issues/619))
+* Fixed a leak in SqlCertificateDatabase when creating the certificates database.
+* Bumped BouncyCastle dependency to v1.8.8. (issue [#610](https://github.com/jstedfast/MimeKit/issues/610))
+* Exposed some ArcVerifier and DkimVerifier internal methods.
+  (issue [#601](https://github.com/jstedfast/MimeKit/issues/601))
+* Improved MimeParser performance.
+* Fixed potential leaks in MimeParser when loading MimePart content in exception cases.
+* Made use of ArrayPools for various buffers which may help performance.
+  (issue [#616](https://github.com/jstedfast/MimeKit/issues/616))
+* Fixed MimeUtils.GenerateMessageId() to encode international domain names.
+* Fixed MimeUtils.GenerateMessageId() to cache the local hostname.
+  (issue [#612](https://github.com/jstedfast/MimeKit/issues/612))
+* Modified AttachmentCollection to use a custom implementation of Path.GetFileName()
+  that allows illegal path characters.
+* Only generate a ContentId for the MultipartRelated Root if it is not the first part.
+
 ### MimeKit 2.9.2 (2020-09-12)
 
 * Include WindowsSecureMimeContext in the .NET Standard 2.x build.
