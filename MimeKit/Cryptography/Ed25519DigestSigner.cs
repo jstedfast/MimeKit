@@ -79,7 +79,7 @@ namespace MimeKit.Cryptography {
 			digest.DoFinal (hash, 0);
 
 			var signature = new byte[Ed25519PrivateKeyParameters.SignatureSize];
-			privateKey.Sign (Ed25519.Algorithm.Ed25519, publicKey, null, hash, 0, hash.Length, signature, 0);
+			privateKey.Sign (Ed25519.Algorithm.Ed25519, null, hash, 0, hash.Length, signature, 0);
 
 			Reset ();
 
