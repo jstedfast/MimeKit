@@ -53,47 +53,29 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SqlCertificateDatabase : X509CertificateDatabase
 	{
-		bool disposed;
-
 		/// <summary>
 		/// Initialize a new instance of the <see cref="SqlCertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="SqlCertificateDatabase"/> using the provided database connection.
 		/// </remarks>
-		/// <param name="connection">The database <see cref="System.Data.IDbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="connection"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		protected SqlCertificateDatabase (DbConnection connection, string password) : base (password)
+		protected SqlCertificateDatabase (DbConnection connection, string password) : base (connection, password)
 		{
-			if (connection == null)
-				throw new ArgumentNullException (nameof (connection));
-
-			Connection = connection;
-
 			if (connection.State != ConnectionState.Open)
 				connection.Open ();
 
 			CertificatesTable = CreateCertificatesDataTable ("CERTIFICATES");
 			CrlsTable = CreateCrlsDataTable ("CRLS");
 
-			CreateCertificatesTable (CertificatesTable);
-			CreateCrlsTable (CrlsTable);
-		}
-
-		/// <summary>
-		/// Gets the database connection.
-		/// </summary>
-		/// <remarks>
-		/// Gets the database connection.
-		/// </remarks>
-		/// <value>The database connection.</value>
-		protected DbConnection Connection {
-			get; private set; // TODO: push this down into X509CertificateDatabase and fix GetSelectCommand()/GetInsertCommand()/etc to take a DbConnection arg, then this could be private.
+			CreateCertificatesTable (connection, CertificatesTable);
+			CreateCrlsTable (connection, CrlsTable);
 		}
 
 		/// <summary>
@@ -234,7 +216,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <returns>The list of columns.</returns>
 		protected abstract IList<DataColumn> GetTableColumns (DbConnection connection, string tableName);
@@ -245,7 +227,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Constructs the command to create a table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		protected abstract void CreateTable (DbConnection connection, DataTable table);
 
@@ -255,7 +237,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Adds a column to a table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		/// <param name="column">The column to add.</param>
 		protected abstract void AddTableColumn (DbConnection connection, DataTable table, DataColumn column);
@@ -280,7 +262,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates an index for faster table lookups.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns to index.</param>
 		protected virtual void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
@@ -300,7 +282,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Removes an index that is no longer needed.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns that were indexed.</param>
 		protected virtual void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
@@ -314,11 +296,11 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void CreateCertificatesTable (DataTable table)
+		void CreateCertificatesTable (DbConnection connection, DataTable table)
 		{
-			CreateTable (Connection, table);
+			CreateTable (connection, table);
 
-			var currentColumns = GetTableColumns (Connection, table.TableName);
+			var currentColumns = GetTableColumns (connection, table.TableName);
 			bool hasAnchorColumn = false;
 
 			for (int i = 0; i < currentColumns.Count; i++) {
@@ -331,21 +313,21 @@ namespace MimeKit.Cryptography {
 			// Note: The ANCHOR, SUBJECTNAME and SUBJECTKEYIDENTIFIER columns were all added in the same version,
 			// so if the ANCHOR column is missing, they all are.
 			if (!hasAnchorColumn) {
-				using (var transaction = Connection.BeginTransaction ()) {
+				using (var transaction = connection.BeginTransaction ()) {
 					try {
 						var column = table.Columns[table.Columns.IndexOf ("ANCHOR")];
-						AddTableColumn (Connection, table, column);
+						AddTableColumn (connection, table, column);
 
 						column = table.Columns[table.Columns.IndexOf ("SUBJECTNAME")];
-						AddTableColumn (Connection, table, column);
+						AddTableColumn (connection, table, column);
 
 						column = table.Columns[table.Columns.IndexOf ("SUBJECTKEYIDENTIFIER")];
-						AddTableColumn (Connection, table, column);
+						AddTableColumn (connection, table, column);
 
 						foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
 							var statement = "UPDATE CERTIFICATES SET ANCHOR = @ANCHOR, SUBJECTNAME = @SUBJECTNAME, SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER WHERE ID = @ID";
 
-							using (var command = Connection.CreateCommand ()) {
+							using (var command = connection.CreateCommand ()) {
 								command.AddParameterWithValue ("@ID", record.Id);
 								command.AddParameterWithValue ("@ANCHOR", record.IsAnchor);
 								command.AddParameterWithValue ("@SUBJECTNAME", record.SubjectName);
@@ -365,34 +347,34 @@ namespace MimeKit.Cryptography {
 				}
 
 				// Remove some old indexes
-				RemoveIndex (Connection, table.TableName, new[] { "TRUSTED" });
-				RemoveIndex (Connection, table.TableName, new[] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
-				RemoveIndex (Connection, table.TableName, new[] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
-				RemoveIndex (Connection, table.TableName, new[] { "BASICCONSTRAINTS", "FINGERPRINT" });
-				RemoveIndex (Connection, table.TableName, new[] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
+				RemoveIndex (connection, table.TableName, new[] { "TRUSTED" });
+				RemoveIndex (connection, table.TableName, new[] { "TRUSTED", "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "FINGERPRINT" });
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
 			}
 
 			// Note: Use "EXPLAIN QUERY PLAN SELECT ... FROM CERTIFICATES WHERE ..." to verify that any indexes we create get used as expected.
 
 			// Index for matching against a specific certificate
-			CreateIndex (Connection, table.TableName, new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
+			CreateIndex (connection, table.TableName, new [] { "ISSUERNAME", "SERIALNUMBER", "FINGERPRINT" });
 
 			// Index for searching for a certificate based on a SecureMailboxAddress
-			CreateIndex (Connection, table.TableName, new [] { "BASICCONSTRAINTS", "FINGERPRINT", "NOTBEFORE", "NOTAFTER" });
+			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "FINGERPRINT", "NOTBEFORE", "NOTAFTER" });
 
 			// Index for searching for a certificate based on a MailboxAddress
-			CreateIndex (Connection, table.TableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL", "NOTBEFORE", "NOTAFTER" });
+			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL", "NOTBEFORE", "NOTAFTER" });
 
 			// Index for gathering a list of Trusted Anchors
-			CreateIndex (Connection, table.TableName, new [] { "TRUSTED", "ANCHOR", "KEYUSAGE" });
+			CreateIndex (connection, table.TableName, new [] { "TRUSTED", "ANCHOR", "KEYUSAGE" });
 		}
 
-		void CreateCrlsTable (DataTable table)
+		void CreateCrlsTable (DbConnection connection, DataTable table)
 		{
-			CreateTable (Connection, table);
+			CreateTable (connection, table);
 
-			CreateIndex (Connection, table.TableName, new [] { "ISSUERNAME" });
-			CreateIndex (Connection, table.TableName, new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
+			CreateIndex (connection, table.TableName, new [] { "ISSUERNAME" });
+			CreateIndex (connection, table.TableName, new [] { "DELTA", "ISSUERNAME", "THISUPDATE" });
 		}
 
 		/// <summary>
@@ -425,14 +407,15 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var issuerName = certificate.IssuerDN.ToString ();
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var query = CreateSelectQuery (fields);
 
 			// FIXME: Is this really the best way to query for an exact match of a certificate?
@@ -454,14 +437,15 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
 		/// <param name="requirePrivateKey">true</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var secure = mailbox as SecureMailboxAddress;
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var query = CreateSelectQuery (fields);
 
 			query = query.Append (" WHERE BASICCONSTRAINTS = @BASICCONSTRAINTS ");
@@ -499,14 +483,15 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the requested certificate records.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="selector">The certificate selector.</param>
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var match = selector as X509CertStoreSelector;
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var query = CreateSelectQuery (fields);
 			int baseQueryLength = query.Length;
 
@@ -631,12 +616,13 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the CRL records matching the specified issuer.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, X509Name issuer, X509CrlRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 
 			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME";
 			command.AddParameterWithValue ("@ISSUERNAME", issuer.ToString ());
@@ -652,13 +638,14 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the record for the specified CRL.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, X509Crl crl, X509CrlRecordFields fields)
 		{
 			var query = "SELECT " + string.Join (", ", GetColumnNames (fields)) + " FROM CRLS ";
 			var issuerName = crl.IssuerDN.ToString ();
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 
 			command.CommandText = query + "WHERE DELTA = @DELTA AND ISSUERNAME = @ISSUERNAME AND THISUPDATE = @THISUPDATE LIMIT 1";
 			command.AddParameterWithValue ("@DELTA", crl.IsDelta ());
@@ -676,9 +663,10 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select all CRLs in the table.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		protected override DbCommand GetSelectAllCrlsCommand ()
+		/// <param name="connection">The database connection.</param>
+		protected override DbCommand GetSelectAllCrlsCommand (DbConnection connection)
 		{
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 
 			command.CommandText = "SELECT ID, CRL FROM CRLS";
 			command.CommandType = CommandType.Text;
@@ -693,10 +681,11 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to delete the specified certificate record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
-		protected override DbCommand GetDeleteCommand (X509CertificateRecord record)
+		protected override DbCommand GetDeleteCommand (DbConnection connection, X509CertificateRecord record)
 		{
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 
 			command.CommandText = "DELETE FROM CERTIFICATES WHERE ID = @ID";
 			command.AddParameterWithValue ("@ID", record.Id);
@@ -712,10 +701,11 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to delete the specified CRL record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The record.</param>
-		protected override DbCommand GetDeleteCommand (X509CrlRecord record)
+		protected override DbCommand GetDeleteCommand (DbConnection connection, X509CrlRecord record)
 		{
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 
 			command.CommandText = "DELETE FROM CRLS WHERE ID = @ID";
 			command.AddParameterWithValue ("@ID", record.Id);
@@ -731,12 +721,13 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to insert the specified certificate record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
-		protected override DbCommand GetInsertCommand (X509CertificateRecord record)
+		protected override DbCommand GetInsertCommand (DbConnection connection, X509CertificateRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
 			var variables = new StringBuilder ("VALUES(");
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var columns = CertificatesTable.Columns;
 
 			for (int i = 1; i < columns.Count; i++) {
@@ -769,12 +760,13 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to insert the specified CRL record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The CRL record.</param>
-		protected override DbCommand GetInsertCommand (X509CrlRecord record)
+		protected override DbCommand GetInsertCommand (DbConnection connection, X509CrlRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CRLS(");
 			var variables = new StringBuilder ("VALUES(");
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var columns = CrlsTable.Columns;
 
 			for (int i = 1; i < columns.Count; i++) {
@@ -807,13 +799,14 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to update the specified record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
-		protected override DbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields)
+		protected override DbCommand GetUpdateCommand (DbConnection connection, X509CertificateRecord record, X509CertificateRecordFields fields)
 		{
 			var statement = new StringBuilder ("UPDATE CERTIFICATES SET ");
 			var columns = GetColumnNames (fields & ~X509CertificateRecordFields.Id);
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 
 			for (int i = 0; i < columns.Length; i++) {
 				var value = GetValue (record, columns[i]);
@@ -845,11 +838,12 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to update the specified CRL record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The CRL record.</param>
-		protected override DbCommand GetUpdateCommand (X509CrlRecord record)
+		protected override DbCommand GetUpdateCommand (DbConnection connection, X509CrlRecord record)
 		{
 			var statement = new StringBuilder ("UPDATE CRLS SET ");
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var columns = CrlsTable.Columns;
 
 			for (int i = 1; i < columns.Count; i++) {
@@ -873,27 +867,6 @@ namespace MimeKit.Cryptography {
 			command.CommandType = CommandType.Text;
 
 			return command;
-		}
-
-		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && !disposed) {
-				if (Connection != null)
-					Connection.Dispose ();
-				disposed = true;
-			}
-
-			base.Dispose (disposing);
 		}
 	}
 }

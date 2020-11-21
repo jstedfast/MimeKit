@@ -30,9 +30,9 @@ using System.Data;
 using System.Data.Common;
 using System.Collections.Generic;
 
-using MimeKit.Utils;
-
 using Org.BouncyCastle.X509;
+
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -69,7 +69,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Adds a column to a table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		/// <param name="column">The column to add.</param>
 		protected override void AddTableColumn (DbConnection connection, DataTable table, DataColumn column)
@@ -94,7 +94,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates the specified table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		protected override void CreateTable (DbConnection connection, DataTable table)
 		{
@@ -162,7 +162,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <returns>The list of columns.</returns>
 		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
@@ -187,7 +187,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates an index for faster table lookups.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns to index.</param>
 		protected override void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
@@ -207,7 +207,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Removes an index that is no longer needed.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns that were indexed.</param>
 		protected override void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
@@ -228,14 +228,15 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var issuerName = certificate.IssuerDN.ToString ();
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var query = CreateSelectQuery (fields).Replace ("SELECT", "SELECT top 1");
 
 			// FIXME: Is this really the best way to query for an exact match of a certificate?
@@ -257,12 +258,13 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to insert the specified certificate record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
-		protected override DbCommand GetInsertCommand (X509CertificateRecord record)
+		protected override DbCommand GetInsertCommand (DbConnection connection, X509CertificateRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
 			var variables = new StringBuilder ("VALUES(");
-			var command = Connection.CreateCommand ();
+			var command = connection.CreateCommand ();
 			var columns = CertificatesTable.Columns;
 
 			for (int i = 1; i < columns.Count; i++) {

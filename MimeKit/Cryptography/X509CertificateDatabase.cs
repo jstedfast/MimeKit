@@ -57,7 +57,8 @@ namespace MimeKit.Cryptography {
 		const int DefaultMinIterations = 1024;
 		const int DefaultSaltSize = 20;
 
-		readonly char[] passwd;
+		DbConnection connection;
+		char[] password;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="X509CertificateDatabase"/> class.
@@ -65,12 +66,18 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// The password is used to encrypt and decrypt private keys in the database and cannot be null.
 		/// </remarks>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="password"/> is <c>null</c>.
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		protected X509CertificateDatabase (string password)
+		protected X509CertificateDatabase (DbConnection connection, string password)
 		{
+			if (connection == null)
+				throw new ArgumentNullException (nameof (connection));
+
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
@@ -78,7 +85,8 @@ namespace MimeKit.Cryptography {
 			MinIterations = DefaultMinIterations;
 			SaltSize = DefaultSaltSize;
 
-			passwd = password.ToCharArray ();
+			this.password = password.ToCharArray ();
+			this.connection = connection;
 		}
 
 		/// <summary>
@@ -178,7 +186,7 @@ namespace MimeKit.Cryptography {
 
 			var pbeParameters = PbeUtilities.GenerateAlgorithmParameters (EncryptionAlgorithm.Id, salt, MinIterations);
 			var algorithm = new AlgorithmIdentifier (EncryptionAlgorithm, pbeParameters);
-			var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
+			var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, password);
 
 			if (cipherParameters == null)
 				throw new Exception ("BouncyCastle bug detected: Failed to generate cipher parameters.");
@@ -208,7 +216,7 @@ namespace MimeKit.Cryptography {
 					if (cipher == null)
 						return null;
 
-					var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, passwd);
+					var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, password);
 
 					if (cipherParameters == null)
 						throw new Exception ("BouncyCastle bug detected: Failed to generate cipher parameters.");
@@ -360,9 +368,10 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, X509Certificate certificate, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
@@ -371,11 +380,12 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select certificate records matching the specified selector.
@@ -384,11 +394,12 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select certificate records matching the specified selector.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="selector">The certificate selector.</param>
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the column names for the specified fields.
@@ -425,9 +436,10 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the CRL records matching the specified issuer.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (X509Name issuer, X509CrlRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, X509Name issuer, X509CrlRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select the record for the specified CRL.
@@ -436,9 +448,10 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select the record for the specified CRL.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (X509Crl crl, X509CrlRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, X509Crl crl, X509CrlRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to select all CRLs in the table.
@@ -447,7 +460,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to select all CRLs in the table.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		protected abstract DbCommand GetSelectAllCrlsCommand ();
+		/// <param name="connection">The database connection.</param>
+		protected abstract DbCommand GetSelectAllCrlsCommand (DbConnection connection);
 
 		/// <summary>
 		/// Gets the database command to delete the specified certificate record.
@@ -456,8 +470,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to delete the specified certificate record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
-		protected abstract DbCommand GetDeleteCommand (X509CertificateRecord record);
+		protected abstract DbCommand GetDeleteCommand (DbConnection connection, X509CertificateRecord record);
 
 		/// <summary>
 		/// Gets the database command to delete the specified CRL record.
@@ -466,8 +481,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to delete the specified CRL record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The record.</param>
-		protected abstract DbCommand GetDeleteCommand (X509CrlRecord record);
+		protected abstract DbCommand GetDeleteCommand (DbConnection connection, X509CrlRecord record);
 
 		/// <summary>
 		/// Gets the value for the specified column.
@@ -537,8 +553,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to insert the specified certificate record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
-		protected abstract DbCommand GetInsertCommand (X509CertificateRecord record);
+		protected abstract DbCommand GetInsertCommand (DbConnection connection, X509CertificateRecord record);
 
 		/// <summary>
 		/// Gets the database command to insert the specified CRL record.
@@ -547,8 +564,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to insert the specified CRL record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The CRL record.</param>
-		protected abstract DbCommand GetInsertCommand (X509CrlRecord record);
+		protected abstract DbCommand GetInsertCommand (DbConnection connection, X509CrlRecord record);
 
 		/// <summary>
 		/// Gets the database command to update the specified record.
@@ -557,9 +575,10 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to update the specified record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
-		protected abstract DbCommand GetUpdateCommand (X509CertificateRecord record, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetUpdateCommand (DbConnection connection, X509CertificateRecord record, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the database command to update the specified CRL record.
@@ -568,8 +587,9 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to update the specified CRL record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The CRL record.</param>
-		protected abstract DbCommand GetUpdateCommand (X509CrlRecord record);
+		protected abstract DbCommand GetUpdateCommand (DbConnection connection, X509CrlRecord record);
 
 		/// <summary>
 		/// Find the specified certificate.
@@ -589,7 +609,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			using (var command = GetSelectCommand (certificate, fields)) {
+			using (var command = GetSelectCommand (connection, certificate, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CertificateParser ();
@@ -614,7 +634,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match selector or <c>null</c> to return all certificates.</param>
 		public IEnumerable<X509Certificate> FindCertificates (IX509Selector selector)
 		{
-			using (var command = GetSelectCommand (selector, false, false, X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -641,7 +661,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match selector or <c>null</c> to return all private keys.</param>
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
 		{
-			using (var command = GetSelectCommand (selector, false, true, PrivateKeyFields)) {
+			using (var command = GetSelectCommand (connection, selector, false, true, PrivateKeyFields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -679,7 +699,7 @@ namespace MimeKit.Cryptography {
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
 
-			using (var command = GetSelectCommand (mailbox, now, requirePrivateKey, fields)) {
+			using (var command = GetSelectCommand (connection, mailbox, now, requirePrivateKey, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -706,7 +726,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The desired fields.</param>
 		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
-			using (var command = GetSelectCommand (selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (connection, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -738,7 +758,7 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetInsertCommand (record))
+			using (var command = GetInsertCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -757,7 +777,7 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetDeleteCommand (record))
+			using (var command = GetDeleteCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -777,7 +797,7 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetUpdateCommand (record, fields))
+			using (var command = GetUpdateCommand (connection, record, fields))
 				command.ExecuteNonQuery ();
 		}
 
@@ -799,7 +819,7 @@ namespace MimeKit.Cryptography {
 			if (issuer == null)
 				throw new ArgumentNullException (nameof (issuer));
 
-			using (var command = GetSelectCommand (issuer, fields)) {
+			using (var command = GetSelectCommand (connection, issuer, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
@@ -831,7 +851,7 @@ namespace MimeKit.Cryptography {
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
 
-			using (var command = GetSelectCommand (crl, fields)) {
+			using (var command = GetSelectCommand (connection, crl, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CrlParser ();
@@ -860,7 +880,7 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetInsertCommand (record))
+			using (var command = GetInsertCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -879,7 +899,7 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetDeleteCommand (record))
+			using (var command = GetDeleteCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -898,7 +918,7 @@ namespace MimeKit.Cryptography {
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetUpdateCommand (record))
+			using (var command = GetUpdateCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -913,7 +933,7 @@ namespace MimeKit.Cryptography {
 		{
 			var crls = new List<X509Crl> ();
 
-			using (var command = GetSelectAllCrlsCommand ()) {
+			using (var command = GetSelectAllCrlsCommand (connection)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
@@ -959,9 +979,18 @@ namespace MimeKit.Cryptography {
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			if (passwd != null) {
-				for (int i = 0; i < passwd.Length; i++)
-					passwd[i] = '\0';
+			if (!disposing)
+				return;
+
+			if (password != null) {
+				for (int i = 0; i < password.Length; i++)
+					password[i] = '\0';
+				password = null;
+			}
+
+			if (connection != null) {
+				connection.Dispose ();
+				connection = null;
 			}
 		}
 

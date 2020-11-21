@@ -253,7 +253,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <returns>The list of columns.</returns>
 		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
@@ -339,7 +339,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates the specified table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		protected override void CreateTable (DbConnection connection, DataTable table)
 		{
@@ -372,7 +372,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Adds a column to a table.
 		/// </remarks>
-		/// <param name="connection">The <see cref="System.Data.Common.DbConnection"/>.</param>
+		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		/// <param name="column">The column to add.</param>
 		protected override void AddTableColumn (DbConnection connection, DataTable table, DataColumn column)
