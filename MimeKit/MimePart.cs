@@ -416,7 +416,7 @@ namespace MimeKit {
 		/// </exception>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ContentType.IsMimeType ("text", "*")) {
+			if (ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*")) {
 				if (Content == null)
 					return ContentEncoding.SevenBit;
 
