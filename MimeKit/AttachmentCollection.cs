@@ -184,13 +184,8 @@ namespace MimeKit {
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
 				var message = MimeMessage.Load (stream);
-				var rfc822 = new MessagePart { Message = message };
 
-				rfc822.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment);
-				rfc822.ContentDisposition.FileName = fileName;
-				rfc822.ContentType.Name = fileName;
-
-				attachment = rfc822;
+				attachment = new MessagePart { Message = message };
 			} else {
 				MimePart part;
 
@@ -201,12 +196,13 @@ namespace MimeKit {
 					part = new MimePart (contentType);
 				}
 
-				part.IsAttachment = !linked;
-				part.FileName = fileName;
-
 				LoadContent (part, stream);
 				attachment = part;
 			}
+
+			attachment.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment);
+			attachment.ContentDisposition.FileName = fileName;
+			attachment.ContentType.Name = fileName;
 
 			if (linked)
 				attachment.ContentLocation = new Uri (fileName, UriKind.Relative);
