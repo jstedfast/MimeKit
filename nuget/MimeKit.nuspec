@@ -92,12 +92,22 @@
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="Portable.BouncyCastle" version="1.8.8" />
       </group>
+      <group targetFramework="netstandard2.1">
+        <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
+        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+      </group>
     </dependencies>
   </metadata>
   <files>
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll" target="lib\netstandard2.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.pdb" target="lib\netstandard2.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.xml" target="lib\netstandard2.0\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.dll" target="lib\netstandard2.1\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.pdb" target="lib\netstandard2.1\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.xml" target="lib\netstandard2.1\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.pdb" target="lib\net45\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
