@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 2.10.1 (2020-12-05)
+
+* Treat message/disposition-notification and message/delivery-status the same as text/*
+  when preparing for signing. (issue [#626](https://github.com/jstedfast/MimeKit/issues/626))
+* Always set Content-Disposition: inline for BodyBuilder.LinkedResources. This fixes a
+  regression introduced in 2.10.0.
+  (issue [#627](https://github.com/jstedfast/MimeKit/issues/627))
+* Fixed NuGet package references to System.Data.DataSetExtensions for netstandard2.1 and
+  net4x.
+
 ### MimeKit 2.10.0 (2020-11-20)
 
 * Added SQL Server support. (issue [#619](https://github.com/jstedfast/MimeKit/issues/619))

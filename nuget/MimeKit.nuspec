@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.10.0</version>
+    <version>2.10.1</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,17 +26,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added SQL Server support. (issue #619)
-* Fixed a leak in SqlCertificateDatabase when creating the certificates database.
-* Bumped BouncyCastle dependency to v1.8.8. (issue #610)
-* Exposed some ArcVerifier and DkimVerifier internal methods. (issue #601)
-* Improved MimeParser performance.
-* Fixed potential leaks in MimeParser when loading MimePart content in exception cases.
-* Made use of ArrayPools for various buffers which may help performance. (issue #616)
-* Fixed MimeUtils.GenerateMessageId() to encode international domain names.
-* Fixed MimeUtils.GenerateMessageId() to cache the local hostname. (issue #612)
-* Modified AttachmentCollection to use a custom implementation of Path.GetFileName() that allows illegal path characters.
-* Only generate a ContentId for the MultipartRelated Root if it is not the first part.
+* Treat message/disposition-notification and message/delivery-status the same as text/* when preparing for signing. (issue #626)
+* Always set Content-Disposition: inline for BodyBuilder.LinkedResources. This fixes a regression introduced in 2.10.0. (issue #627)
+* Fixed NuGet package references to System.Data.DataSetExtensions for netstandard2.1 and net4x.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
