@@ -55,7 +55,7 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
