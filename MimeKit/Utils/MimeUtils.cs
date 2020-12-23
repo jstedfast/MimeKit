@@ -120,9 +120,13 @@ namespace MimeKit.Utils {
 			return GenerateMessageId ("localhost.localdomain");
 #else
 			if (DefaultHostName == null) {
-				var properties = IPGlobalProperties.GetIPGlobalProperties ();
+				try {
+					var properties = IPGlobalProperties.GetIPGlobalProperties ();
 
-				DefaultHostName = properties.HostName;
+					DefaultHostName = properties.HostName;
+				} catch {
+					DefaultHostName = "localhost.localdomain";
+				}
 			}
 
 			return GenerateMessageId (DefaultHostName);
