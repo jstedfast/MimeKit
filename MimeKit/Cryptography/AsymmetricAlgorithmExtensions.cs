@@ -236,9 +236,9 @@ namespace MimeKit.Cryptography
 				parameters.Seed = key.Parameters.ValidationParameters.GetSeed ();
 			}
 
-			parameters.G = key.Parameters.G.ToByteArrayUnsigned ();
 			parameters.P = key.Parameters.P.ToByteArrayUnsigned ();
 			parameters.Q = key.Parameters.Q.ToByteArrayUnsigned ();
+			parameters.G = GetPaddedByteArray (key.Parameters.G, parameters.P.Length);
 
 			return parameters;
 		}
@@ -246,10 +246,10 @@ namespace MimeKit.Cryptography
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPrivateKeyParameters key, DsaPublicKeyParameters pub)
 		{
 			var parameters = GetDSAParameters (key);
-			parameters.X = key.X.ToByteArrayUnsigned ();
+			parameters.X = GetPaddedByteArray (key.X, parameters.Q.Length);
 
 			if (pub != null)
-				parameters.Y = pub.Y.ToByteArrayUnsigned ();
+				parameters.Y = GetPaddedByteArray (pub.Y, parameters.P.Length);
 
 			var dsa = new DSACryptoServiceProvider ();
 
