@@ -118,7 +118,7 @@ namespace UnitTests
 		[Test]
 		public void TestParameterizedCtor ()
 		{
-			const string expected = "Content-Type: text/plain\nContent-Transfer-Encoding: base64\nContent-Id: <id@localhost.com>\n\n\n";
+			const string expected = "Content-Type: text/plain\nContent-Transfer-Encoding: base64\nContent-Id: <id@localhost.com>\n\n";
 			var headers = new [] { new Header ("Content-Id", "<id@localhost.com>") };
 			var part = new MimePart ("text", "plain", new Header ("Content-Transfer-Encoding", "base64"), headers) {
 				Content = new MimeContent (new MemoryStream ())
