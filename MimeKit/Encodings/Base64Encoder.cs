@@ -271,9 +271,10 @@ namespace MimeKit.Encodings {
 				else
 					*outptr++ = (byte) '=';
 				*outptr++ = (byte) '=';
+				quartets++;
 			}
 
-			if (!rfc2047)
+			if (!rfc2047 && quartets > 0)
 				*outptr++ = (byte) '\n';
 
 			Reset ();
