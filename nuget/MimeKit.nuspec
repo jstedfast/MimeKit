@@ -76,6 +76,13 @@
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="Portable.BouncyCastle" version="1.8.8" />
       </group>
+      <group targetFramework="net50">
+        <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
+        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
@@ -112,6 +119,9 @@
     <file src="..\MimeKit\bin\Release\net48\MimeKit.dll" target="lib\net48\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.pdb" target="lib\net48\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.xml" target="lib\net48\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net50\MimeKit.dll" target="lib\net50\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net50\MimeKit.pdb" target="lib\net50\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\net50\MimeKit.xml" target="lib\net50\MimeKit.xml" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>
