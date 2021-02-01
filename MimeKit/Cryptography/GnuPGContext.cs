@@ -41,9 +41,7 @@ namespace MimeKit.Cryptography {
 		//static readonly Dictionary<string, PublicKeyAlgorithm> PublicKeyAlgorithms;
 		static readonly Dictionary<string, DigestAlgorithm> DigestAlgorithms;
 		static readonly char[] Whitespace = { ' ', '\t' };
-		static readonly string PublicKeyRing;
-		static readonly string SecretKeyRing;
-		static readonly string Configuration;
+		static readonly string GnuPGHomeDir;
 
 		static GnuPGContext ()
 		{
@@ -63,9 +61,7 @@ namespace MimeKit.Cryptography {
 #endif
 			}
 
-			PublicKeyRing = Path.Combine (gnupg, "pubring.gpg");
-			SecretKeyRing = Path.Combine (gnupg, "secring.gpg");
-			Configuration = Path.Combine (gnupg, "gpg.conf");
+			GnuPGHomeDir = gnupg;
 
 			EncryptionAlgorithms = new Dictionary<string, EncryptionAlgorithm> (StringComparer.Ordinal) {
 				{ "AES", EncryptionAlgorithm.Aes128 },
@@ -105,11 +101,30 @@ namespace MimeKit.Cryptography {
 		/// Initialize a new instance of the <see cref="GnuPGContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="GnuPGContext"/>.
+		/// Creates a new <see cref="GnuPGContext"/> using the default path for the GnuPG home directory.
 		/// </remarks>
-		protected GnuPGContext () : base (PublicKeyRing, SecretKeyRing)
+		protected GnuPGContext () : this (GnuPGHomeDir)
 		{
-			LoadConfiguration ();
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="GnuPGContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="GnuPGContext"/> using the specified path for the GnuPG home directory.
+		/// </remarks>
+		/// <param name="gnupgDir">The path to the GnuPG home directory.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="gnupgDir"/> is <c>null</c>.
+		/// </exception>
+		protected GnuPGContext (string gnupgDir) : base (Path.Combine (gnupgDir, "pubring.gpg"), Path.Combine (gnupgDir, "secring.gpg"))
+		{
+			if (gnupgDir == null)
+				throw new ArgumentNullException (nameof (gnupgDir));
+
+			var configFile = Path.Combine (gnupgDir, "gpg.conf");
+
+			LoadConfiguration (configFile);
 
 			foreach (var algorithm in EncryptionAlgorithmRank)
 				Enable (algorithm);
@@ -216,12 +231,12 @@ namespace MimeKit.Cryptography {
 			DigestAlgorithmRank = ParseDigestAlgorithms (value);
 		}
 
-		void LoadConfiguration ()
+		void LoadConfiguration (string configFile)
 		{
-			if (!File.Exists (Configuration))
+			if (!File.Exists (configFile))
 				return;
 
-			using (var reader = File.OpenText (Configuration)) {
+			using (var reader = File.OpenText (configFile)) {
 				string line;
 
 				while ((line = reader.ReadLine ()) != null) {
