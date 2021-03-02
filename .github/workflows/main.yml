@@ -10,24 +10,6 @@ jobs:
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: Release
     steps:
-      - name: Steps' conditionals handler
-        id: step_conditionals_handler
-        shell: pwsh
-        run: |
-          $IS_PUSH_TO_MASTER = 'false'
-          $IS_NOT_PR = 'true'
-          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') ) {
-            $IS_PUSH_TO_MASTER = 'true'
-          }
-          if ( $env:GITHUB_EVENT_NAME -ceq 'pull_request' ) {
-            $IS_NOT_PR = 'false'
-          }
-          echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
-          echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_REF: ${{ github.ref }}
-
       - name: Setup MSBuild
         id: setup_msbuild
         uses: microsoft/setup-msbuild@v1.0.2
@@ -39,14 +21,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
           fetch-depth: 0
-
-      - name: Update all submodules
-        id: update_all_submodules
-        run: |
-          git submodule update --init --recursive
-
+          
       - name: Run NuGet restore
         id: run_nuget_restore
+        shell: pwsh
         run: |
           nuget restore $env:SOLUTION_PATH
 
@@ -57,23 +35,5 @@ jobs:
           msbuild $env:SOLUTION_PATH `
           /p:Platform=$env:BUILD_PLATFORM `
           /p:Configuration=$env:BUILD_CONFIGURATION
-
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true'
-        name: Upload build artifacts
-        id: upload_artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: Build artifacts
-          path: Artifacts/
-
-      - name: Publish *.nupkg on NuGet
-        id: publish_nuget
-        continue-on-error: true
-        uses: rohith/publish-nuget@v2
-        with:
-             PROJECT_FILE_PATH: 'project.csproj'
-             TAG_COMMIT: true
-             NUGET_KEY: ${{ secrets.NUGET_TOKEN }}
-             PACKAGE_NAME: Project.${{ env.NEW_VERSION }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
