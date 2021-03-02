@@ -9,11 +9,12 @@ jobs:
       matrix:
         build-configuration: [ Debug, Release ]
     outputs:
-      latest-version: 2.10.1
+      latest-version: ${{ env.LATEST_VERSION }}
     env:
       SOLUTION_PATH: .\MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
+      LATEST_VERSION: 2.10.1
     steps:
       - name: Steps' conditionals handler
         id: step_conditionals_handler
@@ -79,8 +80,8 @@ jobs:
           name: Unit tests results
           path: TestResult.xml
 
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Create NuGet package
+      # - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - name: Create NuGet package
         id: create_nuget_package
         run: |
           nuget pack .\nuget\MimeKit.nuspec
@@ -93,15 +94,15 @@ jobs:
           -ApiKey $env:MYGET_API_KEY `
           -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
-          NUPKG_PATH: .\MimeKit.${{ needs.ci.outputs.latest-version }}.nupkg
+          NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Upload NuGet package as artifact
+      # - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
         with:
-          name: MimeKit.${{ needs.ci.outputs.latest-version }}.nupkg
-          path: MimeKit.${{ needs.ci.outputs.latest-version }}.nupkg
+          name: MimeKit.${{ env.LATEST_VERSION }}.nupkg
+          path: MimeKit.${{ env.LATEST_VERSION }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
