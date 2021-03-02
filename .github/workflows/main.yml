@@ -55,4 +55,18 @@ jobs:
           name: Unit tests results
           path: TestResult.xml
 
+      - if: matrix.build-configuration == 'Release'
+        name: Create NuGet package
+        id: create_nuget_package
+        run: |
+          nuget pack .\nuget\MimeKit.nuspec
+
+      - if: matrix.build-configuration == 'Release'
+        name: Upload NuGet package as artifact
+        id: upload_nuget_package
+        uses: actions/upload-artifact@v1
+        with:
+          name: MimeKit.2.10.1.nupkg
+          path: MimeKit.2.10.1.nupkg          
+
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
