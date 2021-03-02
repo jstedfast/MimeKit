@@ -1,15 +1,8 @@
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    # default location of `.github/workflows`
-    directory: "/"
+  - package-ecosystem: nuget
+    directory: /
     schedule:
-      interval: "weekly"
-
-  - package-ecosystem: "nuget"
-    # location of package manifests
-    directory: "/"
-    schedule:
-      interval: "daily"
-
-# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
+      interval: weekly
