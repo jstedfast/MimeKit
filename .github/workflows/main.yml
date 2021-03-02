@@ -5,10 +5,14 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   ci:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        build-configuration: [ Debug, Release ]
     env:
       SOLUTION_PATH: .\MimeKit.sln
       BUILD_PLATFORM: Any CPU
-      BUILD_CONFIGURATION: Release
+      BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
+      LATEST_VERSION: 2.10.1$(Rev:.r)
     steps:
       - name: Setup MSBuild
         id: setup_msbuild
