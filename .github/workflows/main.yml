@@ -8,12 +8,37 @@ jobs:
     strategy:
       matrix:
         build-configuration: [ Debug, Release ]
+    outputs:
+      latest-version: ${{ env.LATEST_VERSION }}
     env:
       SOLUTION_PATH: .\MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
-      LATEST_VERSION: 2.10.1$(Rev:.r)
+      LATEST_VERSION: 2.10.1
     steps:
+      - name: Steps' conditionals handler
+        id: step_conditionals_handler
+        shell: pwsh
+        run: |
+          $IS_CONFIGURATION_RELEASE = 'false'
+          $IS_PUSH_TO_MASTER = 'false'
+          $IS_NOT_PR = 'true'
+          if ( $env:BUILD_CONFIGURATION -ceq 'Release' ) {
+            $IS_CONFIGURATION_RELEASE = 'true'
+          }          
+          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') ) {
+            $IS_PUSH_TO_MASTER = 'true'
+          }
+          if ( $env:GITHUB_EVENT_NAME -ceq 'pull_request' ) {
+            $IS_NOT_PR = 'false'
+          }
+          echo "::set-output name=is_configuration_release::$(echo $IS_CONFIGURATION_RELEASE)"
+          echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
+          echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+
       - name: Setup MSBuild
         id: setup_msbuild
         uses: microsoft/setup-msbuild@v1.0.2
@@ -40,19 +65,44 @@ jobs:
           /p:Platform=$env:BUILD_PLATFORM `
           /p:Configuration=$env:BUILD_CONFIGURATION
 
-      - if: matrix.build-configuration == 'Release'
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
         name: Run unit tests
         id: run_unit_tests
         shell: pwsh
         run: |
           & .\azure-test-runner.ps1
 
-      - if: matrix.build-configuration == 'Release'
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
         name: Upload unit tests results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
         with:
           name: Unit tests results
           path: TestResult.xml
+
+      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Create NuGet package
+        id: create_nuget_package
+        run: |
+          nuget pack .\nuget\MimeKit.nuspec
+
+      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Push NuGet package to MyGet
+        id: push_nuget_package
+        run: |
+          nuget push $env:NUPKG_PATH `
+          -ApiKey $env:MYGET_API_KEY `
+          -Source https://www.myget.org/F/mimekit/api/v3/index.json
+        env:
+          NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
+          MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
+
+      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Upload NuGet package as artifact
+        id: upload_nuget_package
+        uses: actions/upload-artifact@v1
+        with:
+          name: MimeKit.${{ env.LATEST_VERSION }}.nupkg
+          path: MimeKit.${{ env.LATEST_VERSION }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
