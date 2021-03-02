@@ -80,25 +80,25 @@ jobs:
           name: Unit tests results
           path: TestResult.xml
 
-      # - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Create NuGet package
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Create NuGet package
         id: create_nuget_package
         run: |
           nuget pack .\nuget\MimeKit.nuspec
 
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Push NuGet package to MyGet
-        id: push_nuget_package
-        run: |
-          nuget push $env:NUPKG_PATH `
-          -ApiKey $env:MYGET_API_KEY `
-          -Source https://www.myget.org/F/mimekit/api/v3/index.json
-        env:
-          NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
-          MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
+      # - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      #   name: Push NuGet package to MyGet
+      #   id: push_nuget_package
+      #   run: |
+      #     nuget push $env:NUPKG_PATH `
+      #     -ApiKey $env:MYGET_API_KEY `
+      #     -Source https://www.myget.org/F/mimekit/api/v3/index.json
+      #   env:
+      #     NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
+      #     MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
-      # - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Upload NuGet package as artifact
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
         with:
