@@ -62,26 +62,26 @@
     <dependencies>
       <group targetFramework="net45">
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
       <group targetFramework="net46">
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
       <group targetFramework="net47">
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
       <group targetFramework="net48">
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
       <group targetFramework="net50">
         <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
@@ -89,14 +89,14 @@
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
       <group targetFramework="netstandard2.1">
         <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
         <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="Portable.BouncyCastle" version="1.8.8" />
+        <dependency id="Portable.BouncyCastle" version="1.8.10" />
       </group>
     </dependencies>
   </metadata>
