@@ -15,10 +15,6 @@ jobs:
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
     steps:
-      - name: github run number
-        run: |
-          echo "${{ github.run_number }}"
-
       - name: Steps' conditionals handler
         id: step_conditionals_handler
         run: |
@@ -64,8 +60,8 @@ jobs:
         run: |
           $xml = [xml](gc MimeKit/MimeKit.csproj)
           $SEMANTIC_VERSION_NUMBER = $xml.Project.PropertyGroup.VersionPrefix
-          echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER)"
-          echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER")"
+          echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
+          echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
 
       # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - name: Get latest tag
@@ -101,19 +97,19 @@ jobs:
           /p:Platform=$env:BUILD_PLATFORM `
           /p:Configuration=$env:BUILD_CONFIGURATION
 
-      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Run unit tests
-        id: run_unit_tests
-        run: |
-          & .\azure-test-runner.ps1
+      # - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      #   name: Run unit tests
+      #   id: run_unit_tests
+      #   run: |
+      #     & .\azure-test-runner.ps1
 
-      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Upload unit tests results as artifact
-        id: upload_test_results
-        uses: actions/upload-artifact@v1
-        with:
-          name: Unit tests results
-          path: TestResult.xml
+      # - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      #   name: Upload unit tests results as artifact
+      #   id: upload_test_results
+      #   uses: actions/upload-artifact@v1
+      #   with:
+      #     name: Unit tests results
+      #     path: TestResult.xml
 
       # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
@@ -127,7 +123,8 @@ jobs:
         name: Push NuGet package to MyGet
         id: push_nuget_package
         run: |
-          Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
+          Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg `
+          -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
         env:
           NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
