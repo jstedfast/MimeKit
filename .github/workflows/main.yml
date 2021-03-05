@@ -15,6 +15,10 @@ jobs:
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
     steps:
+      - name: github run number
+        run: |
+          echo "${{ github.run_number }}"
+
       - name: Steps' conditionals handler
         id: step_conditionals_handler
         run: |
