@@ -9,20 +9,19 @@ jobs:
       matrix:
         build-configuration: [ Debug, Release ]
     outputs:
-      latest-version: ${{ env.LATEST_VERSION }}
+      latest-version: ${{ steps.get_semantic_version.outputs.version_num }}
     env:
       SOLUTION_PATH: .\MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
-      LATEST_VERSION: 2.10.1
     steps:
       - name: Steps' conditionals handler
         id: step_conditionals_handler
-        shell: pwsh
         run: |
           $IS_CONFIGURATION_RELEASE = 'false'
           $IS_PUSH_TO_MASTER = 'false'
           $IS_NOT_PR = 'true'
+          $IS_GITHUB_RELEASE = 'false'
           if ( $env:BUILD_CONFIGURATION -ceq 'Release' ) {
             $IS_CONFIGURATION_RELEASE = 'true'
           }          
@@ -32,9 +31,13 @@ jobs:
           if ( $env:GITHUB_EVENT_NAME -ceq 'pull_request' ) {
             $IS_NOT_PR = 'false'
           }
+          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') ) {
+            $IS_GITHUB_RELEASE = 'true'
+          }
           echo "::set-output name=is_configuration_release::$(echo $IS_CONFIGURATION_RELEASE)"
           echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
           echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
+          echo "::set-output name=is_github_release::$(echo $IS_GITHUB_RELEASE)"
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_REF: ${{ github.ref }}
@@ -51,15 +54,44 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+        name: Get semantic version from csproj
+        id: get_semantic_version
+        run: |
+          $xml = [xml](gc MimeKit/MimeKit.csproj)
+          $SEMANTIC_VERSION_NUMBER = $xml.Project.PropertyGroup.VersionPrefix
+          echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
+          echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
+
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+        name: Get latest tag
+        id: get_latest_tag
+        run: |
+          $LATEST_TAG = git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags "https://github.com/$env:GIT_URL.git" '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3
+          echo "::set-output name=tag::$(echo $LATEST_TAG)"
+        env:
+          GIT_URL: ${{ github.repository }}
+          
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
+        name: Add new tag to repo
+        id: add_new_tag_to_repo
+        run: |
+          git config --global user.name $env:GIT_USER_NAME
+          git config --global user.email $env:GIT_USER_EMAIL
+          git tag -a -m "Tagged for $env:NEW_VERSION_NUM" $env:NEW_VERSION_NUM
+          git push --follow-tags
+        env:
+          GIT_USE-_NAME: ${{ secrets.GIT_USER_NAME }}
+          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+          NEW_VERSION_NUM: ${{ steps.get_semantic_version.outputs.version_num }}
+
       - name: Run NuGet restore
         id: run_nuget_restore
-        shell: pwsh
         run: |
           nuget restore $env:SOLUTION_PATH
 
       - name: Build solution
         id: build_solution
-        shell: pwsh
         run: |
           msbuild $env:SOLUTION_PATH `
           /p:Platform=$env:BUILD_PLATFORM `
@@ -68,41 +100,44 @@ jobs:
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
         name: Run unit tests
         id: run_unit_tests
-        shell: pwsh
         run: |
           & .\azure-test-runner.ps1
 
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Upload unit tests results as artifact
+        name: Upload unit test results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
         with:
-          name: Unit tests results
+          name: Unit test results
           path: TestResult.xml
 
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Create NuGet package
         id: create_nuget_package
         run: |
           nuget pack .\nuget\MimeKit.nuspec
 
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Push NuGet package to MyGet
         id: push_nuget_package
         run: |
-          nuget push $env:NUPKG_PATH `
+          Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg `
+          -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
+          nuget push $env:NUGET_PKG_PATH `
           -ApiKey $env:MYGET_API_KEY `
           -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
-          NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
+          NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
 
-      - if: steps.step_conditionals_handler.outputs.is_push_to_master == 'true' && steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
         with:
-          name: MimeKit.${{ env.LATEST_VERSION }}.nupkg
-          path: MimeKit.${{ env.LATEST_VERSION }}.nupkg
+          name: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          path: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)

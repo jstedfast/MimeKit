@@ -2,7 +2,7 @@
 
 ## *. Run workflow manually
 
-Once you've set up all the steps above correctly, you should be able to successfully complete a manual execution of the "!_PROJECT_NAME_! CI/CD Pipeline" workflow.
+Once you've set up all the steps above correctly, you should be able to successfully complete a manual execution of the "MimeKit CI/CD Pipeline" workflow.
 
   1. Go to the project's GitHub repository and click on the **Actions** tab
 
