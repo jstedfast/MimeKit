@@ -14,6 +14,7 @@ jobs:
       SOLUTION_PATH: .\MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
+      GITHUB_RUN_NUMBER: ${{ github.run_number }}
     steps:
       - name: Steps' conditionals handler
         id: step_conditionals_handler
@@ -115,22 +116,21 @@ jobs:
         name: Create NuGet package
         id: create_nuget_package
         run: |
-          nuget pack .\nuget\MimeKit.nuspec
+          nuget pack .\nuget\MimeKit.nuspec `
+          -Version "$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER"
+        env:
+          LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}          
 
       - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Push NuGet package to MyGet
         id: push_nuget_package
         run: |
-          Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg `
-          -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
           nuget push $env:NUGET_PKG_PATH `
           -ApiKey $env:MYGET_API_KEY `
           -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
-          NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
-          GITHUB_RUN_NUMBER: ${{ github.run_number }}
-          LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
 
       - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Upload NuGet package as artifact
