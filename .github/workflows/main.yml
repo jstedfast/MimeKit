@@ -54,8 +54,8 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
-      - name: Get semantic version from csproj
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+        name: Get semantic version from csproj
         id: get_semantic_version
         run: |
           $xml = [xml](gc MimeKit/MimeKit.csproj)
@@ -63,8 +63,8 @@ jobs:
           echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
           echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
 
-      # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
-      - name: Get latest tag
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+        name: Get latest tag
         id: get_latest_tag
         run: |
           $LATEST_TAG = git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags "https://github.com/$env:GIT_URL.git" '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3
@@ -72,8 +72,8 @@ jobs:
         env:
           GIT_URL: ${{ github.repository }}
           
-      # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
-      - name: Add new tag to repo
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
+        name: Add new tag to repo
         id: add_new_tag_to_repo
         run: |
           git config --global user.name $env:GIT_USER_NAME
@@ -97,42 +97,41 @@ jobs:
           /p:Platform=$env:BUILD_PLATFORM `
           /p:Configuration=$env:BUILD_CONFIGURATION
 
-      # - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      #   name: Run unit tests
-      #   id: run_unit_tests
-      #   run: |
-      #     & .\azure-test-runner.ps1
-
-      # - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      #   name: Upload unit tests results as artifact
-      #   id: upload_test_results
-      #   uses: actions/upload-artifact@v1
-      #   with:
-      #     name: Unit tests results
-      #     path: TestResult.xml
-
-      # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Run unit tests
+        id: run_unit_tests
+        run: |
+          & .\azure-test-runner.ps1
+
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+        name: Upload unit tests results as artifact
+        id: upload_test_results
+        uses: actions/upload-artifact@v1
+        with:
+          name: Unit tests results
+          path: TestResult.xml
+
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Create NuGet package
         id: create_nuget_package
         run: |
           nuget pack .\nuget\MimeKit.nuspec
 
-      # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
-      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Push NuGet package to MyGet
         id: push_nuget_package
         run: |
           Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg `
           -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
+          nuget push MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg `
+          -ApiKey $env:MYGET_API_KEY `
+          -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
-          NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
           LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
 
-      # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
-      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
