@@ -104,11 +104,11 @@ jobs:
           & .\azure-test-runner.ps1
 
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Upload unit tests results as artifact
+        name: Upload unit test results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
         with:
-          name: Unit tests results
+          name: Unit test results
           path: TestResult.xml
 
       - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
@@ -123,10 +123,11 @@ jobs:
         run: |
           Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg `
           -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
-          nuget push MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg `
+          nuget push $env:NUGET_PKG_PATH `
           -ApiKey $env:MYGET_API_KEY `
           -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
+          NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
           LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
