@@ -9,12 +9,11 @@ jobs:
       matrix:
         build-configuration: [ Debug, Release ]
     outputs:
-      latest-version: ${{ env.LATEST_VERSION }}
+      latest-version: ${{ steps.get_semantic_version.outputs.version_num }}
     env:
       SOLUTION_PATH: .\MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
-      LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
     steps:
       - name: Steps' conditionals handler
         id: step_conditionals_handler
@@ -129,6 +128,7 @@ jobs:
           NUPKG_PATH: .\MimeKit.${{ env.LATEST_VERSION }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
 
       # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
@@ -136,7 +136,7 @@ jobs:
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
         with:
-          name: MimeKit.${{ env.LATEST_VERSION }}.${{ github.run_number }}.nupkg
-          path: MimeKit.${{ env.LATEST_VERSION }}.${{ github.run_number }}.nupkg
+          name: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          path: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
