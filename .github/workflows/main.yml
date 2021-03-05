@@ -99,13 +99,13 @@ jobs:
           /p:Configuration=$env:BUILD_CONFIGURATION
 
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Run unit tests
+        name: Run unit tests
         id: run_unit_tests
         run: |
           & .\azure-test-runner.ps1
 
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Upload unit tests results as artifact
+        name: Upload unit tests results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
         with:
@@ -114,14 +114,14 @@ jobs:
 
       # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Create NuGet package
+        name: Create NuGet package
         id: create_nuget_package
         run: |
           nuget pack .\nuget\MimeKit.nuspec
 
       # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Push NuGet package to MyGet
+        name: Push NuGet package to MyGet
         id: push_nuget_package
         run: |
           Rename-Item -Path MimeKit.$env:LATEST_VERSION.nupkg -NewName MimeKit.$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER.nupkg -Force
@@ -132,7 +132,7 @@ jobs:
 
       # - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-      - name: Upload NuGet package as artifact
+        name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
         with:
