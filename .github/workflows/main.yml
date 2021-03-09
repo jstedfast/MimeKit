@@ -110,6 +110,10 @@ jobs:
         shell: pwsh
         run: |
           nuget restore $env:SOLUTION_PATH
+      
+      - name: Run dotnet restore
+        shell: pwsh
+        run: |
           dotnet restore $env:SOLUTION_PATH
 
       - name: Build solution
