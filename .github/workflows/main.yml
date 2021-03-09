@@ -119,7 +119,7 @@ jobs:
           msbuild $env:SOLUTION_PATH `
           /p:Platform=$env:BUILD_PLATFORM `
           /p:Configuration=$env:BUILD_CONFIGURATION `
-          /p:TargetFramework="net3.1.402" `
+          /p:TargetFramework="netcoreapp3.1.402" `
           /p:MonoRuntime=$env:IS_UBUNTU
         env:
           IS_UBUNTU: ${{ steps.step_conditionals_handler.outputs.is_ubuntu }}
