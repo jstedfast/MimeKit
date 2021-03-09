@@ -4,9 +4,10 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ windows-latest, ubuntu-latest ]
         build-configuration: [ Debug, Release ]
     outputs:
       latest-version: ${{ steps.get_semantic_version.outputs.version_num }}
@@ -24,9 +25,12 @@ jobs:
           $IS_PUSH_TO_MASTER = 'false'
           $IS_NOT_PR = 'true'
           $IS_GITHUB_RELEASE = 'false'
+          $IS_WINDOWS = 'false'
+          $IS_UBUNTU = 'false'
+
           if ( $env:BUILD_CONFIGURATION -ceq 'Release' ) {
             $IS_CONFIGURATION_RELEASE = 'true'
-          }          
+          }
           if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') ) {
             $IS_PUSH_TO_MASTER = 'true'
           }
@@ -36,17 +40,28 @@ jobs:
           if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') ) {
             $IS_GITHUB_RELEASE = 'true'
           }
+          if ( $env:OS -ceq 'windows-latest' ) {
+            $IS_WINDOWS = 'true'
+          }
+          if ( $env:OS -ceq 'ubuntu-latest' ) {
+            $IS_UBUNTU = 'true'
+          }
+
           echo "::set-output name=is_configuration_release::$(echo $IS_CONFIGURATION_RELEASE)"
           echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
           echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
           echo "::set-output name=is_github_release::$(echo $IS_GITHUB_RELEASE)"
+          echo "::set-output name=is_windows::$(echo $IS_WINDOWS)"
+          echo "::set-output name=is_ubuntu::$(echo $IS_UBUNTU)"
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_REF: ${{ github.ref }}
+          OS: ${{ matrix.os }}
 
-      # - name: Setup MSBuild
-      #   id: setup_msbuild
-      #   uses: microsoft/setup-msbuild@v1.0.2
+      - if: steps.step_conditionals_handler.outputs.is_windows == 'true'
+        name: Setup MSBuild
+        id: setup_msbuild
+        uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Checkout repository
         id: checkout_repo
@@ -56,7 +71,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Get semantic version from csproj
         id: get_semantic_version
         shell: pwsh
@@ -66,7 +81,7 @@ jobs:
           echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
           echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Get latest tag
         id: get_latest_tag
         shell: pwsh
@@ -76,7 +91,7 @@ jobs:
         env:
           GIT_URL: ${{ github.repository }}
           
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Add new tag to repo
         id: add_new_tag_to_repo
         shell: pwsh
@@ -102,34 +117,35 @@ jobs:
         run: |
           msbuild $env:SOLUTION_PATH `
           /p:Platform=$env:BUILD_PLATFORM `
-          /p:Configuration=$env:BUILD_CONFIGURATION
+          /p:Configuration=$env:BUILD_CONFIGURATION `
+          /p:MonoRuntime=$env:IS_UBUNTU
+        env:
+          IS_UBUNTU: ${{ steps.step_conditionals_handler.outputs.is_ubuntu }}
 
-      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Run unit tests
+      - name: Run unit tests
         id: run_unit_tests
         shell: pwsh
         run: |
-          & .\azure-test-runner.ps1
+          & azure-test-runner.ps1
 
-      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
-        name: Upload unit test results as artifact
+      - name: Upload unit test results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
         with:
           name: Unit test results
           path: TestResult.xml
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Create NuGet package
         id: create_nuget_package
         shell: pwsh
         run: |
-          nuget pack .\nuget\MimeKit.nuspec `
+          nuget pack nuget/MimeKit.nuspec `
           -Version "$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER"
         env:
           LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}          
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Push NuGet package to MyGet
         id: push_nuget_package
         shell: pwsh
@@ -141,7 +157,7 @@ jobs:
           NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
