@@ -11,7 +11,7 @@ jobs:
     outputs:
       latest-version: ${{ steps.get_semantic_version.outputs.version_num }}
     env:
-      SOLUTION_PATH: .\MimeKit.sln
+      SOLUTION_PATH: MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
       GITHUB_RUN_NUMBER: ${{ github.run_number }}
