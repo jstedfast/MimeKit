@@ -111,7 +111,7 @@ jobs:
         run: |
           nuget restore $env:SOLUTION_PATH
       
-      - name: Run dotnet restore
+      - name: Run .NET restore
         shell: pwsh
         run: |
           dotnet restore $env:SOLUTION_PATH
