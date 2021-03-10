@@ -118,6 +118,7 @@ jobs:
 
       - name: Build solution
         id: build_solution
+        continue-on-error: true
         shell: pwsh
         run: |
           msbuild $env:SOLUTION_PATH `
