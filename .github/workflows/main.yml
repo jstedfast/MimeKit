@@ -16,7 +16,6 @@ jobs:
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
       GITHUB_RUN_NUMBER: ${{ github.run_number }}
-      ENV_IS_CONFIGURATION_RELEASE: "${{ matrix.build-configuration }} == 'Release'"
     steps:
       - name: Steps' conditionals handler
         id: step_conditionals_handler
@@ -128,7 +127,7 @@ jobs:
         env:
           IS_UBUNTU: ${{ steps.step_conditionals_handler.outputs.is_ubuntu }}
 
-      - if: ${{ env.ENV_IS_CONFIGURATION_RELEASE }}
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
         name: Run unit tests
         id: run_unit_tests
         shell: pwsh
@@ -137,7 +136,7 @@ jobs:
           
           & $NUnitConsoleRunner --domain:single "UnitTests/bin/Release/net48/UnitTests.dll"
 
-      - if: ${{ env.ENV_IS_CONFIGURATION_RELEASE }}
+      - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
         name: Upload unit test results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
