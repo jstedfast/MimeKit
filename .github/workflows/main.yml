@@ -16,7 +16,7 @@ jobs:
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
       GITHUB_RUN_NUMBER: ${{ github.run_number }}
-      ENV_IS_CONFIGURATION_RELEASE: "matrix.build-configuration == 'Release'"
+      ENV_IS_CONFIGURATION_RELEASE: "${{ matrix.build-configuration }} == 'Release'"
     steps:
       - name: Steps' conditionals handler
         id: step_conditionals_handler
