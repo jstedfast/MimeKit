@@ -127,15 +127,17 @@ jobs:
         env:
           IS_UBUNTU: ${{ steps.step_conditionals_handler.outputs.is_ubuntu }}
 
-      - name: Run unit tests
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+        name: Run unit tests
         id: run_unit_tests
         shell: pwsh
         run: |
           $NUnitConsoleRunner = Join-Path $Home ".nuget\packages\nunit.consolerunner\3.12.0\tools\nunit3-console.exe"
+          
+          & $NUnitConsoleRunner --domain:single "UnitTests\bin\Release\net48\UnitTests.dll"
 
-          & $NUnitConsoleRunner --domain:single "UnitTests/bin/Release/net48/UnitTests.dll"
-
-      - name: Upload unit test results as artifact
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
+        name: Upload unit test results as artifact
         id: upload_test_results
         uses: actions/upload-artifact@v1
         with:
