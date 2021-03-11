@@ -151,7 +151,7 @@ jobs:
           name: Unit test results
           path: TestResult.xml
 
-      - if: steps.step_conditionals_handler.outputs.is_github_debug == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_configuration_debug == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
         name: Run unit tests and upload to Coveralls
         id: test_results_to_coveralls
         shell: pwsh
