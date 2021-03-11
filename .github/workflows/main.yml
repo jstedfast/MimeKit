@@ -41,7 +41,7 @@ jobs:
           if ( $env:GITHUB_EVENT_NAME -ceq 'pull_request' ) {
             $IS_NOT_PR = 'false'
           }
-          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') ) {
+          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') -and ( $env:OS -ceq 'windows-latest' ) ) {
             $IS_GITHUB_RELEASE = 'true'
           }
           if ( $env:OS -ceq 'windows-latest' ) {
@@ -85,7 +85,7 @@ jobs:
           echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
           echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Get latest tag
         id: get_latest_tag
         shell: pwsh
@@ -95,7 +95,7 @@ jobs:
         env:
           GIT_URL: ${{ github.repository }}
           
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
         name: Add new tag to repo
         id: add_new_tag_to_repo
         shell: pwsh
@@ -166,7 +166,7 @@ jobs:
           GIT_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           COVERALLS_JOB_ID: ${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Create NuGet package
         id: create_nuget_package
         shell: pwsh
@@ -176,7 +176,7 @@ jobs:
         env:
           LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}          
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Push NuGet package to MyGet
         id: push_nuget_package
         shell: pwsh
@@ -188,7 +188,7 @@ jobs:
           NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
