@@ -21,6 +21,7 @@ jobs:
         id: step_conditionals_handler
         shell: pwsh
         run: |
+          $IS_CONFIGURATION_DEBUG = 'false'
           $IS_CONFIGURATION_RELEASE = 'false'
           $IS_PUSH_TO_MASTER = 'false'
           $IS_NOT_PR = 'true'
@@ -28,6 +29,9 @@ jobs:
           $IS_WINDOWS = 'false'
           $IS_UBUNTU = 'false'
 
+          if ( $env:BUILD_CONFIGURATION -ceq 'Debug' ) {
+            $IS_CONFIGURATION_DEBUG = 'true'
+          }
           if ( $env:BUILD_CONFIGURATION -ceq 'Release' ) {
             $IS_CONFIGURATION_RELEASE = 'true'
           }
@@ -37,7 +41,7 @@ jobs:
           if ( $env:GITHUB_EVENT_NAME -ceq 'pull_request' ) {
             $IS_NOT_PR = 'false'
           }
-          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') ) {
+          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') -and ( $env:OS -ceq 'windows-latest' ) ) {
             $IS_GITHUB_RELEASE = 'true'
           }
           if ( $env:OS -ceq 'windows-latest' ) {
@@ -47,6 +51,7 @@ jobs:
             $IS_UBUNTU = 'true'
           }
 
+          echo "::set-output name=is_configuration_debug::$(echo $IS_CONFIGURATION_DEBUG)"
           echo "::set-output name=is_configuration_release::$(echo $IS_CONFIGURATION_RELEASE)"
           echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
           echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
@@ -71,8 +76,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
-        name: Get semantic version from csproj
+      - name: Get semantic version from csproj
         id: get_semantic_version
         shell: pwsh
         run: |
@@ -81,7 +85,7 @@ jobs:
           echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
           echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Get latest tag
         id: get_latest_tag
         shell: pwsh
@@ -91,7 +95,7 @@ jobs:
         env:
           GIT_URL: ${{ github.repository }}
           
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
         name: Add new tag to repo
         id: add_new_tag_to_repo
         shell: pwsh
@@ -101,8 +105,8 @@ jobs:
           git tag -a -m "Tagged for $env:NEW_VERSION_NUM" $env:NEW_VERSION_NUM
           git push --follow-tags
         env:
-          GIT_USE-_NAME: ${{ secrets.GIT_USER_NAME }}
-          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+          GIT_USER_NAME: ${{ github.event.head_commit.author.username }}
+          GIT_USER_EMAIL: ${{ github.event.head_commit.author.email }}
           NEW_VERSION_NUM: ${{ steps.get_semantic_version.outputs.version_num }}
 
       - name: Run NuGet restore
@@ -135,7 +139,7 @@ jobs:
         shell: pwsh
         run: |
           $NUnitConsoleRunner = Join-Path $Home ".nuget/packages/nunit.consolerunner/3.12.0/tools/nunit3-console.exe"
-          
+
           & $NUnitConsoleRunner --domain:single "UnitTests/bin/Release/net48/UnitTests.dll"
 
       - if: steps.step_conditionals_handler.outputs.is_configuration_release == 'true'
@@ -147,7 +151,22 @@ jobs:
           name: Unit test results
           path: TestResult.xml
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_configuration_debug == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+        name: Run unit tests and upload to Coveralls
+        id: test_results_to_coveralls
+        shell: pwsh
+        run: |
+          & ./coveralls.ps1
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          GIT_COMMIT_SHA: ${{ github.sha }}
+          GIT_REF: ${{ github.ref }}
+          GIT_ACTOR: ${{ github.event.head_commit.author.username }}
+          GIT_ACTOR_EMAIL: ${{ github.event.head_commit.author.email }}
+          GIT_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COVERALLS_JOB_ID: ${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}
+
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Create NuGet package
         id: create_nuget_package
         shell: pwsh
@@ -157,7 +176,7 @@ jobs:
         env:
           LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}          
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Push NuGet package to MyGet
         id: push_nuget_package
         shell: pwsh
@@ -169,12 +188,12 @@ jobs:
           NUGET_PKG_PATH: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
-      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.step_conditionals_handler.outputs.is_windows == 'true'
+      - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Upload NuGet package as artifact
         id: upload_nuget_package
         uses: actions/upload-artifact@v1
         with:
-          name: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
-          path: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          name: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
+          path: MimeKit.${{ steps.get_semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
