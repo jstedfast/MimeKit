@@ -18,7 +18,7 @@
 
 If everything was set up correctly, a [manual execution](#3-run-workflow-manually) of the workflow should complete successfully with the build and test processes, and the publish of test results to Coveralls.
 
-To execute a GitHub tag bump and MyGet package publish, do a push commit to the default branch containing the `MimeKit.csproj` file with a bumped up version value of the `VersionPrefix` property.
+To execute a MyGet package publish, do a push commit to the default branch and to also execute a GitHub tag bump, the push commit should contain the `MimeKit.csproj` file with a bumped up version value of the `VersionPrefix` property.
 
 <br>
 
