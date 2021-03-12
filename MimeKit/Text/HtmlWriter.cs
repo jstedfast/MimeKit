@@ -136,7 +136,7 @@ namespace MimeKit.Text {
 				throw new ArgumentException ("The attribute name cannot be empty.", nameof (name));
 
 			if (!HtmlUtils.IsValidTokenName (name))
-				throw new ArgumentException ("Invalid attribute name.", nameof (name));
+				throw new ArgumentException ($"Invalid attribute name: {name}", nameof (name));
 		}
 
 		static void ValidateTagName (string name)
@@ -148,7 +148,7 @@ namespace MimeKit.Text {
 				throw new ArgumentException ("The tag name cannot be empty.", nameof (name));
 
 			if (!HtmlUtils.IsValidTokenName (name))
-				throw new ArgumentException ("Invalid tag name.", nameof (name));
+				throw new ArgumentException ($"Invalid tag name: {name}", nameof (name));
 		}
 
 		void EncodeAttributeName (string name)
