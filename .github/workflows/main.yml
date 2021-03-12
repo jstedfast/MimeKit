@@ -11,6 +11,7 @@ jobs:
         build-configuration: [ Debug, Release ]
     outputs:
       latest-version: ${{ steps.get_semantic_version.outputs.version_num }}
+    environment: ci
     env:
       SOLUTION_PATH: MimeKit.sln
       BUILD_PLATFORM: Any CPU
@@ -94,7 +95,7 @@ jobs:
           echo "::set-output name=tag::$(echo $LATEST_TAG)"
         env:
           GIT_URL: ${{ github.repository }}
-          
+
       - if: steps.step_conditionals_handler.outputs.is_github_release == 'true' && steps.get_semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
         name: Add new tag to repo
         id: add_new_tag_to_repo
@@ -114,7 +115,7 @@ jobs:
         shell: pwsh
         run: |
           nuget restore $env:SOLUTION_PATH
-      
+
       - name: Run .NET restore
         shell: pwsh
         run: |
@@ -174,7 +175,7 @@ jobs:
           nuget pack nuget/MimeKit.nuspec `
           -Version "$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER"
         env:
-          LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}          
+          LATEST_VERSION: ${{ steps.get_semantic_version.outputs.version_num }}
 
       - if: steps.step_conditionals_handler.outputs.is_github_release == 'true'
         name: Push NuGet package to MyGet
