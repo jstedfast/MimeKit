@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.10.1</version>
+    <version>2.11.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,9 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Treat message/disposition-notification and message/delivery-status the same as text/* when preparing for signing. (issue #626)
-* Always set Content-Disposition: inline for BodyBuilder.LinkedResources. This fixes a regression introduced in 2.10.0. (issue #627)
-* Fixed NuGet package references to System.Data.DataSetExtensions for netstandard2.1 and net4x.
+* Fixed DSA key conversion logic to work more reliably.
+* Catch exceptions from IPGlobalProperties.GetIPGlobalProperties() and fall back to localhost. (issue #630)
+* Fixed base64 encoder to only flush with a newline if it is midline. (issue #646)
+* Added .NET 5 build targets and include in the nuget packages.
+* Added a new GnuPGContext .ctor that allows specifying a custom path.
+* Bumped Portable.BouncyCastle dependency to 1.8.10.
+* Improved HtmlWriter ArgumentException messages.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

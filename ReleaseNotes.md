@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 2.11.0 (2021-03-12)
+
+* Fixed DSA key conversion logic to work more reliably.
+* Catch exceptions from IPGlobalProperties.GetIPGlobalProperties() and fall back to localhost.
+  (issue [#630](https://github.com/jstedfast/MimeKit/issues/630))
+* Fixed base64 encoder to only flush with a newline if it is midline.
+  (issue [#646](https://github.com/jstedfast/MimeKit/issues/646))
+* Added .NET 5 build targets and include in the nuget packages.
+* Added a new GnuPGContext .ctor that allows specifying a custom path.
+* Bumped Portable.BouncyCastle dependency to 1.8.10.
+* Improved HtmlWriter ArgumentException messages.
+
 ### MimeKit 2.10.1 (2020-12-05)
 
 * Treat message/disposition-notification and message/delivery-status the same as text/*
