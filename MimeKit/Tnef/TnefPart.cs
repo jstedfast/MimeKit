@@ -30,6 +30,7 @@ using System.Text;
 using System.Collections.Generic;
 
 using MimeKit.IO;
+using MimeKit.Text;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
@@ -186,6 +187,67 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		static string GetHtmlBody (TnefPropertyReader prop, int codepage, out Encoding encoding)
+		{
+			var rawValue = prop.ReadValueAsBytes ();
+			int rawLength = rawValue.Length;
+
+			while (rawLength > 0 && rawValue[rawLength - 1] == 0)
+				rawLength--;
+
+			// Try and extract the charset from the HTML meta Content-Type value.
+			using (var stream = new MemoryStream (rawValue, 0, rawLength)) {
+				// It should be safe to assume ISO-8859-1 for this purpose. We don't want to risk using UTF-8 (or any other charset) and having it throw an exception...
+				using (var reader = new StreamReader (stream, CharsetUtils.Latin1, true)) {
+					var tokenizer = new HtmlTokenizer (reader);
+					HtmlToken token;
+
+					while (tokenizer.ReadNextToken (out token)) {
+						if (token.Kind != HtmlTokenKind.Tag)
+							continue;
+
+						var tag = (HtmlTagToken) token;
+
+						if (tag.Id == HtmlTagId.Body || (tag.Id == HtmlTagId.Head && tag.IsEndTag))
+							break;
+
+						if (tag.Id != HtmlTagId.Meta || tag.IsEndTag)
+							continue;
+
+						string httpEquiv = null;
+						string content = null;
+
+						for (int i = 0; i < tag.Attributes.Count; i++) {
+							switch (tag.Attributes[i].Id) {
+							case HtmlAttributeId.HttpEquiv: httpEquiv = httpEquiv ?? tag.Attributes[i].Value; break;
+							case HtmlAttributeId.Content: content = content ?? tag.Attributes[i].Value; break;
+							}
+						}
+
+						if (httpEquiv == null || !httpEquiv.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+							continue;
+
+						if (!ContentType.TryParse (content, out var contentType) || string.IsNullOrEmpty (contentType.Charset))
+							break;
+
+						try {
+							encoding = Encoding.GetEncoding (contentType.Charset, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+
+							// If this converts cleanly, then we're golden.
+							return encoding.GetString (rawValue, 0, rawLength);
+						} catch {
+							// Otherwise, fall back to assuming the TNEF message codepage.
+							break;
+						}
+					}
+
+					encoding = Encoding.GetEncoding (codepage);
+
+					return encoding.GetString (rawValue, 0, rawLength);
+				}
+			}
+		}
+
 		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
 		{
 			var prop = reader.TnefPropertyReader;
@@ -321,13 +383,16 @@ namespace MimeKit.Tnef {
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
 						var html = new TextPart ("html");
 						Encoding encoding;
+						string text;
 
-						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
-							encoding = Encoding.GetEncoding (reader.MessageCodepage);
-						else
+						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode) {
+							text = GetHtmlBody (prop, reader.MessageCodepage, out encoding);
+						} else {
+							text = prop.ReadValueAsString ();
 							encoding = CharsetUtils.UTF8;
+						}
 
-						html.SetText (encoding, prop.ReadValueAsString ());
+						html.SetText (encoding, text);
 
 						builder.Attachments.Add (html);
 					}
