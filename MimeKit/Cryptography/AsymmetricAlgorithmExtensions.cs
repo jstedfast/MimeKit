@@ -321,6 +321,7 @@ namespace MimeKit.Cryptography
 		/// </exception>
 		public static AsymmetricAlgorithm AsAsymmetricAlgorithm (this AsymmetricKeyParameter key)
 		{
+			// TODO: Drop this API - it's no longer needed. The WindowsSecureMimeContext now exports the certificate & key into a pkcs12 and then loads that into an X509Certificate2.
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
@@ -358,6 +359,7 @@ namespace MimeKit.Cryptography
 		/// </exception>
 		public static AsymmetricAlgorithm AsAsymmetricAlgorithm (this AsymmetricCipherKeyPair key)
 		{
+			// TODO: Drop this API - it's no longer needed. The WindowsSecureMimeContext now exports the certificate & key into a pkcs12 and then loads that into an X509Certificate2.
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 

@@ -343,9 +343,14 @@ namespace MimeKit.Cryptography {
 				SignerIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
 			CertificateChain = new X509CertificateChain ();
+			WindowsCertificate = certificate;
 			CertificateChain.Add (cert);
 			Certificate = cert;
 			PrivateKey = key;
+		}
+
+		internal X509Certificate2 WindowsCertificate {
+			get; set;
 		}
 #endif
 

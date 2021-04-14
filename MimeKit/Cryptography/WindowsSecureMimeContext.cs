@@ -34,7 +34,9 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 
@@ -359,15 +361,35 @@ namespace MimeKit.Cryptography {
 			if (signer.RsaSignaturePadding == RsaSignaturePadding.Pss)
 				throw new NotSupportedException ("The RSASSA-PSS signature padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 
-			var certificate = signer.Certificate.AsX509Certificate2 ();
 			RealSubjectIdentifierType type;
+			X509Certificate2 certificate;
 
 			if (signer.SignerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				type = RealSubjectIdentifierType.IssuerAndSerialNumber;
 			else
 				type = RealSubjectIdentifierType.SubjectKeyIdentifier;
 
-			certificate.PrivateKey = signer.PrivateKey.AsAsymmetricAlgorithm ();
+			if (signer.WindowsCertificate != null) {
+				certificate = signer.WindowsCertificate;
+			} else {
+				using (var stream = new MemoryStream ()) {
+					var chain = new X509CertificateEntry[signer.CertificateChain.Count];
+					var key = new AsymmetricKeyEntry (signer.PrivateKey);
+					var password = Guid.NewGuid ().ToString ();
+					var random = new SecureRandom ();
+					var pkcs12 = new Pkcs12Store ();
+
+					for (int i = 0; i < chain.Length; i++)
+						chain[i] = new X509CertificateEntry (signer.CertificateChain[i]);
+
+					pkcs12.SetKeyEntry ("signer", key, chain);
+					pkcs12.Save (stream, password.ToCharArray (), random);
+
+					var rawData = stream.ToArray ();
+
+					certificate = new X509Certificate2 (rawData, password);
+				}
+			}
 
 			return GetRealCmsSigner (type, certificate, signer.DigestAlgorithm);
 		}
