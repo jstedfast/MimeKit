@@ -37,7 +37,7 @@ namespace UnitTests {
 	{
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex)
 		{
-			var buffer = text.Length > 0 ? Encoding.ASCII.GetBytes (text) : new byte[1];
+			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
 			InternetAddress address;
 
 			Assert.AreEqual (result, InternetAddress.TryParse (text, out address), "InternetAddress.TryParse(string)");
@@ -88,7 +88,7 @@ namespace UnitTests {
 
 		static void AssertParse (string text)
 		{
-			var buffer = Encoding.ASCII.GetBytes (text);
+			var buffer = Encoding.UTF8.GetBytes (text);
 			InternetAddress address;
 
 			try {

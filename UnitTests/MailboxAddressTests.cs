@@ -113,7 +113,7 @@ namespace UnitTests {
 
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
 		{
-			var buffer = text.Length > 0 ? Encoding.ASCII.GetBytes (text) : new byte[1];
+			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
 			var options = ParserOptions.Default.Clone ();
 			MailboxAddress mailbox;
 
@@ -167,7 +167,7 @@ namespace UnitTests {
 
 		static void AssertParse (string text)
 		{
-			var buffer = Encoding.ASCII.GetBytes (text);
+			var buffer = Encoding.UTF8.GetBytes (text);
 			MailboxAddress mailbox;
 
 			try {
@@ -836,7 +836,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParseAddrspecWitheroWidthSpace ()
+		public void TestParseAddrspecWithZeroWidthSpace ()
 		{
 			const string text = "\u200Btest@test.co.uk";
 
