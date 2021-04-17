@@ -112,8 +112,11 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			// add an extra 3 bytes for the saved input byte from previous decode step (in case it is invalid hex)
-			return inputLength + 3;
+			switch (state) {
+			case QpDecoderState.PassThrough: return inputLength;
+			case QpDecoderState.EqualSign: return inputLength + 1; // add an extra byte in case the '=' character is not the start of a valid hex sequence
+			default: return inputLength + 2; // add an extra 2 bytes in case the =X sequence is not the start of a valid hex sequence
+			}
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
