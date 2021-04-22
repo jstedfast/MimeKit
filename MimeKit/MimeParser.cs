@@ -694,7 +694,7 @@ namespace MimeKit {
 #endif
 		}
 
-		unsafe bool StepMboxMarker (byte *inbuf, ref int left)
+		unsafe bool StepMboxMarker (byte* inbuf, ref int left)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -812,7 +812,7 @@ namespace MimeKit {
 			return c.IsBlank ();
 		}
 
-		static unsafe bool IsEoln (byte *text)
+		static unsafe bool IsEoln (byte* text)
 		{
 			if (*text == (byte) '\r')
 				text++;
@@ -820,8 +820,7 @@ namespace MimeKit {
 			return *text == (byte) '\n';
 		}
 
-		unsafe bool StepHeaders (byte* inbuf, ref bool scanningFieldName, ref bool checkFolded, ref bool midline,
-		                         ref bool blank, ref bool valid, ref int left)
+		unsafe bool StepHeaders (byte* inbuf, ref bool scanningFieldName, ref bool checkFolded, ref bool midline, ref bool blank, ref bool valid, ref int left)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1228,7 +1227,7 @@ namespace MimeKit {
 			int boundaryLength = final ? bounds[0].FinalLength : bounds[0].Length;
 			byte* start = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
-			byte *inptr = start;
+			byte* inptr = start;
 
 			*inend = (byte) '\n';
 
@@ -1499,7 +1498,7 @@ namespace MimeKit {
 			rfc822.Message = message;
 
 			var endOffset = GetEndOffset (inputIndex);
-			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min(entityArgs.HeadersEndOffset, endOffset);
+			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
 
 			OnMimeEntityEnd (entityArgs);
