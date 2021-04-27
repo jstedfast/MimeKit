@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -67,6 +68,21 @@ namespace UnitTests
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", (ContentType) null));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", data, null));
 				Assert.Throws<ArgumentNullException> (() => attachments.Add ("file.dat", stream, null));
+
+				Assert.ThrowsAsync<ArgumentException> (async () => await attachments.AddAsync (string.Empty));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ((string) null));
+				Assert.ThrowsAsync<ArgumentException> (async () => await attachments.AddAsync (string.Empty, stream));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ((string) null, stream));
+				Assert.ThrowsAsync<ArgumentException> (async () => await attachments.AddAsync (string.Empty, contentType));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ((string) null, contentType));
+				Assert.ThrowsAsync<ArgumentException> (async () => await attachments.AddAsync (string.Empty, stream, contentType));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ((string) null, stream, contentType));
+
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ("file.dat", (Stream) null));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ("file.dat", (Stream) null, contentType));
+
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ("file.dat", (ContentType) null));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await attachments.AddAsync ("file.dat", stream, null));
 
 				Assert.Throws<ArgumentNullException> (() => attachments.Contains (null));
 
@@ -113,6 +129,30 @@ namespace UnitTests
 		}
 
 		[Test]
+		public async Task TestAddFileNameAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			attachment = (MimePart) await attachments.AddAsync (fileName);
+			Assert.AreEqual ("image/jpeg", attachment.ContentType.MimeType);
+			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("attachment", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("girl.jpg", attachment.ContentDisposition.FileName);
+			Assert.AreEqual ("girl.jpg", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
 		public void TestAddInlineFileName ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
@@ -120,6 +160,30 @@ namespace UnitTests
 			MimePart attachment;
 
 			attachment = (MimePart) attachments.Add (fileName);
+			Assert.AreEqual ("image/jpeg", attachment.ContentType.MimeType);
+			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("inline", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("girl.jpg", attachment.ContentDisposition.FileName);
+			Assert.AreEqual ("girl.jpg", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
+		public async Task TestAddInlineFileNameAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var attachments = new AttachmentCollection (true);
+			MimePart attachment;
+
+			attachment = (MimePart) await attachments.AddAsync (fileName);
 			Assert.AreEqual ("image/jpeg", attachment.ContentType.MimeType);
 			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
 			Assert.NotNull (attachment.ContentDisposition);
@@ -145,6 +209,31 @@ namespace UnitTests
 			MimePart attachment;
 
 			attachment = (MimePart) attachments.Add (fileName, contentType);
+			Assert.AreEqual (contentType.MimeType, attachment.ContentType.MimeType);
+			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("attachment", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("girl.jpg", attachment.ContentDisposition.FileName);
+			Assert.AreEqual ("girl.jpg", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
+		public async Task TestAddFileNameContentTypeAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var contentType = new ContentType ("image", "gif");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			attachment = (MimePart) await attachments.AddAsync (fileName, contentType);
 			Assert.AreEqual (contentType.MimeType, attachment.ContentType.MimeType);
 			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
 			Assert.NotNull (attachment.ContentDisposition);
@@ -237,6 +326,32 @@ namespace UnitTests
 		}
 
 		[Test]
+		public async Task TestAddStreamAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			using (var stream = File.OpenRead (fileName))
+				attachment = (MimePart) await attachments.AddAsync (fileName, stream);
+
+			Assert.AreEqual ("image/jpeg", attachment.ContentType.MimeType);
+			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("attachment", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("girl.jpg", attachment.ContentDisposition.FileName);
+			Assert.AreEqual ("girl.jpg", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
 		public void TestAddStreamContentType ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
@@ -246,6 +361,33 @@ namespace UnitTests
 
 			using (var stream = File.OpenRead (fileName))
 				attachment = (MimePart) attachments.Add (fileName, stream, contentType);
+
+			Assert.AreEqual (contentType.MimeType, attachment.ContentType.MimeType);
+			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("attachment", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("girl.jpg", attachment.ContentDisposition.FileName);
+			Assert.AreEqual ("girl.jpg", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.Base64, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
+		public async Task TestAddStreamContentTypeAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var contentType = new ContentType ("image", "gif");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			using (var stream = File.OpenRead (fileName))
+				attachment = (MimePart) await attachments.AddAsync (fileName, stream, contentType);
 
 			Assert.AreEqual (contentType.MimeType, attachment.ContentType.MimeType);
 			Assert.AreEqual ("girl.jpg", attachment.ContentType.Name);
@@ -288,6 +430,30 @@ namespace UnitTests
 		}
 
 		[Test]
+		public async Task TestAddTextFileNameAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			attachment = (MimePart) await attachments.AddAsync (fileName);
+			Assert.AreEqual ("text/plain", attachment.ContentType.MimeType);
+			Assert.AreEqual ("lorem-ipsum.txt", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("attachment", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("lorem-ipsum.txt", attachment.ContentDisposition.FileName);
+			Assert.AreEqual ("lorem-ipsum.txt", attachment.FileName);
+			Assert.AreEqual (ContentEncoding.SevenBit, attachment.ContentTransferEncoding);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
 		public void TestAddEmailMessage ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
@@ -312,6 +478,30 @@ namespace UnitTests
 		}
 
 		[Test]
+		public async Task TestAddEmailMessageAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var attachments = new AttachmentCollection ();
+			MimeEntity attachment;
+
+			using (var stream = File.OpenRead (fileName))
+				attachment = await attachments.AddAsync ("message.eml", stream);
+
+			Assert.AreEqual ("message/rfc822", attachment.ContentType.MimeType);
+			Assert.AreEqual ("message.eml", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("attachment", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("message.eml", attachment.ContentDisposition.FileName);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
 		public void TestAddInlineEmailMessage ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
@@ -320,6 +510,30 @@ namespace UnitTests
 
 			using (var stream = File.OpenRead (fileName))
 				attachment = attachments.Add ("message.eml", stream);
+
+			Assert.AreEqual ("message/rfc822", attachment.ContentType.MimeType);
+			Assert.AreEqual ("message.eml", attachment.ContentType.Name);
+			Assert.NotNull (attachment.ContentDisposition);
+			Assert.AreEqual ("inline", attachment.ContentDisposition.Disposition);
+			Assert.AreEqual ("message.eml", attachment.ContentDisposition.FileName);
+			Assert.AreEqual (1, attachments.Count);
+
+			Assert.IsTrue (attachments.Contains (attachment), "Contains");
+			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
+			Assert.IsTrue (attachments.Remove (attachment), "Remove");
+			Assert.AreEqual (0, attachments.Count);
+			attachments.Clear ();
+		}
+
+		[Test]
+		public async Task TestAddInlineEmailMessageAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var attachments = new AttachmentCollection (true);
+			MimeEntity attachment;
+
+			using (var stream = File.OpenRead (fileName))
+				attachment = await attachments.AddAsync ("message.eml", stream);
 
 			Assert.AreEqual ("message/rfc822", attachment.ContentType.MimeType);
 			Assert.AreEqual ("message.eml", attachment.ContentType.Name);
