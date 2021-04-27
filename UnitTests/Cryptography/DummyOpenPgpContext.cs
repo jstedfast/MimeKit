@@ -38,9 +38,10 @@ namespace UnitTests.Cryptography {
 		{
 		}
 
-		protected override string GetPasswordForKey (PgpSecretKey key)
+		protected override bool TryGetPassword (PgpSecretKey key, out string password)
 		{
-			return "no.secret";
+			password = "no.secret";
+			return true;
 		}
 	}
 }
