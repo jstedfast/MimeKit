@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.11.0</version>
+    <version>2.12.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,10 +26,8 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Catch exceptions from IPGlobalProperties.GetIPGlobalProperties() and fall back to localhost. (issue #630)
-* Fixed base64 encoder to only flush with a newline if it is midline. (issue #646)
-* Added .NET 5 build targets and include in the nuget packages.
-* Improved HtmlWriter ArgumentException messages.
+* When extracting HTML from TNEF, try to use the charset delcared in the HTML's meta tags. (issue #667)
+* Added AttachmentCollection.AddAsync() methods. (issue #670)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 2.12.0 (2021-05-12)
+
+* Fixed S/MIME support using WindowsSecureMimeContext with MimeKit's CmsSigner classes which was
+  causing a PlatformNotSupportedException.
+  (issue [#664](https://github.com/jstedfast/MimeKit/issues/664))
+* When extracting HTML from TNEF, try to use the charset delcared in the HTML's meta tags.
+  (issue [#667](https://github.com/jstedfast/MimeKit/issues/667))
+* Added AttachmentCollection.AddAsync() methods.
+  (issue [#670](https://github.com/jstedfast/MimeKit/issues/670))
+* Enable SqliteCertificateDatabase initialization logic for .NET v5.0.
+  (issue [#673](https://github.com/jstedfast/MimeKit/issues/673))
+
 ### MimeKit 2.11.0 (2021-03-12)
 
 * Fixed DSA key conversion logic to work more reliably.
