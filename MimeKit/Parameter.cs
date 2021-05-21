@@ -42,6 +42,7 @@ namespace MimeKit {
 	{
 		ParameterEncodingMethod encodingMethod;
 		Encoding encoding;
+		bool alwaysQuote;
 		string text;
 
 		/// <summary>
@@ -239,6 +240,28 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get or set whether the parameter value should always be quoted even if it normally wouldn't need to be.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether the parameter value should always be quoted even if it normally wouldn't need to be.</para>
+		/// <para>Technically, Content-Type and Content-Disposition parameter values only require quoting when they contain characters
+		/// that have special meaning to a MIME parser. However, for compatibility with email processing solutions that do not properly
+		/// adhere to the MIME specifications, this property can be used to force MimeKit to quote parameter values that would normally
+		/// not require quoting.</para>
+		/// </remarks>
+		/// <value><c>true</c> if the parameter value should always be quoted; otherwise, <c>false</c>.</value>
+		public bool AlwaysQuote {
+			get { return alwaysQuote; }
+			set {
+				if ((alwaysQuote && value) || (!alwaysQuote && !value))
+					return;
+
+				alwaysQuote = value;
+				OnChanged ();
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the parameter value.
 		/// </summary>
 		/// <remarks>
@@ -281,7 +304,7 @@ namespace MimeKit {
 
 		EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
 		{
-			var method = EncodeMethod.None;
+			var method = AlwaysQuote || options.AlwaysQuoteParameterValues ? EncodeMethod.Quote : EncodeMethod.None;
 			EncodeMethod encode;
 
 			switch (encodingMethod) {

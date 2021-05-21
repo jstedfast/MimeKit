@@ -1330,7 +1330,7 @@ Content-Transfer-Encoding: 7bit
 
 This is the text attachment";
 
-			using (var source = new MemoryStream(Encoding.UTF8.GetBytes (rawMessageText))) {
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
 				var message = parser.ParseMessage ();
 

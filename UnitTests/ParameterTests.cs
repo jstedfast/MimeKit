@@ -63,9 +63,122 @@ namespace UnitTests {
 
 			Assert.AreEqual (Encoding.UTF8.HeaderName, param.Encoding.HeaderName);
 			Assert.AreEqual (ParameterEncodingMethod.Default, param.EncodingMethod);
+			Assert.IsFalse (param.AlwaysQuote);
 			Assert.AreEqual ("name", param.Name);
 			Assert.AreEqual ("value", param.Value);
 			Assert.AreEqual ("name=\"value\"", param.ToString ());
+		}
+
+		[Test]
+		public void TestEncode ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "tps-report.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment; filename=tps-report.doc", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeAlwaysQuote ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "tps-report.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.AlwaysQuote = true;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment; filename=\"tps-report.doc\"", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeFormatOptionsAlwaysQuote ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "tps-report.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.AlwaysQuoteParameterValues = true;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment; filename=\"tps-report.doc\"", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeRfc2047 ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\"", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeFormatOptionsRfc2047 ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+			
+			Assert.AreEqual ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\"", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeRfc2231 ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2231;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeFormatOptionsRfc2231 ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc", builder.ToString ());
 		}
 	}
 }

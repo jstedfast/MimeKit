@@ -77,6 +77,7 @@ namespace MimeKit {
 		const int DefaultMaxLineLength = 78;
 
 		ParameterEncodingMethod parameterEncodingMethod;
+		bool alwaysQuoteParameterValues;
 		bool allowMixedHeaderCharsets;
 		NewLineFormat newLineFormat;
 		bool verifyingSignature;
@@ -301,6 +302,26 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Get or set whether Content-Type and Content-Disposition parameter values should always be quoted even when they don't need to be.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether Content-Type and Content-Disposition parameter values should always be quoted even when they don't need to be.</para>
+		/// <para>Technically, Content-Type and Content-Disposition parameter values only require quoting when they contain characters
+		/// that have special meaning to a MIME parser. However, for compatibility with email processing solutions that do not properly
+		/// adhere to the MIME specifications, this property can be used to force MimeKit to quote parameter values that would normally
+		/// not require quoting.</para>
+		/// </remarks>
+		public bool AlwaysQuoteParameterValues {
+			get { return alwaysQuoteParameterValues; }
+			set {
+				if (this == Default)
+					throw new InvalidOperationException ("The default formatting options cannot be changed.");
+
+				alwaysQuoteParameterValues = value;
+			}
+		}
+
 		static FormatOptions ()
 		{
 			Default = new FormatOptions ();
@@ -317,6 +338,7 @@ namespace MimeKit {
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
 			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
+			alwaysQuoteParameterValues = false;
 			maxLineLength = DefaultMaxLineLength;
 			allowMixedHeaderCharsets = false;
 			ensureNewLine = false;
@@ -344,6 +366,7 @@ namespace MimeKit {
 			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
 			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
 			options.parameterEncodingMethod = parameterEncodingMethod;
+			options.alwaysQuoteParameterValues = alwaysQuoteParameterValues;
 			options.verifyingSignature = verifyingSignature;
 			options.international = international;
 			return options;

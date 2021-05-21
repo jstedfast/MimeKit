@@ -55,6 +55,7 @@ namespace UnitTests {
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.NewLineFormat = NewLineFormat.Dos, "NewLineFormat");
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.AllowMixedHeaderCharsets = true, "AllowMixedHeaderCharsets");
 			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047, "ParameterEncodingMethod");
+			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.AlwaysQuoteParameterValues = true, "AlwaysQuoteParameterValues");
 		}
 	}
 }
