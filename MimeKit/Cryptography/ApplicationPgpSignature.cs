@@ -77,7 +77,7 @@ namespace MimeKit.Cryptography {
 			ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 			ContentTransferEncoding = ContentEncoding.SevenBit;
 			Content = new MimeContent (stream);
-			FileName = "signature.pgp";
+			FileName = "signature.asc";
 		}
 
 		/// <summary>

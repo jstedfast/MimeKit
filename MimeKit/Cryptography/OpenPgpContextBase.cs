@@ -830,27 +830,21 @@ namespace MimeKit.Cryptography {
 			using (var armored = new ArmoredOutputStream (memory)) {
 				armored.SetHeader ("Version", null);
 
-				var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
-				using (var compressed = compresser.Open (armored)) {
-					var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
-					var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
-					int nread;
+				var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
+				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+				int nread;
 
-					try {
-						signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
+				try {
+					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
 
-						while ((nread = content.Read (buf, 0, BufferLength)) > 0)
-							signatureGenerator.Update (buf, 0, nread);
-					} finally {
-						ArrayPool<byte>.Shared.Return (buf);
-					}
-
-					var signature = signatureGenerator.Generate ();
-
-					signature.Encode (compressed);
-					compressed.Flush ();
+					while ((nread = content.Read (buf, 0, BufferLength)) > 0)
+						signatureGenerator.Update (buf, 0, nread);
+				} finally {
+					ArrayPool<byte>.Shared.Return (buf);
 				}
 
+				var signature = signatureGenerator.Generate ();
+				signature.Encode (armored);
 				armored.Flush ();
 			}
 
