@@ -29,6 +29,7 @@ using System.IO;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.X509;
 
 using NUnit.Framework;
 
@@ -52,9 +53,57 @@ namespace UnitTests.Cryptography {
 
 			Assert.Throws<ArgumentNullException> (() => new X509CrlRecord (null));
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null));
-			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null, keyPair.Private));
+			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null, signer.PrivateKey));
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (signer.Certificate, null));
 			Assert.Throws<ArgumentException> (() => new X509CertificateRecord (signer.Certificate, keyPair.Public));
+		}
+
+		static void AssertCertificateProperties (X509CertificateRecord record, X509Certificate certificate)
+		{
+			Assert.AreEqual (certificate.GetBasicConstraints (), record.BasicConstraints, "BasicConstraints");
+			Assert.AreEqual (certificate.IsSelfSigned (), record.IsAnchor, "IsAnchor");
+			Assert.AreEqual (certificate.GetKeyUsageFlags (), record.KeyUsage, "KeyUsage");
+			Assert.AreEqual (certificate.NotBefore.ToUniversalTime (), record.NotBefore, "NotBefore");
+			Assert.AreEqual (certificate.NotAfter.ToUniversalTime (), record.NotAfter, "NotAfter");
+			Assert.AreEqual (certificate.IssuerDN.ToString (), record.IssuerName, "IssuerName");
+			Assert.AreEqual (certificate.SerialNumber.ToString (), record.SerialNumber, "SerialNumber");
+			Assert.AreEqual (certificate.SubjectDN.ToString (), record.SubjectName, "SubjectName");
+			Assert.AreEqual (certificate.GetSubjectEmailAddress (), record.SubjectEmail, "SubjectEmail");
+			Assert.AreEqual (certificate.GetFingerprint (), record.Fingerprint, "Fingerprint");
+		}
+
+		[Test]
+		public void TestDefaultValues ()
+		{
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.p12"), "no.secret");
+			AsymmetricCipherKeyPair keyPair;
+			X509CertificateRecord record;
+
+			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
+				var reader = new PemReader (stream);
+
+				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
+			}
+
+			record = new X509CertificateRecord ();
+
+			Assert.IsFalse (record.IsTrusted, "IsTrusted #1");
+			Assert.AreEqual (DateTime.MinValue, record.AlgorithmsUpdated, "AlgorithmsUpdated #1");
+
+			record = new X509CertificateRecord (signer.Certificate);
+
+			Assert.IsFalse (record.IsTrusted, "IsTrusted #2");
+			Assert.AreEqual (signer.Certificate, record.Certificate, "Certificate #2");
+			Assert.AreEqual (DateTime.MinValue, record.AlgorithmsUpdated, "AlgorithmsUpdated #2");
+			AssertCertificateProperties (record, signer.Certificate);
+
+			record = new X509CertificateRecord (signer.Certificate, signer.PrivateKey);
+
+			Assert.IsFalse (record.IsTrusted, "IsTrusted #3");
+			Assert.AreEqual (signer.PrivateKey, record.PrivateKey, "PrivateKey #3");
+			Assert.AreEqual (signer.Certificate, record.Certificate, "Certificate #3");
+			Assert.AreEqual (DateTime.MinValue, record.AlgorithmsUpdated, "AlgorithmsUpdated #3");
+			AssertCertificateProperties (record, signer.Certificate);
 		}
 	}
 }

@@ -266,19 +266,14 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		public X509CertificateRecord (X509Certificate certificate, AsymmetricKeyParameter key)
+		public X509CertificateRecord (X509Certificate certificate, AsymmetricKeyParameter key) : this (certificate)
 		{
-			if (certificate == null)
-				throw new ArgumentNullException (nameof (certificate));
-
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be private.", nameof (key));
 
-			AlgorithmsUpdated = DateTime.MinValue;
-			Certificate = certificate;
 			PrivateKey = key;
 		}
 
@@ -292,12 +287,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
-		public X509CertificateRecord (X509Certificate certificate)
+		public X509CertificateRecord (X509Certificate certificate) : this ()
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			AlgorithmsUpdated = DateTime.MinValue;
 			Certificate = certificate;
 		}
 
@@ -310,6 +304,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public X509CertificateRecord ()
 		{
+			AlgorithmsUpdated = DateTime.MinValue;
 		}
 	}
 }
