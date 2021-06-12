@@ -28,9 +28,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="OpenCover" Version="4.6.519" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.114.2" />
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.114" GeneratePathProperty="true">
+      <IncludeAssets>all</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -331,5 +334,13 @@
     <None Include="TestData\yenc\simple.msg" />
     <None Include="TestData\yenc\state-changes.ntx" />
   </ItemGroup>
+
+  <ItemGroup>
+    <MySQLiteInteropFiles Include="$(PkgStub_System_Data_SQLite_Core_NetFramework)\build\net46\**\SQLite.Interop.dll" />
+  </ItemGroup>
+
+  <Target Name="CopyMySQLiteInteropFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 
 </Project>
