@@ -566,7 +566,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '<')
 				index++;
 
-			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, false, out addrspec, out at);
+			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, RfcComplianceMode.Strict, false, out addrspec, out at);
 
 			if (index < text.Length && text[index] == (byte) '>')
 				index++;
@@ -583,7 +583,7 @@ namespace MimeKit {
 			if (text[index] == (byte) '<') {
 				index++;
 
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, false, out addrspec, out at);
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, RfcComplianceMode.Strict, false, out addrspec, out at);
 
 				if (index < text.Length && text[index] == (byte) '>')
 					index++;

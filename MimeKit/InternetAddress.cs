@@ -297,7 +297,7 @@ namespace MimeKit {
 				Changed (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, bool skipTrailingCfws, bool throwOnError, out string localpart)
+		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, RfcComplianceMode compliance, bool skipTrailingCfws, bool throwOnError, out string localpart)
 		{
 			var token = new StringBuilder ();
 			int startIndex = index;
@@ -305,7 +305,7 @@ namespace MimeKit {
 			localpart = null;
 
 			do {
-				if (!text[index].IsAtom () && text[index] != '"') {
+				if (!text[index].IsAtom () && text[index] != (byte) '"') {
 					if (throwOnError)
 						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid local-part at offset {0}", startIndex), startIndex, index);
 
@@ -339,18 +339,23 @@ namespace MimeKit {
 					break;
 				}
 
-				token.Append ('.');
-				index++;
+				do {
+					token.Append ('.');
+					index++;
 
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-					return false;
+					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+						return false;
 
-				if (index >= endIndex) {
-					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete local-part at offset {0}", startIndex), startIndex, index);
+					if (index >= endIndex) {
+						if (throwOnError)
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete local-part at offset {0}", startIndex), startIndex, index);
 
-					return false;
-				}
+						return false;
+					}
+				} while (compliance == RfcComplianceMode.Looser && text[index] == (byte) '.');
+
+				if (compliance == RfcComplianceMode.Looser && (index >= endIndex || text[index] == (byte) '@'))
+					break;
 			} while (true);
 
 			localpart = token.ToString ();
@@ -363,7 +368,7 @@ namespace MimeKit {
 
 		static readonly byte[] CommaGreaterThanOrSemiColon = { (byte) ',', (byte) '>', (byte) ';' };
 
-		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string addrspec, out int at)
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, RfcComplianceMode compliance, bool throwOnError, out string addrspec, out int at)
 		{
 			int startIndex = index;
 			string localpart;
@@ -371,7 +376,7 @@ namespace MimeKit {
 			addrspec = null;
 			at = -1;
 
-			if (!TryParseLocalPart (text, ref index, endIndex, true, throwOnError, out localpart))
+			if (!TryParseLocalPart (text, ref index, endIndex, compliance, true, throwOnError, out localpart))
 				return false;
 
 			if (index >= endIndex || ParseUtils.IsSentinel (text[index], sentinels)) {
@@ -495,7 +500,7 @@ namespace MimeKit {
 			string addrspec;
 			int at;
 
-			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec, out at))
+			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out addrspec, out at))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -584,7 +589,6 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, AddressParserFlags flags, out InternetAddress address)
 		{
-			bool strict = options.AddressParserComplianceMode == RfcComplianceMode.Strict;
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
 			int minWordCount = options.AllowUnquotedCommasInAddresses ? 0 : 1;
 
@@ -607,7 +611,7 @@ namespace MimeKit {
 			int words = 0;
 
 			while (index < endIndex) {
-				if (strict) {
+				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
 						break;
 				} else if (text[index] == (byte) '"') {
@@ -690,7 +694,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseLocalPart (text, ref index, endIndex, false, throwOnError, out addrspec))
+				if (!TryParseLocalPart (text, ref index, endIndex, options.AddressParserComplianceMode, false, throwOnError, out addrspec))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -709,7 +713,7 @@ namespace MimeKit {
 				}
 
 				if (index < endIndex && text[index] == (byte) '>') {
-					if (strict) {
+					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
 
@@ -783,7 +787,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, throwOnError, out addrspec, out at))
+				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out addrspec, out at))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -815,7 +819,7 @@ namespace MimeKit {
 
 				if (text[index] == (byte) '<') {
 					// We have an address like "user@example.com <user@example.com>"; i.e. the name is an unquoted string with an '@'.
-					if (strict) {
+					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '<' token at offset {0}", index), startIndex, index);
 
@@ -833,7 +837,7 @@ namespace MimeKit {
 					// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
 					// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
 					if (text[index] == (byte) '>') {
-						if (strict) {
+						if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 							if (throwOnError)
 								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
 

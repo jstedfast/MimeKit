@@ -219,6 +219,63 @@ namespace UnitTests {
 			}
 		}
 
+		static void AssertParse (string text, RfcComplianceMode mode)
+		{
+			var buffer = Encoding.UTF8.GetBytes (text);
+			var options = ParserOptions.Default.Clone ();
+			MailboxAddress mailbox;
+
+			options.AddressParserComplianceMode = mode;
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (options, text, out mailbox), "MailboxAddress.TryParse(ParserOptions, string) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, string) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (options, buffer, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[]) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[]) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (options, buffer, 0, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[], int) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsTrue (MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[], int, int) should succeed.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int, int) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, text);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, buffer);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, buffer, 0);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, buffer, 0, buffer.Length);
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+			}
+		}
+
 		[Test]
 		public void TestParseEmpty ()
 		{
@@ -841,6 +898,39 @@ namespace UnitTests {
 			const string text = "\u200Btest@test.co.uk";
 
 			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseAddrspecEndingWithDot ()
+		{
+			const string text = "test.@gmail.com";
+
+			AssertParse (text, RfcComplianceMode.Looser);
+
+			AssertParseFailure (text, false, 0, 5, RfcComplianceMode.Loose);
+			AssertParseFailure (text, false, 0, 5, RfcComplianceMode.Strict);
+		}
+
+		[Test]
+		public void TestParseAddrspecEndingWithDotDot ()
+		{
+			const string text = "test..@gmail.com";
+
+			AssertParse (text, RfcComplianceMode.Looser);
+
+			AssertParseFailure (text, false, 0, 5, RfcComplianceMode.Loose);
+			AssertParseFailure (text, false, 0, 5, RfcComplianceMode.Strict);
+		}
+
+		[Test]
+		public void TestParseAddrspecWithDotDot ()
+		{
+			const string text = "test..test@gmail.com";
+
+			AssertParse (text, RfcComplianceMode.Looser);
+
+			AssertParseFailure (text, false, 0, 5, RfcComplianceMode.Loose);
+			AssertParseFailure (text, false, 0, 5, RfcComplianceMode.Strict);
 		}
 	}
 }

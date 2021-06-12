@@ -256,10 +256,11 @@ namespace MimeKit {
 					return;
 
 				if (value.Length > 0) {
+					var compliance = ParserOptions.Default.AddressParserComplianceMode;
 					var buffer = CharsetUtils.UTF8.GetBytes (value);
 					int index = 0;
 
-					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], true, out string addrspec, out int atIndex);
+					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], compliance, true, out string addrspec, out int atIndex);
 
 					if (index != buffer.Length)
 						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
@@ -342,7 +343,7 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], false, out string address, out int at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out int at))
 				return addrspec;
 
 			return EncodeAddrspec (address, at);
@@ -388,7 +389,7 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], false, out string address, out int at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out int at))
 				return addrspec;
 
 			return DecodeAddrspec (address, at);
