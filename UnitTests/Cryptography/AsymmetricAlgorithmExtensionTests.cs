@@ -132,7 +132,7 @@ namespace UnitTests.Cryptography
 		[Test]
 		public void TestDSACng ()
 		{
-#if !MONO
+#if !MONO && NET48
 			using (var dsa = new DSACng (1024))
 				AssertDSA (dsa);
 #else
@@ -200,7 +200,7 @@ namespace UnitTests.Cryptography
 		[Test]
 		public void TestRSACng ()
 		{
-#if !MONO
+#if !MONO && NET46_OR_GREATER
 			using (var rsa = new RSACng (1024))
 				AssertRSA (rsa);
 #else
