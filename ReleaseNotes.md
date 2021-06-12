@@ -1,5 +1,13 @@
 # Release Notes
 
+### MimeKit 2.13.0 (2021-06-11)
+
+* Added a way to force MimeKit to always quote parameter values.
+  (issue [#674](https://github.com/jstedfast/MimeKit/issues/674))
+* Fixed PGP/MIME signatures to use the proper BEGIN/END PGP SIGNATURE markers instead of
+  BEGIN/END PGP MESSAGE markers by avoiding compressing the PGP signature packet.
+  (issue [#681](https://github.com/jstedfast/MimeKit/issues/681))
+
 ### MimeKit 2.12.0 (2021-05-12)
 
 * Fixed S/MIME support using WindowsSecureMimeContext with MimeKit's CmsSigner classes which was
