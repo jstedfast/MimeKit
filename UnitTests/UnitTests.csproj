@@ -130,6 +130,7 @@
     <Compile Include="MessageDispositionNotificiationTests.cs" />
     <Compile Include="MessageIdListTests.cs" />
     <Compile Include="MessagePartialTests.cs" />
+    <Compile Include="MessagePartTests.cs" />
     <Compile Include="MimeIteratorTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />
