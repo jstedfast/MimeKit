@@ -69,5 +69,66 @@ namespace UnitTests {
 			Assert.AreEqual ("html\n", alternative.GetTextBody (TextFormat.Html).Replace ("\r\n", "\n"), "Html");
 			Assert.IsNull (alternative.GetTextBody (TextFormat.Enriched), "Enriched");
 		}
+
+		[Test]
+		public void TestGetTextBodyNestedAlternatives ()
+		{
+			var alternative = new MultipartAlternative ();
+			var plain = new TextPart ("plain") { Text = "plain\n" };
+			var flowed = new TextPart (TextFormat.Flowed) { Text = "flowed\n" };
+			var richtext = new TextPart ("rtf") { Text = "rtf\n" };
+			var html = new TextPart ("html") { Text = "html\n" };
+
+			alternative.Add (plain);
+			alternative.Add (richtext);
+			alternative.Add (html);
+
+			var outer = new MultipartAlternative ();
+			outer.Add (alternative);
+
+			Assert.AreEqual ("plain\n", outer.TextBody.Replace ("\r\n", "\n"), "TextBody");
+			Assert.AreEqual ("html\n", outer.HtmlBody.Replace ("\r\n", "\n"), "HtmlBody");
+
+			alternative.Insert (1, flowed);
+
+			// Note: GetTextBody (Plain) returns Flowed because Flowed is also Plain and is listed after the text/plain part
+			Assert.AreEqual ("flowed\n", outer.GetTextBody (TextFormat.Plain).Replace ("\r\n", "\n"), "Plain");
+			Assert.AreEqual ("flowed\n", outer.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n"), "Flowed");
+			Assert.AreEqual ("rtf\n", outer.GetTextBody (TextFormat.RichText).Replace ("\r\n", "\n"), "RichText");
+			Assert.AreEqual ("html\n", outer.GetTextBody (TextFormat.Html).Replace ("\r\n", "\n"), "Html");
+			Assert.IsNull (outer.GetTextBody (TextFormat.Enriched), "Enriched");
+		}
+
+		[Test]
+		public void TestGetTextBodyAlternativeInsideRelated ()
+		{
+			var alternative = new MultipartAlternative ();
+			var plain = new TextPart ("plain") { Text = "plain\n" };
+			var flowed = new TextPart (TextFormat.Flowed) { Text = "flowed\n" };
+			var richtext = new TextPart ("rtf") { Text = "rtf\n" };
+			var html = new TextPart ("html") { Text = "html\n" };
+
+			alternative.Add (plain);
+			alternative.Add (richtext);
+			alternative.Add (html);
+
+			var related = new MultipartRelated ();
+			related.Add (alternative);
+
+			var outer = new MultipartAlternative ();
+			outer.Add (related);
+
+			Assert.AreEqual ("plain\n", outer.TextBody.Replace ("\r\n", "\n"), "TextBody");
+			Assert.AreEqual ("html\n", outer.HtmlBody.Replace ("\r\n", "\n"), "HtmlBody");
+
+			alternative.Insert (1, flowed);
+
+			// Note: GetTextBody (Plain) returns Flowed because Flowed is also Plain and is listed after the text/plain part
+			Assert.AreEqual ("flowed\n", outer.GetTextBody (TextFormat.Plain).Replace ("\r\n", "\n"), "Plain");
+			Assert.AreEqual ("flowed\n", outer.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n"), "Flowed");
+			Assert.AreEqual ("rtf\n", outer.GetTextBody (TextFormat.RichText).Replace ("\r\n", "\n"), "RichText");
+			Assert.AreEqual ("html\n", outer.GetTextBody (TextFormat.Html).Replace ("\r\n", "\n"), "Html");
+			Assert.IsNull (outer.GetTextBody (TextFormat.Enriched), "Enriched");
+		}
 	}
 }

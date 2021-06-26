@@ -143,26 +143,60 @@ namespace UnitTests
 		{
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentDisposition, "Initial ContentDisposition should be null");
+			Assert.IsNull (part.ContentDisposition, "Initial ContentDisposition property should be null");
 
 			part.ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition to be set");
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to be set");
 			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to exist");
 
 			part.ContentDisposition = null;
-			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition to be null again");
+			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition property to be null again");
 			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentDisposition, "attachment");
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition to be set again");
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to be set again");
 
 			part.Headers.Remove (HeaderId.ContentDisposition);
-			Assert.IsNull (part.ContentBase, "Expected ContentDisposition to be null again");
+			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition to be null again");
 
 			part.ContentDisposition = new ContentDisposition ();
 			part.FileName = "fileName";
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentBase, "Expected ContentDisposition to be null again");
+			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition to be null again");
+		}
+
+		[Test]
+		public void TestIsAttachment ()
+		{
+			var part = new MimePart ();
+
+			Assert.IsNull (part.ContentDisposition, "Initial ContentDisposition should be null");
+
+			part.IsAttachment = true;
+
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to be set");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to exist");
+			Assert.AreEqual (ContentDisposition.Attachment, part.ContentDisposition.Disposition, "Expected Content-Disposition value to be attachment");
+
+			part.IsAttachment = false;
+
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to still be set");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to still exist");
+			Assert.AreEqual (ContentDisposition.Inline, part.ContentDisposition.Disposition, "Expected Content-Disposition value to be inline");
+
+			part.IsAttachment = true;
+
+			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to still be set");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to still exist");
+			Assert.AreEqual (ContentDisposition.Attachment, part.ContentDisposition.Disposition, "Expected Content-Disposition value to be attachment again");
+
+			part.ContentDisposition = null;
+			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition property to be null again");
+			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to be removed");
+
+			part.IsAttachment = false;
+
+			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition property to still be null");
 		}
 
 		[Test]
@@ -563,6 +597,21 @@ namespace UnitTests
 				var part = (TextPart) entity;
 
 				Assert.AreEqual (text, part.Text);
+			}
+		}
+
+		[Test]
+		public void TestToString ()
+		{
+			var part = new MimePart ("application", "octet-stream") {
+				ContentTransferEncoding = ContentEncoding.Base64,
+				Content = new MimeContent (new MemoryStream (new byte[1], false))
+			};
+
+			try {
+				part.ToString ();
+			} catch (Exception ex) {
+				Assert.Fail (ex.Message);
 			}
 		}
 	}
