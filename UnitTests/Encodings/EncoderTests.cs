@@ -48,7 +48,6 @@ namespace UnitTests.Encodings {
 			"VGhpcyBpcyBhIHRleHQgd2hpY2ggaGFzIHRvIGJlIHBhZGRlZCB0d2ljZQ==",
 			"VGhpcyBpcyBhIHRleHQgd2hpY2ggd2lsbCBub3QgYmUgcGFkZGVk",
 			" &% VGhp\r\ncyBp\r\ncyB0aGUgcGxhaW4g  \tdGV4dCBtZ?!XNzY*WdlIQ==",
-
 		};
 		static readonly string[] base64DecodedPatterns = {
 			"This is the plain text message!",
@@ -81,6 +80,12 @@ namespace UnitTests.Encodings {
 			"m5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8D" +
 			"BwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5u" +
 			"fo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v8AAQ=="
+		};
+		static readonly string[] base64EncodedPatternsExtraPadding = {
+			"VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ===",
+			"VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ====",
+			"VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=====",
+			"VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ======",
 		};
 
 		static readonly string dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
@@ -222,6 +227,14 @@ namespace UnitTests.Encodings {
 
 				for (int j = 0; j < n; j++)
 					Assert.AreEqual (output[j], (byte) (j + i), "Failed to decode base64EncodedLongPatterns[{0}]", i);
+			}
+
+			for (int i = 0; i < base64EncodedPatternsExtraPadding.Length; i++) {
+				decoder.Reset ();
+				var buf = Encoding.ASCII.GetBytes (base64EncodedPatternsExtraPadding[i]);
+				int n = decoder.Decode (buf, 0, buf.Length, output);
+				var actual = Encoding.ASCII.GetString (output, 0, n);
+				Assert.AreEqual (base64DecodedPatterns[0], actual, "Failed to decode base64EncodedPatternsExtraPadding[{0}]", i);
 			}
 		}
 
