@@ -115,7 +115,6 @@
     <Compile Include="AttachmentCollectionTests.cs" />
     <Compile Include="ConstructorTests.cs" />
     <Compile Include="ContentDispositionTests.cs" />
-    <Compile Include="ContentObjectTests.cs" />
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="DomainListTests.cs" />
     <Compile Include="ExceptionTests.cs" />
@@ -132,6 +131,7 @@
     <Compile Include="MessageIdListTests.cs" />
     <Compile Include="MessagePartialTests.cs" />
     <Compile Include="MessagePartTests.cs" />
+    <Compile Include="MimeContentTests.cs" />
     <Compile Include="MimeIteratorTests.cs" />
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />

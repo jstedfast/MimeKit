@@ -1,5 +1,5 @@
 ﻿//
-// ParseUtilsTests.cs
+// OptimizedOrdinalComparerTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //

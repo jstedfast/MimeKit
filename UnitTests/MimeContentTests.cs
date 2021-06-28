@@ -1,5 +1,5 @@
 ﻿//
-// ContentObjectTests.cs
+// MimeContentTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -33,20 +33,32 @@ using NUnit.Framework;
 
 using MimeKit;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
-	public class ContentObjectTests
+	public class MimeContentTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var content = new MimeContent (new MemoryStream ());
+			using (var memory = new MemoryStream ()) {
+				var content = new MimeContent (memory);
 
-			Assert.Throws<ArgumentNullException> (() => new MimeContent (null));
-			Assert.Throws<ArgumentNullException> (() => content.WriteTo (null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await content.WriteToAsync (null));
-			Assert.Throws<ArgumentNullException> (() => content.DecodeTo (null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await content.DecodeToAsync (null));
+				Assert.Throws<ArgumentNullException> (() => new MimeContent (null));
+				Assert.Throws<ArgumentNullException> (() => content.WriteTo (null));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await content.WriteToAsync (null));
+				Assert.Throws<ArgumentNullException> (() => content.DecodeTo (null));
+				Assert.ThrowsAsync<ArgumentNullException> (async () => await content.DecodeToAsync (null));
+			}
+
+			using (var stream = new CanReadWriteSeekStream (false, false, true, false)) {
+				Assert.Throws<ArgumentException> (() => new MimeContent (stream));
+			}
+
+			using (var stream = new CanReadWriteSeekStream (true, false, false, false)) {
+				Assert.Throws<ArgumentException> (() => new MimeContent (stream));
+			}
 		}
 
 		[Test]
