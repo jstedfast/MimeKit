@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -230,6 +231,58 @@ namespace UnitTests.IO {
 
 					Assert.AreEqual (5, bounded.Length);
 					Assert.AreEqual (buffer.Length, memory.Length);
+				}
+			}
+		}
+
+		[Test]
+		public void TestSetPosition ()
+		{
+			using (var memory = new MemoryStream ()) {
+				var buffer = Encoding.ASCII.GetBytes ("This is some text...");
+
+				memory.Write (buffer, 0, buffer.Length);
+				memory.Position = 0;
+
+				using (var bounded = new BoundStream (memory, 0, -1, true)) {
+					bounded.Position = 10;
+
+					Assert.AreEqual (10, bounded.Position, "BoundedStream position");
+					Assert.AreEqual (10, memory.Position, "MemoryStream position");
+				}
+			}
+		}
+
+		[Test]
+		public void TestWritingBeyondEndBoundary ()
+		{
+			using (var memory = new MemoryStream ()) {
+				var buffer = new byte[] { (byte) 'A' };
+
+				memory.Write (buffer, 0, buffer.Length);
+				memory.Position = 0;
+
+				using (var bounded = new BoundStream (memory, 0, 2, true)) {
+					buffer = new byte[] { (byte) 'b', (byte) 'c', (byte) 'd' };
+
+					Assert.Throws<IOException> (() => bounded.Write (buffer, 0, buffer.Length));
+				}
+			}
+		}
+
+		[Test]
+		public void TestWritingBeyondEndBoundaryAsync ()
+		{
+			using (var memory = new MemoryStream ()) {
+				var buffer = new byte[] { (byte) 'A' };
+
+				memory.Write (buffer, 0, buffer.Length);
+				memory.Position = 0;
+
+				using (var bounded = new BoundStream (memory, 0, 2, true)) {
+					buffer = new byte[] { (byte) 'b', (byte) 'c', (byte) 'd' };
+
+					Assert.ThrowsAsync<IOException> (async () => await bounded.WriteAsync (buffer, 0, buffer.Length));
 				}
 			}
 		}
