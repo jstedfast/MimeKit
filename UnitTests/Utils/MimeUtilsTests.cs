@@ -26,6 +26,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -57,6 +58,8 @@ namespace UnitTests.Utils {
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeUtils.ParseMessageId (buffer, 0, -1), "MimeUtils.ParseMessageId (buffer, 0, -1)");
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeUtils.ParseMessageId (buffer, 0, buffer.Length + 1), "MimeUtils.ParseMessageId (buffer, 0, buffer.Length + 1)");
 
+			Assert.Throws<ArgumentNullException> (() => MimeUtils.AppendQuoted (null, "text"), "MimeUtils.AppendQuoted (null, value)");
+			Assert.Throws<ArgumentNullException> (() => MimeUtils.AppendQuoted (new StringBuilder (), null), "MimeUtils.AppendQuoted (builder, null)");
 			Assert.Throws<ArgumentNullException> (() => MimeUtils.Quote (null), "MimeUtils.Quote (null)");
 			Assert.Throws<ArgumentNullException> (() => MimeUtils.Unquote (null), "MimeUtils.Unquote (null)");
 		}

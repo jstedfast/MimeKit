@@ -382,6 +382,40 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
+		/// Quotes the specified text and appends it into the string builder.
+		/// </summary>
+		/// <remarks>
+		/// Quotes the specified text, enclosing it in double-quotes and escaping
+		/// any backslashes and double-quotes within.
+		/// </remarks>
+		/// <returns>The string builder.</returns>
+		/// <param name="builder">The string builder.</param>
+		/// <param name="text">The text to quote.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="builder"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static StringBuilder AppendQuoted (StringBuilder builder, string text)
+		{
+			if (builder == null)
+				throw new ArgumentNullException (nameof (builder));
+
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
+			builder.Append ("\"");
+			for (int i = 0; i < text.Length; i++) {
+				if (text[i] == '\\' || text[i] == '"')
+					builder.Append ('\\');
+				builder.Append (text[i]);
+			}
+			builder.Append ("\"");
+
+			return builder;
+		}
+
+		/// <summary>
 		/// Quotes the specified text.
 		/// </summary>
 		/// <remarks>
@@ -400,13 +434,7 @@ namespace MimeKit.Utils {
 
 			var quoted = new StringBuilder (text.Length + 2, (text.Length * 2) + 2);
 
-			quoted.Append ("\"");
-			for (int i = 0; i < text.Length; i++) {
-				if (text[i] == '\\' || text[i] == '"')
-					quoted.Append ('\\');
-				quoted.Append (text[i]);
-			}
-			quoted.Append ("\"");
+			AppendQuoted (quoted, text);
 
 			return quoted.ToString ();
 		}

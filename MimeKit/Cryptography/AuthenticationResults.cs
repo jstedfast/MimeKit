@@ -1180,10 +1180,10 @@ namespace MimeKit.Cryptography {
 
 			if (!string.IsNullOrEmpty (Reason)) {
 				builder.Append (" reason=");
-				builder.Append (MimeUtils.Quote (Reason));
+				MimeUtils.AppendQuoted (builder, Reason);
 			} else if (!string.IsNullOrEmpty (Action)) {
 				builder.Append (" action=");
-				builder.Append (MimeUtils.Quote (Action));
+				MimeUtils.AppendQuoted (builder, Action);
 			}
 
 			for (int i = 0; i < Properties.Count; i++) {
