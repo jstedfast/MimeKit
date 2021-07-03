@@ -89,6 +89,24 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
+		public void TestDecodeEmptyString ()
+		{
+			var empty = new byte[0];
+
+			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (empty));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (empty, 0, 0));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (ParserOptions.Default, empty));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (ParserOptions.Default, empty, 0, 0));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (ParserOptions.Default, empty, 0, 0, out _));
+
+			Assert.AreEqual (string.Empty, Rfc2047.DecodeText (empty));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodeText (empty, 0, 0));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodeText (ParserOptions.Default, empty));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodeText (ParserOptions.Default, empty, 0, 0));
+			Assert.AreEqual (string.Empty, Rfc2047.DecodeText (ParserOptions.Default, empty, 0, 0, out _));
+		}
+
+		[Test]
 		public void TestEncodedWordEmptyCharset ()
 		{
 			const string text = "blurdy bloop =??q?no_charset?= beep boop";
@@ -148,7 +166,7 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestEncodedWordIncompletePayload ()
 		{
-			const string text = "blurdy bloop =?iso-8859-1?x?invalid_encoding";
+			const string text = "blurdy bloop =?iso-8859-1?q?invalid_encoding";
 			var buffer = Encoding.UTF8.GetBytes (text);
 			string result;
 
@@ -171,6 +189,34 @@ namespace UnitTests.Utils {
 
 			result = Rfc2047.DecodeText (buffer);
 			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestEncodeControls ()
+		{
+			const string expected = "I'm so happy! =?utf-8?q?=07?= I love MIME so much =?utf-8?q?=07=07!?= Isn't it great?";
+			const string text = "I'm so happy! \a I love MIME so much \a\a! Isn't it great?";
+			string result;
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodeText");
+		}
+
+		[Test]
+		public void TestEncodeSurrogatePair ()
+		{
+			const string expected = "I'm so happy! =?utf-8?b?8J+YgA==?= I love MIME so much =?utf-8?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great?";
+			const string text = "I'm so happy! 😀 I love MIME so much ❤️‍🔥! Isn't it great?";
+			string result;
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodeText");
 		}
 	}
 }
