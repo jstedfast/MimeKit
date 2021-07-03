@@ -1197,7 +1197,7 @@ namespace MimeKit.Utils {
 						try {
 							n = encoder.GetByteCount (chars, 0, nchars, true);
 						} catch {
-							n = 3;
+							n = 3 * nchars;
 						}
 
 						word.Encoding = WordEncoding.UserSpecified;

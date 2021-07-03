@@ -218,5 +218,20 @@ namespace UnitTests.Utils {
 			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
 			Assert.AreEqual (expected, result, "EncodeText");
 		}
+
+		[Test]
+		public void TestEncodeWrongCharset ()
+		{
+			const string expected = "I'm so happy! =?utf-8?b?5ZCN44GM44OJ44Oh44Kk44Oz?= I love MIME so much =?utf-8?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great?";
+			const string text = "I'm so happy! 名がドメイン I love MIME so much ❤️‍🔥! Isn't it great?";
+			var latin1 = Encoding.GetEncoding ("iso-8859-1", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+			string result;
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (latin1, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text));
+			Assert.AreEqual (expected, result, "EncodeText");
+		}
 	}
 }
