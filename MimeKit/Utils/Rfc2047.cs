@@ -532,8 +532,8 @@ namespace MimeKit.Utils {
 						if (kvp.Value <= max)
 							continue;
 
-						max = Math.Max (kvp.Value, max);
 						codepage = kvp.Key;
+						max = kvp.Value;
 					}
 
 					return DecodeTokens (options, tokens, phrase, inbuf, count);
@@ -684,8 +684,8 @@ namespace MimeKit.Utils {
 						if (kvp.Value <= max)
 							continue;
 
-						max = Math.Max (kvp.Value, max);
 						codepage = kvp.Key;
+						max = kvp.Value;
 					}
 
 					return DecodeTokens (options, tokens, text, inbuf, count);
