@@ -233,5 +233,44 @@ namespace UnitTests.Utils {
 			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text));
 			Assert.AreEqual (expected, result, "EncodeText");
 		}
+
+		[Test]
+		public void TestFoldMultiLineHeaderValue ()
+		{
+			const string expected = " This is a multi-line\r\n header value.\r\n";
+			const string text = "This is a multi-line\r\nheader value.";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestFoldPreFoldedHeaderValue ()
+		{
+			const string expected = " This is a pre\r\n folded header value.\r\n";
+			const string text = "This is a pre\r\n folded header value.";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestFoldReallyLongWordToken ()
+		{
+			const string expected = " This header value has a\r\n really-really-really-really-long-rfc0822-word-token-that-exceeds-the-max-allo\r\n wable-line-length-and-must-be-folded lets see what MimeKit does...\r\n";
+			const string text = "This header value has a really-really-really-really-long-rfc0822-word-token-that-exceeds-the-max-allowable-line-length-and-must-be-folded lets see what MimeKit does...";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
 	}
 }

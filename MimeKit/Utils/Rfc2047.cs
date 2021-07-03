@@ -829,11 +829,12 @@ namespace MimeKit.Utils {
 						if (input[n] == (byte) '\t')
 							tab = output.Length;
 
-						output.Append ((char) input[n]);
 						if (input[n] == (byte) '\n') {
+							output.Append (options.NewLine);
 							lwsp = tab = 0;
 							lineLength = 0;
 						} else {
+							output.Append ((char) input[n]);
 							lineLength++;
 						}
 					}
