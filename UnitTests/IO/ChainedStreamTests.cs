@@ -146,6 +146,8 @@ namespace UnitTests.IO {
 		{
 			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
 
+			Assert.AreEqual (0, chained.Read (cbuf, 0, 0), "Zero-length read");
+
 			do {
 				int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
 				int nread = chained.Read (cbuf, 0, n);
@@ -164,6 +166,8 @@ namespace UnitTests.IO {
 		{
 			Assert.IsTrue (chained.CanRead, "Expected to be able to read from the chained stream.");
 
+			Assert.AreEqual (0, await chained.ReadAsync (cbuf, 0, 0), "Zero-length read");
+
 			do {
 				int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
 				int nread = await chained.ReadAsync (cbuf, 0, n);
@@ -179,7 +183,7 @@ namespace UnitTests.IO {
 
 		void AssertSeekResults (string operation)
 		{
-			int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
+			int n = (int) Math.Min (master.Length - master.Position, 256);
 			int nread = chained.Read (cbuf, 0, n);
 			int mread = master.Read (mbuf, 0, n);
 
@@ -226,6 +230,40 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
+		public void TestSeekingToCurrentPosition ()
+		{
+			long expected, actual;
+
+			expected = master.Seek (99, SeekOrigin.Begin);
+			actual = chained.Seek (99, SeekOrigin.Begin);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to offset 99");
+
+			expected = master.Seek (master.Position, SeekOrigin.Begin);
+			actual = chained.Seek (chained.Position, SeekOrigin.Begin);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to current position via SeekOrigin.Begin");
+
+			expected = master.Seek (0, SeekOrigin.Current);
+			actual = chained.Seek (0, SeekOrigin.Current);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to current position via SeekOrigin.Current");
+
+			expected = master.Seek (master.Position - master.Length, SeekOrigin.End);
+			actual = chained.Seek (chained.Position - chained.Length, SeekOrigin.End);
+
+			Assert.AreEqual (expected, actual, "Seeking the chained stream did not return the expected position");
+
+			AssertSeekResults ("seeking to current position via SeekOrigin.End");
+		}
+
+		[Test]
 		public void TestSeekingToStreamBoundaries ()
 		{
 			long expected, actual;
@@ -257,7 +295,7 @@ namespace UnitTests.IO {
 
 		async Task AssertSeekResultsAsync (string operation)
 		{
-			int n = (int) Math.Min (master.Length - master.Position, mbuf.Length);
+			int n = (int) Math.Min (master.Length - master.Position, 256);
 			int nread = await chained.ReadAsync (cbuf, 0, n);
 			int mread = await master.ReadAsync (mbuf, 0, n);
 
@@ -365,6 +403,38 @@ namespace UnitTests.IO {
 			var array = backing.ToArray ();
 			for (int i = 0; i < buffer.Length; i++)
 				Assert.AreEqual (buffer[i], array[i], "Written byte @ offset {0} did not match", i);
+		}
+
+		[Test]
+		public void TestWriteOverflow ()
+		{
+			var buffer = new byte[(int) chained.Length + 1];
+
+			for (int i = 0; i < buffer.Length; i++)
+				buffer[i] = (byte) (i & 0xff);
+
+			chained.Position = 0;
+			Assert.Throws<IOException> (() => chained.Write (buffer, 0, buffer.Length));
+
+			chained.Position = 0;
+			chained.Write (buffer, 0, buffer.Length - 1);
+			Assert.Throws<IOException> (() => chained.Write (buffer, buffer.Length - 1, 1));
+		}
+
+		[Test]
+		public async Task TestWriteOverflowAsync ()
+		{
+			var buffer = new byte[(int) chained.Length + 1];
+
+			for (int i = 0; i < buffer.Length; i++)
+				buffer[i] = (byte) (i & 0xff);
+
+			chained.Position = 0;
+			Assert.ThrowsAsync<IOException> (async () => await chained.WriteAsync (buffer, 0, buffer.Length));
+
+			chained.Position = 0;
+			await chained.WriteAsync (buffer, 0, buffer.Length - 1);
+			Assert.ThrowsAsync<IOException> (async () => await chained.WriteAsync (buffer, buffer.Length - 1, 1));
 		}
 
 		[Test]
