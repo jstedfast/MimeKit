@@ -976,8 +976,6 @@ namespace MimeKit {
 			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
 		}
 
-		static readonly byte[] ToStringWarning = Encoding.UTF8.GetBytes ("X-MimeKit-Warning: Do NOT use ToString() to serialize messages! Use one of the WriteTo() methods instead!");
-
 		/// <summary>
 		/// Returns a <see cref="String"/> that represents the <see cref="MimeMessage"/> for debugging purposes.
 		/// </summary>
@@ -992,7 +990,6 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
-				memory.Write (ToStringWarning, 0, ToStringWarning.Length);
 				memory.Write (FormatOptions.Default.NewLineBytes, 0, FormatOptions.Default.NewLineBytes.Length);
 
 				WriteTo (FormatOptions.Default, memory);
