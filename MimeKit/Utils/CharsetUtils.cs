@@ -40,7 +40,7 @@ namespace MimeKit.Utils {
 		{
 			int gb2312;
 
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
 #endif
 
