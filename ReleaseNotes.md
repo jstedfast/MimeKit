@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 2.14.0 (2021-07-28)
+
+* Allow ..'s and trailing .'s in the local-part of an addr-spec by introducing a new RfcComplianceMode.Looser
+  enum value that can be set on the ParserOptions.AddressParserComplianceMode property.
+  (issue [#682](https://github.com/jstedfast/MimeKit/issues/682))
+* Use Reflection to call Encoding.RegisterProvider() so that referencing the netstandard MimeKit assemblies
+  from .NET 4.8 won't crash. (issue [#683](https://github.com/jstedfast/MimeKit/issues/683))
+* Don't write the X-MimeKit warning header in ToString() anymore. This is a lost cause.
+* Updated the OpenPgpContext to default to keys.openpgp.org since keys.gnupg.net does not resolve via DNS anymore.
+
 ### MimeKit 2.13.0 (2021-06-11)
 
 * Added a way to force MimeKit to always quote parameter values.

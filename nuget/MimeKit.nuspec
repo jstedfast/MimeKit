@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.13.0</version>
+    <version>2.14.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,8 +26,10 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added a way to force MimeKit to always quote parameter values. (issue #674)
-* Fixed PGP/MIME signatures to use the proper BEGIN/END PGP SIGNATURE markers instead of BEGIN/END PGP MESSAGE markers by avoiding compressing the PGP signature packet. (issue #681)
+* Allow ..'s and trailing .'s in the local-part of an addr-spec by introducing a new RfcComplianceMode.Looser enum value that can be set on the ParserOptions.AddressParserComplianceMode property. (issue #682)
+* Use Reflection to call Encoding.RegisterProvider() so that referencing the netstandard MimeKit assemblies from .NET 4.8 won't crash. (issue #683)
+* Don't write the X-MimeKit warning header in ToString() anymore. This is a lost cause.
+* Updated the OpenPgpContext to default to keys.openpgp.org since keys.gnupg.net does not resolve via DNS anymore.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
