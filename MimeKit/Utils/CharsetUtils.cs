@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace MimeKit.Utils {
@@ -41,7 +42,21 @@ namespace MimeKit.Utils {
 			int gb2312;
 
 #if NETSTANDARD || NET5_0_OR_GREATER
-			Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
+			var encodingProviderType = typeof (Encoding).Assembly.GetType ("System.Text.EncodingProvider");
+			var registerProvider = typeof (Encoding).GetMethod ("RegisterProvider", new Type[] { encodingProviderType });
+			if (registerProvider != null) {
+				try {
+					var assembly = Assembly.Load ("System.Text.Encoding.CodePages");
+					if (assembly != null) {
+						var providerType = assembly.GetType ("System.Text.CodePagesEncodingProvider");
+						var property = providerType.GetProperty ("Instance").GetGetMethod ();
+						var instance = property.Invoke (providerType, new object[0]);
+
+						registerProvider.Invoke (typeof (Encoding), new object[] { instance });
+					}
+				} catch (FileNotFoundException) {
+				}
+			}
 #endif
 
 			try {
