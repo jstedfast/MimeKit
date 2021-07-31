@@ -38,6 +38,10 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' And $(TargetFramework.StartsWith('net4')) ">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM</DefineConstants>
   </PropertyGroup>
