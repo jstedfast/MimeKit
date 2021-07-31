@@ -800,7 +800,7 @@ namespace UnitTests.Cryptography {
 			try {
 				signatures = multipart.Verify ();
 			} catch (IOException ex) {
-				if (ex.Message == "unknown signature key algorithm: EdDsa") {
+				if (ex.Message == "unknown PGP public key algorithm encountered") {
 					Assert.Ignore ("Known issue: {0}", ex.Message);
 					return;
 				}
