@@ -254,7 +254,7 @@ namespace MimeKit.Cryptography
 			return new DefaultSignedAttributeTableGenerator (signedAttributes.Add (attr.AttrType, attr.AttrValues[0]));
 		}
 
-		Stream Sign (CmsSigner signer, Stream content, bool encapsulate)
+		async Task<Stream> SignAsync (CmsSigner signer, Stream content, bool encapsulate, bool doAsync, CancellationToken cancellationToken)
 		{
 			var unsignedAttributes = new SimpleAttributeTableGenerator (signer.UnsignedAttributes);
 			var signedAttributes = AddSecureMimeCapabilities (signer.SignedAttributes);
@@ -285,8 +285,12 @@ namespace MimeKit.Cryptography
 
 			var memory = new MemoryBlockStream ();
 
-			using (var stream = signedData.Open (memory, encapsulate))
-				content.CopyTo (stream, 4096);
+			using (var stream = signedData.Open (memory, encapsulate)) {
+				if (doAsync)
+					await content.CopyToAsync (stream, 4096, cancellationToken).ConfigureAwait (false);
+				else
+					content.CopyTo (stream, 4096);
+			}
 
 			memory.Position = 0;
 
@@ -294,24 +298,28 @@ namespace MimeKit.Cryptography
 		}
 
 		/// <summary>
-		/// Cryptographically signs and encapsulates the content using the specified signer.
+		/// Sign and encapsulate the content using the specified signer.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs and encapsulates the content using the specified signer.
+		/// Signs and encapsulates the content using the specified signer.
 		/// </remarks>
 		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content)
+		public override ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -319,20 +327,58 @@ namespace MimeKit.Cryptography
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, Sign (signer, content, true));
+			var signature = SignAsync (signer, content, true, false, cancellationToken).GetAwaiter ().GetResult ();
+
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signature);
 		}
 
 		/// <summary>
-		/// Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
+		/// Asynchronously signs and encapsulate the content using the specified signer.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs and encapsulates the content using the specified signer and digest algorithm.
+		/// Asynchronously signs and encapsulates the content using the specified signer.
+		/// </remarks>
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override async Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var signature = await SignAsync (signer, content, true, true, cancellationToken).ConfigureAwait (false);
+
+			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signature);
+		}
+
+		/// <summary>
+		/// Sign and encapsulate the content using the specified signer and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Signs and encapsulates the content using the specified signer and digest algorithm.
 		/// </remarks>
 		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -344,13 +390,16 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.NotSupportedException">
 		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -360,28 +409,42 @@ namespace MimeKit.Cryptography
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
-			return EncapsulatedSign (cmsSigner, content);
+			return EncapsulatedSign (cmsSigner, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Cryptographically signs the content using the specified signer.
+		/// Asynchronously sign and encapsulate the content using the specified signer and digest algorithm.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs the content using the specified signer.
+		/// Asynchronously signs and encapsulates the content using the specified signer and digest algorithm.
 		/// </remarks>
-		/// <returns>A new <see cref="ApplicationPkcs7Signature"/> instance
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content)
+		public override Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -389,20 +452,93 @@ namespace MimeKit.Cryptography
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			return new ApplicationPkcs7Signature (Sign (signer, content, false));
+			var cmsSigner = GetCmsSigner (signer, digestAlgo);
+
+			return EncapsulatedSignAsync (cmsSigner, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// Sign the content using the specified signer.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// Signs the content using the specified signer.
+		/// </remarks>
+		/// <returns>A new <see cref="ApplicationPkcs7Signature"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var signature = SignAsync (signer, content, false, false, cancellationToken).GetAwaiter ().GetResult ();
+
+			return new ApplicationPkcs7Signature (signature);
+		}
+
+		/// <summary>
+		/// Asynchronously sign the content using the specified signer.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously signs the content using the specified signer.
+		/// </remarks>
+		/// <returns>A new <see cref="ApplicationPkcs7Signature"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override async Task<ApplicationPkcs7Signature> SignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var signature = await SignAsync (signer, content, false, true, cancellationToken).ConfigureAwait (false);
+
+			return new ApplicationPkcs7Signature (signature);
+		}
+
+		/// <summary>
+		/// Sign the content using the specified signer and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Signs the content using the specified signer and digest algorithm.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -414,13 +550,16 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.NotSupportedException">
 		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -430,7 +569,52 @@ namespace MimeKit.Cryptography
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
 
-			return Sign (cmsSigner, content);
+			return Sign (cmsSigner, content, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously sign the content using the specified signer and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously signs the content using the specified signer and digest algorithm.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override async Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var cmsSigner = GetCmsSigner (signer, digestAlgo);
+
+			return await SignAsync (cmsSigner, content, cancellationToken).ConfigureAwait (false);
 		}
 
 		X509Certificate GetCertificate (IX509Store store, SignerID signer)
@@ -854,7 +1038,7 @@ namespace MimeKit.Cryptography
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -891,7 +1075,7 @@ namespace MimeKit.Cryptography
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public override Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -929,7 +1113,7 @@ namespace MimeKit.Cryptography
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -962,7 +1146,7 @@ namespace MimeKit.Cryptography
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -1049,7 +1233,7 @@ namespace MimeKit.Cryptography
 			}
 		}
 
-		Stream Envelope (CmsRecipientCollection recipients, Stream content)
+		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var unique = new HashSet<X509Certificate> ();
 			var cms = new CmsEnvelopedDataGenerator ();
@@ -1135,15 +1319,19 @@ namespace MimeKit.Cryptography
 		/// containing the encrypted content.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content)
+		public override ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1151,7 +1339,52 @@ namespace MimeKit.Cryptography
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, Envelope (recipients, content));
+			var envelopedData = Envelope (recipients, content, cancellationToken);
+
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+		}
+
+		/// <summary>
+		/// Asynchronously encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance
+		/// containing the encrypted content.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override async Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			Stream envelopedData;
+
+			using (var memory = new MemoryBlockStream ()) {
+				await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
+
+				memory.Position = 0;
+
+				envelopedData = Envelope (recipients, memory, cancellationToken);
+			}
+
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}
 
 		/// <summary>
@@ -1164,6 +1397,7 @@ namespace MimeKit.Cryptography
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1172,13 +1406,16 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.ArgumentException">
 		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1186,7 +1423,75 @@ namespace MimeKit.Cryptography
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			return Encrypt (GetCmsRecipients (recipients), content);
+			return Encrypt (GetCmsRecipients (recipients), content, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override async Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			return await EncryptAsync (GetCmsRecipients (recipients), content, cancellationToken).ConfigureAwait (false);
+		}
+
+		async Task<MimeEntity> DecryptAsync (Stream encryptedData, bool doAsync, CancellationToken cancellationToken)
+		{
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			var parser = new CmsEnvelopedDataParser (encryptedData);
+			var recipients = parser.GetRecipientInfos ();
+			var algorithm = parser.EncryptionAlgorithmID;
+			AsymmetricKeyParameter key;
+
+			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
+				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
+					continue;
+
+				var content = recipient.GetContentStream (key);
+
+				try {
+					if (doAsync)
+						return await MimeEntity.LoadAsync (content.ContentStream, false, cancellationToken).ConfigureAwait (false);
+
+					return MimeEntity.Load (content.ContentStream, false, cancellationToken);
+				} finally {
+					content.ContentStream.Dispose ();
+				}
+			}
+
+			throw new CmsException ("A suitable private key could not be found for decrypting.");
 		}
 
 		/// <summary>
@@ -1201,52 +1506,41 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encryptedData"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (encryptedData == null)
-				throw new ArgumentNullException (nameof (encryptedData));
-
-			var parser = new CmsEnvelopedDataParser (encryptedData);
-			var recipients = parser.GetRecipientInfos ();
-			var algorithm = parser.EncryptionAlgorithmID;
-			AsymmetricKeyParameter key;
-
-			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
-				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
-					continue;
-
-				var content = recipient.GetContent (key);
-				var memory = new MemoryStream (content, false);
-
-				return MimeEntity.Load (memory, true, cancellationToken);
-			}
-
-			throw new CmsException ("A suitable private key could not be found for decrypting.");
+			return DecryptAsync (encryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
-		/// Decrypt the specified encryptedData to an output stream.
+		/// Asynchronously decrypt the specified encryptedData.
 		/// </summary>
 		/// <remarks>
-		/// Decrypts the specified encryptedData to an output stream.
+		/// Asynchronously decrypts the specified encryptedData.
 		/// </remarks>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
-		/// <param name="decryptedData">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override void DecryptTo (Stream encryptedData, Stream decryptedData)
+		public override Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return DecryptAsync (encryptedData, true, cancellationToken);
+		}
+
+		async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
@@ -1264,11 +1558,64 @@ namespace MimeKit.Cryptography
 					continue;
 
 				var content = recipient.GetContentStream (key);
-				content.ContentStream.CopyTo (decryptedData, 4096);
+				if (doAsync)
+					await content.ContentStream.CopyToAsync (decryptedData, 4096, cancellationToken).ConfigureAwait (false);
+				else
+					content.ContentStream.CopyTo (decryptedData, 4096);
 				return;
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");
+		}
+
+		/// <summary>
+		/// Decrypt the specified encryptedData to an output stream.
+		/// </summary>
+		/// <remarks>
+		/// Decrypts the specified encryptedData to an output stream.
+		/// </remarks>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="decryptedData">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			DecryptToAsync (encryptedData, decryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously decrypt the specified encryptedData to an output stream.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously decrypts the specified encryptedData to an output stream.
+		/// </remarks>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="decryptedData">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return DecryptToAsync (encryptedData, decryptedData, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -1280,11 +1627,15 @@ namespace MimeKit.Cryptography
 		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance containing
 		/// the exported keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// No mailboxes were specified.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
@@ -1292,7 +1643,7 @@ namespace MimeKit.Cryptography
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1317,6 +1668,36 @@ namespace MimeKit.Cryptography
 			memory.Position = 0;
 
 			return new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, memory);
+		}
+
+		/// <summary>
+		/// Asynchronously export the certificates for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the certificates for the specified mailboxes.
+		/// </remarks>
+		/// <returns>A new <see cref="ApplicationPkcs7Mime"/> instance containing
+		/// the exported keys.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// No mailboxes were specified.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate for one or more of the <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Task.FromResult (Export (mailboxes, cancellationToken));
 		}
 
 		/// <summary>

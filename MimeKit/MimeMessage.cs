@@ -1610,6 +1610,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
 		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -1624,13 +1625,16 @@ namespace MimeKit {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for the sender.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found for the sender.
 		/// </exception>
-		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1642,7 +1646,58 @@ namespace MimeKit {
 			if (signer == null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
-			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body);
+			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously sign the message using the specified cryptography context and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>A sender has not been specified.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		public async Task SignAsync (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var signer = GetMessageSigner ();
+			if (signer == null)
+				throw new InvalidOperationException ("The sender has not been set.");
+
+			Body = await MultipartSigned.CreateAsync (ctx, signer, digestAlgo, Body, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>
@@ -1655,6 +1710,7 @@ namespace MimeKit {
 		/// used instead.
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -1663,15 +1719,52 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>A sender has not been specified.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for the sender.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found for the sender.
 		/// </exception>
-		public void Sign (CryptographyContext ctx)
+		public void Sign (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Sign (ctx, DigestAlgorithm.Sha1);
+			Sign (ctx, DigestAlgorithm.Sha1, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously sign the message using the specified cryptography context and the SHA-1 digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>A sender has not been specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		public Task SignAsync (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (ctx, DigestAlgorithm.Sha1, cancellationToken);
 		}
 
 		/// <summary>
@@ -1686,6 +1779,7 @@ namespace MimeKit {
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -1697,13 +1791,16 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the recipients.
 		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// The public key could not be found for one or more of the recipients.
 		/// </exception>
-		public void Encrypt (CryptographyContext ctx)
+		public void Encrypt (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1716,9 +1813,64 @@ namespace MimeKit {
 				throw new InvalidOperationException ("No recipients have been set.");
 
 			if (ctx is SecureMimeContext) {
-				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body);
+				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body, cancellationToken);
 			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body);
+				Body = MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body, cancellationToken);
+			} else {
+				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
+			}
+		}
+
+		/// <summary>
+		/// Asynchronously encrypt the message to the sender and all of the recipients
+		/// using the specified cryptography context.
+		/// </summary>
+		/// <remarks>
+		/// If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public async Task EncryptAsync (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var recipients = GetMessageRecipients (true);
+			if (recipients.Count == 0)
+				throw new InvalidOperationException ("No recipients have been set.");
+
+			if (ctx is SecureMimeContext) {
+				Body = await ApplicationPkcs7Mime.EncryptAsync ((SecureMimeContext) ctx, recipients, Body, cancellationToken).ConfigureAwait (false);
+			} else if (ctx is OpenPgpContext) {
+				Body = await MultipartEncrypted.EncryptAsync ((OpenPgpContext) ctx, recipients, Body, cancellationToken).ConfigureAwait (false);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
@@ -1741,6 +1893,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
 		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -1760,6 +1913,9 @@ namespace MimeKit {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for the signer or one or more of the recipients.
 		/// </exception>
@@ -1769,7 +1925,7 @@ namespace MimeKit {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// The public key could not be found for one or more of the recipients.
 		/// </exception>
-		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo)
+		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1784,9 +1940,82 @@ namespace MimeKit {
 			var recipients = GetMessageRecipients (true);
 
 			if (ctx is SecureMimeContext) {
-				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body);
+				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken);
 			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body);
+				Body = MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken);
+			} else {
+				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
+			}
+		}
+
+		/// <summary>
+		/// Asynchronously sign and encrypt the message to the sender and all of the recipients using
+		/// the specified cryptography context and the specified digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.</para>
+		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="digestAlgo">The digest algorithm.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>No sender has been specified.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for the signer or one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public async Task SignAndEncryptAsync (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (Body == null)
+				throw new InvalidOperationException ("No message body has been set.");
+
+			var signer = GetMessageSigner ();
+			if (signer == null)
+				throw new InvalidOperationException ("The sender has not been set.");
+
+			var recipients = GetMessageRecipients (true);
+
+			if (ctx is SecureMimeContext) {
+				Body = await ApplicationPkcs7Mime.SignAndEncryptAsync ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);
+			} else if (ctx is OpenPgpContext) {
+				Body = await MultipartEncrypted.SignAndEncryptAsync ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
@@ -1808,6 +2037,7 @@ namespace MimeKit {
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="ctx"/> is <c>null</c>.
 		/// </exception>
@@ -1821,6 +2051,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>No recipients have been specified.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for the signer or one or more of the recipients.
 		/// </exception>
@@ -1830,9 +2063,57 @@ namespace MimeKit {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// The public key could not be found for one or more of the recipients.
 		/// </exception>
-		public void SignAndEncrypt (CryptographyContext ctx)
+		public void SignAndEncrypt (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
+			SignAndEncrypt (ctx, DigestAlgorithm.Sha1, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously sign and encrypt the message to the sender and all of the recipients using
+		/// the specified cryptography context and the SHA-1 digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
+		/// will be signed using the Resent-Sender (or first mailbox in the Resent-From)
+		/// address as the signer address, otherwise the Sender or From address will be
+		/// used instead.</para>
+		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
+		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
+		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="ctx">The cryptography context.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="ctx"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// An unknown type of cryptography context was used.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="Body"/> has not been set.</para>
+		/// <para>-or-</para>
+		/// <para>No sender has been specified.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients have been specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A certificate could not be found for the signer or one or more of the recipients.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for the sender.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// The public key could not be found for one or more of the recipients.
+		/// </exception>
+		public Task SignAndEncryptAsync (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAndEncryptAsync (ctx, DigestAlgorithm.Sha1, cancellationToken);
 		}
 #endif // ENABLE_CRYPTO
 

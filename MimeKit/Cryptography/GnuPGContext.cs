@@ -469,13 +469,17 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The encryption keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		public override IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes)
+		public override IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -494,12 +498,16 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the secret key for a specified key identifier.
 		/// </remarks>
-		/// <param name="keyId">The key identifier for the desired secret key.</param>
 		/// <returns>The secret key.</returns>
+		/// <param name="keyId">The key identifier for the desired secret key.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The secret key specified by the <paramref name="keyId"/> could not be found.
 		/// </exception>
-		protected override PgpSecretKey GetSecretKey (long keyId)
+		protected override PgpSecretKey GetSecretKey (long keyId, CancellationToken cancellationToken)
 		{
 			foreach (var key in EnumerateSecretKeys ()) {
 				if (key.KeyId == keyId)
@@ -517,13 +525,17 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The signing key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// A secret key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		public override PgpSecretKey GetSigningKey (MailboxAddress mailbox)
+		public override PgpSecretKey GetSigningKey (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
@@ -552,10 +564,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signer"/> is <c>null</c>.
 		/// </exception>
-		public override bool CanSign (MailboxAddress signer)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -582,10 +598,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <c>null</c>.
 		/// </exception>
-		public override bool CanEncrypt (MailboxAddress mailbox)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
@@ -829,7 +849,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Atomically saves the public key-ring bundle to the path specified by <see cref="PublicKeyRingPath"/>.</para>
-		/// <para>Called by <see cref="Import(Stream)"/> if any public keys were successfully imported.</para>
+		/// <para>Called by <see cref="Import(PgpPublicKeyRingBundle,CancellationToken)"/> if any public keys were successfully imported.</para>
 		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the public key-ring bundle.
@@ -867,7 +887,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Atomically saves the secret key-ring bundle to the path specified by <see cref="SecretKeyRingPath"/>.</para>
-		/// <para>Called by <see cref="Import(PgpSecretKeyRing)"/> if any secret keys were successfully imported.</para>
+		/// <para>Called by <see cref="Import(PgpSecretKeyRingBundle,CancellationToken)"/> if any secret keys were successfully imported.</para>
 		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the secret key-ring bundle.
@@ -1048,16 +1068,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a public pgp keyring.
+		/// Import a public pgp keyring.
 		/// </summary>
 		/// <remarks>
 		/// Imports a public pgp keyring.
 		/// </remarks>
-		/// <param name="keyring">The pgp keyring.</param>
+		/// <param name="keyring">The public key-ring to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keyring"/> is <c>null</c>.
 		/// </exception>
-		public override void Import (PgpPublicKeyRing keyring)
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the public key-ring.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (PgpPublicKeyRing keyring, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (keyring == null)
 				throw new ArgumentNullException (nameof (keyring));
@@ -1067,16 +1094,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a public pgp keyring bundle.
+		/// Import the specified public keyring bundle.
 		/// </summary>
 		/// <remarks>
-		/// Imports a public pgp keyring bundle.
+		/// Imports the specified public keyring bundle.
 		/// </remarks>
-		/// <param name="bundle">The pgp keyring bundle.</param>
+		/// <param name="bundle">The bundle of public keyrings to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="bundle"/> is <c>null</c>.
 		/// </exception>
-		public override void Import (PgpPublicKeyRingBundle bundle)
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the public key-ring.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (PgpPublicKeyRingBundle bundle, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (bundle == null)
 				throw new ArgumentNullException (nameof (bundle));
@@ -1093,16 +1127,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a secret pgp keyring.
+		/// Import a secret pgp keyring.
 		/// </summary>
 		/// <remarks>
 		/// Imports a secret pgp keyring.
 		/// </remarks>
-		/// <param name="keyring">The pgp keyring.</param>
+		/// <param name="keyring">The secret key-ring to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keyring"/> is <c>null</c>.
 		/// </exception>
-		public override void Import (PgpSecretKeyRing keyring)
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the secret key-ring.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (PgpSecretKeyRing keyring, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (keyring == null)
 				throw new ArgumentNullException (nameof (keyring));
@@ -1112,16 +1153,23 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a secret pgp keyring bundle.
+		/// Import a secret pgp keyring bundle.
 		/// </summary>
 		/// <remarks>
 		/// Imports a secret pgp keyring bundle.
 		/// </remarks>
-		/// <param name="bundle">The pgp keyring bundle.</param>
+		/// <param name="bundle">The bundle of secret keyrings to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="bundle"/> is <c>null</c>.
 		/// </exception>
-		public override void Import (PgpSecretKeyRingBundle bundle)
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the secret key-ring bundle.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (PgpSecretKeyRingBundle bundle, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (bundle == null)
 				throw new ArgumentNullException (nameof (bundle));
@@ -1138,20 +1186,24 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the public keys for the specified mailboxes.
+		/// Export the public keys for the specified mailboxes.
 		/// </summary>
 		/// <remarks>
 		/// Exports the public keys for the specified mailboxes.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="mailboxes">The mailboxes associated with the public keys to export.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
 		/// </exception>
-		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1162,7 +1214,39 @@ namespace MimeKit.Cryptography {
 
 			var bundle = new PgpPublicKeyRingBundle (keyrings);
 
-			return Export (bundle);
+			return Export (bundle, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously export the public keys for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the public keys for the specified mailboxes.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
+		/// <param name="mailboxes">The mailboxes associated with the public keys to export.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> was empty.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (mailboxes == null)
+				throw new ArgumentNullException (nameof (mailboxes));
+
+			var keyrings = new List<PgpPublicKeyRing> ();
+			foreach (var mailbox in mailboxes)
+				keyrings.AddRange (EnumeratePublicKeyRings (mailbox));
+
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return ExportAsync (bundle, cancellationToken);
 		}
 
 		/// <summary>
@@ -1174,15 +1258,25 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> was empty.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public override void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor)
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1196,7 +1290,52 @@ namespace MimeKit.Cryptography {
 
 			var bundle = new PgpPublicKeyRingBundle (keyrings);
 
-			Export (bundle, stream, armor);
+			Export (bundle, stream, armor, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously export the public keyrings for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the public keyrings for the specified mailboxes.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> was empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override Task ExportAsync (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (mailboxes == null)
+				throw new ArgumentNullException (nameof (mailboxes));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			var keyrings = new List<PgpPublicKeyRing> ();
+			foreach (var mailbox in mailboxes)
+				keyrings.AddRange (EnumeratePublicKeyRings (mailbox));
+
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return ExportAsync (bundle, stream, armor, cancellationToken);
 		}
 
 		/// <summary>

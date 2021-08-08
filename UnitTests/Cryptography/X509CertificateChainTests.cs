@@ -52,7 +52,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var path = GetTestDataPath ("smime.p12");
+			var path = GetTestDataPath ("smime.pfx");
 			var chain = new X509CertificateChain ();
 			CmsSigner signer;
 

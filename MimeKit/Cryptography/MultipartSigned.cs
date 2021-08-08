@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography {
 			visitor.VisitMultipartSigned (this);
 		}
 
-		static MimeEntity Prepare (MimeEntity entity, Stream memory)
+		static MimeEntity Prepare (MimeEntity entity, Stream memory, CancellationToken cancellationToken)
 		{
 			entity.Prepare (EncodingConstraint.SevenBit, 78);
 
@@ -104,8 +104,8 @@ namespace MimeKit.Cryptography {
 				// Note: see rfc2015 or rfc3156, section 5.1
 				filtered.Add (new Unix2DosFilter ());
 
-				entity.WriteTo (filtered);
-				filtered.Flush ();
+				entity.WriteTo (filtered, cancellationToken);
+				filtered.Flush (cancellationToken);
 			}
 
 			memory.Position = 0;
@@ -113,7 +113,33 @@ namespace MimeKit.Cryptography {
 			// Note: we need to parse the modified entity structure to preserve any modifications
 			var parser = new MimeParser (memory, MimeFormat.Entity);
 
-			return parser.ParseEntity ();
+			return parser.ParseEntity (cancellationToken);
+		}
+
+		static async Task<MimeEntity> PrepareAsync (MimeEntity entity, Stream memory, CancellationToken cancellationToken)
+		{
+			entity.Prepare (EncodingConstraint.SevenBit, 78);
+
+			using (var filtered = new FilteredStream (memory)) {
+				// Note: see rfc3156, section 3 - second note
+				filtered.Add (new ArmoredFromFilter ());
+
+				// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+				filtered.Add (new TrailingWhitespaceFilter ());
+
+				// Note: see rfc2015 or rfc3156, section 5.1
+				filtered.Add (new Unix2DosFilter ());
+
+				await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+			}
+
+			memory.Position = 0;
+
+			// Note: we need to parse the modified entity structure to preserve any modifications
+			var parser = new MimeParser (memory, MimeFormat.Entity);
+
+			return await parser.ParseEntityAsync (cancellationToken).ConfigureAwait (false);
 		}
 
 		static MultipartSigned Create (CryptographyContext ctx, DigestAlgorithm digestAlgo, MimeEntity entity, MimeEntity signature)
@@ -134,8 +160,41 @@ namespace MimeKit.Cryptography {
 			return signed;
 		}
 
+		static async Task<MultipartSigned> CreateAsync (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				MimeEntity prepared;
+
+				if (doAsync)
+					prepared = await PrepareAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+				else
+					prepared = Prepare (entity, memory, cancellationToken);
+
+				memory.Position = 0;
+
+				// sign the cleartext content
+				MimePart signature;
+
+				if (doAsync)
+					signature = await ctx.SignAsync (signer, digestAlgo, memory, cancellationToken).ConfigureAwait (false);
+				else
+					signature = ctx.Sign (signer, digestAlgo, memory, cancellationToken);
+
+				return Create (ctx, digestAlgo, prepared, signature);
+			}
+		}
+
 		/// <summary>
-		/// Creates a new <see cref="MultipartSigned"/>.
+		/// Create a new <see cref="MultipartSigned"/>.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
@@ -147,6 +206,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -160,6 +220,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
@@ -169,7 +232,56 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return CreateAsync (ctx, signer, digestAlgo, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously create a new <see cref="MultipartSigned"/>.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
+		/// order to generate a detached signature and then adds the entity along with the
+		/// detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
+		/// <param name="ctx">The cryptography context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="CertificateNotFoundException">
+		/// A signing certificate could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static Task<MultipartSigned> CreateAsync (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return CreateAsync (ctx, signer, digestAlgo, entity, true, cancellationToken);
+		}
+
+		static async Task<MultipartSigned> CreateAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -181,19 +293,29 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var prepared = Prepare (entity, memory);
+				MimeEntity prepared;
+
+				if (doAsync)
+					prepared = await PrepareAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+				else
+					prepared = Prepare (entity, memory, cancellationToken);
 
 				memory.Position = 0;
 
 				// sign the cleartext content
-				var signature = ctx.Sign (signer, digestAlgo, memory);
+				MimePart signature;
+
+				if (doAsync)
+					signature = await ctx.SignAsync (signer, digestAlgo, memory, cancellationToken).ConfigureAwait (false);
+				else
+					signature = ctx.Sign (signer, digestAlgo, memory, cancellationToken);
 
 				return Create (ctx, digestAlgo, prepared, signature);
 			}
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MultipartSigned"/>.
+		/// Create a new <see cref="MultipartSigned"/>.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
@@ -205,6 +327,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -221,34 +344,60 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
-				throw new ArgumentNullException (nameof (ctx));
-
-			if (signer == null)
-				throw new ArgumentNullException (nameof (signer));
-
-			if (entity == null)
-				throw new ArgumentNullException (nameof (entity));
-
-			using (var memory = new MemoryBlockStream ()) {
-				var prepared = Prepare (entity, memory);
-
-				memory.Position = 0;
-
-				// sign the cleartext content
-				var signature = ctx.Sign (signer, digestAlgo, memory);
-
-				return Create (ctx, digestAlgo, prepared, signature);
-			}
+			return CreateAsync (ctx, signer, digestAlgo, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MultipartSigned"/>.
+		/// Asynchronously create a new <see cref="MultipartSigned"/>.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
+		/// order to generate a detached signature and then adds the entity along with the
+		/// detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
+		/// <param name="ctx">The OpenPGP context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred in the OpenPGP subsystem.
+		/// </exception>
+		public static Task<MultipartSigned> CreateAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return CreateAsync (ctx, signer, digestAlgo, entity, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Create a new <see cref="MultipartSigned"/>.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
@@ -259,6 +408,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -275,38 +425,60 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity)
+		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature"))
-				return Create (ctx, signer, digestAlgo, entity);
+				return Create (ctx, signer, digestAlgo, entity, cancellationToken);
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MultipartSigned"/>.
+		/// Asynchronously create a new <see cref="MultipartSigned"/>.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs the entity using the supplied signer in order
-		/// to generate a detached signature and then adds the entity along with
-		/// the detached signature data to a new multipart/signed part.
+		/// Cryptographically signs the entity using the supplied signer and digest algorithm in
+		/// order to generate a detached signature and then adds the entity along with the
+		/// detached signature data to a new multipart/signed part.
 		/// </remarks>
 		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
-		/// <param name="ctx">The S/MIME context to use for signing.</param>
 		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
-		/// An error occurred in the cryptographic message syntax subsystem.
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
 		/// </exception>
-		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity)
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// <para>A cryptography context suitable for signing could not be found.</para>
+		/// <para>-or-</para>
+		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An error occurred in the OpenPGP subsystem.
+		/// </exception>
+		public static async Task<MultipartSigned> CreateAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature"))
+				return await CreateAsync (ctx, signer, digestAlgo, entity, cancellationToken).ConfigureAwait (false);
+		}
+
+		static async Task<MultipartSigned> CreateAsync (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -318,19 +490,91 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var prepared = Prepare (entity, memory);
+				MimeEntity prepared;
+
+				if (doAsync)
+					prepared = await PrepareAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+				else
+					prepared = Prepare (entity, memory, cancellationToken);
 
 				memory.Position = 0;
 
 				// sign the cleartext content
-				var signature = ctx.Sign (signer, memory);
+				MimePart signature;
+
+				if (doAsync)
+					signature = await ctx.SignAsync (signer, memory, cancellationToken).ConfigureAwait (false);
+				else
+					signature = ctx.Sign (signer, memory, cancellationToken);
 
 				return Create (ctx, signer.DigestAlgorithm, prepared, signature);
 			}
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="MultipartSigned"/>.
+		/// Create a new <see cref="MultipartSigned"/>.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer in order
+		/// to generate a detached signature and then adds the entity along with
+		/// the detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
+		/// <param name="ctx">The S/MIME context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return CreateAsync (ctx, signer, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously create a new <see cref="MultipartSigned"/>.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer in order
+		/// to generate a detached signature and then adds the entity along with
+		/// the detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
+		/// <param name="ctx">The S/MIME context to use for signing.</param>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static Task<MultipartSigned> CreateAsync (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return CreateAsync (ctx, signer, entity, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Create a new <see cref="MultipartSigned"/>.
 		/// </summary>
 		/// <remarks>
 		/// Cryptographically signs the entity using the supplied signer in order
@@ -340,6 +584,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -348,13 +593,48 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for signing could not be found.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity)
+		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature"))
-				return Create (ctx, signer, entity);
+				return Create (ctx, signer, entity, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously create a new <see cref="MultipartSigned"/>.
+		/// </summary>
+		/// <remarks>
+		/// Cryptographically signs the entity using the supplied signer in order
+		/// to generate a detached signature and then adds the entity along with
+		/// the detached signature data to a new multipart/signed part.
+		/// </remarks>
+		/// <returns>A new <see cref="MultipartSigned"/> instance.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="entity">The entity to sign.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// A cryptography context suitable for signing could not be found.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public static async Task<MultipartSigned> CreateAsync (CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature"))
+				return await CreateAsync (ctx, signer, entity, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>
@@ -438,7 +718,7 @@ namespace MimeKit.Cryptography {
 					options.NewLineFormat = NewLineFormat.Dos;
 					options.VerifyingSignature = true;
 
-					this[0].WriteTo (options, cleartext);
+					this[0].WriteTo (options, cleartext, cancellationToken);
 					cleartext.Position = 0;
 
 					return ctx.Verify (cleartext, signatureData, cancellationToken);

@@ -133,15 +133,15 @@ namespace MimeKit.Cryptography {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled.
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		protected abstract PgpPublicKeyRing GetPublicKeyRing (long keyId, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Get the public keyring that contains the specified key asynchronously.
+		/// Asynchronously get the public keyring that contains the specified key asynchronously.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets the public keyring that contains the specified key.</para>
+		/// <para>Asynchronously gets the public keyring that contains the specified key.</para>
 		/// <note type="note">Implementations should first try to obtain the keyring stored (or cached) locally.
 		/// Failing that, if <see cref="AutoKeyRetrieve"/> is enabled, they should use
 		/// <see cref="RetrievePublicKeyRingAsync(long, CancellationToken)"/> to attempt to
@@ -151,7 +151,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled.
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		protected abstract Task<PgpPublicKeyRing> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken);
 
@@ -161,12 +161,36 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the secret key for a specified key identifier.
 		/// </remarks>
-		/// <param name="keyId">The key identifier for the desired secret key.</param>
 		/// <returns>The secret key.</returns>
+		/// <param name="keyId">The key identifier for the desired secret key.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The secret key specified by the <paramref name="keyId"/> could not be found.
 		/// </exception>
-		protected abstract PgpSecretKey GetSecretKey (long keyId);
+		protected abstract PgpSecretKey GetSecretKey (long keyId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Asynchronously get the secret key for a specified key identifier.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously gets the secret key for a specified key identifier.
+		/// </remarks>
+		/// <returns>The secret key.</returns>
+		/// <param name="keyId">The key identifier for the desired secret key.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The secret key specified by the <paramref name="keyId"/> could not be found.
+		/// </exception>
+		protected virtual Task<PgpSecretKey> GetSecretKeyAsync (long keyId, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (GetSecretKey (keyId, cancellationToken));
+		}
 
 		/// <summary>
 		/// Get the public keys for the specified mailbox addresses.
@@ -176,13 +200,40 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The encryption keys.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		public abstract IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes);
+		public abstract IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken));
+
+		/// <summary>
+		/// Asynchronously get the public keys for the specified mailbox addresses.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously gets a list of valid public keys for the specified mailbox addresses that can be used for encryption.
+		/// </remarks>
+		/// <returns>The encryption keys.</returns>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
+		/// </exception>
+		public virtual Task<IList<PgpPublicKey>> GetPublicKeysAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Task.FromResult (GetPublicKeys (mailboxes, cancellationToken));
+		}
 
 		/// <summary>
 		/// Get the signing key associated with the mailbox address.
@@ -192,13 +243,40 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The signing key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// A secret key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		public abstract PgpSecretKey GetSigningKey (MailboxAddress mailbox);
+		public abstract PgpSecretKey GetSigningKey (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken));
+
+		/// <summary>
+		/// Asynchronously get the signing key associated with the mailbox address.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously gets the signing key associated with the mailbox address.
+		/// </remarks>
+		/// <returns>The signing key.</returns>
+		/// <param name="mailbox">The mailbox.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// A secret key for the specified <paramref name="mailbox"/> could not be found.
+		/// </exception>
+		public virtual Task<PgpSecretKey> GetSigningKeyAsync (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Task.FromResult (GetSigningKey (mailbox, cancellationToken));
+		}
 
 		/// <summary>
 		/// Get or set the default encryption algorithm.
@@ -568,37 +646,37 @@ namespace MimeKit.Cryptography {
 				return null;
 
 			var scheme = keyServer.Scheme.ToLowerInvariant ();
-			var uri = new UriBuilder ();
+			var builder = new UriBuilder ();
 
-			uri.Scheme = scheme == "hkp" ? "http" : scheme;
-			uri.Host = keyServer.Host;
+			builder.Scheme = scheme == "hkp" ? "http" : scheme;
+			builder.Host = keyServer.Host;
 
 			if (keyServer.IsDefaultPort) {
 				if (scheme == "hkp")
-					uri.Port = 11371;
+					builder.Port = 11371;
 			} else {
-				uri.Port = keyServer.Port;
+				builder.Port = keyServer.Port;
 			}
 
-			uri.Path = "/pks/lookup";
-			uri.Query = string.Format (CultureInfo.InvariantCulture, "op=get&search=0x{0:X}", keyId);
+			builder.Path = "/pks/lookup";
+			builder.Query = string.Format (CultureInfo.InvariantCulture, "op=get&search=0x{0:X}", keyId);
 
 			using (var stream = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
 
 					if (doAsync) {
-						using (var response = await client.GetAsync (uri.ToString (), cancellationToken).ConfigureAwait (false))
+						using (var response = await client.GetAsync (builder.Uri, cancellationToken).ConfigureAwait (false))
 							await response.Content.CopyToAsync (filtered).ConfigureAwait (false);
 					} else {
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
-						var request = (HttpWebRequest) WebRequest.Create (uri.ToString ());
+						var request = (HttpWebRequest) WebRequest.Create (builder.Uri);
 						using (var response = request.GetResponse ()) {
 							var content = response.GetResponseStream ();
 							content.CopyTo (filtered, 4096);
 						}
 #else
-						using (var response = client.GetAsync (uri.ToString (), cancellationToken).GetAwaiter ().GetResult ())
+						using (var response = client.GetAsync (builder.Uri, cancellationToken).GetAwaiter ().GetResult ())
 							response.Content.CopyToAsync (filtered).GetAwaiter ().GetResult ();
 #endif
 					}
@@ -611,7 +689,7 @@ namespace MimeKit.Cryptography {
 				using (var armored = new ArmoredInputStream (stream, true)) {
 					var bundle = new PgpPublicKeyRingBundle (armored);
 
-					Import (bundle);
+					Import (bundle, cancellationToken);
 
 					return bundle.GetPublicKeyRing (keyId);
 				}
@@ -738,16 +816,17 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Cryptographically signs the content.
+		/// Sign the content using the specified signer and digest algorithm.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// Signs the content using the specified signer and digest algorithm.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -763,12 +842,14 @@ namespace MimeKit.Cryptography {
 		/// A signing key could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content)
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -776,43 +857,59 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var key = GetSigningKey (signer);
+			var signingKey = GetSigningKey (signer, cancellationToken);
 
-			return Sign (key, digestAlgo, content);
+			return Sign (signingKey, digestAlgo, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Cryptographically signs the content.
+		/// Asynchronously sign the content using the specified signer and digest algorithm.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs the content using the specified signer and digest algorithm.
+		/// Asynchronously signs the content using the specified signer and digest algorithm.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the detached signature data.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <c>null</c>.</para>
 		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <paramref name="signer"/> cannot be used for signing.
-		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// The <paramref name="digestAlgo"/> was out of range.
+		/// <paramref name="digestAlgo"/> is out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// The <paramref name="digestAlgo"/> is not supported.
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// A signing key could not be found for <paramref name="signer"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public ApplicationPgpSignature Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content)
+		public override async Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var signingKey = await GetSigningKeyAsync (signer, cancellationToken).ConfigureAwait (false);
+
+			return await SignAsync (signingKey, digestAlgo, content, cancellationToken).ConfigureAwait (false);
+		}
+
+		async Task<ApplicationPgpSignature> SignAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content, bool doAsync, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -836,8 +933,17 @@ namespace MimeKit.Cryptography {
 				try {
 					signatureGenerator.InitSign (PgpSignature.CanonicalTextDocument, GetPrivateKey (signer));
 
-					while ((nread = content.Read (buf, 0, BufferLength)) > 0)
-						signatureGenerator.Update (buf, 0, nread);
+					if (doAsync) {
+						while ((nread = await content.ReadAsync (buf, 0, BufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
+							cancellationToken.ThrowIfCancellationRequested ();
+							signatureGenerator.Update (buf, 0, nread);
+						}
+					} else {
+						while ((nread = content.Read (buf, 0, BufferLength)) > 0) {
+							cancellationToken.ThrowIfCancellationRequested ();
+							signatureGenerator.Update (buf, 0, nread);
+						}
+					}
 				} finally {
 					ArrayPool<byte>.Shared.Return (buf);
 				}
@@ -850,6 +956,84 @@ namespace MimeKit.Cryptography {
 			memory.Position = 0;
 
 			return new ApplicationPgpSignature (memory);
+		}
+
+		/// <summary>
+		/// Sign the content using the specified signer and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Signs the content using the specified signer and digest algorithm.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public ApplicationPgpSignature Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (signer, digestAlgo, content, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously sign the content using the specified signer and digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously signs the content using the specified signer and digest algorithm.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the detached signature data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="signer"/> cannot be used for signing.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The <paramref name="digestAlgo"/> was out of range.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public Task<ApplicationPgpSignature> SignAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAsync (signer, digestAlgo, content, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -1029,6 +1213,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// <paramref name="signatureData"/> does not contain valid PGP signature data.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return VerifyAsync (content, signatureData, false, cancellationToken).GetAwaiter ().GetResult ();
@@ -1055,12 +1242,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// <paramref name="signatureData"/> does not contain valid PGP signature data.
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		public override Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			return VerifyAsync (content, signatureData, true, cancellationToken);
 		}
 
-		static Stream Compress (Stream content, byte[] buf, int bufferLength)
+		static async Task<Stream> CompressAsync (Stream content, byte[] buf, int bufferLength, bool doAsync, CancellationToken cancellationToken)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 			var memory = new MemoryBlockStream ();
@@ -1071,8 +1261,17 @@ namespace MimeKit.Cryptography {
 				using (var literal = literalGenerator.Open (compressed, 't', "mime.txt", content.Length, DateTime.Now)) {
 					int nread;
 
-					while ((nread = content.Read (buf, 0, bufferLength)) > 0)
-						literal.Write (buf, 0, nread);
+					if (doAsync) {
+						while ((nread = await content.ReadAsync (buf, 0, bufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
+							cancellationToken.ThrowIfCancellationRequested ();
+							literal.Write (buf, 0, nread);
+						}
+					} else {
+						while ((nread = content.Read (buf, 0, bufferLength)) > 0) {
+							cancellationToken.ThrowIfCancellationRequested ();
+							literal.Write (buf, 0, nread);
+						}
+					}
 
 					literal.Flush ();
 				}
@@ -1085,7 +1284,7 @@ namespace MimeKit.Cryptography {
 			return memory;
 		}
 
-		static Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
+		static async Task<Stream> EncryptAsync (PgpEncryptedDataGenerator encrypter, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			var memory = new MemoryBlockStream ();
 
@@ -1095,13 +1294,15 @@ namespace MimeKit.Cryptography {
 				try {
 					armored.SetHeader ("Version", null);
 
-					using (var compressed = Compress (content, buf, BufferLength)) {
+					using (var compressed = await CompressAsync (content, buf, BufferLength, doAsync, cancellationToken).ConfigureAwait (false)) {
 						using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 							int nread;
 
 							try {
-								while ((nread = compressed.Read (buf, 0, BufferLength)) > 0)
+								while ((nread = compressed.Read (buf, 0, BufferLength)) > 0) {
+									cancellationToken.ThrowIfCancellationRequested ();
 									encrypted.Write (buf, 0, nread);
+								}
 							} finally {
 								ArrayPool<byte>.Shared.Return (buf);
 							}
@@ -1150,6 +1351,7 @@ namespace MimeKit.Cryptography {
 		/// containing the encrypted data.</returns>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1160,10 +1362,13 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content)
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1171,8 +1376,51 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
+			var encryptionKeys = GetPublicKeys (recipients, cancellationToken);
+
 			// TODO: document the exceptions that can be thrown by BouncyCastle
-			return Encrypt (GetPublicKeys (recipients), content);
+			return Encrypt (encryptionKeys, content, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		public override async Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var encryptionKeys = await GetPublicKeysAsync (recipients, cancellationToken).ConfigureAwait (false);
+
+			// TODO: document the exceptions that can be thrown by BouncyCastle
+			return await EncryptAsync (encryptionKeys, content, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>
@@ -1186,6 +1434,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1202,7 +1451,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The specified encryption algorithm is not supported.
 		/// </exception>
-		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1210,21 +1462,24 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
+			var encryptionKeys = GetPublicKeys (recipients, cancellationToken);
+
 			// TODO: document the exceptions that can be thrown by BouncyCastle
-			return Encrypt (algorithm, GetPublicKeys (recipients), content);
+			return Encrypt (algorithm, encryptionKeys, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Encrypt the specified content for the specified recipients.
+		/// Asynchronously encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
-		/// Encrypts the specified content for the specified recipients.
+		/// Asynchronously encrypts the specified content for the specified recipients.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1235,10 +1490,30 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The specified encryption algorithm is not supported.
 		/// </exception>
-		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public async Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var encryptionKeys = await GetPublicKeysAsync (recipients, cancellationToken).ConfigureAwait (false);
+
+			// TODO: document the exceptions that can be thrown by BouncyCastle
+			return await EncryptAsync (algorithm, encryptionKeys, content, cancellationToken).ConfigureAwait (false);
+		}
+
+		async Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1263,7 +1538,7 @@ namespace MimeKit.Cryptography {
 			if (count == 0)
 				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
-			var encrypted = Encrypt (encrypter, content);
+			var encrypted = await EncryptAsync (encrypter, content, doAsync, cancellationToken).ConfigureAwait (false);
 
 			return new MimePart ("application", "octet-stream") {
 				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
@@ -1279,8 +1554,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
+		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1291,16 +1568,113 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>No recipients were specified.</para>
 		/// </exception>
-		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content)
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return Encrypt (defaultAlgorithm, recipients, content);
+			return EncryptAsync (algorithm, recipients, content, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
 
 		/// <summary>
-		/// Cryptographically sign and encrypt the specified content for the specified recipients.
+		/// Asynchronously encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="algorithm">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return EncryptAsync (algorithm, recipients, content, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return Encrypt (defaultAlgorithm, recipients, content, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task<MimePart> EncryptAsync (IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return EncryptAsync (defaultAlgorithm, recipients, content, cancellationToken);
+		}
+
+		/// <summary>
+		/// Sign and encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
@@ -1308,6 +1682,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1333,12 +1708,14 @@ namespace MimeKit.Cryptography {
 		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
+		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1349,16 +1726,79 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var key = GetSigningKey (signer);
+			var signingKey = GetSigningKey (signer, cancellationToken);
+			var encryptionKeys = GetPublicKeys (recipients, cancellationToken);
 
-			return SignAndEncrypt (key, digestAlgo, GetPublicKeys (recipients), content);
+			return SignAndEncrypt (signingKey, digestAlgo, encryptionKeys, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Cryptographically sign and encrypt the specified content for the specified recipients.
+		/// Asynchronously sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Asynchronously signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="digestAlgo"/> is out of range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified <see cref="DigestAlgorithm"/> is not supported by this context.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found for <paramref name="signer"/>.
+		/// </exception>
+		/// <exception cref="PublicKeyNotFoundException">
+		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public async Task<MimePart> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var signingKey = await GetSigningKeyAsync (signer, cancellationToken).ConfigureAwait (false);
+			var encryptionKeys = await GetPublicKeysAsync (recipients, cancellationToken).ConfigureAwait (false);
+
+			return await SignAndEncryptAsync (signingKey, digestAlgo, encryptionKeys, content, cancellationToken).ConfigureAwait (false);
+		}
+
+		/// <summary>
+		/// Sign and encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
@@ -1367,6 +1807,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="cipherAlgo">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1385,12 +1826,14 @@ namespace MimeKit.Cryptography {
 		/// The specified encryption algorithm is not supported.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content)
+		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1401,16 +1844,17 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var key = GetSigningKey (signer);
+			var signingKey = GetSigningKey (signer, cancellationToken);
+			var encryptionKeys = GetPublicKeys (recipients, cancellationToken);
 
-			return SignAndEncrypt (key, digestAlgo, cipherAlgo, GetPublicKeys (recipients), content);
+			return SignAndEncrypt (signingKey, digestAlgo, cipherAlgo, encryptionKeys, content, cancellationToken);
 		}
 
 		/// <summary>
-		/// Cryptographically sign and encrypt the specified content for the specified recipients.
+		/// Asynchronously sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Asynchronously signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
@@ -1419,6 +1863,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="cipherAlgo">The encryption algorithm.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1437,12 +1882,31 @@ namespace MimeKit.Cryptography {
 		/// The specified encryption algorithm is not supported.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public async Task<MimePart> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (content == null)
+				throw new ArgumentNullException (nameof (content));
+
+			var signingKey = await GetSigningKeyAsync (signer, cancellationToken).ConfigureAwait (false);
+			var encryptionKeys = await GetPublicKeysAsync (recipients, cancellationToken).ConfigureAwait (false);
+
+			return await SignAndEncryptAsync (signingKey, digestAlgo, cipherAlgo, encryptionKeys, content, cancellationToken).ConfigureAwait (false);
+		}
+
+		async Task<MimePart> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1498,9 +1962,18 @@ namespace MimeKit.Cryptography {
 						int nread;
 
 						try {
-							while ((nread = content.Read (buf, 0, BufferLength)) > 0) {
-								signatureGenerator.Update (buf, 0, nread);
-								literal.Write (buf, 0, nread);
+							if (doAsync) {
+								while ((nread = await content.ReadAsync (buf, 0, BufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
+									cancellationToken.ThrowIfCancellationRequested ();
+									signatureGenerator.Update (buf, 0, nread);
+									literal.Write (buf, 0, nread);
+								}
+							} else {
+								while ((nread = content.Read (buf, 0, BufferLength)) > 0) {
+									cancellationToken.ThrowIfCancellationRequested ();
+									signatureGenerator.Update (buf, 0, nread);
+									literal.Write (buf, 0, nread);
+								}
 							}
 						} finally {
 							ArrayPool<byte>.Shared.Return (buf);
@@ -1549,10 +2022,98 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Cryptographically sign and encrypt the specified content for the specified recipients.
+		/// Sign and encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
-		/// Cryptographically signs and encrypts the specified content for the specified recipients.
+		/// Signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="cipherAlgo">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, content, false, cancellationToken).GetAwaiter ().GetResult ();
+		}
+
+		/// <summary>
+		/// Asynchronously sign and encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="cipherAlgo">The encryption algorithm.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public Task<MimePart> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, content, true, cancellationToken);
+		}
+
+		/// <summary>
+		/// Sign and encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Signs and encrypts the specified content for the specified recipients.
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance
 		/// containing the encrypted data.</returns>
@@ -1560,6 +2121,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
 		/// <param name="recipients">The recipients.</param>
 		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1575,14 +2137,56 @@ namespace MimeKit.Cryptography {
 		/// <para>No recipients were specified.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The user chose to cancel the password prompt.
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content)
+		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content);
+			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously sign and encrypt the specified content for the specified recipients.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously signs and encrypts the specified content for the specified recipients.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance
+		/// containing the encrypted data.</returns>
+		/// <param name="signer">The signer.</param>
+		/// <param name="digestAlgo">The digest algorithm to use for signing.</param>
+		/// <param name="recipients">The recipients.</param>
+		/// <param name="content">The content.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <para><paramref name="signer"/> cannot be used for signing.</para>
+		/// <para>-or-</para>
+		/// <para>One or more of the recipient keys cannot be used for encrypting.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		public Task<MimePart> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return SignAndEncryptAsync (signer, digestAlgo, defaultAlgorithm, recipients, content, cancellationToken);
 		}
 
 		async Task<DigitalSignatureCollection> DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
@@ -1620,7 +2224,10 @@ namespace MimeKit.Cryptography {
 					hasEncryptedPackets = true;
 
 					try {
-						secret = GetSecretKey (encrypted.KeyId);
+						if (doAsync)
+							secret = await GetSecretKeyAsync (encrypted.KeyId, cancellationToken).ConfigureAwait (false);
+						else
+							secret = GetSecretKey (encrypted.KeyId, cancellationToken);
 						break;
 					} catch (PrivateKeyNotFoundException ex) {
 						pkex = ex;
@@ -1765,7 +2372,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
-		/// <para>The operation was cancelled via the cancellation token.</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -1802,7 +2409,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
-		/// <para>The operation was cancelled via the cancellation token.</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -1816,7 +2423,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
+		/// Decrypt the specified encryptedData and extracts the digital signers if the content was also signed.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData and extracts the digital signers if the content was also signed.
@@ -1834,7 +2441,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
-		/// <para>The operation was cancelled via the cancellation token.</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -1853,7 +2460,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypts the specified encryptedData.
+		/// Decrypt the specified encryptedData.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData.
@@ -1870,7 +2477,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
-		/// <para>The operation was cancelled via the cancellation token.</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
@@ -1889,13 +2496,59 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a public pgp keyring.
+		/// Asynchronously decrypt the specified encryptedData.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously decrypts the specified encryptedData.
+		/// </remarks>
+		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
+		/// <param name="encryptedData">The encrypted data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="PrivateKeyNotFoundException">
+		/// The private key could not be found to decrypt the stream.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// <para>The user chose to cancel the password prompt.</para>
+		/// <para>-or-</para>
+		/// <para>The operation was canceled via the cancellation token.</para>
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred.
+		/// </exception>
+		public override async Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			using (var decryptedData = new MemoryBlockStream ()) {
+				await DecryptToAsync (encryptedData, decryptedData, cancellationToken).ConfigureAwait (false);
+				decryptedData.Position = 0;
+
+				return await MimeEntity.LoadAsync (decryptedData, cancellationToken).ConfigureAwait (false);
+			}
+		}
+
+		/// <summary>
+		/// Import a public pgp keyring.
 		/// </summary>
 		/// <remarks>
 		/// Imports a public pgp keyring.
 		/// </remarks>
-		/// <param name="keyring">The pgp keyring.</param>
-		public abstract void Import (PgpPublicKeyRing keyring);
+		/// <param name="keyring">The public key-ring to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyring"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the public key-ring.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public abstract void Import (PgpPublicKeyRing keyring, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
 		/// Import the specified public keyring bundle.
@@ -1903,34 +2556,65 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Imports the specified public keyring bundle.
 		/// </remarks>
-		/// <param name="bundle">THe bundle of public keyrings to import.</param>
-		public abstract void Import (PgpPublicKeyRingBundle bundle);
+		/// <param name="bundle">The bundle of public keyrings to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="bundle"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the public key-ring.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public abstract void Import (PgpPublicKeyRingBundle bundle, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Imports a secret pgp keyring.
+		/// Import a secret pgp keyring.
 		/// </summary>
 		/// <remarks>
 		/// Imports a secret pgp keyring.
 		/// </remarks>
-		/// <param name="keyring">The pgp keyring.</param>
-		public abstract void Import (PgpSecretKeyRing keyring);
+		/// <param name="keyring">The secret key-ring to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keyring"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the secret key-ring.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public abstract void Import (PgpSecretKeyRing keyring, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Imports a secret pgp keyring bundle.
+		/// Import a secret pgp keyring bundle.
 		/// </summary>
 		/// <remarks>
 		/// Imports a secret pgp keyring bundle.
 		/// </remarks>
-		/// <param name="bundle">The pgp keyring bundle.</param>
-		public abstract void Import (PgpSecretKeyRingBundle bundle);
+		/// <param name="bundle">The bundle of secret keyrings to import.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="bundle"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occured while saving the secret key-ring bundle.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public abstract void Import (PgpSecretKeyRingBundle bundle, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Imports public pgp keys from the specified stream.
+		/// Import public pgp keys from the specified stream.
 		/// </summary>
 		/// <remarks>
 		/// Imports public pgp keys from the specified stream.
 		/// </remarks>
 		/// <param name="stream">The raw key data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
@@ -1939,35 +2623,42 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>An error occured while saving the public key-ring bundle.</para>
 		/// </exception>
-		public override void Import (Stream stream)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
 			using (var armored = new ArmoredInputStream (stream))
-				Import (new PgpPublicKeyRingBundle (armored));
+				Import (new PgpPublicKeyRingBundle (armored), cancellationToken);
 		}
 
 		/// <summary>
-		/// Exports the specified public keys.
+		/// Asynchronously import public pgp keys from the specified stream.
 		/// </summary>
 		/// <remarks>
-		/// Exports the specified public keys.
+		/// Asynchronously imports public pgp keys from the specified stream.
 		/// </remarks>
-		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
-		/// <param name="keys">The public keys to export.</param>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="stream">The raw key data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keys"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
-		public MimePart Export (IEnumerable<PgpPublicKey> keys)
+		/// <exception cref="System.IO.IOException">
+		/// <para>An error occurred while parsing the raw key-ring data</para>
+		/// <para>-or-</para>
+		/// <para>An error occured while saving the public key-ring bundle.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override Task ImportAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (keys == null)
-				throw new ArgumentNullException (nameof (keys));
-
-			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
-			var bundle = new PgpPublicKeyRingBundle (keyrings);
-
-			return Export (bundle);
+			Import (stream, cancellationToken);
+			return Task.FromResult (true);
 		}
 
 		/// <summary>
@@ -1978,17 +2669,105 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The public keys to export.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="keys"/> is <c>null</c>.
 		/// </exception>
-		public MimePart Export (PgpPublicKeyRingBundle keys)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimePart Export (IEnumerable<PgpPublicKey> keys, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return Export (bundle, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously export the specified public keys.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the specified public keys.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
+		/// <param name="keys">The public keys to export.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keys"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task<MimePart> ExportAsync (IEnumerable<PgpPublicKey> keys, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return ExportAsync (bundle, cancellationToken);
+		}
+
+		/// <summary>
+		/// Export the specified public keys.
+		/// </summary>
+		/// <remarks>
+		/// Exports the specified public keys.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
+		/// <param name="keys">The public keys to export.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keys"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimePart Export (PgpPublicKeyRingBundle keys, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (keys == null)
 				throw new ArgumentNullException (nameof (keys));
 
 			var content = new MemoryBlockStream ();
 
-			Export (keys, content, true);
+			Export (keys, content, true, cancellationToken);
+
+			content.Position = 0;
+
+			return new MimePart ("application", "pgp-keys") {
+				ContentDisposition = new ContentDisposition (ContentDisposition.Attachment),
+				Content = new MimeContent (content)
+			};
+		}
+
+		/// <summary>
+		/// Asynchronously export the specified public keys.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the specified public keys.
+		/// </remarks>
+		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
+		/// <param name="keys">The public keys to export.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="keys"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public async Task<MimePart> ExportAsync (PgpPublicKeyRingBundle keys, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			var content = new MemoryBlockStream ();
+
+			await ExportAsync (keys, content, true, cancellationToken).ConfigureAwait (false);
 
 			content.Position = 0;
 
@@ -2004,10 +2783,10 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Exports the specified public keys.
 		/// </remarks>
-		/// <returns>A new <see cref="MimePart"/> instance containing the exported public keys.</returns>
 		/// <param name="keys">The public keys to export.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -2016,7 +2795,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void Export (IEnumerable<PgpPublicKey> keys, Stream stream, bool armor)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public void Export (IEnumerable<PgpPublicKey> keys, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (keys == null)
 				throw new ArgumentNullException (nameof (keys));
@@ -2027,7 +2809,43 @@ namespace MimeKit.Cryptography {
 			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
 			var bundle = new PgpPublicKeyRingBundle (keyrings);
 
-			Export (bundle, stream, armor);
+			Export (bundle, stream, armor, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously export the specified public keys.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the specified public keys.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="keys">The public keys to export.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="keys"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task ExportAsync (IEnumerable<PgpPublicKey> keys, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			var keyrings = keys.Select (key => new PgpPublicKeyRing (key.GetEncoded ()));
+			var bundle = new PgpPublicKeyRingBundle (keyrings);
+
+			return ExportAsync (bundle, stream, armor, cancellationToken);
 		}
 
 		/// <summary>
@@ -2039,6 +2857,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keys">The public keyring bundle to export.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -2047,7 +2866,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void Export (PgpPublicKeyRingBundle keys, Stream stream, bool armor)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public void Export (PgpPublicKeyRingBundle keys, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (keys == null)
 				throw new ArgumentNullException (nameof (keys));
@@ -2068,6 +2890,50 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Asynchronously export the public keyring bundle.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the public keyring bundle.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="keys">The public keyring bundle to export.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="keys"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public async Task ExportAsync (PgpPublicKeyRingBundle keys, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (keys == null)
+				throw new ArgumentNullException (nameof (keys));
+
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (armor) {
+				using (var armored = new ArmoredOutputStream (stream)) {
+					armored.SetHeader ("Version", null);
+
+					var encoded = keys.GetEncoded ();
+					await stream.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
+					armored.Flush ();
+				}
+			} else {
+				var encoded = keys.GetEncoded ();
+				await stream.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
+			}
+		}
+
+		/// <summary>
 		/// Export the public keyrings for the specified mailboxes.
 		/// </summary>
 		/// <remarks>
@@ -2076,7 +2942,54 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
-		public abstract void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor);
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> was empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public abstract void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken));
+
+		/// <summary>
+		/// Asynchronously export the public keyrings for the specified mailboxes.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously exports the public keyrings for the specified mailboxes.
+		/// </remarks>
+		/// <param name="mailboxes">The mailboxes.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> was empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Exporting keys is not supported by this cryptography context.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public abstract Task ExportAsync (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
 		/// Releases all resources used by the <see cref="OpenPgpContext"/> object.

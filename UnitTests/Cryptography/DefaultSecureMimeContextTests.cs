@@ -83,6 +83,7 @@ namespace UnitTests.Cryptography {
 
 			using (var ctx = new DefaultSecureMimeContext (database)) {
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null, true));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Certificate) null, true));
 			}
 		}
 

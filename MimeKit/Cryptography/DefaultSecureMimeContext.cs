@@ -27,6 +27,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Pkcs;
@@ -212,10 +214,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
 		/// <param name="signer">The signer.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signer"/> is <c>null</c>.
 		/// </exception>
-		public override bool CanSign (MailboxAddress signer)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -238,10 +244,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <c>null</c>.
 		/// </exception>
-		public override bool CanEncrypt (MailboxAddress mailbox)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
@@ -466,22 +476,49 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
 		/// Imports the specified certificate into the database.
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
-		public override void Import (X509Certificate certificate)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
+			cancellationToken.ThrowIfCancellationRequested ();
+
 			if (dbase.Find (certificate, X509CertificateRecordFields.Id) == null)
 				dbase.Add (new X509CertificateRecord (certificate));
+		}
+
+		/// <summary>
+		/// Asynchronously import a certificate.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously imports the specified certificate into the database.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Import (certificate, cancellationToken);
+			return Task.FromResult (true);
 		}
 
 		/// <summary>
@@ -491,13 +528,19 @@ namespace MimeKit.Cryptography {
 		/// Imports the specified certificate revocation list.
 		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <c>null</c>.
 		/// </exception>
-		public override void Import (X509Crl crl)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override void Import (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
+
+			cancellationToken.ThrowIfCancellationRequested ();
 
 			// check for an exact match...
 			if (dbase.Find (crl, X509CrlRecordFields.Id) != null)
@@ -527,6 +570,26 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Asynchronously imports a certificate revocation list.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously imports the specified certificate revocation list.
+		/// </remarks>
+		/// <param name="crl">The certificate revocation list.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="crl"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public override Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Import (crl, cancellationToken);
+			return Task.FromResult (true);
+		}
+
+		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <remarks>
@@ -534,21 +597,27 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override void Import (Stream stream, string password)
+		public override void Import (Stream stream, string password, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
+
+			cancellationToken.ThrowIfCancellationRequested ();
 
 			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 			var enabledAlgorithms = EnabledEncryptionAlgorithms;
@@ -584,15 +653,42 @@ namespace MimeKit.Cryptography {
 				} else if (pkcs12.IsCertificateEntry (alias)) {
 					var entry = pkcs12.GetCertificate (alias);
 
-					Import (entry.Certificate, true);
+					Import (entry.Certificate, true, cancellationToken);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Asynchronously imports certificates and keys from a pkcs12-encoded stream.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously imports all of the certificates and keys from the pkcs12-encoded stream.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="stream">The raw certificate and key data.</param>
+		/// <param name="password">The password to unlock the data.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		public override Task ImportAsync (Stream stream, string password, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Import (stream, password, cancellationToken);
+			return Task.FromResult (true);
 		}
 
 		#endregion
 
 		/// <summary>
-		/// Imports a certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
 		/// <para>Imports the certificate.</para>
@@ -602,10 +698,14 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
-		public void Import (X509Certificate certificate, bool trusted)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public void Import (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -627,25 +727,78 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Imports a DER-encoded certificate stream.
+		/// Asynchronously import a certificate.
+		/// </summary>
+		/// <remarks>
+		/// <para>Asynchronously imports the certificate.</para>
+		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <c>true</c>,
+		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
+		/// specified trust.</para>
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task ImportAsync (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			// TODO: Add Async APIs to IX509CertificateDatabase
+			Import (certificate, trusted, cancellationToken);
+			return Task.FromResult (true);
+		}
+
+		/// <summary>
+		/// Import a DER-encoded certificate stream.
 		/// </summary>
 		/// <remarks>
 		/// Imports the certificate(s).
 		/// </remarks>
 		/// <param name="stream">The raw certificate(s).</param>
 		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
-		public void Import (Stream stream, bool trusted)
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public void Import (Stream stream, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
+			cancellationToken.ThrowIfCancellationRequested ();
+
 			var parser = new X509CertificateParser ();
 
 			foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-				Import (certificate, trusted);
+				Import (certificate, trusted, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously import a DER-encoded certificate stream.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously imports the certificate(s).
+		/// </remarks>
+		/// <param name="stream">The raw certificate(s).</param>
+		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task ImportAsync (Stream stream, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			// TODO: Add Async APIs to IX509CertificateDatabase
+			Import (stream, trusted, cancellationToken);
+			return Task.FromResult (true);
 		}
 
 		/// <summary>

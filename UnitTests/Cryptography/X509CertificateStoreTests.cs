@@ -66,7 +66,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import (Stream.Null, null));
-			Assert.Throws<ArgumentNullException> (() => store.Import (GetTestDataPath ("smime.p12"), null));
+			Assert.Throws<ArgumentNullException> (() => store.Import (GetTestDataPath ("smime.pfx"), null));
 			Assert.Throws<ArgumentNullException> (() => store.Import (new byte[0], null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null));
@@ -196,11 +196,11 @@ namespace UnitTests.Cryptography {
 		{
 			var store = new X509CertificateStore ();
 
-			store.Import (GetTestDataPath ("smime.p12"), "no.secret");
+			store.Import (GetTestDataPath ("smime.pfx"), "no.secret");
 			var certificate = store.Certificates.FirstOrDefault ();
 			var count = store.Certificates.Count ();
 
-			Assert.AreEqual (3, count, "Unexpected number of certificates imported.");
+			Assert.AreEqual (4, count, "Unexpected number of certificates imported.");
 			Assert.IsNotNull (store.GetPrivateKey (certificate), "Failed to get private key.");
 
 			foreach (var authority in CertificateAuthorities)
