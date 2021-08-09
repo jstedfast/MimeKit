@@ -567,7 +567,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 
@@ -575,7 +575,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ("The multipart/signed part did not specify a protocol.");
 
 			using (var ctx = CryptographyContext.Create (protocol))
-				return VerifyAsync (ctx, cancellationToken);
+				return await VerifyAsync (ctx, cancellationToken).ConfigureAwait (false);
 		}
 	}
 }

@@ -826,6 +826,54 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public async Task TestAutoKeyRetrieveAsync ()
+		{
+			var message = await MimeMessage.LoadAsync (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
+			var multipart = (MultipartSigned) ((Multipart) message.Body)[0];
+
+			Assert.AreEqual (2, multipart.Count, "The multipart/signed has an unexpected number of children.");
+
+			var protocol = multipart.ContentType.Parameters["protocol"];
+			Assert.AreEqual ("application/pgp-signature", protocol, "The multipart/signed protocol does not match.");
+
+			var micalg = multipart.ContentType.Parameters["micalg"];
+
+			Assert.AreEqual ("pgp-sha1", micalg, "The multipart/signed micalg does not match.");
+
+			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+			Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+
+			DigitalSignatureCollection signatures;
+
+			try {
+				signatures = await multipart.VerifyAsync ();
+			} catch (IOException ex) {
+				if (ex.Message == "unknown PGP public key algorithm encountered") {
+					Assert.Ignore ("Known issue: {0}", ex.Message);
+					return;
+				}
+
+				throw;
+			}
+
+			Assert.AreEqual (1, signatures.Count, "Verify returned an unexpected number of signatures.");
+			foreach (var signature in signatures) {
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				} catch (DigitalSignatureVerifyException) {
+					// Note: Werner Koch's keyring has an EdDSA subkey which breaks BouncyCastle's
+					// PgpPublicKeyRingBundle reader. If/when one of the round-robin keys.gnupg.net
+					// key servers returns this particular keyring, we can expect to get an exception
+					// about being unable to find Werner's public key.
+
+					//Assert.Fail ("Failed to verify signature: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestExport ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
