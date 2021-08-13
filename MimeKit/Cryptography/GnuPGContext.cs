@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 					gnupg = Path.Combine (appData, "gnupg");
 				} else {
-					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
+					var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
 					gnupg = Path.Combine (home, ".gnupg");
 				}
 #else

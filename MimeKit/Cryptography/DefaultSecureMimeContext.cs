@@ -73,7 +73,7 @@ namespace MimeKit.Cryptography {
 				var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 				path = Path.Combine (appData, "Roaming\\mimekit");
 			} else {
-				var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
+				var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
 				path = Path.Combine (home, ".mimekit");
 			}
 #else
