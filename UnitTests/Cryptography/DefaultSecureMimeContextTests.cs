@@ -32,6 +32,7 @@ using System.Collections.Generic;
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Security;
 
 using NUnit.Framework;
 
@@ -57,18 +58,46 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
+			var connection = SqliteCertificateDatabase.CreateConnection ("smime.db");
+			var database = new SqliteCertificateDatabase (connection, "no.secret");
+			var random = new SecureRandom ();
+
+			// password
 			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ((string) null));
-			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ((IX509CertificateDatabase) null));
 
+			// password, random
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ((string) null, random));
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ("password", (SecureRandom) null));
+
+			// fileName, password
 			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext (null, "password"));
-			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ("fileName", null));
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ("fileName", (string) null));
 
-			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((DbConnection) null, "password"));
+			// fileName, password, random
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext (null, "password", random));
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ("fileName", null, random));
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ("fileName", "password", null));
+
+			// IX509CertificateDatabase [, random]
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ((IX509CertificateDatabase) null));
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext ((IX509CertificateDatabase) null, random));
+			Assert.Throws<ArgumentNullException> (() => new DefaultSecureMimeContext (database, null));
+
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((string) null, "password"));
 			Assert.Throws<ArgumentException> (() => new SqliteCertificateDatabase (string.Empty, "password"));
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ("smime.db", null));
 
-			var database = new SqliteCertificateDatabase ("smime.db", "no.secret");
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((DbConnection) null, "password"));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (connection, null));
+
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((string) null, "password", random));
+			Assert.Throws<ArgumentException> (() => new SqliteCertificateDatabase (string.Empty, "password", random));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ("smime.db", null, random));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ("smime.db", "password", null));
+
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((DbConnection) null, "password", random));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (connection, null, random));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (connection, "password", null));
 
 			Assert.Throws<ArgumentNullException> (() => database.Add ((X509CrlRecord) null));
 			Assert.Throws<ArgumentNullException> (() => database.Remove ((X509CrlRecord) null));

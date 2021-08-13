@@ -31,6 +31,8 @@ using System.Text;
 using System.Data.Common;
 using System.Collections.Generic;
 
+using Org.BouncyCastle.Security;
+
 #if __MOBILE__
 using Mono.Data.Sqlite;
 #else
@@ -160,7 +162,7 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
-		static DbConnection CreateConnection (string fileName)
+		internal static DbConnection CreateConnection (string fileName)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -234,6 +236,40 @@ namespace MimeKit.Cryptography {
 		/// Initialize a new instance of the <see cref="SqliteCertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
+		/// <para>Creates a new <see cref="SqliteCertificateDatabase"/> and opens a connection to the
+		/// SQLite database at the specified path using the Mono.Data.Sqlite binding to the native
+		/// SQLite library.</para>
+		/// <para>If Mono.Data.Sqlite is not available or if an alternative binding to the native
+		/// SQLite library is preferred, then consider using
+		/// <see cref="SqlCertificateDatabase(System.Data.Common.DbConnection,string,SecureRandom)"/> instead.</para>
+		/// </remarks>
+		/// <param name="fileName">The file name.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">The secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the file.
+		/// </exception>
+		public SqliteCertificateDatabase (string fileName, string password, SecureRandom random) : this (CreateConnection (fileName), password, random)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="SqliteCertificateDatabase"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new <see cref="SqliteCertificateDatabase"/> using the provided SQLite database connection.
 		/// </remarks>
 		/// <param name="connection">The SQLite connection.</param>
@@ -244,6 +280,26 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		public SqliteCertificateDatabase (DbConnection connection, string password) : base (connection, password)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="SqliteCertificateDatabase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SqliteCertificateDatabase"/> using the provided SQLite database connection.
+		/// </remarks>
+		/// <param name="connection">The SQLite connection.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">The secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		public SqliteCertificateDatabase (DbConnection connection, string password, SecureRandom random) : base (connection, password, random)
 		{
 		}
 

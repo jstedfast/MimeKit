@@ -36,6 +36,7 @@ using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Security;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -48,11 +49,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class TemporarySecureMimeContext : BouncyCastleSecureMimeContext
 	{
-		readonly Dictionary<string, EncryptionAlgorithm[]> capabilities;
-		internal readonly Dictionary<string, AsymmetricKeyParameter> keys;
-		internal readonly List<X509Certificate> certificates;
-		readonly HashSet<string> fingerprints;
-		readonly List<X509Crl> crls;
+		readonly Dictionary<string, EncryptionAlgorithm[]> capabilities = new Dictionary<string, EncryptionAlgorithm[]> (StringComparer.Ordinal);
+		internal readonly Dictionary<string, AsymmetricKeyParameter> keys = new Dictionary<string, AsymmetricKeyParameter> (StringComparer.Ordinal);
+		internal readonly List<X509Certificate> certificates = new List<X509Certificate> ();
+		readonly HashSet<string> fingerprints = new HashSet<string> ();
+		readonly List<X509Crl> crls = new List<X509Crl> ();
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TemporarySecureMimeContext"/> class.
@@ -60,13 +61,22 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="TemporarySecureMimeContext"/>.
 		/// </remarks>
-		public TemporarySecureMimeContext ()
+		public TemporarySecureMimeContext () : base ()
 		{
-			capabilities = new Dictionary<string, EncryptionAlgorithm[]> (StringComparer.Ordinal);
-			keys = new Dictionary<string, AsymmetricKeyParameter> (StringComparer.Ordinal);
-			certificates = new List<X509Certificate> ();
-			fingerprints = new HashSet<string> ();
-			crls = new List<X509Crl> ();
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="TemporarySecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="TemporarySecureMimeContext"/>.
+		/// </remarks>
+		/// <param name="random">A secure pseudo-random number generator.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="random"/> is <c>null</c>.
+		/// </exception>
+		public TemporarySecureMimeContext (SecureRandom random) : base (random)
+		{
 		}
 
 		/// <summary>

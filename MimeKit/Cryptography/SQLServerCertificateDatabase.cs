@@ -31,6 +31,7 @@ using System.Data.Common;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Security;
 
 using MimeKit.Utils;
 
@@ -60,6 +61,26 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
 		public SQLServerCertificateDatabase (DbConnection connection, string password) : base (connection, password)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="SQLServerCertificateDatabase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SQLServerCertificateDatabase"/> using the provided SQL Server database connection.
+		/// </remarks>
+		/// <param name="connection">The SQL Server connection.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">The secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		public SQLServerCertificateDatabase (DbConnection connection, string password, SecureRandom random) : base (connection, password, random)
 		{
 		}
 

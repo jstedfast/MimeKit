@@ -77,9 +77,38 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Creates a new <see cref="BouncyCastleSecureMimeContext"/>
 		/// </remarks>
-		protected BouncyCastleSecureMimeContext ()
+		protected BouncyCastleSecureMimeContext () : this (new SecureRandom ())
 		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="SecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="BouncyCastleSecureMimeContext"/>
+		/// </remarks>
+		/// <param name="random">A secure pseudo-random number generator.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="random"/> is <c>null</c>.
+		/// </exception>
+		protected BouncyCastleSecureMimeContext (SecureRandom random)
+		{
+			if (random == null)
+				throw new ArgumentNullException (nameof (random));
+
+			RandomNumberGenerator = random;
 			client = new HttpClient ();
+		}
+
+		/// <summary>
+		/// Get the pseudo-random number generator.
+		/// </summary>
+		/// <remarks>
+		/// Gets the pseudo-random number generator.
+		/// </remarks>
+		/// <value>The pseudo-random number generator.</value>
+		protected SecureRandom RandomNumberGenerator {
+			get; private set;
 		}
 
 		/// <summary>
@@ -258,7 +287,7 @@ namespace MimeKit.Cryptography
 		{
 			var unsignedAttributes = new SimpleAttributeTableGenerator (signer.UnsignedAttributes);
 			var signedAttributes = AddSecureMimeCapabilities (signer.SignedAttributes);
-			var signedData = new CmsSignedDataStreamGenerator ();
+			var signedData = new CmsSignedDataStreamGenerator (RandomNumberGenerator);
 			var digestOid = GetDigestOid (signer.DigestAlgorithm);
 			byte[] subjectKeyId = null;
 
@@ -1235,8 +1264,8 @@ namespace MimeKit.Cryptography
 
 		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
+			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
 			var unique = new HashSet<X509Certificate> ();
-			var cms = new CmsEnvelopedDataGenerator ();
 			int count = 0;
 
 			foreach (var recipient in recipients) {
@@ -1660,7 +1689,7 @@ namespace MimeKit.Cryptography
 			if (count == 0)
 				throw new ArgumentException ("No mailboxes specified.", nameof (mailboxes));
 
-			var cms = new CmsSignedDataStreamGenerator ();
+			var cms = new CmsSignedDataStreamGenerator (RandomNumberGenerator);
 			cms.AddCertificates (certificates);
 
 			var memory = new MemoryBlockStream ();

@@ -73,7 +73,27 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		protected X509CertificateDatabase (DbConnection connection, string password)
+		protected X509CertificateDatabase (DbConnection connection, string password) : this (connection, password, new SecureRandom ())
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="X509CertificateDatabase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// The password is used to encrypt and decrypt private keys in the database and cannot be null.
+		/// </remarks>
+		/// <param name="connection">The database connection.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">The secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		protected X509CertificateDatabase (DbConnection connection, string password, SecureRandom random)
 		{
 			if (connection == null)
 				throw new ArgumentNullException (nameof (connection));
@@ -81,8 +101,12 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
+			if (random == null)
+				throw new ArgumentNullException (nameof (random));
+
 			EncryptionAlgorithm = DefaultEncryptionAlgorithm;
 			MinIterations = DefaultMinIterations;
+			RandomNumberGenerator = random;
 			SaltSize = DefaultSaltSize;
 
 			this.password = password.ToCharArray ();
@@ -124,6 +148,17 @@ namespace MimeKit.Cryptography {
 		/// <value>The minimum iterations.</value>
 		protected int MinIterations {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get the secure pseudo-random number generator used when encrypting private keys.
+		/// </summary>
+		/// <remarks>
+		/// Gets the secure pseudo-random number generator used when encrypting private keys.
+		/// </remarks>
+		/// <value>The secure pseudo-random number generator.</value>
+		protected SecureRandom RandomNumberGenerator {
+			get; private set;
 		}
 
 		/// <summary>
@@ -176,13 +211,12 @@ namespace MimeKit.Cryptography {
 		{
 			var cipher = PbeUtilities.CreateEngine (EncryptionAlgorithm.Id) as IBufferedCipher;
 			var keyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo (key);
-			var random = new SecureRandom ();
 			var salt = new byte[SaltSize];
 
 			if (cipher == null)
 				throw new Exception ("Unknown encryption algorithm: " + EncryptionAlgorithm.Id);
 
-			random.NextBytes (salt);
+			RandomNumberGenerator.NextBytes (salt);
 
 			var pbeParameters = PbeUtilities.GenerateAlgorithmParameters (EncryptionAlgorithm.Id, salt, MinIterations);
 			var algorithm = new AlgorithmIdentifier (EncryptionAlgorithm, pbeParameters);

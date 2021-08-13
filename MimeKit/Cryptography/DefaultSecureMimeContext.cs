@@ -37,6 +37,7 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Security;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -124,7 +125,41 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
-		public DefaultSecureMimeContext (string fileName, string password)
+		public DefaultSecureMimeContext (string fileName, string password) : this (fileName, password, new SecureRandom ())
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Allows the program to specify its own location for the SQLite database. If the file does not exist,
+		/// it will be created and the necessary tables and indexes will be constructed.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
+		/// </remarks>
+		/// <param name="fileName">The path to the SQLite database.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">A secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// Mono.Data.Sqlite is not available.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the file.
+		/// </exception>
+		public DefaultSecureMimeContext (string fileName, string password, SecureRandom random) : base (random)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -140,7 +175,7 @@ namespace MimeKit.Cryptography {
 			if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
 				Directory.CreateDirectory (dir);
 
-			dbase = new SqliteCertificateDatabase (fileName, password);
+			dbase = new SqliteCertificateDatabase (fileName, password, random);
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.
@@ -155,6 +190,9 @@ namespace MimeKit.Cryptography {
 		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="password"/> is <c>null</c>.
+		/// </exception>
 		/// <exception cref="System.NotImplementedException">
 		/// Mono.Data.Sqlite is not available.
 		/// </exception>
@@ -165,6 +203,33 @@ namespace MimeKit.Cryptography {
 		/// An error occurred reading the database at the default location.
 		/// </exception>
 		public DefaultSecureMimeContext (string password) : this (DefaultDatabasePath, password)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Allows the program to specify its own password for the default database.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
+		/// </remarks>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">A secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the database at the default location.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred reading the database at the default location.
+		/// </exception>
+		public DefaultSecureMimeContext (string password, SecureRandom random) : this (DefaultDatabasePath, password, random)
 		{
 		}
 
@@ -198,7 +263,24 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="database"/> is <c>null</c>.
 		/// </exception>
-		public DefaultSecureMimeContext (IX509CertificateDatabase database)
+		public DefaultSecureMimeContext (IX509CertificateDatabase database) : this (database, new SecureRandom ())
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DefaultSecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// This constructor is useful for supplying a custom <see cref="IX509CertificateDatabase"/>.
+		/// </remarks>
+		/// <param name="database">The certificate database.</param>
+		/// <param name="random">A secure pseudo-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="database"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		public DefaultSecureMimeContext (IX509CertificateDatabase database, SecureRandom random) : base (random)
 		{
 			if (database == null)
 				throw new ArgumentNullException (nameof (database));

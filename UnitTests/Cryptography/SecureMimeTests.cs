@@ -37,6 +37,8 @@ using NUnit.Framework;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Prng;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -183,6 +185,8 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.DoubleSha));
 			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.Haval5160));
 			Assert.Throws<NotSupportedException> (() => SecureMimeContext.GetDigestOid (DigestAlgorithm.Tiger192));
+
+			Assert.Throws<ArgumentNullException> (() => new TemporarySecureMimeContext ((SecureRandom) null));
 
 			using (var ctx = CreateContext ()) {
 				var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
@@ -2363,7 +2367,7 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class SecureMimeTests : SecureMimeTestsBase
 	{
-		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext { CheckCertificateRevocation = true };
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = true };
 
 		protected override SecureMimeContext CreateContext ()
 		{

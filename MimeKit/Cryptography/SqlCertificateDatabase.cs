@@ -40,6 +40,7 @@ using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Security;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -66,7 +67,27 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="password"/> is <c>null</c>.</para>
 		/// </exception>
-		protected SqlCertificateDatabase (DbConnection connection, string password) : base (connection, password)
+		protected SqlCertificateDatabase (DbConnection connection, string password) : this (connection, password, new SecureRandom ())
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="SqlCertificateDatabase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SqlCertificateDatabase"/> using the provided database connection.
+		/// </remarks>
+		/// <param name="connection">The database connection.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <param name="random">The secure pseuido-random number generator.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// </exception>
+		protected SqlCertificateDatabase (DbConnection connection, string password, SecureRandom random) : base (connection, password, random)
 		{
 			if (connection.State != ConnectionState.Open)
 				connection.Open ();

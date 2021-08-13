@@ -33,6 +33,8 @@ using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Prng;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -834,7 +836,7 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class ApplicationPkcs7MimeTests : ApplicationPkcs7MimeTestsBase
 	{
-		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext { CheckCertificateRevocation = true };
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = true };
 
 		protected override SecureMimeContext CreateContext ()
 		{
