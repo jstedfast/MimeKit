@@ -304,8 +304,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serialize the <see cref="ContentType"/> to a string,
-		/// optionally encoding the parameters.
+		/// Serialize the <see cref="ContentType"/> to a string, optionally encoding the parameters.
 		/// </summary>
 		/// <remarks>
 		/// Creates a string-representation of the <see cref="ContentType"/>, optionally encoding
@@ -345,8 +344,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Serialize the <see cref="ContentType"/> to a string,
-		/// optionally encoding the parameters.
+		/// Serialize the <see cref="ContentType"/> to a string, optionally encoding the parameters.
 		/// </summary>
 		/// <remarks>
 		/// Creates a string-representation of the <see cref="ContentType"/>, optionally encoding
@@ -364,6 +362,20 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Serialize the <see cref="ContentType"/> to a string, optionally encoding the parameters.
+		/// </summary>
+		/// <remarks>
+		/// Creates a string-representation of the <see cref="ContentType"/>, optionally encoding
+		/// the parameters as they would be encoded for transport.
+		/// </remarks>
+		/// <returns>The serialized string.</returns>
+		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		public string ToString (bool encode)
+		{
+			return ToString (FormatOptions.Default, Encoding.UTF8, encode);
+		}
+
+		/// <summary>
 		/// Serialize the <see cref="ContentType"/> to a string.
 		/// </summary>
 		/// <remarks>
@@ -373,7 +385,7 @@ namespace MimeKit {
 		/// <see cref="ContentType"/>.</returns>
 		public override string ToString ()
 		{
-			return ToString (FormatOptions.Default, Encoding.UTF8, false);
+			return ToString (false);
 		}
 
 		internal event EventHandler Changed;
