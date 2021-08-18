@@ -361,6 +361,15 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParserCanonicalization ()
+		{
+			Assert.IsTrue (Header.TryParse ("Content-Type: text/plain", out var header), "TryParse");
+			Assert.AreEqual ("Content-Type", header.Field, "Field");
+			Assert.AreEqual ("text/plain", header.Value, "Value");
+			Assert.IsTrue (header.RawValue[header.RawValue.Length - 1] == (byte) '\n', "RawValue should end with a new-line");
+		}
+
+		[Test]
 		public void TestToHeaderId ()
 		{
 			HeaderId parsed;

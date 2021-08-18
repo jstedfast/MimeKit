@@ -1120,6 +1120,7 @@ namespace MimeKit {
 			textValue = Unfold (value.Trim ());
 
 			rawValue = FormatRawValue (format, encoding, textValue);
+			explicitRawValue = false;
 
 			// cache the formatting options that change the way the header is formatted
 			//allowMixedHeaderCharsets = format.AllowMixedHeaderCharsets;
@@ -1352,6 +1353,7 @@ namespace MimeKit {
 					return false;
 				}
 
+				// mark the header as invalid and consume the entire input as the 'field'
 				invalid = true;
 				inptr = inend;
 			}
@@ -1367,9 +1369,15 @@ namespace MimeKit {
 			byte[] value;
 
 			if (inptr < inend) {
+				// skip over the ':'
 				inptr++;
 
 				int count = (int) (inend - inptr);
+
+				// When in strict mode (aka when called from any of the public Parse/TryParse APIs), force the value to be canonicalized by ending with a new-line sequence.
+				if (strict && inend[-1] != (byte) '\n')
+					count += FormatOptions.Default.NewLine.Length;
+
 				value = new byte[count];
 
 				fixed (byte* outbuf = value) {
@@ -1377,8 +1385,18 @@ namespace MimeKit {
 
 					while (inptr < inend)
 						*outptr++ = *inptr++;
+
+					// When in strict mode (aka when called from any of the public Parse/TryParse APIs), force the value to be canonicalized by ending with a new-line sequence.
+					// See https://github.com/jstedfast/MimeKit/issues/695 for more information.
+					if (strict && inend[-1] != (byte) '\n') {
+						var newLine = FormatOptions.Default.NewLineBytes;
+
+						for (int i = 0; i < newLine.Length; i++)
+							*outptr++ = newLine[i];
+					}
 				}
 			} else {
+				// Note: The only way to get here is if we have an invalid header, in which case the entire 'header' is stored as the 'field'.
 				value = new byte[0];
 			}
 
