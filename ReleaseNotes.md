@@ -1,5 +1,17 @@
 # Release Notes
 
+### MimeKit 2.15.0 (2021-08-18)
+
+* Use DebugType=full for .NET Framework v4.x. (MailKit issue [#1239](https://github.com/jstedfast/MailKit/issues/1239))
+* Fixed bug in MultipartSigned.VerifyAsync() that would dispose of the crypto context before the async task was
+  complete, resulting in an OperationCanceledException.
+* Default to using the Environment.SpecialFolder.UserProfile directory instead of Personal when GNUPGHOME isn't defined
+  in the environment. The Personal directory maps to the MyDocuments directory, so this wasn't correct. The .gnupg
+  directory should be in the user's HOME directory.
+* Added ContentType.ToString(bool encode) and ContentDisposition.ToString(bool encode) convenience methods.
+* Changed the public Header.Parse/TryParse APIs to canonicalize header values to end with a newline even if the input
+  string does not. (issue [#695](https://github.com/jstedfast/MimeKit/issues/695))
+
 ### MimeKit 2.14.0 (2021-07-28)
 
 * Allow ..'s and trailing .'s in the local-part of an addr-spec by introducing a new RfcComplianceMode.Looser

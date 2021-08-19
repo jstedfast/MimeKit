@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>2.14.0</version>
+    <version>2.15.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,9 +26,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Allow ..'s and trailing .'s in the local-part of an addr-spec by introducing a new RfcComplianceMode.Looser enum value that can be set on the ParserOptions.AddressParserComplianceMode property. (issue #682)
-* Use Reflection to call Encoding.RegisterProvider() so that referencing the netstandard MimeKit assemblies from .NET 4.8 won't crash. (issue #683)
-* Don't write the X-MimeKit warning header in ToString() anymore. This is a lost cause.
+* Use DebugType=full for .NET Framework v4.x. (MailKit issue #1239)
+* Added ContentType.ToString(bool encode) and ContentDisposition.ToString(bool encode) convenience methods.
+* Changed the public Header.Parse/TryParse APIs to canonicalize header values to end with a newline even if the input string does not. (issue #695)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
