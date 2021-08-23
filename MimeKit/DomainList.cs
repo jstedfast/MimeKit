@@ -316,25 +316,12 @@ namespace MimeKit {
 
 		#endregion
 
-		static bool IsNullOrWhiteSpace (string value)
-		{
-			if (string.IsNullOrEmpty (value))
-				return true;
-
-			for (int i = 0; i < value.Length; i++) {
-				if (!char.IsWhiteSpace (value[i]))
-					return false;
-			}
-
-			return true;
-		}
-
 		internal string Encode (FormatOptions options)
 		{
 			var builder = new StringBuilder ();
 
 			for (int i = 0; i < domains.Count; i++) {
-				if (IsNullOrWhiteSpace (domains[i]))
+				if (string.IsNullOrWhiteSpace (domains[i]))
 					continue;
 
 				if (builder.Length > 0)
@@ -367,7 +354,7 @@ namespace MimeKit {
 			var builder = new StringBuilder ();
 
 			for (int i = 0; i < domains.Count; i++) {
-				if (IsNullOrWhiteSpace (domains[i]))
+				if (string.IsNullOrWhiteSpace (domains[i]))
 					continue;
 
 				if (builder.Length > 0)

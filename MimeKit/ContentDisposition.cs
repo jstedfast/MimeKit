@@ -196,19 +196,6 @@ namespace MimeKit {
 			}
 		}
 
-		static bool IsNullOrWhiteSpace (string value)
-		{
-			if (string.IsNullOrEmpty (value))
-				return true;
-
-			for (int i = 0; i < value.Length; i++) {
-				if (!char.IsWhiteSpace (value[i]))
-					return false;
-			}
-
-			return true;
-		}
-
 		/// <summary>
 		/// Get or set the creation-date parameter.
 		/// </summary>
@@ -221,7 +208,7 @@ namespace MimeKit {
 		public DateTimeOffset? CreationDate {
 			get {
 				var value = Parameters["creation-date"];
-				if (IsNullOrWhiteSpace (value))
+				if (string.IsNullOrWhiteSpace (value))
 					return null;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
@@ -252,7 +239,7 @@ namespace MimeKit {
 		public DateTimeOffset? ModificationDate {
 			get {
 				var value = Parameters["modification-date"];
-				if (IsNullOrWhiteSpace (value))
+				if (string.IsNullOrWhiteSpace (value))
 					return null;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
@@ -283,7 +270,7 @@ namespace MimeKit {
 		public DateTimeOffset? ReadDate {
 			get {
 				var value = Parameters["read-date"];
-				if (IsNullOrWhiteSpace (value))
+				if (string.IsNullOrWhiteSpace (value))
 					return null;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
@@ -314,7 +301,7 @@ namespace MimeKit {
 		public long? Size {
 			get {
 				var value = Parameters["size"];
-				if (IsNullOrWhiteSpace (value))
+				if (string.IsNullOrWhiteSpace (value))
 					return null;
 
 				long size;
