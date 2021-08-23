@@ -161,6 +161,7 @@
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
     <Compile Include="AsyncMimeParser.cs" />
+    <Compile Include="AsyncMimeReader.cs" />
     <Compile Include="AttachmentCollection.cs" />
     <Compile Include="BodyBuilder.cs" />
     <Compile Include="ContentDisposition.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="MimeMessageEndEventArgs.cs" />
     <Compile Include="MimeParser.cs" />
     <Compile Include="MimePart.cs" />
+    <Compile Include="MimeReader.cs" />
     <Compile Include="MimeTypes.cs" />
     <Compile Include="MimeVisitor.cs" />
     <Compile Include="Multipart.cs" />

@@ -272,6 +272,18 @@ namespace MimeKit {
 			mimeTypes[mimeType] = ctor;
 		}
 
+		internal static bool IsEncoded (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.SevenBit:
+			case ContentEncoding.EightBit:
+			case ContentEncoding.Binary:
+				return false;
+			default:
+				return true;
+			}
+		}
+
 		static bool IsEncoded (IList<Header> headers)
 		{
 			ContentEncoding encoding;
@@ -282,14 +294,7 @@ namespace MimeKit {
 
 				MimeUtils.TryParse (headers[i].Value, out encoding);
 
-				switch (encoding) {
-				case ContentEncoding.SevenBit:
-				case ContentEncoding.EightBit:
-				case ContentEncoding.Binary:
-					return false;
-				default:
-					return true;
-				}
+				return IsEncoded (encoding);
 			}
 
 			return false;
