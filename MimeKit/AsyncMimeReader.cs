@@ -105,65 +105,199 @@ namespace MimeKit {
 
 		async Task StepHeadersAsync (ParserOptions options, CancellationToken cancellationToken)
 		{
-			bool scanningFieldName = true;
-			bool checkFolded = false;
-			bool midline = false;
-			bool blank = false;
-			bool valid = true;
-			int left = 0;
+			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
-			ResetRawHeaderData ();
+			//preHeaderLength = 0;
 			headerCount = 0;
 
 			currentContentLength = null;
 			currentContentType = null;
 			currentEncoding = null;
 
-			await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
+			await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
 
 			do {
-				unsafe {
-					fixed (byte* inbuf = input) {
-						if (!StepHeaders (options, inbuf, ref scanningFieldName, ref checkFolded, ref midline, ref blank, ref valid, ref left, cancellationToken))
-							break;
-					}
-				}
+				var beginOffset = GetOffset (inputIndex);
+				var beginLineNumber = lineNumber;
+				int left = inputEnd - inputIndex;
+				var invalid = false;
+				var blank = false;
 
-				var available = await ReadAheadAsync (left + 1, 0, cancellationToken).ConfigureAwait (false);
+				headerFieldLength = -1;
+				headerIndex = 0;
 
-				if (available == left) {
-					// EOF reached before we reached the end of the headers...
-					if (scanningFieldName && left > 0) {
-						// EOF reached right in the middle of a header field name. Throw an error.
-						//
-						// See private email from Feb 8, 2018 which contained a sample message w/o
-						// any breaks between the header and message body. The file also did not
-						// end with a newline sequence.
-						state = MimeParserState.Error;
-					} else {
-						// EOF reached somewhere in the middle of the value.
-						//
-						// Append whatever data we've got left and pretend we found the end
-						// of the header value (and the header block).
-						//
-						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
-						// and https://github.com/jstedfast/MimeKit/issues/348
-						if (left > 0) {
-							AppendRawHeaderData (inputIndex, left);
-							inputIndex = inputEnd;
-						}
+				if (left < 2)
+					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
-						ParseAndAppendHeader (options, cancellationToken);
-
-						state = MimeParserState.Content;
-					}
+				if (left == 0) {
+					state = MimeParserState.Content;
+					eof = true;
 					break;
 				}
-			} while (true);
+
+				// Check for an empty line denoting the end of the header block.
+				if (input[inputIndex] == (byte) '\n') {
+					state = MimeParserState.Content;
+					inputIndex++;
+
+					IncrementLineNumber (inputIndex);
+					break;
+				}
+
+				if (input[inputIndex] == (byte) '\r' && (left == 1 || input[inputIndex + 1] == (byte) '\n')) {
+					state = MimeParserState.Content;
+					if (left > 1)
+						inputIndex += 2;
+					else
+						inputIndex++;
+
+					IncrementLineNumber (inputIndex);
+					break;
+				}
+
+				// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
+				if (input[inputIndex] == (byte) '-') {
+					left = await ReadAheadAsync (GetMaxBoundaryLength () + 2, 0, cancellationToken).ConfigureAwait (false);
+
+					unsafe {
+						fixed (byte* inbuf = input) {
+							byte* inptr = inbuf + inputIndex;
+							byte* inend = inbuf + inputEnd;
+							byte* start = inptr;
+
+							*inend = (byte) '\n';
+
+							while (*inptr != (byte) '\n')
+								inptr++;
+
+							int length = (int) (inptr - start);
+
+							if (CheckBoundary (inputIndex, start, length) != BoundaryType.None) {
+								state = MimeParserState.Boundary;
+							} else {
+								// Even though this wasn't a boundary marker, it's still not a valid header so we progress to the 'Content' state.
+								state = MimeParserState.Content;
+							}
+							break;
+						}
+					}
+				}
+
+				// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
+				if (input[inputIndex] == (byte) 'F') {
+					left = await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
+
+					unsafe {
+						fixed (byte* inbuf = input) {
+							byte* inptr = inbuf + inputIndex;
+							byte* inend = inbuf + inputEnd;
+							bool possibleMboxMarker = false;
+							bool hasBlanks = false;
+							byte* start = inptr;
+
+							*inend = (byte) '\n';
+
+							while (*inptr != (byte) '\n') {
+								if (IsBlank (*inptr)) {
+									hasBlanks = true;
+								} else if (*inptr == (byte) ':') {
+									break;
+								} else if (hasBlanks || IsControl (*inptr)) {
+									possibleMboxMarker = true;
+									break;
+								}
+
+								inptr++;
+							}
+
+							int length = (int) (inptr - start);
+
+							if (possibleMboxMarker && length >= 5) {
+								if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (start)) {
+									state = MimeParserState.Complete;
+									break;
+								}
+
+								if (headerCount == 0) {
+									if (state == MimeParserState.MessageHeaders) {
+										// Ignore (munged) From-lines that might appear at the start of a message.
+										if (toplevel && !IsMboxMarker (start, true)) {
+											// This line was not a (munged) mbox From-line.
+											state = MimeParserState.Error;
+											break;
+										}
+									} else if (toplevel && state == MimeParserState.Headers) {
+										state = MimeParserState.Error;
+										break;
+									}
+								}
+
+								// At this point, it may still be what looks like a From-line, but we'll treat it as an invalid header.
+							}
+						}
+					}
+				}
+
+				do {
+					unsafe {
+						fixed (byte* inbuf = input) {
+							if (StepHeaderField (inbuf, ref blank, ref invalid))
+								break;
+						}
+					}
+
+					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
+						eof = true;
+						break;
+					}
+				} while (true);
+
+				if (!invalid && !eof) {
+					bool midline = true;
+
+					do {
+						unsafe {
+							fixed (byte* inbuf = input) {
+								if (StepHeaderValue (inbuf, ref midline))
+									break;
+							}
+						}
+
+						if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
+							eof = true;
+							break;
+						}
+					} while (true);
+				}
+
+				byte[] field, value;
+
+				if (invalid) {
+					field = new byte[headerIndex];
+					Buffer.BlockCopy (headerBuffer, 0, field, 0, headerIndex);
+					value = new byte[0];
+				} else {
+					field = new byte[headerFieldLength];
+					Buffer.BlockCopy (headerBuffer, 0, field, 0, headerFieldLength);
+					value = new byte[headerIndex - (headerFieldLength + 1)];
+					Buffer.BlockCopy (headerBuffer, headerFieldLength + 1, value, 0, value.Length);
+				}
+
+				var header = new Header (options, field, value, invalid) {
+					Offset = beginOffset
+				};
+
+				UpdateHeaderState (options, header);
+				headerCount++;
+
+				await OnHeaderReadAsync (header, beginLineNumber, cancellationToken).ConfigureAwait (false);
+			} while (!eof);
 
 			headerBlockEnd = GetOffset (inputIndex);
+
+			await OnHeadersEndAsync (headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
 		async Task<bool> SkipLineAsync (bool consumeNewLine, CancellationToken cancellationToken)
@@ -349,11 +483,11 @@ namespace MimeKit {
 
 			await OnMimeMessageBeginAsync (currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			if (preHeaderBuffer.Length > 0) {
+			//if (preHeaderLength > 0) {
 				// FIXME: how to solve this?
 				//message.MboxMarker = new byte[preHeaderLength];
 				//Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
-			}
+			//}
 
 			var type = GetContentType (null);
 			MimeEntityType entityType;
