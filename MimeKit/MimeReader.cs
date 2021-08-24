@@ -113,6 +113,45 @@ namespace MimeKit {
 
 		public MimeReader (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
+			SetStream (stream, format);
+		}
+
+		/// <summary>
+		/// Gets a value indicating whether the parser has reached the end of the input stream.
+		/// </summary>
+		/// <remarks>
+		/// Gets a value indicating whether the parser has reached the end of the input stream.
+		/// </remarks>
+		/// <value><c>true</c> if this parser has reached the end of the input stream;
+		/// otherwise, <c>false</c>.</value>
+		public bool IsEndOfStream {
+			get { return state == MimeParserState.Eos; }
+		}
+
+		/// <summary>
+		/// Gets the current position of the parser within the stream.
+		/// </summary>
+		/// <remarks>
+		/// Gets the current position of the parser within the stream.
+		/// </remarks>
+		/// <value>The stream offset.</value>
+		public long Position {
+			get { return GetOffset (inputIndex); }
+		}
+
+		/// <summary>
+		/// Sets the stream to parse.
+		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
+		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
@@ -138,6 +177,7 @@ namespace MimeKit {
 			toplevel = false;
 			eos = false;
 
+			bounds.Clear ();
 			if (format == MimeFormat.Mbox) {
 				bounds.Add (Boundary.CreateMboxBoundary ());
 
@@ -147,29 +187,6 @@ namespace MimeKit {
 
 			state = MimeParserState.Initialized;
 			boundary = BoundaryType.None;
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether the parser has reached the end of the input stream.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the parser has reached the end of the input stream.
-		/// </remarks>
-		/// <value><c>true</c> if this parser has reached the end of the input stream;
-		/// otherwise, <c>false</c>.</value>
-		public bool IsEndOfStream {
-			get { return state == MimeParserState.Eos; }
-		}
-
-		/// <summary>
-		/// Gets the current position of the parser within the stream.
-		/// </summary>
-		/// <remarks>
-		/// Gets the current position of the parser within the stream.
-		/// </remarks>
-		/// <value>The stream offset.</value>
-		public long Position {
-			get { return GetOffset (inputIndex); }
 		}
 
 		protected virtual void OnMboxMarkerRead (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)

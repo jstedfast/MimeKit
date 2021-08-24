@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net47</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net50</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
@@ -22,7 +22,8 @@
 
   <ItemGroup>
     <Compile Include="BenchmarkHelper.cs" />
-    <Compile Include="MimeParserBenchmarks.cs" />
+    <Compile Include="Benchmarks.cs" />
+    <Compile Include="LoopedInputStream.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
 
