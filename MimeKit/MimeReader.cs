@@ -854,6 +854,145 @@ namespace MimeKit {
 			return inptr < inend;
 		}
 
+		bool IsEndOfHeaderBlock (int left)
+		{
+			if (input[inputIndex] == (byte) '\n') {
+				state = MimeParserState.Content;
+				inputIndex++;
+				IncrementLineNumber (inputIndex);
+				return true;
+			}
+
+			if (input[inputIndex] == (byte) '\r' && (left == 1 || input[inputIndex + 1] == (byte) '\n')) {
+				state = MimeParserState.Content;
+				if (left > 1)
+					inputIndex += 2;
+				else
+					inputIndex++;
+				IncrementLineNumber (inputIndex);
+				return true;
+			}
+
+			return false;
+		}
+
+		unsafe bool TryCheckBoundaryWithinHeaderBlock (byte* inbuf, out int atleast)
+		{
+			byte* inptr = inbuf + inputIndex;
+			byte* inend = inbuf + inputEnd;
+			byte* start = inptr;
+
+			*inend = (byte) '\n';
+
+			while (*inptr != (byte) '\n')
+				inptr++;
+
+			if (inptr == inend) {
+				atleast = (int) (inptr - start) + 1;
+				return false;
+			}
+
+			int length = (int) (inptr - start);
+
+			if (CheckBoundary (inputIndex, start, length) != BoundaryType.None) {
+				state = MimeParserState.Boundary;
+			} else {
+				// Even though this wasn't a boundary marker, it's still not a valid header so we progress to the 'Content' state.
+				state = MimeParserState.Content;
+			}
+
+			atleast = 0;
+
+			return true;
+		}
+
+		unsafe bool TryCheckMboxMarkerWithinHeaderBlock (byte* inbuf, out int atleast)
+		{
+			byte* inptr = inbuf + inputIndex;
+			byte* inend = inbuf + inputEnd;
+			bool possible = false;
+			bool blanks = false;
+			byte* start = inptr;
+
+			*inend = (byte) '\n';
+
+			while (*inptr != (byte) '\n') {
+				if (IsBlank (*inptr)) {
+					blanks = true;
+				} else if (*inptr == (byte) ':') {
+					// We either hit the ':' separating the header field from the value or we hit a ':' in an mbox From-line (maybe?).
+					break;
+				} else if (blanks || IsControl (*inptr)) {
+					// We had one or more word characters, one or more blanks, and now we've hit a non-blank. We have enough.
+					possible = true;
+					break;
+				}
+
+				inptr++;
+			}
+
+			if (inptr == inend && !possible) {
+				// We don't have enough data to know for sure.
+				atleast = (int) (inptr - start) + 1;
+				return false;
+			}
+
+			// We won't be needing any more data.
+			atleast = 0;
+
+			int length = (int) (inptr - start);
+
+			if (possible && length >= 5) {
+				if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (start)) {
+					state = MimeParserState.Complete;
+					return true;
+				}
+
+				if (headerCount == 0) {
+					if (state == MimeParserState.MessageHeaders) {
+						// Ignore (munged) From-lines that might appear at the start of a message.
+						if (toplevel && !IsMboxMarker (start, true)) {
+							// This line was not a (munged) mbox From-line.
+							state = MimeParserState.Error;
+							return true;
+						}
+					} else if (toplevel && state == MimeParserState.Headers) {
+						state = MimeParserState.Error;
+						return true;
+					}
+				}
+
+				// At this point, it may still be what looks like a From-line, but we'll treat it as an invalid header.
+			}
+
+			return true;
+		}
+
+		Header CreateHeader (ParserOptions options, long beginOffset, bool invalid)
+		{
+			byte[] field, value;
+
+			if (invalid) {
+				field = new byte[headerIndex];
+				Buffer.BlockCopy (headerBuffer, 0, field, 0, headerIndex);
+				value = new byte[0];
+			} else {
+				field = new byte[headerFieldLength];
+				Buffer.BlockCopy (headerBuffer, 0, field, 0, headerFieldLength);
+				value = new byte[headerIndex - (headerFieldLength + 1)];
+				Buffer.BlockCopy (headerBuffer, headerFieldLength + 1, value, 0, value.Length);
+			}
+
+			var header = new Header (options, field, value, invalid) {
+				Offset = beginOffset
+			};
+
+			UpdateHeaderState (options, header);
+			headerCount++;
+
+			return header;
+		}
+
 		unsafe void StepHeaders (ParserOptions options, byte* inbuf, CancellationToken cancellationToken)
 		{
 			var eof = false;
@@ -889,98 +1028,47 @@ namespace MimeKit {
 				}
 
 				// Check for an empty line denoting the end of the header block.
-				if (input[inputIndex] == (byte) '\n') {
-					state = MimeParserState.Content;
-					inputIndex++;
-					IncrementLineNumber (inputIndex);
+				if (IsEndOfHeaderBlock (left))
 					break;
-				}
-
-				if (input[inputIndex] == (byte) '\r' && (left == 1 || input[inputIndex + 1] == (byte) '\n')) {
-					state = MimeParserState.Content;
-					if (left > 1)
-						inputIndex += 2;
-					else
-						inputIndex++;
-					IncrementLineNumber (inputIndex);
-					break;
-				}
 
 				// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
 				if (input[inputIndex] == (byte) '-') {
-					left = ReadAhead (GetMaxBoundaryLength () + 2, 0, cancellationToken);
+					int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
-					byte* inptr = inbuf + inputIndex;
-					byte* inend = inbuf + inputEnd;
-					byte* start = inptr;
+					ReadAhead (atleast, 0, cancellationToken);
 
-					*inend = (byte) '\n';
+					do {
+						if (TryCheckBoundaryWithinHeaderBlock (inbuf, out atleast))
+							break;
 
-					while (*inptr != (byte) '\n')
-						inptr++;
+						if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
+							state = MimeParserState.Content;
+							break;
+						}
+					} while (true);
 
-					int length = (int) (inptr - start);
-
-					if (CheckBoundary (inputIndex, start, length) != BoundaryType.None) {
-						state = MimeParserState.Boundary;
-					} else {
-						// Even though this wasn't a boundary marker, it's still not a valid header so we progress to the 'Content' state.
-						state = MimeParserState.Content;
-					}
 					break;
 				}
 
 				// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
 				if (input[inputIndex] == (byte) 'F') {
-					left = ReadAhead (ReadAheadSize, 0, cancellationToken);
+					ReadAhead (ReadAheadSize, 0, cancellationToken);
 
-					byte* inptr = inbuf + inputIndex;
-					byte* inend = inbuf + inputEnd;
-					bool possibleMboxMarker = false;
-					bool hasBlanks = false;
-					byte* start = inptr;
-
-					*inend = (byte) '\n';
-
-					while (*inptr != (byte) '\n') {
-						if (IsBlank (*inptr)) {
-							hasBlanks = true;
-						} else if (*inptr == (byte) ':') {
+					do {
+						if (TryCheckMboxMarkerWithinHeaderBlock (inbuf, out var atleast))
 							break;
-						} else if (hasBlanks || IsControl (*inptr)) {
-							possibleMboxMarker = true;
+
+						if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
+							state = MimeParserState.Content;
 							break;
 						}
+					} while (true);
 
-						inptr++;
-					}
-
-					int length = (int) (inptr - start);
-
-					if (possibleMboxMarker && length >= 5) {
-						if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (start)) {
-							state = MimeParserState.Complete;
-							break;
-						}
-
-						if (headerCount == 0) {
-							if (state == MimeParserState.MessageHeaders) {
-								// Ignore (munged) From-lines that might appear at the start of a message.
-								if (toplevel && !IsMboxMarker (start, true)) {
-									// This line was not a (munged) mbox From-line.
-									state = MimeParserState.Error;
-									break;
-								}
-							} else if (toplevel && state == MimeParserState.Headers) {
-								state = MimeParserState.Error;
-								break;
-							}
-						}
-
-						// At this point, it may still be what looks like a From-line, but we'll treat it as an invalid header.
-					}
+					if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+						break;
 				}
 
+				// Consume the header field name.
 				while (!StepHeaderField (inbuf, ref blank, ref invalid)) {
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
 						eof = true;
@@ -988,9 +1076,11 @@ namespace MimeKit {
 					}
 				}
 
+				// Mote: If the header is invalid, then it got completely slurped up in StepHeaderField().
 				if (!invalid && !eof) {
 					bool midline = true;
 
+					// Consume the header value.
 					while (!StepHeaderValue (inbuf, ref midline)) {
 						if (ReadAhead (1, 0, cancellationToken) == 0) {
 							eof = true;
@@ -999,25 +1089,7 @@ namespace MimeKit {
 					}
 				}
 
-				byte[] field, value;
-
-				if (invalid) {
-					field = new byte[headerIndex];
-					Buffer.BlockCopy (headerBuffer, 0, field, 0, headerIndex);
-					value = new byte[0];
-				} else {
-					field = new byte[headerFieldLength];
-					Buffer.BlockCopy (headerBuffer, 0, field, 0, headerFieldLength);
-					value = new byte[headerIndex - (headerFieldLength + 1)];
-					Buffer.BlockCopy (headerBuffer, headerFieldLength + 1, value, 0, value.Length);
-				}
-
-				var header = new Header (options, field, value, invalid) {
-					Offset = beginOffset
-				};
-
-				UpdateHeaderState (options, header);
-				headerCount++;
+				var header = CreateHeader (options, beginOffset, invalid);
 
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
 			} while (!eof);
