@@ -344,7 +344,7 @@ namespace MimeKit {
 
 			OnMimeMessageBegin (messageArgs);
 
-			if (preHeaderBuffer.Length > 0) {
+			if (preHeaderLength > 0) {
 				message.MboxMarker = new byte[preHeaderLength];
 				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
 			}
