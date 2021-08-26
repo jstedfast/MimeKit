@@ -57,6 +57,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [7601](https://tools.ietf.org/html/rfc7601): Message Header Field for Indicating Message Authentication Status (Obsoletes rfc7001)
 * [8301](https://tools.ietf.org/html/rfc8301): Cryptographic Algorithm and Key Usage Update to DomainKeys Identified Mail (DKIM)
 * [8463](https://tools.ietf.org/html/rfc8463): A New Cryptographic Signature Method for DomainKeys Identified Mail (DKIM)
+* [8617](https://tools.ietf.org/html/rfc8617): The Authenticated Received Chain (ARC) Protocol
 
 #### Other RFCs of interest:
 
