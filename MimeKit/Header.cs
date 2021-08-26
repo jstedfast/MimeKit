@@ -309,6 +309,35 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The parser options used.</param>
 		/// <param name="field">The raw header field.</param>
+		/// <param name="fieldNameLength">The length of the field name (not including trailing whitespace).</param>
+		/// <param name="value">The raw value of the header.</param>
+		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+		internal protected Header (ParserOptions options, byte[] field, int fieldNameLength, byte[] value, bool invalid)
+		{
+			var chars = new char[fieldNameLength];
+
+			for (int i = 0; i < fieldNameLength; i++)
+				chars[i] = (char) field[i];
+
+			Options = options;
+			rawField = field;
+			rawValue = value;
+
+			Field = new string (chars, 0, fieldNameLength);
+			Id = Field.ToHeaderId ();
+			IsInvalid = invalid;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="Header"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new message or entity header with the specified raw values.</para>
+		/// <para>This constructor is used by the
+		/// <a href="Overload_MimeKit_Header_TryParse.htm">TryParse</a> methods.</para>
+		/// </remarks>
+		/// <param name="options">The parser options used.</param>
+		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
 		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
 		internal protected Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
