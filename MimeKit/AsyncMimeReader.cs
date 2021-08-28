@@ -285,13 +285,26 @@ namespace MimeKit {
 		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
-			int contentIndex = inputIndex;
 			var formats = new bool[2];
 			int contentLength = 0;
 			bool midline = false;
 			int nleft;
 
 			do {
+				nleft = inputEnd - inputIndex;
+				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
+					boundary = BoundaryType.Eos;
+					break;
+				}
+
+				int contentIndex = inputIndex;
+
+				unsafe {
+					fixed (byte* inbuf = input) {
+						ScanContent (inbuf, ref nleft, ref midline, ref formats);
+					}
+				}
+
 				if (contentIndex < inputIndex) {
 					switch (type) {
 					case ScanContentType.MultipartPreamble:
@@ -307,36 +320,7 @@ namespace MimeKit {
 
 					contentLength += inputIndex - contentIndex;
 				}
-
-				nleft = inputEnd - inputIndex;
-				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundary = BoundaryType.Eos;
-					contentIndex = inputIndex;
-					break;
-				}
-
-				unsafe {
-					fixed (byte* inbuf = input) {
-						ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref formats);
-					}
-				}
 			} while (boundary == BoundaryType.None);
-
-			if (contentIndex < inputIndex) {
-				switch (type) {
-				case ScanContentType.MultipartPreamble:
-					await OnMultipartPreambleReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
-					break;
-				case ScanContentType.MultipartEpilogue:
-					await OnMultipartEpilogueReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
-					break;
-				default:
-					await OnMimePartContentReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
-					break;
-				}
-
-				contentLength += inputIndex - contentIndex;
-			}
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;

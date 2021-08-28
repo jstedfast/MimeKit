@@ -1876,14 +1876,12 @@ namespace MimeKit {
 			return false;
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline, ref bool[] formats)
+		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
-
-			contentIndex = inputIndex;
 
 			if (midline && length == nleft)
 				boundary = BoundaryType.Eos;
@@ -1984,13 +1982,22 @@ namespace MimeKit {
 		unsafe ScanContentResult ScanContent (ScanContentType type, byte* inbuf, long beginOffset, int beginLineNumber, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
-			int contentIndex = inputIndex;
 			var formats = new bool[2];
 			int contentLength = 0;
 			bool midline = false;
 			int nleft;
 
 			do {
+				nleft = inputEnd - inputIndex;
+				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
+					boundary = BoundaryType.Eos;
+					break;
+				}
+
+				int contentIndex = inputIndex;
+
+				ScanContent (inbuf, ref nleft, ref midline, ref formats);
+
 				if (contentIndex < inputIndex) {
 					switch (type) {
 					case ScanContentType.MultipartPreamble:
@@ -2006,32 +2013,7 @@ namespace MimeKit {
 
 					contentLength += inputIndex - contentIndex;
 				}
-
-				nleft = inputEnd - inputIndex;
-				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
-					boundary = BoundaryType.Eos;
-					contentIndex = inputIndex;
-					break;
-				}
-
-				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref formats);
 			} while (boundary == BoundaryType.None);
-
-			if (contentIndex < inputIndex) {
-				switch (type) {
-				case ScanContentType.MultipartPreamble:
-					OnMultipartPreambleRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
-					break;
-				case ScanContentType.MultipartEpilogue:
-					OnMultipartEpilogueRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
-					break;
-				default:
-					OnMimePartContentRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
-					break;
-				}
-
-				contentLength += inputIndex - contentIndex;
-			}
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;
