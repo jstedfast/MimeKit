@@ -1242,14 +1242,12 @@ namespace MimeKit {
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int contentIndex, ref int nleft, ref bool midline, ref bool[] formats)
+		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
-
-			contentIndex = inputIndex;
 
 			if (midline && length == nleft)
 				boundary = BoundaryType.Eos;
@@ -1341,27 +1339,24 @@ namespace MimeKit {
 		unsafe ScanContentResult ScanContent (byte* inbuf, Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
-			int contentIndex = inputIndex;
 			var formats = new bool[2];
 			bool midline = false;
 			int nleft;
 
 			do {
-				if (contentIndex < inputIndex)
-					content.Write (input, contentIndex, inputIndex - contentIndex);
-
 				nleft = inputEnd - inputIndex;
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
 					boundary = BoundaryType.Eos;
-					contentIndex = inputIndex;
 					break;
 				}
 
-				ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref formats);
-			} while (boundary == BoundaryType.None);
+				int contentIndex = inputIndex;
 
-			if (contentIndex < inputIndex)
-				content.Write (input, contentIndex, inputIndex - contentIndex);
+				ScanContent (inbuf, ref nleft, ref midline, ref formats);
+
+				if (contentIndex < inputIndex)
+					content.Write (input, contentIndex, inputIndex - contentIndex);
+			} while (boundary == BoundaryType.None);
 
 			var isEmpty = content.Length == 0;
 

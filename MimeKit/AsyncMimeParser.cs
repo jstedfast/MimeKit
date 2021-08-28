@@ -206,31 +206,28 @@ namespace MimeKit {
 		async Task<ScanContentResult> ScanContentAsync (Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
 			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
-			int contentIndex = inputIndex;
 			var formats = new bool[2];
 			bool midline = false;
 			int nleft;
 
 			do {
-				if (contentIndex < inputIndex)
-					content.Write (input, contentIndex, inputIndex - contentIndex);
-
 				nleft = inputEnd - inputIndex;
 				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
 					boundary = BoundaryType.Eos;
-					contentIndex = inputIndex;
 					break;
 				}
 
+				int contentIndex = inputIndex;
+
 				unsafe {
 					fixed (byte* inbuf = input) {
-						ScanContent (inbuf, ref contentIndex, ref nleft, ref midline, ref formats);
+						ScanContent (inbuf, ref nleft, ref midline, ref formats);
 					}
 				}
-			} while (boundary == BoundaryType.None);
 
-			if (contentIndex < inputIndex)
-				content.Write (input, contentIndex, inputIndex - contentIndex);
+				if (contentIndex < inputIndex)
+					content.Write (input, contentIndex, inputIndex - contentIndex);
+			} while (boundary == BoundaryType.None);
 
 			var isEmpty = content.Length == 0;
 
