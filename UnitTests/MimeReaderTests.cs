@@ -26,10 +26,7 @@
 
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -38,9 +35,6 @@ using NUnit.Framework;
 using Newtonsoft.Json;
 
 using MimeKit;
-using MimeKit.IO;
-using MimeKit.Utils;
-using MimeKit.IO.Filters;
 
 namespace UnitTests {
 	[TestFixture]
@@ -180,7 +174,7 @@ namespace UnitTests {
 			long mboxMarkerBeginOffset = -1;
 			int mboxMarkerLineNumber = -1;
 
-			public CustomMimeReader (Stream stream, MimeFormat format) : base (stream, format)
+			public CustomMimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : base (stream, format)
 			{
 			}
 
@@ -190,12 +184,6 @@ namespace UnitTests {
 				mboxMarkerLineNumber = lineNumber;
 
 				base.OnMboxMarkerRead (marker, startIndex, count, beginOffset, lineNumber, cancellationToken);
-			}
-
-			protected override Task OnMboxMarkerReadAsync (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
-			{
-				OnMboxMarkerRead (marker, startIndex, count, beginOffset, lineNumber, cancellationToken);
-				return base.OnMboxMarkerReadAsync (marker, startIndex, count, beginOffset, lineNumber, cancellationToken);
 			}
 
 			protected override void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
@@ -219,12 +207,6 @@ namespace UnitTests {
 				base.OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
 			}
 
-			protected override Task OnMimeMessageBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
-			{
-				OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
-				return base.OnMimeMessageBeginAsync (beginOffset, beginLineNumber, cancellationToken);
-			}
-
 			protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 			{
 				var current = stack[stack.Count - 1];
@@ -238,12 +220,6 @@ namespace UnitTests {
 				stack.RemoveAt (stack.Count - 1);
 
 				base.OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			}
-
-			protected override Task OnMimeMessageEndAsync (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
-			{
-				OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-				return base.OnMimeMessageEndAsync (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 
 			void Push (MimeType type, ContentType contentType, long beginOffset, int beginLineNumber)
@@ -297,22 +273,10 @@ namespace UnitTests {
 				base.OnMessagePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
 			}
 
-			protected override Task OnMessagePartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
-			{
-				Push (MimeType.MessagePart, contentType, beginOffset, beginLineNumber);
-				return base.OnMessagePartBeginAsync (contentType, beginOffset, beginLineNumber, cancellationToken);
-			}
-
 			protected override void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 			{
 				Pop (MimeType.MessagePart, contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
 				base.OnMessagePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			}
-
-			protected override Task OnMessagePartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
-			{
-				Pop (MimeType.MessagePart, contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
-				return base.OnMessagePartEndAsync (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 
 			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
@@ -321,22 +285,10 @@ namespace UnitTests {
 				base.OnMimePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
 			}
 
-			protected override Task OnMimePartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
-			{
-				Push (MimeType.MimePart, contentType, beginOffset, beginLineNumber);
-				return base.OnMimePartBeginAsync (contentType, beginOffset, beginLineNumber, cancellationToken);
-			}
-
 			protected override void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 			{
 				Pop (MimeType.MimePart, contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
 				base.OnMimePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			}
-
-			protected override Task OnMimePartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
-			{
-				Pop (MimeType.MimePart, contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
-				return base.OnMimePartEndAsync (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 
 			protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
@@ -345,22 +297,10 @@ namespace UnitTests {
 				base.OnMultipartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
 			}
 
-			protected override Task OnMultipartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
-			{
-				Push (MimeType.Multipart, contentType, beginOffset, beginLineNumber);
-				return base.OnMultipartBeginAsync (contentType, beginOffset, beginLineNumber, cancellationToken);
-			}
-
 			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 			{
 				Pop (MimeType.Multipart, contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
 				base.OnMultipartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			}
-
-			protected override Task OnMultipartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
-			{
-				Pop (MimeType.Multipart, contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
-				return base.OnMultipartEndAsync (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 		}
 

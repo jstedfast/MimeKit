@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -183,216 +182,787 @@ namespace MimeKit {
 			boundary = BoundaryType.None;
 		}
 
-		protected virtual void OnMboxMarkerRead (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		/// <summary>
+		/// Called when an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
+		/// <param name="buffer">The buffer containing the mbox marker.</param>
+		/// <param name="startIndex">The index denoting the starting position of the mbox marker within the buffer.</param>
+		/// <param name="count">The length of the mbox marker within the buffer, in bytes.</param>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
-		protected virtual Task OnMboxMarkerReadAsync (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		/// <summary>
+		/// Called when an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="buffer">The buffer containing the mbox marker.</param>
+		/// <param name="startIndex">The index denoting the starting position of the mbox marker within the buffer.</param>
+		/// <param name="count">The length of the mbox marker within the buffer, in bytes.</param>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnMboxMarkerReadAsync (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
+			OnMboxMarkerRead (buffer, startIndex, count, beginOffset, lineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the beginning of a list of headers is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a list of headers is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnHeadersEnd"/> when the end of the list of headers are found.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the headers begin.</param>
+		/// <param name="beginLineNumber">The line number where the list of headers begin.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnHeadersBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+		{
+		}
+
+		/// <summary>
+		/// Called when the beginning of a list of headers is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a list of headers is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnHeadersEndAsync"/> when the end of the list of headers are found.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the headers begin.</param>
+		/// <param name="beginLineNumber">The line number where the list of headers begin.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnHeadersBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+		{
+			OnHeadersBegin (beginOffset, beginLineNumber, cancellationToken);
+			return CompletedTask;
+		}
+
+		/// <summary>
+		/// Called when a message or MIME part header is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// This method will be called whenever a message or MIME part header is encountered within the stream.
+		/// </remarks>
+		/// <param name="header">The header that was read from the stream.</param>
+		/// <param name="beginLineNumber">The line number where the header exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnHeaderRead (Header header, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
-		// FIXME: make use of this
+		/// <summary>
+		/// Called when a message or MIME part header is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// This method will be called whenever a message or MIME part header is encountered within the stream.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="header">The header that was read from the stream.</param>
+		/// <param name="beginLineNumber">The line number where the header exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnHeaderReadAsync (Header header, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnHeaderRead (header, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
-		protected virtual void OnHeadersEnd (long offset, int lineNumber, CancellationToken cancellationToken)
+		/// <summary>
+		/// Called when the end of a list of headers is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a list of headers is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnHeadersBegin"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the headers began.</param>
+		/// <param name="beginLineNumber">The line number where the list of headers began.</param>
+		/// <param name="endOffset">The offset into the stream where the list of headers ended.</param>
+		/// <param name="endLineNumber">The line number headers where the list of headers ended.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnHeadersEnd (long beginOffset, int beginLineNumber, long endOffset, int endLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
-		protected virtual Task OnHeadersEndAsync (long offset, int lineNumber, CancellationToken cancellationToken)
+		/// <summary>
+		/// Called when the end of a list of headers is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a list of headers is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnHeadersBeginAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the headers began.</param>
+		/// <param name="beginLineNumber">The line number where the list of headers began.</param>
+		/// <param name="endOffset">The offset into the stream where the list of headers ended.</param>
+		/// <param name="endLineNumber">The line number headers where the list of headers ended.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnHeadersEndAsync (long beginOffset, int beginLineNumber, long endOffset, int endLineNumber, CancellationToken cancellationToken)
 		{
+			OnHeadersEnd (beginOffset, beginLineNumber, endOffset, endLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
 		#region MimeMessage Events
 
+		/// <summary>
+		/// Called when the beginning of a message is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a message is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimeMessageEnd"/> when the end of the message is found.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the message begins.</param>
+		/// <param name="beginLineNumber">The line number where the message begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the beginning of a message is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a message is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimeMessageEndAsync"/> when the end of the message is found.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the message begins.</param>
+		/// <param name="beginLineNumber">The line number where the message begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimeMessageBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of a message is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a message is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimeMessageBegin"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the message began.</param>
+		/// <param name="beginLineNumber">The line number where the message began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the message headers ended and the content began.</param>
+		/// <param name="endOffset">THe offset into the stream where the message ended.</param>
+		/// <param name="lines">The length of the message as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of a message is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a message is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimeMessageBeginAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the message began.</param>
+		/// <param name="beginLineNumber">The line number where the message began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the message headers ended and the content began.</param>
+		/// <param name="endOffset">THe offset into the stream where the message ended.</param>
+		/// <param name="lines">The length of the message as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimeMessageEndAsync (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
-#endregion MimeMessage Events
+		#endregion MimeMessage Events
 
-#region MimePart Events
+		#region MimePart Events
 
+		/// <summary>
+		/// Called when the beginning of a MIME part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a MIME part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartEnd"/> when the end of the MIME part is found.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the MIME part begins.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the beginning of a MIME part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a MIME part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartEndAsync"/> when the end of the MIME part is found.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the MIME part begins.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimePartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMimePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the beginning of a MIME part's content is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a MIME part's content is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartContentEnd"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the MIME part content began.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimePartContentBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the beginning of a MIME part's content is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a MIME part's content is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartContentEndAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the MIME part content began.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimePartContentBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMimePartContentBegin (beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when MIME part content is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when MIME part content is read from the stream.</para>
+		/// </remarks>
+		/// <param name="content">A buffer containing the MIME part content.</param>
+		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
+		/// <param name="count">The length of the content within the buffer, in bytes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimePartContentRead (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when MIME part content is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when MIME part content is read from the stream.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="content">A buffer containing the MIME part content.</param>
+		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
+		/// <param name="count">The length of the content within the buffer, in bytes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimePartContentReadAsync (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
 		{
+			OnMimePartContentRead (content, startIndex, count, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of a MIME part's content is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a MIME part's content is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartContentBegin"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the MIME part content began.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
+		/// <param name="endOffset">The offset into the stream where the MIME part content ended.</param>
+		/// <param name="lines">The length of the MIME part content as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of a MIME part's content is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a MIME part's content is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartContentBeginAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the MIME part content began.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
+		/// <param name="endOffset">The offset into the stream where the MIME part content ended.</param>
+		/// <param name="lines">The length of the MIME part content as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimePartContentEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMimePartContentEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of a MIME part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a MIME part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartBegin"/>.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the MIME part began.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the MIME part headers ended and the content began.</param>
+		/// <param name="endOffset">The offset into the stream where the MIME part ends.</param>
+		/// <param name="lines">The length of the MIME part as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of a MIME part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a MIME part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMimePartBeginAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the MIME part began.</param>
+		/// <param name="beginLineNumber">The line number where the MIME part began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the MIME part headers ended and the content began.</param>
+		/// <param name="endOffset">The offset into the stream where the MIME part ends.</param>
+		/// <param name="lines">The length of the MIME part as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimePartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMimePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
-#endregion MimePart Events
+		#endregion MimePart Events
 
-#region MessagePart Events
+		#region MessagePart Events
 
+		/// <summary>
+		/// Called when the beginning of a message part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a message part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMessagePartEnd"/> when the end of the message part is found.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the message part begins.</param>
+		/// <param name="beginLineNumber">The line number where the message part begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the beginning of a message part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a message part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMessagePartEndAsync"/> when the end of the message part is found.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the message part begins.</param>
+		/// <param name="beginLineNumber">The line number where the message part begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMessagePartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMessagePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of a message part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a message part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMessagePartBegin"/>.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the message part began.</param>
+		/// <param name="beginLineNumber">The line number where the message part began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the MIME part headers ended and the content began.</param>
+		/// <param name="endOffset">The offset into the stream where the MIME part ends.</param>
+		/// <param name="lines">The length of the MIME part as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of a message part is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a message part is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMessagePartBeginAsync"/>.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
+		/// <param name="beginOffset">The offset into the stream where the message part began.</param>
+		/// <param name="beginLineNumber">The line number where the message part began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the MIME part headers ended and the content began.</param>
+		/// <param name="endOffset">The offset into the stream where the MIME part ends.</param>
+		/// <param name="lines">The length of the MIME part as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMessagePartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMessagePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
-#endregion MessagePart Events
+		#endregion MessagePart Events
 
-#region Multipart Events
+		#region Multipart Events
 
+		/// <summary>
+		/// Called when the beginning of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartEnd"/> when the end of the multipart is found.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the multipart.</param>
+		/// <param name="beginOffset">The offset into the stream where the multipart begins.</param>
+		/// <param name="beginLineNumber">The line number where the multipart begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the beginning of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartEndAsync"/> when the end of the multipart is found.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the multipart.</param>
+		/// <param name="beginOffset">The offset into the stream where the multipart begins.</param>
+		/// <param name="beginLineNumber">The line number where the multipart begins.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMultipartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </remarks>
+		/// <param name="boundary">The multipart boundary string.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
+		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="boundary">The multipart boundary string.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
+		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartBoundaryAsync (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
+			OnMultipartBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </remarks>
+		/// <param name="boundary">The multipart boundary string.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
+		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartEndBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="boundary">The multipart boundary string.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
+		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartEndBoundaryAsync (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
+			OnMultipartEndBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the beginning of the preamble of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of the preamble of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartPreambleEnd"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the preamble began.</param>
+		/// <param name="beginLineNumber">The line number where the preamble began.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartPreambleBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the beginning of the preamble of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of the preamble of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartPreambleEndAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the preamble began.</param>
+		/// <param name="beginLineNumber">The line number where the preamble began.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartPreambleBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMultipartPreambleBegin (beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when multipart preamble text is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when multipart preamble text is read from the stream.</para>
+		/// </remarks>
+		/// <param name="content">A buffer containing the multipart preamble text.</param>
+		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
+		/// <param name="count">The length of the content within the buffer, in bytes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartPreambleRead (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when multipart preamble text is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when multipart preamble text is read from the stream.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="content">A buffer containing the multipart preamble text.</param>
+		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
+		/// <param name="count">The length of the content within the buffer, in bytes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartPreambleReadAsync (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
 		{
+			OnMultipartPreambleRead (content, startIndex, count, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of the preamble of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of the preamble of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartPreambleBegin"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the multipart preamble began.</param>
+		/// <param name="beginLineNumber">The line number where the multipart preamble began.</param>
+		/// <param name="endOffset">The offset into the stream where the multipart preamble ended.</param>
+		/// <param name="lines">The length of the multipart preamble as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartPreambleEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of the preamble of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of the preamble of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartPreambleBeginAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the multipart preamble began.</param>
+		/// <param name="beginLineNumber">The line number where the multipart preamble began.</param>
+		/// <param name="endOffset">The offset into the stream where the multipart preamble ended.</param>
+		/// <param name="lines">The length of the multipart preamble as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartPreambleEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMultipartPreambleEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
-		protected virtual void OnMultipartEpilogueBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		/// <summary>
+		/// Called when the beginning of the epilogue of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of the epilogue of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartEpilogueEnd"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the epilogue began.</param>
+		/// <param name="beginLineNumber">The line number where the epilogue began.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnMultipartEpilogueBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 		}
 
-		protected virtual Task OnMultipartEpilogueBeginAsync (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		/// <summary>
+		/// Called when the beginning of the epilogue of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the beginning of the epilogue of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartEpilogueEndAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the epilogue began.</param>
+		/// <param name="beginLineNumber">The line number where the epilogue began.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnMultipartEpilogueBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
+			OnMultipartEpilogueBegin (beginOffset, beginLineNumber, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when multipart epilogue text is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when multipart epilogue text is read from the stream.</para>
+		/// </remarks>
+		/// <param name="content">A buffer containing the multipart epilogue text.</param>
+		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
+		/// <param name="count">The length of the content within the buffer, in bytes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartEpilogueRead (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when multipart epilogue text is read from the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when multipart epilogue text is read from the stream.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="content">A buffer containing the multipart epilogue text.</param>
+		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
+		/// <param name="count">The length of the content within the buffer, in bytes.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartEpilogueReadAsync (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
 		{
+			OnMultipartEpilogueRead (content, startIndex, count, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of the epilogue of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of the epilogue of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartEpilogueBegin"/>.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the multipart epilogue began.</param>
+		/// <param name="beginLineNumber">The line number where the multipart epilogue began.</param>
+		/// <param name="endOffset">The offset into the stream where the multipart epilogue ended.</param>
+		/// <param name="lines">The length of the multipart epilogue as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartEpilogueEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of the epilogue of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of the epilogue of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartEpilogueBeginAsync"/>.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the multipart epilogue began.</param>
+		/// <param name="beginLineNumber">The line number where the multipart epilogue began.</param>
+		/// <param name="endOffset">The offset into the stream where the multipart epilogue ended.</param>
+		/// <param name="lines">The length of the multipart epilogue as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartEpilogueEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMultipartEpilogueEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the end of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartBegin"/>.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the multipart.</param>
+		/// <param name="beginOffset">The offset into the stream where the multipart began.</param>
+		/// <param name="beginLineNumber">The line number where the multipart began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the multipart headers ended and the content began.</param>
+		/// <param name="endOffset">The offset into the stream where the multipart ends.</param>
+		/// <param name="lines">The length of the multipart as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 		}
 
+		/// <summary>
+		/// Called when the end of a multipart is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the end of a multipart is encountered in the stream.</para>
+		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartBegin"/>.</para>
+		/// </remarks>
+		/// <param name="contentType">The parsed <c>Content-Type</c> header of the multipart.</param>
+		/// <param name="beginOffset">The offset into the stream where the multipart began.</param>
+		/// <param name="beginLineNumber">The line number where the multipart began.</param>
+		/// <param name="headersEndOffset">The offset into the stream where the multipart headers ended and the content began.</param>
+		/// <param name="endOffset">The offset into the stream where the multipart ends.</param>
+		/// <param name="lines">The length of the multipart as measured in lines.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMultipartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			OnMultipartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			return CompletedTask;
 		}
 
@@ -1002,6 +1572,7 @@ namespace MimeKit {
 
 		unsafe void StepHeaders (ParserOptions options, byte* inbuf, CancellationToken cancellationToken)
 		{
+			int headersBeginLineNumber = lineNumber;
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
@@ -1012,6 +1583,8 @@ namespace MimeKit {
 			currentContentLength = null;
 			currentContentType = null;
 			currentEncoding = null;
+
+			OnHeadersBegin (headerBlockBegin, headersBeginLineNumber, cancellationToken);
 
 			ReadAhead (ReadAheadSize, 0, cancellationToken);
 
@@ -1104,7 +1677,7 @@ namespace MimeKit {
 
 			headerBlockEnd = GetOffset (inputIndex);
 
-			OnHeadersEnd (headerBlockEnd, lineNumber, cancellationToken);
+			OnHeadersEnd (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken);
 		}
 
 		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine)

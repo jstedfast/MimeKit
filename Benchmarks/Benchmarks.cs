@@ -1,5 +1,5 @@
 ﻿//
-// MimeParserBenchmarks.cs
+// Benchmarks.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //

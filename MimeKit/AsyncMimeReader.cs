@@ -105,6 +105,7 @@ namespace MimeKit {
 
 		async Task StepHeadersAsync (ParserOptions options, CancellationToken cancellationToken)
 		{
+			int headersBeginLineNumber = lineNumber;
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
@@ -115,6 +116,8 @@ namespace MimeKit {
 			currentContentLength = null;
 			currentContentType = null;
 			currentEncoding = null;
+
+			await OnHeadersBeginAsync (headerBlockBegin, headersBeginLineNumber, cancellationToken).ConfigureAwait (false);
 
 			await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
 
@@ -237,7 +240,7 @@ namespace MimeKit {
 
 			headerBlockEnd = GetOffset (inputIndex);
 
-			await OnHeadersEndAsync (headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
+			await OnHeadersEndAsync (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
 		async Task<bool> SkipLineAsync (bool consumeNewLine, CancellationToken cancellationToken)
