@@ -453,7 +453,8 @@ namespace MimeKit {
 			if (id == HeaderId.Unknown)
 				throw new ArgumentOutOfRangeException (nameof (id));
 
-			table.Remove (id.ToHeaderName ());
+			if (!table.Remove (id.ToHeaderName ()))
+				return;
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
 				if (headers[i].Id != id)
@@ -481,7 +482,8 @@ namespace MimeKit {
 			if (field == null)
 				throw new ArgumentNullException (nameof (field));
 
-			table.Remove (field);
+			if (!table.Remove (field))
+				return;
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
 				if (!headers[i].Field.Equals (field, StringComparison.OrdinalIgnoreCase))
