@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -48,7 +47,31 @@ namespace MimeKit {
 	/// </remarks>
 	public abstract class MimeEntity
 	{
+		[Flags]
+		internal enum LazyLoadedFields : short
+		{
+			None                    = 0,
+
+			// MimeEntity
+			ContentBase             = 1 << 0,
+			ContentDisposition      = 1 << 1,
+			ContentId               = 1 << 2,
+			ContentLocation         = 1 << 3,
+
+			// MimePart
+			ContentDescription      = 1 << 4,
+			ContentDuration         = 1 << 5,
+			ContentLanguage         = 1 << 6,
+			ContentMd5              = 1 << 7,
+			ContentTransferEncoding = 1 << 8,
+
+			MimeEntityFields        = ContentBase | ContentDisposition | ContentId | ContentLocation,
+			MimePartFields          = ContentDescription | ContentDuration | ContentLanguage | ContentMd5 | ContentTransferEncoding,
+		}
+
+		internal LazyLoadedFields LazyLoaded;
 		internal bool EnsureNewLine;
+
 		ContentDisposition disposition;
 		string contentId;
 		Uri location;
@@ -174,20 +197,33 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The content disposition.</value>
 		public ContentDisposition ContentDisposition {
-			get { return disposition; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentDisposition) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentDisposition, out var header)) {
+						if (ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition))
+							disposition.Changed += ContentDispositionChanged;
+					}
+
+					LazyLoaded |= LazyLoadedFields.ContentDisposition;
+				}
+
+				return disposition;
+			}
 			set {
-				if (disposition == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentDisposition) != 0 && disposition == value)
 					return;
 
-				if (disposition != null) {
+				if (disposition != null)
 					disposition.Changed -= ContentDispositionChanged;
-					RemoveHeader ("Content-Disposition");
-				}
 
 				disposition = value;
 				if (disposition != null) {
 					disposition.Changed += ContentDispositionChanged;
+					LazyLoaded |= LazyLoadedFields.ContentDisposition;
 					SerializeContentDisposition ();
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentDisposition;
+					RemoveHeader ("Content-Disposition");
 				}
 			}
 		}
@@ -218,9 +254,22 @@ namespace MimeKit {
 		/// <paramref name="value"/> is not an absolute URI.
 		/// </exception>
 		public Uri ContentBase {
-			get { return baseUri; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentBase) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentBase, out var header)) {
+						var value = header.Value.Trim ();
+
+						if (Uri.IsWellFormedUriString (value, UriKind.Absolute))
+							baseUri = new Uri (value, UriKind.Absolute);
+					}
+
+					LazyLoaded |= LazyLoadedFields.ContentBase;
+				}
+
+				return baseUri;
+			}
 			set {
-				if (baseUri == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentBase) != 0 && baseUri == value)
 					return;
 
 				if (value != null && !value.IsAbsoluteUri)
@@ -228,10 +277,13 @@ namespace MimeKit {
 
 				baseUri = value;
 
-				if (value != null)
+				if (value != null) {
+					LazyLoaded |= LazyLoadedFields.ContentBase;
 					SetHeader ("Content-Base", value.ToString ());
-				else
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentBase;
 					RemoveHeader ("Content-Base");
+				}
 			}
 		}
 
@@ -249,17 +301,35 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The content location or <c>null</c>.</value>
 		public Uri ContentLocation {
-			get { return location; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentLocation) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentLocation, out var header)) {
+						var value = header.Value.Trim ();
+
+						if (Uri.IsWellFormedUriString (value, UriKind.Absolute))
+							location = new Uri (value, UriKind.Absolute);
+						else if (Uri.IsWellFormedUriString (value, UriKind.Relative))
+							location = new Uri (value, UriKind.Relative);
+					}
+
+					LazyLoaded |= LazyLoadedFields.ContentLocation;
+				}
+
+				return location;
+			}
 			set {
-				if (location == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentLocation) != 0 && location == value)
 					return;
 
 				location = value;
 
-				if (value != null)
+				if (value != null) {
+					LazyLoaded |= LazyLoadedFields.ContentLocation;
 					SetHeader ("Content-Location", value.ToString ());
-				else
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentLocation;
 					RemoveHeader ("Content-Location");
+				}
 			}
 		}
 
@@ -276,12 +346,26 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The content identifier.</value>
 		public string ContentId {
-			get { return contentId; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentId) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentId, out var header)) {
+						int index = 0;
+
+						if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string msgid))
+							contentId = msgid;
+					}
+
+					LazyLoaded |= LazyLoadedFields.ContentId;
+				}
+
+				return contentId;
+			}
 			set {
-				if (contentId == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentId) != 0 && contentId == value)
 					return;
 
 				if (value == null) {
+					LazyLoaded &= ~LazyLoadedFields.ContentId;
 					RemoveHeader ("Content-Id");
 					contentId = null;
 					return;
@@ -293,6 +377,7 @@ namespace MimeKit {
 				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string id))
 					throw new ArgumentException ("Invalid Content-Id format.", nameof (value));
 
+				LazyLoaded |= LazyLoadedFields.ContentId;
 				contentId = id;
 
 				SetHeader ("Content-Id", "<" + contentId + ">");
@@ -1036,61 +1121,28 @@ namespace MimeKit {
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
-			int index = 0;
-			string text;
-
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (header.Id) {
-				case HeaderId.ContentDisposition:
-					if (disposition != null)
-						disposition.Changed -= ContentDispositionChanged;
-
-					if (ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition))
-						disposition.Changed += ContentDispositionChanged;
-					break;
-				case HeaderId.ContentLocation:
-					text = header.Value.Trim ();
-
-					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
-						location = new Uri (text, UriKind.Absolute);
-					else if (Uri.IsWellFormedUriString (text, UriKind.Relative))
-						location = new Uri (text, UriKind.Relative);
-					else
-						location = null;
-					break;
-				case HeaderId.ContentBase:
-					text = header.Value.Trim ();
-
-					if (Uri.IsWellFormedUriString (text, UriKind.Absolute))
-						baseUri = new Uri (text, UriKind.Absolute);
-					else
-						baseUri = null;
-					break;
-				case HeaderId.ContentId:
-					if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string msgid))
-						contentId = msgid;
-					else
-						contentId = null;
-					break;
-				}
-				break;
 			case HeaderListChangedAction.Removed:
 				switch (header.Id) {
 				case HeaderId.ContentDisposition:
 					if (disposition != null)
 						disposition.Changed -= ContentDispositionChanged;
 
+					LazyLoaded &= ~LazyLoadedFields.ContentDisposition;
 					disposition = null;
 					break;
 				case HeaderId.ContentLocation:
+					LazyLoaded &= ~LazyLoadedFields.ContentLocation;
 					location = null;
 					break;
 				case HeaderId.ContentBase:
+					LazyLoaded &= ~LazyLoadedFields.ContentBase;
 					baseUri = null;
 					break;
 				case HeaderId.ContentId:
+					LazyLoaded &= ~LazyLoadedFields.ContentId;
 					contentId = null;
 					break;
 				}
@@ -1099,13 +1151,12 @@ namespace MimeKit {
 				if (disposition != null)
 					disposition.Changed -= ContentDispositionChanged;
 
+				LazyLoaded &= ~LazyLoadedFields.MimeEntityFields;
 				disposition = null;
 				contentId = null;
 				location = null;
 				baseUri = null;
 				break;
-			default:
-				throw new ArgumentOutOfRangeException (nameof (action));
 			}
 		}
 

@@ -1228,6 +1228,11 @@ namespace MimeKit {
 				Changed (this, new HeaderListChangedEventArgs (header, action));
 		}
 
+		internal bool TryGetHeader (HeaderId id, out Header header)
+		{
+			return table.TryGetValue (id.ToHeaderName (), out header);
+		}
+
 		internal bool TryGetHeader (string field, out Header header)
 		{
 			if (field == null)

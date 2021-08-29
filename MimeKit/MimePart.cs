@@ -52,7 +52,10 @@ namespace MimeKit {
 		static readonly string[] ContentTransferEncodings = {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
+
 		ContentEncoding encoding;
+		//string[] languages;
+		string description;
 		string md5sum;
 		int? duration;
 
@@ -192,6 +195,43 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Gets or sets the description of the content if available.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Content-Description header can be used to set a description of the content.</para>
+		/// </remarks>
+		/// <value>The description of the content.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public string ContentDescription {
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentDescription) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentDescription, out var header))
+						description = header.Value.Trim ();
+
+					LazyLoaded |= LazyLoadedFields.ContentDescription;
+				}
+
+				return description;
+			}
+			set {
+				if ((LazyLoaded & LazyLoadedFields.ContentDescription) != 0 && description == value)
+					return;
+
+				description = value != null ? value.Trim () : null;
+
+				if (value != null) {
+					LazyLoaded |= LazyLoadedFields.ContentDescription;
+					SetHeader ("Content-Description", description);
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentDescription;
+					RemoveHeader ("Content-Description");
+				}
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets the duration of the content if available.
 		/// </summary>
 		/// <remarks>
@@ -203,9 +243,20 @@ namespace MimeKit {
 		/// <paramref name="value"/> is negative.
 		/// </exception>
 		public int? ContentDuration {
-			get { return duration; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentDuration) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentDuration, out var header)) {
+						if (int.TryParse (header.Value.Trim (), out var value))
+							duration = value;
+					}
+
+					LazyLoaded |= LazyLoadedFields.ContentDuration;
+				}
+
+				return duration;
+			}
 			set {
-				if (duration == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentDuration) != 0 && duration == value)
 					return;
 
 				if (value.HasValue && value.Value < 0)
@@ -213,10 +264,13 @@ namespace MimeKit {
 
 				duration = value;
 
-				if (value.HasValue)
+				if (value.HasValue) {
+					LazyLoaded |= LazyLoadedFields.ContentDuration;
 					SetHeader ("Content-Duration", value.Value.ToString ());
-				else
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentDuration;
 					RemoveHeader ("Content-Duration");
+				}
 			}
 		}
 
@@ -230,17 +284,29 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The md5sum of the content.</value>
 		public string ContentMd5 {
-			get { return md5sum; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentMd5) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentMd5, out var header))
+						md5sum = header.Value.Trim ();
+
+					LazyLoaded |= LazyLoadedFields.ContentMd5;
+				}
+
+				return md5sum;
+			}
 			set {
-				if (md5sum == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentMd5) != 0 && md5sum == value)
 					return;
 
 				md5sum = value != null ? value.Trim () : null;
 
-				if (value != null)
+				if (value != null) {
+					LazyLoaded |= LazyLoadedFields.ContentMd5;
 					SetHeader ("Content-Md5", md5sum);
-				else
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentMd5;
 					RemoveHeader ("Content-Md5");
+				}
 			}
 		}
 
@@ -261,9 +327,18 @@ namespace MimeKit {
 		/// <paramref name="value"/> is not a valid content encoding.
 		/// </exception>
 		public ContentEncoding ContentTransferEncoding {
-			get { return encoding; }
+			get {
+				if ((LazyLoaded & LazyLoadedFields.ContentTransferEncoding) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ContentTransferEncoding, out var header))
+						MimeUtils.TryParse (header.Value, out encoding);
+
+					LazyLoaded |= LazyLoadedFields.ContentTransferEncoding;
+				}
+
+				return encoding;
+			}
 			set {
-				if (encoding == value)
+				if ((LazyLoaded & LazyLoadedFields.ContentTransferEncoding) != 0 && encoding == value)
 					return;
 
 				int index = (int) value;
@@ -275,10 +350,13 @@ namespace MimeKit {
 
 				encoding = value;
 
-				if (text != null)
+				if (text != null) {
+					LazyLoaded |= LazyLoadedFields.ContentTransferEncoding;
 					SetHeader ("Content-Transfer-Encoding", text);
-				else
+				} else {
+					LazyLoaded &= ~LazyLoadedFields.ContentTransferEncoding;
 					RemoveHeader ("Content-Transfer-Encoding");
+				}
 			}
 		}
 
@@ -545,8 +623,8 @@ namespace MimeKit {
 
 			var cancellable = stream as ICancellableStream;
 
-			if (Content.Encoding != encoding) {
-				if (encoding == ContentEncoding.UUEncode) {
+			if (Content.Encoding != ContentTransferEncoding) {
+				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
 
@@ -562,16 +640,16 @@ namespace MimeKit {
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (encoding));
+					filtered.Add (EncoderFilter.Create (ContentTransferEncoding));
 
-					if (encoding != ContentEncoding.Binary)
+					if (ContentTransferEncoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
 
 					Content.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
 
-				if (encoding == ContentEncoding.UUEncode) {
+				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
 					var buffer = Encoding.ASCII.GetBytes ("end");
 
 					if (cancellable != null) {
@@ -583,7 +661,7 @@ namespace MimeKit {
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
 				}
-			} else if (encoding == ContentEncoding.Binary) {
+			} else if (ContentTransferEncoding == ContentEncoding.Binary) {
 				// Do not alter binary content.
 				Content.WriteTo (stream, cancellationToken);
 			} else if (options.VerifyingSignature && Content.NewLineFormat.HasValue && Content.NewLineFormat.Value == NewLineFormat.Mixed) {
@@ -634,8 +712,8 @@ namespace MimeKit {
 
 			var isText = ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*");
 
-			if (Content.Encoding != encoding) {
-				if (encoding == ContentEncoding.UUEncode) {
+			if (Content.Encoding != ContentTransferEncoding) {
+				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);
 
@@ -645,22 +723,22 @@ namespace MimeKit {
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (encoding));
+					filtered.Add (EncoderFilter.Create (ContentTransferEncoding));
 
-					if (encoding != ContentEncoding.Binary)
+					if (ContentTransferEncoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
 
 					await Content.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 
-				if (encoding == ContentEncoding.UUEncode) {
+				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
 					var buffer = Encoding.ASCII.GetBytes ("end");
 
 					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
 					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 				}
-			} else if (encoding == ContentEncoding.Binary) {
+			} else if (ContentTransferEncoding == ContentEncoding.Binary) {
 				// Do not alter binary content.
 				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			} else if (options.VerifyingSignature && Content.NewLineFormat.HasValue && Content.NewLineFormat.Value == NewLineFormat.Mixed) {
@@ -691,48 +769,38 @@ namespace MimeKit {
 		/// <param name="header">The header being added, changed or removed.</param>
 		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
 		{
-			int value;
-
 			base.OnHeadersChanged (action, header);
 
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
-				switch (header.Id) {
-				case HeaderId.ContentTransferEncoding:
-					MimeUtils.TryParse (header.Value, out encoding);
-					break;
-				case HeaderId.ContentDuration:
-					if (int.TryParse (header.Value, out value))
-						duration = value;
-					else
-						duration = null;
-					break;
-				case HeaderId.ContentMd5:
-					md5sum = header.Value.Trim ();
-					break;
-				}
-				break;
 			case HeaderListChangedAction.Removed:
 				switch (header.Id) {
 				case HeaderId.ContentTransferEncoding:
+					LazyLoaded &= ~LazyLoadedFields.ContentTransferEncoding;
 					encoding = ContentEncoding.Default;
 					break;
+				case HeaderId.ContentDescription:
+					LazyLoaded &= ~LazyLoadedFields.ContentDescription;
+					description = null;
+					break;
 				case HeaderId.ContentDuration:
+					LazyLoaded &= ~LazyLoadedFields.ContentDuration;
 					duration = null;
 					break;
 				case HeaderId.ContentMd5:
+					LazyLoaded &= ~LazyLoadedFields.ContentMd5;
 					md5sum = null;
 					break;
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
+				LazyLoaded &= ~LazyLoadedFields.MimePartFields;
 				encoding = ContentEncoding.Default;
+				description = null;
 				duration = null;
 				md5sum = null;
 				break;
-			default:
-				throw new ArgumentOutOfRangeException (nameof (action));
 			}
 		}
 	}
