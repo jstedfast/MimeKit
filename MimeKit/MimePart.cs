@@ -219,15 +219,15 @@ namespace MimeKit {
 				if ((LazyLoaded & LazyLoadedFields.ContentDescription) != 0 && description == value)
 					return;
 
-				description = value != null ? value.Trim () : null;
+				description = value?.Trim ();
 
 				if (value != null) {
-					LazyLoaded |= LazyLoadedFields.ContentDescription;
 					SetHeader ("Content-Description", description);
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentDescription;
 					RemoveHeader ("Content-Description");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentDescription;
 			}
 		}
 
@@ -265,12 +265,12 @@ namespace MimeKit {
 				duration = value;
 
 				if (value.HasValue) {
-					LazyLoaded |= LazyLoadedFields.ContentDuration;
 					SetHeader ("Content-Duration", value.Value.ToString ());
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentDuration;
 					RemoveHeader ("Content-Duration");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentDuration;
 			}
 		}
 
@@ -298,15 +298,15 @@ namespace MimeKit {
 				if ((LazyLoaded & LazyLoadedFields.ContentMd5) != 0 && md5sum == value)
 					return;
 
-				md5sum = value != null ? value.Trim () : null;
+				md5sum = value?.Trim ();
 
 				if (value != null) {
-					LazyLoaded |= LazyLoadedFields.ContentMd5;
 					SetHeader ("Content-Md5", md5sum);
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentMd5;
 					RemoveHeader ("Content-Md5");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentMd5;
 			}
 		}
 
@@ -351,12 +351,12 @@ namespace MimeKit {
 				encoding = value;
 
 				if (text != null) {
-					LazyLoaded |= LazyLoadedFields.ContentTransferEncoding;
 					SetHeader ("Content-Transfer-Encoding", text);
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentTransferEncoding;
 					RemoveHeader ("Content-Transfer-Encoding");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentTransferEncoding;
 			}
 		}
 
@@ -795,7 +795,7 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderListChangedAction.Cleared:
-				LazyLoaded &= ~LazyLoadedFields.MimePartFields;
+				LazyLoaded = LazyLoadedFields.None;
 				encoding = ContentEncoding.Default;
 				description = null;
 				duration = null;

@@ -63,10 +63,7 @@ namespace MimeKit {
 			ContentDuration         = 1 << 5,
 			ContentLanguage         = 1 << 6,
 			ContentMd5              = 1 << 7,
-			ContentTransferEncoding = 1 << 8,
-
-			MimeEntityFields        = ContentBase | ContentDisposition | ContentId | ContentLocation,
-			MimePartFields          = ContentDescription | ContentDuration | ContentLanguage | ContentMd5 | ContentTransferEncoding,
+			ContentTransferEncoding = 1 << 8
 		}
 
 		internal LazyLoadedFields LazyLoaded;
@@ -97,15 +94,15 @@ namespace MimeKit {
 			Headers = new HeaderList (args.ParserOptions);
 			ContentType = args.ContentType;
 
-			ContentType.Changed += ContentTypeChanged;
-			Headers.Changed += HeadersChanged;
-
 			foreach (var header in args.Headers) {
 				if (args.IsTopLevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 					continue;
 
 				Headers.Add (header);
 			}
+
+			ContentType.Changed += ContentTypeChanged;
+			Headers.Changed += HeadersChanged;
 		}
 
 		/// <summary>
@@ -219,12 +216,12 @@ namespace MimeKit {
 				disposition = value;
 				if (disposition != null) {
 					disposition.Changed += ContentDispositionChanged;
-					LazyLoaded |= LazyLoadedFields.ContentDisposition;
 					SerializeContentDisposition ();
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentDisposition;
 					RemoveHeader ("Content-Disposition");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentDisposition;
 			}
 		}
 
@@ -278,12 +275,12 @@ namespace MimeKit {
 				baseUri = value;
 
 				if (value != null) {
-					LazyLoaded |= LazyLoadedFields.ContentBase;
 					SetHeader ("Content-Base", value.ToString ());
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentBase;
 					RemoveHeader ("Content-Base");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentBase;
 			}
 		}
 
@@ -324,12 +321,12 @@ namespace MimeKit {
 				location = value;
 
 				if (value != null) {
-					LazyLoaded |= LazyLoadedFields.ContentLocation;
 					SetHeader ("Content-Location", value.ToString ());
 				} else {
-					LazyLoaded &= ~LazyLoadedFields.ContentLocation;
 					RemoveHeader ("Content-Location");
 				}
+
+				LazyLoaded |= LazyLoadedFields.ContentLocation;
 			}
 		}
 
@@ -365,7 +362,7 @@ namespace MimeKit {
 					return;
 
 				if (value == null) {
-					LazyLoaded &= ~LazyLoadedFields.ContentId;
+					LazyLoaded |= LazyLoadedFields.ContentId;
 					RemoveHeader ("Content-Id");
 					contentId = null;
 					return;
@@ -1151,7 +1148,7 @@ namespace MimeKit {
 				if (disposition != null)
 					disposition.Changed -= ContentDispositionChanged;
 
-				LazyLoaded &= ~LazyLoadedFields.MimeEntityFields;
+				LazyLoaded = LazyLoadedFields.None;
 				disposition = null;
 				contentId = null;
 				location = null;

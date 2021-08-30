@@ -68,12 +68,39 @@ namespace MimeKit {
 			HeaderId.From, HeaderId.ReplyTo, HeaderId.To, HeaderId.Cc, HeaderId.Bcc
 		};
 
+		enum LazyLoadedFields {
+			None            = 0,
+			ResentSender    = 1 << 0,
+			ResentFrom      = 1 << 1,
+			ResentReplyTo   = 1 << 2,
+			ResentTo        = 1 << 3,
+			ResentCc        = 1 << 4,
+			ResentBcc       = 1 << 5,
+			ResentDate      = 1 << 6,
+			ResentMessageId = 1 << 7,
+			Sender          = 1 << 8,
+			From            = 1 << 9,
+			ReplyTo         = 1 << 10,
+			To              = 1 << 11,
+			Cc              = 1 << 12,
+			Bcc             = 1 << 13,
+			Date            = 1 << 14,
+			MessageId       = 1 << 15,
+			InReplyTo       = 1 << 16,
+			References      = 1 << 17,
+			MimeVersion     = 1 << 18,
+			Importance      = 1 << 29,
+			Priority        = 1 << 20,
+			XPriority       = 1 << 21
+		}
+
 		readonly Dictionary<HeaderId, InternetAddressList> addresses;
 		MessageImportance importance = MessageImportance.Normal;
 		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
 		readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
+		LazyLoadedFields lazyLoaded;
 		MailboxAddress resentSender;
 		DateTimeOffset resentDate;
 		string resentMessageId;
@@ -100,9 +127,6 @@ namespace MimeKit {
 
 			references = new MessageIdList ();
 			references.Changed += ReferencesChanged;
-			inreplyto = null;
-
-			Headers.Changed += HeadersChanged;
 
 			// add all of our message headers...
 			foreach (var header in headers) {
@@ -111,6 +135,8 @@ namespace MimeKit {
 
 				Headers.Add (header);
 			}
+
+			Headers.Changed += HeadersChanged;
 		}
 
 		internal MimeMessage (ParserOptions options)
@@ -129,7 +155,6 @@ namespace MimeKit {
 
 			references = new MessageIdList ();
 			references.Changed += ReferencesChanged;
-			inreplyto = null;
 
 			Headers.Changed += HeadersChanged;
 		}
@@ -282,7 +307,21 @@ namespace MimeKit {
 		/// <paramref name="value"/> is not a valid <see cref="MessageImportance"/>.
 		/// </exception>
 		public MessageImportance Importance {
-			get { return importance; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.Importance) == 0) {
+					if (Headers.TryGetHeader (HeaderId.Importance, out var header)) {
+						switch (header.Value.ToLowerInvariant ().Trim ()) {
+						case "high": importance = MessageImportance.High; break;
+						case "low": importance = MessageImportance.Low; break;
+						default: importance = MessageImportance.Normal; break;
+						}
+					}
+
+					lazyLoaded |= LazyLoadedFields.Importance;
+				}
+
+				return importance;
+			}
 			set {
 				if (value == importance)
 					return;
@@ -292,6 +331,7 @@ namespace MimeKit {
 				case MessageImportance.High:
 				case MessageImportance.Low:
 					SetHeader ("Importance", value.ToString ().ToLowerInvariant ());
+					lazyLoaded |= LazyLoadedFields.Importance;
 					importance = value;
 					break;
 				default:
@@ -311,7 +351,21 @@ namespace MimeKit {
 		/// <paramref name="value"/> is not a valid <see cref="MessagePriority"/>.
 		/// </exception>
 		public MessagePriority Priority {
-			get { return priority; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.Priority) == 0) {
+					if (Headers.TryGetHeader (HeaderId.Priority, out var header)) {
+						switch (header.Value.ToLowerInvariant ().Trim ()) {
+						case "non-urgent": priority = MessagePriority.NonUrgent; break;
+						case "urgent": priority = MessagePriority.Urgent; break;
+						default: priority = MessagePriority.Normal; break;
+						}
+					}
+
+					lazyLoaded |= LazyLoadedFields.Priority;
+				}
+
+				return priority;
+			}
 			set {
 				if (value == priority)
 					return;
@@ -334,6 +388,7 @@ namespace MimeKit {
 
 				SetHeader ("Priority", rawValue);
 
+				lazyLoaded |= LazyLoadedFields.Priority;
 				priority = value;
 			}
 		}
@@ -349,7 +404,25 @@ namespace MimeKit {
 		/// <paramref name="value"/> is not a valid <see cref="MessagePriority"/>.
 		/// </exception>
 		public XMessagePriority XPriority {
-			get { return xpriority; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.XPriority) == 0) {
+					if (Headers.TryGetHeader (HeaderId.XPriority, out var header)) {
+						int index = 0;
+
+						ParseUtils.SkipWhiteSpace (header.RawValue, ref index, header.RawValue.Length);
+
+						if (ParseUtils.TryParseInt32 (header.RawValue, ref index, header.RawValue.Length, out var number)) {
+							xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
+						} else {
+							xpriority = XMessagePriority.Normal;
+						}
+					}
+
+					lazyLoaded |= LazyLoadedFields.XPriority;
+				}
+
+				return xpriority;
+			}
 			set {
 				if (value == xpriority)
 					return;
@@ -378,6 +451,7 @@ namespace MimeKit {
 
 				SetHeader ("X-Priority", rawValue);
 
+				lazyLoaded |= LazyLoadedFields.XPriority;
 				xpriority = value;
 			}
 		}
@@ -391,13 +465,27 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The address in the Sender header.</value>
 		public MailboxAddress Sender {
-			get { return sender; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.Sender) == 0) {
+					if (Headers.TryGetHeader (HeaderId.Sender, out var header)) {
+						var rawValue = header.RawValue;
+						int index = 0;
+
+						MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out sender);
+					}
+
+					lazyLoaded |= LazyLoadedFields.Sender;
+				}
+
+				return sender;
+			}
 			set {
-				if (value == sender)
+				if ((lazyLoaded & LazyLoadedFields.Sender) != 0 && value == sender)
 					return;
 
 				if (value == null) {
 					RemoveHeader (HeaderId.Sender);
+					lazyLoaded |= LazyLoadedFields.Sender;
 					sender = null;
 					return;
 				}
@@ -412,7 +500,7 @@ namespace MimeKit {
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
 				ReplaceHeader (HeaderId.Sender, "Sender", raw);
-
+				lazyLoaded |= LazyLoadedFields.Sender;
 				sender = value;
 			}
 		}
@@ -426,13 +514,27 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
 		public MailboxAddress ResentSender {
-			get { return resentSender; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.ResentSender) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ResentSender, out var header)) {
+						var rawValue = header.RawValue;
+						int index = 0;
+
+						MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out resentSender);
+					}
+
+					lazyLoaded |= LazyLoadedFields.ResentSender;
+				}
+
+				return resentSender;
+			}
 			set {
-				if (value == resentSender)
+				if ((lazyLoaded & LazyLoadedFields.ResentSender) != 0 && value == resentSender)
 					return;
 
 				if (value == null) {
 					RemoveHeader (HeaderId.ResentSender);
+					lazyLoaded |= LazyLoadedFields.ResentSender;
 					resentSender = null;
 					return;
 				}
@@ -447,9 +549,27 @@ namespace MimeKit {
 				var raw = Encoding.UTF8.GetBytes (builder.ToString ());
 
 				ReplaceHeader (HeaderId.ResentSender, "Resent-Sender", raw);
-
+				lazyLoaded |= LazyLoadedFields.ResentSender;
 				resentSender = value;
 			}
+		}
+
+		InternetAddressList GetLazyLoadedAddresses (HeaderId id, LazyLoadedFields bit)
+		{
+			var list = addresses[id];
+
+			if ((lazyLoaded & bit) == 0) {
+				for (int i = 0; i < Headers.Count; i++) {
+					if (Headers[i].Id != id)
+						continue;
+
+					AddAddresses (Headers[i], list);
+				}
+
+				lazyLoaded |= bit;
+			}
+
+			return list;
 		}
 
 		/// <summary>
@@ -464,7 +584,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the From header.</value>
 		public InternetAddressList From {
-			get { return addresses[HeaderId.From]; }
+			get { return GetLazyLoadedAddresses (HeaderId.From, LazyLoadedFields.From); }
 		}
 
 		/// <summary>
@@ -480,7 +600,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-From header.</value>
 		public InternetAddressList ResentFrom {
-			get { return addresses[HeaderId.ResentFrom]; }
+			get { return GetLazyLoadedAddresses (HeaderId.ResentFrom, LazyLoadedFields.ResentFrom); }
 		}
 
 		/// <summary>
@@ -496,7 +616,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Reply-To header.</value>
 		public InternetAddressList ReplyTo {
-			get { return addresses[HeaderId.ReplyTo]; }
+			get { return GetLazyLoadedAddresses (HeaderId.ReplyTo, LazyLoadedFields.ReplyTo); }
 		}
 
 		/// <summary>
@@ -512,7 +632,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Reply-To header.</value>
 		public InternetAddressList ResentReplyTo {
-			get { return addresses[HeaderId.ResentReplyTo]; }
+			get { return GetLazyLoadedAddresses (HeaderId.ResentReplyTo, LazyLoadedFields.ResentReplyTo); }
 		}
 
 		/// <summary>
@@ -524,7 +644,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the To header.</value>
 		public InternetAddressList To {
-			get { return addresses[HeaderId.To]; }
+			get { return GetLazyLoadedAddresses (HeaderId.To, LazyLoadedFields.To); }
 		}
 
 		/// <summary>
@@ -536,7 +656,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-To header.</value>
 		public InternetAddressList ResentTo {
-			get { return addresses[HeaderId.ResentTo]; }
+			get { return GetLazyLoadedAddresses (HeaderId.ResentTo, LazyLoadedFields.ResentTo); }
 		}
 
 		/// <summary>
@@ -549,7 +669,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Cc header.</value>
 		public InternetAddressList Cc {
-			get { return addresses[HeaderId.Cc]; }
+			get { return GetLazyLoadedAddresses (HeaderId.Cc, LazyLoadedFields.Cc); }
 		}
 
 		/// <summary>
@@ -562,7 +682,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Cc header.</value>
 		public InternetAddressList ResentCc {
-			get { return addresses[HeaderId.ResentCc]; }
+			get { return GetLazyLoadedAddresses (HeaderId.ResentCc, LazyLoadedFields.ResentCc); }
 		}
 
 		/// <summary>
@@ -574,7 +694,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Bcc header.</value>
 		public InternetAddressList Bcc {
-			get { return addresses[HeaderId.Bcc]; }
+			get { return GetLazyLoadedAddresses (HeaderId.Bcc, LazyLoadedFields.Bcc); }
 		}
 
 		/// <summary>
@@ -586,7 +706,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The list of addresses in the Resent-Bcc header.</value>
 		public InternetAddressList ResentBcc {
-			get { return addresses[HeaderId.ResentBcc]; }
+			get { return GetLazyLoadedAddresses (HeaderId.ResentBcc, LazyLoadedFields.ResentBcc); }
 		}
 
 		/// <summary>
@@ -619,12 +739,25 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The date of the message.</value>
 		public DateTimeOffset Date {
-			get { return date; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.Date) == 0) {
+					if (Headers.TryGetHeader (HeaderId.Date, out var header)) {
+						var rawValue = header.RawValue;
+
+						DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
+					}
+
+					lazyLoaded |= LazyLoadedFields.Date;
+				}
+
+				return date;
+			}
 			set {
-				if (date == value)
+				if ((lazyLoaded & LazyLoadedFields.Date) != 0 && date == value)
 					return;
 
 				SetHeader ("Date", DateUtils.FormatDate (value));
+				lazyLoaded |= LazyLoadedFields.Date;
 				date = value;
 			}
 		}
@@ -637,12 +770,25 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The Resent-Date of the message.</value>
 		public DateTimeOffset ResentDate {
-			get { return resentDate; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.ResentDate) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ResentDate, out var header)) {
+						var rawValue = header.RawValue;
+
+						DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);
+					}
+
+					lazyLoaded |= LazyLoadedFields.ResentDate;
+				}
+
+				return resentDate;
+			}
 			set {
 				if (resentDate == value)
 					return;
 
 				SetHeader ("Resent-Date", DateUtils.FormatDate (value));
+				lazyLoaded |= LazyLoadedFields.ResentDate;
 				resentDate = value;
 			}
 		}
@@ -656,7 +802,22 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The references.</value>
 		public MessageIdList References {
-			get { return references; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.References) == 0) {
+					if (Headers.TryGetHeader (HeaderId.References, out var header)) {
+						var rawValue = header.RawValue;
+
+						references.Changed -= ReferencesChanged;
+						foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
+							references.Add (msgid);
+						references.Changed += ReferencesChanged;
+					}
+
+					lazyLoaded |= LazyLoadedFields.References;
+				}
+
+				return references;
+			}
 		}
 
 		/// <summary>
@@ -672,24 +833,37 @@ namespace MimeKit {
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
 		public string InReplyTo {
-			get { return inreplyto; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.InReplyTo) == 0) {
+					if (Headers.TryGetHeader (HeaderId.InReplyTo, out var header)) {
+						var rawValue = header.RawValue;
+
+						inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					}
+
+					lazyLoaded |= LazyLoadedFields.InReplyTo;
+				}
+
+				return inreplyto;
+			}
 			set {
-				if (inreplyto == value)
+				if ((lazyLoaded & LazyLoadedFields.InReplyTo) != 0 && inreplyto == value)
 					return;
 
 				if (value == null) {
 					RemoveHeader (HeaderId.InReplyTo);
+					lazyLoaded |= LazyLoadedFields.InReplyTo;
 					inreplyto = null;
 					return;
 				}
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out var mailbox))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
+				lazyLoaded |= LazyLoadedFields.InReplyTo;
 				inreplyto = mailbox.Address;
 
 				SetHeader ("In-Reply-To", "<" + inreplyto + ">");
@@ -713,21 +887,33 @@ namespace MimeKit {
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
 		public string MessageId {
-			get { return messageId; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.MessageId) == 0) {
+					if (Headers.TryGetHeader (HeaderId.MessageId, out var header)) {
+						var rawValue = header.RawValue;
+
+						messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
+					}
+
+					lazyLoaded |= LazyLoadedFields.MessageId;
+				}
+
+				return messageId;
+			}
 			set {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
 
-				if (messageId == value)
+				if ((lazyLoaded & LazyLoadedFields.MessageId) != 0 && messageId == value)
 					return;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out var mailbox))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
+				lazyLoaded |= LazyLoadedFields.MessageId;
 				messageId = mailbox.Address;
 
 				SetHeader ("Message-Id", "<" + messageId + ">");
@@ -751,21 +937,33 @@ namespace MimeKit {
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
 		public string ResentMessageId {
-			get { return resentMessageId; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) == 0) {
+					if (Headers.TryGetHeader (HeaderId.ResentMessageId, out var header)) {
+						var rawValue = header.RawValue;
+
+						resentMessageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
+					}
+
+					lazyLoaded |= LazyLoadedFields.ResentMessageId;
+				}
+
+				return resentMessageId;
+			}
 			set {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
 
-				if (resentMessageId == value)
+				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) != 0 && resentMessageId == value)
 					return;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out mailbox))
+				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out var mailbox))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", nameof (value));
 
+				lazyLoaded |= LazyLoadedFields.ResentMessageId;
 				resentMessageId = mailbox.Address;
 
 				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">");
@@ -784,7 +982,19 @@ namespace MimeKit {
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
 		public Version MimeVersion {
-			get { return version; }
+			get {
+				if ((lazyLoaded & LazyLoadedFields.MimeVersion) == 0) {
+					if (Headers.TryGetHeader (HeaderId.MimeVersion, out var header)) {
+						var rawValue = header.RawValue;
+
+						MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version);
+					}
+
+					lazyLoaded |= LazyLoadedFields.MimeVersion;
+				}
+
+				return version;
+			}
 			set {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
@@ -793,6 +1003,7 @@ namespace MimeKit {
 					return;
 
 				SetHeader ("MIME-Version", value.ToString ());
+				lazyLoaded |= LazyLoadedFields.MimeVersion;
 				version = value;
 			}
 		}
@@ -2256,11 +2467,10 @@ namespace MimeKit {
 		void AddAddresses (Header header, InternetAddressList list)
 		{
 			int length = header.RawValue.Length;
-			List<InternetAddress> parsed;
 			int index = 0;
 
 			// parse the addresses in the new header and add them to our address list
-			if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, 0, false, out parsed))
+			if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, 0, false, out var parsed))
 				return;
 
 			list.Changed -= InternetAddressListChanged;
@@ -2268,219 +2478,108 @@ namespace MimeKit {
 			list.Changed += InternetAddressListChanged;
 		}
 
-		void ReloadAddressList (HeaderId id, InternetAddressList list)
+		static LazyLoadedFields GetAddressListLazyLoadField (HeaderId id)
 		{
-			// clear the address list and reload
-			list.Changed -= InternetAddressListChanged;
-			list.Clear ();
-
-			foreach (var header in Headers) {
-				if (header.Id != id)
-					continue;
-
-				int length = header.RawValue.Length;
-				List<InternetAddress> parsed;
-				int index = 0;
-
-				if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, 0, false, out parsed))
-					continue;
-
-				list.AddRange (parsed);
-			}
-
-			list.Changed += InternetAddressListChanged;
-		}
-
-		void ReloadHeader (HeaderId id)
-		{
-			if (id == HeaderId.Unknown)
-				return;
-
 			switch (id) {
-			case HeaderId.ResentMessageId:
-				resentMessageId = null;
-				break;
-			case HeaderId.ResentSender:
-				resentSender = null;
-				break;
-			case HeaderId.ResentDate:
-				resentDate = DateTimeOffset.MinValue;
-				break;
-			case HeaderId.References:
-				references.Changed -= ReferencesChanged;
-				references.Clear ();
-				references.Changed += ReferencesChanged;
-				break;
-			case HeaderId.InReplyTo:
-				inreplyto = null;
-				break;
-			case HeaderId.MessageId:
-				messageId = null;
-				break;
-			case HeaderId.Sender:
-				sender = null;
-				break;
-			case HeaderId.Importance:
-				importance = MessageImportance.Normal;
-				break;
-			case HeaderId.XPriority:
-				xpriority = XMessagePriority.Normal;
-				break;
-			case HeaderId.Priority:
-				priority = MessagePriority.Normal;
-				break;
-			case HeaderId.Date:
-				date = DateTimeOffset.MinValue;
-				break;
-			}
-
-			foreach (var header in Headers) {
-				if (header.Id != id)
-					continue;
-
-				var rawValue = header.RawValue;
-				int number, index = 0;
-
-				switch (id) {
-				case HeaderId.MimeVersion:
-					MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version);
-					break;
-				case HeaderId.References:
-					references.Changed -= ReferencesChanged;
-					foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
-						references.Add (msgid);
-					references.Changed += ReferencesChanged;
-					break;
-				case HeaderId.InReplyTo:
-					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
-					break;
-				case HeaderId.ResentMessageId:
-					resentMessageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
-					break;
-				case HeaderId.MessageId:
-					messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
-					break;
-				case HeaderId.ResentSender:
-					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out resentSender);
-					break;
-				case HeaderId.Sender:
-					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out sender);
-					break;
-				case HeaderId.ResentDate:
-					DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);
-					break;
-				case HeaderId.Importance:
-					switch (header.Value.ToLowerInvariant ().Trim ()) {
-					case "high": importance = MessageImportance.High; break;
-					case "low": importance = MessageImportance.Low; break;
-					default: importance = MessageImportance.Normal; break;
-					}
-					break;
-				case HeaderId.Priority:
-					switch (header.Value.ToLowerInvariant ().Trim ()) {
-					case "non-urgent": priority = MessagePriority.NonUrgent; break;
-					case "urgent": priority = MessagePriority.Urgent; break;
-					default: priority = MessagePriority.Normal; break;
-					}
-					break;
-				case HeaderId.XPriority:
-					ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
-
-					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
-						xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
-					} else {
-						xpriority = XMessagePriority.Normal;
-					}
-					break;
-				case HeaderId.Date:
-					DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
-					break;
-				}
+			case HeaderId.From: return LazyLoadedFields.From;
+			case HeaderId.ReplyTo: return LazyLoadedFields.ReplyTo;
+			case HeaderId.To: return LazyLoadedFields.To;
+			case HeaderId.Cc: return LazyLoadedFields.Cc;
+			case HeaderId.Bcc: return LazyLoadedFields.Bcc;
+			case HeaderId.ResentFrom: return LazyLoadedFields.ResentFrom;
+			case HeaderId.ResentReplyTo: return LazyLoadedFields.ResentReplyTo;
+			case HeaderId.ResentTo: return LazyLoadedFields.ResentTo;
+			case HeaderId.ResentCc: return LazyLoadedFields.ResentCc;
+			case HeaderId.ResentBcc: return LazyLoadedFields.ResentBcc;
+			default: return LazyLoadedFields.None;
 			}
 		}
 
 		void HeadersChanged (object o, HeaderListChangedEventArgs e)
 		{
-			InternetAddressList list;
-			byte[] rawValue;
-			int index = 0;
-			int number;
+			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header.Id, out var list)) {
+				var bit = GetAddressListLazyLoadField (e.Header.Id);
+
+				if ((lazyLoaded & bit) != 0) {
+					switch (e.Action) {
+					case HeaderListChangedAction.Added:
+						// Note: Only append new addresses of this type if the address list is already lazy-loaded.
+						AddAddresses (e.Header, list);
+						break;
+					case HeaderListChangedAction.Changed:
+					case HeaderListChangedAction.Removed:
+						// Unload the address list if it has already been loaded
+						list.Changed -= InternetAddressListChanged;
+						list.Clear ();
+						list.Changed += InternetAddressListChanged;
+						lazyLoaded &= ~bit;
+						break;
+					}
+				}
+
+				return;
+			}
 
 			switch (e.Action) {
 			case HeaderListChangedAction.Added:
-				if (addresses.TryGetValue (e.Header.Id, out list)) {
-					AddAddresses (e.Header, list);
-					break;
-				}
-
-				rawValue = e.Header.RawValue;
-
+			case HeaderListChangedAction.Changed:
+			case HeaderListChangedAction.Removed:
 				switch (e.Header.Id) {
-				case HeaderId.MimeVersion:
-					MimeUtils.TryParse (rawValue, 0, rawValue.Length, out version);
+				case HeaderId.ResentSender:
+					lazyLoaded &= ~LazyLoadedFields.ResentSender;
+					resentSender = null;
+					break;
+				case HeaderId.Sender:
+					lazyLoaded &= ~LazyLoadedFields.Sender;
+					sender = null;
+					break;
+				case HeaderId.ResentDate:
+					lazyLoaded &= ~LazyLoadedFields.ResentDate;
+					resentDate = DateTimeOffset.MinValue;
+					break;
+				case HeaderId.Date:
+					lazyLoaded &= ~LazyLoadedFields.Date;
+					date = DateTimeOffset.MinValue;
+					break;
+				case HeaderId.ResentMessageId:
+					lazyLoaded &= ~LazyLoadedFields.ResentMessageId;
+					resentMessageId = null;
+					break;
+				case HeaderId.MessageId:
+					lazyLoaded &= ~LazyLoadedFields.MessageId;
+					messageId = null;
 					break;
 				case HeaderId.References:
+					lazyLoaded &= ~LazyLoadedFields.References;
 					references.Changed -= ReferencesChanged;
-					foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
-						references.Add (msgid);
+					references.Clear ();
 					references.Changed += ReferencesChanged;
 					break;
 				case HeaderId.InReplyTo:
-					inreplyto = MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length).FirstOrDefault ();
+					lazyLoaded &= ~LazyLoadedFields.InReplyTo;
+					inreplyto = null;
 					break;
-				case HeaderId.ResentMessageId:
-					resentMessageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
-					break;
-				case HeaderId.MessageId:
-					messageId = MimeUtils.ParseMessageId (rawValue, 0, rawValue.Length);
-					break;
-				case HeaderId.ResentSender:
-					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out resentSender);
-					break;
-				case HeaderId.Sender:
-					MailboxAddress.TryParse (Headers.Options, rawValue, ref index, rawValue.Length, false, out sender);
-					break;
-				case HeaderId.ResentDate:
-					DateUtils.TryParse (rawValue, 0, rawValue.Length, out resentDate);
+				case HeaderId.MimeVersion:
+					lazyLoaded &= ~LazyLoadedFields.MimeVersion;
+					version = null;
 					break;
 				case HeaderId.Importance:
-					switch (e.Header.Value.ToLowerInvariant ().Trim ()) {
-					case "high": importance = MessageImportance.High; break;
-					case "low": importance = MessageImportance.Low; break;
-					default: importance = MessageImportance.Normal; break;
-					}
+					lazyLoaded &= ~LazyLoadedFields.Importance;
+					importance = MessageImportance.Normal;
 					break;
 				case HeaderId.Priority:
-					switch (e.Header.Value.ToLowerInvariant ().Trim ()) {
-					case "non-urgent": priority = MessagePriority.NonUrgent; break;
-					case "urgent": priority = MessagePriority.Urgent; break;
-					default: priority = MessagePriority.Normal; break;
-					}
+					lazyLoaded &= ~LazyLoadedFields.Priority;
+					priority = MessagePriority.Normal;
 					break;
 				case HeaderId.XPriority:
-					ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
-
-					if (ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out number)) {
-						xpriority = (XMessagePriority) Math.Min (Math.Max (number, 1), 5);
-					} else {
-						xpriority = XMessagePriority.Normal;
-					}
-					break;
-				case HeaderId.Date:
-					DateUtils.TryParse (rawValue, 0, rawValue.Length, out date);
+					lazyLoaded &= ~LazyLoadedFields.XPriority;
+					xpriority = XMessagePriority.Normal;
 					break;
 				}
-				break;
-			case HeaderListChangedAction.Changed:
-			case HeaderListChangedAction.Removed:
-				if (addresses.TryGetValue (e.Header.Id, out list)) {
-					ReloadAddressList (e.Header.Id, list);
-					break;
-				}
-
-				ReloadHeader (e.Header.Id);
 				break;
 			case HeaderListChangedAction.Cleared:
+				lazyLoaded = LazyLoadedFields.None;
+
 				foreach (var kvp in addresses) {
 					kvp.Value.Changed -= InternetAddressListChanged;
 					kvp.Value.Clear ();
@@ -2502,8 +2601,6 @@ namespace MimeKit {
 				version = null;
 				sender = null;
 				break;
-			default:
-				throw new ArgumentOutOfRangeException ();
 			}
 		}
 
