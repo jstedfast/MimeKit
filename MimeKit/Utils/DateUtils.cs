@@ -587,18 +587,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException (nameof (startIndex));
 
-			int length = buffer.Length - startIndex;
-			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
-
-			if (TryParseStandardDateFormat (tokens, buffer, out date))
-				return true;
-
-			if (TryParseUnknownDateFormat (tokens, buffer, out date))
-				return true;
-
-			date = new DateTimeOffset ();
-
-			return false;
+			return TryParse (buffer, startIndex, buffer.Length - startIndex, out date);
 		}
 
 		/// <summary>
@@ -618,17 +607,7 @@ namespace MimeKit.Utils {
 			if (buffer == null)
 				throw new ArgumentNullException (nameof (buffer));
 
-			var tokens = new List<DateToken> (TokenizeDate (buffer, 0, buffer.Length));
-
-			if (TryParseStandardDateFormat (tokens, buffer, out date))
-				return true;
-
-			if (TryParseUnknownDateFormat (tokens, buffer, out date))
-				return true;
-
-			date = new DateTimeOffset ();
-
-			return false;
+			return TryParse (buffer, 0, buffer.Length, out date);
 		}
 
 		/// <summary>
@@ -649,17 +628,8 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
-			var tokens = new List<DateToken> (TokenizeDate (buffer, 0, buffer.Length));
 
-			if (TryParseStandardDateFormat (tokens, buffer, out date))
-				return true;
-
-			if (TryParseUnknownDateFormat (tokens, buffer, out date))
-				return true;
-
-			date = new DateTimeOffset ();
-
-			return false;
+			return TryParse (buffer, 0, buffer.Length, out date);
 		}
 
 		// Note: this method exists because BouncyCastle's DerUtcTime.ParseDateString() fails

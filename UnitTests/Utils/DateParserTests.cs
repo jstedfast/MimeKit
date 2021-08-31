@@ -52,7 +52,17 @@ namespace UnitTests.Utils {
 			"Tue, 21 Apr 15 14:44:51 GMT",
 			"Tue, 21 April 15 14:44:51 GMT",
 			"Thu, 1 Oct 2015 14:40:57 +0200 (Mitteleuropäische Sommerzeit)",
-			"Tue, 12 Jun 2012 19:22:28 0200"
+			"Tue, 12 Jun 2012 19:22:28 0200",
+			"Fri, 8 May 2015",
+			"Fri, 8 May 2015 12",
+			"Fri, 8 May 2015 12:05",
+			"Fri, 8 May 2015 12:05:01",
+			"Fri, 8 May 2015 12:05:01 400",
+			"Sat, 9 May 2015 24:00:00 -0400",
+			"Sat, 9 May 2015 25:00:00 -0400",
+			"May 9 2015 25:00:00 -0400",
+			"2015 May 9 25:00:00 -0400",
+			"2015 May 9 25:99:78 -0400",
 		};
 
 		static readonly string[] expected = {
@@ -73,18 +83,26 @@ namespace UnitTests.Utils {
 			"Tue, 21 Apr 2015 14:44:51 +0000",
 			"Tue, 21 Apr 2015 14:44:51 +0000",
 			"Thu, 01 Oct 2015 14:40:57 +0200",
-			"Tue, 12 Jun 2012 19:22:28 +0200"
+			"Tue, 12 Jun 2012 19:22:28 +0200",
+			"Fri, 08 May 2015 00:00:00 +0000",
+			"Fri, 08 May 2015 00:00:00 +0000",
+			"Fri, 08 May 2015 12:05:00 +0000",
+			"Fri, 08 May 2015 12:05:01 +0000",
+			"Fri, 08 May 2015 12:05:01 +0400",
+			"Sat, 09 May 2015 00:00:00 -0400",
+			"Sat, 09 May 2015 00:00:00 -0400",
+			"Sat, 09 May 2015 00:00:00 -0400",
+			"Sat, 09 May 2015 00:00:00 -0400",
+			"Sat, 09 May 2015 00:00:00 -0400",
 		};
 
 		[Test]
 		public void TestDateParser ()
 		{
-			DateTimeOffset date;
-			string parsed;
-			byte[] text;
-
 			for (int i = 0; i < dates.Length; i++) {
-				text = Encoding.UTF8.GetBytes (dates[i]);
+				var text = Encoding.UTF8.GetBytes (dates[i]);
+				DateTimeOffset date;
+				string parsed;
 
 				Assert.IsTrue (DateUtils.TryParse (text, 0, text.Length, out date), "Failed to parse date: {0}", dates[i]);
 				parsed = DateUtils.FormatDate (date);
@@ -102,13 +120,27 @@ namespace UnitTests.Utils {
 				parsed = DateUtils.FormatDate (date);
 				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
 			}
+		}
 
-			text = Encoding.ASCII.GetBytes ("this is pure junk");
+		static readonly string[] invalidDates = {
+			"this is pure junk",
+			"Sunday is the day of our Lord",
+			"Sun is so bright, I gotta wear shades",
+			"Sat, 8 dogs did while 8 cats hid",
+			"Sat, 9 May flies bit my arms"
+		};
 
-			Assert.IsFalse (DateUtils.TryParse (text, 0, text.Length, out date), "Should not have parsed junk.");
-			Assert.IsFalse (DateUtils.TryParse (text, 0, out date), "Should not have parsed junk.");
-			Assert.IsFalse (DateUtils.TryParse (text, out date), "Should not have parsed junk.");
-			Assert.IsFalse (DateUtils.TryParse ("this is pure junk", out date), "Should not have parsed junk.");
+		[Test]
+		public void TestParseInvalidDates ()
+		{
+			for (int i = 0; i < invalidDates.Length; i++) {
+				var text = Encoding.UTF8.GetBytes (invalidDates[i]);
+
+				Assert.IsFalse (DateUtils.TryParse (text, 0, text.Length, out _), "Should not have parsed '{0}'", invalidDates[i]);
+				Assert.IsFalse (DateUtils.TryParse (text, 0, out _), "Should not have parsed '{0}'", invalidDates[i]);
+				Assert.IsFalse (DateUtils.TryParse (text, out _), "Should not have parsed '{0}'", invalidDates[i]);
+				Assert.IsFalse (DateUtils.TryParse (invalidDates[i], out _), "Should not have parsed '{0}'", invalidDates[i]);
+			}
 		}
 	}
 }
