@@ -262,8 +262,10 @@ namespace MimeKit {
 
 					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], compliance, true, out string addrspec, out int atIndex);
 
+					ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, buffer.Length, false);
+
 					if (index != buffer.Length)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) buffer[index], index), index, index);
 
 					address = addrspec;
 					at = atIndex;

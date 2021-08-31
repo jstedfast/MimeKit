@@ -725,7 +725,7 @@ namespace MimeKit {
 
 				if (index < endIndex && text[index] != sentinel) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) text[index], index), startIndex, index);
 
 					return false;
 				}
