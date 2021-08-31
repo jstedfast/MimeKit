@@ -257,6 +257,33 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestContentDescription ()
+		{
+			const string description = "This is a sample description.";
+			var part = new MimePart ();
+
+			Assert.IsNull (part.ContentDescription, "Initial ContentDescription property should be null");
+
+			part.ContentDescription = description;
+			Assert.IsNotNull (part.ContentDescription, "Expected ContentDescription property to be set");
+			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDescription), "Expected header to exist");
+
+			part.ContentDescription = null;
+			Assert.IsNull (part.ContentDescription, "Expected ContentDescription property to be null again");
+			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDescription), "Expected header to be removed");
+
+			part.Headers.Add (HeaderId.ContentDescription, description);
+			Assert.IsNotNull (part.ContentDescription, "Expected ContentDescription property to be set again");
+
+			part.Headers.Remove (HeaderId.ContentDescription);
+			Assert.IsNull (part.ContentDescription, "Expected ContentDescription to be null again");
+
+			part.ContentDescription = description;
+			part.Headers.Clear ();
+			Assert.IsNull (part.ContentDescription, "Expected ContentDescription to be null again");
+		}
+
+		[Test]
 		public void TestContentDuration ()
 		{
 			var part = new MimePart ();
