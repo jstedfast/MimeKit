@@ -65,6 +65,7 @@
     <Compile Include="Cryptography\SecureMimeDigitalCertificateTests.cs" />
     <Compile Include="Cryptography\SecureMimeTests.cs" />
     <Compile Include="Cryptography\SqliteCertificateDatabaseTests.cs" />
+    <Compile Include="Cryptography\UnknownCryptographyContext.cs" />
     <Compile Include="Cryptography\X509CertificateChainTests.cs" />
     <Compile Include="Cryptography\X509CertificateRecordTests.cs" />
     <Compile Include="Cryptography\X509CertificateStoreTests.cs" />

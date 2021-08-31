@@ -45,6 +45,7 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
+			var unknown = new Cryptography.UnknownCryptographyContext ();
 			var message = new MimeMessage ();
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.Importance = (MessageImportance) 500);
@@ -96,10 +97,45 @@ namespace UnitTests {
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.WriteToAsync (FormatOptions.Default, (Stream) null));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.WriteToAsync (null, "fileName"));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await message.WriteToAsync (FormatOptions.Default, (string) null));
+
+			var sender = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			message.From.Add (sender);
+			message.To.Add (new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com"));
+			var body = new TextPart ("plain") {
+				Text = "This is the message body."
+			};
+
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, DigestAlgorithm.Sha1));
+			Assert.ThrowsAsync<ArgumentNullException> (() => message.SignAsync (null));
+			Assert.ThrowsAsync<ArgumentNullException> (() => message.SignAsync (null, DigestAlgorithm.Sha1));
+
+			message.From.Clear ();
+			Assert.Throws<InvalidOperationException> (() => message.Sign (unknown));
+			Assert.Throws<InvalidOperationException> (() => message.Sign (unknown, DigestAlgorithm.Sha1));
+			Assert.ThrowsAsync<InvalidOperationException> (() => message.SignAsync (unknown));
+			Assert.ThrowsAsync<InvalidOperationException> (() => message.SignAsync (unknown, DigestAlgorithm.Sha1));
+			message.From.Add (sender);
+
 			Assert.Throws<ArgumentNullException> (() => message.Encrypt (null));
+			Assert.ThrowsAsync<ArgumentNullException> (() => message.EncryptAsync (null));
+
+			message.Body = body;
+			Assert.Throws<ArgumentException> (() => message.Encrypt (unknown));
+			Assert.ThrowsAsync<ArgumentException> (() => message.EncryptAsync (unknown));
+			message.Body = null;
+			Assert.Throws<InvalidOperationException> (() => message.Encrypt (unknown));
+			Assert.ThrowsAsync<InvalidOperationException> (() => message.EncryptAsync (unknown));
+
 			Assert.Throws<ArgumentNullException> (() => message.SignAndEncrypt (null));
+			Assert.ThrowsAsync<ArgumentNullException> (() => message.SignAndEncryptAsync (null));
+
+			message.Body = body;
+			Assert.Throws<ArgumentException> (() => message.SignAndEncrypt (unknown));
+			Assert.ThrowsAsync<ArgumentException> (() => message.SignAndEncryptAsync (unknown));
+			message.Body = null;
+			Assert.Throws<InvalidOperationException> (() => message.SignAndEncrypt (unknown));
+			Assert.ThrowsAsync<InvalidOperationException> (() => message.SignAndEncryptAsync (unknown));
 
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.CreateFromMailMessage (null));
 		}
@@ -959,6 +995,9 @@ unsubscribe
 			Assert.AreEqual (XMessagePriority.Highest, message.XPriority);
 
 			message.Headers.Remove (HeaderId.XPriority);
+			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+
+			message.Headers.Add (HeaderId.XPriority, "garbage");
 			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
 		}
 
