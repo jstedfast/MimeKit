@@ -30,6 +30,7 @@ using System.IO;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Text;
 using MimeKit.Utils;
 
 namespace UnitTests {
@@ -52,6 +53,21 @@ namespace UnitTests {
 
 			Assert.Throws<FileNotFoundException> (() => related.Open (new Uri ("http://www.xamarin.com/logo.png"), out mimeType, out charset));
 			Assert.Throws<FileNotFoundException> (() => related.Open (new Uri ("http://www.xamarin.com/logo.png")));
+		}
+
+		[Test]
+		public void TestGenericArgsConstructor ()
+		{
+			var multipart = new MultipartRelated (
+				new Header (HeaderId.ContentDescription, "This is a description of the multipart."),
+				new TextPart (TextFormat.Plain) { Text = "This is the message body." },
+				new MimePart ("image", "gif") { FileName = "attachment.gif" }
+				);
+
+			Assert.IsTrue (multipart.Headers.Contains (HeaderId.ContentDescription), "Content-Description header");
+			Assert.AreEqual (2, multipart.Count, "Child part count");
+			Assert.AreEqual ("text/plain", multipart[0].ContentType.MimeType, "MimeType[0]");
+			Assert.AreEqual ("image/gif", multipart[1].ContentType.MimeType, "MimeType[1]");
 		}
 
 		[Test]

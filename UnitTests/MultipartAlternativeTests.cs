@@ -45,6 +45,21 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestGenericArgsConstructor ()
+		{
+			var multipart = new MultipartAlternative (
+				new Header (HeaderId.ContentDescription, "This is a description of the multipart."),
+				new TextPart (TextFormat.Plain) { Text = "This is the message body." },
+				new MimePart ("image", "gif") { FileName = "attachment.gif" }
+				);
+
+			Assert.IsTrue (multipart.Headers.Contains (HeaderId.ContentDescription), "Content-Description header");
+			Assert.AreEqual (2, multipart.Count, "Child part count");
+			Assert.AreEqual ("text/plain", multipart[0].ContentType.MimeType, "MimeType[0]");
+			Assert.AreEqual ("image/gif", multipart[1].ContentType.MimeType, "MimeType[1]");
+		}
+
+		[Test]
 		public void TestGetTextBody ()
 		{
 			var alternative = new MultipartAlternative ();

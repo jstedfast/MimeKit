@@ -29,6 +29,7 @@ using System;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Text;
 
 namespace UnitTests {
 	[TestFixture]
@@ -50,11 +51,19 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParamCtor ()
+		public void TestGenericArgsConstructor ()
 		{
-			var report = new MultipartReport ("disposition-notification", new MimePart ());
+			var multipart = new MultipartReport ("disposition-notification",
+				new Header (HeaderId.ContentDescription, "This is a description of the multipart."),
+				new TextPart (TextFormat.Plain) { Text = "This is the message body." },
+				new MimePart ("image", "gif") { FileName = "attachment.gif" }
+				);
 
-			Assert.AreEqual (1, report.Count);
+			Assert.AreEqual ("disposition-notification", multipart.ReportType, "ReportType");
+			Assert.IsTrue (multipart.Headers.Contains (HeaderId.ContentDescription), "Content-Description header");
+			Assert.AreEqual (2, multipart.Count, "Child part count");
+			Assert.AreEqual ("text/plain", multipart[0].ContentType.MimeType, "MimeType[0]");
+			Assert.AreEqual ("image/gif", multipart[1].ContentType.MimeType, "MimeType[1]");
 		}
 	}
 }
