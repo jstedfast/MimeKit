@@ -35,6 +35,7 @@ using NUnit.Framework;
 using Newtonsoft.Json;
 
 using MimeKit;
+using System.Text;
 
 namespace UnitTests {
 	[TestFixture]
@@ -404,6 +405,298 @@ namespace UnitTests {
 		public async Task TestJwzMboxAsync ()
 		{
 			await TestMboxAsync (null, "jwz");
+		}
+
+		[Test]
+		public void TestLineCountSingleLine ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				reader.ReadMessage ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountSingleLineAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await reader.ReadMessageAsync ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountSingleLineCRLF ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				reader.ReadMessage ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountSingleLineCRLFAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await reader.ReadMessageAsync ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountSingleLineInMultipart ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				reader.ReadMessage ();
+
+				var lines = reader.Offsets[0].Body.Children[0].Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountSingleLineInMultipartAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await reader.ReadMessageAsync ();
+
+				var lines = reader.Offsets[0].Body.Children[0].Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountOneLineOfTextFollowedByBlankLineInMultipart ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text followed by a blank line
+
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				parser.ReadMessage ();
+
+				var lines = parser.Offsets[0].Body.Children[0].Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountOneLineOfTextFollowedByBlankLineInMultipartAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text followed by a blank line
+
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await parser.ReadMessageAsync ();
+
+				var lines = parser.Offsets[0].Body.Children[0].Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountNonTerminatedSingleHeader ()
+		{
+			const string text = "From: mimekit@example.org";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				reader.ReadMessage ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountNonTerminatedSingleHeaderAsync ()
+		{
+			const string text = "From: mimekit@example.org";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await reader.ReadMessageAsync ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public void TestLineCountProperlyTerminatedSingleHeader ()
+		{
+			const string text = "From: mimekit@example.org\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				reader.ReadMessage ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountProperlyTerminatedSingleHeaderAsync ()
+		{
+			const string text = "From: mimekit@example.org\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await reader.ReadMessageAsync ();
+
+				var lines = reader.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
 		}
 	}
 }
