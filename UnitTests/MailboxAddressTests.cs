@@ -819,7 +819,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParseMailboxWithLatin1EncodedAddrspec ()
+		public void TestParseMailboxWithLatin1EncodedAddrspecLoose ()
 		{
 			const string text = "Name <æøå@example.com>";
 			var buffer = CharsetUtils.Latin1.GetBytes (text);
@@ -846,19 +846,80 @@ namespace UnitTests {
 			try {
 				mailbox = MailboxAddress.Parse (buffer);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ("MailboxAddress.Parse(byte[]) should not throw an exception: {0}", ex);
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer, 0);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ("MailboxAddress.Parse(byte[], int) should not throw an exception: {0}", ex);
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer, 0, buffer.Length);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ("MailboxAddress.Parse(byte[], int, int) should not throw an exception: {0}", ex);
+			}
+		}
+
+		[Test]
+		public void TestParseMailboxWithLatin1EncodedAddrspecStrict ()
+		{
+			const string text = "Name <æøå@example.com>";
+			var buffer = CharsetUtils.Latin1.GetBytes (text);
+			var options = ParserOptions.Default.Clone ();
+			const int tokenIndex = 6;
+			const int errorIndex = 6;
+			MailboxAddress mailbox;
+
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			try {
+				Assert.IsFalse (MailboxAddress.TryParse (options, buffer, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[]) should fail.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[]) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsFalse (MailboxAddress.TryParse (options, buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int) should fail.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				Assert.IsFalse (MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[], int, int) should fail.");
+			} catch (Exception ex) {
+				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int, int) should not throw an exception: {0}", ex);
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, buffer);
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, byte[]) should fail.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+			} catch {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, byte[]) should throw ParseException.");
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, buffer, 0);
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, byte[], int) should fail.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+			} catch {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, byte[], int) should throw ParseException.");
+			}
+
+			try {
+				mailbox = MailboxAddress.Parse (options, buffer, 0, buffer.Length);
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, byte[], int, int) should fail.");
+			} catch (ParseException ex) {
+				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
+				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+			} catch {
+				Assert.Fail ("MailboxAddress.Parse(ParserOptions, byte[], int, int) should throw ParseException.");
 			}
 		}
 

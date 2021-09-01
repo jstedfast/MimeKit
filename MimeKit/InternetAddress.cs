@@ -318,15 +318,15 @@ namespace MimeKit {
 
 				try {
 					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
-				} catch (DecoderFallbackException) {
-					try {
-						token.Append (CharsetUtils.Latin1.GetString (text, start, index - start));
-					} catch (DecoderFallbackException ex) {
+				} catch (DecoderFallbackException ex) {
+					if (compliance == RfcComplianceMode.Strict) {
 						if (throwOnError)
 							throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
 
 						return false;
 					}
+
+					token.Append (CharsetUtils.Latin1.GetString (text, start, index - start));
 				}
 
 				int cfws = index;
