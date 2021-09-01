@@ -153,6 +153,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async Task TestTruncatedHeaderNameAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Header-1");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				try {
+					var headers = await HeaderList.LoadAsync (memory);
+					Assert.Fail ("Parsing headers should fail.");
+				} catch (FormatException) {
+				} catch (Exception ex) {
+					Assert.Fail ("Failed to parse headers: {0}", ex);
+				}
+			}
+		}
+
+		[Test]
 		public void TestTruncatedHeader ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
@@ -1172,6 +1188,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async Task TestIssue358Async ()
+		{
+			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
+			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
+			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Unix2DosFilter ());
+
+					var message = await MimeMessage.LoadAsync (filtered);
+
+					// make sure that the top-level MIME part is a multipart/alternative
+					Assert.IsInstanceOf (typeof (MultipartAlternative), message.Body);
+				}
+			}
+		}
+
+		[Test]
 		public void TestLineCountSingleLine ()
 		{
 			const string text = @"From: mimekit@example.org
@@ -1186,6 +1220,28 @@ This is a single line of text";
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountSingleLineAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -1209,6 +1265,29 @@ This is a single line of text
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountSingleLineCRLFAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -1241,6 +1320,38 @@ ABC
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets[0].Body.Children[0].Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountSingleLineInMultipartAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
@@ -1282,6 +1393,39 @@ ABC
 		}
 
 		[Test]
+		public async Task TestLineCountOneLineOfTextFollowedByBlankLineInMultipartAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a message with a single line of text
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is a single line of text followed by a blank line
+
+--boundary-marker
+Content-Type: application/octet-stream; name=""attachment.dat""
+Content-DIsposition: attachment; filename=""attachment.dat""
+
+ABC
+--boundary-marker--
+";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				var lines = parser.Offsets[0].Body.Children[0].Lines;
+
+				Assert.AreEqual (1, lines, "Line count");
+			}
+		}
+
+		[Test]
 		public void TestLineCountNonTerminatedSingleHeader ()
 		{
 			const string text = "From: mimekit@example.org";
@@ -1297,6 +1441,21 @@ ABC
 		}
 
 		[Test]
+		public async Task TestLineCountNonTerminatedSingleHeaderAsync ()
+		{
+			const string text = "From: mimekit@example.org";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				var lines = parser.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
+
+		[Test]
 		public void TestLineCountProperlyTerminatedSingleHeader ()
 		{
 			const string text = "From: mimekit@example.org\r\n";
@@ -1304,6 +1463,21 @@ ABC
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
+
+				var lines = parser.Offsets[0].Body.Lines;
+
+				Assert.AreEqual (0, lines, "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountProperlyTerminatedSingleHeaderAsync ()
+		{
+			const string text = "From: mimekit@example.org\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
