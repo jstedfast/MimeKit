@@ -120,6 +120,7 @@
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="FormatOptionsTests.cs" />
     <Compile Include="GroupAddressTests.cs" />
+    <Compile Include="HeaderListCollectionTests.cs" />
     <Compile Include="HeaderListTests.cs" />
     <Compile Include="HeaderTests.cs" />
     <Compile Include="HtmlPreviewVisitor.cs" />

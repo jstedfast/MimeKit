@@ -409,25 +409,6 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestHeaderListCollectionArguments ()
-		{
-			var collection = new HeaderListCollection ();
-			var array = new HeaderList[10];
-
-			Assert.Throws<ArgumentNullException> (() => collection.Add (null));
-			Assert.Throws<ArgumentNullException> (() => collection.Contains (null));
-			Assert.Throws<ArgumentNullException> (() => collection.CopyTo (null, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => collection.CopyTo (array, -1));
-			Assert.Throws<ArgumentNullException> (() => collection.Remove (null));
-			Assert.Throws<ArgumentOutOfRangeException> (() => { var x = collection[0]; });
-			Assert.Throws<ArgumentOutOfRangeException> (() => collection[0] = new HeaderList ());
-
-			collection.Add (new HeaderList ());
-			Assert.Throws<ArgumentNullException> (() => collection[0] = null);
-			Assert.DoesNotThrow (() => collection[0] = new HeaderList ());
-		}
-
-		[Test]
 		public void TestMimeMessageBeginEventArgs ()
 		{
 			Assert.Throws<ArgumentNullException> (() => new MimeMessageBeginEventArgs (null));
