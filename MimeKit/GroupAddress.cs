@@ -528,8 +528,7 @@ namespace MimeKit {
 			int index = startIndex;
 			GroupAddress group;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
-				throw new ParseException ("No group address found.", startIndex, startIndex);
+			TryParse (options, buffer, ref index, endIndex, true, out group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -595,8 +594,7 @@ namespace MimeKit {
 			int index = startIndex;
 			GroupAddress group;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
-				throw new ParseException ("No group address found.", startIndex, startIndex);
+			TryParse (options, buffer, ref index, endIndex, true, out group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -656,8 +654,7 @@ namespace MimeKit {
 			GroupAddress group;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
-				throw new ParseException ("No group address found.", 0, 0);
+			TryParse (options, buffer, ref index, endIndex, true, out group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -718,8 +715,7 @@ namespace MimeKit {
 			GroupAddress group;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out group))
-				throw new ParseException ("No group address found.", 0, 0);
+			TryParse (options, buffer, ref index, endIndex, true, out group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
