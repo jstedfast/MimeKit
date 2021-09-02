@@ -111,6 +111,30 @@ namespace UnitTests {
 			Assert.DoesNotThrow (() => new SecureMailboxAddress (Encoding.UTF8, "Routed Address", new[] { "route1", "route2", "route3" }, "user@domain.com", "ffff"));
 		}
 
+		[Test]
+		public void TestSetEmptyAddress ()
+		{
+			Assert.DoesNotThrow(() => new MailboxAddress ("Postmaster", string.Empty));
+
+			var mailbox = new MailboxAddress ("Postmaster", string.Empty);
+
+			Assert.IsFalse (mailbox.IsInternational, "IsInternational");
+		}
+
+		[Test]
+		public void TestGarbageAfterAddress ()
+		{
+			try {
+				new MailboxAddress ("Name", "fejj@helixcode.com garbage");
+				Assert.Fail ("Expected a ParseException");
+			} catch (ParseException ex) {
+				Assert.AreEqual (19, ex.TokenIndex, "TokenIndex");
+				Assert.AreEqual (19, ex.ErrorIndex, "ErrorIndex");
+			} catch (Exception ex) {
+				Assert.Fail ($"Unexpected exception: {ex}");
+			}
+		}
+
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
 		{
 			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
@@ -702,7 +726,14 @@ namespace UnitTests {
 			const string userUnicode = "點看@domain.com";
 			const string domainAscii = "user@xn--v8jxj3d1dzdz08w.com";
 			const string domainUnicode = "user@名がドメイン.com";
+			MailboxAddress mailbox;
 			string encoded;
+
+			encoded = MailboxAddress.EncodeAddrspec (string.Empty);
+			Assert.AreEqual (string.Empty, encoded, "Empty (Encode)");
+
+			encoded = MailboxAddress.DecodeAddrspec (string.Empty);
+			Assert.AreEqual (string.Empty, encoded, "Empty (Decode)");
 
 			encoded = MailboxAddress.EncodeAddrspec (domainUnicode);
 			Assert.AreEqual (domainAscii, encoded, "Domain (Encode)");
@@ -715,6 +746,22 @@ namespace UnitTests {
 
 			encoded = MailboxAddress.DecodeAddrspec (userAscii);
 			Assert.AreEqual (userUnicode, encoded, "Local-part (Decode)");
+
+			mailbox = new MailboxAddress (string.Empty, userAscii);
+			Assert.AreEqual (userAscii, mailbox.GetAddress (true), "Ascii Local-part GetAddress(true)");
+			Assert.AreEqual (userUnicode, mailbox.GetAddress (false), "Ascii Local-part GetAddress(false)");
+
+			mailbox = new MailboxAddress (string.Empty, userUnicode);
+			Assert.AreEqual (userAscii, mailbox.GetAddress (true), "Unicode Local-part GetAddress(true)");
+			Assert.AreEqual (userUnicode, mailbox.GetAddress (false), "Unicode Local-part GetAddress(false)");
+
+			mailbox = new MailboxAddress (string.Empty, domainAscii);
+			Assert.AreEqual (domainAscii, mailbox.GetAddress (true), "Ascii Domain GetAddress(true)");
+			Assert.AreEqual (domainUnicode, mailbox.GetAddress (false), "Ascii Domain GetAddress(false)");
+
+			mailbox = new MailboxAddress (string.Empty, domainUnicode);
+			Assert.AreEqual (domainAscii, mailbox.GetAddress (true), "Unicode Domain GetAddress(true)");
+			Assert.AreEqual (domainUnicode, mailbox.GetAddress (false), "Unicode Domain GetAddress(false)");
 		}
 
 		[Test]

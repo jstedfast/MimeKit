@@ -1146,8 +1146,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
-				throw new ParseException ("No address found.", startIndex, startIndex);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1213,8 +1212,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
-				throw new ParseException ("No address found.", startIndex, startIndex);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1274,8 +1272,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
-				throw new ParseException ("No address found.", 0, 0);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1332,8 +1329,7 @@ namespace MimeKit {
 			InternetAddress address;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address))
-				throw new ParseException ("No address found.", 0, 0);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 

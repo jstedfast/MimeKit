@@ -290,7 +290,7 @@ namespace MimeKit {
 		/// <value><c>true</c> if the address is an international address; otherwise, <c>false</c>.</value>
 		public bool IsInternational {
 			get {
-				if (address == null)
+				if (string.IsNullOrEmpty (address))
 					return false;
 
 				if (ParseUtils.IsInternational (address))
@@ -391,10 +391,10 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out int at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out _))
 				return addrspec;
 
-			return DecodeAddrspec (address, at);
+			return address;
 		}
 
 		/// <summary>
@@ -406,12 +406,12 @@ namespace MimeKit {
 		/// <param name="idnEncode"><c>true</c> if the address should be encoded according to IDN encoding rules; otherwise, <c>false</c>.</param>
 		/// <returns>The mailbox address.</returns>
 		public string GetAddress (bool idnEncode)
-        {
+		{
 			if (idnEncode)
 				return EncodeAddrspec (address, at);
 
 			return DecodeAddrspec (address, at);
-        }
+		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
 		{
@@ -846,8 +846,7 @@ namespace MimeKit {
 			MailboxAddress mailbox;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out mailbox))
-				throw new ParseException ("No mailbox address found.", startIndex, startIndex);
+			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -913,8 +912,7 @@ namespace MimeKit {
 			MailboxAddress mailbox;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out mailbox))
-				throw new ParseException ("No mailbox address found.", startIndex, startIndex);
+			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -974,8 +972,7 @@ namespace MimeKit {
 			MailboxAddress mailbox;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out mailbox))
-				throw new ParseException ("No mailbox address found.", 0, 0);
+			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1036,8 +1033,7 @@ namespace MimeKit {
 			MailboxAddress mailbox;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, endIndex, true, out mailbox))
-				throw new ParseException ("No mailbox address found.", 0, 0);
+			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
