@@ -351,24 +351,6 @@ namespace MimeKit {
 			return EncodeAddrspec (address, at);
 		}
 
-		static string DecodeAddrspec (string addrspec, int at)
-		{
-			if (at != -1) {
-				var domain = addrspec.Substring (at + 1);
-				var local = addrspec.Substring (0, at);
-
-				if (ParseUtils.IsIdnEncoded (local))
-					local = ParseUtils.IdnDecode (local);
-
-				if (ParseUtils.IsIdnEncoded (domain))
-					domain = ParseUtils.IdnDecode (domain);
-
-				return local + "@" + domain;
-			}
-
-			return addrspec;
-		}
-
 		/// <summary>
 		/// Decode an addrspec token according to IDN decoding rules.
 		/// </summary>
@@ -391,6 +373,7 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
+			// Note: The parsed address will be IDN-decoded.
 			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out _))
 				return addrspec;
 
@@ -410,7 +393,8 @@ namespace MimeKit {
 			if (idnEncode)
 				return EncodeAddrspec (address, at);
 
-			return DecodeAddrspec (address, at);
+			// Note: The address is *always* in its decoded form.
+			return address;
 		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
