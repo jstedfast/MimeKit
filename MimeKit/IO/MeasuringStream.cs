@@ -333,10 +333,6 @@ namespace MimeKit.IO {
 			if (real < 0)
 				throw new IOException ("Cannot seek to a position before the beginning of the stream");
 
-			// short-cut if we are seeking to our current position
-			if (real == position)
-				return position;
-
 			if (real > length)
 				throw new IOException ("Cannot seek beyond the end of the stream");
 
