@@ -135,6 +135,16 @@ namespace UnitTests {
 			}
 		}
 
+		[Test]
+		public void TestCastToMailAddress ()
+		{
+			var mailbox = new MailboxAddress (CharsetUtils.Latin1, "æøå", "user@example.com");
+			var address = (System.Net.Mail.MailAddress) mailbox;
+
+			Assert.AreEqual (mailbox.Address, address.Address, "Address");
+			Assert.AreEqual (mailbox.Name, address.DisplayName, "DisplayName");
+		}
+
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex, RfcComplianceMode mode = RfcComplianceMode.Loose)
 		{
 			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
