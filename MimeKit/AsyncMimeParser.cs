@@ -133,7 +133,7 @@ namespace MimeKit {
 
 				if (available == left) {
 					// EOF reached before we reached the end of the headers...
-					if (scanningFieldName && left > 0) {
+					if (toplevel && scanningFieldName && left > 0) {
 						// EOF reached right in the middle of a header field name. Throw an error.
 						//
 						// See private email from Feb 8, 2018 which contained a sample message w/o
@@ -141,10 +141,10 @@ namespace MimeKit {
 						// end with a newline sequence.
 						state = MimeParserState.Error;
 					} else {
-						// EOF reached somewhere in the middle of the value.
+						// EOF reached somewhere in the middle of the header.
 						//
 						// Append whatever data we've got left and pretend we found the end
-						// of the header value (and the header block).
+						// of the header (and the header block).
 						//
 						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
 						// and https://github.com/jstedfast/MimeKit/issues/348
@@ -322,15 +322,9 @@ namespace MimeKit {
 				}
 			}
 
-			// parse the headers...
+			// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 			state = MimeParserState.MessageHeaders;
-			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
-				// Note: this either means that StepHeaders() found the end of the stream
-				// or an invalid header field name at the start of the message headers,
-				// which likely means that this is not a valid MIME stream?
-				boundary = BoundaryType.Eos;
-				return;
-			}
+			await StepAsync (cancellationToken).ConfigureAwait (false);
 
 			var message = new MimeMessage (options, headers, RfcComplianceMode.Loose);
 			var messageArgs = new MimeMessageEndEventArgs (message, rfc822) {
@@ -419,16 +413,14 @@ namespace MimeKit {
 
 				var beginLineNumber = lineNumber;
 
-				// parse the headers
+				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 				state = MimeParserState.Headers;
-				if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
-					boundary = BoundaryType.Eos;
-					return;
-				}
+				await StepAsync (cancellationToken).ConfigureAwait (false);
 
 				if (state == MimeParserState.Boundary) {
 					if (headers.Count == 0) {
 						if (boundary == BoundaryType.ImmediateBoundary) {
+							// FIXME: Should we add an empty TextPart? If we do, update MimeParserTests.TestDoubleMultipartBoundary()
 							//beginOffset = GetOffset (inputIndex);
 							continue;
 						}
@@ -551,6 +543,8 @@ namespace MimeKit {
 		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			state = MimeParserState.Headers;
+			toplevel = true;
+
 			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse headers.");
 
