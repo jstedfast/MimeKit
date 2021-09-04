@@ -880,7 +880,7 @@ namespace MimeKit {
 					if (!valid) {
 						length = inptr - start;
 
-						if (format == MimeFormat.Mbox && inputIndex >= contentEnd && length >= 5 && IsMboxMarker (start)) {
+						if (format == MimeFormat.Mbox && GetOffset ((int) (start - inbuf)) >= contentEnd && length >= 5 && IsMboxMarker (start)) {
 							// we've found the start of the next message...
 							inputIndex = (int) (start - inbuf);
 							state = MimeParserState.Complete;
@@ -1434,11 +1434,11 @@ namespace MimeKit {
 				case BoundaryType.ParentBoundary:
 					return;
 				case BoundaryType.ParentEndBoundary:
-					// ignore "From " boundaries, broken mailers tend to include these...
-					if (!IsMboxMarker (start)) {
-						return;
+					if (options.RespectContentLength && IsMboxMarker (start)) {
+						// Allow StepHeaders() to decide.
+						break;
 					}
-					break;
+					return;
 				}
 			}
 

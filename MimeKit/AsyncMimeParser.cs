@@ -312,11 +312,11 @@ namespace MimeKit {
 						case BoundaryType.ParentBoundary:
 							return;
 						case BoundaryType.ParentEndBoundary:
-							// ignore "From " boundaries, broken mailers tend to include these...
-							if (!IsMboxMarker (start)) {
-								return;
+							if (options.RespectContentLength && IsMboxMarker (start)) {
+								// Allow StepHeaders() to decide.
+								break;
 							}
-							break;
+							return;
 						}
 					}
 				}
