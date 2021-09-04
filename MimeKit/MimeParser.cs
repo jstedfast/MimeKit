@@ -1426,20 +1426,11 @@ namespace MimeKit {
 				while (*inptr != (byte) '\n')
 					inptr++;
 
-				boundary = CheckBoundary (inputIndex, start, (int) (inptr - start));
-
-				switch (boundary) {
-				case BoundaryType.ImmediateEndBoundary:
-				case BoundaryType.ImmediateBoundary:
-				case BoundaryType.ParentBoundary:
+				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
+				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
+				// *never* be an Mbox "From " marker in Entity mode.
+				if ((boundary = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
 					return;
-				case BoundaryType.ParentEndBoundary:
-					if (options.RespectContentLength && IsMboxMarker (start)) {
-						// Allow StepHeaders() to decide.
-						break;
-					}
-					return;
-				}
 			}
 
 			// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.

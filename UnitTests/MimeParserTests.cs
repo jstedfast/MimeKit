@@ -426,6 +426,208 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestInvalidContentType ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of recovery from invalid media-type in Content-Type header
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: garbage; charset=utf-8
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
+				var part = (MimePart) message.Body;
+				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
+				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+
+				var body = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
+				var part = (MimePart) message.Body;
+				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
+				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+
+				var body = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public async Task TestInvalidContentTypeAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of recovery from invalid media-type in Content-Type header
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: garbage; charset=utf-8
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
+				var part = (MimePart) message.Body;
+				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
+				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+
+				var body = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
+				var part = (MimePart) message.Body;
+				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
+				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+
+				var body = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public void TestHeaderFieldNameBeginsWithColon ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a header line starting with ':'
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: text/plain; charset=utf-8
+: What header is this?
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<TextPart> (message.Body, "Expected top-level to be a TextPart");
+				var header = message.Headers[message.Headers.Count - 1];
+
+				// FIXME: Should this really be "valid"?
+				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
+				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
+				Assert.AreEqual ("What header is this?", header.Value);
+
+				var body = (TextPart) message.Body;
+				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
+				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<TextPart> (message.Body, "Expected top-level to be a TextPart");
+				var header = message.Headers[message.Headers.Count - 1];
+
+				// FIXME: Should this really be "valid"?
+				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
+				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
+				Assert.AreEqual ("What header is this?", header.Value);
+
+				var body = (TextPart) message.Body;
+				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
+				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public async Task TestHeaderFieldNameBeginsWithColonAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a header line starting with ':'
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: text/plain; charset=utf-8
+: What header is this?
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<TextPart> (message.Body, "Expected top-level to be a TextPart");
+				var header = message.Headers[message.Headers.Count - 1];
+
+				// FIXME: Should this really be "valid"?
+				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
+				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
+				Assert.AreEqual ("What header is this?", header.Value);
+
+				var body = (TextPart) message.Body;
+				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
+				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<TextPart> (message.Body, "Expected top-level to be a TextPart");
+				var header = message.Headers[message.Headers.Count - 1];
+
+				// FIXME: Should this really be "valid"?
+				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
+				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
+				Assert.AreEqual ("What header is this?", header.Value);
+
+				var body = (TextPart) message.Body;
+				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
+				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
 		public void TestMultipartBoundaryWithoutTrailingNewline ()
 		{
 			string text = @"From: mimekit@example.com
@@ -828,7 +1030,153 @@ Content-Type: text/plain; charset=utf-8
 		}
 
 		[Test]
-		public void TestDoubleMultipartBoundary ()
+		public void TestMultipartBoundaryLineWithTrailingSpacesAndThenMoreCharacters ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a multipart boundary followed by trailing whitespace and then more characters
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the first part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the second part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+
+				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+
+				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public async Task TestMultipartBoundaryLineWithTrailingSpacesAndThenMoreCharactersAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a multipart boundary followed by trailing whitespace and then more characters
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the first part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the second part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+
+				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+
+				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public void TestMultipartDoubleBoundary ()
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
@@ -901,7 +1249,7 @@ This is technically the third part.
 		}
 
 		[Test]
-		public async Task TestDoubleMultipartBoundaryAsync ()
+		public async Task TestMultipartDoubleBoundaryAsync ()
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
@@ -1058,6 +1406,136 @@ This is the message body.
 ------=_NextPart_000_003F_01CE98CE.6E826F90
 Content-Type: message/rfc822
 
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+
+				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
+				var rfc822 = (MessagePart) multipart[1];
+				Assert.IsNull (rfc822.Message, "Message");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+
+				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
+				var rfc822 = (MessagePart) multipart[1];
+				Assert.IsNull (rfc822.Message, "Message");
+			}
+		}
+
+		[Test]
+		public void TestMessageRfc822WithBoundaryBeforeMessage ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of message/rfc822 part with a From-marker before the message
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+Content-Length: 420
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the message body.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: message/rfc822
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+
+				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
+				var rfc822 = (MessagePart) multipart[1];
+				Assert.IsNull (rfc822.Message, "Message");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+
+				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
+				var rfc822 = (MessagePart) multipart[1];
+				Assert.IsNull (rfc822.Message, "Message");
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822WithBoundaryBeforeMessageAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of message/rfc822 part with a From-marker before the message
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+Content-Length: 420
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the message body.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: message/rfc822
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--
 ".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
