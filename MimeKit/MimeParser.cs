@@ -709,6 +709,12 @@ namespace MimeKit {
 				while (*inptr != (byte) '\n')
 					inptr++;
 
+				if (inptr == inend) {
+					// we don't have enough input data
+					left = (int) (inptr - start);
+					return false;
+				}
+
 				var markerLength = (int) (inptr - start);
 
 				if (inptr > start && *(inptr - 1) == (byte) '\r')
@@ -718,12 +724,6 @@ namespace MimeKit {
 				inptr++;
 
 				var lineLength = (int) (inptr - start);
-
-				if (inptr >= inend) {
-					// we don't have enough input data
-					left = lineLength;
-					return false;
-				}
 
 				inputIndex += lineLength;
 				prevLineBeginOffset = lineBeginOffset;
