@@ -917,14 +917,9 @@ namespace MimeKit {
 					// we didn't manage to slurp up a full line, save what we have and refill our input buffer
 					length = inptr - start;
 
-					if (inptr > start) {
-						// Note: if the last byte we got was a '\r', rewind a byte
-						inptr--;
-						if (*inptr == (byte) '\r')
-							length--;
-						else
-							inptr++;
-					}
+					// Note: if the last byte we got was a '\r', rewind a byte
+					if (inptr > start && *(inptr - 1) == (byte) '\r')
+						length--;
 
 					if (length > 0) {
 						AppendRawHeaderData ((int) (start - inbuf), (int) length);
