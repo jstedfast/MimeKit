@@ -76,10 +76,10 @@ namespace MimeKit {
 
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)
 		{
+			int mboxMarkerIndex, mboxMarkerLength;
+			long mboxMarkerOffset;
 			bool complete;
 			int left = 0;
-
-			mboxMarkerLength = 0;
 
 			do {
 				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
@@ -93,12 +93,12 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						complete = StepMboxMarker (inbuf, ref left);
+						complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength, out mboxMarkerOffset);
 					}
 				}
 			} while (!complete);
 
-			await OnMboxMarkerReadAsync (mboxMarkerBuffer, 0, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken).ConfigureAwait (false);
+			await OnMboxMarkerReadAsync (input, mboxMarkerIndex, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken).ConfigureAwait (false);
 
 			state = MimeParserState.MessageHeaders;
 		}

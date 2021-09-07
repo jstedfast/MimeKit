@@ -66,11 +66,6 @@ namespace MimeKit {
 		int inputIndex = ReadAheadSize;
 		int inputEnd = ReadAheadSize;
 
-		// mbox From-line state
-		byte[] mboxMarkerBuffer;
-		long mboxMarkerOffset;
-		int mboxMarkerLength;
-
 		// header buffer
 		byte[] headerBuffer = new byte[512];
 		int headerIndex;
@@ -158,8 +153,6 @@ namespace MimeKit {
 			inputIndex = inputStart;
 			inputEnd = inputStart;
 
-			mboxMarkerOffset = 0;
-			mboxMarkerLength = 0;
 			headerBlockBegin = 0;
 			headerBlockEnd = 0;
 			lineNumber = 1;
@@ -172,12 +165,8 @@ namespace MimeKit {
 			eos = false;
 
 			bounds.Clear ();
-			if (format == MimeFormat.Mbox) {
+			if (format == MimeFormat.Mbox)
 				bounds.Add (Boundary.CreateMboxBoundary ());
-
-				if (mboxMarkerBuffer == null)
-					mboxMarkerBuffer = new byte[ReadAheadSize];
-			}
 
 			state = MimeParserState.Initialized;
 			boundary = BoundaryType.None;
@@ -1156,7 +1145,7 @@ namespace MimeKit {
 			}
 		}
 
-		unsafe bool StepMboxMarker (byte* inbuf, ref int left)
+		unsafe bool StepMboxMarker (byte* inbuf, ref int left, out int mboxMarkerIndex, out int mboxMarkerLength, out long mboxMarkerOffset)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1171,6 +1160,15 @@ namespace MimeKit {
 				while (*inptr != (byte) '\n')
 					inptr++;
 
+				if (inptr == inend) {
+					// we don't have enough input data
+					left = (int) (inptr - start);
+					mboxMarkerOffset = 0;
+					mboxMarkerLength = 0;
+					mboxMarkerIndex = 0;
+					return false;
+				}
+
 				var markerLength = (int) (inptr - start);
 
 				if (inptr > start && *(inptr - 1) == (byte) '\r')
@@ -1181,28 +1179,20 @@ namespace MimeKit {
 
 				var lineLength = (int) (inptr - start);
 
-				if (inptr >= inend) {
-					// we don't have enough input data
-					left = lineLength;
-					return false;
-				}
-
 				inputIndex += lineLength;
 				IncrementLineNumber (inputIndex);
 
 				if (markerLength >= 5 && IsMboxMarker (start)) {
 					mboxMarkerOffset = GetOffset (startIndex);
 					mboxMarkerLength = markerLength;
-
-					if (mboxMarkerBuffer.Length < mboxMarkerLength)
-						Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
-
-					Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, markerLength);
-
+					mboxMarkerIndex = startIndex;
 					return true;
 				}
 			}
 
+			mboxMarkerOffset = 0;
+			mboxMarkerLength = 0;
+			mboxMarkerIndex = 0;
 			left = 0;
 
 			return false;
@@ -1210,10 +1200,10 @@ namespace MimeKit {
 
 		unsafe void StepMboxMarker (byte* inbuf, CancellationToken cancellationToken)
 		{
+			int mboxMarkerIndex, mboxMarkerLength;
+			long mboxMarkerOffset;
 			bool complete;
 			int left = 0;
-
-			mboxMarkerLength = 0;
 
 			do {
 				var available = ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
@@ -1225,10 +1215,10 @@ namespace MimeKit {
 					return;
 				}
 
-				complete = StepMboxMarker (inbuf, ref left);
+				complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength, out mboxMarkerOffset);
 			} while (!complete);
 
-			OnMboxMarkerRead (mboxMarkerBuffer, 0, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken);
+			OnMboxMarkerRead (input, mboxMarkerIndex, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken);
 
 			state = MimeParserState.MessageHeaders;
 		}
