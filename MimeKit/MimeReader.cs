@@ -2228,12 +2228,9 @@ namespace MimeKit {
 
 				var beginLineNumber = lineNumber;
 
-				// parse the headers
+				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 				state = MimeParserState.Headers;
-				if (Step (inbuf, cancellationToken) == MimeParserState.Error) {
-					boundary = BoundaryType.Eos;
-					return;
-				}
+				Step (inbuf, cancellationToken);
 
 				if (state == MimeParserState.Boundary) {
 					if (headerCount == 0) {

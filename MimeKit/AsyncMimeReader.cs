@@ -485,12 +485,9 @@ namespace MimeKit {
 
 				var beginLineNumber = lineNumber;
 
-				// parse the headers
+				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 				state = MimeParserState.Headers;
-				if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
-					boundary = BoundaryType.Eos;
-					return;
-				}
+				await StepAsync (cancellationToken).ConfigureAwait (false);
 
 				if (state == MimeParserState.Boundary) {
 					if (headerCount == 0) {
