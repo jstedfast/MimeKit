@@ -2328,8 +2328,6 @@ namespace MimeKit {
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
-				// FIXME: multipart.WriteEndBoundary = true;
-
 				var boundaryOffset = GetOffset (inputIndex);
 				var boundaryLineNumber = lineNumber;
 
@@ -2345,8 +2343,6 @@ namespace MimeKit {
 
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
-
-			// FIXME: multipart.WriteEndBoundary = false;
 
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
