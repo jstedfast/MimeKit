@@ -515,10 +515,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously parses a list of headers from the stream.
+		/// Asynchronously parse a list of headers from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses a list of headers from the stream.
+		/// Asynchronously parses a list of headers from the stream.
 		/// </remarks>
 		/// <returns>The parsed list of headers.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -549,10 +549,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously parses an entity from the stream.
+		/// Asynchronously parse an entity from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses an entity from the stream.
+		/// Asynchronously parses an entity from the stream.
 		/// </remarks>
 		/// <returns>The parsed entity.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -616,10 +616,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously parses a message from the stream.
+		/// Asynchronously parse a message from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses a message from the stream.
+		/// Asynchronously parses a message from the stream.
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>

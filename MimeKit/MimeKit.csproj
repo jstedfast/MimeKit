@@ -266,6 +266,7 @@
     <Compile Include="ContentType.cs" />
     <Compile Include="DomainList.cs" />
     <Compile Include="EncodingConstraint.cs" />
+    <Compile Include="ExperimentalMimeParser.cs" />
     <Compile Include="FormatOptions.cs" />
     <Compile Include="GroupAddress.cs" />
     <Compile Include="Header.cs" />

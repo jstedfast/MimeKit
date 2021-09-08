@@ -41,8 +41,6 @@ namespace MimeKit {
 	/// </summary>
 	/// <remarks>
 	/// <para><see cref="MimeReader"/> provides forward-only, read-only access to MIME data in a stream.</para>
-	/// <para><see cref="MimeReader"/> methods let you move through MIME data and read the contents of a node.</para>
-	/// <para><see cref="MimeReader"/> uses a pull model to retrieve data.</para>
 	/// </remarks>
 	public partial class MimeReader
 	{
@@ -91,8 +89,9 @@ namespace MimeKit {
 		long lineBeginOffset;
 		int lineNumber;
 
-		Stream stream;
-		long position;
+		ParserOptions options;
+		internal Stream stream;
+		internal long position;
 
 		static MimeReader ()
 		{
@@ -103,13 +102,69 @@ namespace MimeKit {
 #endif
 		}
 
-		public MimeReader (Stream stream, MimeFormat format = MimeFormat.Default)
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeReader"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeReader"/> that will parse the specified stream.
+		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public MimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : this (ParserOptions.Default, stream, format)
 		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeReader"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeReader"/> that will parse the specified stream.
+		/// </remarks>
+		/// <param name="options">The parser options.</param>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		public MimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default)
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			Options = options;
+
 			SetStream (stream, format);
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether the parser has reached the end of the input stream.
+		/// Get the parser options.
+		/// </summary>
+		/// <remarks>
+		/// Gets the parser options.
+		/// </remarks>
+		/// <value>The parser options.</value>
+		public ParserOptions Options {
+			get {
+				return options;
+			}
+			set {
+				if (value == null)
+					throw new ArgumentNullException (nameof (value));
+
+				if (value == ParserOptions.Default)
+					options = value.Clone ();
+				else
+					options = value;
+			}
+		}
+
+		/// <summary>
+		/// Get a value indicating whether the parser has reached the end of the input stream.
 		/// </summary>
 		/// <remarks>
 		/// Gets a value indicating whether the parser has reached the end of the input stream.
@@ -121,7 +176,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the current position of the parser within the stream.
+		/// Get the current position of the parser within the stream.
 		/// </summary>
 		/// <remarks>
 		/// Gets the current position of the parser within the stream.
@@ -132,7 +187,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the stream to parse.
+		/// Set the stream to parse.
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
@@ -172,6 +227,8 @@ namespace MimeKit {
 			boundary = BoundaryType.None;
 		}
 
+		#region Mbox Events
+
 		/// <summary>
 		/// Called when an Mbox marker is encountered in the stream.
 		/// </summary>
@@ -208,6 +265,10 @@ namespace MimeKit {
 			OnMboxMarkerRead (buffer, startIndex, count, beginOffset, lineNumber, cancellationToken);
 			return CompletedTask;
 		}
+
+		#endregion Mbox Events
+
+		#region Header Events
 
 		/// <summary>
 		/// Called when the beginning of a list of headers is encountered in the stream.
@@ -303,6 +364,8 @@ namespace MimeKit {
 			OnHeadersEnd (beginOffset, beginLineNumber, endOffset, endLineNumber, cancellationToken);
 			return CompletedTask;
 		}
+
+		#endregion Header Events
 
 		#region MimeMessage Events
 
@@ -448,11 +511,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Called when MIME part content is read from the stream.</para>
 		/// </remarks>
-		/// <param name="content">A buffer containing the MIME part content.</param>
+		/// <param name="buffer">A buffer containing the MIME part content.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual void OnMimePartContentRead (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
+		protected virtual void OnMimePartContentRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 		}
 
@@ -463,13 +526,13 @@ namespace MimeKit {
 		/// <para>Called when MIME part content is read from the stream.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
-		/// <param name="content">A buffer containing the MIME part content.</param>
+		/// <param name="buffer">A buffer containing the MIME part content.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual Task OnMimePartContentReadAsync (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
+		protected virtual Task OnMimePartContentReadAsync (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
-			OnMimePartContentRead (content, startIndex, count, cancellationToken);
+			OnMimePartContentRead (buffer, startIndex, count, cancellationToken);
 			return CompletedTask;
 		}
 
@@ -761,11 +824,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Called when multipart preamble text is read from the stream.</para>
 		/// </remarks>
-		/// <param name="content">A buffer containing the multipart preamble text.</param>
+		/// <param name="buffer">A buffer containing the multipart preamble text.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual void OnMultipartPreambleRead (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
+		protected virtual void OnMultipartPreambleRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 		}
 
@@ -776,13 +839,13 @@ namespace MimeKit {
 		/// <para>Called when multipart preamble text is read from the stream.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
-		/// <param name="content">A buffer containing the multipart preamble text.</param>
+		/// <param name="buffer">A buffer containing the multipart preamble text.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual Task OnMultipartPreambleReadAsync (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
+		protected virtual Task OnMultipartPreambleReadAsync (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
-			OnMultipartPreambleRead (content, startIndex, count, cancellationToken);
+			OnMultipartPreambleRead (buffer, startIndex, count, cancellationToken);
 			return CompletedTask;
 		}
 
@@ -858,11 +921,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Called when multipart epilogue text is read from the stream.</para>
 		/// </remarks>
-		/// <param name="content">A buffer containing the multipart epilogue text.</param>
+		/// <param name="buffert">A buffer containing the multipart epilogue text.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual void OnMultipartEpilogueRead (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
+		protected virtual void OnMultipartEpilogueRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 		}
 
@@ -873,13 +936,13 @@ namespace MimeKit {
 		/// <para>Called when multipart epilogue text is read from the stream.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
-		/// <param name="content">A buffer containing the multipart epilogue text.</param>
+		/// <param name="buffer">A buffer containing the multipart epilogue text.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual Task OnMultipartEpilogueReadAsync (byte[] content, int startIndex, int count, CancellationToken cancellationToken)
+		protected virtual Task OnMultipartEpilogueReadAsync (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
-			OnMultipartEpilogueRead (content, startIndex, count, cancellationToken);
+			OnMultipartEpilogueRead (buffer, startIndex, count, cancellationToken);
 			return CompletedTask;
 		}
 
@@ -1223,7 +1286,7 @@ namespace MimeKit {
 			state = MimeParserState.MessageHeaders;
 		}
 
-		void UpdateHeaderState (ParserOptions options, Header header)
+		void UpdateHeaderState (Header header)
 		{
 			var rawValue = header.RawValue;
 			int index = 0;
@@ -1461,7 +1524,7 @@ namespace MimeKit {
 
 			int length = (int) (inptr - start);
 
-			if (CheckBoundary (inputIndex, start, length) != BoundaryType.None) {
+			if ((boundary = CheckBoundary (inputIndex, start, length)) != BoundaryType.None) {
 				state = MimeParserState.Boundary;
 			} else {
 				// Even though this wasn't a boundary marker, it's still not a valid header so we progress to the 'Content' state.
@@ -1535,7 +1598,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		Header CreateHeader (ParserOptions options, long beginOffset, int fieldNameLength, int headerFieldLength,bool invalid)
+		Header CreateHeader (long beginOffset, int fieldNameLength, int headerFieldLength,bool invalid)
 		{
 			byte[] field, value;
 
@@ -1555,13 +1618,13 @@ namespace MimeKit {
 				Offset = beginOffset
 			};
 
-			UpdateHeaderState (options, header);
+			UpdateHeaderState (header);
 			headerCount++;
 
 			return header;
 		}
 
-		unsafe void StepHeaders (ParserOptions options, byte* inbuf, CancellationToken cancellationToken)
+		unsafe void StepHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
 			var eof = false;
@@ -1645,6 +1708,11 @@ namespace MimeKit {
 							break;
 					}
 
+					if (toplevel && eos) {
+						state = MimeParserState.Error;
+						return;
+					}
+
 					// Fall through and act is if we're consuming a header.
 				} else {
 					// Consume the header field name.
@@ -1661,7 +1729,12 @@ namespace MimeKit {
 					}
 				}
 
-				var header = CreateHeader (options, beginOffset, fieldNameLength, headerFieldLength, invalid);
+				if (toplevel && headerCount == 0 && invalid && !IsMboxMarker (headerBuffer)) {
+					state = MimeParserState.Error;
+					return;
+				}
+
+				var header = CreateHeader (beginOffset, fieldNameLength, headerFieldLength, invalid);
 
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
 			} while (!eof);
@@ -1710,7 +1783,7 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		unsafe MimeParserState Step (ParserOptions options, byte* inbuf, CancellationToken cancellationToken)
+		unsafe MimeParserState Step (byte* inbuf, CancellationToken cancellationToken)
 		{
 			switch (state) {
 			case MimeParserState.Initialized:
@@ -1726,7 +1799,7 @@ namespace MimeKit {
 				break;
 			case MimeParserState.MessageHeaders:
 			case MimeParserState.Headers:
-				StepHeaders (options, inbuf, cancellationToken);
+				StepHeaders (inbuf, cancellationToken);
 				toplevel = false;
 				break;
 			}
@@ -2037,7 +2110,7 @@ namespace MimeKit {
 			return result.Lines;
 		}
 
-		unsafe int ConstructMessagePart (ParserOptions options, byte* inbuf, int depth, CancellationToken cancellationToken)
+		unsafe int ConstructMessagePart (byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
@@ -2077,7 +2150,7 @@ namespace MimeKit {
 
 			// parse the headers...
 			state = MimeParserState.MessageHeaders;
-			if (Step (options, inbuf, cancellationToken) == MimeParserState.Error) {
+			if (Step (inbuf, cancellationToken) == MimeParserState.Error) {
 				// Note: this either means that StepHeaders() found the end of the stream
 				// or an invalid header field name at the start of the message headers,
 				// which likely means that this is not a valid MIME stream?
@@ -2102,11 +2175,11 @@ namespace MimeKit {
 
 			if (depth < options.MaxMimeDepth && IsMultipart (type)) {
 				OnMultipartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-				lines = ConstructMultipart (options, type, inbuf, depth + 1, cancellationToken);
+				lines = ConstructMultipart (type, inbuf, depth + 1, cancellationToken);
 				entityType = MimeEntityType.Multipart;
 			} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 				OnMessagePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-				lines = ConstructMessagePart (options, inbuf, depth + 1, cancellationToken);
+				lines = ConstructMessagePart (inbuf, depth + 1, cancellationToken);
 				entityType = MimeEntityType.MessagePart;
 			} else {
 				OnMimePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
@@ -2154,7 +2227,7 @@ namespace MimeKit {
 			OnMultipartEpilogueEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken);
 		}
 
-		unsafe void MultipartScanSubparts (ParserOptions options, ContentType multipartContentType, byte* inbuf, int depth, CancellationToken cancellationToken)
+		unsafe void MultipartScanSubparts (ContentType multipartContentType, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			var boundaryOffset = GetOffset (inputIndex);
 
@@ -2172,7 +2245,7 @@ namespace MimeKit {
 
 				// parse the headers
 				state = MimeParserState.Headers;
-				if (Step (options, inbuf, cancellationToken) == MimeParserState.Error) {
+				if (Step (inbuf, cancellationToken) == MimeParserState.Error) {
 					boundary = BoundaryType.Eos;
 					return;
 				}
@@ -2201,11 +2274,11 @@ namespace MimeKit {
 
 				if (depth < options.MaxMimeDepth && IsMultipart (type)) {
 					OnMultipartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-					lines = ConstructMultipart (options, type, inbuf, depth + 1, cancellationToken);
+					lines = ConstructMultipart (type, inbuf, depth + 1, cancellationToken);
 					entityType = MimeEntityType.Multipart;
 				} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 					OnMessagePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-					lines = ConstructMessagePart (options, inbuf, depth + 1, cancellationToken);
+					lines = ConstructMessagePart (inbuf, depth + 1, cancellationToken);
 					entityType = MimeEntityType.MessagePart;
 				} else {
 					OnMimePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
@@ -2245,7 +2318,7 @@ namespace MimeKit {
 			bounds.RemoveAt (0);
 		}
 
-		unsafe int ConstructMultipart (ParserOptions options, ContentType contentType, byte* inbuf, int depth, CancellationToken cancellationToken)
+		unsafe int ConstructMultipart (ContentType contentType, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
@@ -2269,7 +2342,7 @@ namespace MimeKit {
 
 			MultipartScanPreamble (inbuf, cancellationToken);
 			if (boundary == BoundaryType.ImmediateBoundary)
-				MultipartScanSubparts (options, contentType, inbuf, depth, cancellationToken);
+				MultipartScanSubparts (contentType, inbuf, depth, cancellationToken);
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
@@ -2306,14 +2379,50 @@ namespace MimeKit {
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
-		unsafe void ReadEntity (ParserOptions options, byte* inbuf, CancellationToken cancellationToken)
+		unsafe void ReadHeaders (byte* inbuf, CancellationToken cancellationToken)
+		{
+			state = MimeParserState.Headers;
+			toplevel = true;
+
+			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
+				throw new FormatException ("Failed to parse headers.");
+
+			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
+		}
+
+		/// <summary>
+		/// Read a block of headers from the stream.
+		/// </summary>
+		/// <remarks>
+		/// Reads a block of headers from the stream.
+		/// </remarks>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void ReadHeaders (CancellationToken cancellationToken = default (CancellationToken))
+		{
+			unsafe {
+				fixed (byte* inbuf = input) {
+					ReadHeaders (inbuf, cancellationToken);
+				}
+			}
+		}
+
+		unsafe void ReadEntity (byte* inbuf, CancellationToken cancellationToken)
 		{
 			var beginLineNumber = lineNumber;
 
 			state = MimeParserState.Headers;
 			toplevel = true;
 
-			if (Step (options, inbuf, cancellationToken) == MimeParserState.Error)
+			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse entity headers.");
 
 			var type = GetContentType (null);
@@ -2324,11 +2433,11 @@ namespace MimeKit {
 
 			if (IsMultipart (type)) {
 				OnMultipartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-				lines = ConstructMultipart (options, type, inbuf, 0, cancellationToken);
+				lines = ConstructMultipart (type, inbuf, 0, cancellationToken);
 				entityType = MimeEntityType.Multipart;
 			} else if (IsMessagePart (type, currentEncoding)) {
 				OnMessagePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-				lines = ConstructMessagePart (options, inbuf, 0, cancellationToken);
+				lines = ConstructMessagePart (inbuf, 0, cancellationToken);
 				entityType = MimeEntityType.MessagePart;
 			} else {
 				OnMimePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
@@ -2358,42 +2467,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Parses an entity from the stream.
+		/// Read an entity from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses an entity from the stream.
-		/// </remarks>
-		/// <param name="options">The parser options.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="options"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void ReadEntity (ParserOptions options, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
-
-			unsafe {
-				fixed (byte* inbuf = input) {
-					ReadEntity (options, inbuf, cancellationToken);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Parses an entity from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses an entity from the stream.
+		/// Reads an entity from the stream.
 		/// </remarks>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
@@ -2407,14 +2484,18 @@ namespace MimeKit {
 		/// </exception>
 		public void ReadEntity (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			ReadEntity (ParserOptions.Default, cancellationToken);
+			unsafe {
+				fixed (byte* inbuf = input) {
+					ReadEntity (inbuf, cancellationToken);
+				}
+			}
 		}
 
-		unsafe void ReadMessage (ParserOptions options, byte* inbuf, CancellationToken cancellationToken)
+		unsafe void ReadMessage (byte* inbuf, CancellationToken cancellationToken)
 		{
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
-				switch (Step (options, inbuf, cancellationToken)) {
+				switch (Step (inbuf, cancellationToken)) {
 				case MimeParserState.Error:
 					throw new FormatException ("Failed to find mbox From marker.");
 				case MimeParserState.Eos:
@@ -2426,7 +2507,7 @@ namespace MimeKit {
 
 			// parse the headers
 			var beginLineNumber = lineNumber;
-			if (state < MimeParserState.Content && Step (options, inbuf, cancellationToken) == MimeParserState.Error)
+			if (state < MimeParserState.Content && Step (inbuf, cancellationToken) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse message headers.");
 
 			var currentHeadersEndOffset = headerBlockEnd;
@@ -2445,11 +2526,11 @@ namespace MimeKit {
 
 			if (IsMultipart (type)) {
 				OnMultipartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-				lines = ConstructMultipart (options, type, inbuf, 0, cancellationToken);
+				lines = ConstructMultipart (type, inbuf, 0, cancellationToken);
 				entityType = MimeEntityType.Multipart;
 			} else if (IsMessagePart (type, currentEncoding)) {
 				OnMessagePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
-				lines = ConstructMessagePart (options, inbuf, 0, cancellationToken);
+				lines = ConstructMessagePart (inbuf, 0, cancellationToken);
 				entityType = MimeEntityType.MessagePart;
 			} else {
 				OnMimePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
@@ -2485,43 +2566,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Parses a message from the stream.
+		/// Read a message from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses a message from the stream.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <param name="options">The parser options.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="options"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the message.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void ReadMessage (ParserOptions options, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
-
-			unsafe {
-				fixed (byte* inbuf = input) {
-					ReadMessage (options, inbuf, cancellationToken);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Parses a message from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses a message from the stream.
+		/// Reads a message from the stream.
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -2536,7 +2584,14 @@ namespace MimeKit {
 		/// </exception>
 		public void ReadMessage (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			ReadMessage (ParserOptions.Default, cancellationToken);
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			unsafe {
+				fixed (byte* inbuf = input) {
+					ReadMessage (inbuf, cancellationToken);
+				}
+			}
 		}
 	}
 }

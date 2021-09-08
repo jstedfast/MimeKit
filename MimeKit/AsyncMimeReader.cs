@@ -103,7 +103,7 @@ namespace MimeKit {
 			state = MimeParserState.MessageHeaders;
 		}
 
-		async Task StepHeadersAsync (ParserOptions options, CancellationToken cancellationToken)
+		async Task StepHeadersAsync (CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
 			var eof = false;
@@ -210,6 +210,11 @@ namespace MimeKit {
 							break;
 					}
 
+					if (toplevel && eos) {
+						state = MimeParserState.Error;
+						return;
+					}
+
 					// Fall through and act is if we're consuming a header.
 				} else {
 					// Consume the header field name.
@@ -233,7 +238,12 @@ namespace MimeKit {
 					}
 				} while (true);
 
-				var header = CreateHeader (options, beginOffset, fieldNameLength, headerFieldLength, invalid);
+				if (toplevel && headerCount == 0 && invalid && !IsMboxMarker (headerBuffer)) {
+					state = MimeParserState.Error;
+					return;
+				}
+
+				var header = CreateHeader (beginOffset, fieldNameLength, headerFieldLength, invalid);
 
 				await OnHeaderReadAsync (header, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			} while (!eof);
@@ -258,7 +268,7 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		async Task<MimeParserState> StepAsync (ParserOptions options, CancellationToken cancellationToken)
+		async Task<MimeParserState> StepAsync (CancellationToken cancellationToken)
 		{
 			switch (state) {
 			case MimeParserState.Initialized:
@@ -274,7 +284,7 @@ namespace MimeKit {
 				break;
 			case MimeParserState.MessageHeaders:
 			case MimeParserState.Headers:
-				await StepHeadersAsync (options, cancellationToken).ConfigureAwait (false);
+				await StepHeadersAsync (cancellationToken).ConfigureAwait (false);
 				toplevel = false;
 				break;
 			}
@@ -353,7 +363,7 @@ namespace MimeKit {
 			return result.Lines;
 		}
 
-		async Task<int> ConstructMessagePartAsync (ParserOptions options, int depth, CancellationToken cancellationToken)
+		async Task<int> ConstructMessagePartAsync (int depth, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
@@ -397,7 +407,7 @@ namespace MimeKit {
 
 			// parse the headers...
 			state = MimeParserState.MessageHeaders;
-			if (await StepAsync (options, cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
+			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
 				// Note: this either means that StepHeaders() found the end of the stream
 				// or an invalid header field name at the start of the message headers,
 				// which likely means that this is not a valid MIME stream?
@@ -422,11 +432,11 @@ namespace MimeKit {
 
 			if (depth < options.MaxMimeDepth && IsMultipart (type)) {
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMultipartAsync (options, type, depth + 1, cancellationToken).ConfigureAwait (false);
+				lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.Multipart;
 			} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMessagePartAsync (options, depth + 1, cancellationToken).ConfigureAwait (false);
+				lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.MessagePart;
 			} else {
 				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
@@ -474,7 +484,7 @@ namespace MimeKit {
 			await OnMultipartEpilogueEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task MultipartScanSubpartsAsync (ParserOptions options, ContentType multipartContentType, int depth, CancellationToken cancellationToken)
+		async Task MultipartScanSubpartsAsync (ContentType multipartContentType, int depth, CancellationToken cancellationToken)
 		{
 			var boundaryOffset = GetOffset (inputIndex);
 
@@ -492,7 +502,7 @@ namespace MimeKit {
 
 				// parse the headers
 				state = MimeParserState.Headers;
-				if (await StepAsync (options, cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
+				if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error) {
 					boundary = BoundaryType.Eos;
 					return;
 				}
@@ -521,11 +531,11 @@ namespace MimeKit {
 
 				if (depth < options.MaxMimeDepth && IsMultipart (type)) {
 					await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-					lines = await ConstructMultipartAsync (options, type, depth + 1, cancellationToken).ConfigureAwait (false);
+					lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
 					entityType = MimeEntityType.Multipart;
 				} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 					await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-					lines = await ConstructMessagePartAsync (options, depth + 1, cancellationToken).ConfigureAwait (false);
+					lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
 					entityType = MimeEntityType.MessagePart;
 				} else {
 					await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
@@ -552,7 +562,7 @@ namespace MimeKit {
 			} while (boundary == BoundaryType.ImmediateBoundary);
 		}
 
-		async Task<int> ConstructMultipartAsync (ParserOptions options, ContentType contentType, int depth, CancellationToken cancellationToken)
+		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
@@ -576,7 +586,7 @@ namespace MimeKit {
 
 			await MultipartScanPreambleAsync (cancellationToken).ConfigureAwait (false);
 			if (boundary == BoundaryType.ImmediateBoundary)
-				await MultipartScanSubpartsAsync (options, contentType, depth, cancellationToken).ConfigureAwait (false);
+				await MultipartScanSubpartsAsync (contentType, depth, cancellationToken).ConfigureAwait (false);
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
@@ -618,17 +628,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously parses an entity from the stream.
+		/// Asynchronously read a block of headers from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses an entity from the stream.
+		/// Asynchronously reads a block of headers from the stream.
 		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="options">The parser options.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="options"/> is <c>null</c>.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -638,17 +643,42 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task ReadEntityAsync (ParserOptions options, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task ReadHeadersAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
+			state = MimeParserState.Headers;
+			toplevel = true;
 
+			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+				throw new FormatException ("Failed to parse headers.");
+
+			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
+		}
+
+		/// <summary>
+		/// Asynchronously read an entity from the stream.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously reads an entity from the stream.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task ReadEntityAsync (CancellationToken cancellationToken = default (CancellationToken))
+		{
 			var beginLineNumber = lineNumber;
 
 			state = MimeParserState.Headers;
 			toplevel = true;
 
-			if (await StepAsync (options, cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse entity headers.");
 
 			var type = GetContentType (null);
@@ -659,11 +689,11 @@ namespace MimeKit {
 
 			if (IsMultipart (type)) {
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMultipartAsync (options, type, 0, cancellationToken).ConfigureAwait (false);
+				lines = await ConstructMultipartAsync (type, 0, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.Multipart;
 			} else if (IsMessagePart (type, currentEncoding)) {
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMessagePartAsync (options, 0, cancellationToken).ConfigureAwait (false);
+				lines = await ConstructMessagePartAsync (0, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.MessagePart;
 			} else {
 				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
@@ -693,39 +723,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously parses an entity from the stream.
+		/// Asynchronously read a message from the stream.
 		/// </summary>
 		/// <remarks>
-		/// Parses an entity from the stream.
+		/// Asynchronously reads a message from the stream.
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public Task ReadEntityAsync (CancellationToken cancellationToken = default (CancellationToken))
-		{
-			return ReadEntityAsync (ParserOptions.Default, cancellationToken);
-		}
-
-		/// <summary>
-		/// Asynchronously parses a message from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses a message from the stream.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="options">The parser options.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="options"/> is <c>null</c>.
-		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -735,14 +739,11 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task ReadMessageAsync (ParserOptions options, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task ReadMessageAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
-
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
-				switch (await StepAsync (options, cancellationToken).ConfigureAwait (false)) {
+				switch (await StepAsync (cancellationToken).ConfigureAwait (false)) {
 				case MimeParserState.Error:
 					throw new FormatException ("Failed to find mbox From marker.");
 				case MimeParserState.Eos:
@@ -754,7 +755,7 @@ namespace MimeKit {
 
 			// parse the headers
 			var beginLineNumber = lineNumber;
-			if (state < MimeParserState.Content && await StepAsync (options, cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+			if (state < MimeParserState.Content && await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse message headers.");
 
 			var currentHeadersEndOffset = headerBlockEnd;
@@ -773,11 +774,11 @@ namespace MimeKit {
 
 			if (IsMultipart (type)) {
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMultipartAsync (options, type, 0, cancellationToken).ConfigureAwait (false);
+				lines = await ConstructMultipartAsync (type, 0, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.Multipart;
 			} else if (IsMessagePart (type, currentEncoding)) {
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMessagePartAsync (options, 0, cancellationToken).ConfigureAwait (false);
+				lines = await ConstructMessagePartAsync (0, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.MessagePart;
 			} else {
 				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
@@ -810,28 +811,6 @@ namespace MimeKit {
 			} else {
 				state = MimeParserState.Eos;
 			}
-		}
-
-		/// <summary>
-		/// Asynchronously parses a message from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses a message from the stream.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the message.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public Task ReadMessageAsync (CancellationToken cancellationToken = default (CancellationToken))
-		{
-			return ReadMessageAsync (ParserOptions.Default, cancellationToken);
 		}
 	}
 }

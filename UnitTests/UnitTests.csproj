@@ -80,7 +80,6 @@
     <Compile Include="IO\MemoryBlockStreamTests.cs" />
     <Compile Include="IO\ReadOneByteStream.cs" />
     <Compile Include="IO\TimeoutStream.cs" />
-    <Compile Include="MimeReaderTests.cs" />
     <Compile Include="Text\FlowedToHtmlTests.cs" />
     <Compile Include="Text\FlowedToTextTests.cs" />
     <Compile Include="Text\HtmlAttributeTests.cs" />
@@ -121,6 +120,7 @@
     <Compile Include="ContentTypeTests.cs" />
     <Compile Include="DomainListTests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="ExperimentalMimeParserTests.cs" />
     <Compile Include="FormatOptionsTests.cs" />
     <Compile Include="GroupAddressTests.cs" />
     <Compile Include="HeaderListCollectionTests.cs" />
@@ -140,6 +140,7 @@
     <Compile Include="MimeMessageTests.cs" />
     <Compile Include="MimeParserTests.cs" />
     <Compile Include="MimePartTests.cs" />
+    <Compile Include="MimeReaderTests.cs" />
     <Compile Include="MimeTypeTests.cs" />
     <Compile Include="MimeVisitorTests.cs" />
     <Compile Include="MultipartAlternativeTests.cs" />

@@ -54,18 +54,18 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
+			var reader = new MimeReader (Stream.Null);
+
 			Assert.Throws<ArgumentNullException> (() => new MimeReader (null));
 			Assert.Throws<ArgumentNullException> (() => new MimeReader (null, MimeFormat.Default));
 
-			using (var stream = new MemoryStream ()) {
-				var reader = new MimeReader (stream);
+			Assert.Throws<ArgumentNullException> (() => new MimeReader (null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => new MimeReader (null, Stream.Null, MimeFormat.Default));
 
-				Assert.Throws<ArgumentNullException> (() => reader.ReadEntity (null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => reader.ReadEntityAsync (null));
+			Assert.Throws<ArgumentNullException> (() => new MimeReader (ParserOptions.Default, null));
+			Assert.Throws<ArgumentNullException> (() => new MimeReader (ParserOptions.Default, null, MimeFormat.Default));
 
-				Assert.Throws<ArgumentNullException> (() => reader.ReadMessage (null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => reader.ReadMessageAsync (null));
-			}
+			Assert.Throws<ArgumentNullException> (() => reader.Options = null);
 		}
 
 		static NewLineFormat DetectNewLineFormat (string fileName)
@@ -174,6 +174,10 @@ namespace UnitTests {
 			public readonly List<MimeItem> stack = new List<MimeItem> ();
 			long mboxMarkerBeginOffset = -1;
 			int mboxMarkerLineNumber = -1;
+
+			public CustomMimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default) : base (options, stream, format)
+			{
+			}
 
 			public CustomMimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : base (stream, format)
 			{
@@ -334,16 +338,13 @@ namespace UnitTests {
 			List<MimeOffsets> offsets;
 
 			using (var stream = File.OpenRead (mbox)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Mbox);
+				var reader = options != null ? new CustomMimeReader (options, stream, MimeFormat.Mbox) : new CustomMimeReader (stream, MimeFormat.Mbox);
 				var format = FormatOptions.Default.Clone ();
 
 				format.NewLineFormat = newLineFormat = DetectNewLineFormat (mbox);
 
 				while (!reader.IsEndOfStream) {
-					if (options != null)
-						reader.ReadMessage (options);
-					else
-						reader.ReadMessage ();
+					reader.ReadMessage ();
 				}
 
 				offsets = reader.Offsets;
@@ -359,16 +360,13 @@ namespace UnitTests {
 			List<MimeOffsets> offsets;
 
 			using (var stream = File.OpenRead (mbox)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Mbox);
+				var reader = options != null ? new CustomMimeReader (options, stream, MimeFormat.Mbox) : new CustomMimeReader (stream, MimeFormat.Mbox);
 				var format = FormatOptions.Default.Clone ();
 
 				format.NewLineFormat = newLineFormat = DetectNewLineFormat (mbox);
 
 				while (!reader.IsEndOfStream) {
-					if (options != null)
-						await reader.ReadMessageAsync (options);
-					else
-						await reader.ReadMessageAsync ();
+					await reader.ReadMessageAsync ();
 				}
 
 				offsets = reader.Offsets;
