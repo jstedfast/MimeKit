@@ -196,6 +196,91 @@ header parser.
 
 		#endregion MimeParser
 
+		#region ExperimentalMimeParser
+
+		static void ExperimentalMimeParserSingleMessage (string fileName, bool persistent = false)
+		{
+			var path = Path.Combine (MessagesDataDir, fileName);
+
+			using (var stream = File.OpenRead (path)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
+
+				for (int i = 0; i < 1000; i++) {
+					parser.ParseMessage ();
+
+					stream.Position = 0;
+					parser.SetStream (stream, MimeFormat.Entity, persistent);
+				}
+			}
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_StarTrekMessage ()
+		{
+			ExperimentalMimeParserSingleMessage ("startrek.eml");
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_StarTrekMessagePersistent ()
+		{
+			ExperimentalMimeParserSingleMessage ("startrek.eml", true);
+		}
+
+		static void ExperimentalMimeParserMboxFile (string fileName, bool persistent = false)
+		{
+			var path = Path.Combine (MboxDataDir, fileName);
+
+			using (var stream = File.OpenRead (path)) {
+				using (var looped = new LoopedInputStream (stream, 10)) {
+					var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, persistent);
+
+					while (!parser.IsEndOfStream) {
+						parser.ParseMessage ();
+					}
+				}
+			}
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_ContentLengthMbox ()
+		{
+			ExperimentalMimeParserMboxFile ("content-length.mbox.txt");
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_ContentLengthMboxPersistent ()
+		{
+			ExperimentalMimeParserMboxFile ("content-length.mbox.txt", true);
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_JwzMbox ()
+		{
+			ExperimentalMimeParserMboxFile ("jwz.mbox.txt");
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_JwzMboxPersistent ()
+		{
+			ExperimentalMimeParserMboxFile ("jwz.mbox.txt", true);
+		}
+
+		[Benchmark]
+		public void ExperimentalMimeParser_HeaderStressTest ()
+		{
+			using (var stream = new MemoryStream (MessageHeaderStressTestData, false)) {
+				using (var looped = new LoopedInputStream (stream, 1000)) {
+					var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, true);
+
+					while (!parser.IsEndOfStream) {
+						parser.ParseMessage ();
+					}
+				}
+			}
+		}
+
+		#endregion ExperimentalMimeParser
+
 		#region MimeReader
 
 		static void MimeReaderSingleMessage (string fileName)

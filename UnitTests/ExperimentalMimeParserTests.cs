@@ -73,6 +73,7 @@ namespace UnitTests
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null));
 				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default, false));
 				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null));
 				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream, MimeFormat.Default));
 				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null, MimeFormat.Default));

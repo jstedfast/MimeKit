@@ -159,7 +159,7 @@ namespace MimeKit {
 		/// </exception>
 		public ExperimentalMimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false) : base (options, stream, format)
 		{
-			this.persistent = persistent;
+			this.persistent = persistent && stream.CanSeek;
 		}
 
 		/// <summary>
@@ -182,6 +182,73 @@ namespace MimeKit {
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
 			get { return Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
+		}
+
+		/// <summary>
+		/// Set the stream to parse.
+		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// performance.</para>
+		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
+		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public void SetStream (Stream stream, MimeFormat format, bool persistent)
+		{
+			base.SetStream (stream, format);
+
+			this.persistent = persistent && stream.CanSeek;
+			if (format == MimeFormat.Mbox && mboxMarkerBuffer == null)
+				mboxMarkerBuffer = new byte[64];
+		}
+
+		/// <summary>
+		/// Set the stream to parse.
+		/// </summary>
+		/// <remarks>
+		/// Sets the stream to parse.
+		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public override void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
+		{
+			SetStream (stream, format, false);
+		}
+
+		/// <summary>
+		/// Set the stream to parse.
+		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
+		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// performance.</para>
+		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
+		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		public void SetStream (Stream stream, bool persistent)
+		{
+			SetStream (stream, MimeFormat.Default, persistent);
 		}
 
 		void PopEntity ()
@@ -214,9 +281,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
-			if (mboxMarkerBuffer == null)
-				mboxMarkerBuffer = new byte[count];
-			else if (mboxMarkerBuffer.Length < count)
+			if (mboxMarkerBuffer.Length < count)
 				Array.Resize (ref mboxMarkerBuffer, count);
 
 			Buffer.BlockCopy (buffer, startIndex, mboxMarkerBuffer, 0, count);
@@ -410,7 +475,8 @@ namespace MimeKit {
 				content.Position = 0;
 			}
 
-			part.Content = new MimeContent (content);
+			// FIXME: somehow get newline format for the content from the MimeReader...
+			part.Content = new MimeContent (content, part.ContentTransferEncoding);
 			content = null;
 		}
 

@@ -55,8 +55,10 @@ namespace Benchmarks
 				if ((n = innerStream.Read (buffer, offset + nread, count - nread)) > 0) {
 					position += n;
 					nread += n;
-				} else {
-					if (count > 0 && iteration < iterationCount) {
+				}
+
+				if (position == length) {
+					if (iteration < iterationCount) {
 						innerStream.Position = position = 0;
 						iteration++;
 					} else {
@@ -74,7 +76,7 @@ namespace Benchmarks
 			case SeekOrigin.Begin:
 				position = offset % length;
 				iteration = (int) (offset / length);
-				innerStream.Seek (position, origin);
+				innerStream.Seek (position, SeekOrigin.Begin);
 				break;
 			case SeekOrigin.Current:
 				offset = Position + offset;
