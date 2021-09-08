@@ -1598,7 +1598,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		Header CreateHeader (long beginOffset, int fieldNameLength, int headerFieldLength,bool invalid)
+		Header CreateHeader (long beginOffset, int fieldNameLength, int headerFieldLength, bool invalid)
 		{
 			byte[] field, value;
 
@@ -2132,31 +2132,16 @@ namespace MimeKit {
 				while (*inptr != (byte) '\n')
 					inptr++;
 
-				boundary = CheckBoundary (inputIndex, start, (int) (inptr - start));
-
-				switch (boundary) {
-				case BoundaryType.ImmediateEndBoundary:
-				case BoundaryType.ImmediateBoundary:
-				case BoundaryType.ParentBoundary:
-					return 0;
-				case BoundaryType.ParentEndBoundary:
-					// ignore "From " boundaries, broken mailers tend to include these...
-					if (!IsMboxMarker (start)) {
-						return 0;
-					}
-					break;
-				}
+				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
+				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
+				// *never* be an Mbox "From " marker in Entity mode.
+				if ((boundary = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
+					return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
 			}
 
-			// parse the headers...
+			// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 			state = MimeParserState.MessageHeaders;
-			if (Step (inbuf, cancellationToken) == MimeParserState.Error) {
-				// Note: this either means that StepHeaders() found the end of the stream
-				// or an invalid header field name at the start of the message headers,
-				// which likely means that this is not a valid MIME stream?
-				boundary = BoundaryType.Eos;
-				return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
-			}
+			Step (inbuf, cancellationToken);
 
 			var currentHeadersEndOffset = headerBlockEnd;
 			var currentBeginOffset = headerBlockBegin;
