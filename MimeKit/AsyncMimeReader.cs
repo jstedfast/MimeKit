@@ -163,8 +163,10 @@ namespace MimeKit {
 				} while (true);
 
 				if (invalid) {
-					// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
+					// Figure out why this is an invalid header.
+
 					if (input[inputIndex] == (byte) '-') {
+						// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
 						int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 						await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false);
@@ -182,12 +184,8 @@ namespace MimeKit {
 								break;
 							}
 						} while (true);
-
-						break;
-					}
-
-					// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
-					if (input[inputIndex] == (byte) 'F') {
+					} else if (input[inputIndex] == (byte) 'F') {
+						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
 						await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
 
 						do {
@@ -205,12 +203,12 @@ namespace MimeKit {
 								break;
 							}
 						} while (true);
-
-						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
-							break;
 					}
 
-					if (toplevel && eos) {
+					if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+						break;
+
+					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
 						return;
 					}

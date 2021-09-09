@@ -1366,7 +1366,7 @@ namespace MimeKit {
 						fieldNameLength = (int) (inptr - start);
 					blanks = true;
 				} else if (blanks || IsControl (*inptr)) {
-					headerFieldLength = 0;
+					headerFieldLength = (int) (inptr - start);
 					invalid = true;
 					return true;
 				}
@@ -1524,12 +1524,8 @@ namespace MimeKit {
 
 			int length = (int) (inptr - start);
 
-			if ((boundary = CheckBoundary (inputIndex, start, length)) != BoundaryType.None) {
+			if ((boundary = CheckBoundary (inputIndex, start, length)) != BoundaryType.None)
 				state = MimeParserState.Boundary;
-			} else {
-				// Even though this wasn't a boundary marker, it's still not a valid header so we progress to the 'Content' state.
-				state = MimeParserState.Content;
-			}
 
 			atleast = 0;
 
@@ -1677,8 +1673,10 @@ namespace MimeKit {
 				}
 
 				if (invalid) {
-					// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
+					// Figure out why this is an invalid header.
+
 					if (input[inputIndex] == (byte) '-') {
+						// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
 						int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 						ReadAhead (atleast, 0, cancellationToken);
@@ -1689,12 +1687,8 @@ namespace MimeKit {
 								break;
 							}
 						}
-
-						break;
-					}
-
-					// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
-					if (input[inputIndex] == (byte) 'F') {
+					} else if (input[inputIndex] == (byte) 'F') {
+						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
 						ReadAhead (ReadAheadSize, 0, cancellationToken);
 
 						while (!TryCheckMboxMarkerWithinHeaderBlock (inbuf, out var atleast)) {
@@ -1703,12 +1697,12 @@ namespace MimeKit {
 								break;
 							}
 						}
-
-						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
-							break;
 					}
 
-					if (toplevel && eos) {
+					if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+						break;
+
+					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
 						return;
 					}
@@ -2562,9 +2556,6 @@ namespace MimeKit {
 		/// </exception>
 		public void ReadMessage (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
-
 			unsafe {
 				fixed (byte* inbuf = input) {
 					ReadMessage (inbuf, cancellationToken);
