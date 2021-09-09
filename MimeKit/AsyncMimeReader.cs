@@ -167,17 +167,15 @@ namespace MimeKit {
 
 					if (input[inputIndex] == (byte) '-') {
 						// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
-						int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
-
-						await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false);
-
 						do {
 							unsafe {
 								fixed (byte* inbuf = input) {
-									if (TryCheckBoundaryWithinHeaderBlock (inbuf, out atleast))
+									if (TryCheckBoundaryWithinHeaderBlock (inbuf))
 										break;
 								}
 							}
+
+							int atleast = (inputEnd - inputIndex) + 1;
 
 							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast) {
 								state = MimeParserState.Content;
@@ -186,17 +184,15 @@ namespace MimeKit {
 						} while (true);
 					} else if (input[inputIndex] == (byte) 'F') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
-						await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
-
 						do {
-							int atleast;
-
 							unsafe {
 								fixed (byte* inbuf = input) {
-									if (TryCheckMboxMarkerWithinHeaderBlock (inbuf, out atleast))
+									if (TryCheckMboxMarkerWithinHeaderBlock (inbuf))
 										break;
 								}
 							}
+
+							int atleast = (inputEnd - inputIndex) + 1;
 
 							if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
 								state = MimeParserState.Content;

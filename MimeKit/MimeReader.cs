@@ -1506,7 +1506,7 @@ namespace MimeKit {
 			return false;
 		}
 
-		unsafe bool TryCheckBoundaryWithinHeaderBlock (byte* inbuf, out int atleast)
+		unsafe bool TryCheckBoundaryWithinHeaderBlock (byte* inbuf)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1517,79 +1517,45 @@ namespace MimeKit {
 			while (*inptr != (byte) '\n')
 				inptr++;
 
-			if (inptr == inend) {
-				atleast = (int) (inptr - start) + 1;
+			if (inptr == inend)
 				return false;
-			}
 
 			int length = (int) (inptr - start);
 
 			if ((boundary = CheckBoundary (inputIndex, start, length)) != BoundaryType.None)
 				state = MimeParserState.Boundary;
 
-			atleast = 0;
-
 			return true;
 		}
 
-		unsafe bool TryCheckMboxMarkerWithinHeaderBlock (byte* inbuf, out int atleast)
+		unsafe bool TryCheckMboxMarkerWithinHeaderBlock (byte* inbuf)
 		{
 			byte* inptr = inbuf + inputIndex;
-			byte* inend = inbuf + inputEnd;
-			bool possible = false;
-			bool blanks = false;
-			byte* start = inptr;
+			int need = *inptr == '>' ? 6 : 5;
 
-			*inend = (byte) '\n';
-
-			while (*inptr != (byte) '\n') {
-				if (IsBlank (*inptr)) {
-					blanks = true;
-				} else if (*inptr == (byte) ':') {
-					// We either hit the ':' separating the header field from the value or we hit a ':' in an mbox From-line (maybe?).
-					break;
-				} else if (blanks || IsControl (*inptr)) {
-					// We had one or more word characters, one or more blanks, and now we've hit a non-blank. We have enough.
-					possible = true;
-					break;
-				}
-
-				inptr++;
-			}
-
-			if (inptr == inend && !possible) {
-				// We don't have enough data to know for sure.
-				atleast = (int) (inptr - start) + 1;
+			if (inputEnd - inputIndex < need)
 				return false;
+
+			if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (inptr)) {
+				state = MimeParserState.Complete;
+				return true;
 			}
 
-			// We won't be needing any more data.
-			atleast = 0;
-
-			int length = (int) (inptr - start);
-
-			if (possible && length >= 5) {
-				if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (start)) {
-					state = MimeParserState.Complete;
-					return true;
-				}
-
-				if (headerCount == 0) {
-					if (state == MimeParserState.MessageHeaders) {
-						// Ignore (munged) From-lines that might appear at the start of a message.
-						if (toplevel && !IsMboxMarker (start, true)) {
-							// This line was not a (munged) mbox From-line.
-							state = MimeParserState.Error;
-							return true;
-						}
-					} else if (toplevel && state == MimeParserState.Headers) {
+			if (headerCount == 0) {
+				if (state == MimeParserState.MessageHeaders) {
+					// Ignore (munged) From-lines that might appear at the start of a message.
+					if (toplevel && !IsMboxMarker (inptr, true)) {
+						// This line was not a (munged) mbox From-line.
 						state = MimeParserState.Error;
 						return true;
 					}
+				} else if (toplevel && state == MimeParserState.Headers) {
+					state = MimeParserState.Error;
+					return true;
 				}
-
-				// At this point, it may still be what looks like a From-line, but we'll treat it as an invalid header.
 			}
+
+			// At this point, it may still be what looks like a From-line, but we'll treat it as an invalid header.
 
 			return true;
 		}
@@ -1677,25 +1643,19 @@ namespace MimeKit {
 
 					if (input[inputIndex] == (byte) '-') {
 						// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
-						int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
+						while (!TryCheckBoundaryWithinHeaderBlock (inbuf)) {
+							int atleast = (inputEnd - inputIndex) + 1;
 
-						ReadAhead (atleast, 0, cancellationToken);
-
-						while (!TryCheckBoundaryWithinHeaderBlock (inbuf, out atleast)) {
-							if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
-								state = MimeParserState.Content;
+							if (ReadAhead (atleast, 0, cancellationToken) < atleast)
 								break;
-							}
 						}
-					} else if (input[inputIndex] == (byte) 'F') {
+					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
-						ReadAhead (ReadAheadSize, 0, cancellationToken);
+						while (!TryCheckMboxMarkerWithinHeaderBlock (inbuf)) {
+							int atleast = (inputEnd - inputIndex) + 1;
 
-						while (!TryCheckMboxMarkerWithinHeaderBlock (inbuf, out var atleast)) {
-							if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
-								state = MimeParserState.Content;
+							if (ReadAhead (atleast, 0, cancellationToken) < atleast)
 								break;
-							}
 						}
 					}
 
