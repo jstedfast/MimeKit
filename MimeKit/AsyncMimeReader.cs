@@ -177,10 +177,8 @@ namespace MimeKit {
 
 							int atleast = (inputEnd - inputIndex) + 1;
 
-							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast) {
-								state = MimeParserState.Content;
+							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
-							}
 						} while (true);
 					} else if (input[inputIndex] == (byte) 'F') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
@@ -194,10 +192,8 @@ namespace MimeKit {
 
 							int atleast = (inputEnd - inputIndex) + 1;
 
-							if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
-								state = MimeParserState.Content;
+							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
-							}
 						} while (true);
 					}
 

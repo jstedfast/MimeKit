@@ -1448,6 +1448,84 @@ This is technically the third part.
 		}
 
 		[Test]
+		public void TestMultipartWithoutBoundaryParameter ()
+		{
+			string text = @"Content-Type: multipart/mixed
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the first part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the second part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--
+".Replace ("\r\n", "\n");
+			int dashes = text.IndexOf ("--");
+			var preamble = text.Substring (dashes);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var multipart = (Multipart) parser.ParseEntity ();
+
+				Assert.IsNull (multipart.Boundary, "Boundary");
+				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
+				Assert.AreEqual (preamble, multipart.Preamble, "Preamble");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var multipart = (Multipart) parser.ParseEntity ();
+
+				Assert.IsNull (multipart.Boundary, "Boundary");
+				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
+				Assert.AreEqual (preamble.Replace ("\n", "\r\n"), multipart.Preamble, "Preamble");
+			}
+		}
+
+		[Test]
+		public async Task TestMultipartWithoutBoundaryParameterAsync ()
+		{
+			string text = @"Content-Type: multipart/mixed
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the first part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+
+This is the second part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--
+".Replace ("\r\n", "\n");
+			int dashes = text.IndexOf ("--");
+			var preamble = text.Substring (dashes);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var multipart = (Multipart) await parser.ParseEntityAsync ();
+
+				Assert.IsNull (multipart.Boundary, "Boundary");
+				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
+				Assert.AreEqual (preamble, multipart.Preamble, "Preamble");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var multipart = (Multipart) await parser.ParseEntityAsync ();
+
+				Assert.IsNull (multipart.Boundary, "Boundary");
+				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
+				Assert.AreEqual (preamble.Replace ("\n", "\r\n"), multipart.Preamble, "Preamble");
+			}
+		}
+
+		[Test]
 		public void TestTruncatedImmediatelyAfterMessageRfc822Headers ()
 		{
 			string text = @"From: mimekit@example.com
