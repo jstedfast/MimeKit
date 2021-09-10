@@ -1987,6 +1987,184 @@ This is the embedded message body.
 			}
 		}
 
+		[Test]
+		public void TestMessageRfc822 ()
+		{
+			string text = @"Content-Type: message/rfc822
+
+From: mimekit@example.com
+To: mimekit@example.com
+Subject: embedded message
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This is the rfc822 message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.IsInstanceOf<MessagePart> (entity, "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.IsInstanceOf<MessagePart> (entity, "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822Async ()
+		{
+			string text = @"Content-Type: message/rfc822
+
+From: mimekit@example.com
+To: mimekit@example.com
+Subject: embedded message
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This is the rfc822 message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.IsInstanceOf<MessagePart> (entity, "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.IsInstanceOf<MessagePart> (entity, "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
+				Assert.AreEqual ("utf-8", body.ContentType.Charset);
+				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+			}
+		}
+
+		[Test]
+		public void TestMimePartBasic ()
+		{
+			string text = @"Content-Type: application/octet-stream; name=rawData.dat
+Content-Disposition: inline; filename=rawData.dat
+Content-Transfer-Encoding: quoted-printable
+
+This is some raw data.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
+				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
+				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				var part = (MimePart) entity;
+
+				var plain = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
+				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
+				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				var part = (MimePart) entity;
+
+				var plain = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+			}
+		}
+
+		[Test]
+		public async Task TestMimePartBasicAsync ()
+		{
+			string text = @"Content-Type: application/octet-stream; name=rawData.dat
+Content-Disposition: inline; filename=rawData.dat
+Content-Transfer-Encoding: quoted-printable
+
+This is some raw data.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
+				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
+				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				var part = (MimePart) entity;
+
+				var plain = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
+				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
+				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				var part = (MimePart) entity;
+
+				var plain = new TextPart ("plain") {
+					Content = part.Content
+				};
+
+				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+			}
+		}
+
 		static void AssertSimpleMbox (Stream stream)
 		{
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);

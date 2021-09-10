@@ -2392,10 +2392,7 @@ namespace MimeKit {
 				break;
 			}
 
-			if (boundary != BoundaryType.Eos)
-				state = MimeParserState.Complete;
-			else
-				state = MimeParserState.Eos;
+			state = MimeParserState.Eos;
 		}
 
 		/// <summary>
