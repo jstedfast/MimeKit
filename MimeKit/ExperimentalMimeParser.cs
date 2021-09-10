@@ -416,7 +416,8 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			var part = Options.CreateEntity (contentType, headers, depth == 0, depth);
+			var toplevel = stack.Count == 0 || stack.Peek () is MimeMessage;
+			var part = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			stack.Push (part);
 		}
@@ -516,7 +517,8 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			var rfc822 = Options.CreateEntity (contentType, headers, depth == 0, depth);
+			var toplevel = stack.Count == 0 || stack.Peek () is MimeMessage;
+			var rfc822 = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			parsingMessageHeaders = true;
 			stack.Push (rfc822);
@@ -560,7 +562,8 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			var multipart = Options.CreateEntity (contentType, headers, depth == 0, depth);
+			var toplevel = stack.Count == 0 || stack.Peek () is MimeMessage;
+			var multipart = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			stack.Push (multipart);
 			depth++;

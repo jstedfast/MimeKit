@@ -1004,10 +1004,6 @@ namespace MimeKit {
 
 				if (!valid && headers.Count == 0) {
 					if (length > 0 && preHeaderLength == 0) {
-						if (inptr[-1] == (byte) '\r')
-							length--;
-						length--;
-
 						preHeaderLength = (int) length;
 
 						if (preHeaderLength > preHeaderBuffer.Length)

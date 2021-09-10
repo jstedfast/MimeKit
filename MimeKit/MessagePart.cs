@@ -228,10 +228,8 @@ namespace MimeKit {
 
 				if (cancellable != null) {
 					cancellable.Write (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken);
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				} else {
 					stream.Write (Message.MboxMarker, 0, Message.MboxMarker.Length);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 			}
 
@@ -272,10 +270,8 @@ namespace MimeKit {
 			if (Message == null)
 				return;
 
-			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0) {
+			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0)
 				await stream.WriteAsync (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken).ConfigureAwait (false);
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-			}
 
 			if (options.EnsureNewLine) {
 				options = options.Clone ();

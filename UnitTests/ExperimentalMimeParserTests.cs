@@ -26,10 +26,7 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -41,6 +38,7 @@ using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
+using System.Threading;
 
 namespace UnitTests
 {
@@ -63,6 +61,8 @@ namespace UnitTests
 			using (var stream = new MemoryStream ()) {
 				var parser = new ExperimentalMimeParser (stream);
 
+				Assert.AreEqual (0, parser.Position, "Position");
+
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (null));
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (null, stream));
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (null, MimeFormat.Default));
@@ -70,13 +70,9 @@ namespace UnitTests
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (null, stream, MimeFormat.Default));
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (ParserOptions.Default, null, MimeFormat.Default));
 
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null));
-				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, false));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default, false));
-				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null));
-				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream, MimeFormat.Default));
-				//Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null, MimeFormat.Default));
 
 				Assert.Throws<ArgumentNullException> (() => parser.Options = null);
 			}
@@ -1988,6 +1984,220 @@ This is the embedded message body.
 		}
 
 		[Test]
+		public void TestMessageRfc822WithMungedFromMarkerBeforeMessage ()
+		{
+			string text = @"From - Fri Mar  7 02:51:22 1997
+Return-Path: <jwz@netscape.com>
+Received: from gruntle ([205.217.227.10]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA4040
+          for <jwz@netscape.com>; Fri, 7 Mar 1997 02:50:37 -0800
+Sender: jwz@netscape.com (Jamie Zawinski)
+Message-ID: <331FF2FF.FF6@netscape.com>
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.01 (X11; U; IRIX 6.2 IP22)
+MIME-Version: 1.0
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Content-Type: message/rfc822; name=""smime18-encrypted.msg""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=""smime18-encrypted.msg""
+X-Mozilla-Status: 0001
+Content-Length: 2812
+
+>From - Fri Dec 13 15:01:21 1996
+Return-Path: <blaker@craswell.com>
+Received: from maleman.mcom.com ([198.93.92.3]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA19742
+          for <jwz@dredd.mcom.com>; Fri, 13 Dec 1996 14:59:31 -0800
+Received: from xwing.netscape.com (xwing.mcom.com [205.218.156.54]) by maleman.mcom.com (8.6.9/8.6.9) with ESMTP id OAA23726 for <jwz@netscape.com>; Fri, 13 Dec 1996 14:58:13 -0800
+Received: from peapod.deming.com (host20.deming.com [206.63.131.20]) by xwing.netscape.com (8.7.6/8.7.3) with SMTP id OAA00270 for <jwz@netscape.com>; Fri, 13 Dec 1996 14:59:27 -0800 (PST)
+Received: by peapod.deming.com from localhost
+    (router,SLmail V2.0); Fri, 13 Dec 1996 15:01:48 Pacific Standard Time
+Received: by peapod.deming.com from seth
+    (206.63.131.30::mail daemon; unverified,SLmail V2.0); Fri, 13 Dec 1996 15:01:02 Pacific Standard Time
+Message-Id: <3.0.32.19961213150855.009172e0@mail.craswell.com>
+X-Sender: blaker@mail.craswell.com
+X-Mailer: Windows Eudora Pro Version 3.0 (32)
+Date: Fri, 13 Dec 1996 15:09:42 -0800
+To: Jamie Zawinski <jwz@netscape.com>
+From: ""Blake Ramsdell"" <blaker@craswell.com>
+Subject: Re: can you send me an encrypted message?
+MIME-Version: 1.0
+Content-Type: application/x-pkcs7-mime; name=""smime.p7m""
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=""smime.p7m""
+
+MIAGCSqGSIb3DQEHA6CAMIACAQAxgDCBzAIBADB2MGIxETAPBgNVBAcTCEludGVybmV0MRcw
+FQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE0MDIGA1UECxMrVmVyaVNpZ24gQ2xhc3MgMSBDQSAt
+IEluZGl2aWR1YWwgU3Vic2NyaWJlcgIQKQ/GF/RumodE+WtXiPJmhDANBgkqhkiG9w0BAQEF
+AARAb0tthyav05ce7KBWdlfN1M0R6wLQ2FWPVQynuWo/yHUoo3hiII7j15FXNgnxF7QkY5/p
+mZXg0P2eJ1iYQy1vZDCBzAIBADB2MGIxETAPBgNVBAcTCEludGVybmV0MRcwFQYDVQQKEw5W
+ZXJpU2lnbiwgSW5jLjE0MDIGA1UECxMrVmVyaVNpZ24gQ2xhc3MgMSBDQSAtIEluZGl2aWR1
+YWwgU3Vic2NyaWJlcgIQDOtpec1+JM3EpqAMVqgtjzANBgkqhkiG9w0BAQEFAARAuqnsnz1O
+qEdx7NEMJDEdjccjdEuCM8x2euTYlU/GWNY+s2iKVahbT3/R8E8hp3YfrHd2sjvgy6teTOPO
+ZI2SxwAAMIAGCSqGSIb3DQEHATAUBggqhkiG9w0DBwQIlhWqtbsElaWggASCAjBooYYTWSBz
+7A4l0Aho7mK85zpMyAR0xTKqHXT0zL9XpHbKPAcETaBTh1n7e8aJeQ93ONGAs6tVVlA6bpUN
+F3Q5O+ZuNXOMT83HIKRYEO1l8a+CH7XtUiQWtu/aBt12GQDX475WhPULKEJs7kLS2DwToRX/
+ctwEPNwc6zfsOZoVTQ5HOwisvDZ2QGwa08Psj38SaQ0Y+ryk5FeiAtKQUZ0uuJWI/rRu64yj
+KmVs1DDId18coftA2rv/u2/zABEX8u5ckEkwS7fO7UHv6XMCQ3kqgqIZZE1zIGohfUdtOYYo
+M4eki3QDyovHPxEjBbnmpUw2xDN7/DdxYEZ4CteWurQ+VoP0PUM2qwi6EgM6MpVKg8KzOWdb
+aV51a1oQKtpJJFZqZtFf9SQ4OW6NKXHsJ2AF8W4OQ+ySWQN43wMk8dGJYlPrREqn5RufPg3k
+QM+s4VwTrS2TrU+ELZCYnJFfH+N7tE8ILrFMAteVxtqjat7OJRyDxy0cnBP+oG81Sr0zvbdC
+jUPUDFlrPgFjDrswX1UpkEE2OgKWmfc134AbysJFOuCIze2XqKB96rJvxS76ygzVvrU/4sI1
+6VDlZUEuUPaBUOimFxRk/rqPJDI1M8rNKykw9qsoWQMRnvrODfzo7iVWQ0TQHiwfoBhs6Dvm
+UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
+9I6Afej0ntfbH9vlRwQIl7MeXMqoBV0AAAAAAAAAAAAA
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
+				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
+				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+
+				Assert.NotNull (rfc822.Message, "MessagePart.Message");
+				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
+				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
+				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
+				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
+				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
+				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+
+				Assert.NotNull (rfc822.Message, "MessagePart.Message");
+				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
+				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\r\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
+				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
+				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822WithMungedFromMarkerBeforeMessageAsync ()
+		{
+			string text = @"From - Fri Mar  7 02:51:22 1997
+Return-Path: <jwz@netscape.com>
+Received: from gruntle ([205.217.227.10]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA4040
+          for <jwz@netscape.com>; Fri, 7 Mar 1997 02:50:37 -0800
+Sender: jwz@netscape.com (Jamie Zawinski)
+Message-ID: <331FF2FF.FF6@netscape.com>
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.01 (X11; U; IRIX 6.2 IP22)
+MIME-Version: 1.0
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Content-Type: message/rfc822; name=""smime18-encrypted.msg""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=""smime18-encrypted.msg""
+X-Mozilla-Status: 0001
+Content-Length: 2812
+
+>From - Fri Dec 13 15:01:21 1996
+Return-Path: <blaker@craswell.com>
+Received: from maleman.mcom.com ([198.93.92.3]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA19742
+          for <jwz@dredd.mcom.com>; Fri, 13 Dec 1996 14:59:31 -0800
+Received: from xwing.netscape.com (xwing.mcom.com [205.218.156.54]) by maleman.mcom.com (8.6.9/8.6.9) with ESMTP id OAA23726 for <jwz@netscape.com>; Fri, 13 Dec 1996 14:58:13 -0800
+Received: from peapod.deming.com (host20.deming.com [206.63.131.20]) by xwing.netscape.com (8.7.6/8.7.3) with SMTP id OAA00270 for <jwz@netscape.com>; Fri, 13 Dec 1996 14:59:27 -0800 (PST)
+Received: by peapod.deming.com from localhost
+    (router,SLmail V2.0); Fri, 13 Dec 1996 15:01:48 Pacific Standard Time
+Received: by peapod.deming.com from seth
+    (206.63.131.30::mail daemon; unverified,SLmail V2.0); Fri, 13 Dec 1996 15:01:02 Pacific Standard Time
+Message-Id: <3.0.32.19961213150855.009172e0@mail.craswell.com>
+X-Sender: blaker@mail.craswell.com
+X-Mailer: Windows Eudora Pro Version 3.0 (32)
+Date: Fri, 13 Dec 1996 15:09:42 -0800
+To: Jamie Zawinski <jwz@netscape.com>
+From: ""Blake Ramsdell"" <blaker@craswell.com>
+Subject: Re: can you send me an encrypted message?
+MIME-Version: 1.0
+Content-Type: application/x-pkcs7-mime; name=""smime.p7m""
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=""smime.p7m""
+
+MIAGCSqGSIb3DQEHA6CAMIACAQAxgDCBzAIBADB2MGIxETAPBgNVBAcTCEludGVybmV0MRcw
+FQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE0MDIGA1UECxMrVmVyaVNpZ24gQ2xhc3MgMSBDQSAt
+IEluZGl2aWR1YWwgU3Vic2NyaWJlcgIQKQ/GF/RumodE+WtXiPJmhDANBgkqhkiG9w0BAQEF
+AARAb0tthyav05ce7KBWdlfN1M0R6wLQ2FWPVQynuWo/yHUoo3hiII7j15FXNgnxF7QkY5/p
+mZXg0P2eJ1iYQy1vZDCBzAIBADB2MGIxETAPBgNVBAcTCEludGVybmV0MRcwFQYDVQQKEw5W
+ZXJpU2lnbiwgSW5jLjE0MDIGA1UECxMrVmVyaVNpZ24gQ2xhc3MgMSBDQSAtIEluZGl2aWR1
+YWwgU3Vic2NyaWJlcgIQDOtpec1+JM3EpqAMVqgtjzANBgkqhkiG9w0BAQEFAARAuqnsnz1O
+qEdx7NEMJDEdjccjdEuCM8x2euTYlU/GWNY+s2iKVahbT3/R8E8hp3YfrHd2sjvgy6teTOPO
+ZI2SxwAAMIAGCSqGSIb3DQEHATAUBggqhkiG9w0DBwQIlhWqtbsElaWggASCAjBooYYTWSBz
+7A4l0Aho7mK85zpMyAR0xTKqHXT0zL9XpHbKPAcETaBTh1n7e8aJeQ93ONGAs6tVVlA6bpUN
+F3Q5O+ZuNXOMT83HIKRYEO1l8a+CH7XtUiQWtu/aBt12GQDX475WhPULKEJs7kLS2DwToRX/
+ctwEPNwc6zfsOZoVTQ5HOwisvDZ2QGwa08Psj38SaQ0Y+ryk5FeiAtKQUZ0uuJWI/rRu64yj
+KmVs1DDId18coftA2rv/u2/zABEX8u5ckEkwS7fO7UHv6XMCQ3kqgqIZZE1zIGohfUdtOYYo
+M4eki3QDyovHPxEjBbnmpUw2xDN7/DdxYEZ4CteWurQ+VoP0PUM2qwi6EgM6MpVKg8KzOWdb
+aV51a1oQKtpJJFZqZtFf9SQ4OW6NKXHsJ2AF8W4OQ+ySWQN43wMk8dGJYlPrREqn5RufPg3k
+QM+s4VwTrS2TrU+ELZCYnJFfH+N7tE8ILrFMAteVxtqjat7OJRyDxy0cnBP+oG81Sr0zvbdC
+jUPUDFlrPgFjDrswX1UpkEE2OgKWmfc134AbysJFOuCIze2XqKB96rJvxS76ygzVvrU/4sI1
+6VDlZUEuUPaBUOimFxRk/rqPJDI1M8rNKykw9qsoWQMRnvrODfzo7iVWQ0TQHiwfoBhs6Dvm
+UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
+9I6Afej0ntfbH9vlRwQIl7MeXMqoBV0AAAAAAAAAAAAA
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
+				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
+				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+
+				Assert.NotNull (rfc822.Message, "MessagePart.Message");
+				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
+				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
+				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
+				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
+				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
+				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
+				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+
+				Assert.NotNull (rfc822.Message, "MessagePart.Message");
+				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
+				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\r\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
+				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
+				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+			}
+		}
+
+		[Test]
 		public void TestMessageRfc822 ()
 		{
 			string text = @"Content-Type: message/rfc822
@@ -2412,12 +2622,11 @@ This is some raw data.
 			}
 		}
 
-		class CustomMimeParser : MimeParser
+		class CustomMimeParser : ExperimentalMimeParser
 		{
-			readonly Dictionary<MimeMessage, MimeOffsets> messages = new Dictionary<MimeMessage, MimeOffsets> ();
-			readonly Dictionary<MimeEntity, MimeOffsets> entities = new Dictionary<MimeEntity, MimeOffsets> ();
 			public readonly List<MimeOffsets> Offsets = new List<MimeOffsets> ();
-			MimeOffsets body;
+			readonly Stack<MimeOffsets> stack = new Stack<MimeOffsets> ();
+			bool isMessageBody;
 
 			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format) : base (options, stream, format)
 			{
@@ -2427,79 +2636,102 @@ This is some raw data.
 			{
 			}
 
-			protected override void OnMimeMessageBegin (MimeMessageBeginEventArgs args)
+			protected override void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 			{
 				var offsets = new MimeOffsets {
-					BeginOffset = args.BeginOffset,
-					LineNumber = args.LineNumber
+					BeginOffset = beginOffset,
+					LineNumber = beginLineNumber
 				};
 
-				if (args.Parent != null) {
-					if (entities.TryGetValue (args.Parent, out var parentOffsets))
-						parentOffsets.Message = offsets;
-					else
-						Console.WriteLine ("oops?");
+				if (stack.Count > 0) {
+					var parentOffsets = stack.Peek ();
+					parentOffsets.Message = offsets;
 				} else {
 					offsets.MboxMarkerOffset = MboxMarkerOffset;
 					Offsets.Add (offsets);
 				}
 
-				messages.Add (args.Message, offsets);
+				isMessageBody = true;
+				stack.Push (offsets);
 
-				base.OnMimeMessageBegin (args);
+				base.OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
 			}
 
-			protected override void OnMimeMessageEnd (MimeMessageEndEventArgs args)
+			protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 			{
-				if (messages.TryGetValue (args.Message, out var offsets)) {
-					offsets.Octets = args.EndOffset - args.HeadersEndOffset;
-					offsets.HeadersEndOffset = args.HeadersEndOffset;
-					offsets.EndOffset = args.EndOffset;
-					offsets.Body = body;
-				} else {
-					Console.WriteLine ("oops?");
-				}
+				var offsets = stack.Pop ();
+				offsets.Octets = endOffset - headersEndOffset;
+				offsets.HeadersEndOffset = headersEndOffset;
+				offsets.EndOffset = endOffset;
 
-				messages.Remove (args.Message);
-
-				base.OnMimeMessageEnd (args);
+				base.OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 
-			protected override void OnMimeEntityBegin (MimeEntityBeginEventArgs args)
+			void OnMimeEntityBegin (ContentType contentType, long beginOffset, int beginLineNumber)
 			{
 				var offsets = new MimeOffsets {
-					MimeType = args.Entity.ContentType.MimeType,
-					BeginOffset = args.BeginOffset,
-					LineNumber = args.LineNumber
+					MimeType = contentType.MimeType,
+					BeginOffset = beginOffset,
+					LineNumber = beginLineNumber
 				};
 
-				if (args.Parent != null && entities.TryGetValue (args.Parent, out var parentOffsets)) {
+				var parentOffsets = stack.Peek ();
+				if (isMessageBody) {
+					parentOffsets.Body = offsets;
+					isMessageBody = false;
+				} else {
 					if (parentOffsets.Children == null)
 						parentOffsets.Children = new List<MimeOffsets> ();
 
 					parentOffsets.Children.Add (offsets);
 				}
 
-				entities.Add (args.Entity, offsets);
-
-				base.OnMimeEntityBegin (args);
+				stack.Push (offsets);
 			}
 
-			protected override void OnMimeEntityEnd (MimeEntityEndEventArgs args)
+			void OnMimeEntityEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines)
 			{
-				if (entities.TryGetValue (args.Entity, out var offsets)) {
-					offsets.Octets = args.EndOffset - args.HeadersEndOffset;
-					offsets.HeadersEndOffset = args.HeadersEndOffset;
-					offsets.EndOffset = args.EndOffset;
-					offsets.Lines = args.Lines;
-					body = offsets;
-				} else {
-					Console.WriteLine ("oops?");
-				}
+				var offsets = stack.Pop ();
+				offsets.Octets = endOffset - headersEndOffset;
+				offsets.HeadersEndOffset = headersEndOffset;
+				offsets.EndOffset = endOffset;
+				offsets.Lines = lines;
+			}
 
-				entities.Remove (args.Entity);
+			protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				OnMimeEntityBegin (contentType, beginOffset, beginLineNumber);
+				base.OnMessagePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
 
-				base.OnMimeEntityEnd (args);
+			protected override void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				OnMimeEntityEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
+				base.OnMessagePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				OnMimeEntityBegin (contentType, beginOffset, beginLineNumber);
+				base.OnMultipartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				OnMimeEntityEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
+				base.OnMultipartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				OnMimeEntityBegin (contentType, beginOffset, beginLineNumber);
+				base.OnMimePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				OnMimeEntityEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
+				base.OnMimePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 		}
 
@@ -2522,13 +2754,13 @@ This is some raw data.
 			Assert.AreEqual (summary, actual, "Summaries do not match for {0}.mbox", baseName);
 
 			using (var original = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+				int lineNumber = 1, columnNumber = 1;
+
 				output.Position = 0;
 
-				Assert.AreEqual (original.Length, output.Length, "The length of the mbox did not match.");
+				//Assert.AreEqual (original.Length, output.Length, "The length of the mbox did not match.");
 
 				do {
-					var position = original.Position;
-
 					nx = original.Read (expected, 0, expected.Length);
 					n = output.Read (buffer, 0, nx);
 
@@ -2536,13 +2768,20 @@ This is some raw data.
 						break;
 
 					for (int i = 0; i < nx; i++) {
-						if (buffer[i] == expected[i])
+						if (buffer[i] == expected[i]) {
+							if (expected[i] == (byte) '\n') {
+								columnNumber = 1;
+								lineNumber++;
+							} else {
+								columnNumber++;
+							}
 							continue;
+						}
 
 						var strExpected = CharsetUtils.Latin1.GetString (expected, 0, nx);
 						var strActual = CharsetUtils.Latin1.GetString (buffer, 0, n);
 
-						Assert.AreEqual (strExpected, strActual, "The mbox differs at position {0}", position + i);
+						Assert.AreEqual (strExpected, strActual, "The mbox differs at on line {0}, column {1}", lineNumber, columnNumber);
 					}
 				} while (true);
 			}
