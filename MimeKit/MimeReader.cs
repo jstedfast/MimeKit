@@ -547,8 +547,9 @@ namespace MimeKit {
 		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
 		/// <param name="endOffset">The offset into the stream where the MIME part content ended.</param>
 		/// <param name="lines">The length of the MIME part content as measured in lines.</param>
+		/// <param name="newLineFormat">The new-line format of the content, if known.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+		protected virtual void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
 		{
 		}
 
@@ -564,10 +565,11 @@ namespace MimeKit {
 		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
 		/// <param name="endOffset">The offset into the stream where the MIME part content ended.</param>
 		/// <param name="lines">The length of the MIME part content as measured in lines.</param>
+		/// <param name="newLineFormat">The new-line format of the content, if known.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected virtual Task OnMimePartContentEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+		protected virtual Task OnMimePartContentEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
 		{
-			OnMimePartContentEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
+			OnMimePartContentEnd (beginOffset, beginLineNumber, endOffset, lines, newLineFormat, cancellationToken);
 			return CompletedTask;
 		}
 
@@ -921,7 +923,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Called when multipart epilogue text is read from the stream.</para>
 		/// </remarks>
-		/// <param name="buffert">A buffer containing the multipart epilogue text.</param>
+		/// <param name="buffer">A buffer containing the multipart epilogue text.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
 		/// <param name="count">The length of the content within the buffer, in bytes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -2059,7 +2061,7 @@ namespace MimeKit {
 
 			OnMimePartContentBegin (beginOffset, beginLineNumber, cancellationToken);
 			var result = ScanContent (ScanContentType.MimeContent, inbuf, beginOffset, beginLineNumber, true, cancellationToken);
-			OnMimePartContentEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken);
+			OnMimePartContentEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, result.Format, cancellationToken);
 
 			return result.Lines;
 		}

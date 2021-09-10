@@ -610,26 +610,38 @@ namespace MimeKit {
 		/// Add an entity to the multipart.
 		/// </summary>
 		/// <remarks>
+		/// Adds an entity to the multipart without changing the WriteEndBoundary state.
+		/// </remarks>
+		/// <param name="entity">The MIME entity to add.</param>
+		internal void InternalAdd (MimeEntity entity)
+		{
+			children.Add (entity);
+		}
+
+		/// <summary>
+		/// Add an entity to the multipart.
+		/// </summary>
+		/// <remarks>
 		/// Adds the specified part to the multipart.
 		/// </remarks>
-		/// <param name="part">The part to add.</param>
+		/// <param name="entity">The MIME entity to add.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="part"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
-		public void Add (MimeEntity part)
+		public void Add (MimeEntity entity)
 		{
-			if (part == null)
-				throw new ArgumentNullException (nameof (part));
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
 
 			WriteEndBoundary = true;
-			children.Add (part);
+			children.Add (entity);
 		}
 
 		/// <summary>
 		/// Clear a multipart.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the parts within the multipart.
+		/// Removes all of the entities within the multipart.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -638,23 +650,23 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Check if the <see cref="Multipart"/> contains the specified part.
+		/// Check if the <see cref="Multipart"/> contains the specified entity.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the multipart contains the specified part.
+		/// Determines whether or not the multipart contains the specified entity.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified part exists;
+		/// <returns><value>true</value> if the specified entity exists;
 		/// otherwise <value>false</value>.</returns>
-		/// <param name="part">The part to check for.</param>
+		/// <param name="entity">The entity to check for.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="part"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
-		public bool Contains (MimeEntity part)
+		public bool Contains (MimeEntity entity)
 		{
-			if (part == null)
-				throw new ArgumentNullException (nameof (part));
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
 
-			return children.Contains (part);
+			return children.Contains (entity);
 		}
 
 		/// <summary>
@@ -664,7 +676,7 @@ namespace MimeKit {
 		/// Copies all of the entities within the <see cref="Multipart"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
-		/// <param name="array">The array to copy the headers to.</param>
+		/// <param name="array">The array to copy the child entities to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="array"/> is <c>null</c>.
@@ -681,19 +693,19 @@ namespace MimeKit {
 		/// Remove an entity from the multipart.
 		/// </summary>
 		/// <remarks>
-		/// Removes the specified part, if it exists within the multipart.
+		/// Removes the specified entity if it exists within the multipart.
 		/// </remarks>
 		/// <returns><value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
-		/// <param name="part">The part to remove.</param>
+		/// <param name="entity">The MIME entity to remove.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="part"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
-		public bool Remove (MimeEntity part)
+		public bool Remove (MimeEntity entity)
 		{
-			if (part == null)
-				throw new ArgumentNullException (nameof (part));
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
 
-			if (!children.Remove (part))
+			if (!children.Remove (entity))
 				return false;
 
 			WriteEndBoundary = true;
@@ -709,19 +721,19 @@ namespace MimeKit {
 		/// Get the index of an entity.
 		/// </summary>
 		/// <remarks>
-		/// Finds the index of the specified part, if it exists.
+		/// Finds the index of the specified entity, if it exists.
 		/// </remarks>
-		/// <returns>The index of the specified part if found; otherwise <c>-1</c>.</returns>
-		/// <param name="part">The part.</param>
+		/// <returns>The index of the specified entity if found; otherwise <c>-1</c>.</returns>
+		/// <param name="entity">The MIME entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="part"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
-		public int IndexOf (MimeEntity part)
+		public int IndexOf (MimeEntity entity)
 		{
-			if (part == null)
-				throw new ArgumentNullException (nameof (part));
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
 
-			return children.IndexOf (part);
+			return children.IndexOf (entity);
 		}
 
 		/// <summary>
@@ -731,22 +743,22 @@ namespace MimeKit {
 		/// Inserts the part into the multipart at the specified index.
 		/// </remarks>
 		/// <param name="index">The index.</param>
-		/// <param name="part">The part.</param>
+		/// <param name="entity">The MIME entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="part"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
-		public void Insert (int index, MimeEntity part)
+		public void Insert (int index, MimeEntity entity)
 		{
 			if (index < 0 || index > children.Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
-			if (part == null)
-				throw new ArgumentNullException (nameof (part));
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
 
-			children.Insert (index, part);
+			children.Insert (index, entity);
 			WriteEndBoundary = true;
 		}
 

@@ -260,7 +260,7 @@ namespace MimeKit {
 				if (parent is MimeMessage message)
 					message.Body = entity;
 				else
-					((Multipart) parent).Add (entity);
+					((Multipart) parent).InternalAdd (entity);
 			}
 		}
 
@@ -416,7 +416,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			var toplevel = stack.Count == 0 || stack.Peek () is MimeMessage;
+			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
 			var part = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			stack.Push (part);
@@ -464,9 +464,17 @@ namespace MimeKit {
 		/// <param name="beginLineNumber">The line number where the MIME part content began.</param>
 		/// <param name="endOffset">The offset into the stream where the MIME part content ended.</param>
 		/// <param name="lines">The length of the MIME part content as measured in lines.</param>
+		/// <param name="newLineFormat">The new-line format of the content, if known.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+		protected override void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
 		{
+			if (endOffset <= beginOffset && !newLineFormat.HasValue) {
+				// Note: This is a hack that makes Multipart.WriteTo() work properly.
+				content?.Dispose ();
+				content = null;
+				return;
+			}
+
 			var part = (MimePart) stack.Peek ();
 
 			if (persistent) {
@@ -476,8 +484,7 @@ namespace MimeKit {
 				content.Position = 0;
 			}
 
-			// FIXME: somehow get newline format for the content from the MimeReader...
-			part.Content = new MimeContent (content, part.ContentTransferEncoding);
+			part.Content = new MimeContent (content, part.ContentTransferEncoding) { NewLineFormat = newLineFormat };
 			content = null;
 		}
 
@@ -517,7 +524,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			var toplevel = stack.Count == 0 || stack.Peek () is MimeMessage;
+			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
 			var rfc822 = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			parsingMessageHeaders = true;
@@ -562,7 +569,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			var toplevel = stack.Count == 0 || stack.Peek () is MimeMessage;
+			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
 			var multipart = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			stack.Push (multipart);
