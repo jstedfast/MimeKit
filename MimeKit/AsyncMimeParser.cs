@@ -605,10 +605,7 @@ namespace MimeKit {
 			entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			entityArgs.EndOffset = endOffset;
 
-			if (boundary != BoundaryType.Eos)
-				state = MimeParserState.Complete;
-			else
-				state = MimeParserState.Eos;
+			state = MimeParserState.Eos;
 
 			OnMimeEntityEnd (entityArgs);
 
