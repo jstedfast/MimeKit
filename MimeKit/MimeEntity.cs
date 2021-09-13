@@ -336,8 +336,6 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			using (var memory = new MemoryStream ()) {
-				memory.Write (FormatOptions.Default.NewLineBytes, 0, FormatOptions.Default.NewLineBytes.Length);
-
 				WriteTo (memory);
 
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
