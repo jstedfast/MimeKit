@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.15.0</version>
+    <version>2.15.1</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,11 +26,11 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Use DebugType=full for .NET Framework v4.x. (MailKit issue #1239)
-* Fixed bug in MultipartSigned.VerifyAsync() that would dispose of the crypto context before the async task was complete, resulting in an OperationCanceledException.
-* Default to using the Environment.SpecialFolder.UserProfile directory instead of Personal when GNUPGHOME isn't defined in the environment. The Personal directory maps to the MyDocuments directory, so this wasn't correct. The .gnupg directory should be in the user's HOME directory.
-* Added ContentType.ToString(bool encode) and ContentDisposition.ToString(bool encode) convenience methods.
-* Changed the public Header.Parse/TryParse APIs to canonicalize header values to end with a newline even if the input string does not. (issue #695)
+* Improved MimeParser to be a little more efficient based on work being done for the upcoming v3.0 release.
+* Fixed a bug in the MimeParser exposed by added unit tests regarding Content-Length handling.
+* Improved address parser error messages.
+* Fixed MailboxAddress.Address to be forgiving if there is trailing whitespace after the addr-spec token when setting MailboxAddress.Address. (issue #705)
+* Fixed MimeMessage and MimeEntity.ToString() to not write a newline before the message/entity (regression introduced in 2.14.0).
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

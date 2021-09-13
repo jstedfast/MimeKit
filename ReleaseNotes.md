@@ -1,5 +1,15 @@
 # Release Notes
 
+### MimeKit 2.15.1 (2021-09-13)
+
+* Improved MimeParser to be a little more efficient based on work being done for the upcoming v3.0 release.
+* Fixed a bug in the MimeParser exposed by added unit tests regarding Content-Length handling.
+* Improved address parser error messages.
+* Fixed MailboxAddress.Address to be forgiving if there is trailing whitespace after the addr-spec token when
+  setting MailboxAddress.Address. (issue [#705](https://github.com/jstedfast/MimeKit/issues/705))
+* Fixed MimeMessage and MimeEntity.ToString() to not write a newline before the message/entity
+  (regression introduced in 2.14.0).
+
 ### MimeKit 2.15.0 (2021-08-18)
 
 * Use DebugType=full for .NET Framework v4.x. (MailKit issue [#1239](https://github.com/jstedfast/MailKit/issues/1239))
