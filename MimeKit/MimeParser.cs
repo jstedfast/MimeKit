@@ -918,8 +918,10 @@ namespace MimeKit {
 					length = inptr - start;
 
 					// Note: if the last byte we got was a '\r', rewind a byte
-					if (inptr > start && *(inptr - 1) == (byte) '\r')
+					if (inptr > start && *(inptr - 1) == (byte) '\r') {
 						length--;
+						inptr--;
+					}
 
 					if (length > 0) {
 						AppendRawHeaderData ((int) (start - inbuf), (int) length);
