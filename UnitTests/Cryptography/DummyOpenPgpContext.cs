@@ -24,11 +24,8 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using MimeKit;
 using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
@@ -38,10 +35,9 @@ namespace UnitTests.Cryptography {
 		{
 		}
 
-		protected override bool TryGetPassword (PgpSecretKey key, out string password)
+		protected override string GetPasswordForKey (PgpSecretKey key)
 		{
-			password = "no.secret";
-			return true;
+			return "no.secret";
 		}
 	}
 }

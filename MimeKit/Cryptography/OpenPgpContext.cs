@@ -114,10 +114,12 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the password for a secret key.
 		/// </remarks>
-		/// <returns><c>true</c> if the password was successfully obtained; otherwise, <c>false</c>.</returns>
+		/// <returns>The password for the secret key.</returns>
 		/// <param name="key">The secret key.</param>
-		/// <param name="password">The password.</param>
-		protected abstract bool TryGetPassword (PgpSecretKey key, out string password);
+		/// <exception cref="System.OperationCanceledException">
+		/// The user chose to cancel the password request.
+		/// </exception>
+		protected abstract string GetPasswordForKey (PgpSecretKey key);
 
 		/// <summary>
 		/// Get the public keyring that contains the specified key.
@@ -702,7 +704,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Retrieves the public keyring specified by the <paramref name="keyId"/> from the key server
 		/// set on the <see cref="KeyServer"/> property. If the keyring is successfully retrieved, it will
-		/// be imported via <see cref="Import(PgpPublicKeyRingBundle)"/>.</para>
+		/// be imported via <see cref="Import(PgpPublicKeyRingBundle,CancellationToken)"/>.</para>
 		/// <para>This method should be called by <see cref="GetPublicKeyRing(long, CancellationToken)"/>
 		/// when the keyring is not available locally.</para>
 		/// </remarks>
@@ -720,7 +722,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Retrieves the public keyring specified by the <paramref name="keyId"/> from the key server
 		/// set on the <see cref="KeyServer"/> property. If the keyring is successfully retrieved, it will
-		/// be imported via <see cref="Import(PgpPublicKeyRingBundle)"/>.</para>
+		/// be imported via <see cref="Import(PgpPublicKeyRingBundle,CancellationToken)"/>.</para>
 		/// <para>This method should be called by <see cref="GetPublicKeyRingAsync(long, CancellationToken)"/>
 		/// when the keyring is not available locally.</para>
 		/// </remarks>
@@ -758,7 +760,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (key));
 
 			do {
-				if (!TryGetPassword (key, out password))
+				if ((password = GetPasswordForKey (key)) == null)
 					throw new OperationCanceledException ();
 
 				try {
