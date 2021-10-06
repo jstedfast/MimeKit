@@ -853,12 +853,14 @@ namespace MimeKit.Cryptography {
 			foreach (var signerInfo in signed.SignerInfos) {
 				var signature = new WindowsSecureMimeDigitalSignature (signerInfo);
 
-				if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0) {
-					UpdateSecureMimeCapabilities (signerInfo.Certificate, signature.EncryptionAlgorithms, signature.CreationDate);
-				} else {
-					try {
-						Import (signerInfo.Certificate);
-					} catch {
+				if (signerInfo.Certificate != null) {
+					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0) {
+						UpdateSecureMimeCapabilities (signerInfo.Certificate, signature.EncryptionAlgorithms, signature.CreationDate);
+					} else {
+						try {
+							Import (signerInfo.Certificate);
+						} catch {
+						}
 					}
 				}
 

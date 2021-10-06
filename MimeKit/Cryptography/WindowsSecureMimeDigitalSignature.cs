@@ -93,7 +93,8 @@ namespace MimeKit.Cryptography
 			if (WindowsSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
 				DigestAlgorithm = digestAlgo;
 
-			SignerCertificate = new WindowsSecureMimeDigitalCertificate (signerInfo.Certificate);
+			if (signerInfo.Certificate != null)
+				SignerCertificate = new WindowsSecureMimeDigitalCertificate (signerInfo.Certificate);
 		}
 
 		/// <summary>

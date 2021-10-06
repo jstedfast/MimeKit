@@ -2216,14 +2216,11 @@ namespace MimeKit.Cryptography {
 
 				PgpPublicKeyEncryptedData encrypted = null;
 				PrivateKeyNotFoundException pkex = null;
-				bool hasEncryptedPackets = false;
 				PgpSecretKey secret = null;
 
 				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
 					if ((encrypted = data as PgpPublicKeyEncryptedData) == null)
 						continue;
-
-					hasEncryptedPackets = true;
 
 					try {
 						if (doAsync)
@@ -2236,11 +2233,12 @@ namespace MimeKit.Cryptography {
 					}
 				}
 
-				if (!hasEncryptedPackets)
-					throw new PgpException ("No encrypted packets found.");
+				if (secret == null) {
+					if (encrypted == null || pkex == null)
+						throw new PgpException ("No encrypted packets found.");
 
-				if (secret == null)
 					throw pkex;
+				}
 
 				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (secret)));
 				List<IDigitalSignature> onepassList = null;

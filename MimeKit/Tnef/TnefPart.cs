@@ -224,7 +224,7 @@ namespace MimeKit.Tnef {
 							}
 						}
 
-						if (httpEquiv == null || !httpEquiv.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+						if (httpEquiv == null || content == null || !httpEquiv.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
 							continue;
 
 						if (!ContentType.TryParse (content, out var contentType) || string.IsNullOrEmpty (contentType.Charset))
