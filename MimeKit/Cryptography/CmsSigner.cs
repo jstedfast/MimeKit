@@ -334,6 +334,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("The certificate does not contain a private key.", nameof (certificate));
 
 			var cert = certificate.AsBouncyCastleCertificate ();
+
+			if (cert == null)
+				throw new ArgumentException ("Unable to convert certificate into the BouncyCastle format.", nameof (certificate));
+
 			var key = certificate.PrivateKey.AsAsymmetricKeyParameter ();
 
 			CheckCertificateCanBeUsedForSigning (cert);
