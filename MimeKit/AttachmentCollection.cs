@@ -133,36 +133,44 @@ namespace MimeKit {
 			}
 		}
 
-		static void LoadContent (MimePart attachment, Stream stream)
+		static void LoadContent (MimePart attachment, Stream stream, CancellationToken cancellationToken)
 		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
 			var content = new MemoryBlockStream ();
 
-			if (attachment.ContentType.IsMimeType ("text", "*")) {
-				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
-				var filter = new BestEncodingFilter ();
-				int index, length;
-				int nread;
+			try {
+				if (attachment.ContentType.IsMimeType ("text", "*")) {
+					var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+					var filter = new BestEncodingFilter ();
+					int index, length;
+					int nread;
 
-				try {
-					while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
-						filter.Filter (buf, 0, nread, out index, out length);
-						content.Write (buf, 0, nread);
+					try {
+						while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
+							cancellationToken.ThrowIfCancellationRequested ();
+							filter.Filter (buf, 0, nread, out index, out length);
+							content.Write (buf, 0, nread);
+						}
+
+						filter.Flush (buf, 0, 0, out index, out length);
+					} finally {
+						ArrayPool<byte>.Shared.Return (buf);
 					}
 
-					filter.Flush (buf, 0, 0, out index, out length);
-				} finally {
-					ArrayPool<byte>.Shared.Return (buf);
+					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+				} else {
+					attachment.ContentTransferEncoding = ContentEncoding.Base64;
+					stream.CopyTo (content, 4096);
 				}
 
-				attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-			} else {
-				attachment.ContentTransferEncoding = ContentEncoding.Base64;
-				stream.CopyTo (content, 4096);
+				content.Position = 0;
+
+				attachment.Content = new MimeContent (content);
+			} catch {
+				content.Dispose ();
+				throw;
 			}
-
-			content.Position = 0;
-
-			attachment.Content = new MimeContent (content);
 		}
 
 		static async Task LoadContentAsync (MimePart attachment, Stream stream, CancellationToken cancellationToken)
@@ -171,33 +179,38 @@ namespace MimeKit {
 
 			var content = new MemoryBlockStream ();
 
-			if (attachment.ContentType.IsMimeType ("text", "*")) {
-				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
-				var filter = new BestEncodingFilter ();
-				int index, length;
-				int nread;
+			try {
+				if (attachment.ContentType.IsMimeType ("text", "*")) {
+					var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
+					var filter = new BestEncodingFilter ();
+					int index, length;
+					int nread;
 
-				try {
-					while ((nread = await stream.ReadAsync (buf, 0, BufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
-						cancellationToken.ThrowIfCancellationRequested ();
-						filter.Filter (buf, 0, nread, out index, out length);
-						content.Write (buf, 0, nread);
+					try {
+						while ((nread = await stream.ReadAsync (buf, 0, BufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
+							cancellationToken.ThrowIfCancellationRequested ();
+							filter.Filter (buf, 0, nread, out index, out length);
+							content.Write (buf, 0, nread);
+						}
+
+						filter.Flush (buf, 0, 0, out index, out length);
+					} finally {
+						ArrayPool<byte>.Shared.Return (buf);
 					}
 
-					filter.Flush (buf, 0, 0, out index, out length);
-				} finally {
-					ArrayPool<byte>.Shared.Return (buf);
+					attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+				} else {
+					attachment.ContentTransferEncoding = ContentEncoding.Base64;
+					await stream.CopyToAsync (content, 4096, cancellationToken).ConfigureAwait (false);
 				}
 
-				attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-			} else {
-				attachment.ContentTransferEncoding = ContentEncoding.Base64;
-				await stream.CopyToAsync (content, 4096, cancellationToken).ConfigureAwait (false);
+				content.Position = 0;
+
+				attachment.Content = new MimeContent (content);
+			} catch {
+				content.Dispose ();
+				throw;
 			}
-
-			content.Position = 0;
-
-			attachment.Content = new MimeContent (content);
 		}
 
 		static ContentType GetMimeType (string fileName)
@@ -214,13 +227,13 @@ namespace MimeKit {
 			return index > 0 ? path.Substring (index + 1) : path;
 		}
 
-		MimeEntity CreateAttachment (ContentType contentType, string path, Stream stream)
+		MimeEntity CreateAttachment (ContentType contentType, string path, Stream stream, CancellationToken cancellationToken)
 		{
 			var fileName = GetFileName (path);
 			MimeEntity attachment;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
-				var message = MimeMessage.Load (stream);
+				var message = MimeMessage.Load (stream, cancellationToken);
 
 				attachment = new MessagePart { Message = message };
 			} else {
@@ -233,7 +246,7 @@ namespace MimeKit {
 					part = new MimePart (contentType);
 				}
 
-				LoadContent (part, stream);
+				LoadContent (part, stream, cancellationToken);
 				attachment = part;
 			}
 
@@ -318,7 +331,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (contentType));
 
 			using (var stream = new MemoryStream (data, false)) {
-				var attachment = CreateAttachment (contentType, fileName, stream);
+				var attachment = CreateAttachment (contentType, fileName, stream, CancellationToken.None);
 
 				attachments.Add (attachment);
 
@@ -339,6 +352,7 @@ namespace MimeKit {
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="stream">The content stream.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -351,7 +365,10 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>The stream cannot be read.</para>
 		/// </exception>
-		public MimeEntity Add (string fileName, Stream stream, ContentType contentType)
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimeEntity Add (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -368,7 +385,7 @@ namespace MimeKit {
 			if (contentType == null)
 				throw new ArgumentNullException (nameof (contentType));
 
-			var attachment = CreateAttachment (contentType, fileName, stream);
+			var attachment = CreateAttachment (contentType, fileName, stream, cancellationToken);
 
 			attachments.Add (attachment);
 
@@ -400,6 +417,9 @@ namespace MimeKit {
 		/// <para>The specified file path is empty.</para>
 		/// <para>-or-</para>
 		/// <para>The stream cannot be read.</para>
+		/// </exception>
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -455,7 +475,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (data));
 
 			using (var stream = new MemoryStream (data, false)) {
-				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, CancellationToken.None);
 
 				attachments.Add (attachment);
 
@@ -473,6 +493,7 @@ namespace MimeKit {
 		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="stream">The content stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -483,7 +504,10 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>The stream cannot be read</para>
 		/// </exception>
-		public MimeEntity Add (string fileName, Stream stream)
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimeEntity Add (string fileName, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -497,7 +521,7 @@ namespace MimeKit {
 			if (!stream.CanRead)
 				throw new ArgumentException ("The stream cannot be read.", nameof (stream));
 
-			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, cancellationToken);
 
 			attachments.Add (attachment);
 
@@ -524,6 +548,9 @@ namespace MimeKit {
 		/// <para>The specified file path is empty.</para>
 		/// <para>-or-</para>
 		/// <para>The stream cannot be read</para>
+		/// </exception>
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
@@ -557,6 +584,7 @@ namespace MimeKit {
 		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -574,7 +602,10 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity Add (string fileName, ContentType contentType)
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimeEntity Add (string fileName, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -586,7 +617,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (contentType));
 
 			using (var stream = File.OpenRead (fileName)) {
-				var attachment = CreateAttachment (contentType, fileName, stream);
+				var attachment = CreateAttachment (contentType, fileName, stream, cancellationToken);
 
 				attachments.Add (attachment);
 
@@ -623,6 +654,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
@@ -654,6 +688,7 @@ namespace MimeKit {
 		/// </example>
 		/// <returns>The newly added attachment <see cref="MimeEntity"/>.</returns>
 		/// <param name="fileName">The name of the file.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <c>null</c>.
 		/// </exception>
@@ -673,7 +708,10 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity Add (string fileName)
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public MimeEntity Add (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -682,7 +720,7 @@ namespace MimeKit {
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName)) {
-				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream);
+				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, cancellationToken);
 
 				attachments.Add (attachment);
 
@@ -717,6 +755,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
+		/// </exception>
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
