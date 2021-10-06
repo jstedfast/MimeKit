@@ -506,7 +506,11 @@ namespace MimeKit.Utils {
 			decoder = (Decoder) encoding.GetDecoder ();
 			output = new char[bestCharCount];
 
-			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
+			try {
+				charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
+			} catch {
+				charCount = 0;
+			}
 
 			return output;
 		}
