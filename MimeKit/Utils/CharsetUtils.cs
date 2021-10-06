@@ -536,7 +536,11 @@ namespace MimeKit.Utils {
 			int count = decoder.GetCharCount (input, startIndex, length, true);
 			var output = new char[count];
 
-			charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
+			try {
+				charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
+			} catch {
+				charCount = 0;
+			}
 
 			return output;
 		}
