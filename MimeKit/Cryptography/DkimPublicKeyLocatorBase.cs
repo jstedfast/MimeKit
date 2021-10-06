@@ -64,7 +64,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="ParseException">
 		/// There was an error parsing the DNS TXT record.
 		/// </exception>
-		protected AsymmetricKeyParameter GetPublicKey (string txt)
+		protected static AsymmetricKeyParameter GetPublicKey (string txt)
 		{
 			AsymmetricKeyParameter pubkey;
 			string k = "rsa", p = null;
@@ -154,9 +154,8 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
 		/// </example>
-		/// <seealso cref="MimeKit.Cryptography.ArcVerifier"/>
-		/// <seealso cref="MimeKit.Cryptography.DkimVerifier"/>
-		/// <seealso cref="MimeKit.MimeMessage.Verify(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
+		/// <seealso cref="ArcVerifier"/>
+		/// <seealso cref="DkimVerifier"/>
 		/// <returns>The public key.</returns>
 		/// <param name="methods">A colon-separated list of query methods used to retrieve the public key. The default is <c>"dns/txt"</c>.</param>
 		/// <param name="domain">The domain.</param>
@@ -176,9 +175,8 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
 		/// </example>
-		/// <seealso cref="MimeKit.Cryptography.ArcVerifier"/>
-		/// <seealso cref="MimeKit.Cryptography.DkimVerifier"/>
-		/// <seealso cref="MimeKit.MimeMessage.VerifyAsync(MimeKit.Header,MimeKit.Cryptography.IDkimPublicKeyLocator,System.Threading.CancellationToken)"/>
+		/// <seealso cref="ArcVerifier"/>
+		/// <seealso cref="DkimVerifier"/>
 		/// <returns>The public key.</returns>
 		/// <param name="methods">A colon-separated list of query methods used to retrieve the public key. The default is <c>"dns/txt"</c>.</param>
 		/// <param name="domain">The domain.</param>

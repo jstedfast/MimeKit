@@ -322,7 +322,7 @@ namespace MimeKit {
 		/// <value>The decocded text.</value>
 		public string Text {
 			get {
-				return GetText (out Encoding encoding);
+				return GetText (out _);
 			}
 			set {
 				SetText (Encoding.UTF8, value);

@@ -63,9 +63,9 @@ namespace MimeKit.Cryptography {
 		/// <para>Creates a new MIME part with a Content-Type of application/pkcs7-mime
 		/// and the <paramref name="stream"/> as its content.</para>
 		/// <para>Unless you are writing your own pkcs7 implementation, you'll probably
-		/// want to use the <see cref="Compress(MimeEntity)"/>,
-		/// <see cref="Encrypt(CmsRecipientCollection, MimeEntity)"/>, and/or
-		/// <see cref="Sign(CmsSigner, MimeEntity)"/> method to create new instances
+		/// want to use the <see cref="Compress(MimeEntity, CancellationToken)"/>,
+		/// <see cref="Encrypt(CmsRecipientCollection, MimeEntity, CancellationToken)"/>, and/or
+		/// <see cref="Sign(CmsSigner, MimeEntity, CancellationToken)"/> method to create new instances
 		/// of this class.</para>
 		/// </remarks>
 		/// <param name="type">The S/MIME type.</param>
@@ -514,7 +514,7 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				Content.DecodeTo (memory);
+				Content.DecodeTo (memory, cancellationToken);
 				memory.Position = 0;
 
 				return ctx.Verify (memory, out entity, cancellationToken);

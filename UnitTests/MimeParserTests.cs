@@ -2482,12 +2482,11 @@ This is some raw data.
 
 			builder.AppendFormat ("Content-Type: {0}/{1}", entity.ContentType.MediaType, entity.ContentType.MediaSubtype).Append ('\n');
 
-			if (entity is Multipart) {
-				var multipart = (Multipart) entity;
+			if (entity is Multipart multipart) {
 				foreach (var part in multipart)
 					DumpMimeTree (builder, part, depth + 1);
-			} else if (entity is MessagePart) {
-				DumpMimeTree (builder, ((MessagePart) entity).Message.Body, depth + 1);
+			} else if (entity is MessagePart rfc822) {
+				DumpMimeTree (builder, rfc822.Message.Body, depth + 1);
 			}
 		}
 

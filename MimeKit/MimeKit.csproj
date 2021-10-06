@@ -189,6 +189,7 @@
     <Compile Include="IO\Filters\Dos2UnixFilter.cs" />
     <Compile Include="IO\Filters\EncoderFilter.cs" />
     <Compile Include="IO\Filters\IMimeFilter.cs" />
+    <Compile Include="IO\Filters\MboxFromFilter.cs" />
     <Compile Include="IO\Filters\MimeFilterBase.cs" />
     <Compile Include="IO\Filters\PassThroughFilter.cs" />
     <Compile Include="IO\Filters\TrailingWhitespaceFilter.cs" />

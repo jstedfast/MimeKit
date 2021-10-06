@@ -97,6 +97,7 @@ namespace UnitTests {
 
 			AssertFilterArguments (new Dos2UnixFilter ());
 			AssertFilterArguments (new Unix2DosFilter ());
+			AssertFilterArguments (new MboxFromFilter ());
 			AssertFilterArguments (new ArmoredFromFilter ());
 			AssertFilterArguments (new BestEncodingFilter ());
 			AssertFilterArguments (new CharsetFilter ("iso-8859-1", "utf-8"));

@@ -86,6 +86,37 @@ namespace UnitTests.IO.Filters {
 		}
 
 		[Test]
+		public void TestMboxFromFilter ()
+		{
+			const string text = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox). And let's add another\nFrom line for good measure, shall we?\n";
+			const string expected = "This text is meant to test that the filter will armor lines beginning with\n>From (like mbox). And let's add another\n>From line for good measure, shall we?\n";
+			var filter = new MboxFromFilter ();
+
+			TestArgumentExceptions (filter);
+
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					int fromIndex = text.IndexOf ("\nFrom ", StringComparison.Ordinal);
+					var buffer = Encoding.UTF8.GetBytes (text);
+
+					filtered.Add (filter);
+
+					// write out a buffer where the end boundary falls in the middle of "From "
+					int endIndex = fromIndex + 3;
+					filtered.Write (buffer, 0, endIndex);
+
+					// write out the rest
+					filtered.Write (buffer, endIndex, buffer.Length - endIndex);
+					filtered.Flush ();
+
+					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+
+					Assert.AreEqual (expected, actual, "From armoring failed when end boundary falls in the middle of From.");
+				}
+			}
+		}
+
+		[Test]
 		public void TestBestEncodingFilter ()
 		{
 			const string fromLines = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox).\n";
