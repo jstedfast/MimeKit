@@ -131,9 +131,8 @@ namespace MimeKit {
 		{
 			if (text.IsFlowed) {
 				var converter = new FlowedToText ();
-				string delsp;
 
-				if (text.ContentType.Parameters.TryGetValue ("delsp", out delsp))
+				if (text.ContentType.Parameters.TryGetValue ("delsp", out string delsp))
 					converter.DeleteSpace = delsp.ToLowerInvariant () == "yes";
 
 				return converter.Convert (text.Text);
@@ -154,17 +153,14 @@ namespace MimeKit {
 		{
 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
 			for (int i = Count - 1; i >= 0; i--) {
-				var alternative = this[i] as MultipartAlternative;
-
-				if (alternative != null) {
+				if (this[i] is MultipartAlternative alternative) {
 					// Note: nested multipart/alternative parts make no sense... yet here we are.
 					return alternative.GetTextBody (format);
 				}
 
-				var related = this[i] as MultipartRelated;
-				var text = this[i] as TextPart;
+				TextPart text;
 
-				if (related != null) {
+				if (this[i] is MultipartRelated related) {
 					var root = related.Root;
 
 					alternative = root as MultipartAlternative;
@@ -172,6 +168,8 @@ namespace MimeKit {
 						return alternative.GetTextBody (format);
 
 					text = root as TextPart;
+				} else {
+					text = this[i] as TextPart;
 				}
 
 				if (text != null && text.IsFormat (format))

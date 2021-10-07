@@ -209,9 +209,7 @@ namespace MimeKit {
 			get {
 				if (ContentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
 					if (ContentType.MediaSubtype.Equals ("plain")) {
-						string format;
-
-						if (ContentType.Parameters.TryGetValue ("format", out format)) {
+						if (ContentType.Parameters.TryGetValue ("format", out string format)) {
 							format = format.Trim ();
 
 							if (format.Equals ("flowed", StringComparison.OrdinalIgnoreCase))

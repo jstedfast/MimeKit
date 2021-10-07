@@ -146,7 +146,7 @@ namespace MimeKit.Text {
 
 		class FlowedToHtmlTagContext : HtmlTagContext
 		{
-			HtmlAttributeCollection attrs;
+			readonly HtmlAttributeCollection attrs;
 			bool isEndTag;
 
 			public FlowedToHtmlTagContext (HtmlTagId tag, HtmlAttribute attr) : base (tag)

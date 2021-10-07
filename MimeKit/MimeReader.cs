@@ -1590,7 +1590,6 @@ namespace MimeKit {
 		unsafe void StepHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
-			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
@@ -1620,7 +1619,6 @@ namespace MimeKit {
 
 				if (left == 0) {
 					state = MimeParserState.Content;
-					eof = true;
 					break;
 				}
 
@@ -1678,10 +1676,8 @@ namespace MimeKit {
 
 				// Consume the header value.
 				while (!StepHeaderValue (inbuf, ref midline)) {
-					if (ReadAhead (1, 0, cancellationToken) == 0) {
-						eof = true;
+					if (ReadAhead (1, 0, cancellationToken) == 0)
 						break;
-					}
 				}
 
 				if (toplevel && headerCount == 0 && invalid && !IsMboxMarker (headerBuffer)) {
@@ -1692,7 +1688,7 @@ namespace MimeKit {
 				var header = CreateHeader (beginOffset, fieldNameLength, headerFieldLength, invalid);
 
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
-			} while (!eof);
+			} while (true);
 
 			headerBlockEnd = GetOffset (inputIndex);
 
