@@ -363,9 +363,10 @@ namespace MimeKit {
 		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para>The specified file path is empty.</para>
-		/// <para>-or-</para>
-		/// <para>The stream cannot be read.</para>
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -380,9 +381,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
-
-			if (!stream.CanRead)
-				throw new ArgumentException ("The stream cannot be read.", nameof (stream));
 
 			if (contentType == null)
 				throw new ArgumentNullException (nameof (contentType));
@@ -416,9 +414,10 @@ namespace MimeKit {
 		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para>The specified file path is empty.</para>
-		/// <para>-or-</para>
-		/// <para>The stream cannot be read.</para>
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -433,9 +432,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
-
-			if (!stream.CanRead)
-				throw new ArgumentException ("The stream cannot be read.", nameof (stream));
 
 			if (contentType == null)
 				throw new ArgumentNullException (nameof (contentType));
@@ -502,9 +498,10 @@ namespace MimeKit {
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para>The specified file path is empty.</para>
-		/// <para>-or-</para>
-		/// <para>The stream cannot be read</para>
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -519,9 +516,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
-
-			if (!stream.CanRead)
-				throw new ArgumentException ("The stream cannot be read.", nameof (stream));
 
 			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, cancellationToken);
 
@@ -547,9 +541,10 @@ namespace MimeKit {
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// <para>The specified file path is empty.</para>
-		/// <para>-or-</para>
-		/// <para>The stream cannot be read</para>
+		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -564,9 +559,6 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
-
-			if (!stream.CanRead)
-				throw new ArgumentException ("The stream cannot be read.", nameof (stream));
 
 			var attachment = await CreateAttachmentAsync (GetMimeType (fileName), fileName, stream, cancellationToken).ConfigureAwait (false);
 

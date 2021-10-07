@@ -117,6 +117,7 @@ namespace UnitTests {
 		[Test]
 		public void TestBasicFunctionality ()
 		{
+			var xyz = new Parameter ("xyz", "3");
 			var list = new ParameterList ();
 			Parameter parameter;
 			string value;
@@ -130,13 +131,19 @@ namespace UnitTests {
 			list.Add ("ghi", "2");
 
 			Assert.AreEqual (3, list.Count, "Count");
+			Assert.IsFalse (list.Contains ("xyz"));
 			Assert.IsTrue (list.Contains (list[0]));
 			Assert.IsTrue (list.Contains ("aBc"));
 			Assert.IsTrue (list.Contains ("DEf"));
 			Assert.IsTrue (list.Contains ("gHI"));
+			Assert.AreEqual (-1, list.IndexOf ("xyz"));
 			Assert.AreEqual (0, list.IndexOf ("aBc"));
 			Assert.AreEqual (1, list.IndexOf ("dEF"));
 			Assert.AreEqual (2, list.IndexOf ("Ghi"));
+			Assert.AreEqual (-1, list.IndexOf (xyz));
+			Assert.AreEqual (0, list.IndexOf (list[0]));
+			Assert.AreEqual (1, list.IndexOf (list[1]));
+			Assert.AreEqual (2, list.IndexOf (list[2]));
 			Assert.AreEqual ("abc", list[0].Name);
 			Assert.AreEqual ("def", list[1].Name);
 			Assert.AreEqual ("ghi", list[2].Name);
@@ -149,8 +156,12 @@ namespace UnitTests {
 			Assert.IsTrue (list.TryGetValue ("Abc", out value));
 			Assert.AreEqual ("0", value);
 
+			Assert.IsFalse (list.Remove (xyz), "Remove");
+			list.Insert (0, xyz);
+			Assert.IsTrue (list.Remove (xyz), "Remove");
+
 			Assert.IsFalse (list.Remove ("xyz"), "Remove");
-			list.Insert (0, new Parameter ("xyz", "3"));
+			list.Insert (0, xyz);
 			Assert.IsTrue (list.Remove ("xyz"), "Remove");
 
 			var array = new Parameter[list.Count];
