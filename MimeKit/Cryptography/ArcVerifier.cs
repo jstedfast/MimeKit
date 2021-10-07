@@ -377,7 +377,7 @@ namespace MimeKit.Cryptography {
 		{
 			ValidateCommonParameters ("ARC-Seal", parameters, out algorithm, out d, out s, out q, out b);
 
-			if (parameters.TryGetValue ("h", out string h))
+			if (parameters.TryGetValue ("h", out _))
 				throw new FormatException ("Malformed ARC-Seal header: the 'h' parameter tag is not allowed.");
 		}
 

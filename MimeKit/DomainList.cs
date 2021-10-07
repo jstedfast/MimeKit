@@ -372,8 +372,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		/// <summary>
@@ -396,7 +395,6 @@ namespace MimeKit {
 		{
 			var domains = new List<string> ();
 			int startIndex = index;
-			string domain;
 
 			route = null;
 
@@ -411,7 +409,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, DomainSentinels, throwOnError, out domain))
+				if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, DomainSentinels, throwOnError, out var domain))
 					return false;
 
 				domains.Add (domain);

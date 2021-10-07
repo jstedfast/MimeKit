@@ -58,9 +58,8 @@ namespace MimeKit.Cryptography {
 		protected PublicKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
 			var text = info.GetString ("Mailbox");
-			MailboxAddress mailbox;
 
-			if (MailboxAddress.TryParse (text, out mailbox))
+			if (MailboxAddress.TryParse (text, out var mailbox))
 				Mailbox = mailbox;
 		}
 #endif

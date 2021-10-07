@@ -289,9 +289,7 @@ namespace MimeKit.Cryptography {
 			var values = reader.GetString (column);
 
 			foreach (var token in values.Split (new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-				EncryptionAlgorithm algorithm;
-
-				if (Enum.TryParse (token.Trim (), true, out algorithm))
+				if (Enum.TryParse (token.Trim (), true, out EncryptionAlgorithm algorithm))
 					algorithms.Add (algorithm);
 			}
 

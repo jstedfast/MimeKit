@@ -533,9 +533,8 @@ namespace MimeKit {
 		{
 			var encoded = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
-			InternetAddressList list;
 
-			if (!InternetAddressList.TryParse (options, value, out list))
+			if (!InternetAddressList.TryParse (options, value, out var list))
 				return (byte[]) format.NewLineBytes.Clone ();
 
 			list.Encode (format, encoded, true, ref lineLength);
@@ -586,16 +585,13 @@ namespace MimeKit {
 
 		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
 		{
-			string addrspec;
-			int at;
-
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
 				return;
 
 			if (text[index] == (byte) '<')
 				index++;
 
-			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, RfcComplianceMode.Strict, false, out addrspec, out at);
+			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, RfcComplianceMode.Strict, false, out _, out _);
 
 			if (index < text.Length && text[index] == (byte) '>')
 				index++;
@@ -603,16 +599,13 @@ namespace MimeKit {
 
 		static void ReceivedTokenSkipMessageId (byte[] text, ref int index)
 		{
-			string addrspec;
-			int at;
-
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
 				return;
 
 			if (text[index] == (byte) '<') {
 				index++;
 
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, RfcComplianceMode.Strict, false, out addrspec, out at);
+				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, RfcComplianceMode.Strict, false, out _, out _);
 
 				if (index < text.Length && text[index] == (byte) '>')
 					index++;
@@ -1276,8 +1269,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		/// <summary>

@@ -77,7 +77,6 @@ namespace MimeKit.Cryptography {
 			SignerInfo = signerInfo;
 
 			var algorithms = new List<EncryptionAlgorithm> ();
-			DigestAlgorithm digestAlgo;
 
 			if (signerInfo.SignedAttributes != null) {
 				Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
@@ -92,9 +91,8 @@ namespace MimeKit.Cryptography {
 					foreach (Asn1Sequence sequence in attr.AttrValues) {
 						for (int i = 0; i < sequence.Count; i++) {
 							var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
-							EncryptionAlgorithm algorithm;
 
-							if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
+							if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm))
 								algorithms.Add (algorithm);
 						}
 					}
@@ -103,7 +101,7 @@ namespace MimeKit.Cryptography {
 
 			EncryptionAlgorithms = algorithms.ToArray ();
 
-			if (BouncyCastleSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithmID, out digestAlgo))
+			if (BouncyCastleSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithmID, out var digestAlgo))
 				DigestAlgorithm = digestAlgo;
 
 			if (certificate != null)

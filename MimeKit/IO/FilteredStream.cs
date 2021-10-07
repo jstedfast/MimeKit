@@ -331,9 +331,7 @@ namespace MimeKit.IO {
 			int nread;
 
 			if (filteredLength == 0) {
-				var cancellable = Source as ICancellableStream;
-
-				if (cancellable != null) {
+				if (Source is ICancellableStream cancellable) {
 					if ((nread = cancellable.Read (readbuf, 0, ReadBufferSize, cancellationToken)) <= 0)
 						return nread;
 				} else {
@@ -525,9 +523,7 @@ namespace MimeKit.IO {
 			if (filteredLength == 0)
 				return;
 
-			var cancellable = Source as ICancellableStream;
-
-			if (cancellable != null) {
+			if (Source is ICancellableStream cancellable) {
 				cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
 			} else {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -680,10 +676,8 @@ namespace MimeKit.IO {
 				flushed = true;
 			}
 
-			var cancellable = Source as ICancellableStream;
-
 			if (filteredLength > 0) {
-				if (cancellable != null) {
+				if (Source is ICancellableStream cancellable) {
 					cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
 				} else {
 					cancellationToken.ThrowIfCancellationRequested ();

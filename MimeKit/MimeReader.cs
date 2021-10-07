@@ -1074,14 +1074,13 @@ namespace MimeKit {
 
 		int ReadAhead (int atleast, int save, CancellationToken cancellationToken)
 		{
-			int nread, left, start, end;
+			int nread;
 
-			if (!AlignReadAheadBuffer (atleast, save, out left, out start, out end))
+			if (!AlignReadAheadBuffer (atleast, save, out int left, out int start, out int end))
 				return left;
 
 			// use the cancellable stream interface if available...
-			var cancellable = stream as ICancellableStream;
-			if (cancellable != null) {
+			if (stream is ICancellableStream cancellable) {
 				nread = cancellable.Read (input, start, end - start, cancellationToken);
 			} else {
 				cancellationToken.ThrowIfCancellationRequested ();

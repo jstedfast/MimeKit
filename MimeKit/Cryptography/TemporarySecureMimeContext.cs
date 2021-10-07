@@ -99,9 +99,7 @@ namespace MimeKit.Cryptography {
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
 
-			AsymmetricKeyParameter key;
-
-			return GetCmsSignerCertificate (signer, out key) != null;
+			return GetCmsSignerCertificate (signer, out _) != null;
 		}
 
 		/// <summary>
@@ -162,9 +160,8 @@ namespace MimeKit.Cryptography {
 		{
 			foreach (var certificate in certificates) {
 				var fingerprint = certificate.GetFingerprint ();
-				AsymmetricKeyParameter key;
 
-				if (!keys.TryGetValue (fingerprint, out key))
+				if (!keys.TryGetValue (fingerprint, out var key))
 					continue;
 
 				if (selector != null && !selector.Match (certificate))
@@ -311,9 +308,8 @@ namespace MimeKit.Cryptography {
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
 			var recipient = new CmsRecipient (certificate);
-			EncryptionAlgorithm[] algorithms;
 
-			if (capabilities.TryGetValue (certificate.GetFingerprint (), out algorithms))
+			if (capabilities.TryGetValue (certificate.GetFingerprint (), out var algorithms))
 				recipient.EncryptionAlgorithms = algorithms;
 
 			return recipient;
@@ -374,9 +370,8 @@ namespace MimeKit.Cryptography {
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
 			X509Certificate certificate;
-			AsymmetricKeyParameter key;
 
-			if ((certificate = GetCmsSignerCertificate (mailbox, out key)) == null)
+			if ((certificate = GetCmsSignerCertificate (mailbox, out var key)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
 			return new CmsSigner (BuildCertificateChain (certificate), key) {

@@ -353,13 +353,11 @@ namespace MimeKit {
 
 		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes, bool ensureNewLine, CancellationToken cancellationToken)
 		{
-			var cancellable = stream as ICancellableStream;
 			var filter = options.CreateNewLineFilter (ensureNewLine);
-			int index, length;
 
-			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
+			var output = filter.Flush (bytes, 0, bytes.Length, out int index, out int length);
 
-			if (cancellable != null) {
+			if (stream is ICancellableStream cancellable) {
 				cancellable.Write (output, index, length, cancellationToken);
 			} else {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -370,9 +368,8 @@ namespace MimeKit {
 		static Task WriteBytesAsync (FormatOptions options, Stream stream, byte[] bytes, bool ensureNewLine, CancellationToken cancellationToken)
 		{
 			var filter = options.CreateNewLineFilter (ensureNewLine);
-			int index, length;
 
-			var output = filter.Flush (bytes, 0, bytes.Length, out index, out length);
+			var output = filter.Flush (bytes, 0, bytes.Length, out int index, out int length);
 
 			return stream.WriteAsync (output, index, length, cancellationToken);
 		}
@@ -433,14 +430,12 @@ namespace MimeKit {
 				}
 			}
 
-			var cancellable = stream as ICancellableStream;
-
 			if (RawPreamble != null && RawPreamble.Length > 0)
 				WriteBytes (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken);
 
 			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
 
-			if (cancellable != null) {
+			if (stream is ICancellableStream cancellable) {
 				for (int i = 0; i < children.Count; i++) {
 					var rfc822 = children[i] as MessagePart;
 					var multi = children[i] as Multipart;

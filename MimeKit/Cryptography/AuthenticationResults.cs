@@ -1204,7 +1204,7 @@ namespace MimeKit.Cryptography {
 	public class AuthenticationMethodProperty
 	{
 		static readonly char[] TokenSpecials = ByteExtensions.TokenSpecials.ToCharArray ();
-		bool? quoted;
+		readonly bool? quoted;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AuthenticationMethodProperty"/> class.

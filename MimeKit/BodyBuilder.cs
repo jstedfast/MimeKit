@@ -127,8 +127,9 @@ namespace MimeKit {
 			MimeEntity body = null;
 
 			if (TextBody != null) {
-				var text = new TextPart ("plain");
-				text.Text = TextBody;
+				var text = new TextPart ("plain") {
+					Text = TextBody
+				};
 
 				if (HtmlBody != null) {
 					alternative = new MultipartAlternative ();
@@ -140,10 +141,10 @@ namespace MimeKit {
 			}
 
 			if (HtmlBody != null) {
-				var text = new TextPart ("html");
+				var text = new TextPart ("html") {
+					Text = HtmlBody
+				};
 				MimeEntity html;
-
-				text.Text = HtmlBody;
 
 				if (LinkedResources.Count > 0) {
 					var related = new MultipartRelated {

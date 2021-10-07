@@ -621,9 +621,9 @@ namespace MimeKit {
 			if (Content == null)
 				return;
 
-			var cancellable = stream as ICancellableStream;
-
 			if (Content.Encoding != ContentTransferEncoding) {
+				var cancellable = stream as ICancellableStream;
+
 				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");
 					var buffer = Encoding.UTF8.GetBytes (begin);

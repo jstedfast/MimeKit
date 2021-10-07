@@ -34,9 +34,7 @@ namespace MimeKit {
 	{
 		async Task<int> ReadAheadAsync (int atleast, int save, CancellationToken cancellationToken)
 		{
-			int left, start, end;
-
-			if (!AlignReadAheadBuffer (atleast, save, out left, out start, out end))
+			if (!AlignReadAheadBuffer (atleast, save, out int left, out int start, out int end))
 				return left;
 
 			int nread = await stream.ReadAsync (input, start, end - start, cancellationToken).ConfigureAwait (false);

@@ -250,12 +250,11 @@ namespace MimeKit {
 		static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out GroupAddress group)
 		{
 			var flags = AddressParserFlags.AllowGroupAddress;
-			InternetAddress address;
 
 			if (throwOnError)
 				flags |= AddressParserFlags.ThrowOnError;
 
-			if (!InternetAddress.TryParse (options, text, ref index, endIndex, 0, flags, out address)) {
+			if (!InternetAddress.TryParse (options, text, ref index, endIndex, 0, flags, out var address)) {
 				group = null;
 				return false;
 			}
@@ -526,9 +525,8 @@ namespace MimeKit {
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
-			GroupAddress group;
 
-			TryParse (options, buffer, ref index, endIndex, true, out group);
+			TryParse (options, buffer, ref index, endIndex, true, out var group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -592,9 +590,8 @@ namespace MimeKit {
 
 			int endIndex = buffer.Length;
 			int index = startIndex;
-			GroupAddress group;
 
-			TryParse (options, buffer, ref index, endIndex, true, out group);
+			TryParse (options, buffer, ref index, endIndex, true, out var group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -651,10 +648,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer);
 
 			int endIndex = buffer.Length;
-			GroupAddress group;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, endIndex, true, out group);
+			TryParse (options, buffer, ref index, endIndex, true, out var group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -712,10 +708,9 @@ namespace MimeKit {
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
-			GroupAddress group;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, endIndex, true, out group);
+			TryParse (options, buffer, ref index, endIndex, true, out var group);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 

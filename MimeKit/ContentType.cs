@@ -397,8 +397,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		static bool SkipType (byte[] text, ref int index, int endIndex)
@@ -480,8 +479,7 @@ namespace MimeKit {
 			if (index >= endIndex)
 				return true;
 
-			ParameterList parameters;
-			if (!ParameterList.TryParse (options, text, ref index, endIndex, throwOnError, out parameters))
+			if (!ParameterList.TryParse (options, text, ref index, endIndex, throwOnError, out var parameters))
 				return false;
 
 			contentType.Parameters = parameters;
@@ -705,9 +703,8 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
 			int index = startIndex;
-			ContentType type;
 
-			TryParse (options, buffer, ref index, startIndex + length, true, out type);
+			TryParse (options, buffer, ref index, startIndex + length, true, out var type);
 
 			return type;
 		}
@@ -764,9 +761,8 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
 			int index = startIndex;
-			ContentType type;
 
-			TryParse (options, buffer, ref index, buffer.Length, true, out type);
+			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
 			return type;
 		}
@@ -815,10 +811,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
-			ContentType type;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, true, out type);
+			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
 			return type;
 		}
@@ -864,10 +859,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
-			ContentType type;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, true, out type);
+			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
 			return type;
 		}

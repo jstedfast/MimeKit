@@ -782,10 +782,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
-			MailboxAddress mailbox;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
+			TryParse (options, buffer, ref index, endIndex, true, out var mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -848,10 +847,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
 			int endIndex = buffer.Length;
-			MailboxAddress mailbox;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
+			TryParse (options, buffer, ref index, endIndex, true, out var mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -908,10 +906,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer);
 
 			int endIndex = buffer.Length;
-			MailboxAddress mailbox;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
+			TryParse (options, buffer, ref index, endIndex, true, out var mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -969,10 +966,9 @@ namespace MimeKit {
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
-			MailboxAddress mailbox;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, endIndex, true, out mailbox);
+			TryParse (options, buffer, ref index, endIndex, true, out var mailbox);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 

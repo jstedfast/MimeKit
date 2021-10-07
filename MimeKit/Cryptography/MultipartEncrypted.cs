@@ -2041,12 +2041,10 @@ namespace MimeKit.Cryptography {
 
 			using (var ctx = CryptographyContext.Create (protocol)) {
 				using (var memory = new MemoryBlockStream ()) {
-					var pgp = ctx as OpenPgpContext;
-
 					encrypted.Content.DecodeTo (memory, cancellationToken);
 					memory.Position = 0;
 
-					if (pgp != null)
+					if (ctx is OpenPgpContext pgp)
 						return pgp.Decrypt (memory, out signatures, cancellationToken);
 
 					signatures = null;

@@ -787,9 +787,7 @@ namespace MimeKit {
 
 		internal static HeaderId ToHeaderId (this string name)
 		{
-			HeaderId value;
-
-			if (!dict.TryGetValue (name, out value))
+			if (!dict.TryGetValue (name, out var value))
 				return HeaderId.Unknown;
 
 			return value;

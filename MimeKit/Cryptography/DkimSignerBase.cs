@@ -172,8 +172,8 @@ namespace MimeKit.Cryptography {
 
 				if (keyObject is AsymmetricCipherKeyPair pair) {
 					key = pair.Private;
-				} else if (keyObject is AsymmetricKeyParameter) {
-					key = (AsymmetricKeyParameter) keyObject;
+				} else if (keyObject is AsymmetricKeyParameter param) {
+					key = param;
 				}
 			}
 

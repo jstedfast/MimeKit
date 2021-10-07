@@ -250,8 +250,9 @@ namespace MimeKit {
 				attachment = part;
 			}
 
-			attachment.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment);
-			attachment.ContentDisposition.FileName = fileName;
+			attachment.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment) {
+				FileName = fileName
+			};
 			attachment.ContentType.Name = fileName;
 
 			if (linked)
@@ -283,8 +284,9 @@ namespace MimeKit {
 				attachment = part;
 			}
 
-			attachment.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment);
-			attachment.ContentDisposition.FileName = fileName;
+			attachment.ContentDisposition = new ContentDisposition (linked ? ContentDisposition.Inline : ContentDisposition.Attachment) {
+				FileName = fileName
+			};
 			attachment.ContentType.Name = fileName;
 
 			if (linked)

@@ -212,9 +212,8 @@ namespace MimeKit {
 					return null;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				DateTimeOffset ctime;
 
-				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out ctime))
+				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out var ctime))
 					return null;
 
 				return ctime;
@@ -243,9 +242,8 @@ namespace MimeKit {
 					return null;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				DateTimeOffset mtime;
 
-				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out mtime))
+				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out var mtime))
 					return null;
 
 				return mtime;
@@ -274,9 +272,8 @@ namespace MimeKit {
 					return null;
 
 				var buffer = Encoding.UTF8.GetBytes (value);
-				DateTimeOffset atime;
 
-				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out atime))
+				if (!DateUtils.TryParse (buffer, 0, buffer.Length, out var atime))
 					return null;
 
 				return atime;
@@ -304,8 +301,7 @@ namespace MimeKit {
 				if (string.IsNullOrWhiteSpace (value))
 					return null;
 
-				long size;
-				if (!long.TryParse (value, out size))
+				if (!long.TryParse (value, out var size))
 					return null;
 
 				return size;
@@ -424,8 +420,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentDisposition disposition)
@@ -478,8 +473,9 @@ namespace MimeKit {
 				}
 			}
 
-			disposition = new ContentDisposition ();
-			disposition.disposition = type;
+			disposition = new ContentDisposition () {
+				disposition = type
+			};
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
@@ -502,8 +498,7 @@ namespace MimeKit {
 			if (index >= endIndex)
 				return true;
 
-			ParameterList parameters;
-			if (!ParameterList.TryParse (options, text, ref index, endIndex, throwOnError, out parameters))
+			if (!ParameterList.TryParse (options, text, ref index, endIndex, throwOnError, out var parameters))
 				return false;
 
 			disposition.Parameters = parameters;
@@ -726,10 +721,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
-			ContentDisposition disposition;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, startIndex + length, true, out disposition);
+			TryParse (options, buffer, ref index, startIndex + length, true, out var disposition);
 
 			return disposition;
 		}
@@ -785,10 +779,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
-			ContentDisposition disposition;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, buffer.Length, true, out disposition);
+			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
 			return disposition;
 		}
@@ -837,10 +830,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
-			ContentDisposition disposition;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, true, out disposition);
+			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
 			return disposition;
 		}
@@ -886,10 +878,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
-			ContentDisposition disposition;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, true, out disposition);
+			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
 			return disposition;
 		}

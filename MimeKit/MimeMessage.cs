@@ -1316,9 +1316,7 @@ namespace MimeKit {
 					filtered.Flush (cancellationToken);
 				}
 
-				var cancellable = stream as ICancellableStream;
-
-				if (cancellable != null) {
+				if (stream is ICancellableStream cancellable) {
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				} else {
 					cancellationToken.ThrowIfCancellationRequested ();

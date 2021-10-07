@@ -82,9 +82,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		public AsymmetricKeyParameter GetPrivateKey (X509Certificate certificate)
 		{
-			AsymmetricKeyParameter key;
-
-			if (!keys.TryGetValue (certificate, out key))
+			if (!keys.TryGetValue (certificate, out var key))
 				return null;
 
 			return key;

@@ -956,9 +956,8 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < names.Length; i++) {
 				var name = names[i].ToUpperInvariant ();
-				EncryptionAlgorithm algorithm;
 
-				if (EncryptionAlgorithms.TryGetValue (name, out algorithm) && seen.Add (algorithm))
+				if (EncryptionAlgorithms.TryGetValue (name, out var algorithm) && seen.Add (algorithm))
 					algorithms.Add (algorithm);
 			}
 
@@ -996,9 +995,8 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < names.Length; i++) {
 				var name = names[i].ToUpperInvariant ();
-				DigestAlgorithm algorithm;
 
-				if (DigestAlgorithms.TryGetValue (name, out algorithm) && seen.Add (algorithm))
+				if (DigestAlgorithms.TryGetValue (name, out var algorithm) && seen.Add (algorithm))
 					algorithms.Add (algorithm);
 			}
 

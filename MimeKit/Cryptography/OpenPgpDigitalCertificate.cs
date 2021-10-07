@@ -71,10 +71,9 @@ namespace MimeKit.Cryptography {
 		{
 			foreach (string userId in pubkey.GetUserIds ()) {
 				var bytes = Encoding.UTF8.GetBytes (userId);
-				MailboxAddress mailbox;
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (ParserOptions.Default, bytes, ref index, bytes.Length, false, out mailbox))
+				if (!MailboxAddress.TryParse (ParserOptions.Default, bytes, ref index, bytes.Length, false, out var mailbox))
 					continue;
 
 				Email = mailbox.Address;

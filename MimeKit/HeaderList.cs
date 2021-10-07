@@ -407,8 +407,7 @@ namespace MimeKit {
 			if (id == HeaderId.Unknown)
 				throw new ArgumentOutOfRangeException (nameof (id));
 
-			Header header;
-			if (!table.TryGetValue (id.ToHeaderName (), out header))
+			if (!table.TryGetValue (id.ToHeaderName (), out var header))
 				return false;
 
 			return Remove (header);
@@ -431,8 +430,7 @@ namespace MimeKit {
 			if (field == null)
 				throw new ArgumentNullException (nameof (field));
 
-			Header header;
-			if (!table.TryGetValue (field, out header))
+			if (!table.TryGetValue (field, out var header))
 				return false;
 
 			return Remove (header);
@@ -601,8 +599,7 @@ namespace MimeKit {
 				if (id == HeaderId.Unknown)
 					throw new ArgumentOutOfRangeException (nameof (id));
 
-				Header header;
-				if (table.TryGetValue (id.ToHeaderName (), out header))
+				if (table.TryGetValue (id.ToHeaderName (), out var header))
 					return header.Value;
 
 				return null;
@@ -614,8 +611,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
 
-				Header header;
-				if (table.TryGetValue (id.ToHeaderName (), out header)) {
+				if (table.TryGetValue (id.ToHeaderName (), out var header)) {
 					header.Value = value;
 				} else {
 					Add (id, value);
@@ -643,8 +639,7 @@ namespace MimeKit {
 				if (field == null)
 					throw new ArgumentNullException (nameof (field));
 
-				Header header;
-				if (table.TryGetValue (field, out header))
+				if (table.TryGetValue (field, out var header))
 					return header.Value;
 
 				return null;
@@ -656,8 +651,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
 
-				Header header;
-				if (table.TryGetValue (field, out header)) {
+				if (table.TryGetValue (field, out var header)) {
 					header.Value = value;
 				} else {
 					Add (field, value);
@@ -710,9 +704,7 @@ namespace MimeKit {
 				filtered.Flush (cancellationToken);
 			}
 
-			var cancellable = stream as ICancellableStream;
-
-			if (cancellable != null) {
+			if (stream is ICancellableStream cancellable) {
 				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -980,8 +972,7 @@ namespace MimeKit {
 			if (header == null)
 				throw new ArgumentNullException (nameof (header));
 
-			Header first;
-			if (!table.TryGetValue (header.Field, out first)) {
+			if (!table.TryGetValue (header.Field, out var first)) {
 				Add (header);
 				return;
 			}
@@ -1053,8 +1044,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (header));
 
 			// update the lookup table
-			Header hdr;
-			if (table.TryGetValue (header.Field, out hdr)) {
+			if (table.TryGetValue (header.Field, out var hdr)) {
 				int idx = headers.IndexOf (hdr);
 
 				if (idx >= index)
@@ -1224,8 +1214,7 @@ namespace MimeKit {
 
 		void OnChanged (Header header, HeaderListChangedAction action)
 		{
-			if (Changed != null)
-				Changed (this, new HeaderListChangedEventArgs (header, action));
+			Changed?.Invoke (this, new HeaderListChangedEventArgs (header, action));
 		}
 
 		internal bool TryGetHeader (HeaderId id, out Header header)

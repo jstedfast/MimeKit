@@ -240,10 +240,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			var handler = Changed;
-
-			if (handler != null)
-				handler (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		void OnGroupChanged (object sender, HeaderListChangedEventArgs e)

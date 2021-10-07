@@ -510,16 +510,13 @@ namespace MimeKit {
 			var chars = Value.ToCharArray ();
 			var hex = new HexEncoder ();
 			int index = 0, i = 0;
-			string value, id;
-			bool encoded;
-			int length;
 
 			do {
 				builder.Append (';');
 				lineLength++;
 
-				encoded = Rfc2231GetNextValue (options, charset, encoder, hex, chars, ref index, ref bytes, ref hexbuf, maxLength, out value);
-				length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
+				bool encoded = Rfc2231GetNextValue (options, charset, encoder, hex, chars, ref index, ref bytes, ref hexbuf, maxLength, out string value);
+				int length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
 
 				if (i == 0 && index == chars.Length) {
 					if (lineLength + 1 + length >= options.MaxLineLength) {
@@ -544,7 +541,7 @@ namespace MimeKit {
 				builder.Append ('\t');
 				lineLength = 1;
 
-				id = i.ToString ();
+				var id = i.ToString ();
 				length += id.Length + 1;
 
 				builder.Append (Name);
@@ -680,9 +677,7 @@ namespace MimeKit {
 
 		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
-			string quoted;
-
-			switch (GetEncodeMethod (options, Name, Value, out quoted)) {
+			switch (GetEncodeMethod (options, Name, Value, out string quoted)) {
 			case EncodeMethod.Rfc2231:
 				EncodeRfc2231 (options, builder, ref lineLength, headerEncoding);
 				break;
@@ -729,8 +724,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 	}
 }

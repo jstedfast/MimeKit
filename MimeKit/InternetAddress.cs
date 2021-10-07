@@ -293,8 +293,7 @@ namespace MimeKit {
 		/// </remarks>
 		protected virtual void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, RfcComplianceMode compliance, bool skipTrailingCfws, bool throwOnError, out string localpart)
@@ -371,12 +370,11 @@ namespace MimeKit {
 		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, byte[] sentinels, RfcComplianceMode compliance, bool throwOnError, out string addrspec, out int at)
 		{
 			int startIndex = index;
-			string localpart;
 
 			addrspec = null;
 			at = -1;
 
-			if (!TryParseLocalPart (text, ref index, endIndex, compliance, true, throwOnError, out localpart))
+			if (!TryParseLocalPart (text, ref index, endIndex, compliance, true, throwOnError, out var localpart))
 				return false;
 
 			if (index >= endIndex || ParseUtils.IsSentinel (text[index], sentinels)) {
@@ -409,8 +407,7 @@ namespace MimeKit {
 				return false;
 			}
 
-			string domain;
-			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, sentinels, throwOnError, out domain))
+			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, sentinels, throwOnError, out var domain))
 				return false;
 
 			if (ParseUtils.IsIdnEncoded (domain))
@@ -497,10 +494,7 @@ namespace MimeKit {
 			// in case the mailbox is within a group address.
 			//
 			// Example: <third@example.net, fourth@example.net>
-			string addrspec;
-			int at;
-
-			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out addrspec, out at))
+			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out string addrspec, out int at))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -542,7 +536,6 @@ namespace MimeKit {
 
 		static bool TryParseGroup (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, int groupDepth, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
-			List<InternetAddress> members;
 			Encoding encoding;
 
 			try {
@@ -551,15 +544,13 @@ namespace MimeKit {
 				encoding = Encoding.UTF8;
 			}
 
-			address = null;
-
 			// skip over the ':'
 			index++;
 
 			while (index < endIndex && (text[index] == ':' || text[index].IsBlank ()))
 				index++;
 
-			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, groupDepth, throwOnError, out members))
+			if (InternetAddressList.TryParse (options, text, ref index, endIndex, true, groupDepth, throwOnError, out var members))
 				address = new GroupAddress (encoding, name, members);
 			else
 				address = new GroupAddress (encoding, name);
@@ -675,7 +666,7 @@ namespace MimeKit {
 			if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) '>' || text[index] == ';') {
 				// we've completely gobbled up an addr-spec w/o a domain
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
-				string name, addrspec;
+				string name;
 
 				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 					if (throwOnError)
@@ -694,7 +685,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseLocalPart (text, ref index, endIndex, options.AddressParserComplianceMode, false, throwOnError, out addrspec))
+				if (!TryParseLocalPart (text, ref index, endIndex, options.AddressParserComplianceMode, false, throwOnError, out var addrspec))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -781,13 +772,12 @@ namespace MimeKit {
 
 			if (text[index] == (byte) '@') {
 				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
-				string name, addrspec;
-				int at;
+				string name;
 
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out addrspec, out at))
+				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out var addrspec, out int at))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -1143,10 +1133,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
-			InternetAddress address;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out var address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1209,10 +1198,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
 			int endIndex = buffer.Length;
-			InternetAddress address;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out var address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1269,10 +1257,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, buffer);
 
 			int endIndex = buffer.Length;
-			InternetAddress address;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out var address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 
@@ -1326,10 +1313,9 @@ namespace MimeKit {
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
-			InternetAddress address;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out address);
+			TryParse (options, buffer, ref index, endIndex, 0, AddressParserFlags.Parse, out var address);
 
 			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
 

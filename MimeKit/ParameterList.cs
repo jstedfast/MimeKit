@@ -221,8 +221,7 @@ namespace MimeKit {
 			if (name == null)
 				throw new ArgumentNullException (nameof (name));
 
-			Parameter param;
-			if (!table.TryGetValue (name, out param))
+			if (!table.TryGetValue (name, out var param))
 				return false;
 
 			return Remove (param);
@@ -249,8 +248,7 @@ namespace MimeKit {
 				if (name == null)
 					throw new ArgumentNullException (nameof (name));
 
-				Parameter param;
-				if (table.TryGetValue (name, out param))
+				if (table.TryGetValue (name, out var param))
 					return param.Value;
 
 				return null;
@@ -262,8 +260,7 @@ namespace MimeKit {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
 
-				Parameter param;
-				if (table.TryGetValue (name, out param)) {
+				if (table.TryGetValue (name, out var param)) {
 					param.Value = value;
 				} else {
 					Add (name, value);
@@ -308,12 +305,10 @@ namespace MimeKit {
 		/// </exception>
 		public bool TryGetValue (string name, out string value)
 		{
-			Parameter param;
-
 			if (name == null)
 				throw new ArgumentNullException (nameof (name));
 
-			if (!table.TryGetValue (name, out param)) {
+			if (!table.TryGetValue (name, out var param)) {
 				value = null;
 				return false;
 			}
@@ -659,8 +654,7 @@ namespace MimeKit {
 
 		void OnChanged ()
 		{
-			if (Changed != null)
-				Changed (this, EventArgs.Empty);
+			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
 		static bool SkipParamName (byte[] text, ref int index, int endIndex)
@@ -743,8 +737,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				int identifier;
-				if (ParseUtils.TryParseInt32 (text, ref index, endIndex, out identifier)) {
+				if (ParseUtils.TryParseInt32 (text, ref index, endIndex, out int identifier)) {
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
@@ -892,11 +885,10 @@ namespace MimeKit {
 		{
 			int endIndex = startIndex + count;
 			int index = startIndex;
-			string charset;
 
 			// Note: decoder is only null if this is the first segment
 			if (decoder == null) {
-				if (TryGetCharset (text, ref index, endIndex, out charset)) {
+				if (TryGetCharset (text, ref index, endIndex, out string charset)) {
 					try {
 						encoding = CharsetUtils.GetEncoding (charset, "?");
 						decoder = (Decoder) encoding.GetDecoder ();
@@ -949,8 +941,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				NameValuePair pair;
-				if (!TryParseNameValuePair (options, text, ref index, endIndex, throwOnError, out pair))
+				if (!TryParseNameValuePair (options, text, ref index, endIndex, throwOnError, out var pair))
 					return false;
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -995,7 +986,6 @@ namespace MimeKit {
 				var buffer = param.Value;
 				Encoding encoding = null;
 				Decoder decoder = null;
-				Parameter parameter;
 				string value;
 
 				if (param.Id.HasValue) {
@@ -1012,7 +1002,6 @@ namespace MimeKit {
 
 						if (parts[i].Encoded) {
 							bool flush = i + 1 >= parts.Count || !parts[i + 1].Encoded;
-							Encoding charset;
 
 							// Note: Some mail clients mistakenly quote encoded parameter values when they shouldn't
 							if (length >= 2 && buffer[startIndex] == (byte) '"' && buffer[startIndex + length - 1] == (byte) '"') {
@@ -1020,7 +1009,7 @@ namespace MimeKit {
 								length -= 2;
 							}
 
-							value += DecodeRfc2231 (out charset, ref decoder, hex, buffer, startIndex, length, flush);
+							value += DecodeRfc2231 (out Encoding charset, ref decoder, hex, buffer, startIndex, length, flush);
 							encoding = encoding ?? charset;
 						} else if (length >= 2 && buffer[startIndex] == (byte) '"') {
 							var quoted = CharsetUtils.ConvertToUnicode (options,buffer, startIndex, length);
@@ -1076,7 +1065,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				if (paramList.table.TryGetValue (param.Name, out parameter)) {
+				if (paramList.table.TryGetValue (param.Name, out var parameter)) {
 					parameter.Encoding = encoding;
 					parameter.Value = value;
 				} else if (encoding != null) {

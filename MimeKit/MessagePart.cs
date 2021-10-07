@@ -224,9 +224,7 @@ namespace MimeKit {
 				return;
 
 			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0) {
-				var cancellable = stream as ICancellableStream;
-
-				if (cancellable != null) {
+				if (stream is ICancellableStream cancellable) {
 					cancellable.Write (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken);
 				} else {
 					stream.Write (Message.MboxMarker, 0, Message.MboxMarker.Length);
