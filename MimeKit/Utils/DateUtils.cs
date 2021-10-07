@@ -355,9 +355,6 @@ namespace MimeKit.Utils {
 
 		static bool TryParseStandardDateFormat (IList<DateToken> tokens, byte[] text, out DateTimeOffset date)
 		{
-			int day, month, year, tzone;
-			int hour, minute, second;
-			DayOfWeek weekday;
 			//bool haveWeekday;
 			int n = 0;
 
@@ -368,7 +365,7 @@ namespace MimeKit.Utils {
 				return false;
 
 			// Note: the weekday is not required
-			if (TryGetWeekday (tokens[n], text, out weekday)) {
+			if (TryGetWeekday (tokens[n], text, out _)) {
 				if (tokens.Count < 6)
 					return false;
 
@@ -376,19 +373,19 @@ namespace MimeKit.Utils {
 				n++;
 			}
 
-			if (!TryGetDayOfMonth (tokens[n++], text, out day))
+			if (!TryGetDayOfMonth (tokens[n++], text, out int day))
 				return false;
 
-			if (!TryGetMonth (tokens[n++], text, out month))
+			if (!TryGetMonth (tokens[n++], text, out int month))
 				return false;
 
-			if (!TryGetYear (tokens[n++], text, out year))
+			if (!TryGetYear (tokens[n++], text, out int year))
 				return false;
 
-			if (!TryGetTimeOfDay (tokens[n++], text, out hour, out minute, out second))
+			if (!TryGetTimeOfDay (tokens[n++], text, out int hour, out int minute, out int second))
 				return false;
 
-			if (!TryGetTimeZone (tokens[n], text, out tzone))
+			if (!TryGetTimeZone (tokens[n], text, out int tzone))
 				tzone = 0;
 
 			int minutes = tzone % 100;
@@ -412,14 +409,13 @@ namespace MimeKit.Utils {
 			bool numericMonth = false;
 			bool haveWeekday = false;
 			bool haveTime = false;
-			DayOfWeek weekday;
 			TimeSpan offset;
 
 			for (int i = 0; i < tokens.Count; i++) {
 				int value;
 
 				if (!haveWeekday && tokens[i].IsWeekday) {
-					if (TryGetWeekday (tokens[i], text, out weekday)) {
+					if (TryGetWeekday (tokens[i], text, out _)) {
 						haveWeekday = true;
 						continue;
 					}
@@ -640,7 +636,6 @@ namespace MimeKit.Utils {
 			int hour = 0, minute = 0, second = 0;
 			int year = 0, month = 0, day = 0;
 			TimeSpan offset;
-			int timezone;
 			int i = 0;
 
 			while (i < text.Length && i < format.Length && format[i] != 'z') {
@@ -667,7 +662,7 @@ namespace MimeKit.Utils {
 			hour += minute / 60;
 			minute = minute % 60;
 
-			if (!timezones.TryGetValue (text.Substring (i), out timezone))
+			if (!timezones.TryGetValue (text.Substring (i), out int timezone))
 				timezone = 0;
 
 			offset = new TimeSpan (timezone / 100, timezone % 100, 0);

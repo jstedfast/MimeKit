@@ -507,12 +507,11 @@ namespace MimeKit {
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out MailboxAddress mailbox)
 		{
 			var flags = AddressParserFlags.AllowMailboxAddress;
-			InternetAddress address;
 
 			if (throwOnError)
 				flags |= AddressParserFlags.ThrowOnError;
 
-			if (!TryParse (options, text, ref index, endIndex, 0, flags, out address)) {
+			if (!TryParse (options, text, ref index, endIndex, 0, flags, out var address)) {
 				mailbox = null;
 				return false;
 			}

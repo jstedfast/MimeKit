@@ -2924,8 +2924,8 @@ namespace MimeKit.Cryptography {
 					armored.SetHeader ("Version", null);
 
 					var encoded = keys.GetEncoded ();
-					await stream.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
-					armored.Flush ();
+					await armored.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
+					await armored.FlushAsync ().ConfigureAwait (false);
 				}
 			} else {
 				var encoded = keys.GetEncoded ();

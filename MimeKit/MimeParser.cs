@@ -69,11 +69,11 @@ namespace MimeKit {
 
 		public static Boundary CreateMboxBoundary ()
 		{
-			var boundary = new Boundary ();
-			boundary.Marker = MboxFrom;
-			boundary.MaxLength = 5;
-			boundary.Length = 5;
-			return boundary;
+			return new Boundary {
+				Marker = MboxFrom,
+				MaxLength = 5,
+				Length = 5
+			};
 		}
 
 #if DEBUG_PARSER
@@ -1506,10 +1506,10 @@ namespace MimeKit {
 
 			message.Body = entity;
 
-			if (entity is Multipart)
-				ConstructMultipart ((Multipart) entity, entityArgs, inbuf, depth + 1, cancellationToken);
-			else if (entity is MessagePart)
-				ConstructMessagePart ((MessagePart) entity, entityArgs, inbuf, depth + 1, cancellationToken);
+			if (entity is Multipart multipart)
+				ConstructMultipart (multipart, entityArgs, inbuf, depth + 1, cancellationToken);
+			else if (entity is MessagePart child)
+				ConstructMessagePart (child, entityArgs, inbuf, depth + 1, cancellationToken);
 			else
 				ConstructMimePart ((MimePart) entity, entityArgs, inbuf, cancellationToken);
 
@@ -1598,10 +1598,10 @@ namespace MimeKit {
 
 				OnMimeEntityBegin (entityArgs);
 
-				if (entity is Multipart)
-					ConstructMultipart ((Multipart) entity, entityArgs, inbuf, depth + 1, cancellationToken);
-				else if (entity is MessagePart)
-					ConstructMessagePart ((MessagePart) entity, entityArgs, inbuf, depth + 1, cancellationToken);
+				if (entity is Multipart child)
+					ConstructMultipart (child, entityArgs, inbuf, depth + 1, cancellationToken);
+				else if (entity is MessagePart rfc822)
+					ConstructMessagePart (rfc822, entityArgs, inbuf, depth + 1, cancellationToken);
 				else
 					ConstructMimePart ((MimePart) entity, entityArgs, inbuf, cancellationToken);
 
@@ -1758,10 +1758,10 @@ namespace MimeKit {
 
 			OnMimeEntityBegin (entityArgs);
 
-			if (entity is Multipart)
-				ConstructMultipart ((Multipart) entity, entityArgs, inbuf, 0, cancellationToken);
-			else if (entity is MessagePart)
-				ConstructMessagePart ((MessagePart) entity, entityArgs, inbuf, 0, cancellationToken);
+			if (entity is Multipart multipart)
+				ConstructMultipart (multipart, entityArgs, inbuf, 0, cancellationToken);
+			else if (entity is MessagePart rfc822)
+				ConstructMessagePart (rfc822, entityArgs, inbuf, 0, cancellationToken);
 			else
 				ConstructMimePart ((MimePart) entity, entityArgs, inbuf, cancellationToken);
 

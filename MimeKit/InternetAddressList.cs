@@ -96,9 +96,7 @@ namespace MimeKit {
 		public IEnumerable<MailboxAddress> Mailboxes {
 			get {
 				foreach (var address in list) {
-					var group = address as GroupAddress;
-
-					if (group != null) {
+					if (address is GroupAddress group) {
 						foreach (var mailbox in group.Members.Mailboxes)
 							yield return mailbox;
 					} else {
@@ -574,7 +572,6 @@ namespace MimeKit {
 		{
 			var flags = throwOnError ? InternetAddress.AddressParserFlags.Parse : InternetAddress.AddressParserFlags.TryParse;
 			var list = new List<InternetAddress> ();
-			InternetAddress address;
 
 			addresses = null;
 
@@ -592,7 +589,7 @@ namespace MimeKit {
 				if (isGroup && text[index] == (byte) ';')
 					break;
 
-				if (!InternetAddress.TryParse (options, text, ref index, endIndex, groupDepth, flags, out address)) {
+				if (!InternetAddress.TryParse (options, text, ref index, endIndex, groupDepth, flags, out var address)) {
 					// skip this address...
 					while (index < endIndex && text[index] != (byte) ',' && (!isGroup || text[index] != (byte) ';'))
 						index++;
@@ -643,10 +640,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
-			List<InternetAddress> addrlist;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, startIndex + length, false, 0, false, out addrlist)) {
+			if (!TryParse (options, buffer, ref index, startIndex + length, false, 0, false, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -703,10 +699,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
-			List<InternetAddress> addrlist;
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out addrlist)) {
+			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -756,10 +751,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
-			List<InternetAddress> addrlist;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out addrlist)) {
+			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -806,10 +800,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
-			List<InternetAddress> addrlist;
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out addrlist)) {
+			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -864,10 +857,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
-			List<InternetAddress> addrlist;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, startIndex + length, false, 0, true, out addrlist);
+			TryParse (options, buffer, ref index, startIndex + length, false, 0, true, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}
@@ -923,10 +915,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
-			List<InternetAddress> addrlist;
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out addrlist);
+			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}
@@ -975,10 +966,9 @@ namespace MimeKit {
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
-			List<InternetAddress> addrlist;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out addrlist);
+			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}
@@ -1024,10 +1014,9 @@ namespace MimeKit {
 			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
-			List<InternetAddress> addrlist;
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out addrlist);
+			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}

@@ -290,14 +290,13 @@ namespace MimeKit {
 				return current != null;
 			}
 
-			var message_part = current as MessagePart;
 			var multipart = current as Multipart;
 
-			if (message_part != null) {
-				current = message_part.Message != null ? message_part.Message.Body : null;
+			if (current is MessagePart rfc822) {
+				current = rfc822.Message?.Body;
 
 				if (current != null) {
-					Push (message_part);
+					Push (rfc822);
 					index = current is Multipart ? -1 : 0;
 					return true;
 				}
@@ -338,10 +337,9 @@ namespace MimeKit {
 		{
 			var path = pathSpecifier.Split ('.');
 			var indexes = new int[path.Length];
-			int index;
 
 			for (int i = 0; i < path.Length; i++) {
-				if (!int.TryParse (path[i], out index) || index < 0)
+				if (!int.TryParse (path[i], out int index) || index < 0)
 					throw new FormatException ("Invalid path specifier format.");
 
 				indexes[i] = index - 1;

@@ -478,7 +478,6 @@ namespace MimeKit.Tnef {
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
-			int outIndex, outLength;
 			TnefAttachFlags flags;
 			string[] mimeType;
 			byte[] attachData;
@@ -572,7 +571,7 @@ namespace MimeKit.Tnef {
 							count -= 16;
 							index = 16;
 						} else if (attachment.ContentType.IsMimeType ("text", "*")) {
-							filter.Flush (attachData, index, count, out outIndex, out outLength);
+							filter.Flush (attachData, index, count, out _, out _);
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 							filter.Reset ();
 						} else {
@@ -616,7 +615,7 @@ namespace MimeKit.Tnef {
 					attachData = prop.ReadValueAsBytes ();
 
 					if (attachment.ContentType.IsMimeType ("text", "*")) {
-						filter.Flush (attachData, 0, attachData.Length, out outIndex, out outLength);
+						filter.Flush (attachData, 0, attachData.Length, out _, out _);
 						attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 						filter.Reset ();
 					} else {

@@ -109,12 +109,10 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public static IMimeFilter Create (string name)
 		{
-			ContentEncoding encoding;
-
 			if (name == null)
 				throw new ArgumentNullException (nameof (name));
 
-			if (!MimeUtils.TryParse (name, out encoding))
+			if (!MimeUtils.TryParse (name, out ContentEncoding encoding))
 				encoding = ContentEncoding.Default;
 
 			return Create (encoding);

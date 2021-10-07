@@ -117,9 +117,8 @@ namespace MimeKit {
 		public int? Number {
 			get {
 				var text = ContentType.Parameters["number"];
-				int number;
 
-				if (text == null || !int.TryParse (text, out number))
+				if (text == null || !int.TryParse (text, out int number))
 					return null;
 
 				return number;
@@ -136,9 +135,8 @@ namespace MimeKit {
 		public int? Total {
 			get {
 				var text = ContentType.Parameters["total"];
-				int total;
 
-				if (text == null || !int.TryParse (text, out total))
+				if (text == null || !int.TryParse (text, out int total))
 					return null;
 
 				return total;

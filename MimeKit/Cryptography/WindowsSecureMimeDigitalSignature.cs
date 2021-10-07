@@ -63,14 +63,11 @@ namespace MimeKit.Cryptography
 			SignerInfo = signerInfo;
 
 			var algorithms = new List<EncryptionAlgorithm> ();
-			DigestAlgorithm digestAlgo;
 
 			if (signerInfo.SignedAttributes != null) {
 				for (int i = 0; i < signerInfo.SignedAttributes.Count; i++) {
 					if (signerInfo.SignedAttributes[i].Oid.Value == CmsAttributes.SigningTime.Id) {
-						var signingTime = signerInfo.SignedAttributes[i].Values[0] as Pkcs9SigningTime;
-
-						if (signingTime != null)
+						if (signerInfo.SignedAttributes[i].Values[0] is Pkcs9SigningTime signingTime)
 							CreationDate = signingTime.SigningTime;
 					} else if (signerInfo.SignedAttributes[i].Oid.Value == SmimeAttributes.SmimeCapabilities.Id) {
 						foreach (var value in signerInfo.SignedAttributes[i].Values) {
@@ -78,9 +75,8 @@ namespace MimeKit.Cryptography
 
 							foreach (Asn1Sequence sequence in sequences) {
 								var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence);
-								EncryptionAlgorithm algorithm;
 
-								if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
+								if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm))
 									algorithms.Add (algorithm);
 							}
 						}
@@ -90,7 +86,7 @@ namespace MimeKit.Cryptography
 
 			EncryptionAlgorithms = algorithms.ToArray ();
 
-			if (WindowsSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out digestAlgo))
+			if (WindowsSecureMimeContext.TryGetDigestAlgorithm (signerInfo.DigestAlgorithm, out var digestAlgo))
 				DigestAlgorithm = digestAlgo;
 
 			if (signerInfo.Certificate != null)

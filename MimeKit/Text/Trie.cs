@@ -61,9 +61,9 @@ namespace MimeKit.Text {
 			}
 		}
 
-		List<TrieState> failStates;
-		TrieState root;
-		bool icase;
+		readonly List<TrieState> failStates;
+		readonly TrieState root;
+		readonly bool icase;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Trie"/> class.

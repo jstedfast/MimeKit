@@ -710,8 +710,6 @@ namespace MimeKit {
 			if (Content == null)
 				return;
 
-			var isText = ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*");
-
 			if (Content.Encoding != ContentTransferEncoding) {
 				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
 					var begin = string.Format ("begin 0644 {0}", FileName ?? "unknown");

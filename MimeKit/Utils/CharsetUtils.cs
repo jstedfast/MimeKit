@@ -195,8 +195,7 @@ namespace MimeKit.Utils {
 			if (dash == -1)
 				dash = charset.Length;
 
-			int iso;
-			if (!int.TryParse (charset.Substring (0, dash), out iso))
+			if (!int.TryParse (charset.Substring (0, dash), out int iso))
 				return -1;
 
 			if (iso == 10646)
@@ -471,7 +470,6 @@ namespace MimeKit.Utils {
 			var userCharset = options.CharsetEncoding;
 			int min = int.MaxValue;
 			int bestCharCount = 0;
-			char[] output = null;
 			Encoding encoding;
 			Decoder decoder;
 			int[] codepages;
@@ -504,7 +502,8 @@ namespace MimeKit.Utils {
 
 			encoding = GetEncoding (best, "?");
 			decoder = (Decoder) encoding.GetDecoder ();
-			output = new char[bestCharCount];
+
+			var output = new char[bestCharCount];
 
 			try {
 				charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
@@ -529,9 +528,7 @@ namespace MimeKit.Utils {
 			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException (nameof (length));
 
-			int count;
-
-			return new string (ConvertToUnicode (options, buffer, startIndex, length, out count), 0, count);
+			return new string (ConvertToUnicode (options, buffer, startIndex, length, out int count), 0, count);
 		}
 
 		internal static char[] ConvertToUnicode (Encoding encoding, byte[] input, int startIndex, int length, out int charCount)
@@ -581,9 +578,7 @@ namespace MimeKit.Utils {
 			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException (nameof (length));
 
-			int count;
-
-			return new string (ConvertToUnicode (encoding, buffer, startIndex, length, out count), 0, count);
+			return new string (ConvertToUnicode (encoding, buffer, startIndex, length, out int count), 0, count);
 		}
 
 		public static bool TryGetBomEncoding (byte[] buffer, int length, out Encoding encoding)

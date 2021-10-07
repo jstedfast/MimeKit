@@ -341,10 +341,10 @@ namespace MimeKit {
 
 			message.Body = entity;
 
-			if (entity is Multipart)
-				await ConstructMultipartAsync ((Multipart) entity, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
-			else if (entity is MessagePart)
-				await ConstructMessagePartAsync ((MessagePart) entity, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
+			if (entity is Multipart multipart)
+				await ConstructMultipartAsync (multipart, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
+			else if (entity is MessagePart child)
+				await ConstructMessagePartAsync (child, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
 			else
 				await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
 
@@ -433,10 +433,10 @@ namespace MimeKit {
 
 				OnMimeEntityBegin (entityArgs);
 
-				if (entity is Multipart)
-					await ConstructMultipartAsync ((Multipart) entity, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
-				else if (entity is MessagePart)
-					await ConstructMessagePartAsync ((MessagePart) entity, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
+				if (entity is Multipart child)
+					await ConstructMultipartAsync (child, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
+				else if (entity is MessagePart rfc822)
+					await ConstructMessagePartAsync (rfc822, entityArgs, depth + 1, cancellationToken).ConfigureAwait (false);
 				else
 					await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
 
@@ -592,10 +592,10 @@ namespace MimeKit {
 
 			OnMimeEntityBegin (entityArgs);
 
-			if (entity is Multipart)
-				await ConstructMultipartAsync ((Multipart) entity, entityArgs, 0, cancellationToken).ConfigureAwait (false);
-			else if (entity is MessagePart)
-				await ConstructMessagePartAsync ((MessagePart) entity, entityArgs, 0, cancellationToken).ConfigureAwait (false);
+			if (entity is Multipart multipart)
+				await ConstructMultipartAsync (multipart, entityArgs, 0, cancellationToken).ConfigureAwait (false);
+			else if (entity is MessagePart rfc822)
+				await ConstructMessagePartAsync (rfc822, entityArgs, 0, cancellationToken).ConfigureAwait (false);
 			else
 				await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
 
@@ -694,10 +694,10 @@ namespace MimeKit {
 
 			message.Body = entity;
 
-			if (entity is Multipart)
-				await ConstructMultipartAsync ((Multipart) entity, entityArgs, 0, cancellationToken).ConfigureAwait (false);
-			else if (entity is MessagePart)
-				await ConstructMessagePartAsync ((MessagePart) entity, entityArgs, 0, cancellationToken).ConfigureAwait (false);
+			if (entity is Multipart multipart)
+				await ConstructMultipartAsync (multipart, entityArgs, 0, cancellationToken).ConfigureAwait (false);
+			else if (entity is MessagePart rfc822)
+				await ConstructMessagePartAsync (rfc822, entityArgs, 0, cancellationToken).ConfigureAwait (false);
 			else
 				await ConstructMimePartAsync ((MimePart) entity, entityArgs, cancellationToken).ConfigureAwait (false);
 

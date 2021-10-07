@@ -108,9 +108,8 @@ namespace MimeKit.Cryptography
 
 					for (int i = 0; i < sequence.Count; i++) {
 						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
-						EncryptionAlgorithm algorithm;
 
-						if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out algorithm))
+						if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm))
 							algorithms.Add (algorithm);
 					}
 

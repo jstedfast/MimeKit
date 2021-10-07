@@ -181,23 +181,20 @@ namespace MimeKit {
 
 			MimeEntity body = null;
 
-			foreach (object obj in args) {
+			foreach (var obj in args) {
 				if (obj == null)
 					continue;
 
 				// Just add the headers and let the events (already setup) keep the
 				// addresses in sync.
-
-				var header = obj as Header;
-				if (header != null) {
+				if (obj is Header header) {
 					if (!header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 						Headers.Add (header);
 
 					continue;
 				}
 
-				var headers = obj as IEnumerable<Header>;
-				if (headers != null) {
+				if (obj is IEnumerable<Header> headers) {
 					foreach (var h in headers) {
 						if (!h.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
 							Headers.Add (h);
@@ -206,8 +203,7 @@ namespace MimeKit {
 					continue;
 				}
 
-				var entity = obj as MimeEntity;
-				if (entity != null) {
+				if (obj is MimeEntity entity) {
 					if (body != null)
 						throw new ArgumentException ("Message body should not be specified more than once.");
 
@@ -1025,24 +1021,16 @@ namespace MimeKit {
 
 		static bool TryGetMultipartBody (Multipart multipart, TextFormat format, out string body)
 		{
-			var alternative = multipart as MultipartAlternative;
-
-			if (alternative != null) {
+			if (multipart is MultipartAlternative alternative) {
 				body = alternative.GetTextBody (format);
 				return body != null;
 			}
 
-			var related = multipart as MultipartRelated;
-			Multipart multi;
-			TextPart text;
-
-			if (related == null) {
+			if (!(multipart is MultipartRelated related)) {
 				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
 				for (int i = 0; i < multipart.Count; i++) {
-					multi = multipart[i] as Multipart;
-
 					// descend into nested multiparts, if there are any...
-					if (multi != null) {
+					if (multipart[i] is Multipart multi) {
 						if (TryGetMultipartBody (multi, format, out body))
 							return true;
 
@@ -1050,11 +1038,9 @@ namespace MimeKit {
 						break;
 					}
 
-					text = multipart[i] as TextPart;
-
 					// Look for the first non-attachment text part (realistically, the body text will
 					// preceed any attachments, but I'm not sure we can rely on that assumption).
-					if (text != null && !text.IsAttachment) {
+					if (multipart[i] is TextPart text && !text.IsAttachment) {
 						if (text.IsFormat (format)) {
 							body = MultipartAlternative.GetText (text);
 							return true;
@@ -1069,17 +1055,13 @@ namespace MimeKit {
 				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
 				var root = related.Root;
 
-				text = root as TextPart;
-
-				if (text != null) {
+				if (root is TextPart text) {
 					body = text.IsFormat (format) ? text.Text : null;
 					return body != null;
 				}
 
 				// maybe the root is another multipart (like multipart/alternative)?
-				multi = root as Multipart;
-
-				if (multi != null)
+				if (root is Multipart multi)
 					return TryGetMultipartBody (multi, format, out body);
 			}
 
@@ -1121,17 +1103,11 @@ namespace MimeKit {
 		/// <param name="format">The desired text format.</param>
 		public string GetTextBody (TextFormat format)
 		{
-			var multipart = Body as Multipart;
-
-			if (multipart != null) {
-				string text;
-
-				if (TryGetMultipartBody (multipart, format, out text))
+			if (Body is Multipart multipart) {
+				if (TryGetMultipartBody (multipart, format, out var text))
 					return text;
 			} else {
-				var body = Body as TextPart;
-
-				if (body != null && body.IsFormat (format) && !body.IsAttachment)
+				if (Body is TextPart body && body.IsFormat (format) && !body.IsAttachment)
 					return body.Text;
 			}
 
@@ -1143,9 +1119,7 @@ namespace MimeKit {
 			if (entity == null)
 				yield break;
 
-			var multipart = entity as Multipart;
-
-			if (multipart != null) {
+			if (entity is Multipart multipart) {
 				foreach (var subpart in multipart) {
 					foreach (var part in EnumerateMimeParts (subpart))
 						yield return part;
@@ -2021,10 +1995,10 @@ namespace MimeKit {
 			if (recipients.Count == 0)
 				throw new InvalidOperationException ("No recipients have been set.");
 
-			if (ctx is SecureMimeContext) {
-				Body = ApplicationPkcs7Mime.Encrypt ((SecureMimeContext) ctx, recipients, Body, cancellationToken);
-			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.Encrypt ((OpenPgpContext) ctx, recipients, Body, cancellationToken);
+			if (ctx is SecureMimeContext smime) {
+				Body = ApplicationPkcs7Mime.Encrypt (smime, recipients, Body, cancellationToken);
+			} else if (ctx is OpenPgpContext pgp) {
+				Body = MultipartEncrypted.Encrypt (pgp, recipients, Body, cancellationToken);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
@@ -2076,10 +2050,10 @@ namespace MimeKit {
 			if (recipients.Count == 0)
 				throw new InvalidOperationException ("No recipients have been set.");
 
-			if (ctx is SecureMimeContext) {
-				Body = await ApplicationPkcs7Mime.EncryptAsync ((SecureMimeContext) ctx, recipients, Body, cancellationToken).ConfigureAwait (false);
-			} else if (ctx is OpenPgpContext) {
-				Body = await MultipartEncrypted.EncryptAsync ((OpenPgpContext) ctx, recipients, Body, cancellationToken).ConfigureAwait (false);
+			if (ctx is SecureMimeContext smime) {
+				Body = await ApplicationPkcs7Mime.EncryptAsync (smime, recipients, Body, cancellationToken).ConfigureAwait (false);
+			} else if (ctx is OpenPgpContext pgp) {
+				Body = await MultipartEncrypted.EncryptAsync (pgp, recipients, Body, cancellationToken).ConfigureAwait (false);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
@@ -2148,10 +2122,10 @@ namespace MimeKit {
 
 			var recipients = GetMessageRecipients (true);
 
-			if (ctx is SecureMimeContext) {
-				Body = ApplicationPkcs7Mime.SignAndEncrypt ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken);
-			} else if (ctx is OpenPgpContext) {
-				Body = MultipartEncrypted.SignAndEncrypt ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken);
+			if (ctx is SecureMimeContext smime) {
+				Body = ApplicationPkcs7Mime.SignAndEncrypt (smime, signer, digestAlgo, recipients, Body, cancellationToken);
+			} else if (ctx is OpenPgpContext pgp) {
+				Body = MultipartEncrypted.SignAndEncrypt (pgp, signer, digestAlgo, recipients, Body, cancellationToken);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
@@ -2221,10 +2195,10 @@ namespace MimeKit {
 
 			var recipients = GetMessageRecipients (true);
 
-			if (ctx is SecureMimeContext) {
-				Body = await ApplicationPkcs7Mime.SignAndEncryptAsync ((SecureMimeContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);
-			} else if (ctx is OpenPgpContext) {
-				Body = await MultipartEncrypted.SignAndEncryptAsync ((OpenPgpContext) ctx, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);
+			if (ctx is SecureMimeContext smime) {
+				Body = await ApplicationPkcs7Mime.SignAndEncryptAsync (smime, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);
+			} else if (ctx is OpenPgpContext pgp) {
+				Body = await MultipartEncrypted.SignAndEncryptAsync (pgp, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);
 			} else {
 				throw new ArgumentException ("Unknown type of cryptography context.", nameof (ctx));
 			}
@@ -3055,7 +3029,6 @@ namespace MimeKit {
 		{
 			var mimeType = item.ContentType.ToString ();
 			var contentType = ContentType.Parse (mimeType);
-			var attachment = item as Attachment;
 			MimePart part;
 
 			if (contentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase))
@@ -3063,7 +3036,7 @@ namespace MimeKit {
 			else
 				part = new MimePart (contentType);
 
-			if (attachment != null) {
+			if (item is Attachment attachment) {
 				var disposition = attachment.ContentDisposition.ToString ();
 				part.ContentDisposition = ContentDisposition.Parse (disposition);
 			}
