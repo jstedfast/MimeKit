@@ -5,7 +5,7 @@
     <AssemblyTitle>MimeKit Lite</AssemblyTitle>
     <VersionPrefix>2.15.1</VersionPrefix>
     <Authors>Jeffrey Stedfast</Authors>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net45;net46;net47;net48;net50</TargetFrameworks>
+    <TargetFrameworks>net5.0;netstandard2.0;netstandard2.1;net45;net46;net47;net48</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AssemblyName>MimeKitLite</AssemblyName>
@@ -44,6 +44,7 @@
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM</DefineConstants>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net5')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
@@ -51,14 +52,6 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net5')) ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 

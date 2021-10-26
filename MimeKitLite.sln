@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A56B6ECE-F1EE-41A2-A92B-18D2BDAFB6A2}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		nuget\MimeKitLite.nuspec = nuget\MimeKitLite.nuspec
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MimeKitLite", "MimeKit\MimeKitLite.csproj", "{23F999AF-CF50-42FF-A011-D56D68E60FB9}"
