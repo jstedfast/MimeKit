@@ -1705,7 +1705,11 @@ namespace MimeKit {
 			return null;
 		}
 
-		IList<MailboxAddress> GetMessageRecipients (bool includeSenders)
+		/// <summary>
+		/// Gets all addresses in the message, which will be sent to
+		/// </summary>
+		/// <param name="includeSenders">Whether to include sender headers</param>
+		public IList<MailboxAddress> GetMessageRecipients (bool includeSenders)
 		{
 			var recipients = new HashSet<MailboxAddress> ();
 
