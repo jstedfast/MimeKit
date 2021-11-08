@@ -141,6 +141,62 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestGetRecipients ()
+		{
+			var message = new MimeMessage ();
+			message.Sender = new MailboxAddress ("Example Sender", "sender@example.com");
+			message.From.Add (new MailboxAddress ("Example From", "from@example.com"));
+			message.ReplyTo.Add (new MailboxAddress ("Example Reply-To", "reply-to@example.com"));
+			message.To.Add (new MailboxAddress ("Example To", "to@example.com"));
+			message.To.Add (new MailboxAddress ("Example To Duplicate", "to@example.com"));
+			message.Cc.Add (new MailboxAddress ("Example Cc", "cc@example.com"));
+			message.Cc.Add (new MailboxAddress ("Example Cc Duplicate", "cc@example.com"));
+			message.Bcc.Add (new MailboxAddress ("Example Bcc", "bcc@example.com"));
+			message.Bcc.Add (new MailboxAddress ("Example Bcc Duplicate", "bcc@example.com"));
+
+			var recipients = message.GetRecipients (false);
+			Assert.AreEqual (6, recipients.Count, "Count");
+			Assert.AreEqual (message.To[0], recipients[0], "recipients[0]");
+			Assert.AreEqual (message.To[1], recipients[1], "recipients[1]");
+			Assert.AreEqual (message.Cc[0], recipients[2], "recipients[2]");
+			Assert.AreEqual (message.Cc[1], recipients[3], "recipients[3]");
+			Assert.AreEqual (message.Bcc[0], recipients[4], "recipients[4]");
+			Assert.AreEqual (message.Bcc[1], recipients[5], "recipients[5]");
+
+			recipients = message.GetRecipients (true);
+			Assert.AreEqual (3, recipients.Count, "Count (uniqueOnly)");
+			Assert.AreEqual (message.To.Mailboxes.First (), recipients[0], "recipients[0] (uniqueOnly)");
+			Assert.AreEqual (message.Cc.Mailboxes.First (), recipients[1], "recipients[1] (uniqueOnly)");
+			Assert.AreEqual (message.Bcc.Mailboxes.First (), recipients[2], "recipients[2] (uniqueOnly)");
+
+			// Now test the same thing after setting the Resent-* headers...
+			message.ResentSender = new MailboxAddress ("Example Resent-Sender", "resent-sender@example.com");
+			message.ResentFrom.Add (new MailboxAddress ("Example Resent-From", "resent-from@example.com"));
+			message.ResentReplyTo.Add (new MailboxAddress ("Example Resent-Reply-To", "resent-reply-to@example.com"));
+			message.ResentTo.Add (new MailboxAddress ("Example Resent-To", "resent-to@example.com"));
+			message.ResentTo.Add (new MailboxAddress ("Example Resent-To Duplicate", "resent-to@example.com"));
+			message.ResentCc.Add (new MailboxAddress ("Example Resent-Cc", "resent-cc@example.com"));
+			message.ResentCc.Add (new MailboxAddress ("Example Resent-Cc Duplicate", "resent-cc@example.com"));
+			message.ResentBcc.Add (new MailboxAddress ("Example Resent-Bcc", "resent-bcc@example.com"));
+			message.ResentBcc.Add (new MailboxAddress ("Example Resent-Bcc Duplicate", "resent-bcc@example.com"));
+
+			recipients = message.GetRecipients (false);
+			Assert.AreEqual (6, recipients.Count, "Resent Count");
+			Assert.AreEqual (message.ResentTo[0], recipients[0], "Resent recipients[0]");
+			Assert.AreEqual (message.ResentTo[1], recipients[1], "Resent recipients[1]");
+			Assert.AreEqual (message.ResentCc[0], recipients[2], "Resent recipients[2]");
+			Assert.AreEqual (message.ResentCc[1], recipients[3], "Resent recipients[3]");
+			Assert.AreEqual (message.ResentBcc[0], recipients[4], "Resent recipients[4]");
+			Assert.AreEqual (message.ResentBcc[1], recipients[5], "Resent recipients[5]");
+
+			recipients = message.GetRecipients (true);
+			Assert.AreEqual (3, recipients.Count, "Resent Count (uniqueOnly)");
+			Assert.AreEqual (message.ResentTo.Mailboxes.First (), recipients[0], "Resent recipients[0] (uniqueOnly)");
+			Assert.AreEqual (message.ResentCc.Mailboxes.First (), recipients[1], "Resent recipients[1] (uniqueOnly)");
+			Assert.AreEqual (message.ResentBcc.Mailboxes.First (), recipients[2], "Resent recipients[2] (uniqueOnly)");
+		}
+
+		[Test]
 		public void TestPrependHeader ()
 		{
 			string rawMessageText = @"Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)

@@ -1161,6 +1161,66 @@ namespace MimeKit {
 			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
 		}
 
+		static void AddMailboxes (IList<MailboxAddress> recipients, HashSet<string> unique, IEnumerable<MailboxAddress> mailboxes)
+		{
+			foreach (var mailbox in mailboxes) {
+				if (unique == null || unique.Add (mailbox.Address))
+					recipients.Add (mailbox);
+			}
+		}
+
+		IList<MailboxAddress> GetMailboxes (bool includeSenders, bool onlyUnique)
+		{
+			HashSet<string> unique = onlyUnique ? new HashSet<string> (StringComparer.OrdinalIgnoreCase) : null;
+			var recipients = new List<MailboxAddress> ();
+
+			if (ResentSender != null || ResentFrom.Count > 0) {
+				if (includeSenders) {
+					if (ResentSender != null) {
+						if (unique == null || unique.Add (ResentSender.Address))
+							recipients.Add (ResentSender);
+					}
+
+					AddMailboxes (recipients, unique, ResentFrom.Mailboxes);
+				}
+
+				AddMailboxes (recipients, unique, ResentTo.Mailboxes);
+				AddMailboxes (recipients, unique, ResentCc.Mailboxes);
+				AddMailboxes (recipients, unique, ResentBcc.Mailboxes);
+			} else {
+				if (includeSenders) {
+					if (Sender != null) {
+						if (unique == null || unique.Add (Sender.Address))
+							recipients.Add (Sender);
+					}
+
+					AddMailboxes (recipients, unique, From.Mailboxes);
+				}
+
+				AddMailboxes (recipients, unique, To.Mailboxes);
+				AddMailboxes (recipients, unique, Cc.Mailboxes);
+				AddMailboxes (recipients, unique, Bcc.Mailboxes);
+			}
+
+			return recipients;
+		}
+
+		/// <summary>
+		/// Get the concatenated list of recipients.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the concatenated list of recipients.</para>
+		/// <para>If the <c>Resent-Sender</c> or <c>Resent-From</c> headers exist, then the recipients defined by the <c>Resent-To</c>,
+		/// <c>Resent-Cc</c> and <c>Resent-Bcc</c> headers will be used. Otherwise, the recipients defined by the <c>To</c>, <c>Cc</c>
+		/// and <c>Bcc</c> headers will be used.</para>
+		/// </remarks>
+		/// <param name="onlyUnique">If <c>true</c>, only mailboxes with a unique address will be included.</param>
+		/// <returns>The concatenated list of recipients.</returns>
+		public IList<MailboxAddress> GetRecipients (bool onlyUnique = false)
+		{
+			return GetMailboxes (false, onlyUnique);
+		}
+
 		/// <summary>
 		/// Returns a <see cref="String"/> that represents the <see cref="MimeMessage"/> for debugging purposes.
 		/// </summary>
@@ -1699,53 +1759,12 @@ namespace MimeKit {
 			if (Sender != null)
 				return Sender;
 
-			if (From.Count > 0)
-				return From.Mailboxes.FirstOrDefault ();
-
-			return null;
+			return From.Mailboxes.FirstOrDefault ();
 		}
 
-		IList<MailboxAddress> GetMessageRecipients (bool includeSenders)
+		IList<MailboxAddress> GetEncryptionRecipients ()
 		{
-			var recipients = new HashSet<MailboxAddress> ();
-
-			if (ResentSender != null || ResentFrom.Count > 0) {
-				if (includeSenders) {
-					if (ResentSender != null)
-						recipients.Add (ResentSender);
-
-					if (ResentFrom.Count > 0) {
-						foreach (var mailbox in ResentFrom.Mailboxes)
-							recipients.Add (mailbox);
-					}
-				}
-
-				foreach (var mailbox in ResentTo.Mailboxes)
-					recipients.Add (mailbox);
-				foreach (var mailbox in ResentCc.Mailboxes)
-					recipients.Add (mailbox);
-				foreach (var mailbox in ResentBcc.Mailboxes)
-					recipients.Add (mailbox);
-			} else {
-				if (includeSenders) {
-					if (Sender != null)
-						recipients.Add (Sender);
-
-					if (From.Count > 0) {
-						foreach (var mailbox in From.Mailboxes)
-							recipients.Add (mailbox);
-					}
-				}
-
-				foreach (var mailbox in To.Mailboxes)
-					recipients.Add (mailbox);
-				foreach (var mailbox in Cc.Mailboxes)
-					recipients.Add (mailbox);
-				foreach (var mailbox in Bcc.Mailboxes)
-					recipients.Add (mailbox);
-			}
-
-			return recipients.ToList ();
+			return GetMailboxes (true, true);
 		}
 
 #if ENABLE_CRYPTO
@@ -1991,7 +2010,7 @@ namespace MimeKit {
 			if (Body == null)
 				throw new InvalidOperationException ("No message body has been set.");
 
-			var recipients = GetMessageRecipients (true);
+			var recipients = GetEncryptionRecipients ();
 			if (recipients.Count == 0)
 				throw new InvalidOperationException ("No recipients have been set.");
 
@@ -2046,7 +2065,7 @@ namespace MimeKit {
 			if (Body == null)
 				throw new InvalidOperationException ("No message body has been set.");
 
-			var recipients = GetMessageRecipients (true);
+			var recipients = GetEncryptionRecipients ();
 			if (recipients.Count == 0)
 				throw new InvalidOperationException ("No recipients have been set.");
 
@@ -2120,7 +2139,7 @@ namespace MimeKit {
 			if (signer == null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
-			var recipients = GetMessageRecipients (true);
+			var recipients = GetEncryptionRecipients ();
 
 			if (ctx is SecureMimeContext smime) {
 				Body = ApplicationPkcs7Mime.SignAndEncrypt (smime, signer, digestAlgo, recipients, Body, cancellationToken);
@@ -2193,7 +2212,7 @@ namespace MimeKit {
 			if (signer == null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
-			var recipients = GetMessageRecipients (true);
+			var recipients = GetEncryptionRecipients ();
 
 			if (ctx is SecureMimeContext smime) {
 				Body = await ApplicationPkcs7Mime.SignAndEncryptAsync (smime, signer, digestAlgo, recipients, Body, cancellationToken).ConfigureAwait (false);

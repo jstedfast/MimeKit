@@ -639,7 +639,7 @@ namespace MimeKit.Cryptography {
 		/// Retrieves the public keyring, using the preferred key server, automatically importing it afterwards.
 		/// </summary>
 		/// <param name="keyId">The identifier of the key to be retrieved.</param>
-		/// <param name="doAsync"><c>true</c> if this operation should be done asynchronously; otherweise, <c>false</c>.</param>
+		/// <param name="doAsync"><c>true</c> if this operation should be done asynchronously; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public key ring.</returns>
 		async Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
