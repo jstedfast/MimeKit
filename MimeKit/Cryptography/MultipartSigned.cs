@@ -90,16 +90,19 @@ namespace MimeKit.Cryptography {
 			visitor.VisitMultipartSigned (this);
 		}
 
-		static MimeEntity Prepare (MimeEntity entity, Stream memory, CancellationToken cancellationToken)
+		static MimeEntity Prepare (CryptographyContext ctx, MimeEntity entity, Stream memory, CancellationToken cancellationToken)
 		{
-			entity.Prepare (EncodingConstraint.SevenBit, 78);
+			if (ctx.PrepareBeforeSigning)
+				entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var filtered = new FilteredStream (memory)) {
-				// Note: see rfc3156, section 3 - second note
-				filtered.Add (new ArmoredFromFilter ());
+				if (ctx.PrepareBeforeSigning) {
+					// Note: see rfc3156, section 3 - second note
+					filtered.Add (new ArmoredFromFilter ());
 
-				// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
-				filtered.Add (new TrailingWhitespaceFilter ());
+					// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+					filtered.Add (new TrailingWhitespaceFilter ());
+				}
 
 				// Note: see rfc2015 or rfc3156, section 5.1
 				filtered.Add (new Unix2DosFilter ());
@@ -116,16 +119,19 @@ namespace MimeKit.Cryptography {
 			return parser.ParseEntity (cancellationToken);
 		}
 
-		static async Task<MimeEntity> PrepareAsync (MimeEntity entity, Stream memory, CancellationToken cancellationToken)
+		static async Task<MimeEntity> PrepareAsync (CryptographyContext ctx, MimeEntity entity, Stream memory, CancellationToken cancellationToken)
 		{
-			entity.Prepare (EncodingConstraint.SevenBit, 78);
+			if (ctx.PrepareBeforeSigning)
+				entity.Prepare (EncodingConstraint.SevenBit, 78);
 
 			using (var filtered = new FilteredStream (memory)) {
-				// Note: see rfc3156, section 3 - second note
-				filtered.Add (new ArmoredFromFilter ());
+				if (ctx.PrepareBeforeSigning) {
+					// Note: see rfc3156, section 3 - second note
+					filtered.Add (new ArmoredFromFilter ());
 
-				// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
-				filtered.Add (new TrailingWhitespaceFilter ());
+					// Note: see rfc3156, section 5.4 (this is the main difference between rfc2015 and rfc3156)
+					filtered.Add (new TrailingWhitespaceFilter ());
+				}
 
 				// Note: see rfc2015 or rfc3156, section 5.1
 				filtered.Add (new Unix2DosFilter ());
@@ -175,9 +181,9 @@ namespace MimeKit.Cryptography {
 				MimeEntity prepared;
 
 				if (doAsync)
-					prepared = await PrepareAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+					prepared = await PrepareAsync (ctx, entity, memory, cancellationToken).ConfigureAwait (false);
 				else
-					prepared = Prepare (entity, memory, cancellationToken);
+					prepared = Prepare (ctx, entity, memory, cancellationToken);
 
 				memory.Position = 0;
 
@@ -296,9 +302,9 @@ namespace MimeKit.Cryptography {
 				MimeEntity prepared;
 
 				if (doAsync)
-					prepared = await PrepareAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+					prepared = await PrepareAsync (ctx, entity, memory, cancellationToken).ConfigureAwait (false);
 				else
-					prepared = Prepare (entity, memory, cancellationToken);
+					prepared = Prepare (ctx, entity, memory, cancellationToken);
 
 				memory.Position = 0;
 
@@ -493,9 +499,9 @@ namespace MimeKit.Cryptography {
 				MimeEntity prepared;
 
 				if (doAsync)
-					prepared = await PrepareAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+					prepared = await PrepareAsync (ctx, entity, memory, cancellationToken).ConfigureAwait (false);
 				else
-					prepared = Prepare (entity, memory, cancellationToken);
+					prepared = Prepare (ctx, entity, memory, cancellationToken);
 
 				memory.Position = 0;
 

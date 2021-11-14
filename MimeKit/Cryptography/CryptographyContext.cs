@@ -76,6 +76,17 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Get or set whether <see cref="MimeEntity"/>s should be prepared before signing.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets whether <see cref="MimeEntity"/>s should be prepared before signing.
+		/// </remarks>
+		/// <value><c>true</c> if MimeEntities should be prepared before signing; otherwise, <c>false</c>.</value>
+		public bool PrepareBeforeSigning {
+			get; set;
+		}
+
+		/// <summary>
 		/// Get the signature protocol.
 		/// </summary>
 		/// <remarks>
