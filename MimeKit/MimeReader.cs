@@ -95,10 +95,10 @@ namespace MimeKit {
 
 		static MimeReader ()
 		{
-#if NET45
-			CompletedTask = Task.FromResult (true);
-#else
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
 			CompletedTask = Task.CompletedTask;
+#else
+			CompletedTask = Task.FromResult (true);
 #endif
 		}
 

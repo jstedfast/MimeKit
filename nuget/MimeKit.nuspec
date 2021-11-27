@@ -62,7 +62,7 @@
       <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.8" />
     </frameworkAssemblies>
     <dependencies>
-      <group targetFramework="net45">
+      <group targetFramework="net452">
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
@@ -106,9 +106,9 @@
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.dll" target="lib\netstandard2.1\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.pdb" target="lib\netstandard2.1\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.xml" target="lib\netstandard2.1\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net45\MimeKit.dll" target="lib\net45\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net45\MimeKit.pdb" target="lib\net45\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net45\MimeKit.xml" target="lib\net45\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net452\MimeKit.dll" target="lib\net452\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net452\MimeKit.pdb" target="lib\net452\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\net452\MimeKit.xml" target="lib\net452\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net46\MimeKit.dll" target="lib\net46\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net46\MimeKit.pdb" target="lib\net46\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net46\MimeKit.xml" target="lib\net46\MimeKit.xml" />

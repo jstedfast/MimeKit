@@ -50,7 +50,7 @@
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
     </frameworkAssemblies>
     <dependencies>
-      <group targetFramework="net45">
+      <group targetFramework="net452">
         <dependency id="System.Buffers" version="4.5.1" />
       </group>
       <group targetFramework="net46">
@@ -82,9 +82,9 @@
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.dll" target="lib\netstandard2.1\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.pdb" target="lib\netstandard2.1\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.xml" target="lib\netstandard2.1\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net45\MimeKitLite.dll" target="lib\net45\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\net45\MimeKitLite.pdb" target="lib\net45\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\net45\MimeKitLite.xml" target="lib\net45\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net452\MimeKitLite.dll" target="lib\net452\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net452\MimeKitLite.pdb" target="lib\net452\MimeKitLite.pdb" />
+    <file src="..\MimeKit\bin\Release\net452\MimeKitLite.xml" target="lib\net452\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net46\MimeKitLite.dll" target="lib\net46\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net46\MimeKitLite.pdb" target="lib\net46\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net46\MimeKitLite.xml" target="lib\net46\MimeKitLite.xml" />
