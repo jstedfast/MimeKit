@@ -778,18 +778,24 @@ namespace MimeKit.Cryptography {
 #else
 			var info = type;
 #endif
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+			var ctor = type.GetConstructor (Array.Empty<Type> ());
+			var args = Array.Empty<object> ();
+#else
 			var ctor = type.GetConstructor (new Type[0]);
+			var args = new object[0];
+#endif
 
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", nameof (type));
 
 			if (info.IsSubclassOf (typeof (SecureMimeContext))) {
 				lock (mutex) {
-					SecureMimeContextFactory = () => (SecureMimeContext) ctor.Invoke (new object[0]);
+					SecureMimeContextFactory = () => (SecureMimeContext) ctor.Invoke (args);
 				}
 			} else if (info.IsSubclassOf (typeof (OpenPgpContext))) {
 				lock (mutex) {
-					PgpContextFactory = () => (OpenPgpContext) ctor.Invoke (new object[0]);
+					PgpContextFactory = () => (OpenPgpContext) ctor.Invoke (args);
 				}
 			} else {
 				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", nameof (type));

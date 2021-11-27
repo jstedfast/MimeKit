@@ -45,6 +45,11 @@ namespace MimeKit {
 	/// </remarks>
 	public class MailboxAddress : InternetAddress
 	{
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+		static readonly byte[] EmptySentinels = Array.Empty<byte> ();
+#else
+		static readonly byte[] EmptySentinels = new byte[0];
+#endif
 		string address;
 		int at;
 
@@ -215,7 +220,7 @@ namespace MimeKit {
 					var buffer = CharsetUtils.UTF8.GetBytes (value);
 					int index = 0;
 
-					TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], compliance, true, out string addrspec, out int atIndex);
+					TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, compliance, true, out string addrspec, out int atIndex);
 
 					ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, buffer.Length, false);
 
@@ -300,7 +305,7 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out int at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string address, out int at))
 				return addrspec;
 
 			return EncodeAddrspec (address, at);
@@ -329,7 +334,7 @@ namespace MimeKit {
 			int index = 0;
 
 			// Note: The parsed address will be IDN-decoded.
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, new byte[0], RfcComplianceMode.Looser, false, out string address, out _))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string address, out _))
 				return addrspec;
 
 			return address;

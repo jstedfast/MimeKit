@@ -666,7 +666,11 @@ namespace MimeKit.IO {
 				return;
 
 			if (!flushed) {
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+				filtered = Array.Empty<byte> ();
+#else
 				filtered = new byte[0];
+#endif
 				filteredIndex = 0;
 				filteredLength = 0;
 
@@ -742,7 +746,11 @@ namespace MimeKit.IO {
 				return;
 
 			if (!flushed) {
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+				filtered = Array.Empty<byte> ();
+#else
 				filtered = new byte[0];
+#endif
 				filteredIndex = 0;
 				filteredLength = 0;
 

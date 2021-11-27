@@ -50,7 +50,7 @@ namespace MimeKit.Utils {
 					if (assembly != null) {
 						var providerType = assembly.GetType ("System.Text.CodePagesEncodingProvider");
 						var property = providerType.GetProperty ("Instance").GetGetMethod ();
-						var instance = property.Invoke (providerType, new object[0]);
+						var instance = property.Invoke (providerType, Array.Empty<object> ());
 
 						registerProvider.Invoke (typeof (Encoding), new object[] { instance });
 					}

@@ -1418,7 +1418,11 @@ namespace MimeKit {
 				}
 			} else {
 				// Note: The only way to get here is if we have an invalid header, in which case the entire 'header' is stored as the 'field'.
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+				value = Array.Empty<byte> ();
+#else
 				value = new byte[0];
+#endif
 			}
 
 			header = new Header (options, field, value, invalid);

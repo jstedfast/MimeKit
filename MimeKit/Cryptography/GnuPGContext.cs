@@ -52,6 +52,11 @@ namespace MimeKit.Cryptography {
 		static readonly Dictionary<string, EncryptionAlgorithm> EncryptionAlgorithms;
 		//static readonly Dictionary<string, PublicKeyAlgorithm> PublicKeyAlgorithms;
 		static readonly Dictionary<string, DigestAlgorithm> DigestAlgorithms;
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+		static readonly byte[] EmptyKeyRingBundle = Array.Empty<byte> ();
+#else
+		static readonly byte[] EmptyKeyRingBundle = new byte[0];
+#endif
 		static readonly char[] Whitespace = { ' ', '\t' };
 		static readonly string GnuPGHomeDir;
 
@@ -145,7 +150,7 @@ namespace MimeKit.Cryptography {
 					PublicKeyRingBundle = new PgpPublicKeyRingBundle (file);
 				}
 			} else {
-				PublicKeyRingBundle = new PgpPublicKeyRingBundle (new byte[0]);
+				PublicKeyRingBundle = new PgpPublicKeyRingBundle (EmptyKeyRingBundle);
 			}
 
 			if (File.Exists (secring)) {
@@ -153,7 +158,7 @@ namespace MimeKit.Cryptography {
 					SecretKeyRingBundle = new PgpSecretKeyRingBundle (file);
 				}
 			} else {
-				SecretKeyRingBundle = new PgpSecretKeyRingBundle (new byte[0]);
+				SecretKeyRingBundle = new PgpSecretKeyRingBundle (EmptyKeyRingBundle);
 			}
 
 			var configFile = Path.Combine (gnupgDir, "gpg.conf");

@@ -1569,7 +1569,11 @@ namespace MimeKit {
 				field = new byte[headerIndex];
 				Buffer.BlockCopy (headerBuffer, 0, field, 0, headerIndex);
 				fieldNameLength = headerIndex;
+#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+				value = Array.Empty<byte> ();
+#else
 				value = new byte[0];
+#endif
 			} else {
 				field = new byte[headerFieldLength];
 				Buffer.BlockCopy (headerBuffer, 0, field, 0, headerFieldLength);
