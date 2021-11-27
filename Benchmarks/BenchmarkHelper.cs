@@ -35,18 +35,8 @@ namespace Benchmarks {
 
 		static BenchmarkHelper ()
 		{
-			var codeBase = typeof (BenchmarkHelper).Assembly.CodeBase;
-			if (codeBase.StartsWith ("file://", StringComparison.OrdinalIgnoreCase))
-				codeBase = codeBase.Substring ("file://".Length);
-
-			if (Path.DirectorySeparatorChar == '\\') {
-				if (codeBase[0] == '/')
-					codeBase = codeBase.Substring (1);
-
-				codeBase = codeBase.Replace ('/', '\\');
-			}
-
-			var dir = Path.GetDirectoryName (codeBase);
+			var location = typeof (BenchmarkHelper).Assembly.Location;
+			var dir = Path.GetDirectoryName (location);
 
 			while (Path.GetFileName (dir) != "Benchmarks")
 				dir = Path.GetFullPath (Path.Combine (dir, ".."));
