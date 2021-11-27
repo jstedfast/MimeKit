@@ -73,6 +73,8 @@ namespace MimeKit.Cryptography {
 			};
 
 			Enable (DigestAlgorithm.Sha1);
+
+			PrepareBeforeSigning = true;
 		}
 
 		/// <summary>
