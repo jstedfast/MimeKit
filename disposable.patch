@@ -3313,3 +3313,20 @@ index e27593bf..30908f1c 100644
  		public IEnumerable<MimeEntity> ExtractAttachments ()
  		{
  			var message = ConvertToMessage ();
+diff --git a/UnitTests/MultipartRelatedTests.cs b/UnitTests/MultipartRelatedTests.cs
+index b5372e9c..399d52a5 100644
+--- a/UnitTests/MultipartRelatedTests.cs
++++ b/UnitTests/MultipartRelatedTests.cs
+@@ -101,6 +101,12 @@ namespace UnitTests {
+ 			Assert.AreEqual (start, related.ContentType.Parameters["start"], "The start parameter does not match.");
+ 
+ 			related.Clear ();
++
++			// Note: Clear() disposed these, so we need to recreate them.
++			gif = new MimePart ("image", "gif") { ContentDisposition = new ContentDisposition (ContentDisposition.Inline) { FileName = "empty.gif" }, ContentId = MimeUtils.GenerateMessageId () };
++			jpg = new MimePart ("image", "jpg") { ContentDisposition = new ContentDisposition (ContentDisposition.Inline) { FileName = "empty.jpg" }, ContentId = MimeUtils.GenerateMessageId () };
++			html = new TextPart ("html") { Text = "This is the html body...", ContentId = MimeUtils.GenerateMessageId () };
++
+ 			related.Add (gif);
+ 			related.Add (jpg);
+ 			related.Root = html;
