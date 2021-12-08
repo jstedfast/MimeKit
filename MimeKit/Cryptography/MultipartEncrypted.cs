@@ -114,18 +114,18 @@ namespace MimeKit.Cryptography {
 					entity.WriteTo (options, memory, cancellationToken);
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -264,18 +264,18 @@ namespace MimeKit.Cryptography {
 					entity.WriteTo (options, memory, cancellationToken);
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -620,18 +620,18 @@ namespace MimeKit.Cryptography {
 					entity.WriteTo (options, memory, cancellationToken);
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -770,18 +770,18 @@ namespace MimeKit.Cryptography {
 					entity.WriteTo (options, memory, cancellationToken);
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -1153,18 +1153,18 @@ namespace MimeKit.Cryptography {
 
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.EncryptAsync (algorithm, recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -1264,18 +1264,18 @@ namespace MimeKit.Cryptography {
 
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.EncryptAsync (recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.Encrypt (recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -1525,18 +1525,18 @@ namespace MimeKit.Cryptography {
 
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.EncryptAsync (algorithm, recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
@@ -1636,18 +1636,18 @@ namespace MimeKit.Cryptography {
 
 				memory.Position = 0;
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
 				MimePart part;
 
 				if (doAsync)
 					part = await ctx.EncryptAsync (recipients, memory, cancellationToken).ConfigureAwait (false);
 				else
 					part = ctx.Encrypt (recipients, memory, cancellationToken);
+
+				var encrypted = new MultipartEncrypted ();
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
 
 				// add the encrypted entity as the second part
 				encrypted.Add (part);
