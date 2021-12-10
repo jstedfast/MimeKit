@@ -138,6 +138,45 @@ namespace UnitTests {
 			multipart.Clear ();
 
 			Assert.AreEqual (0, multipart.Count, "Count");
+
+			multipart.Add (plain);
+			multipart.Add (generic);
+
+			// Clear & dispose the MimeParts
+			multipart.Clear (true);
+
+			Assert.IsTrue (plain.IsDisposed, "Expected plain part to be disposed after Clear(true)");
+			Assert.IsTrue (generic.IsDisposed, "Expected generic part to be disposed after Clear(true)");
+		}
+
+		[Test]
+		public void TestDispose ()
+		{
+			var multipart = new Multipart ();
+
+			multipart.Boundary = "__Next_Part_123";
+
+			var generic = new MimePart ("application", "octet-stream") { Content = new MimeContent (new MemoryStream ()), IsAttachment = true };
+			var rfc822 = new MessagePart ("rfc822") {
+				Message = new MimeMessage () {
+					Body = new TextPart ("plain") {
+						Text = "This is the inner message body."
+					}
+				}
+			};
+			var plain = new TextPart ("plain") { Text = "This is some plain text." };
+
+			multipart.Add (plain);
+			multipart.Add (generic);
+			multipart.Add (rfc822);
+
+			multipart.Dispose ();
+
+			Assert.IsTrue (multipart.IsDisposed, "Expected multipart to be disposed after Dispose()");
+			Assert.IsTrue (plain.IsDisposed, "Expected plain part to be disposed after Dispose()");
+			Assert.IsTrue (generic.IsDisposed, "Expected generic part to be disposed after Dispose()");
+			Assert.IsTrue (rfc822.IsDisposed, "Expected rfc822 part to be disposed after Dispose()");
+			Assert.IsTrue (rfc822.Message.Body.IsDisposed, "Expected rfc822 message body to be disposed after Dispose()");
 		}
 
 		[Test]

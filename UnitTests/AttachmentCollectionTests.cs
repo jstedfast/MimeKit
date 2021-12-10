@@ -105,6 +105,27 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestClear ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var attachments = new AttachmentCollection ();
+			MimePart attachment;
+
+			attachment = (MimePart) attachments.Add (fileName);
+			attachments.Clear ();
+
+			Assert.AreEqual (0, attachments.Count);
+			Assert.IsFalse (attachment.IsDisposed, "Attachment should not have been disposed after Clear().");
+			attachment.Dispose ();
+
+			attachment = (MimePart) attachments.Add (fileName);
+			attachments.Clear (true);
+
+			Assert.AreEqual (0, attachments.Count);
+			Assert.IsTrue (attachment.IsDisposed, "Attachment should have been disposed after Clear(true).");
+		}
+
+		[Test]
 		public void TestAddFileName ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
@@ -125,7 +146,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -149,7 +170,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -173,7 +194,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -197,7 +218,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -222,7 +243,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -247,7 +268,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -271,7 +292,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -296,7 +317,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -322,7 +343,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -348,7 +369,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -375,7 +396,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -402,7 +423,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -426,7 +447,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -450,7 +471,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -474,7 +495,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -498,7 +519,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -522,7 +543,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 
 		[Test]
@@ -546,7 +567,7 @@ namespace UnitTests
 			Assert.AreEqual (0, attachments.IndexOf (attachment), "IndexOf");
 			Assert.IsTrue (attachments.Remove (attachment), "Remove");
 			Assert.AreEqual (0, attachments.Count);
-			attachments.Clear ();
+			attachments.Clear (true);
 		}
 	}
 }
