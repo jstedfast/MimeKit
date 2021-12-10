@@ -263,7 +263,7 @@ namespace MimeKit.Cryptography {
 			return collection;
 		}
 
-		RealCmsRecipientCollection GetCmsRecipients (CmsRecipientCollection recipients)
+		static RealCmsRecipientCollection GetCmsRecipients (CmsRecipientCollection recipients)
 		{
 			var collection = new RealCmsRecipientCollection ();
 
@@ -473,7 +473,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		async Task<Stream> SignAsync (RealCmsSigner signer, Stream content, bool detach, bool doAsync, CancellationToken cancellationToken = default (CancellationToken))
+		static async Task<Stream> SignAsync (RealCmsSigner signer, Stream content, bool detach, bool doAsync, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			ContentInfo contentInfo;
 
@@ -1286,7 +1286,7 @@ namespace MimeKit.Cryptography {
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}
 
-		async Task<MimeEntity> DecryptAsync (Stream encryptedData, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MimeEntity> DecryptAsync (Stream encryptedData, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
@@ -1368,7 +1368,7 @@ namespace MimeKit.Cryptography {
 			return DecryptAsync (encryptedData, true, cancellationToken);
 		}
 
-		async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
+		static async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));

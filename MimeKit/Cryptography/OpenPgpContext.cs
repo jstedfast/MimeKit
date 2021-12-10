@@ -670,6 +670,8 @@ namespace MimeKit.Cryptography {
 					if (doAsync) {
 						using (var response = await client.GetAsync (builder.Uri, cancellationToken).ConfigureAwait (false))
 							await response.Content.CopyToAsync (filtered).ConfigureAwait (false);
+
+						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 					} else {
 #if !NETSTANDARD1_3 && !NETSTANDARD1_6
 						var request = (HttpWebRequest) WebRequest.Create (builder.Uri);
@@ -681,9 +683,8 @@ namespace MimeKit.Cryptography {
 						using (var response = client.GetAsync (builder.Uri, cancellationToken).GetAwaiter ().GetResult ())
 							response.Content.CopyToAsync (filtered).GetAwaiter ().GetResult ();
 #endif
+						filtered.Flush (cancellationToken);
 					}
-
-					filtered.Flush ();
 				}
 
 				stream.Position = 0;
@@ -1104,7 +1105,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		bool TryGetPublicKey (PgpPublicKeyRing keyring, long keyId, out PgpPublicKey pubkey)
+		static bool TryGetPublicKey (PgpPublicKeyRing keyring, long keyId, out PgpPublicKey pubkey)
 		{
 			if (keyring != null) {
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
@@ -1515,7 +1516,7 @@ namespace MimeKit.Cryptography {
 			return await EncryptAsync (algorithm, encryptionKeys, content, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -2925,7 +2926,7 @@ namespace MimeKit.Cryptography {
 
 					var encoded = keys.GetEncoded ();
 					await armored.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
-					await armored.FlushAsync ().ConfigureAwait (false);
+					await armored.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 			} else {
 				var encoded = keys.GetEncoded ();

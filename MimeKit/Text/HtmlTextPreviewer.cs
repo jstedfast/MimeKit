@@ -146,7 +146,7 @@ namespace MimeKit.Text {
 			return lastIndex >= 0 && stack[lastIndex].SuppressInnerContent;
 		}
 
-		HtmlTagContext GetListItemContext (IList<HtmlTagContext> stack)
+		static HtmlTagContext GetListItemContext (IList<HtmlTagContext> stack)
 		{
 			for (int i = stack.Count; i > 0; i--) {
 				var ctx = stack[i - 1];

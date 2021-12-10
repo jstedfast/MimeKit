@@ -1204,7 +1204,7 @@ namespace MimeKit.Cryptography
 				this.recipient = recipient;
 			}
 
-			IWrapper CreateWrapper (AlgorithmIdentifier keyExchangeAlgorithm)
+			static IWrapper CreateWrapper (AlgorithmIdentifier keyExchangeAlgorithm)
 			{
 				string name;
 
@@ -1220,7 +1220,7 @@ namespace MimeKit.Cryptography
 				return WrapperUtilities.GetWrapper (name);
 			}
 
-			byte[] GenerateWrappedKey (KeyParameter contentEncryptionKey, AlgorithmIdentifier keyEncryptionAlgorithm, AsymmetricKeyParameter publicKey, SecureRandom random)
+			static byte[] GenerateWrappedKey (KeyParameter contentEncryptionKey, AlgorithmIdentifier keyEncryptionAlgorithm, AsymmetricKeyParameter publicKey, SecureRandom random)
 			{
 				var keyWrapper = CreateWrapper (keyEncryptionAlgorithm);
 				var keyBytes = contentEncryptionKey.GetKey ();

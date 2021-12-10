@@ -71,8 +71,8 @@ namespace MimeKit.IO.Filters {
 		/// <para>The <paramref name="targetEncodingName"/> is not supported by the system.</para>
 		/// </exception>
 		public CharsetFilter (string sourceEncodingName, string targetEncodingName)
-			: this (GetEncoding ("sourceEncodingName", sourceEncodingName),
-				GetEncoding ("targetEncodingName", targetEncodingName))
+			: this (GetEncoding (nameof (sourceEncodingName), sourceEncodingName),
+				GetEncoding (nameof (targetEncodingName), targetEncodingName))
 		{
 		}
 

@@ -540,7 +540,7 @@ namespace MimeKit {
 
 						filtered.Add (filter);
 						Content.DecodeTo (filtered, cancellationToken);
-						filtered.Flush ();
+						filtered.Flush (cancellationToken);
 
 						return filter.GetBestEncoding (constraint, maxLineLength);
 					}

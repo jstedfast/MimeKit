@@ -338,7 +338,7 @@ namespace MimeKit.Cryptography {
 			return record;
 		}
 
-		X509CrlRecord LoadCrlRecord (DbDataReader reader, X509CrlParser parser, ref byte[] buffer)
+		static X509CrlRecord LoadCrlRecord (DbDataReader reader, X509CrlParser parser, ref byte[] buffer)
 		{
 			var record = new X509CrlRecord ();
 

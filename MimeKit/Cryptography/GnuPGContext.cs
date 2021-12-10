@@ -668,7 +668,7 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-		void AddEncryptionKeyPair (PgpKeyRingGenerator keyRingGenerator, KeyGenerationParameters parameters, PublicKeyAlgorithmTag algorithm, DateTime now, long expirationTime, int[] encryptionAlgorithms, int[] digestAlgorithms)
+		static void AddEncryptionKeyPair (PgpKeyRingGenerator keyRingGenerator, KeyGenerationParameters parameters, PublicKeyAlgorithmTag algorithm, DateTime now, long expirationTime, int[] encryptionAlgorithms, int[] digestAlgorithms)
 		{
 			var keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator ("RSA");
 

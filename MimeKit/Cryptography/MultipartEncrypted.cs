@@ -1205,8 +1205,13 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
-					filtered.Flush ();
+					if (doAsync) {
+						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+					} else {
+						entity.WriteTo (filtered, cancellationToken);
+						filtered.Flush (cancellationToken);
+					}
 				}
 
 				memory.Position = 0;
@@ -1322,8 +1327,13 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
-					filtered.Flush ();
+					if (doAsync) {
+						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+					} else {
+						entity.WriteTo (filtered, cancellationToken);
+						filtered.Flush (cancellationToken);
+					}
 				}
 
 				memory.Position = 0;
@@ -1601,8 +1611,13 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
-					filtered.Flush ();
+					if (doAsync) {
+						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+					} else {
+						entity.WriteTo (filtered, cancellationToken);
+						filtered.Flush (cancellationToken);
+					}
 				}
 
 				memory.Position = 0;
@@ -1718,8 +1733,13 @@ namespace MimeKit.Cryptography {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					entity.WriteTo (filtered);
-					filtered.Flush ();
+					if (doAsync) {
+						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+					} else {
+						entity.WriteTo (filtered, cancellationToken);
+						filtered.Flush (cancellationToken);
+					}
 				}
 
 				memory.Position = 0;

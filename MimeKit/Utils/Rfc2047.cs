@@ -1381,8 +1381,8 @@ namespace MimeKit.Utils {
 					word.CharCount = (next.StartIndex + next.CharCount) - word.StartIndex;
 					word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
 					word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) next.Encoding);
-					word.EncodeCount = word.EncodeCount + next.EncodeCount;
-					word.QuotedPairs = word.QuotedPairs + next.QuotedPairs;
+					word.EncodeCount += next.EncodeCount;
+					word.QuotedPairs += next.QuotedPairs;
 				} else {
 					merged.Add (next);
 					word = next;

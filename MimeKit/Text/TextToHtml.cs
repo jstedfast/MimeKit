@@ -127,7 +127,7 @@ namespace MimeKit.Text {
 
 		class TextToHtmlTagContext : HtmlTagContext
 		{
-			HtmlAttributeCollection attributes;
+			readonly HtmlAttributeCollection attributes;
 			bool isEndTag;
 
 			public TextToHtmlTagContext (HtmlTagId tag, HtmlAttribute attr) : base (tag)

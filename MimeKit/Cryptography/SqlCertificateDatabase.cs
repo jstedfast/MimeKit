@@ -272,7 +272,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns that are indexed.</param>
 		/// <returns></returns>
-		protected string GetIndexName (string tableName, string[] columnNames)
+		protected static string GetIndexName (string tableName, string[] columnNames)
 		{
 			return string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));
 		}
@@ -406,7 +406,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="fields">THe X.509 certificate fields.</param>
 		/// <returns>A <see cref="StringBuilder"/> containing a basic SELECT query string.</returns>
-		protected StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
+		protected static StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
 		{
 			var query = new StringBuilder ("SELECT ");
 			var columns = GetColumnNames (fields);

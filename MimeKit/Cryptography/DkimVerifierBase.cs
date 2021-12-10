@@ -506,7 +506,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="maxLength">The max length of the message body to hash or <c>-1</c> to hash the entire message body.</param>
 		/// <param name="bodyHash">The expected message body hash encoded in base64.</param>
 		/// <returns><c>true</c> if the calculated body hash matches <paramref name="bodyHash"/>; otherwise, <c>false</c>.</returns>
-		protected bool VerifyBodyHash (FormatOptions options, MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, int maxLength, string bodyHash)
+		protected static bool VerifyBodyHash (FormatOptions options, MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, int maxLength, string bodyHash)
 		{
 			var hash = Convert.ToBase64String (message.HashBody (options, signatureAlgorithm, canonicalizationAlgorithm, maxLength));
 

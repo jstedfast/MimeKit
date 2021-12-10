@@ -42,6 +42,7 @@ namespace MimeKit.Utils {
 			int gb2312;
 
 #if NETSTANDARD || NET5_0_OR_GREATER
+			// System.Text.Encoding.RegisterProvider (System.Text.CodePagesEncodingProvider.Instance);
 			var encodingProviderType = typeof (Encoding).Assembly.GetType ("System.Text.EncodingProvider");
 			var registerProvider = typeof (Encoding).GetMethod ("RegisterProvider", new Type[] { encodingProviderType });
 			if (registerProvider != null) {
