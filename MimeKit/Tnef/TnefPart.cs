@@ -72,6 +72,11 @@ namespace MimeKit.Tnef {
 			FileName = "winmail.dat";
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (TnefPart));
+		}
+
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
@@ -87,10 +92,15 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefPart"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitTnefPart (this);
 		}
@@ -678,8 +688,13 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="MimePart.Content"/> property is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefPart"/> has been disposed.
+		/// </exception>
 		public MimeMessage ConvertToMessage ()
 		{
+			CheckDisposed ();
+
 			if (Content == null)
 				throw new InvalidOperationException ("Cannot parse null TNEF data.");
 
@@ -704,6 +719,9 @@ namespace MimeKit.Tnef {
 		/// <returns>The attachments.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="MimePart.Content"/> property is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefPart"/> has been disposed.
 		/// </exception>
 		public IEnumerable<MimeEntity> ExtractAttachments ()
 		{

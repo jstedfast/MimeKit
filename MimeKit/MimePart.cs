@@ -194,6 +194,11 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MimePart));
+		}
+
 		/// <summary>
 		/// Gets or sets the description of the content if available.
 		/// </summary>
@@ -204,8 +209,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is negative.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public string ContentDescription {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentDescription) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentDescription, out var header))
 						description = header.Value.Trim ();
@@ -216,6 +226,8 @@ namespace MimeKit {
 				return description;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentDescription) != 0 && description == value)
 					return;
 
@@ -242,8 +254,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is negative.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public int? ContentDuration {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentDuration) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentDuration, out var header)) {
 						if (int.TryParse (header.Value.Trim (), out var value))
@@ -256,6 +273,8 @@ namespace MimeKit {
 				return duration;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentDuration) != 0 && duration == value)
 					return;
 
@@ -283,8 +302,13 @@ namespace MimeKit {
 		/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc1864">rfc1864</a>.</para>
 		/// </remarks>
 		/// <value>The md5sum of the content.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public string ContentMd5 {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentMd5) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentMd5, out var header))
 						md5sum = header.Value.Trim ();
@@ -295,6 +319,8 @@ namespace MimeKit {
 				return md5sum;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentMd5) != 0 && md5sum == value)
 					return;
 
@@ -326,8 +352,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is not a valid content encoding.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public ContentEncoding ContentTransferEncoding {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentTransferEncoding) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentTransferEncoding, out var header))
 						MimeUtils.TryParse (header.Value, out encoding);
@@ -338,6 +369,8 @@ namespace MimeKit {
 				return encoding;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentTransferEncoding) != 0 && encoding == value)
 					return;
 
@@ -373,6 +406,9 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The name of the file.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public string FileName {
 			get {
 				string filename = null;
@@ -427,10 +463,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMimePart (this);
 		}
@@ -446,6 +487,9 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="constraint"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -473,6 +517,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -481,6 +528,8 @@ namespace MimeKit {
 		/// </exception>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, int maxLineLength, CancellationToken cancellationToken = default (CancellationToken))
 		{
+			CheckDisposed ();
+
 			if (ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*")) {
 				if (Content == null)
 					return ContentEncoding.SevenBit;
@@ -509,11 +558,16 @@ namespace MimeKit {
 		/// format and then base64-encodes the result.
 		/// </remarks>
 		/// <returns>The md5sum of the content.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="Content"/> is <c>null</c>.
 		/// </exception>
 		public string ComputeContentMd5 ()
 		{
+			CheckDisposed ();
+
 			if (Content == null)
 				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
 
@@ -545,8 +599,13 @@ namespace MimeKit {
 		/// the values match.
 		/// </remarks>
 		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public bool VerifyContentMd5 ()
 		{
+			CheckDisposed ();
+
 			if (string.IsNullOrWhiteSpace (md5sum) || Content == null)
 				return false;
 
@@ -566,10 +625,15 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
+		/// </exception>
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
+
+			CheckDisposed ();
 
 			switch (ContentTransferEncoding) {
 			case ContentEncoding.QuotedPrintable:
@@ -607,6 +671,9 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -696,6 +763,9 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -800,6 +870,24 @@ namespace MimeKit {
 				md5sum = null;
 				break;
 			}
+		}
+
+		/// <summary>
+		/// Releases the unmanaged resources used by the <see cref="MimePart"/> and
+		/// optionally releases the managed resources.
+		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="MimePart"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
+		protected override void Dispose (bool disposing)
+		{
+			if (disposing && Content != null)
+				Content.Dispose ();
+
+			base.Dispose (disposing);
 		}
 	}
 }

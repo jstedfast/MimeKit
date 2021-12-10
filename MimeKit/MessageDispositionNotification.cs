@@ -66,6 +66,11 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MessageDispositionNotification));
+		}
+
 		/// <summary>
 		/// Get the disposition notification fields.
 		/// </summary>
@@ -73,8 +78,13 @@ namespace MimeKit {
 		/// Gets the disposition notification fields.
 		/// </remarks>
 		/// <value>The fields.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MessageDispositionNotification"/> has been disposed.
+		/// </exception>
 		public HeaderList Fields {
 			get {
+				CheckDisposed ();
+
 				if (fields == null) {
 					if (Content == null) {
 						Content = new MimeContent (new MemoryBlockStream ());
@@ -118,10 +128,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MessageDispositionNotification"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMessageDispositionNotification (this);
 		}

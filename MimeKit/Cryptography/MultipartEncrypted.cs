@@ -67,6 +67,11 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MultipartEncrypted));
+		}
+
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
@@ -82,10 +87,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartEncrypted"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMultipartEncrypted (this);
 		}
@@ -174,6 +184,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -226,6 +239,9 @@ namespace MimeKit.Cryptography {
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -314,6 +330,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -356,6 +375,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -408,6 +430,9 @@ namespace MimeKit.Cryptography {
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -471,6 +496,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -524,6 +552,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
 		/// </exception>
@@ -574,6 +605,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The user chose to cancel the password prompt.
@@ -680,6 +714,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -732,6 +769,9 @@ namespace MimeKit.Cryptography {
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -827,6 +867,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -876,6 +919,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -928,6 +974,9 @@ namespace MimeKit.Cryptography {
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -991,6 +1040,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The <paramref name="cipherAlgo"/> is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -1050,6 +1102,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -1108,6 +1163,9 @@ namespace MimeKit.Cryptography {
 		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
@@ -1200,6 +1258,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// THe specified encryption algorithm is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1234,6 +1295,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// THe specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1304,6 +1368,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1334,6 +1401,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1371,6 +1441,9 @@ namespace MimeKit.Cryptography {
 		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1413,6 +1486,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1447,6 +1523,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1485,6 +1564,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1572,6 +1654,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// THe specified encryption algorithm is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1606,6 +1691,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// THe specified encryption algorithm is not supported.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1679,6 +1767,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1709,6 +1800,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// One or more of the recipient keys cannot be used for encrypting.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1743,6 +1837,9 @@ namespace MimeKit.Cryptography {
 		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1785,6 +1882,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1823,6 +1923,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A default <see cref="OpenPgpContext"/> has not been registered.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1860,6 +1963,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1901,6 +2007,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartEncrypted"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -1913,6 +2022,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
+
+			CheckDisposed ();
 
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
@@ -1971,6 +2082,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartEncrypted"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -2006,6 +2120,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartEncrypted"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>
 		/// <para>-or-</para>
@@ -2016,6 +2133,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public MimeEntity Decrypt (out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
 		{
+			CheckDisposed ();
+
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ();
@@ -2073,6 +2192,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartEncrypted"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// <para>The user chose to cancel the password prompt.</para>

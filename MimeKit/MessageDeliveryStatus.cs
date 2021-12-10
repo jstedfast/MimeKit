@@ -69,6 +69,11 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MessageDeliveryStatus));
+		}
+
 		/// <summary>
 		/// Get the groups of delivery status fields.
 		/// </summary>
@@ -87,8 +92,13 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 		/// </example>
 		/// <value>The fields.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MessageDeliveryStatus"/> has been disposed.
+		/// </exception>
 		public HeaderListCollection StatusGroups {
 			get {
+				CheckDisposed ();
+
 				if (groups == null) {
 					if (Content == null) {
 						Content = new MimeContent (new MemoryBlockStream ());
@@ -141,10 +151,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MessageDeliveryStatus"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMessageDeliveryStatus (this);
 		}

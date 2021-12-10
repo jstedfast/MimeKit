@@ -198,6 +198,11 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (TextPart));
+		}
+
 		/// <summary>
 		/// Get the text format of the content.
 		/// </summary>
@@ -205,8 +210,13 @@ namespace MimeKit {
 		/// Gets the text format of the content.
 		/// </remarks>
 		/// <value>The text format of the content.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public TextFormat Format {
 			get {
+				CheckDisposed ();
+
 				if (ContentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
 					if (ContentType.MediaSubtype.Equals ("plain")) {
 						if (ContentType.Parameters.TryGetValue ("format", out string format)) {
@@ -240,8 +250,15 @@ namespace MimeKit {
 		/// predecessor, <c>text/richtext</c> (not to be confused with <c>text/rtf</c>).
 		/// </remarks>
 		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public bool IsEnriched {
-			get { return ContentType.IsMimeType ("text", "enriched") || ContentType.IsMimeType ("text", "richtext"); }
+			get {
+				CheckDisposed ();
+
+				return ContentType.IsMimeType ("text", "enriched") || ContentType.IsMimeType ("text", "richtext");
+			}
 		}
 
 		/// <summary>
@@ -255,6 +272,9 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <value><c>true</c> if the text is flowed; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public bool IsFlowed {
 			get {
 				string format;
@@ -278,8 +298,15 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public bool IsHtml {
-			get { return ContentType.IsMimeType ("text", "html"); }
+			get {
+				CheckDisposed ();
+
+				return ContentType.IsMimeType ("text", "html");
+			}
 		}
 
 		/// <summary>
@@ -289,8 +316,15 @@ namespace MimeKit {
 		/// Checks whether or not the text part's Content-Type is <c>text/plain</c>.
 		/// </remarks>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public bool IsPlain {
-			get { return ContentType.IsMimeType ("text", "plain"); }
+			get {
+				CheckDisposed ();
+				
+				return ContentType.IsMimeType ("text", "plain");
+			}
 		}
 
 		/// <summary>
@@ -300,8 +334,15 @@ namespace MimeKit {
 		/// Checks whether or not the text part's Content-Type is <c>text/rtf</c>.
 		/// </remarks>
 		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public bool IsRichText {
-			get { return ContentType.IsMimeType ("text", "rtf") || ContentType.IsMimeType ("application", "rtf"); }
+			get {
+				CheckDisposed ();
+
+				return ContentType.IsMimeType ("text", "rtf") || ContentType.IsMimeType ("application", "rtf");
+			}
 		}
 
 		/// <summary>
@@ -318,6 +359,9 @@ namespace MimeKit {
 		/// or <see cref="GetText(String)"/>.</para>
 		/// </remarks>
 		/// <value>The decocded text.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public string Text {
 			get {
 				return GetText (out _);
@@ -342,10 +386,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitTextPart (this);
 		}
@@ -358,6 +407,9 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns><c>true</c> if the text is in the specified format; otherwise, <c>false</c>.</returns>
 		/// <param name="format">The text format.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		internal bool IsFormat (TextFormat format)
 		{
 			switch (format) {
@@ -385,8 +437,13 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="encoding">The encoding used to convert the text into unicode.</param>
 		/// <returns>The decoded text.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public string GetText (out Encoding encoding)
 		{
+			CheckDisposed ();
+
 			if (Content == null) {
 				encoding = Encoding.ASCII;
 				return string.Empty;
@@ -425,10 +482,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public string GetText (Encoding encoding)
 		{
 			if (encoding == null)
 				throw new ArgumentNullException (nameof (encoding));
+
+			CheckDisposed ();
 
 			if (Content == null)
 				return string.Empty;
@@ -468,6 +530,9 @@ namespace MimeKit {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="charset"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public string GetText (string charset)
 		{
 			if (charset == null)
@@ -491,6 +556,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
 		public void SetText (Encoding encoding, string text)
 		{
 			if (encoding == null)
@@ -498,6 +566,8 @@ namespace MimeKit {
 
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
+
+			CheckDisposed ();
 
 			var content = new MemoryStream (encoding.GetBytes (text));
 			ContentType.CharsetEncoding = encoding;
@@ -521,6 +591,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="charset"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
 		public void SetText (string charset, string text)
 		{

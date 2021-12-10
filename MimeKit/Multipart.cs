@@ -142,6 +142,11 @@ namespace MimeKit {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (Multipart));
+		}
+
 		static string GenerateBoundary ()
 		{
 			var base64 = new Base64Encoder (true);
@@ -194,14 +199,21 @@ namespace MimeKit {
 		/// it correctly.
 		/// </remarks>
 		/// <value>The preamble.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public string Preamble {
 			get {
+				CheckDisposed ();
+
 				if (preamble == null && RawPreamble != null)
 					preamble = CharsetUtils.ConvertToUnicode (Headers.Options, RawPreamble, 0, RawPreamble.Length);
 
 				return preamble;
 			}
 			set {
+				CheckDisposed ();
+
 				if (Preamble == value)
 					return;
 
@@ -231,8 +243,13 @@ namespace MimeKit {
 		/// character sequence.
 		/// </remarks>
 		/// <value>The epilogue.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public string Epilogue {
 			get {
+				CheckDisposed ();
+
 				if (epilogue == null && RawEpilogue != null) {
 					int index = 0;
 
@@ -249,6 +266,8 @@ namespace MimeKit {
 				return epilogue;
 			}
 			set {
+				CheckDisposed ();
+
 				if (Epilogue == value)
 					return;
 
@@ -291,10 +310,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMultipart (this);
 		}
@@ -387,10 +411,15 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
+
+			CheckDisposed ();
 
 			for (int i = 0; i < children.Count; i++)
 				children[i].Prepare (constraint, maxLineLength);
@@ -410,6 +439,9 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -520,6 +552,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -623,10 +658,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public void Add (MimeEntity entity)
 		{
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
+
+			CheckDisposed ();
 
 			WriteEndBoundary = true;
 			children.Add (entity);
@@ -638,8 +678,33 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all of the entities within the multipart.
 		/// </remarks>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public void Clear ()
 		{
+			Clear (false);
+		}
+
+		/// <summary>
+		/// Clear a multipart.
+		/// </summary>
+		/// <remarks>
+		/// Removes all of the entities within the multipart, optionally disposing them in the process.
+		/// </remarks>
+		/// <param name="dispose"><c>true</c> if all of the child entities of the multipart should be disposed; otherwise, <c>false</c>.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
+		public void Clear (bool dispose)
+		{
+			CheckDisposed ();
+
+			if (dispose) {
+				for (int i = 0; i < children.Count; i++)
+					children[i].Dispose ();
+			}
+
 			WriteEndBoundary = true;
 			children.Clear ();
 		}
@@ -656,10 +721,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public bool Contains (MimeEntity entity)
 		{
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
+
+			CheckDisposed ();
 
 			return children.Contains (entity);
 		}
@@ -679,8 +749,12 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
+			CheckDisposed ();
 			children.CopyTo (array, arrayIndex);
 		}
 
@@ -695,10 +769,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public bool Remove (MimeEntity entity)
 		{
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
+
+			CheckDisposed ();
 
 			if (!children.Remove (entity))
 				return false;
@@ -723,10 +802,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public int IndexOf (MimeEntity entity)
 		{
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
+
+			CheckDisposed ();
 
 			return children.IndexOf (entity);
 		}
@@ -745,6 +829,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public void Insert (int index, MimeEntity entity)
 		{
 			if (index < 0 || index > children.Count)
@@ -752,6 +839,8 @@ namespace MimeKit {
 
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
+
+			CheckDisposed ();
 
 			children.Insert (index, entity);
 			WriteEndBoundary = true;
@@ -761,14 +850,19 @@ namespace MimeKit {
 		/// Remove an entity from the <see cref="Multipart"/> at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Removes the entity at the specified index.
+		/// <para>Removes the entity at the specified index.</para>
+		/// <note type="note">It is the responsibility of the caller to dispose the entity at the specified <paramref name="index"/>.</note>
 		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public void RemoveAt (int index)
 		{
+			CheckDisposed ();
 			children.RemoveAt (index);
 			WriteEndBoundary = true;
 		}
@@ -777,7 +871,8 @@ namespace MimeKit {
 		/// Get or set the <see cref="MimeEntity"/> at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
+		/// <para>Gets or sets the <see cref="MimeEntity"/> at the specified index.</para>
+		/// <note type="note">It is the responsibility of the caller to dispose the original entity at the specified <paramref name="index"/>.</note>
 		/// </remarks>
 		/// <value>The entity at the specified index.</value>
 		/// <param name="index">The index.</param>
@@ -787,11 +882,20 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public MimeEntity this[int index] {
-			get { return children[index]; }
+			get {
+				CheckDisposed ();
+
+				return children[index];
+			}
 			set {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
+
+				CheckDisposed ();
 
 				WriteEndBoundary = true;
 				children[index] = value;
@@ -809,8 +913,12 @@ namespace MimeKit {
 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
 		/// </remarks>
 		/// <returns>The enumerator.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
+			CheckDisposed ();
 			return children.GetEnumerator ();
 		}
 
@@ -825,11 +933,35 @@ namespace MimeKit {
 		/// Gets the enumerator for the children of the <see cref="Multipart"/>.
 		/// </remarks>
 		/// <returns>The enumerator.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
+			CheckDisposed ();
 			return children.GetEnumerator ();
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
+		/// optionally releases the managed resources.
+		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
+		protected override void Dispose (bool disposing)
+		{
+			if (disposing) {
+				for (int i = 0; i < children.Count; i++)
+					children[i].Dispose ();
+			}
+
+			base.Dispose (disposing);
+		}
 	}
 }

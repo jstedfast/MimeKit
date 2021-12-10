@@ -79,6 +79,11 @@ namespace MimeKit.Cryptography {
 			FileName = "smime.p7s";
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (ApplicationPkcs7Signature));
+		}
+
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
@@ -94,10 +99,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="ApplicationPkcs7Signature"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitApplicationPkcs7Signature (this);
 		}

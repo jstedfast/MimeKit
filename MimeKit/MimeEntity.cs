@@ -45,7 +45,7 @@ namespace MimeKit {
 	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
 	/// derivatives of one of those.</para>
 	/// </remarks>
-	public abstract class MimeEntity
+	public abstract class MimeEntity : IDisposable
 	{
 		[Flags]
 		internal enum LazyLoadedFields : short
@@ -68,6 +68,7 @@ namespace MimeKit {
 
 		internal LazyLoadedFields LazyLoaded;
 		internal bool EnsureNewLine;
+		internal bool IsDisposed;
 
 		ContentDisposition disposition;
 		string contentId;
@@ -147,6 +148,30 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeEntity"/> is reclaimed by garbage collection.
+		/// </summary>
+		/// <remarks>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeEntity"/> is reclaimed by garbage collection.
+		/// </remarks>
+		~MimeEntity ()
+		{
+			Dispose (false);
+		}
+
+		internal void CheckDisposed (string objectName)
+		{
+			if (IsDisposed)
+				throw new ObjectDisposedException (objectName);
+		}
+
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MimeEntity));
+		}
+
+		/// <summary>
 		/// Tries to use the given object to initialize the appropriate property.
 		/// </summary>
 		/// <remarks>
@@ -193,8 +218,13 @@ namespace MimeKit {
 		/// be <c>null</c>.
 		/// </remarks>
 		/// <value>The content disposition.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public ContentDisposition ContentDisposition {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentDisposition) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentDisposition, out var header)) {
 						if (ContentDisposition.TryParse (Headers.Options, header.RawValue, out disposition))
@@ -207,6 +237,8 @@ namespace MimeKit {
 				return disposition;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentDisposition) != 0 && disposition == value)
 					return;
 
@@ -250,8 +282,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is not an absolute URI.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public Uri ContentBase {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentBase) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentBase, out var header)) {
 						var value = header.Value.Trim ();
@@ -266,6 +303,8 @@ namespace MimeKit {
 				return baseUri;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentBase) != 0 && baseUri == value)
 					return;
 
@@ -297,8 +336,13 @@ namespace MimeKit {
 		/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc2110">rfc2110</a>.</para>
 		/// </remarks>
 		/// <value>The content location or <c>null</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public Uri ContentLocation {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentLocation) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentLocation, out var header)) {
 						var value = header.Value.Trim ();
@@ -315,6 +359,8 @@ namespace MimeKit {
 				return location;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentLocation) != 0 && location == value)
 					return;
 
@@ -342,8 +388,13 @@ namespace MimeKit {
 		/// when the HTML-formatted message body needs to reference image attachments.</para>
 		/// </remarks>
 		/// <value>The content identifier.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public string ContentId {
 			get {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentId) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentId, out var header)) {
 						int index = 0;
@@ -358,6 +409,8 @@ namespace MimeKit {
 				return contentId;
 			}
 			set {
+				CheckDisposed ();
+
 				if ((LazyLoaded & LazyLoadedFields.ContentId) != 0 && contentId == value)
 					return;
 
@@ -390,9 +443,18 @@ namespace MimeKit {
 		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
 		/// </remarks>
 		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public bool IsAttachment {
-			get { return ContentDisposition != null && ContentDisposition.IsAttachment; }
+			get {
+				CheckDisposed ();
+
+				return ContentDisposition != null && ContentDisposition.IsAttachment;
+			}
 			set {
+				CheckDisposed ();
+
 				if (value) {
 					if (ContentDisposition == null)
 						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
@@ -415,8 +477,13 @@ namespace MimeKit {
 		/// conversion.</para></note>
 		/// </remarks>
 		/// <returns>A <see cref="String"/> that represents the <see cref="MimeEntity"/> for debugging purposes.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public override string ToString ()
 		{
+			CheckDisposed ();
+
 			using (var memory = new MemoryStream ()) {
 				WriteTo (memory);
 
@@ -446,10 +513,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		public virtual void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMimeEntity (this);
 		}
@@ -466,6 +538,9 @@ namespace MimeKit {
 		/// <para><paramref name="maxLineLength"/> is not between <c>72</c> and <c>998</c> (inclusive).</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="constraint"/> is not a valid value.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		public abstract void Prepare (EncodingConstraint constraint, int maxLineLength = 78);
 
@@ -485,6 +560,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -498,6 +576,8 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
+
+			CheckDisposed ();
 
 			if (!contentOnly)
 				Headers.WriteTo (options, stream, cancellationToken);
@@ -520,6 +600,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -533,6 +616,8 @@ namespace MimeKit {
 
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
+
+			CheckDisposed ();
 
 			if (!contentOnly)
 				return Headers.WriteToAsync (options, stream, cancellationToken);
@@ -554,6 +639,9 @@ namespace MimeKit {
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -582,6 +670,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -604,6 +695,9 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -629,6 +723,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -650,6 +747,9 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -673,6 +773,9 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -703,6 +806,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -751,6 +857,9 @@ namespace MimeKit {
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -795,6 +904,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -844,6 +956,9 @@ namespace MimeKit {
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -889,6 +1004,9 @@ namespace MimeKit {
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -926,6 +1044,9 @@ namespace MimeKit {
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -960,6 +1081,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -996,6 +1120,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
 		/// contains one or more invalid characters.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1161,6 +1288,38 @@ namespace MimeKit {
 		{
 			OnHeadersChanged (e.Action, e.Header);
 		}
+
+		#region IDisposable implementation
+
+		/// <summary>
+		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
+		/// optionally releases the managed resources.
+		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
+		protected virtual void Dispose (bool disposing)
+		{
+		}
+
+		/// <summary>
+		/// Releases all resources used by the <see cref="MimeEntity"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeEntity"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeEntity"/> in an unusable state. After
+		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeEntity"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="MimeEntity"/> was occupying.</remarks>
+		public void Dispose ()
+		{
+			Dispose (true);
+			IsDisposed = true;
+			GC.SuppressFinalize (this);
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified stream.

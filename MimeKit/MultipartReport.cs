@@ -97,6 +97,11 @@ namespace MimeKit {
 			ReportType = reportType;
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MultipartReport));
+		}
+
 		/// <summary>
 		/// Gets or sets the type of the report.
 		/// </summary>
@@ -112,11 +117,20 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartReport"/> has been disposed.
+		/// </exception>
 		public string ReportType {
-			get { return ContentType.Parameters["report-type"]; }
+			get {
+				CheckDisposed ();
+
+				return ContentType.Parameters["report-type"];
+			}
 			set {
 				if (value == null)
 					throw new ArgumentNullException (nameof (value));
+
+				CheckDisposed ();
 
 				if (ReportType == value)
 					return;
@@ -140,10 +154,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartReport"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMultipartReport (this);
 		}

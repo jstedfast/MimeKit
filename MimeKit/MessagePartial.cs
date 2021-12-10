@@ -96,6 +96,11 @@ namespace MimeKit {
 			ContentType.Parameters.Add (new Parameter ("total", total.ToString ()));
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MessagePartial));
+		}
+
 		/// <summary>
 		/// Gets the "id" parameter of the Content-Type header.
 		/// </summary>
@@ -158,10 +163,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MessagePartial"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMessagePartial (this);
 		}
@@ -192,6 +202,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxSize"/> is less than <c>1</c>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="message"/> has been disposed.
 		/// </exception>
 		public static IEnumerable<MimeMessage> Split (MimeMessage message, int maxSize)
 		{

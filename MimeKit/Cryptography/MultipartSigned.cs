@@ -67,6 +67,11 @@ namespace MimeKit.Cryptography {
 		{
 		}
 
+		void CheckDisposed ()
+		{
+			CheckDisposed (nameof (MultipartSigned));
+		}
+
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
@@ -82,10 +87,15 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartSigned"/> has been disposed.
+		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
 			if (visitor == null)
 				throw new ArgumentNullException (nameof (visitor));
+
+			CheckDisposed ();
 
 			visitor.VisitMultipartSigned (this);
 		}
@@ -226,6 +236,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -269,6 +282,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -350,6 +366,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -391,6 +410,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="digestAlgo"/> is not supported.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -430,6 +452,9 @@ namespace MimeKit.Cryptography {
 		/// <para>A cryptography context suitable for signing could not be found.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -471,6 +496,9 @@ namespace MimeKit.Cryptography {
 		/// <para>A cryptography context suitable for signing could not be found.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -537,6 +565,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -567,6 +598,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="signer"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -599,6 +633,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for signing could not be found.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -630,6 +667,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for signing could not be found.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// <paramref name="entity"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -684,6 +724,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="ctx"/> does not support verifying the signature part.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartSigned"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
@@ -694,6 +737,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
+
+			CheckDisposed ();
 
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
@@ -750,6 +795,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="ctx"/> does not support verifying the signature part.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartSigned"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
@@ -760,6 +808,8 @@ namespace MimeKit.Cryptography {
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
+
+			CheckDisposed ();
 
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 			if (string.IsNullOrEmpty (protocol))
@@ -814,6 +864,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for verifying the signature could not be found.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartSigned"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
@@ -822,6 +875,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public DigitalSignatureCollection Verify (CancellationToken cancellationToken = default (CancellationToken))
 		{
+			CheckDisposed ();
+
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 
 			if (string.IsNullOrEmpty (protocol))
@@ -847,6 +902,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for verifying the signature could not be found.
 		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="MultipartSigned"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
@@ -855,6 +913,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public async Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
+			CheckDisposed ();
+
 			var protocol = ContentType.Parameters["protocol"]?.Trim ();
 
 			if (string.IsNullOrEmpty (protocol))

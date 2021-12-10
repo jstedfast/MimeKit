@@ -102,10 +102,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
+		/// Get or set the <see cref="MimeEntity"/> at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the <see cref="MimeEntity"/> at the specified index.
+		/// <para>Gets or sets the <see cref="MimeEntity"/> at the specified index.</para>
+		/// <note type="note">It is the responsibility of the caller to dispose the original entity at the specified <paramref name="index"/>.</note>
 		/// </remarks>
 		/// <value>The attachment at the specified index.</value>
 		/// <param name="index">The index.</param>
@@ -796,6 +797,23 @@ namespace MimeKit {
 		/// </remarks>
 		public void Clear ()
 		{
+			Clear (false);
+		}
+
+		/// <summary>
+		/// Clears the attachment collection.
+		/// </summary>
+		/// <remarks>
+		/// Removes all attachments from the collection, optionally disposing them in the process.
+		/// </remarks>
+		/// <param name="dispose"><c>true</c> if all of the attachments should be disposed; otherwise, <c>false</c>.</param>
+		public void Clear (bool dispose)
+		{
+			if (dispose) {
+				for (int i = 0; i < attachments.Count; i++)
+					attachments[i].Dispose ();
+			}
+
 			attachments.Clear ();
 		}
 
@@ -912,7 +930,8 @@ namespace MimeKit {
 		/// Removes the attachment at the specified index.
 		/// </summary>
 		/// <remarks>
-		/// Removes the attachment at the specified index.
+		/// <para>Removes the attachment at the specified index.</para>
+		/// <note type="note">It is the responsibility of the caller to dispose the entity at the specified <paramref name="index"/>.</note>
 		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">

@@ -61,7 +61,7 @@ namespace MimeKit {
 	/// tree of MIME entities such as a text/plain MIME part and a collection
 	/// of file attachments.</para>
 	/// </remarks>
-	public class MimeMessage
+	public class MimeMessage : IDisposable
 	{
 		static readonly HeaderId[] StandardAddressHeaders = {
 			HeaderId.ResentFrom, HeaderId.ResentReplyTo, HeaderId.ResentTo, HeaderId.ResentCc, HeaderId.ResentBcc,
@@ -260,6 +260,19 @@ namespace MimeKit {
 			Date = DateTimeOffset.Now;
 			Subject = string.Empty;
 			MessageId = MimeUtils.GenerateMessageId ();
+		}
+
+		/// <summary>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeMessage"/> is reclaimed by garbage collection.
+		/// </summary>
+		/// <remarks>
+		/// Releases unmanaged resources and performs other cleanup operations before the
+		/// <see cref="MimeMessage"/> is reclaimed by garbage collection.
+		/// </remarks>
+		~MimeMessage ()
+		{
+			Dispose (false);
 		}
 
 		/// <summary>
@@ -2595,6 +2608,39 @@ namespace MimeKit {
 			}
 		}
 
+		#region IDisposable implementation
+
+		/// <summary>
+		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
+		/// optionally releases the managed resources.
+		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
+		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
+		/// <c>false</c> to release only the unmanaged resources.</param>
+		protected virtual void Dispose (bool disposing)
+		{
+			if (disposing && Body != null)
+				Body.Dispose ();
+		}
+
+		/// <summary>
+		/// Releases all resources used by the <see cref="MimeMessage"/> object.
+		/// </summary>
+		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeMessage"/>. The
+		/// <see cref="Dispose()"/> method leaves the <see cref="MimeMessage"/> in an unusable state. After
+		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeMessage"/> so
+		/// the garbage collector can reclaim the memory that the <see cref="MimeMessage"/> was occupying.</remarks>
+		public void Dispose ()
+		{
+			Dispose (true);
+			GC.SuppressFinalize (this);
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified stream.
 		/// </summary>
@@ -3078,9 +3124,10 @@ namespace MimeKit {
 			if (item.ContentId != null)
 				part.ContentId = item.ContentId;
 
-			var stream = new MemoryBlockStream ();
 			if (item.ContentStream.CanSeek)
 				item.ContentStream.Position = 0;
+
+			var stream = new MemoryBlockStream ();
 			item.ContentStream.CopyTo (stream);
 			stream.Position = 0;
 
@@ -3185,7 +3232,14 @@ namespace MimeKit {
 					alternative.Add (body);
 
 				foreach (var view in message.AlternateViews) {
-					var part = GetMimePart (view);
+					MimePart part;
+
+					try {
+						part = GetMimePart (view);
+					} catch {
+						alternative.Dispose ();
+						throw;
+					}
 
 					if (view.LinkedResources.Count > 0) {
 						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
@@ -3197,7 +3251,12 @@ namespace MimeKit {
 						related.Add (part);
 
 						foreach (var resource in view.LinkedResources) {
-							part = GetMimePart (resource);
+							try {
+								part = GetMimePart (resource);
+							} catch {
+								alternative.Dispose ();
+								related.Dispose ();
+							}
 
 							if (resource.ContentLink != null)
 								part.ContentLocation = resource.ContentLink;
@@ -3224,8 +3283,14 @@ namespace MimeKit {
 				if (body != null)
 					mixed.Add (body);
 
-				foreach (var attachment in message.Attachments)
-					mixed.Add (GetMimePart (attachment));
+				foreach (var attachment in message.Attachments) {
+					try {
+						mixed.Add (GetMimePart (attachment));
+					} catch {
+						mixed.Dispose ();
+						throw;
+					}
+				}
 
 				body = mixed;
 			}
