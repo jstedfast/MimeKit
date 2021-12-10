@@ -657,6 +657,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously imports the specified certificate revocation list.
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -817,6 +818,7 @@ namespace MimeKit.Cryptography {
 		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
 		/// specified trust.</para>
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -867,6 +869,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously imports the certificate(s).
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="stream">The raw certificate(s).</param>
 		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

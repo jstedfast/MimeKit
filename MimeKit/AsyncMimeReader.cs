@@ -603,6 +603,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Asynchronously reads a block of headers from the stream.
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.

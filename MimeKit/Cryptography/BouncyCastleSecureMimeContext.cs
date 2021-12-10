@@ -1628,6 +1628,7 @@ namespace MimeKit.Cryptography
 		/// <remarks>
 		/// Asynchronously decrypts the specified encryptedData to an output stream.
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="decryptedData">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

@@ -271,7 +271,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns that are indexed.</param>
-		/// <returns></returns>
+		/// <returns>The name of the index for the specified table and columns.</returns>
 		protected static string GetIndexName (string tableName, string[] columnNames)
 		{
 			return string.Format ("{0}_{1}_INDEX", tableName, string.Join ("_", columnNames));

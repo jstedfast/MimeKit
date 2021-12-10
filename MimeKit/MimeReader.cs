@@ -638,6 +638,7 @@ namespace MimeKit {
 		/// <para>Called when the beginning of a message part is encountered in the stream.</para>
 		/// <para>This method is always paired with a corresponding call to <see cref="OnMessagePartEndAsync"/> when the end of the message part is found.</para>
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
 		/// <param name="beginOffset">The offset into the stream where the message part begins.</param>
 		/// <param name="beginLineNumber">The line number where the message part begins.</param>
@@ -673,6 +674,7 @@ namespace MimeKit {
 		/// <para>Called when the end of a message part is encountered in the stream.</para>
 		/// <para>This method is always paired with a corresponding call to <see cref="OnMessagePartBeginAsync"/>.</para>
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="contentType">The parsed <c>Content-Type</c> header of the MIME part.</param>
 		/// <param name="beginOffset">The offset into the stream where the message part began.</param>
 		/// <param name="beginLineNumber">The line number where the message part began.</param>
@@ -1008,6 +1010,7 @@ namespace MimeKit {
 		/// <para>Called when the end of a multipart is encountered in the stream.</para>
 		/// <para>This method is always paired with a corresponding call to <see cref="OnMultipartBegin"/>.</para>
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="contentType">The parsed <c>Content-Type</c> header of the multipart.</param>
 		/// <param name="beginOffset">The offset into the stream where the multipart began.</param>
 		/// <param name="beginLineNumber">The line number where the multipart began.</param>

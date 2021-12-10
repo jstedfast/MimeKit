@@ -2969,6 +2969,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously exports the public keyrings for the specified mailboxes.
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>

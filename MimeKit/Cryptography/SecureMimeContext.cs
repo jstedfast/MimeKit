@@ -605,6 +605,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously decompresses the specified stream to an output stream.
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="stream">The stream to decompress.</param>
 		/// <param name="output">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1091,6 +1092,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Asynchronously imports certificates and keys from a pkcs12 file.
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
 		/// <param name="fileName">The raw certificate and key data in pkcs12 format.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
