@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2014-2020 Jeffrey Stedfast
+// Copyright (c) 2014-2021 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,12 @@
 
 using System.Collections.Generic;
 
+using Foundation;
+using UIKit;
+
 using MimeKit;
 using MimeKit.Text;
 using MimeKit.Tnef;
-
-using Foundation;
-using UIKit;
 
 namespace MessageReader.iOS {
 	/// <summary>

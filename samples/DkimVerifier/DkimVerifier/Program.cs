@@ -33,10 +33,9 @@ namespace DkimVerifierExample
 		AsymmetricKeyParameter DnsLookup (string domain, string selector, CancellationToken cancellationToken)
 		{
 			var query = selector + "._domainkey." + domain;
-			AsymmetricKeyParameter pubkey;
 
 			// checked if we've already fetched this key
-			if (cache.TryGetValue (query, out pubkey))
+			if (cache.TryGetValue (query, out var pubkey))
 				return pubkey;
 
 			// make a DNS query
