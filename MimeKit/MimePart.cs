@@ -419,7 +419,7 @@ namespace MimeKit {
 				if (filename == null)
 					filename = ContentType.Name;
 
-				return filename != null ? filename.Trim () : null;
+				return filename?.Trim ();
 			}
 			set {
 				if (value != null) {

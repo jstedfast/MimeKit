@@ -447,11 +447,11 @@ namespace MimeKit.Cryptography {
 
 		static byte[] ReadAllBytes (Stream stream)
 		{
-			if (stream is MemoryBlockStream)
-				return ((MemoryBlockStream) stream).ToArray ();
+			if (stream is MemoryBlockStream block)
+				return block.ToArray ();
 
-			if (stream is MemoryStream)
-				return ((MemoryStream) stream).ToArray ();
+			if (stream is MemoryStream mem)
+				return mem.ToArray ();
 
 			using (var memory = new MemoryBlockStream ()) {
 				stream.CopyTo (memory, 4096);
@@ -461,11 +461,11 @@ namespace MimeKit.Cryptography {
 
 		static async Task<byte[]> ReadAllBytesAsync (Stream stream, CancellationToken cancellationToken)
 		{
-			if (stream is MemoryBlockStream)
-				return ((MemoryBlockStream) stream).ToArray ();
+			if (stream is MemoryBlockStream block)
+				return block.ToArray ();
 
-			if (stream is MemoryStream)
-				return ((MemoryStream) stream).ToArray ();
+			if (stream is MemoryStream mem)
+				return mem.ToArray ();
 
 			using (var memory = new MemoryBlockStream ()) {
 				await stream.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);

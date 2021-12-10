@@ -44,9 +44,9 @@ namespace MimeKit.Cryptography {
 	class DkimHashStream : Stream
 	{
 #if ENABLE_NATIVE_DKIM
-		HashAlgorithm digest;
+		readonly HashAlgorithm digest;
 #else
-		IDigest digest;
+		readonly IDigest digest;
 #endif
 		bool disposed;
 		int length;
