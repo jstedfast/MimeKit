@@ -363,8 +363,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSecureMimeCompression ()
 		{
-			var original = new TextPart ("plain");
-			original.Text = "This is some text that we'll end up compressing...";
+			var original = new TextPart ("plain") {
+				Text = "This is some text that we'll end up compressing..."
+			};
 
 			var compressed = ApplicationPkcs7Mime.Compress (original);
 

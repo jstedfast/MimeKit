@@ -70,11 +70,14 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (ParserOptions.Default, null, MimeFormat.Default));
 
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null));
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default));
+
+#pragma warning disable CS0618 // Type or member is obsolete
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream, MimeFormat.Default));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null, MimeFormat.Default));
+#pragma warning restore CS0618 // Type or member is obsolete
 
 				Assert.Throws<ArgumentNullException> (() => parser.Options = null);
 			}

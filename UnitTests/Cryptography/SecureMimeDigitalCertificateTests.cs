@@ -59,9 +59,7 @@ namespace UnitTests.Cryptography {
 				object item;
 
 				while ((item = reader.ReadObject ()) != null) {
-					var certificate = item as X509Certificate;
-
-					if (certificate != null)
+					if (item is X509Certificate certificate)
 						return certificate;
 				}
 			}

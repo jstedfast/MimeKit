@@ -535,6 +535,8 @@ This is a test message.
 			}
 		}
 
+		#pragma warning disable IDE1006 // Naming Styles
+
 		#region Chain Validation
 
 		[Test]
@@ -9926,5 +9928,7 @@ This is a test message.
 		}
 
 		#endregion
+
+		#pragma warning restore IDE1006 // Naming Styles
 	}
 }

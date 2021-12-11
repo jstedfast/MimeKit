@@ -772,9 +772,11 @@ namespace MimeKit.Cryptography {
 						break;
 
 					return privateKey;
-				} catch (Exception ex) {
 #if DEBUG
+				} catch (Exception ex) {
 					Debug.WriteLine (string.Format ("Failed to extract secret key: {0}", ex));
+#else
+				} catch {
 #endif
 				}
 

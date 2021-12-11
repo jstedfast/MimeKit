@@ -303,6 +303,8 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		#pragma warning disable IDE1006 // Naming Styles
+
 		[Test]
 		public void sig_alg_rsa_sha1 ()
 		{
@@ -1390,5 +1392,7 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 		}
 
 		#endregion
+
+		#pragma warning restore IDE1006 // Naming Styles
 	}
 }
