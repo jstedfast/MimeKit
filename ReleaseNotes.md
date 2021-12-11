@@ -1,5 +1,32 @@
 # Release Notes
 
+### MimeKit 3.0.0 (2021-12-11)
+
+* Removed APIs marked as \[Obsolete\] in 2.x.
+* Refactored X509CertificateDatabase protected methods to include a DbConnection parameter.
+* Removed OpenPgpContextBase by folding the logic into OpenPgpContext.
+* Added Async APIs for OpenPGP and S/MIME.
+* Lazy-load headers on MimeMessage and MimeEntity (and subclasses) to improve performance.
+* Added a new MimeReader class that acts as a lower-level MimeParser alternative, allowing developers
+  to parse MIME content without having to instantiate a MIME tree of objects or wait until the parser
+  has completed (and returned a MimeMessage or MimeEntity object) before processing MIME data. This is
+  conceptually similar to a SAX XML parser approach.
+* Added a new ExperimentalMimeParser that duplicates MimeParser functionality, but is built on top of
+  MimeReader. This implementation will eventually replace MimeParser once I get some feedback on it.
+  Should be ~5% faster than MimeParser.
+* Improved MimeParser performance slightly based on some of the experimentation done to make the
+  ExperimentalMimeParser fast.
+* Added CancellationToken arguments for some AttachmentCollection.Add() overloads.
+* Use 'net5.0' as the .NET 5.0 target framework moniker instead of 'net50'.
+  (issue [#720](https://github.com/jstedfast/MimeKit/issues/720))
+* Drop support for .NET 4.5 and replace it with .NET 4.5.2
+* Bumped Portable.BouncyCastle to 1.9.0
+* Added new MimeMessage.GetRecipients() method.
+* Make it possible to bypass MimeEntity preparation for signing by adding a PrepareBeforeSigning property to
+  CryptographyContext. (issue [#721](https://github.com/jstedfast/MimeKit/issues/721))
+* MimeMessage and MimeEntity now implement IDisposable.
+  (issue [#732](https://github.com/jstedfast/MimeKit/issues/732))
+
 ### MimeKit 2.15.1 (2021-09-13)
 
 * Improved MimeParser to be a little more efficient based on work being done for the upcoming v3.0 release.

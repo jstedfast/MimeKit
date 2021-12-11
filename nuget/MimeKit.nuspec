@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>2.15.1</version>
+    <version>3.0.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,11 +26,21 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Improved MimeParser to be a little more efficient based on work being done for the upcoming v3.0 release.
-* Fixed a bug in the MimeParser exposed by added unit tests regarding Content-Length handling.
-* Improved address parser error messages.
-* Fixed MailboxAddress.Address to be forgiving if there is trailing whitespace after the addr-spec token when setting MailboxAddress.Address. (issue #705)
-* Fixed MimeMessage and MimeEntity.ToString() to not write a newline before the message/entity (regression introduced in 2.14.0).
+* Removed APIs marked as [Obsolete] in 2.x.
+* Refactored X509CertificateDatabase protected methods to include a DbConnection parameter.
+* Removed OpenPgpContextBase by folding the logic into OpenPgpContext.
+* Added Async APIs for OpenPGP and S/MIME.
+* Lazy-load headers on MimeMessage and MimeEntity (and subclasses) to improve performance.
+* Added a new MimeReader class that acts as a lower-level MimeParser alternative, allowing developers to parse MIME content without having to instantiate a MIME tree of objects or wait until the parser has completed (and returned a MimeMessage or MimeEntity object) before processing MIME data. This is conceptually similar to a SAX XML parser approach.
+* Added a new ExperimentalMimeParser that duplicates MimeParser functionality, but is built on top of MimeReader. This implementation will eventually replace MimeParser once I get some feedback on it. Should be ~5% faster than MimeParser.
+* Improved MimeParser performance slightly based on some of the experimentation done to make the ExperimentalMimeParser fast.
+* Added CancellationToken arguments for some AttachmentCollection.Add() overloads.
+* Use 'net5.0' as the .NET 5.0 target framework moniker instead of 'net50'. (issue #720)
+* Drop support for net45 and replace it with net452.
+* Bumped Portable.BouncyCastle to 1.9.0
+* Added new MimeMessage.GetRecipients() method.
+* Make it possible to bypass MimeEntity preparation for signing by adding a PrepareBeforeSigning property to CryptographyContext. (issue #721)
+* MimeMessage and MimeEntity now implement IDisposable. (issue #732)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
