@@ -96,6 +96,7 @@ namespace MimeKit.Cryptography {
 		/// single 256-octet string in a TXT record, and RSA keys significantly longer than 1024
 		/// bits don't fit in 256 octets.</note>
 		/// </remarks>
+		/// <value>The minimum allowed RSA key length.</value>
 		public int MinimumRsaKeyLength {
 			get; set;
 		}

@@ -312,6 +312,7 @@ namespace MimeKit {
 		/// adhere to the MIME specifications, this property can be used to force MimeKit to quote parameter values that would normally
 		/// not require quoting.</para>
 		/// </remarks>
+		/// <value><c>true</c> if Content-Type and Content-Disposition parameters should always be quoted; otherwise, <c>false</c>.</value>
 		public bool AlwaysQuoteParameterValues {
 			get { return alwaysQuoteParameterValues; }
 			set {

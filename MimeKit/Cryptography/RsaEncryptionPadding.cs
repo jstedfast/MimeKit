@@ -47,26 +47,41 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// The PKCS #1 v1.5 encryption padding.
 		/// </summary>
+		/// <remarks>
+		/// The PKCS #1 v1.5 encryption padding.
+		/// </remarks>
 		public static readonly RsaEncryptionPadding Pkcs1 = new RsaEncryptionPadding (RsaEncryptionPaddingScheme.Pkcs1, DigestAlgorithm.None);
 
 		/// <summary>
 		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the default (SHA-1) hash algorithm.
 		/// </summary>
+		/// <remarks>
+		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the default (SHA-1) hash algorithm.
+		/// </remarks>
 		public static readonly RsaEncryptionPadding OaepSha1 = new RsaEncryptionPadding (RsaEncryptionPaddingScheme.Oaep, DigestAlgorithm.Sha1);
 
 		/// <summary>
 		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the SHA-256 hash algorithm.
 		/// </summary>
+		/// <remarks>
+		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the SHA-256 hash algorithm.
+		/// </remarks>
 		public static readonly RsaEncryptionPadding OaepSha256 = new RsaEncryptionPadding (RsaEncryptionPaddingScheme.Oaep, DigestAlgorithm.Sha256);
 
 		/// <summary>
 		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the SHA-384 hash algorithm.
 		/// </summary>
+		/// <remarks>
+		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the SHA-384 hash algorithm.
+		/// </remarks>
 		public static readonly RsaEncryptionPadding OaepSha384 = new RsaEncryptionPadding (RsaEncryptionPaddingScheme.Oaep, DigestAlgorithm.Sha384);
 
 		/// <summary>
 		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the SHA-512 hash algorithm.
 		/// </summary>
+		/// <remarks>
+		/// The Optimal Asymmetric Encryption Padding (OAEP) scheme using the SHA-512 hash algorithm.
+		/// </remarks>
 		public static readonly RsaEncryptionPadding OaepSha512 = new RsaEncryptionPadding (RsaEncryptionPaddingScheme.Oaep, DigestAlgorithm.Sha512);
 
 		RsaEncryptionPadding (RsaEncryptionPaddingScheme scheme, DigestAlgorithm oaepHashAlgorithm)
@@ -92,6 +107,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the hash algorithm used for RSAES-OAEP padding.
 		/// </remarks>
+		/// <value>The hash algorithm used for RSAES-OAEP padding.</value>
 		public DigestAlgorithm OaepHashAlgorithm {
 			get; private set;
 		}

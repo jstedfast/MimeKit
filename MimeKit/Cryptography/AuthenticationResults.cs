@@ -1266,7 +1266,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the type of the property.
 		/// </remarks>
-		/// <remarks>The type of the property.</remarks>
+		/// <value>The type of the property.</value>
 		public string PropertyType {
 			get; private set;
 		}
