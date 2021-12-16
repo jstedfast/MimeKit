@@ -123,7 +123,7 @@ namespace MimeKit.Utils {
 				try {
 					var properties = IPGlobalProperties.GetIPGlobalProperties ();
 
-					DefaultHostName = properties.HostName;
+					DefaultHostName = properties.HostName.ToLowerInvariant ();
 				} catch {
 					DefaultHostName = "localhost.localdomain";
 				}
