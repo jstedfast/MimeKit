@@ -410,6 +410,16 @@ namespace MimeKit {
 			return index > startIndex;
 		}
 
+		static bool SkipSubtype (byte[] text, ref int index, int endIndex)
+		{
+			int startIndex = index;
+
+			while (index < endIndex && (text[index].IsToken () || text[index] == (byte) '/'))
+				index++;
+
+			return index > startIndex;
+		}
+
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentType contentType)
 		{
 			string type, subtype;
@@ -447,7 +457,7 @@ namespace MimeKit {
 				return false;
 
 			start = index;
-			if (!ParseUtils.SkipToken (text, ref index, endIndex)) {
+			if (!SkipSubtype (text, ref index, endIndex)) {
 				if (throwOnError)
 					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid atom token at position {0}", start), start, index);
 

@@ -647,5 +647,17 @@ namespace UnitTests {
 			value = type.ToString (Encoding.UTF8, true).Replace ("\r\n", "\n");
 			Assert.AreEqual (rfc2047, value, "Rfc2047");
 		}
+
+		[Test]
+		public void TestParseMultipartMultipartMixed ()
+		{
+			const string input = "multipart/multipart/mixed; boundary=\"boundary-marker\"\r\n";
+			ContentType contentType;
+
+			Assert.IsTrue (ContentType.TryParse (input, out contentType), "Expected TryParse to succeed.");
+			Assert.AreEqual ("multipart", contentType.MediaType, "MediaType");
+			Assert.AreEqual ("multipart/mixed", contentType.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual ("boundary-marker", contentType.Boundary, "Boundary");
+		}
 	}
 }
