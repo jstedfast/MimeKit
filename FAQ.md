@@ -1181,7 +1181,7 @@ provider that provides all of the additional encodings.
 To register the additional text encodings, use the following code snippet:
 
 ```csharp
-System.Text.Encoding.RegisterProvider (System.Text.Encoding.CodePagesEncodingProvider.Instance);
+System.Text.Encoding.RegisterProvider (System.Text.CodePagesEncodingProvider.Instance);
 ```
 
 Note: The above code snippet should be safe to call in .NET Framework versions >= 4.6 as well.
