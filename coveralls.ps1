@@ -1,7 +1,7 @@
-[xml]$project = Get-Content UnitTests/UnitTests.csproj
+[xml]$project = Get-Content UnitTests\UnitTests.csproj
 $packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='NUnit.ConsoleRunner']")
 $consoleRunnerVersion = $packageReference.GetAttribute("Version")
-$consoleRunnerBasePackageDir = Join-Path $Home ".nuget/packages/nunit.consolerunner"
+$consoleRunnerBasePackageDir = Join-Path $Home ".nuget\packages\nunit.consolerunner"
 $consoleRunnerPackageDir = Join-Path $consoleRunnerBasePackageDir $consoleRunnerVersion
 
 $NUnitConsoleRunner = Join-Path $consoleRunnerPackageDir "tools/nunit3-console.exe"
