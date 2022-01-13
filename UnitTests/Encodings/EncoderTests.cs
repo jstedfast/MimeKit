@@ -144,7 +144,7 @@ namespace UnitTests.Encodings {
 					}
 
 					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (encoding));
+						filtered.Add (EncoderFilter.Create (encoding, 72));
 
 						using (var memory = new MemoryStream (rawData, false)) {
 							var buffer = new byte[bufferSize];
@@ -455,7 +455,7 @@ namespace UnitTests.Encodings {
 			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1=\n =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).\n";
 			const string input = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).\n";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
-			var encoder = new QuotedPrintableEncoder ();
+			var encoder = new QuotedPrintableEncoder (72);
 			var output = new byte[1024];
 
 			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);

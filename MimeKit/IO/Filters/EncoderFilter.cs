@@ -86,11 +86,15 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <returns>A new encoder filter.</returns>
 		/// <param name="encoding">The encoding to create a filter for.</param>
-		public static IMimeFilter Create (ContentEncoding encoding)
+		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
+		/// </exception>
+		public static IMimeFilter Create (ContentEncoding encoding, int maxLineLength = 78)
 		{
 			switch (encoding) {
-			case ContentEncoding.Base64: return new EncoderFilter (new Base64Encoder ());
-			case ContentEncoding.QuotedPrintable: return new EncoderFilter (new QuotedPrintableEncoder ());
+			case ContentEncoding.Base64: return new EncoderFilter (new Base64Encoder (maxLineLength));
+			case ContentEncoding.QuotedPrintable: return new EncoderFilter (new QuotedPrintableEncoder (maxLineLength));
 			case ContentEncoding.UUEncode: return new EncoderFilter (new UUEncoder ());
 			default: return new PassThroughFilter ();
 			}
@@ -104,10 +108,14 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <returns>A new encoder filter.</returns>
 		/// <param name="name">The name of the encoding to create a filter for.</param>
+		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <c>null</c>.
 		/// </exception>
-		public static IMimeFilter Create (string name)
+		public static IMimeFilter Create (string name, int maxLineLength = 78)
 		{
 			if (name == null)
 				throw new ArgumentNullException (nameof (name));
@@ -115,7 +123,7 @@ namespace MimeKit.IO.Filters {
 			if (!MimeUtils.TryParse (name, out ContentEncoding encoding))
 				encoding = ContentEncoding.Default;
 
-			return Create (encoding);
+			return Create (encoding, maxLineLength);
 		}
 
 		/// <summary>
