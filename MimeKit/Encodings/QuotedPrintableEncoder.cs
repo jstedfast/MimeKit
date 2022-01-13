@@ -72,6 +72,9 @@ namespace MimeKit.Encodings {
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
+			// The quoted-printable specification in rfc2045 require a maximum line length of 76.
+			maxLineLength = Math.Min (maxLineLength, 76);
+
 			// normalize the maximum line length
 			tripletsPerLine = (short) ((maxLineLength - 1) / 3);
 			desiredLineLength = (short) (tripletsPerLine * 3);
