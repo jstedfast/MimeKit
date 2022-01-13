@@ -44,12 +44,18 @@ namespace MimeKit.Encodings {
 			0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, // '8' -> 'F'
 		};
 
-		const int TripletsPerLine = 23;
-		const int DesiredLineLength = TripletsPerLine * 3;
-		const int MaxLineLength = DesiredLineLength + 2; // "=\n"
-
+		readonly short desiredLineLength;
+		readonly short tripletsPerLine;
+		readonly short maxLineLength;
 		short currentLineLength;
 		short saved;
+
+		QuotedPrintableEncoder (short desiredLineLength, short tripletsPerLine, short maxLineLength)
+		{
+			this.desiredLineLength = desiredLineLength;
+			this.tripletsPerLine = tripletsPerLine;
+			this.maxLineLength = maxLineLength;
+		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="QuotedPrintableEncoder"/> class.
@@ -57,8 +63,20 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new quoted-printable encoder.
 		/// </remarks>
-		public QuotedPrintableEncoder ()
+		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
+		/// </exception>
+		public QuotedPrintableEncoder (int maxLineLength = 72)
 		{
+			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
+				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
+
+			// normalize the maximum line length
+			tripletsPerLine = (short) ((maxLineLength - 1) / 3);
+			desiredLineLength = (short) (tripletsPerLine * 3);
+			this.maxLineLength = (short) (desiredLineLength + 2); // add "=\n"
+
 			Reset ();
 		}
 
@@ -71,7 +89,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="QuotedPrintableEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new QuotedPrintableEncoder ();
+			var encoder = new QuotedPrintableEncoder (desiredLineLength, tripletsPerLine, maxLineLength);
 
 			encoder.currentLineLength = currentLineLength;
 			encoder.saved = saved;
@@ -100,7 +118,7 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return ((inputLength / TripletsPerLine) * MaxLineLength) + MaxLineLength;
+			return ((inputLength / tripletsPerLine) * maxLineLength) + maxLineLength;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -166,7 +184,7 @@ namespace MimeKit.Encodings {
 						}
 					}
 
-					if (currentLineLength > DesiredLineLength) {
+					if (currentLineLength > desiredLineLength) {
 						*outptr++ = (byte) '=';
 						*outptr++ = (byte) '\n';
 						currentLineLength = 0;
