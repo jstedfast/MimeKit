@@ -52,7 +52,9 @@ namespace MimeKit {
 		static readonly string[] ContentTransferEncodings = {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
+		const int DefaultMaxLineLength = 78;
 
+		int encoderMaxLineLength = DefaultMaxLineLength;
 		ContentEncoding encoding;
 		//string[] languages;
 		string description;
@@ -499,7 +501,7 @@ namespace MimeKit {
 		/// </exception>
 		public ContentEncoding GetBestEncoding (EncodingConstraint constraint, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			return GetBestEncoding (constraint, 78, cancellationToken);
+			return GetBestEncoding (constraint, DefaultMaxLineLength, cancellationToken);
 		}
 
 		/// <summary>
@@ -628,7 +630,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public override void Prepare (EncodingConstraint constraint, int maxLineLength = 78)
+		public override void Prepare (EncodingConstraint constraint, int maxLineLength = DefaultMaxLineLength)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
@@ -654,6 +656,7 @@ namespace MimeKit {
 			if (ContentTransferEncoding == ContentEncoding.Default && best == ContentEncoding.SevenBit)
 				return;
 
+			encoderMaxLineLength = maxLineLength;
 			ContentTransferEncoding = best;
 		}
 
@@ -707,7 +710,7 @@ namespace MimeKit {
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (ContentTransferEncoding));
+					filtered.Add (EncoderFilter.Create (ContentTransferEncoding, encoderMaxLineLength));
 
 					if (ContentTransferEncoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
@@ -791,7 +794,7 @@ namespace MimeKit {
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (ContentTransferEncoding));
+					filtered.Add (EncoderFilter.Create (ContentTransferEncoding, encoderMaxLineLength));
 
 					if (ContentTransferEncoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
