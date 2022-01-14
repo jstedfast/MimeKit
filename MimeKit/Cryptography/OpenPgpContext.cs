@@ -673,7 +673,7 @@ namespace MimeKit.Cryptography {
 
 						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 					} else {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
+#if !NETSTANDARD1_3 && !NETSTANDARD1_6 && !NET6_0_OR_GREATER
 						var request = (HttpWebRequest) WebRequest.Create (builder.Uri);
 						using (var response = request.GetResponse ()) {
 							var content = response.GetResponseStream ();

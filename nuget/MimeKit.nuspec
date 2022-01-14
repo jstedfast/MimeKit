@@ -44,7 +44,7 @@
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net452 net46 net47 net48 netstandard netstandard2.0</tags>
+    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net452 net46 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5.2" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5.2" />
@@ -92,6 +92,10 @@
         <dependency id="System.Security.Cryptography.Pkcs" version="5.0.0" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
+      <group targetFramework="net6.0">
+        <dependency id="System.Security.Cryptography.Pkcs" version="6.0.0" />
+        <dependency id="Portable.BouncyCastle" version="1.9.0" />
+      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="4.7.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
@@ -131,6 +135,9 @@
     <file src="..\MimeKit\bin\Release\net5.0\MimeKit.dll" target="lib\net5.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net5.0\MimeKit.pdb" target="lib\net5.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net5.0\MimeKit.xml" target="lib\net5.0\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.dll" target="lib\net6.0\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.pdb" target="lib\net6.0\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.xml" target="lib\net6.0\MimeKit.xml" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>

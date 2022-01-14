@@ -34,6 +34,10 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.Cms;
 
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
 namespace MimeKit.Cryptography {
@@ -338,7 +342,17 @@ namespace MimeKit.Cryptography {
 			if (cert == null)
 				throw new ArgumentException ("Unable to convert certificate into the BouncyCastle format.", nameof (certificate));
 
+#if NET6_0_OR_GREATER
+			AsymmetricAlgorithm privateKey;
+
+			privateKey = certificate.GetRSAPrivateKey ();
+			privateKey ??= certificate.GetDSAPrivateKey ();
+			privateKey ??= certificate.GetECDsaPrivateKey ();
+			privateKey ??= certificate.GetECDiffieHellmanPrivateKey ();
+			var key = privateKey.AsAsymmetricKeyParameter ();
+#else
 			var key = certificate.PrivateKey.AsAsymmetricKeyParameter ();
+#endif
 
 			CheckCertificateCanBeUsedForSigning (cert);
 
