@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,21 +26,12 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Removed APIs marked as [Obsolete] in 2.x.
-* Refactored X509CertificateDatabase protected methods to include a DbConnection parameter.
-* Removed OpenPgpContextBase by folding the logic into OpenPgpContext.
-* Added Async APIs for OpenPGP and S/MIME.
-* Lazy-load headers on MimeMessage and MimeEntity (and subclasses) to improve performance.
-* Added a new MimeReader class that acts as a lower-level MimeParser alternative, allowing developers to parse MIME content without having to instantiate a MIME tree of objects or wait until the parser has completed (and returned a MimeMessage or MimeEntity object) before processing MIME data. This is conceptually similar to a SAX XML parser approach.
-* Added a new ExperimentalMimeParser that duplicates MimeParser functionality, but is built on top of MimeReader. This implementation will eventually replace MimeParser once I get some feedback on it. Should be ~5% faster than MimeParser.
-* Improved MimeParser performance slightly based on some of the experimentation done to make the ExperimentalMimeParser fast.
-* Added CancellationToken arguments for some AttachmentCollection.Add() overloads.
-* Use 'net5.0' as the .NET 5.0 target framework moniker instead of 'net50'. (issue #720)
-* Drop support for net45 and replace it with net452.
-* Bumped Portable.BouncyCastle to 1.9.0
-* Added new MimeMessage.GetRecipients() method.
-* Make it possible to bypass MimeEntity preparation for signing by adding a PrepareBeforeSigning property to CryptographyContext. (issue #721)
-* MimeMessage and MimeEntity now implement IDisposable. (issue #732)
+* Always use a lowercase domain name in the Message-Id to work around bugs in eM Client. (issue #734)
+* Improved handling of parsing Content-Types like "multipart/multipart/mixed; boundary=...". (issue #737)
+* Added a maxLineLength argument to the QuotedPrintableEncoder .ctor.
+* Added maxLineLength arguments to EncoderFilter.Create() methods.
+* Fixed MimePart.Prepare() to remember the maxLineLength argument value for later use in the WriteTo() implementation. This maxLineLength value can then be passed to the Base64 or QuotedPrintable encoder so that it can properly limit lines to that length (up to a max of 76 characters as per the specs). (issue #743)
+* Added net6.0 to the list of TargetFrameworks.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

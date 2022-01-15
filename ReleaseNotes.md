@@ -1,5 +1,19 @@
 # Release Notes
 
+### MimeKit 3.1.0 (2022-01-14)
+
+* Always use a lowercase domain name in the Message-Id to work around bugs in eM Client.
+  (issue [#734](https://github.com/jstedfast/MimeKit/issues/734))
+* Improved handling of parsing Content-Types like "multipart/multipart/mixed; boundary=...".
+  (issue [#737](https://github.com/jstedfast/MimeKit/issues/737))
+* Added a maxLineLength argument to the QuotedPrintableEncoder .ctor.
+* Added maxLineLength arguments to EncoderFilter.Create() methods.
+* Fixed MimePart.Prepare() to remember the maxLineLength argument value for later use in the
+  WriteTo() implementation. This maxLineLength value can then be passed to the Base64 or 
+  QuotedPrintable encoder so that it can properly limit lines to that length (up to a max of
+  76 characters as per the specs). (issue [#743](https://github.com/jstedfast/MimeKit/issues/743))
+* Added net6.0 to the list of TargetFrameworks.
+
 ### MimeKit 3.0.0 (2021-12-11)
 
 * Removed APIs marked as \[Obsolete\] in 2.x.
