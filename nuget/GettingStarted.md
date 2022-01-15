@@ -900,7 +900,7 @@ Donating helps pay for things such as web hosting, domain registration and licen
 such as a performance profiler, memory profiler, a static code analysis tool, and more. It also helps
 motivate me to continue working on the project.
 
-<a href="https://paypal.me/pools/c/857bnxBTXg" _target="blank"><img alt="Click here to lend your support to MimeKit by making a donation!" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif"></a>
+<a href="https://github.com/sponsors/jstedfast" _target="blank"><img alt="Click here to lend your support to MimeKit by making a donation!" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif"></a>
 
 ## Reporting Bugs
 
