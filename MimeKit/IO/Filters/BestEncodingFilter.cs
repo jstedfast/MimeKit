@@ -102,7 +102,7 @@ namespace MimeKit.IO.Filters {
 				break;
 			case EncodingConstraint.None:
 				if (hasMarker || maxline > maxLineLength) {
-					if (count8 > (int) (total * (17.0 / 100.0)))
+					if (count0 > 0 || count8 > (int) (total * (17.0 / 100.0)))
 						return ContentEncoding.Base64;
 
 					return ContentEncoding.QuotedPrintable;
