@@ -226,7 +226,7 @@ namespace MimeKit {
 				Date = DateTimeOffset.Now;
 			if (!Headers.Contains (HeaderId.Subject))
 				Subject = string.Empty;
-			if (messageId == null)
+			if (!Headers.Contains (HeaderId.MessageId))
 				MessageId = MimeUtils.GenerateMessageId ();
 		}
 
