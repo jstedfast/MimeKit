@@ -698,7 +698,7 @@ namespace MimeKit {
 		/// Get the list of addresses in the Bcc header.
 		/// </summary>
 		/// <remarks>
-		/// Recipients in the Blind-Carpbon-Copy list will not be visible to
+		/// Recipients in the Blind-Carbon-Copy list will not be visible to
 		/// the other recipients of the message.
 		/// </remarks>
 		/// <value>The list of addresses in the Bcc header.</value>
