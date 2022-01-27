@@ -1686,6 +1686,27 @@ namespace MimeKit {
 				boundary = BoundaryType.ImmediateBoundary;
 		}
 
+		/// <summary>
+		/// This is a hack needed by the MessageDeliveryStatus.ParseStatusGroups() logic in order to work around an Office365 bug.
+		/// </summary>
+		/// <returns>The remainder of the parser's input stream (needed because the input stream may not be seekable).</returns>
+		internal Stream ReadToEos ()
+		{
+			var content = new MemoryBlockStream ();
+
+			do {
+				if (ReadAhead (1, 0, CancellationToken.None) <= 0)
+					break;
+
+				content.Write (input, inputIndex, inputEnd - inputIndex);
+				inputIndex = inputEnd;
+			} while (!eos);
+
+			content.Position = 0;
+
+			return content;
+		}
+
 		unsafe HeaderList ParseHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			state = MimeParserState.Headers;

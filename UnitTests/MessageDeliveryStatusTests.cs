@@ -46,18 +46,18 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestMimeParser ()
+		public void TestStatusGroups ()
 		{
 			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
 
-			Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level body part to be a multipart/report.");
+			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
 
-			var multipart = (Multipart) message.Body;
+			var report = (MultipartReport) message.Body;
 
-			Assert.IsInstanceOf<MessageDeliveryStatus> (multipart[0], "Expected first part to be a message/delivery-status.");
+			Assert.IsInstanceOf<MessageDeliveryStatus> (report[0], "Expected first part to be a message/delivery-status.");
 
-			var mds = (MessageDeliveryStatus) multipart[0];
-			var groups = mds.StatusGroups;
+			var delivery = (MessageDeliveryStatus) report[0];
+			var groups = delivery.StatusGroups;
 
 			Assert.IsNotNull (groups, "Did not expect null status groups.");
 			Assert.AreEqual (2, groups.Count, "Expected 2 groups of headers.");
@@ -68,6 +68,68 @@ namespace UnitTests {
 			Assert.AreEqual ("RFC822; newsletter-request@imusic.com", groups[1]["Final-Recipient"]);
 			Assert.AreEqual ("failed", groups[1]["Action"]);
 			Assert.AreEqual ("X-LOCAL; 500 (err.nosuchuser)", groups[1]["Diagnostic-Code"]);
+		}
+
+		// This tests issue #250
+		[Test]
+		public void TestStatusGroupsNoBlankLine ()
+		{
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
+
+			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+
+			var report = (MultipartReport) message.Body;
+
+			Assert.IsInstanceOf<MessageDeliveryStatus> (report[0], "Expected first part to be a message/delivery-status.");
+
+			var delivery = (MessageDeliveryStatus) report[0];
+			var groups = delivery.StatusGroups;
+
+			Assert.IsNotNull (groups, "Did not expect null status groups.");
+			Assert.AreEqual (2, groups.Count, "Expected 2 groups of headers.");
+
+			Assert.AreEqual ("dns; mm1", groups[0]["Reporting-MTA"]);
+			Assert.AreEqual ("Mon, 29 Jul 1996 02:12:50 -0700", groups[0]["Arrival-Date"]);
+
+			Assert.AreEqual ("RFC822; newsletter-request@imusic.com", groups[1]["Final-Recipient"]);
+			Assert.AreEqual ("failed", groups[1]["Action"]);
+			Assert.AreEqual ("X-LOCAL; 500 (err.nosuchuser)", groups[1]["Diagnostic-Code"]);
+		}
+
+		// This tests the bug that @alex-jitbit ran into in issue #250
+		[Test]
+		public void TestStatusGroupsWithContent ()
+		{
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
+
+			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+
+			var report = (MultipartReport) message.Body;
+
+			Assert.IsInstanceOf<MessageDeliveryStatus> (report[1], "Expected second part to be a message/delivery-status.");
+
+			var delivery = (MessageDeliveryStatus) report[1];
+			Assert.AreEqual ("Delivery report", delivery.ContentDescription, "ContentDescription");
+			Assert.AreEqual ("934", delivery.Headers[HeaderId.ContentLength], "ContentLength");
+
+			var groups = delivery.StatusGroups;
+
+			Assert.IsNotNull (groups, "Did not expect null status groups.");
+			Assert.AreEqual (2, groups.Count, "Expected 2 groups of headers.");
+
+			Assert.AreEqual ("dns; hmail.jitbit.com", groups[0]["Reporting-MTA"]);
+			Assert.AreEqual ("630A242E63", groups[0]["X-Postfix-Queue-ID"]);
+			Assert.AreEqual ("rfc822; helpdesk@netecgc.com", groups[0]["X-Postfix-Sender"]);
+			Assert.AreEqual ("Wed, 26 Jan 2022 04:06:46 -0500 (EST)", groups[0]["Arrival-Date"]);
+			Assert.AreEqual ("base64", groups[0]["Content-Transfer-Encoding"]);
+			Assert.AreEqual ("712", groups[0]["Content-Length"]);
+
+			Assert.AreEqual ("rfc822; netec.test@netecgc.com", groups[1]["Final-Recipient"]);
+			Assert.AreEqual ("rfc822;netec.test@netecgc.com", groups[1]["Original-Recipient"]);
+			Assert.AreEqual ("failed", groups[1]["Action"]);
+			Assert.AreEqual ("5.1.1", groups[1]["Status"]);
+			Assert.AreEqual ("dns; https://urldefense.proofpoint.com/v2/url?u=http-3A__mx1-2Deu1.ppe-2Dhosted.com&d=DwICAQ&c=euGZstcaTDllvimEN8b7jXrwqOf-v5A_CdpgnVfiiMM&r=xGEu8UUVNHyj_BIRW7SVPK81Hnp-FSanq3-_T1am-Kg&m=RMniPmjTykiwdgbzUU7Cewy0BeD_osytuQLS6cflj30&s=0Q-rn8HZSqF10OISjAJdmdg7HT9iADG2jsaaaxtt7tE&e=", groups[1]["Remote-MTA"]);
+			Assert.AreEqual ("smtp; 550 5.1.1 <netec.test@netecgc.com>: Recipient address    rejected: User unknown", groups[1]["Diagnostic-Code"]);
 		}
 
 		[Test]
