@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MimeKit" Version="3.1.0" />
+    <PackageReference Include="MimeKit" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MessageViewWindow.cs">

@@ -1,5 +1,21 @@
 # Release Notes
 
+### MimeKit 3.1.1 (2022-01-30)
+
+* When initializing character encodings for netstandard and net50/net60, wrap the Reflection logic
+  to invoke System.Text.Encoding.RegisterProvider() in a try/catch to prevents exceptions when
+  using the netstandard version of MimeKit in a .NET Framework app.
+  (issue [#751](https://github.com/jstedfast/MimeKit/issues/751))
+* Added a work-around for Office365 `message/delivery-status` parts where all status groups after
+  the first are base64 encoded. This seems to be a bug in Office365 where it treats the first
+  status group as MIME entity and the following status groups as the content.
+  (issue [#250](https://github.com/jstedfast/MimeKit/issues/250))
+* Fixed the MimeMessage .ctor that takes object parameters to first check that a Message-Id
+  header was not supplied before generating one for the message.
+  (issue [#747](https://github.com/jstedfast/MimeKit/issues/747))
+* Fixed the BestEncodingFilter logic such that if any line in binary content is > 998 and it contains
+  nul bytes, it should recommend base64 (not quoted-printable).
+
 ### MimeKit 3.1.0 (2022-01-14)
 
 * Always use a lowercase domain name in the Message-Id to work around bugs in eM Client.
