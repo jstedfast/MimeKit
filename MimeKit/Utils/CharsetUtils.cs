@@ -59,12 +59,14 @@ namespace MimeKit.Utils {
 			try {
 				Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 			} catch (NotSupportedException) {
-				// Note: Some ASP.NET web hosts such as GoDaddy's Windows environment do not have
-				// iso-8859-1 support, they only have the built-in text encodings, so we need to
-				// hack around it by using an alternative encoding.
+				// Note: Some ASP.NET environments running on .NET Framework >= v4.6.1 do not include the full spectrum of
+				// text encodings, so iso-8859-1 will not always be available unless the program includes a reference to
+				// the System.Text.Encoding.CodePages nuget package *and* it has been registered via the
+				// System.Text.Encoding.RegisterProvider method. In cases where this hasn't been done, we need some fallback
+				// logic that tries to handle this at least somewhat.
 
-				// Try to use Windows-1252 if it is available...
-				Latin1 = Encoding.GetEncoding (1252, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
+				// Use ASCII as a fallback.
+				Latin1 = Encoding.ASCII;
 			}
 
 			// Note: Encoding.UTF8.GetString() replaces invalid bytes with a unicode '?' character,
