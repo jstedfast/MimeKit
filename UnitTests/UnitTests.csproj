@@ -34,6 +34,7 @@
     <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.115.5" GeneratePathProperty="true">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

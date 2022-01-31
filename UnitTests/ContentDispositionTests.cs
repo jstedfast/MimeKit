@@ -306,7 +306,7 @@ namespace UnitTests {
 			Assert.IsTrue (ContentDisposition.TryParse (encoded, out disposition), "Failed to parse Content-Disposition");
 			Assert.AreEqual ("测试文本.txt", disposition.FileName, "The decoded Chinese filename does not match.");
 			Assert.IsTrue (disposition.Parameters.TryGetValue ("filename", out param), "Failed to locate filename parameter.");
-			Assert.AreEqual ("GB18030", param.Encoding.HeaderName, "The filename encoding did not match.");
+			Assert.AreEqual ("gb18030", param.Encoding.HeaderName.ToLowerInvariant (), "The filename encoding did not match.");
 		}
 
 		[Test]
@@ -327,7 +327,7 @@ namespace UnitTests {
 			Assert.IsTrue (ContentDisposition.TryParse (encoded, out disposition), "Failed to parse Content-Disposition");
 			Assert.AreEqual ("测试文本.txt", disposition.FileName, "The decoded Chinese filename does not match.");
 			Assert.IsTrue (disposition.Parameters.TryGetValue ("filename", out param), "Failed to locate filename parameter.");
-			Assert.AreEqual ("GB18030", param.Encoding.HeaderName, "The filename encoding did not match.");
+			Assert.AreEqual ("gb18030", param.Encoding.HeaderName.ToLowerInvariant (), "The filename encoding did not match.");
 		}
 
 		[Test]
