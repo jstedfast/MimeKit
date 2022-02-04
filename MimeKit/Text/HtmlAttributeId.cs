@@ -25,13 +25,12 @@
 //
 
 using System;
-using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
 
-namespace MimeKit.Text {
+namespace MimeKit.Text
+{
 	/// <summary>
 	/// HTML attribute identifiers.
 	/// </summary>
@@ -620,8 +619,6 @@ namespace MimeKit.Text {
 		public static string ToAttributeName (this HtmlAttributeId value)
 		{
 			var name = value.ToString ();
-
-
 			var field = typeof (HtmlAttributeId).GetField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false);
 
