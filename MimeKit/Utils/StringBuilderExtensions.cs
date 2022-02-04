@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System;
 using System.Text;
 using System.Collections.Generic;
 
@@ -125,6 +126,13 @@ namespace MimeKit.Utils {
 
 			return text;
 		}
+
+#if NETSTANDARD2_0 || NETFRAMEWORK
+		public static void Append (this StringBuilder text, ReadOnlySpan<char> value)
+		{
+			text.Append (value.ToString ());
+		}
+#endif
 
 #if DEBUG
 		public static void AppendCStringByte (this StringBuilder text, byte c)

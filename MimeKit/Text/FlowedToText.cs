@@ -28,6 +28,8 @@ using System;
 using System.IO;
 using System.Text;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Text {
 	/// <summary>
 	/// A flowed text to text converter.
@@ -84,7 +86,7 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
-		static string Unquote (string line, out int quoteDepth)
+		static ReadOnlySpan<char> Unquote (ReadOnlySpan<char> line, out int quoteDepth)
 		{
 			int index = 0;
 
@@ -101,7 +103,7 @@ namespace MimeKit.Text {
 			if (index > 0 && index < line.Length && line[index] == ' ')
 				index++;
 
-			return index > 0 ? line.Substring (index) : line;
+			return index > 0 ? line.Slice (index) : line;
 		}
 
 		/// <summary>
@@ -135,11 +137,11 @@ namespace MimeKit.Text {
 				writer.Write (Header);
 
 			while ((line = reader.ReadLine ()) != null) {
-				line = Unquote (line, out int quoteDepth);
+				var unquoted = Unquote (line.AsSpan (), out int quoteDepth);
 
 				// if there is a leading space, it was stuffed
-				if (quoteDepth == 0 && line.Length > 0 && line[0] == ' ')
-					line = line.Substring (1);
+				if (quoteDepth == 0 && unquoted.Length > 0 && unquoted[0] == ' ')
+					unquoted = unquoted.Slice (1);
 
 				if (paraQuoteDepth == -1) {
 					paraQuoteDepth = quoteDepth;
@@ -154,9 +156,9 @@ namespace MimeKit.Text {
 					para.Length = 0;
 				}
 
-				para.Append (line);
+				para.Append (unquoted);
 
-				if (line.Length == 0 || line[line.Length - 1] != ' ') {
+				if (unquoted.Length == 0 || unquoted[unquoted.Length - 1] != ' ') {
 					// when a line does not end with a space, then the paragraph has ended
 					if (paraQuoteDepth > 0)
 						writer.Write (new string ('>', paraQuoteDepth) + " ");

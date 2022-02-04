@@ -752,7 +752,7 @@ namespace MimeKit {
 				int lineLeft = format.MaxLineLength - lineLength;
 				int index = Math.Min (startIndex + lineLeft, value.Length);
 
-				encoded.Append (value.Substring (startIndex, index - startIndex));
+				encoded.Append (value.AsSpan (startIndex, index - startIndex));
 				lineLength += (index - startIndex);
 
 				if (index == value.Length)

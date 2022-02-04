@@ -85,15 +85,14 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ("Malformed DKIM-Signature header: From header not signed.");
 
 			if (parameters.TryGetValue ("i", out string id)) {
-				string ident;
 				int at;
 
 				if ((at = id.LastIndexOf ('@')) == -1)
 					throw new FormatException ("Malformed DKIM-Signature header: no @ in the AUID value.");
 
-				ident = id.Substring (at + 1);
+				var ident = id.AsSpan (at + 1);
 
-				if (!ident.Equals (d, StringComparison.OrdinalIgnoreCase) && !ident.EndsWith ("." + d, StringComparison.OrdinalIgnoreCase))
+				if (!ident.Equals (d.AsSpan (), StringComparison.OrdinalIgnoreCase) && !ident.EndsWith (("." + d).AsSpan (), StringComparison.OrdinalIgnoreCase))
 					throw new FormatException ("Invalid DKIM-Signature header: the domain in the AUID does not match the domain parameter.");
 			}
 		}
