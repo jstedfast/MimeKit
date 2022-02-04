@@ -51,7 +51,7 @@
 
   <ItemGroup>
     <None Remove="submit.ps1" />
-	<None Remove="test.ps1" />
+    <None Remove="test.ps1" />
   </ItemGroup>
 
   <Target Name="CopyMySQLiteInteropFiles" AfterTargets="Build">
