@@ -752,7 +752,7 @@ namespace MimeKit {
 				int lineLeft = format.MaxLineLength - lineLength;
 				int index = Math.Min (startIndex + lineLeft, value.Length);
 
-				encoded.Append (value.Substring (startIndex, index - startIndex));
+				encoded.Append (value.AsSpan (startIndex, index - startIndex));
 				lineLength += (index - startIndex);
 
 				if (index == value.Length)
@@ -806,7 +806,6 @@ namespace MimeKit {
 					index++;
 
 				int startIndex = index;
-				string name;
 
 				while (index < value.Length && value[index] != '=') {
 					if (!IsWhiteSpace (value[index]))
@@ -814,7 +813,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				name = value.Substring (startIndex, index - startIndex);
+				string name = value.Substring (startIndex, index - startIndex);
 
 				while (index < value.Length && value[index] != ';') {
 					if (!IsWhiteSpace (value[index]))
@@ -827,7 +826,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				if (lineLength + token.Length + 1 > format.MaxLineLength || name == "bh" || name == "b") {
+				if (lineLength + token.Length + 1 > format.MaxLineLength || name is "bh" or "b") {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;

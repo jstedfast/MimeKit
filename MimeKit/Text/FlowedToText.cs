@@ -84,7 +84,7 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
-		static string Unquote (string line, out int quoteDepth)
+		static ReadOnlySpan<char> Unquote (ReadOnlySpan<char> line, out int quoteDepth)
 		{
 			int index = 0;
 
@@ -101,7 +101,7 @@ namespace MimeKit.Text {
 			if (index > 0 && index < line.Length && line[index] == ' ')
 				index++;
 
-			return index > 0 ? line.Substring (index) : line;
+			return index > 0 ? line.Slice(index) : line;
 		}
 
 		/// <summary>
@@ -135,11 +135,11 @@ namespace MimeKit.Text {
 				writer.Write (Header);
 
 			while ((line = reader.ReadLine ()) != null) {
-				line = Unquote (line, out int quoteDepth);
+				var normalizedLine = Unquote (line.AsSpan(), out int quoteDepth);
 
 				// if there is a leading space, it was stuffed
-				if (quoteDepth == 0 && line.Length > 0 && line[0] == ' ')
-					line = line.Substring (1);
+				if (quoteDepth == 0 && normalizedLine.Length > 0 && normalizedLine[0] == ' ')
+					normalizedLine = normalizedLine.Slice (1);
 
 				if (paraQuoteDepth == -1) {
 					paraQuoteDepth = quoteDepth;
@@ -154,9 +154,9 @@ namespace MimeKit.Text {
 					para.Length = 0;
 				}
 
-				para.Append (line);
+				para.Append (normalizedLine);
 
-				if (line.Length == 0 || line[line.Length - 1] != ' ') {
+				if (normalizedLine.Length == 0 || normalizedLine[normalizedLine.Length - 1] != ' ') {
 					// when a line does not end with a space, then the paragraph has ended
 					if (paraQuoteDepth > 0)
 						writer.Write (new string ('>', paraQuoteDepth) + " ");

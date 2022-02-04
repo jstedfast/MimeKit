@@ -1026,7 +1026,7 @@ namespace MimeKit.Cryptography {
 					string value;
 
 					if (endIndex < line.Length)
-						value = line.Substring (endIndex + 1).Trim ();
+						value = line.AsSpan (endIndex + 1).Trim ().ToString ();
 					else
 						value = null;
 
