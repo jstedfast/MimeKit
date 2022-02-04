@@ -281,12 +281,12 @@ namespace MimeKit.Text {
 			using (var htmlWriter = new HtmlWriter (writer)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<TextToHtmlTagContext> ();
-				int currentQuoteDepth = 0, quoteDepth;
+				int currentQuoteDepth = 0;
 				TextToHtmlTagContext ctx;
 				string line;
 
 				while ((line = reader.ReadLine ()) != null) {
-					line = Unquote (line, out quoteDepth);
+					line = Unquote (line, out int quoteDepth);
 
 					while (currentQuoteDepth < quoteDepth) {
 						ctx = new TextToHtmlTagContext (HtmlTagId.BlockQuote);
