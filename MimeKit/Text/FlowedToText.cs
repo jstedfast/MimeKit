@@ -123,7 +123,6 @@ namespace MimeKit.Text {
 		{
 			StringBuilder para = new StringBuilder ();
 			int paraQuoteDepth = -1;
-			int quoteDepth;
 			string line;
 
 			if (reader == null)
@@ -136,7 +135,7 @@ namespace MimeKit.Text {
 				writer.Write (Header);
 
 			while ((line = reader.ReadLine ()) != null) {
-				line = Unquote (line, out quoteDepth);
+				line = Unquote (line, out int quoteDepth);
 
 				// if there is a leading space, it was stuffed
 				if (quoteDepth == 0 && line.Length > 0 && line[0] == ' ')

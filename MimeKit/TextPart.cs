@@ -277,9 +277,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool IsFlowed {
 			get {
-				string format;
-
-				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out format))
+				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out string format))
 					return false;
 
 				format = format.Trim ();

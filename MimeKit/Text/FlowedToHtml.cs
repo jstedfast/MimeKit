@@ -356,12 +356,11 @@ namespace MimeKit.Text {
 				var para = new StringBuilder ();
 				int currentQuoteDepth = 0;
 				int paraQuoteDepth = -1;
-				int quoteDepth;
 				string line;
 
 				while ((line = reader.ReadLine ()) != null) {
 					// unquote the line
-					line = Unquote (line, out quoteDepth);
+					line = Unquote (line, out int quoteDepth);
 
 					// remove space-stuffing
 					if (line.Length > 0 && line[0] == ' ')

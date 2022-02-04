@@ -785,15 +785,13 @@ namespace MimeKit.Text {
 		/// <param name="name">The tag name.</param>
 		internal static HtmlTagId ToHtmlTagId (this string name)
 		{
-			HtmlTagId value;
-
 			if (string.IsNullOrEmpty (name))
 				return HtmlTagId.Unknown;
 
 			if (name[0] == '!')
 				return HtmlTagId.Comment;
 
-			if (!TagNameToId.TryGetValue (name, out value))
+			if (!TagNameToId.TryGetValue (name, out HtmlTagId value))
 				return HtmlTagId.Unknown;
 
 			return value;

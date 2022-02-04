@@ -641,9 +641,7 @@ namespace MimeKit.Text {
 		/// <param name="name">The attribute name.</param>
 		internal static HtmlAttributeId ToHtmlAttributeId (this string name)
 		{
-			HtmlAttributeId value;
-
-			if (!AttributeNameToId.TryGetValue (name, out value))
+			if (!AttributeNameToId.TryGetValue (name, out HtmlAttributeId value))
 				return HtmlAttributeId.Unknown;
 
 			return value;
