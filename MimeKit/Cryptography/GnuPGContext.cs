@@ -65,7 +65,6 @@ namespace MimeKit.Cryptography {
 			var gnupg = Environment.GetEnvironmentVariable ("GNUPGHOME");
 
 			if (gnupg == null) {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				if (Path.DirectorySeparatorChar == '\\') {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 					gnupg = Path.Combine (appData, "gnupg");
@@ -73,9 +72,7 @@ namespace MimeKit.Cryptography {
 					var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
 					gnupg = Path.Combine (home, ".gnupg");
 				}
-#else
-				gnupg = ".gnupg";
-#endif
+
 			}
 
 			GnuPGHomeDir = gnupg;
@@ -780,11 +777,8 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (random == null) {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
+
 				random = new SecureRandom (new CryptoApiRandomGenerator ());
-#else
-				random = new SecureRandom ();
-#endif
 			}
 
 			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now, random);
@@ -874,14 +868,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (PublicKeyRingPath)) {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				File.Replace (tmp, PublicKeyRingPath, bak);
-#else
-				if (File.Exists (bak))
-					File.Delete (bak);
-				File.Move (PublicKeyRingPath, bak);
-				File.Move (tmp, PublicKeyRingPath);
-#endif
 			} else {
 				File.Move (tmp, PublicKeyRingPath);
 			}
@@ -912,14 +899,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (File.Exists (SecretKeyRingPath)) {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				File.Replace (tmp, SecretKeyRingPath, bak);
-#else
-				if (File.Exists (bak))
-					File.Delete (bak);
-				File.Move (SecretKeyRingPath, bak);
-				File.Move (tmp, SecretKeyRingPath);
-#endif
 			} else {
 				File.Move (tmp, SecretKeyRingPath);
 			}

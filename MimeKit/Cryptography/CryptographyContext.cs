@@ -773,11 +773,8 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-			var info = type.GetTypeInfo ();
-#else
 			var info = type;
-#endif
+
 #if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
 			var ctor = type.GetConstructor (Array.Empty<Type> ());
 			var args = Array.Empty<object> ();

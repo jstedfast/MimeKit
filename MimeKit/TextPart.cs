@@ -503,11 +503,7 @@ namespace MimeKit {
 					filtered.Flush ();
 				}
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				var buffer = memory.GetBuffer ();
-#else
-				var buffer = memory.ToArray ();
-#endif
 
 				return CharsetUtils.UTF8.GetString (buffer, 0, (int) memory.Length);
 			}

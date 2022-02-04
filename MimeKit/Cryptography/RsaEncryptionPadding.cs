@@ -26,10 +26,6 @@
 
 using System;
 
-#if NETCOREAPP3_0
-using System.Security.Cryptography;
-#endif
-
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
@@ -182,8 +178,8 @@ namespace MimeKit.Cryptography {
 		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
 		public static bool operator == (RsaEncryptionPadding left, RsaEncryptionPadding right)
 		{
-			if (ReferenceEquals (left, null))
-				return ReferenceEquals (right, null);
+			if (left is null)
+				return right is null;
 
 			return left.Equals (right);
 		}
@@ -243,25 +239,5 @@ namespace MimeKit.Cryptography {
 
 			return new AlgorithmIdentifier (PkcsObjectIdentifiers.IdRsaesOaep, GetRsaesOaepParameters ());
 		}
-
-#if NETCOREAPP3_0
-		internal RSAEncryptionPadding AsRSAEncryptionPadding ()
-		{
-			switch (Scheme) {
-			case RsaEncryptionPaddingScheme.Oaep:
-				switch (OaepHashAlgorithm) {
-				case DigestAlgorithm.Sha1: return RSAEncryptionPadding.OaepSHA1;
-				case DigestAlgorithm.Sha256: return RSAEncryptionPadding.OaepSHA256;
-				case DigestAlgorithm.Sha384: return RSAEncryptionPadding.OaepSHA384;
-				case DigestAlgorithm.Sha512: return RSAEncryptionPadding.OaepSHA512;
-				default: return null;
-				}
-			case RsaEncryptionPaddingScheme.Pkcs1:
-				return RSAEncryptionPadding.Pkcs1;
-			default:
-				return null;
-			}
-		}
-#endif
 	}
 }

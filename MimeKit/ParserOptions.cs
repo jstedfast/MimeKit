@@ -251,23 +251,17 @@ namespace MimeKit {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-			mimeType = mimeType.ToLowerInvariant ();
-
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-			var info = type.GetTypeInfo ();
-#else
-			var info = type;
-#endif
-
-			if (!info.IsSubclassOf (typeof (MessagePart)) &&
-				!info.IsSubclassOf (typeof (Multipart)) &&
-				!info.IsSubclassOf (typeof (MimePart)))
+			if (!type.IsSubclassOf (typeof (MessagePart)) &&
+				!type.IsSubclassOf (typeof (Multipart)) &&
+				!type.IsSubclassOf (typeof (MimePart)))
 				throw new ArgumentException ("The specified type must be a subclass of MessagePart, Multipart, or MimePart.", nameof (type));
 
 			var ctor = type.GetConstructor (ConstructorArgTypes);
 
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", nameof (type));
+
+			mimeType = mimeType.ToLowerInvariant ();
 
 			mimeTypes[mimeType] = ctor;
 		}

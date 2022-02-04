@@ -172,7 +172,6 @@ namespace MimeKit.Cryptography {
 			EncryptionAlgorithms = Certificate.GetEncryptionAlgorithms ();
 		}
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		/// <summary>
 		/// Initialize a new instance of the <see cref="CmsRecipient"/> class.
 		/// </summary>
@@ -202,7 +201,6 @@ namespace MimeKit.Cryptography {
 			EncryptionAlgorithms = certificate.GetEncryptionAlgorithms ();
 			Certificate = certificate.AsBouncyCastleCertificate ();
 		}
-#endif
 
 		/// <summary>
 		/// Gets the recipient's certificate.

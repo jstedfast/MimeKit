@@ -277,19 +277,10 @@ namespace MimeKit.Cryptography {
 				else
 					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
 
-#if NETCOREAPP3_0
-				var padding = recipient.RsaEncryptionPadding?.AsRSAEncryptionPadding ();
-
-				if (padding != null)
-					real = new RealCmsRecipient (type, certificate, padding);
-				else
-					real = new RealCmsRecipient (type, certificate);
-#else
 				if (recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep)
 					throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 
 				real = new RealCmsRecipient (type, certificate);
-#endif
 
 				collection.Add (real);
 			}

@@ -311,7 +311,6 @@ namespace MimeKit.Cryptography {
 				LoadPkcs12 (stream, password, signerIdentifierType);
 		}
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 		/// <summary>
 		/// Initialize a new instance of the <see cref="CmsSigner"/> class.
 		/// </summary>
@@ -371,7 +370,6 @@ namespace MimeKit.Cryptography {
 		internal X509Certificate2 WindowsCertificate {
 			get; set;
 		}
-#endif
 
 		/// <summary>
 		/// Get the signer's certificate.
