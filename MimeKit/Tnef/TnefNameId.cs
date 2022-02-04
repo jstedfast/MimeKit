@@ -33,7 +33,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF name identifier.
 	/// </remarks>
-	public struct TnefNameId
+	public struct TnefNameId : IEquatable<TnefNameId>
 	{
 		readonly TnefNameIdKind kind;
 		readonly string name;
@@ -47,9 +47,7 @@ namespace MimeKit.Tnef {
 		/// Gets the property set GUID.
 		/// </remarks>
 		/// <value>The property set GUID.</value>
-		public Guid PropertySetGuid {
-			get { return guid; }
-		}
+		public Guid PropertySetGuid => guid;
 
 		/// <summary>
 		/// Gets the kind of TNEF name identifier.
@@ -58,9 +56,7 @@ namespace MimeKit.Tnef {
 		/// Gets the kind of TNEF name identifier.
 		/// </remarks>
 		/// <value>The kind of identifier.</value>
-		public TnefNameIdKind Kind {
-			get { return kind; }
-		}
+		public TnefNameIdKind Kind => kind;
 
 		/// <summary>
 		/// Gets the name, if available.
@@ -69,9 +65,7 @@ namespace MimeKit.Tnef {
 		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Name"/>, then this property will be available.
 		/// </remarks>
 		/// <value>The name.</value>
-		public string Name {
-			get { return name; }
-		}
+		public string Name => name;
 
 		/// <summary>
 		/// Gets the identifier, if available.
@@ -80,9 +74,7 @@ namespace MimeKit.Tnef {
 		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Id"/>, then this property will be available.
 		/// </remarks>
 		/// <value>The identifier.</value>
-		public int Id {
-			get { return id; }
-		}
+		public int Id => id;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TnefNameId"/> struct.
@@ -142,15 +134,24 @@ namespace MimeKit.Tnef {
 		/// <see cref="TnefNameId"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
-			if (!(obj is TnefNameId))
+			return obj is TnefNameId other && Equals (other);
+		}
+
+		/// <summary>
+		/// Determines whether the specified <see cref="TnefNameId"/> is equal to the current <see cref="TnefNameId"/>.
+		/// </summary>
+		/// <remarks>
+		/// Compares two TNEF name identifiers to determine if they are identical or not.
+		/// </remarks>
+		/// <param name="other">The <see cref="TnefNameId"/> to compare with the current <see cref="TnefNameId"/>.</param>
+		/// <returns><c>true</c> if the specified <see cref="TnefNameId"/> is equal to the current
+		/// <see cref="TnefNameId"/>; otherwise, <c>false</c>.</returns>
+		public bool Equals (TnefNameId other)
+		{
+			if (kind != other.kind || guid != other.guid)
 				return false;
 
-			var v = (TnefNameId) obj;
-
-			if (v.kind != kind || v.guid != guid)
-				return false;
-
-			return kind == TnefNameIdKind.Id ? v.id == id : v.name == name;
+			return kind is TnefNameIdKind.Id ? other.id == id : other.name == name;
 		}
 	}
 }
