@@ -773,11 +773,6 @@ namespace MimeKit.Cryptography {
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));
 
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-			var info = type.GetTypeInfo ();
-#else
-			var info = type;
-#endif
 #if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
 			var ctor = type.GetConstructor (Array.Empty<Type> ());
 			var args = Array.Empty<object> ();
@@ -789,11 +784,11 @@ namespace MimeKit.Cryptography {
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", nameof (type));
 
-			if (info.IsSubclassOf (typeof (SecureMimeContext))) {
+			if (type.IsSubclassOf (typeof (SecureMimeContext))) {
 				lock (mutex) {
 					SecureMimeContextFactory = () => (SecureMimeContext) ctor.Invoke (args);
 				}
-			} else if (info.IsSubclassOf (typeof (OpenPgpContext))) {
+			} else if (type.IsSubclassOf (typeof (OpenPgpContext))) {
 				lock (mutex) {
 					PgpContextFactory = () => (OpenPgpContext) ctor.Invoke (args);
 				}

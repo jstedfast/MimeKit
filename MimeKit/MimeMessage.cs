@@ -1250,11 +1250,7 @@ namespace MimeKit {
 			using (var memory = new MemoryStream ()) {
 				WriteTo (FormatOptions.Default, memory);
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 				var buffer = memory.GetBuffer ();
-#else
-				var buffer = memory.ToArray ();
-#endif
 				int count = (int) memory.Length;
 
 				return CharsetUtils.Latin1.GetString (buffer, 0, count);

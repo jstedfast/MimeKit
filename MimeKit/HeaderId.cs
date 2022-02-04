@@ -25,9 +25,7 @@
 //
 
 using System;
-using System.Linq;
 using System.Text;
-using System.Reflection;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
@@ -763,14 +761,8 @@ namespace MimeKit {
 		public static string ToHeaderName (this HeaderId value)
 		{
 			var name = value.ToString ();
-
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-			var field = typeof (HeaderId).GetTypeInfo ().GetDeclaredField (name);
-			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false).ToArray ();
-#else
 			var field = typeof (HeaderId).GetField (name);
 			var attrs = field.GetCustomAttributes (typeof (HeaderNameAttribute), false);
-#endif
 
 			if (attrs != null && attrs.Length == 1)
 				return ((HeaderNameAttribute) attrs[0]).HeaderName;

@@ -71,7 +71,6 @@ namespace MimeKit.Cryptography {
 		{
 			string path;
 
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
 			if (Path.DirectorySeparatorChar == '\\') {
 				var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
 				path = Path.Combine (appData, "Roaming\\mimekit");
@@ -79,9 +78,6 @@ namespace MimeKit.Cryptography {
 				var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
 				path = Path.Combine (home, ".mimekit");
 			}
-#else
-			path = ".mimekit";
-#endif
 
 			DefaultDatabasePath = Path.Combine (path, "smime.db");
 		}
@@ -89,12 +85,8 @@ namespace MimeKit.Cryptography {
 		static void CheckIsAvailable ()
 		{
 			if (!SqliteCertificateDatabase.IsAvailable) {
-				const string format = "SQLite is not available. Install the {0} nuget.";
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-				throw new NotSupportedException (string.Format (format, "Microsoft.Data.Sqlite"));
-#else
-				throw new NotSupportedException (string.Format (format, "System.Data.SQLite"));
-#endif
+				throw new NotSupportedException ("SQLite is not available. Install the System.Data.SQLite nuget package.");
+
 			}
 		}
 

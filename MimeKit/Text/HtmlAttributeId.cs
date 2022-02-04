@@ -25,8 +25,6 @@
 //
 
 using System;
-using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
@@ -620,14 +618,8 @@ namespace MimeKit.Text {
 		public static string ToAttributeName (this HtmlAttributeId value)
 		{
 			var name = value.ToString ();
-
-#if NETSTANDARD1_3 || NETSTANDARD1_6
-			var field = typeof (HtmlAttributeId).GetTypeInfo ().GetDeclaredField (name);
-			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false).ToArray ();
-#else
 			var field = typeof (HtmlAttributeId).GetField (name);
 			var attrs = field.GetCustomAttributes (typeof (HtmlAttributeNameAttribute), false);
-#endif
 
 			if (attrs != null && attrs.Length == 1)
 				return ((HtmlAttributeNameAttribute) attrs[0]).Name;
