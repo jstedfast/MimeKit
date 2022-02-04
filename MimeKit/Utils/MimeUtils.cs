@@ -52,8 +52,12 @@ namespace MimeKit.Utils {
 
 		internal static void GetRandomBytes (byte[] buffer)
 		{
+#if NET6_0_OR_GREATER
+			RandomNumberGenerator.Fill (buffer);
+#else
 			using (var random = RandomNumberGenerator.Create ())
 				random.GetBytes (buffer);
+#endif
 		}
 
 		/// <summary>
@@ -218,9 +222,8 @@ namespace MimeKit.Utils {
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
-			string msgid;
 
-			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out msgid);
+			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string msgid);
 
 			return msgid;
 		}
@@ -272,7 +275,6 @@ namespace MimeKit.Utils {
 			var values = new List<int> ();
 			int endIndex = startIndex + length;
 			int index = startIndex;
-			int value;
 
 			version = null;
 
@@ -280,7 +282,7 @@ namespace MimeKit.Utils {
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index >= endIndex)
 					return false;
 
-				if (!ParseUtils.TryParseInt32 (buffer, ref index, endIndex, out value))
+				if (!ParseUtils.TryParseInt32 (buffer, ref index, endIndex, out int value))
 					return false;
 
 				values.Add (value);
