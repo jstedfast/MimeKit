@@ -184,7 +184,7 @@ namespace MimeKit.Cryptography {
 				if (index >= signature.Length)
 					continue;
 
-				var name = signature.Substring (startIndex, index - startIndex).TrimEnd ();
+				var name = signature.AsSpan (startIndex, index - startIndex).TrimEnd ().ToString ();
 
 				// skip over '=' and clear value buffer
 				value.Length = 0;

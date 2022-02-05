@@ -29,6 +29,8 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Text {
 	/// <summary>
 	/// A flowed text to HTML converter.
@@ -186,7 +188,7 @@ namespace MimeKit.Text {
 			tagContext.WriteTag (htmlWriter, true);
 		}
 
-		static string Unquote (string line, out int quoteDepth)
+		static ReadOnlySpan<char> Unquote (ReadOnlySpan<char> line, out int quoteDepth)
 		{
 			int index = 0;
 
@@ -203,7 +205,7 @@ namespace MimeKit.Text {
 			if (index > 0 && index < line.Length && line[index] == ' ')
 				index++;
 
-			return index > 0 ? line.Substring (index) : line;
+			return index > 0 ? line.Slice (index) : line;
 		}
 
 		static bool SuppressContent (IList<FlowedToHtmlTagContext> stack)
@@ -360,11 +362,11 @@ namespace MimeKit.Text {
 
 				while ((line = reader.ReadLine ()) != null) {
 					// unquote the line
-					line = Unquote (line, out int quoteDepth);
+					var unquoted = Unquote (line.AsSpan (), out int quoteDepth);
 
-					// remove space-stuffing
-					if (line.Length > 0 && line[0] == ' ')
-						line = line.Substring (1);
+					// if there is a leading space, it was stuffed
+					if (quoteDepth == 0 && unquoted.Length > 0 && unquoted[0] == ' ')
+						unquoted = unquoted.Slice (1);
 
 					if (para.Length == 0) {
 						paraQuoteDepth = quoteDepth;
@@ -377,9 +379,9 @@ namespace MimeKit.Text {
 						para.Length = 0;
 					}
 
-					para.Append (line);
+					para.Append (unquoted);
 
-					if (line.Length == 0 || line[line.Length - 1] != ' ') {
+					if (unquoted.Length == 0 || unquoted[unquoted.Length - 1] != ' ') {
 						// line did not end with a space, so the next line will start a new paragraph
 						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
 						paraQuoteDepth = 0;

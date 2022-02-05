@@ -519,14 +519,26 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool IsInternational (string value)
+		public static bool IsInternational (string value, int startIndex, int count)
 		{
-			for (int i = 0; i < value.Length; i++) {
+			int endIndex = startIndex + count;
+
+			for (int i = startIndex; i < endIndex; i++) {
 				if (value[i] > 127)
 					return true;
 			}
 
 			return false;
+		}
+
+		public static bool IsInternational (string value, int startIndex)
+		{
+			return IsInternational (value, startIndex, value.Length - startIndex);
+		}
+
+		public static bool IsInternational (string value)
+		{
+			return IsInternational (value, 0, value.Length);
 		}
 
 		public static bool IsIdnEncoded (string value)
@@ -535,6 +547,24 @@ namespace MimeKit.Utils {
 				return true;
 
 			return value.IndexOf (".xn--", StringComparison.Ordinal) != -1;
+		}
+
+		public static string IdnEncode (string unicode, int startIndex, int count)
+		{
+			try {
+				return idn.GetAscii (unicode, startIndex, count);
+			} catch {
+				return unicode.Substring (0, count);
+			}
+		}
+
+		public static string IdnEncode (string unicode, int startIndex)
+		{
+			try {
+				return idn.GetAscii (unicode, startIndex);
+			} catch {
+				return unicode.Substring (startIndex);
+			}
 		}
 
 		public static string IdnEncode (string unicode)

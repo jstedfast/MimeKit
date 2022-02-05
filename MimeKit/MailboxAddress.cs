@@ -268,14 +268,17 @@ namespace MimeKit {
 		static string EncodeAddrspec (string addrspec, int at)
 		{
 			if (at != -1) {
-				var domain = addrspec.Substring (at + 1);
-				var local = addrspec.Substring (0, at);
+				string local, domain;
 
-				if (ParseUtils.IsInternational (local))
-					local = ParseUtils.IdnEncode (local);
+				if (ParseUtils.IsInternational (addrspec, 0, at))
+					local = ParseUtils.IdnEncode (addrspec, 0, at);
+				else
+					local = addrspec.Substring (0, at);
 
-				if (ParseUtils.IsInternational (domain))
-					domain = ParseUtils.IdnEncode (domain);
+				if (ParseUtils.IsInternational (addrspec, at + 1))
+					domain = ParseUtils.IdnEncode (addrspec, at + 1);
+				else
+					domain = addrspec.Substring (at + 1);
 
 				return local + "@" + domain;
 			}

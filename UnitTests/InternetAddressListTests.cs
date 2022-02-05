@@ -809,7 +809,19 @@ namespace UnitTests {
 			Assert.IsTrue (mailbox.CompareTo (group) < 0, "CompareTo() should return < 0.");
 			Assert.IsTrue (group.CompareTo (mailbox) > 0, "CompareTo() should return > 0.");
 
-			Assert.IsTrue (mailbox.CompareTo (group.Members[0]) == 0, "CompareTo() should return 0.");
+			Assert.AreEqual (0, mailbox.CompareTo (group.Members[0]), "CompareTo() should return 0.");
+
+			var alice = new MailboxAddress (string.Empty, "alice@example.com");
+			var bob = new MailboxAddress (string.Empty, "bob@example.com");
+
+			Assert.IsTrue (alice.CompareTo (bob) < 0, "alice.CompareTo(bob) should return < 0.");
+			Assert.IsTrue (bob.CompareTo (alice) > 0, "bob.CompareTo(alice) should return > 0.");
+
+			var alexa = new MailboxAddress (string.Empty, "alexa@example.com");
+			var alex = new MailboxAddress (string.Empty, "alex@example.com");
+
+			Assert.IsTrue (alex.CompareTo (alexa) < 0, "alex.CompareTo(alexa) should return < 0.");
+			Assert.IsTrue (alexa.CompareTo (alex) > 0, "alexa.CompareTo(alex) should return > 0.");
 		}
 
 		#region Rfc7103

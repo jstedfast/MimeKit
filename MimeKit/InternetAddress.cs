@@ -164,10 +164,15 @@ namespace MimeKit {
 				}
 
 				if (rv == 0) {
-					string otherUser = otherAt != -1 ? otherAddress.Substring (0, otherAt) : otherAddress;
-					string user = at != -1 ? address.Substring (0, at) : address;
+					int otherLength = otherAt == -1 ? otherAddress.Length : otherAt;
+					int length = at == -1 ? address.Length : at;
+					int n = Math.Min (length, otherLength);
 
-					rv = string.Compare (user, otherUser, StringComparison.OrdinalIgnoreCase);
+					if ((rv = string.Compare (address, 0, otherAddress, 0, n, StringComparison.OrdinalIgnoreCase)) == 0) {
+						// The local-part's of the addresses are identical for the first `n` characters. The address
+						// with the longer local-part should sort as > the address with the shorter local-part.
+						rv = length - otherLength;
+					}
 				}
 
 				return rv;
