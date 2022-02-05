@@ -42,12 +42,17 @@ namespace UnitTests.Text {
 			const string text = "text";
 
 			// HtmlAttributeEncode
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (null));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode ((string) null));
 			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (text, 'x'));
 
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode ((ReadOnlySpan<char>) null));
+			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (text.AsSpan (), 'x'));
+
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (null, text));
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, null));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, (string) null));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, (ReadOnlySpan<char>) null));
 			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (writer, text, 'x'));
+			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (writer, text.AsSpan (), 'x'));
 
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode ((string) null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlAttributeEncode (text, -1, 0));
@@ -65,17 +70,21 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlAttributeEncode (writer, text, 0, text.Length + 1));
 			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (writer, text, 0, text.Length, 'x'));
 
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (null, text.ToCharArray(), 0, text.Length));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (null, text.ToCharArray (), 0, text.Length));
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, (char[]) null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlAttributeEncode (writer, text.ToCharArray (), -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlAttributeEncode (writer, text.ToCharArray (), 0, text.Length + 1));
 			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (writer, text.ToCharArray (), 0, text.Length, 'x'));
 
 			// HtmlEncode
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (null));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode ((string) null));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode ((ReadOnlySpan<char>) null));
 
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (null, text));
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (writer, null));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (writer, (string) null));
+
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (null, text.AsSpan ()));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (writer, (ReadOnlySpan<char>) null));
 
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode ((string) null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlEncode (text, -1, 0));
@@ -90,7 +99,7 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlEncode (writer, text, -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlEncode (writer, text, 0, text.Length + 1));
 
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (null, text.ToCharArray(), 0, text.Length));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (null, text.ToCharArray (), 0, text.Length));
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlEncode (writer, (char[]) null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlEncode (writer, text.ToCharArray (), -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => HtmlUtils.HtmlEncode (writer, text.ToCharArray (), 0, text.Length + 1));

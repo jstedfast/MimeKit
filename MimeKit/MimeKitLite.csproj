@@ -120,7 +120,6 @@
     <Compile Include="Text\HtmlUtils.cs" />
     <Compile Include="Text\HtmlWriter.cs" />
     <Compile Include="Text\HtmlWriterState.cs" />
-    <Compile Include="Text\ICharArray.cs" />
     <Compile Include="Text\PlainTextPreviewer.cs" />
     <Compile Include="Text\TextConverter.cs" />
     <Compile Include="Text\TextFormat.cs" />

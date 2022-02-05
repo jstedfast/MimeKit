@@ -130,7 +130,14 @@ namespace MimeKit.Utils {
 #if NETSTANDARD2_0 || NETFRAMEWORK
 		public static void Append (this StringBuilder text, ReadOnlySpan<char> value)
 		{
-			text.Append (value.ToString ());
+			char[] buffer = System.Buffers.ArrayPool<char>.Shared.Rent (value.Length);
+
+			try {
+				value.CopyTo (new Span<char> (buffer));
+				text.Append (buffer, 0, value.Length);
+			} finally {
+				System.Buffers.ArrayPool<char>.Shared.Return (buffer);
+			}
 		}
 #endif
 
