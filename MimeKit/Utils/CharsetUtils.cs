@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace MimeKit.Utils {
@@ -184,16 +185,25 @@ namespace MimeKit.Utils {
 			}
 		}
 
-		static int ParseIsoCodePage (string charset)
+		static bool TryParseInt32 (string text, int startIndex, int count, out int value)
 		{
-			if (charset.Length < 5)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+			return int.TryParse (text.AsSpan (startIndex, count), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+#else
+			return int.TryParse (text.Substring (startIndex, count), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+#endif
+		}
+
+		static int ParseIsoCodePage (string charset, int startIndex)
+		{
+			if ((charset.Length - startIndex) < 5)
 				return -1;
 
-			int dash = charset.IndexOfAny (new [] { '-', '_' });
+			int dash = charset.IndexOfAny (new [] { '-', '_' }, startIndex);
 			if (dash == -1)
 				dash = charset.Length;
 
-			if (!int.TryParse (charset.Substring (0, dash), out int iso))
+			if (!TryParseInt32 (charset, startIndex, dash - startIndex, out int iso))
 				return -1;
 
 			if (iso == 10646)
@@ -202,12 +212,12 @@ namespace MimeKit.Utils {
 			if (dash + 2 > charset.Length)
 				return -1;
 
-			string suffix = charset.Substring (dash + 1);
+			int codepageIndex = dash + 1;
 			int codepage;
 
 			switch (iso) {
 			case 8859:
-				if (!int.TryParse (suffix, out codepage))
+				if (!TryParseInt32 (charset, codepageIndex, charset.Length - codepageIndex, out codepage))
 					return -1;
 
 				if (codepage <= 0 || (codepage > 9 && codepage < 13) || codepage > 15)
@@ -216,11 +226,14 @@ namespace MimeKit.Utils {
 				codepage += 28590;
 				break;
 			case 2022:
-				switch (suffix.ToLowerInvariant ()) {
-				case "jp": codepage = 50220; break;
-				case "kr": codepage = 50225; break;
-				default: return -1;
-				}
+				int n = charset.Length - codepageIndex;
+
+				if (n == 2 && string.Compare (charset, codepageIndex, "jp", 0, 2, StringComparison.OrdinalIgnoreCase) == 0)
+					codepage = 50220;
+				else if (n == 2 && string.Compare (charset, codepageIndex, "kr", 0, 2, StringComparison.OrdinalIgnoreCase) == 0)
+					codepage = 50225;
+				else
+					codepage = -1;
 				break;
 			default:
 				return -1;
@@ -250,7 +263,7 @@ namespace MimeKit.Utils {
 				if (i + 2 < charset.Length && charset[i] == 'c' && charset[i + 1] == 'p')
 					i += 2;
 
-				if (int.TryParse (charset.Substring (i), out codepage))
+				if (TryParseInt32 (charset, i, charset.Length - i, out codepage))
 					return codepage;
 			} else if (charset.StartsWith ("ibm", StringComparison.OrdinalIgnoreCase)) {
 				i = 3;
@@ -261,7 +274,7 @@ namespace MimeKit.Utils {
 				if (charset[i] == '-' || charset[i] == '_')
 					i++;
 
-				if (int.TryParse (charset.Substring (i), out codepage))
+				if (TryParseInt32 (charset, i, charset.Length - i, out codepage))
 					return codepage;
 			} else if (charset.StartsWith ("iso", StringComparison.OrdinalIgnoreCase)) {
 				i = 3;
@@ -272,7 +285,7 @@ namespace MimeKit.Utils {
 				if (charset[i] == '-' || charset[i] == '_')
 					i++;
 
-				if ((codepage = ParseIsoCodePage (charset.Substring (i))) != -1)
+				if ((codepage = ParseIsoCodePage (charset, i)) != -1)
 					return codepage;
 			} else if (charset.StartsWith ("cp", StringComparison.OrdinalIgnoreCase)) {
 				i = 2;
@@ -283,7 +296,7 @@ namespace MimeKit.Utils {
 				if (charset[i] == '-' || charset[i] == '_')
 					i++;
 
-				if (int.TryParse (charset.Substring (i), out codepage))
+				if (TryParseInt32 (charset, i, charset.Length - i, out codepage))
 					return codepage;
 			} else if (charset.Equals ("latin1", StringComparison.OrdinalIgnoreCase)) {
 				return 28591;
