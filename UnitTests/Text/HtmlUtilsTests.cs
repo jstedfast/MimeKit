@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -50,8 +51,10 @@ namespace UnitTests.Text {
 
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (null, text));
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, (string) null));
-			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, (ReadOnlySpan<char>) null));
 			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (writer, text, 'x'));
+
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (null, text.AsSpan ()));
+			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode (writer, (ReadOnlySpan<char>) null));
 			Assert.Throws<ArgumentException> (() => HtmlUtils.HtmlAttributeEncode (writer, text.AsSpan (), 'x'));
 
 			Assert.Throws<ArgumentNullException> (() => HtmlUtils.HtmlAttributeEncode ((string) null, 0, 0));
@@ -208,6 +211,18 @@ namespace UnitTests.Text {
 			const string attributeValue = "\"if (showJapaneseText &amp;&amp; x &lt;= 1)\ttext = '&#29378;&#12387;&#12383;&#12371;&#12398;&#19990;&#12391;&#29378;&#12358;&#12394;&#12425;&#27671;&#12399;&#30906;&#12363;&#12384;&#12290;';\"";
 			const string encoded = "if (showJapaneseText &amp;&amp; x &lt;= 1)\ttext = &#39;&#29378;&#12387;&#12383;&#12371;&#12398;&#19990;&#12391;&#29378;&#12358;&#12394;&#12425;&#27671;&#12399;&#30906;&#12363;&#12384;&#12290;&#39;;";
 			const string text = "if (showJapaneseText && x <= 1)\ttext = '狂ったこの世で狂うなら気は確かだ。';";
+
+			AssertHtmlAttributeEncode (text, attributeValue);
+			AssertHtmlEncode (text, encoded);
+		}
+
+		[Test]
+		public void TestEncodeSurrogatePairs ()
+		{
+			const string attributeValue = "\"This emoji (&#128561;) contains a surrogate pair.\"";
+			const string encoded = "This emoji (&#128561;) contains a surrogate pair.";
+			var emoji = Encoding.UTF8.GetString (Convert.FromBase64String ("8J+YsQ=="));
+			var text = $"This emoji ({emoji}) contains a surrogate pair.";
 
 			AssertHtmlAttributeEncode (text, attributeValue);
 			AssertHtmlEncode (text, encoded);
