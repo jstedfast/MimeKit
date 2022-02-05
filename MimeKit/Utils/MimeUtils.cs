@@ -329,6 +329,11 @@ namespace MimeKit.Utils {
 			return TryParse (buffer, 0, buffer.Length, out version);
 		}
 
+		static bool IsEncoding (string value, string text, int startIndex, int length)
+		{
+			return length == value.Length && string.Compare (value, 0, text, startIndex, length, StringComparison.OrdinalIgnoreCase) == 0;
+		}
+
 		/// <summary>
 		/// Try to parse the value of a Content-Transfer-Encoding header.
 		/// </summary>
@@ -346,39 +351,45 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
 
-			var value = new char[text.Length];
-			int i = 0, n = 0;
-			string name;
+			int i = 0;
 
 			// trim leading whitespace
 			while (i < text.Length && char.IsWhiteSpace (text[i]))
 				i++;
 
-			// copy the encoding name
+			int startIndex = i, n = 0;
+
 			// Note: Google Docs tacks a ';' on the end... *sigh*
 			// See https://github.com/jstedfast/MimeKit/issues/106 for an example.
-			while (i < text.Length && text[i] != ';' && !char.IsWhiteSpace (text[i]))
-				value[n++] = char.ToLowerInvariant (text[i++]);
-
-			name = new string (value, 0, n);
-
-			switch (name) {
-			case "7bit":             encoding = ContentEncoding.SevenBit; break;
-			case "8bit":             encoding = ContentEncoding.EightBit; break;
-			case "binary":           encoding = ContentEncoding.Binary; break;
-			case "base64":           encoding = ContentEncoding.Base64; break;
-			case "quoted-printable": encoding = ContentEncoding.QuotedPrintable; break;
-			case "x-uuencode":       encoding = ContentEncoding.UUEncode; break;
-			case "uuencode":         encoding = ContentEncoding.UUEncode; break;
-			case "x-uue":            encoding = ContentEncoding.UUEncode; break;
-			default:                 encoding = ContentEncoding.Default; break;
+			while (i < text.Length && text[i] != ';' && !char.IsWhiteSpace (text[i])) {
+				i++;
+				n++;
 			}
+
+			if (IsEncoding ("7bit", text, startIndex, n))
+				encoding = ContentEncoding.SevenBit;
+			else if (IsEncoding ("8bit", text, startIndex, n))
+				encoding = ContentEncoding.EightBit;
+			else if (IsEncoding ("binary", text, startIndex, n))
+				encoding = ContentEncoding.Binary;
+			else if (IsEncoding ("base64", text, startIndex, n))
+				encoding = ContentEncoding.Base64;
+			else if (IsEncoding ("quoted-printable", text, startIndex, n))
+				encoding = ContentEncoding.QuotedPrintable;
+			else if (IsEncoding ("x-uuencode", text, startIndex, n))
+				encoding = ContentEncoding.UUEncode;
+			else if (IsEncoding ("uuencode", text, startIndex, n))
+				encoding = ContentEncoding.UUEncode;
+			else if (IsEncoding ("x-uue", text, startIndex, n))
+				encoding = ContentEncoding.UUEncode;
+			else
+				encoding = ContentEncoding.Default;
 
 			return encoding != ContentEncoding.Default;
 		}
 
 		/// <summary>
-		/// Quotes the specified text and appends it into the string builder.
+		/// Quote the specified text and append it into the string builder.
 		/// </summary>
 		/// <remarks>
 		/// Quotes the specified text, enclosing it in double-quotes and escaping
@@ -412,7 +423,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Quotes the specified text.
+		/// Quote the specified text.
 		/// </summary>
 		/// <remarks>
 		/// Quotes the specified text, enclosing it in double-quotes and escaping
@@ -436,7 +447,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Unquotes the specified text.
+		/// Unquote the specified text.
 		/// </summary>
 		/// <remarks>
 		/// Unquotes the specified text, removing any escaped backslashes within.
