@@ -390,7 +390,7 @@ namespace MimeKit {
 		Lines,
 
 		/// <summary>
-		/// THe List-Archive header field.
+		/// The List-Archive header field.
 		/// </summary>
 		ListArchive,
 

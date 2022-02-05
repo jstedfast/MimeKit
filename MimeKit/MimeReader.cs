@@ -410,7 +410,7 @@ namespace MimeKit {
 		/// <param name="beginOffset">The offset into the stream where the message began.</param>
 		/// <param name="beginLineNumber">The line number where the message began.</param>
 		/// <param name="headersEndOffset">The offset into the stream where the message headers ended and the content began.</param>
-		/// <param name="endOffset">THe offset into the stream where the message ended.</param>
+		/// <param name="endOffset">The offset into the stream where the message ended.</param>
 		/// <param name="lines">The length of the message as measured in lines.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
@@ -428,7 +428,7 @@ namespace MimeKit {
 		/// <param name="beginOffset">The offset into the stream where the message began.</param>
 		/// <param name="beginLineNumber">The line number where the message began.</param>
 		/// <param name="headersEndOffset">The offset into the stream where the message headers ended and the content began.</param>
-		/// <param name="endOffset">THe offset into the stream where the message ended.</param>
+		/// <param name="endOffset">The offset into the stream where the message ended.</param>
 		/// <param name="lines">The length of the message as measured in lines.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual Task OnMimeMessageEndAsync (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)

@@ -333,7 +333,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a SELECT query string builder for the specified fields of an X.509 certificate record.
 		/// </remarks>
-		/// <param name="fields">THe X.509 certificate fields.</param>
+		/// <param name="fields">The X.509 certificate fields.</param>
 		/// <returns>A <see cref="StringBuilder"/> containing a basic SELECT query string.</returns>
 		protected static StringBuilder CreateSelectQuery (X509CertificateRecordFields fields)
 		{

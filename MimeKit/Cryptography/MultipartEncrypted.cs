@@ -1261,7 +1261,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// THe specified encryption algorithm is not supported.
+		/// The specified encryption algorithm is not supported.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1299,7 +1299,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// THe specified encryption algorithm is not supported.
+		/// The specified encryption algorithm is not supported.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1667,7 +1667,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// THe specified encryption algorithm is not supported.
+		/// The specified encryption algorithm is not supported.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1705,7 +1705,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// THe specified encryption algorithm is not supported.
+		/// The specified encryption algorithm is not supported.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.

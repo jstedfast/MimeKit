@@ -649,7 +649,7 @@ namespace MimeKit {
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
 		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
-		/// <param name="options">THe parser options.</param>
+		/// <param name="options">The parser options.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="type">The parsed content type.</param>
 		/// <exception cref="System.ArgumentNullException">

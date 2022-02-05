@@ -53,7 +53,7 @@ namespace MimeKit.Tnef {
 		Long        = 3,
 
 		/// <summary>
-		/// THe property has a 32-bit floating point value.
+		/// The property has a 32-bit floating point value.
 		/// </summary>
 		R4          = 4,
 
