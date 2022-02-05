@@ -648,13 +648,13 @@ namespace MimeKit.Cryptography {
 				return null;
 
 			var scheme = keyServer.Scheme.ToLowerInvariant ();
-			var builder = new UriBuilder ();
-
-			builder.Scheme = scheme == "hkp" ? "http" : scheme;
-			builder.Host = keyServer.Host;
+			var builder = new UriBuilder {
+				Scheme = scheme is "hkp" ? "http" : scheme,
+				Host = keyServer.Host
+			};
 
 			if (keyServer.IsDefaultPort) {
-				if (scheme == "hkp")
+				if (scheme is "hkp")
 					builder.Port = 11371;
 			} else {
 				builder.Port = keyServer.Port;

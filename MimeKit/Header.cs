@@ -827,7 +827,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				if (lineLength + token.Length + 1 > format.MaxLineLength || name == "bh" || name == "b") {
+				if (lineLength + token.Length + 1 > format.MaxLineLength || name is "bh" or "b") {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;

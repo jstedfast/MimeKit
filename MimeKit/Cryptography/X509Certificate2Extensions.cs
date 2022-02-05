@@ -138,7 +138,7 @@ namespace MimeKit.Cryptography
 				throw new ArgumentNullException (nameof (certificate));
 
 			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
+				if (extension.Oid.Value is "1.2.840.113549.1.9.15") {
 					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
 
 					if (algorithms != null)

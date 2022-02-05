@@ -321,7 +321,7 @@ namespace MimeKit {
 			// as well, but since MessageDispositionNotification is a MImePart subclass rather than a
 			// MessagePart subclass, it means that the content won't be parsed until later and so we can
 			// actually handle that w/o any problems.
-			if (type == "message") {
+			if (type is "message") {
 				switch (subtype) {
 				case "global-disposition-notification":
 				case "disposition-notification":
@@ -348,7 +348,7 @@ namespace MimeKit {
 				}
 			}
 
-			if (type == "multipart") {
+			if (type is "multipart") {
 				switch (subtype) {
 				case "alternative":
 					return new MultipartAlternative (args);
@@ -367,7 +367,7 @@ namespace MimeKit {
 				}
 			}
 
-			if (type == "application") {
+			if (type is "application") {
 				switch (subtype) {
 #if ENABLE_CRYPTO
 				case "x-pkcs7-signature":
@@ -391,8 +391,8 @@ namespace MimeKit {
 				}
 			}
 
-			if (type == "text") {
-				if (subtype == "rfc822-headers" && !IsEncoded (headers))
+			if (type is "text") {
+				if (subtype is "rfc822-headers" && !IsEncoded (headers))
 					return new TextRfc822Headers (args);
 
 				return new TextPart (args);

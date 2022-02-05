@@ -118,7 +118,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (p != null) {
-				if (k == "ed25519") {
+				if (k is "ed25519") {
 					var decoded = Convert.FromBase64String (p);
 
 					return new Ed25519PublicKeyParameters (decoded, 0);
