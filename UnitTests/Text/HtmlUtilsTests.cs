@@ -155,7 +155,7 @@ namespace UnitTests.Text {
 			}
 		}
 
-		static void AssertHtmlEncode (string text, string expected)
+		static void AssertHtmlEncode (string text, string expected, bool testDecode)
 		{
 			string encoded, decoded;
 
@@ -186,22 +186,24 @@ namespace UnitTests.Text {
 				Assert.AreEqual (expected, encoded, "HtmlEncode(TextWriter,char[],int,int)");
 			}
 
-			decoded = HtmlUtils.HtmlDecode (encoded);
-			Assert.AreEqual (text, decoded, "HtmlDecode(string)");
+			if (testDecode) {
+				decoded = HtmlUtils.HtmlDecode (encoded);
+				Assert.AreEqual (text, decoded, "HtmlDecode(string)");
 
-			decoded = HtmlUtils.HtmlDecode (encoded, 0, encoded.Length);
-			Assert.AreEqual (text, decoded, "HtmlDecode(string,int,int)");
+				decoded = HtmlUtils.HtmlDecode (encoded, 0, encoded.Length);
+				Assert.AreEqual (text, decoded, "HtmlDecode(string,int,int)");
 
-			using (var writer = new StringWriter ()) {
-				HtmlUtils.HtmlDecode (writer, encoded);
-				decoded = writer.ToString ();
-				Assert.AreEqual (text, decoded, "HtmlDecode(TextWriter,string)");
-			}
+				using (var writer = new StringWriter ()) {
+					HtmlUtils.HtmlDecode (writer, encoded);
+					decoded = writer.ToString ();
+					Assert.AreEqual (text, decoded, "HtmlDecode(TextWriter,string)");
+				}
 
-			using (var writer = new StringWriter ()) {
-				HtmlUtils.HtmlDecode (writer, encoded, 0, encoded.Length);
-				decoded = writer.ToString ();
-				Assert.AreEqual (text, decoded, "HtmlDecode(TextWriter,string,int,int)");
+				using (var writer = new StringWriter ()) {
+					HtmlUtils.HtmlDecode (writer, encoded, 0, encoded.Length);
+					decoded = writer.ToString ();
+					Assert.AreEqual (text, decoded, "HtmlDecode(TextWriter,string,int,int)");
+				}
 			}
 		}
 
@@ -213,19 +215,19 @@ namespace UnitTests.Text {
 			const string text = "if (showJapaneseText && x <= 1)\ttext = '狂ったこの世で狂うなら気は確かだ。';";
 
 			AssertHtmlAttributeEncode (text, attributeValue);
-			AssertHtmlEncode (text, encoded);
+			AssertHtmlEncode (text, encoded, true);
 		}
 
 		[Test]
 		public void TestEncodeSurrogatePairs ()
 		{
-			const string attributeValue = "\"This emoji (&#128561;) contains a surrogate pair.\"";
-			const string encoded = "This emoji (&#128561;) contains a surrogate pair.";
+			const string attributeValue = "\"This emoji (&#128561;) contains a surrogate pair. And this next one is truncated: &#55357;\"";
+			const string encoded = "This emoji (&#128561;) contains a surrogate pair. And this next one is truncated: &#55357;";
 			var emoji = Encoding.UTF8.GetString (Convert.FromBase64String ("8J+YsQ=="));
-			var text = $"This emoji ({emoji}) contains a surrogate pair.";
+			var text = $"This emoji ({emoji}) contains a surrogate pair. And this next one is truncated: {emoji[0]}";
 
 			AssertHtmlAttributeEncode (text, attributeValue);
-			AssertHtmlEncode (text, encoded);
+			AssertHtmlEncode (text, encoded, false);
 		}
 
 		[Test]
