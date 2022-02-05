@@ -554,7 +554,7 @@ namespace MimeKit.Utils {
 			try {
 				return idn.GetAscii (unicode, startIndex, count);
 			} catch {
-				return unicode.Substring (0, count);
+				return unicode.Substring (startIndex, count);
 			}
 		}
 
