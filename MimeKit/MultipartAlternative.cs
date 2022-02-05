@@ -149,7 +149,7 @@ namespace MimeKit {
 				var converter = new FlowedToText ();
 
 				if (text.ContentType.Parameters.TryGetValue ("delsp", out string delsp))
-					converter.DeleteSpace = delsp.ToLowerInvariant () == "yes";
+					converter.DeleteSpace = string.Equals(delsp, "yes", StringComparison.OrdinalIgnoreCase);
 
 				return converter.Convert (text.Text);
 			}

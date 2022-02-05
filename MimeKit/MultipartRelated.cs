@@ -263,7 +263,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			bool cid = uri.IsAbsoluteUri && uri.Scheme.ToLowerInvariant () == "cid";
+			bool cid = uri.IsAbsoluteUri && string.Equals(uri.Scheme, "cid", StringComparison.OrdinalIgnoreCase);
 
 			for (int index = 0; index < Count; index++) {
 				var entity = this[index];
