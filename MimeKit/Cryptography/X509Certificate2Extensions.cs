@@ -87,13 +87,13 @@ namespace MimeKit.Cryptography
 			var identifier = certificate.GetKeyAlgorithm ();
 			var oid = new Oid (identifier);
 
-			switch (oid.FriendlyName) {
-			case "DSA": return PublicKeyAlgorithm.Dsa;
-			case "RSA": return PublicKeyAlgorithm.RsaGeneral;
-			case "ECC": return PublicKeyAlgorithm.EllipticCurve;
-			case "DH": return PublicKeyAlgorithm.DiffieHellman;
-			default: return PublicKeyAlgorithm.None;
-			}
+			return oid.FriendlyName switch {
+				"DSA" => PublicKeyAlgorithm.Dsa,
+				"RSA" => PublicKeyAlgorithm.RsaGeneral,
+				"ECC" => PublicKeyAlgorithm.EllipticCurve,
+				"DH"  => PublicKeyAlgorithm.DiffieHellman,
+				_     => PublicKeyAlgorithm.None
+			};
 		}
 
 		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
@@ -138,7 +138,7 @@ namespace MimeKit.Cryptography
 				throw new ArgumentNullException (nameof (certificate));
 
 			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
+				if (extension.Oid.Value is "1.2.840.113549.1.9.15") {
 					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
 
 					if (algorithms != null)

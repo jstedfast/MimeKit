@@ -254,7 +254,7 @@ namespace MimeKit.Cryptography {
 			bool hasAnchorColumn = false;
 
 			for (int i = 0; i < currentColumns.Count; i++) {
-				if (currentColumns[i].ColumnName.Equals ("ANCHOR", StringComparison.Ordinal)) {
+				if (currentColumns[i].ColumnName is "ANCHOR") {
 					hasAnchorColumn = true;
 					break;
 				}

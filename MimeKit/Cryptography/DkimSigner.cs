@@ -358,7 +358,7 @@ namespace MimeKit.Cryptography {
 				if (DkimShouldNotInclude.Contains (fields[i]))
 					throw new ArgumentException (string.Format ("The list of headers to sign SHOULD NOT include the '{0}' header.", headers[i]), nameof (headers));
 
-				if (fields[i] == "from")
+				if (fields[i] is "from")
 					containsFrom = true;
 			}
 

@@ -648,13 +648,13 @@ namespace MimeKit.Cryptography {
 				return null;
 
 			var scheme = keyServer.Scheme.ToLowerInvariant ();
-			var builder = new UriBuilder ();
-
-			builder.Scheme = scheme == "hkp" ? "http" : scheme;
-			builder.Host = keyServer.Host;
+			var builder = new UriBuilder {
+				Scheme = scheme is "hkp" ? "http" : scheme,
+				Host = keyServer.Host
+			};
 
 			if (keyServer.IsDefaultPort) {
-				if (scheme == "hkp")
+				if (scheme is "hkp")
 					builder.Port = 11371;
 			} else {
 				builder.Port = keyServer.Port;
@@ -1059,20 +1059,20 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static DigestAlgorithm GetDigestAlgorithm (HashAlgorithmTag hashAlgorithm)
 		{
-			switch (hashAlgorithm) {
-			case HashAlgorithmTag.MD5: return DigestAlgorithm.MD5;
-			case HashAlgorithmTag.Sha1: return DigestAlgorithm.Sha1;
-			case HashAlgorithmTag.RipeMD160: return DigestAlgorithm.RipeMD160;
-			case HashAlgorithmTag.DoubleSha: return DigestAlgorithm.DoubleSha;
-			case HashAlgorithmTag.MD2: return DigestAlgorithm.MD2;
-			case HashAlgorithmTag.Tiger192: return DigestAlgorithm.Tiger192;
-			case HashAlgorithmTag.Haval5pass160: return DigestAlgorithm.Haval5160;
-			case HashAlgorithmTag.Sha256: return DigestAlgorithm.Sha256;
-			case HashAlgorithmTag.Sha384: return DigestAlgorithm.Sha384;
-			case HashAlgorithmTag.Sha512: return DigestAlgorithm.Sha512;
-			case HashAlgorithmTag.Sha224: return DigestAlgorithm.Sha224;
-			default: throw new ArgumentOutOfRangeException (nameof (hashAlgorithm));
-			}
+			return hashAlgorithm switch {
+				HashAlgorithmTag.MD5 => DigestAlgorithm.MD5,
+				HashAlgorithmTag.Sha1 => DigestAlgorithm.Sha1,
+				HashAlgorithmTag.RipeMD160 => DigestAlgorithm.RipeMD160,
+				HashAlgorithmTag.DoubleSha => DigestAlgorithm.DoubleSha,
+				HashAlgorithmTag.MD2 => DigestAlgorithm.MD2,
+				HashAlgorithmTag.Tiger192 => DigestAlgorithm.Tiger192,
+				HashAlgorithmTag.Haval5pass160 => DigestAlgorithm.Haval5160,
+				HashAlgorithmTag.Sha256 => DigestAlgorithm.Sha256,
+				HashAlgorithmTag.Sha384 => DigestAlgorithm.Sha384,
+				HashAlgorithmTag.Sha512 => DigestAlgorithm.Sha512,
+				HashAlgorithmTag.Sha224 => DigestAlgorithm.Sha224,
+				_ => throw new ArgumentOutOfRangeException (nameof (hashAlgorithm))
+			};
 		}
 
 		/// <summary>
@@ -1093,18 +1093,18 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static PublicKeyAlgorithm GetPublicKeyAlgorithm (PublicKeyAlgorithmTag algorithm)
 		{
-			switch (algorithm) {
-			case PublicKeyAlgorithmTag.RsaGeneral: return PublicKeyAlgorithm.RsaGeneral;
-			case PublicKeyAlgorithmTag.RsaEncrypt: return PublicKeyAlgorithm.RsaEncrypt;
-			case PublicKeyAlgorithmTag.RsaSign: return PublicKeyAlgorithm.RsaSign;
-			case PublicKeyAlgorithmTag.ElGamalGeneral: return PublicKeyAlgorithm.ElGamalGeneral;
-			case PublicKeyAlgorithmTag.ElGamalEncrypt: return PublicKeyAlgorithm.ElGamalEncrypt;
-			case PublicKeyAlgorithmTag.Dsa: return PublicKeyAlgorithm.Dsa;
-			case PublicKeyAlgorithmTag.ECDH: return PublicKeyAlgorithm.EllipticCurve;
-			case PublicKeyAlgorithmTag.ECDsa: return PublicKeyAlgorithm.EllipticCurveDsa;
-			case PublicKeyAlgorithmTag.DiffieHellman: return PublicKeyAlgorithm.DiffieHellman;
-			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
-			}
+			return algorithm switch {
+				PublicKeyAlgorithmTag.RsaGeneral => PublicKeyAlgorithm.RsaGeneral,
+				PublicKeyAlgorithmTag.RsaEncrypt => PublicKeyAlgorithm.RsaEncrypt,
+				PublicKeyAlgorithmTag.RsaSign => PublicKeyAlgorithm.RsaSign,
+				PublicKeyAlgorithmTag.ElGamalGeneral => PublicKeyAlgorithm.ElGamalGeneral,
+				PublicKeyAlgorithmTag.ElGamalEncrypt => PublicKeyAlgorithm.ElGamalEncrypt,
+				PublicKeyAlgorithmTag.Dsa => PublicKeyAlgorithm.Dsa,
+				PublicKeyAlgorithmTag.ECDH => PublicKeyAlgorithm.EllipticCurve,
+				PublicKeyAlgorithmTag.ECDsa => PublicKeyAlgorithm.EllipticCurveDsa,
+				PublicKeyAlgorithmTag.DiffieHellman => PublicKeyAlgorithm.DiffieHellman,
+				_ => throw new ArgumentOutOfRangeException (nameof (algorithm))
+			};
 		}
 
 		static bool TryGetPublicKey (PgpPublicKeyRing keyring, long keyId, out PgpPublicKey pubkey)
