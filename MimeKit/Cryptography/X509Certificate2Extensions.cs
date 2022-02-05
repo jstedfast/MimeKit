@@ -87,13 +87,13 @@ namespace MimeKit.Cryptography
 			var identifier = certificate.GetKeyAlgorithm ();
 			var oid = new Oid (identifier);
 
-			switch (oid.FriendlyName) {
-			case "DSA": return PublicKeyAlgorithm.Dsa;
-			case "RSA": return PublicKeyAlgorithm.RsaGeneral;
-			case "ECC": return PublicKeyAlgorithm.EllipticCurve;
-			case "DH": return PublicKeyAlgorithm.DiffieHellman;
-			default: return PublicKeyAlgorithm.None;
-			}
+			return oid.FriendlyName switch {
+				"DSA" => PublicKeyAlgorithm.Dsa,
+				"RSA" => PublicKeyAlgorithm.RsaGeneral,
+				"ECC" => PublicKeyAlgorithm.EllipticCurve,
+				"DH"  => PublicKeyAlgorithm.DiffieHellman,
+				_     => PublicKeyAlgorithm.None
+			};
 		}
 
 		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)

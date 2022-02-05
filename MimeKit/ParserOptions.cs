@@ -268,14 +268,10 @@ namespace MimeKit {
 
 		internal static bool IsEncoded (ContentEncoding encoding)
 		{
-			switch (encoding) {
-			case ContentEncoding.SevenBit:
-			case ContentEncoding.EightBit:
-			case ContentEncoding.Binary:
-				return false;
-			default:
-				return true;
-			}
+			return encoding switch {
+				ContentEncoding.SevenBit or ContentEncoding.EightBit or ContentEncoding.Binary => false,
+				_ => true
+			};			
 		}
 
 		static bool IsEncoded (IList<Header> headers)

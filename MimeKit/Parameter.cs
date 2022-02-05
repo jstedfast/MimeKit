@@ -406,11 +406,11 @@ namespace MimeKit {
 				}
 			}
 
-			switch (encoding) {
-			case 0: return Encoding.ASCII;
-			case 1: return Encoding.GetEncoding (28591); // iso-8859-1
-			default: return defaultEncoding;
-			}
+			return encoding switch {
+				0 => Encoding.ASCII,
+				1 => Encoding.GetEncoding (28591), // iso-8859-1
+				_ => defaultEncoding
+			};
 		}
 
 		static bool Rfc2231GetNextValue (FormatOptions options, string charset, Encoder encoder, HexEncoder hex, char[] chars, ref int index, ref byte[] bytes, ref byte[] encoded, int maxLength, out string value)
