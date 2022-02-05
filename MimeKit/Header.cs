@@ -893,7 +893,56 @@ namespace MimeKit {
 			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 		}
 
-		static IEnumerable<string> TokenizeText (string text)
+		struct Word
+		{
+			readonly string text;
+			readonly int startIndex;
+			readonly int length;
+
+			public Word (string text, int startIndex, int length)
+			{
+				this.startIndex = startIndex;
+				this.length = length;
+				this.text = text;
+			}
+
+			public int Length => length;
+
+			public char this[int index] {
+				get {
+					return text[startIndex + index];
+				}
+			}
+
+			public ReadOnlySpan<char> AsSpan ()
+			{
+				return text.AsSpan (startIndex, length);
+			}
+
+			public IEnumerable<Word> Break (FormatOptions format, int lineLength)
+			{
+				int endIndex = startIndex + length;
+				int index = startIndex;
+
+				lineLength = Math.Max (lineLength, 1);
+
+				while (index < endIndex) {
+					int length = Math.Min (format.MaxLineLength - lineLength, endIndex - index);
+
+					if (char.IsSurrogatePair (text, index + length - 1))
+						length--;
+
+					yield return new Word (text, index, length);
+
+					index += length;
+					lineLength = 1;
+				}
+
+				yield break;
+			}
+		}
+
+		static IEnumerable<Word> TokenizeText (string text)
 		{
 			int index = 0;
 
@@ -903,7 +952,7 @@ namespace MimeKit {
 				while (index < text.Length && !IsWhiteSpace (text[index]))
 					index++;
 
-				yield return text.Substring (startIndex, index - startIndex);
+				yield return new Word (text, startIndex, index - startIndex);
 
 				if (index == text.Length)
 					break;
@@ -913,43 +962,7 @@ namespace MimeKit {
 				while (index < text.Length && IsWhiteSpace (text[index]))
 					index++;
 
-				yield return text.Substring (startIndex, index - startIndex);
-			}
-
-			yield break;
-		}
-
-		class BrokenWord
-		{
-			public readonly char[] Text;
-			public readonly int StartIndex;
-			public readonly int Length;
-
-			public BrokenWord (char[] text, int startIndex, int length)
-			{
-				StartIndex = startIndex;
-				Length = length;
-				Text = text;
-			}
-		}
-
-		static IEnumerable<BrokenWord> WordBreak (FormatOptions format, string word, int lineLength)
-		{
-			var chars = word.ToCharArray ();
-			int startIndex = 0;
-
-			lineLength = Math.Max (lineLength, 1);
-
-			while (startIndex < word.Length) {
-				int length = Math.Min (format.MaxLineLength - lineLength, word.Length - startIndex);
-
-				if (char.IsSurrogatePair (word, startIndex + length - 1))
-					length--;
-
-				yield return new BrokenWord (chars, startIndex, length);
-
-				startIndex += length;
-				lineLength = 1;
+				yield return new Word (text, startIndex, index - startIndex);
 			}
 
 			yield break;
@@ -979,7 +992,7 @@ namespace MimeKit {
 						}
 					} else {
 						lineLength += word.Length;
-						folded.Append (word);
+						folded.Append (word.AsSpan ());
 					}
 
 					lastLwsp = folded.Length - 1;
@@ -993,19 +1006,19 @@ namespace MimeKit {
 				}
 
 				if (word.Length > format.MaxLineLength) {
-					foreach (var broken in WordBreak (format, word, lineLength)) {
+					foreach (var broken in word.Break (format, lineLength)) {
 						if (lineLength + broken.Length > format.MaxLineLength) {
 							folded.Append (format.NewLine);
 							folded.Append (' ');
 							lineLength = 1;
 						}
 
-						folded.Append (broken.Text, broken.StartIndex, broken.Length);
+						folded.Append (broken.AsSpan ());
 						lineLength += broken.Length;
 					}
 				} else {
+					folded.Append (word.AsSpan ());
 					lineLength += word.Length;
-					folded.Append (word);
 				}
 			}
 
