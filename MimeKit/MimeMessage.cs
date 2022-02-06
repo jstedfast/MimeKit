@@ -3230,95 +3230,100 @@ namespace MimeKit {
 			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
 			MimeEntity body = null;
 
-			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
-			// then the following MailMessage properties will have been merged into the Headers, so
-			// check to make sure our MimeMessage properties are empty before adding them.
-			if (message.Sender != null)
-				msg.Sender = (MailboxAddress) message.Sender;
+			try {
+				// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
+				// then the following MailMessage properties will have been merged into the Headers, so
+				// check to make sure our MimeMessage properties are empty before adding them.
+				if (message.Sender != null)
+					msg.Sender = (MailboxAddress) message.Sender;
 
-			if (message.From != null) {
-				msg.Headers.Replace (HeaderId.From, string.Empty);
-				msg.From.Add ((MailboxAddress) message.From);
-			}
-
-			if (message.ReplyToList.Count > 0) {
-				msg.Headers.Replace (HeaderId.ReplyTo, string.Empty);
-				msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
-			}
-
-			if (message.To.Count > 0) {
-				msg.Headers.Replace (HeaderId.To, string.Empty);
-				msg.To.AddRange ((InternetAddressList) message.To);
-			}
-
-			if (message.CC.Count > 0) {
-				msg.Headers.Replace (HeaderId.Cc, string.Empty);
-				msg.Cc.AddRange ((InternetAddressList) message.CC);
-			}
-
-			if (message.Bcc.Count > 0) {
-				msg.Headers.Replace (HeaderId.Bcc, string.Empty);
-				msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
-			}
-
-			if (message.SubjectEncoding != null)
-				msg.Headers.Replace (HeaderId.Subject, message.SubjectEncoding, message.Subject ?? string.Empty);
-			else
-				msg.Subject = message.Subject ?? string.Empty;
-
-			if (!msg.Headers.Contains (HeaderId.Date))
-				msg.Date = DateTimeOffset.Now;
-
-			switch (message.Priority) {
-			case MailPriority.Normal:
-				msg.Headers.RemoveAll (HeaderId.XMSMailPriority);
-				msg.Headers.RemoveAll (HeaderId.Importance);
-				msg.Headers.RemoveAll (HeaderId.XPriority);
-				msg.Headers.RemoveAll (HeaderId.Priority);
-				break;
-			case MailPriority.High:
-				msg.Headers.Replace (HeaderId.Priority, "urgent");
-				msg.Headers.Replace (HeaderId.Importance, "high");
-				msg.Headers.Replace (HeaderId.XPriority, "2 (High)");
-				break;
-			case MailPriority.Low:
-				msg.Headers.Replace (HeaderId.Priority, "non-urgent");
-				msg.Headers.Replace (HeaderId.Importance, "low");
-				msg.Headers.Replace (HeaderId.XPriority, "4 (Low)");
-				break;
-			}
-
-			if (!string.IsNullOrEmpty (message.Body)) {
-				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
-				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
-				body = text;
-			}
-
-			if (message.AlternateViews.Count > 0)
-				body = AddAlternateViews (body, message.AlternateViews);
-
-			if (body == null)
-				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
-
-			if (message.Attachments.Count > 0) {
-				var mixed = new Multipart ("mixed");
-
-				if (body != null)
-					mixed.Add (body);
-
-				foreach (var attachment in message.Attachments) {
-					try {
-						mixed.Add (GetMimePart (attachment));
-					} catch {
-						mixed.Dispose ();
-						throw;
-					}
+				if (message.From != null) {
+					msg.Headers.Replace (HeaderId.From, string.Empty);
+					msg.From.Add ((MailboxAddress) message.From);
 				}
 
-				body = mixed;
-			}
+				if (message.ReplyToList.Count > 0) {
+					msg.Headers.Replace (HeaderId.ReplyTo, string.Empty);
+					msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+				}
 
-			msg.Body = body;
+				if (message.To.Count > 0) {
+					msg.Headers.Replace (HeaderId.To, string.Empty);
+					msg.To.AddRange ((InternetAddressList) message.To);
+				}
+
+				if (message.CC.Count > 0) {
+					msg.Headers.Replace (HeaderId.Cc, string.Empty);
+					msg.Cc.AddRange ((InternetAddressList) message.CC);
+				}
+
+				if (message.Bcc.Count > 0) {
+					msg.Headers.Replace (HeaderId.Bcc, string.Empty);
+					msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
+				}
+
+				if (message.SubjectEncoding != null)
+					msg.Headers.Replace (HeaderId.Subject, message.SubjectEncoding, message.Subject ?? string.Empty);
+				else
+					msg.Subject = message.Subject ?? string.Empty;
+
+				if (!msg.Headers.Contains (HeaderId.Date))
+					msg.Date = DateTimeOffset.Now;
+
+				switch (message.Priority) {
+				case MailPriority.Normal:
+					msg.Headers.RemoveAll (HeaderId.XMSMailPriority);
+					msg.Headers.RemoveAll (HeaderId.Importance);
+					msg.Headers.RemoveAll (HeaderId.XPriority);
+					msg.Headers.RemoveAll (HeaderId.Priority);
+					break;
+				case MailPriority.High:
+					msg.Headers.Replace (HeaderId.Priority, "urgent");
+					msg.Headers.Replace (HeaderId.Importance, "high");
+					msg.Headers.Replace (HeaderId.XPriority, "2 (High)");
+					break;
+				case MailPriority.Low:
+					msg.Headers.Replace (HeaderId.Priority, "non-urgent");
+					msg.Headers.Replace (HeaderId.Importance, "low");
+					msg.Headers.Replace (HeaderId.XPriority, "4 (Low)");
+					break;
+				}
+
+				if (!string.IsNullOrEmpty (message.Body)) {
+					var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
+					text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
+					body = text;
+				}
+
+				if (message.AlternateViews.Count > 0)
+					body = AddAlternateViews (body, message.AlternateViews);
+
+				if (body == null)
+					body = new TextPart (message.IsBodyHtml ? "html" : "plain");
+
+				if (message.Attachments.Count > 0) {
+					var mixed = new Multipart ("mixed");
+
+					if (body != null)
+						mixed.Add (body);
+
+					foreach (var attachment in message.Attachments) {
+						try {
+							mixed.Add (GetMimePart (attachment));
+						} catch {
+							mixed.Dispose ();
+							throw;
+						}
+					}
+
+					body = mixed;
+				}
+
+				msg.Body = body;
+			} catch {
+				msg.Dispose ();
+				throw;
+			}
 
 			return msg;
 		}

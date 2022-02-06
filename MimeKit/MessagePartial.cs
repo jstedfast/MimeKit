@@ -181,8 +181,16 @@ namespace MimeKit {
 			var options = message.Headers.Options;
 			var clone = new MimeMessage (options);
 
-			foreach (var header in message.Headers)
-				clone.Headers.Add (header.Clone ());
+			foreach (var header in message.Headers) {
+				if (header.Id == HeaderId.MessageId) {
+					clone.Headers.Add (HeaderId.MessageId, "<" + MimeUtils.GenerateMessageId () + ">");
+				} else {
+					clone.Headers.Add (header.Clone ());
+				}
+			}
+
+			if (!clone.Headers.Contains (HeaderId.MessageId))
+				clone.Headers.Add (HeaderId.MessageId, "<" + MimeUtils.GenerateMessageId () + ">");
 
 			return clone;
 		}
@@ -289,7 +297,6 @@ namespace MimeKit {
 				};
 
 				var submessage = CloneMessage (message);
-				submessage.MessageId = MimeUtils.GenerateMessageId ();
 				submessage.Body = part;
 
 				yield return submessage;

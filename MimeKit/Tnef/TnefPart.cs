@@ -474,13 +474,18 @@ namespace MimeKit.Tnef {
 		{
 			var tnef = new TnefPart ();
 
-			foreach (var param in part.ContentType.Parameters)
-				tnef.ContentType.Parameters[param.Name] = param.Value;
+			try {
+				foreach (var param in part.ContentType.Parameters)
+					tnef.ContentType.Parameters[param.Name] = param.Value;
 
-			if (part.ContentDisposition != null)
-				tnef.ContentDisposition = part.ContentDisposition;
+				if (part.ContentDisposition != null)
+					tnef.ContentDisposition = part.ContentDisposition;
 
-			tnef.ContentTransferEncoding = part.ContentTransferEncoding;
+				tnef.ContentTransferEncoding = part.ContentTransferEncoding;
+			} catch {
+				tnef.Dispose ();
+				throw;
+			}
 
 			return tnef;
 		}
@@ -773,8 +778,13 @@ namespace MimeKit.Tnef {
 		public IEnumerable<MimeEntity> ExtractAttachments ()
 		{
 			var message = ConvertToMessage ();
+			var body = message.Body;
 
-			if (message.Body is Multipart multipart) {
+			// we don't need the message container itself
+			message.Body = null;
+			message.Dispose ();
+
+			if (body is Multipart multipart) {
 				if (multipart.Count > 0 && multipart[0] is MultipartAlternative alternatives) {
 					foreach (var alternative in alternatives)
 						yield return alternative;
@@ -788,11 +798,9 @@ namespace MimeKit.Tnef {
 					yield return part;
 
 				multipart.Clear ();
-				message.Dispose ();
-			} else if (message.Body != null) {
-				yield return message.Body;
-			} else {
-				message.Dispose ();
+				multipart.Dispose ();
+			} else if (body != null) {
+				yield return body;
 			}
 
 			yield break;
