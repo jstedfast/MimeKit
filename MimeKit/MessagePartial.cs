@@ -181,16 +181,14 @@ namespace MimeKit {
 			var options = message.Headers.Options;
 			var clone = new MimeMessage (options);
 
-			foreach (var header in message.Headers) {
-				if (header.Id == HeaderId.MessageId) {
-					clone.Headers.Add (HeaderId.MessageId, "<" + MimeUtils.GenerateMessageId () + ">");
-				} else {
+			try {
+				foreach (var header in message.Headers)
 					clone.Headers.Add (header.Clone ());
-				}
-			}
 
-			if (!clone.Headers.Contains (HeaderId.MessageId))
-				clone.Headers.Add (HeaderId.MessageId, "<" + MimeUtils.GenerateMessageId () + ">");
+				clone.MessageId = MimeUtils.GenerateMessageId ();
+			} catch {
+				clone.Dispose ();
+			}
 
 			return clone;
 		}
@@ -289,17 +287,25 @@ namespace MimeKit {
 			}
 
 			var msgid = message.MessageId ?? MimeUtils.GenerateMessageId ();
-			int number = 1;
 
-			foreach (var stream in streams) {
-				var part = new MessagePartial (msgid, number++, streams.Count) {
-					Content = new MimeContent (stream)
+			for (int i = 0; i < streams.Count; i++) {
+				MimeMessage msg;
+
+				try {
+					msg = CloneMessage (message);
+				} catch {
+					while (i < streams.Count)
+						streams[i++].Dispose ();
+					throw;
+				}
+
+				var partial = new MessagePartial (msgid, i + 1, streams.Count) {
+					Content = new MimeContent (streams[i])
 				};
 
-				var submessage = CloneMessage (message);
-				submessage.Body = part;
+				msg.Body = partial;
 
-				yield return submessage;
+				yield return msg;
 			}
 
 			yield break;

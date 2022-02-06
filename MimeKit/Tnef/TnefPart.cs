@@ -497,160 +497,169 @@ namespace MimeKit.Tnef {
 			var prop = reader.TnefPropertyReader;
 			MimePart attachment = null;
 			TnefAttachFlags flags;
+			bool dispose = false;
 			string[] mimeType;
 			byte[] attachData;
 			string text;
 
-			do {
-				if (reader.AttributeLevel != TnefAttributeLevel.Attachment)
-					break;
-
-				switch (reader.AttributeTag) {
-				case TnefAttributeTag.AttachRenderData:
-					attachMethod = TnefAttachMethod.ByValue;
-					attachment = new MimePart ();
-					break;
-				case TnefAttributeTag.Attachment:
-					if (attachment == null)
+			try {
+				do {
+					if (reader.AttributeLevel != TnefAttributeLevel.Attachment)
 						break;
 
-					attachData = null;
-
-					while (prop.ReadNextProperty ()) {
-						switch (prop.PropertyTag.Id) {
-						case TnefPropertyId.AttachLongFilename:
-							attachment.FileName = prop.ReadValueAsString ();
+					switch (reader.AttributeTag) {
+					case TnefAttributeTag.AttachRenderData:
+						attachMethod = TnefAttachMethod.ByValue;
+						attachment = new MimePart ();
+						dispose = true;
+						break;
+					case TnefAttributeTag.Attachment:
+						if (attachment == null)
 							break;
-						case TnefPropertyId.AttachFilename:
-							if (attachment.FileName == null)
+
+						attachData = null;
+
+						while (prop.ReadNextProperty ()) {
+							switch (prop.PropertyTag.Id) {
+							case TnefPropertyId.AttachLongFilename:
 								attachment.FileName = prop.ReadValueAsString ();
-							break;
-						case TnefPropertyId.AttachContentLocation:
-							attachment.ContentLocation = prop.ReadValueAsUri ();
-							break;
-						case TnefPropertyId.AttachContentBase:
-							attachment.ContentBase = prop.ReadValueAsUri ();
-							break;
-						case TnefPropertyId.AttachContentId:
-							text = prop.ReadValueAsString ();
+								break;
+							case TnefPropertyId.AttachFilename:
+								if (attachment.FileName == null)
+									attachment.FileName = prop.ReadValueAsString ();
+								break;
+							case TnefPropertyId.AttachContentLocation:
+								attachment.ContentLocation = prop.ReadValueAsUri ();
+								break;
+							case TnefPropertyId.AttachContentBase:
+								attachment.ContentBase = prop.ReadValueAsUri ();
+								break;
+							case TnefPropertyId.AttachContentId:
+								text = prop.ReadValueAsString ();
 
-							var buffer = CharsetUtils.UTF8.GetBytes (text);
+								var buffer = CharsetUtils.UTF8.GetBytes (text);
+								int index = 0;
+
+								if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+									attachment.ContentId = msgid;
+								break;
+							case TnefPropertyId.AttachDisposition:
+								text = prop.ReadValueAsString ();
+								if (ContentDisposition.TryParse (text, out ContentDisposition disposition))
+									attachment.ContentDisposition = disposition;
+								break;
+							case TnefPropertyId.AttachData:
+								attachData = prop.ReadValueAsBytes ();
+								break;
+							case TnefPropertyId.AttachMethod:
+								attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+								break;
+							case TnefPropertyId.AttachMimeTag:
+								mimeType = prop.ReadValueAsString ().Split ('/');
+								if (mimeType.Length == 2) {
+									attachment.ContentType.MediaType = mimeType[0].Trim ();
+									attachment.ContentType.MediaSubtype = mimeType[1].Trim ();
+								}
+								break;
+							case TnefPropertyId.AttachFlags:
+								flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
+								if ((flags & TnefAttachFlags.RenderedInBody) != 0) {
+									if (attachment.ContentDisposition == null)
+										attachment.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
+									else
+										attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
+								}
+								break;
+							case TnefPropertyId.AttachSize:
+								if (attachment.ContentDisposition == null)
+									attachment.ContentDisposition = new ContentDisposition ();
+
+								attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
+								break;
+							case TnefPropertyId.DisplayName:
+								attachment.ContentType.Name = prop.ReadValueAsString ();
+								break;
+							}
+						}
+
+						if (attachData != null) {
+							int count = attachData.Length;
 							int index = 0;
 
-							if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
-								attachment.ContentId = msgid;
-							break;
-						case TnefPropertyId.AttachDisposition:
-							text = prop.ReadValueAsString ();
-							if (ContentDisposition.TryParse (text, out ContentDisposition disposition))
-								attachment.ContentDisposition = disposition;
-							break;
-						case TnefPropertyId.AttachData:
-							attachData = prop.ReadValueAsBytes ();
-							break;
-						case TnefPropertyId.AttachMethod:
-							attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
-							break;
-						case TnefPropertyId.AttachMimeTag:
-							mimeType = prop.ReadValueAsString ().Split ('/');
-							if (mimeType.Length == 2) {
-								attachment.ContentType.MediaType = mimeType[0].Trim ();
-								attachment.ContentType.MediaSubtype = mimeType[1].Trim ();
+							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
+								attachment.ContentTransferEncoding = ContentEncoding.Base64;
+								attachment = PromoteToTnefPart (attachment);
+								count -= 16;
+								index = 16;
+							} else if (attachment.ContentType.IsMimeType ("text", "*")) {
+								filter.Flush (attachData, index, count, out _, out _);
+								attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
+								filter.Reset ();
+							} else {
+								attachment.ContentTransferEncoding = ContentEncoding.Base64;
 							}
-							break;
-						case TnefPropertyId.AttachFlags:
-							flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
-							if ((flags & TnefAttachFlags.RenderedInBody) != 0) {
-								if (attachment.ContentDisposition == null)
-									attachment.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
-								else
-									attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
-							}
-							break;
-						case TnefPropertyId.AttachSize:
+
+							attachment.Content = new MimeContent (new MemoryStream (attachData, index, count, false));
+							attachments.Add (attachment);
+							dispose = false;
+						}
+						break;
+					case TnefAttributeTag.AttachCreateDate:
+						if (attachment != null) {
 							if (attachment.ContentDisposition == null)
 								attachment.ContentDisposition = new ContentDisposition ();
 
-							attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
-							break;
-						case TnefPropertyId.DisplayName:
-							attachment.ContentType.Name = prop.ReadValueAsString ();
-							break;
+							attachment.ContentDisposition.CreationDate = prop.ReadValueAsDateTime ();
 						}
-					}
+						break;
+					case TnefAttributeTag.AttachModifyDate:
+						if (attachment != null) {
+							if (attachment.ContentDisposition == null)
+								attachment.ContentDisposition = new ContentDisposition ();
 
-					if (attachData != null) {
-						int count = attachData.Length;
-						int index = 0;
+							attachment.ContentDisposition.ModificationDate = prop.ReadValueAsDateTime ();
+						}
+						break;
+					case TnefAttributeTag.AttachTitle:
+						if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
+							attachment.FileName = prop.ReadValueAsString ();
+						break;
+					case TnefAttributeTag.AttachMetaFile:
+						if (attachment == null)
+							break;
 
-						if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
-							attachment.ContentTransferEncoding = ContentEncoding.Base64;
-							attachment = PromoteToTnefPart (attachment);
-							count -= 16;
-							index = 16;
-						} else if (attachment.ContentType.IsMimeType ("text", "*")) {
-							filter.Flush (attachData, index, count, out _, out _);
+						// TODO: what to do with the meta data?
+						break;
+					case TnefAttributeTag.AttachData:
+						if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
+							break;
+
+						attachData = prop.ReadValueAsBytes ();
+
+						if (attachment.ContentType.IsMimeType ("text", "*")) {
+							filter.Flush (attachData, 0, attachData.Length, out _, out _);
 							attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
 							filter.Reset ();
 						} else {
 							attachment.ContentTransferEncoding = ContentEncoding.Base64;
 						}
 
-						attachment.Content = new MimeContent (new MemoryStream (attachData, index, count, false));
+						attachment.Content = new MimeContent (new MemoryStream (attachData, false));
 						attachments.Add (attachment);
-					}
-					break;
-				case TnefAttributeTag.AttachCreateDate:
-					if (attachment != null) {
-						if (attachment.ContentDisposition == null)
-							attachment.ContentDisposition = new ContentDisposition ();
-
-						attachment.ContentDisposition.CreationDate = prop.ReadValueAsDateTime ();
-					}
-					break;
-				case TnefAttributeTag.AttachModifyDate:
-					if (attachment != null) {
-						if (attachment.ContentDisposition == null)
-							attachment.ContentDisposition = new ContentDisposition ();
-
-						attachment.ContentDisposition.ModificationDate = prop.ReadValueAsDateTime ();
-					}
-					break;
-				case TnefAttributeTag.AttachTitle:
-					if (attachment != null && string.IsNullOrEmpty (attachment.FileName))
-						attachment.FileName = prop.ReadValueAsString ();
-					break;
-				case TnefAttributeTag.AttachMetaFile:
-					if (attachment == null)
+						dispose = false;
 						break;
-
-					// TODO: what to do with the meta data?
-					break;
-				case TnefAttributeTag.AttachData:
-					if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
-						break;
-
-					attachData = prop.ReadValueAsBytes ();
-
-					if (attachment.ContentType.IsMimeType ("text", "*")) {
-						filter.Flush (attachData, 0, attachData.Length, out _, out _);
-						attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-						filter.Reset ();
-					} else {
-						attachment.ContentTransferEncoding = ContentEncoding.Base64;
 					}
-
-					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
-					attachments.Add (attachment);
-					break;
-				}
-			} while (reader.ReadNextAttribute ());
+				} while (reader.ReadNextAttribute ());
+			} finally {
+				if (dispose)
+					attachment.Dispose ();
+			}
 		}
 
 		static MimeMessage ExtractTnefMessage (TnefReader reader)
 		{
-			var alternatives = new MultipartAlternative ();
 			var message = new MimeMessage ();
+			var alternatives = new MultipartAlternative ();
 			MimeEntity body = null;
 
 			try {
