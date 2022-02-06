@@ -3097,43 +3097,116 @@ namespace MimeKit {
 			else
 				part = new MimePart (contentType);
 
-			if (item is Attachment attachment) {
-				var disposition = attachment.ContentDisposition.ToString ();
-				part.ContentDisposition = ContentDisposition.Parse (disposition);
+			try {
+				if (item is Attachment attachment) {
+					var disposition = attachment.ContentDisposition.ToString ();
+					part.ContentDisposition = ContentDisposition.Parse (disposition);
+				}
+
+				switch (item.TransferEncoding) {
+				case System.Net.Mime.TransferEncoding.QuotedPrintable:
+					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+					break;
+				case System.Net.Mime.TransferEncoding.Base64:
+					part.ContentTransferEncoding = ContentEncoding.Base64;
+					break;
+				case System.Net.Mime.TransferEncoding.SevenBit:
+					part.ContentTransferEncoding = ContentEncoding.SevenBit;
+					break;
+					//case System.Net.Mime.TransferEncoding.EightBit:
+					//	part.ContentTransferEncoding = ContentEncoding.EightBit;
+					//	break;
+				}
+
+				if (item.ContentId != null)
+					part.ContentId = item.ContentId;
+
+				if (item.ContentStream.CanSeek)
+					item.ContentStream.Position = 0;
+
+				var stream = new MemoryBlockStream ();
+
+				try {
+					item.ContentStream.CopyTo (stream);
+					stream.Position = 0;
+				} catch {
+					stream.Dispose ();
+					throw;
+				}
+
+				part.Content = new MimeContent (stream);
+			} catch {
+				part.Dispose ();
+				throw;
 			}
-
-			switch (item.TransferEncoding) {
-			case System.Net.Mime.TransferEncoding.QuotedPrintable:
-				part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
-				break;
-			case System.Net.Mime.TransferEncoding.Base64:
-				part.ContentTransferEncoding = ContentEncoding.Base64;
-				break;
-			case System.Net.Mime.TransferEncoding.SevenBit:
-				part.ContentTransferEncoding = ContentEncoding.SevenBit;
-				break;
-			//case System.Net.Mime.TransferEncoding.EightBit:
-			//	part.ContentTransferEncoding = ContentEncoding.EightBit;
-			//	break;
-			}
-
-			if (item.ContentId != null)
-				part.ContentId = item.ContentId;
-
-			if (item.ContentStream.CanSeek)
-				item.ContentStream.Position = 0;
-
-			var stream = new MemoryBlockStream ();
-			item.ContentStream.CopyTo (stream);
-			stream.Position = 0;
-
-			part.Content = new MimeContent (stream);
 
 			return part;
 		}
 
+		static void AddLinkedResources (MultipartAlternative alternative, MimePart root, AlternateView view)
+		{
+			var related = new MultipartRelated ();
+			MimePart part = null;
+
+			try {
+				related.ContentType.Parameters.Add ("type", root.ContentType.MimeType);
+				related.ContentBase = view.BaseUri;
+
+				related.Add (root);
+
+				foreach (var resource in view.LinkedResources) {
+					part = GetMimePart (resource);
+
+					if (resource.ContentLink != null)
+						part.ContentLocation = resource.ContentLink;
+
+					related.Add (part);
+				}
+			} catch {
+				related.Dispose ();
+				part?.Dispose ();
+				throw;
+			}
+
+			alternative.Add (related);
+		}
+
+		static MimeEntity AddAlternateViews (MimeEntity body, AlternateViewCollection alternateViews)
+		{
+			var alternative = new MultipartAlternative ();
+
+			if (body != null)
+				alternative.Add (body);
+
+			foreach (var view in alternateViews) {
+				MimePart part;
+
+				try {
+					part = GetMimePart (view);
+
+					if (view.LinkedResources.Count > 0) {
+						AddLinkedResources (alternative, part, view);
+					} else {
+						try {
+							part.ContentBase = view.BaseUri;
+						} catch {
+							part.Dispose ();
+							throw;
+						}
+
+						alternative.Add (part);
+					}
+				} catch {
+					alternative.Dispose ();
+					throw;
+				}
+			}
+
+			return alternative;
+		}
+
 		/// <summary>
-		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
+		/// Create a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
@@ -3221,54 +3294,8 @@ namespace MimeKit {
 				body = text;
 			}
 
-			if (message.AlternateViews.Count > 0) {
-				var alternative = new MultipartAlternative ();
-
-				if (body != null)
-					alternative.Add (body);
-
-				foreach (var view in message.AlternateViews) {
-					MimePart part;
-
-					try {
-						part = GetMimePart (view);
-					} catch {
-						alternative.Dispose ();
-						throw;
-					}
-
-					if (view.LinkedResources.Count > 0) {
-						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
-						var related = new MultipartRelated ();
-
-						related.ContentType.Parameters.Add ("type", type);
-						related.ContentBase = view.BaseUri;
-
-						related.Add (part);
-
-						foreach (var resource in view.LinkedResources) {
-							try {
-								part = GetMimePart (resource);
-							} catch {
-								alternative.Dispose ();
-								related.Dispose ();
-							}
-
-							if (resource.ContentLink != null)
-								part.ContentLocation = resource.ContentLink;
-
-							related.Add (part);
-						}
-
-						alternative.Add (related);
-					} else {
-						part.ContentBase = view.BaseUri;
-						alternative.Add (part);
-					}
-				}
-
-				body = alternative;
-			}
+			if (message.AlternateViews.Count > 0)
+				body = AddAlternateViews (body, message.AlternateViews);
 
 			if (body == null)
 				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
