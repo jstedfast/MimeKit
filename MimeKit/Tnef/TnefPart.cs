@@ -258,7 +258,7 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, BodyBuilder builder)
+		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, MultipartAlternative alternatives)
 		{
 			var prop = reader.TnefPropertyReader;
 			var recipient = new EmailAddress ();
@@ -367,8 +367,6 @@ namespace MimeKit.Tnef {
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						var rtf = new TextPart ("rtf");
-
 						var converter = new RtfCompressedToRtf ();
 						var content = new MemoryBlockStream ();
 
@@ -381,17 +379,19 @@ namespace MimeKit.Tnef {
 							}
 						}
 
-						rtf.Content = new MimeContent (content);
 						content.Position = 0;
 
-						builder.Attachments.Add (rtf);
+						var rtf = new TextPart ("rtf") {
+							Content = new MimeContent (content)
+						};
+
+						alternatives.Add (rtf);
 					}
 					break;
 				case TnefPropertyId.BodyHtml:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						var html = new TextPart ("html");
 						Encoding encoding;
 						string text;
 
@@ -402,16 +402,16 @@ namespace MimeKit.Tnef {
 							encoding = CharsetUtils.UTF8;
 						}
 
+						var html = new TextPart ("html");
 						html.SetText (encoding, text);
 
-						builder.Attachments.Add (html);
+						alternatives.Add (html);
 					}
 					break;
 				case TnefPropertyId.Body:
 					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
 						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						var plain = new TextPart ("plain");
 						Encoding encoding;
 
 						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
@@ -419,9 +419,12 @@ namespace MimeKit.Tnef {
 						else
 							encoding = CharsetUtils.UTF8;
 
-						plain.SetText (encoding, prop.ReadValueAsString ());
+						var text = prop.ReadValueAsString ();
+						var plain = new TextPart ("plain");
 
-						builder.Attachments.Add (plain);
+						plain.SetText (encoding, text);
+
+						alternatives.Add (plain);
 					}
 					break;
 				case TnefPropertyId.Importance:
@@ -482,7 +485,7 @@ namespace MimeKit.Tnef {
 			return tnef;
 		}
 
-		static void ExtractAttachments (TnefReader reader, BodyBuilder builder)
+		static void ExtractAttachments (TnefReader reader, Multipart attachments)
 		{
 			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
@@ -589,7 +592,7 @@ namespace MimeKit.Tnef {
 						}
 
 						attachment.Content = new MimeContent (new MemoryStream (attachData, index, count, false));
-						builder.Attachments.Add (attachment);
+						attachments.Add (attachment);
 					}
 					break;
 				case TnefAttributeTag.AttachCreateDate:
@@ -633,7 +636,7 @@ namespace MimeKit.Tnef {
 					}
 
 					attachment.Content = new MimeContent (new MemoryStream (attachData, false));
-					builder.Attachments.Add (attachment);
+					attachments.Add (attachment);
 					break;
 				}
 			} while (reader.ReadNextAttribute ());
@@ -641,43 +644,87 @@ namespace MimeKit.Tnef {
 
 		static MimeMessage ExtractTnefMessage (TnefReader reader)
 		{
-			var builder = new BodyBuilder ();
+			var alternatives = new MultipartAlternative ();
 			var message = new MimeMessage ();
+			MimeEntity body = null;
 
-			message.Headers.Remove (HeaderId.Date);
+			try {
+				message.Headers.Remove (HeaderId.Date);
 
-			while (reader.ReadNextAttribute ()) {
-				if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
-					break;
+				while (reader.ReadNextAttribute ()) {
+					if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
+						break;
 
-				var prop = reader.TnefPropertyReader;
+					var prop = reader.TnefPropertyReader;
 
-				switch (reader.AttributeTag) {
-				case TnefAttributeTag.RecipientTable:
-					ExtractRecipientTable (reader, message);
-					break;
-				case TnefAttributeTag.MapiProperties:
-					ExtractMapiProperties (reader, message, builder);
-					break;
-				case TnefAttributeTag.DateSent:
-					message.Date = prop.ReadValueAsDateTime ();
-					break;
-				case TnefAttributeTag.Body:
-					builder.TextBody = prop.ReadValueAsString ();
-					break;
+					switch (reader.AttributeTag) {
+					case TnefAttributeTag.RecipientTable:
+						ExtractRecipientTable (reader, message);
+						break;
+					case TnefAttributeTag.MapiProperties:
+						ExtractMapiProperties (reader, message, alternatives);
+						break;
+					case TnefAttributeTag.DateSent:
+						message.Date = prop.ReadValueAsDateTime ();
+						break;
+					case TnefAttributeTag.Body:
+						var text = prop.ReadValueAsString ();
+
+						body = new TextPart ("plain") {
+							Text = text
+						};
+						break;
+					}
 				}
+			} catch {
+				alternatives.Dispose ();
+				message.Dispose ();
+				body?.Dispose ();
+				throw;
 			}
 
-			if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
-				ExtractAttachments (reader, builder);
+			if (body != null) {
+				if (alternatives.Count > 0) {
+					alternatives.Add (body);
+					body = alternatives;
+				} else {
+					alternatives.Dispose ();
+				}
+			} else if (alternatives.Count > 0) {
+				if (alternatives.Count == 1) {
+					body = alternatives[0];
+					alternatives.Clear (false);
+					alternatives.Dispose ();
+				} else {
+					body = alternatives;
+				}
+			} else {
+				alternatives.Dispose ();
+			}
 
-			message.Body = builder.ToMessageBody ();
+			if (reader.AttributeLevel == TnefAttributeLevel.Attachment) {
+				var attachments = new Multipart ("mixed");
+
+				if (body != null)
+					attachments.Add (body);
+
+				message.Body = attachments;
+
+				try {
+					ExtractAttachments (reader, attachments);
+				} catch {
+					message.Dispose ();
+					throw;
+				}
+			} else {
+				message.Body = body;
+			}
 
 			return message;
 		}
 
 		/// <summary>
-		/// Converts the TNEF content into a <see cref="MimeMessage"/>.
+		/// Convert the TNEF content into a <see cref="MimeMessage"/>.
 		/// </summary>
 		/// <remarks>
 		/// TNEF data often contains properties that map to <see cref="MimeMessage"/>
@@ -711,7 +758,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Extracts the embedded attachments from the TNEF data.
+		/// Extract the embedded attachments from the TNEF data.
 		/// </summary>
 		/// <remarks>
 		/// Parses the TNEF data and extracts all of the embedded file attachments.
@@ -727,8 +774,26 @@ namespace MimeKit.Tnef {
 		{
 			var message = ConvertToMessage ();
 
-			foreach (var attachment in message.BodyParts)
-				yield return attachment;
+			if (message.Body is Multipart multipart) {
+				if (multipart.Count > 0 && multipart[0] is MultipartAlternative alternatives) {
+					foreach (var alternative in alternatives)
+						yield return alternative;
+
+					alternatives.Clear (false);
+					alternatives.Dispose ();
+					multipart.RemoveAt (0);
+				}
+
+				foreach (var part in multipart)
+					yield return part;
+
+				multipart.Clear ();
+				message.Dispose ();
+			} else if (message.Body != null) {
+				yield return message.Body;
+			} else {
+				message.Dispose ();
+			}
 
 			yield break;
 		}
