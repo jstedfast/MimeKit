@@ -809,7 +809,6 @@ namespace MimeKit {
 					index++;
 
 				int startIndex = index;
-				string name;
 
 				while (index < value.Length && value[index] != '=') {
 					if (!IsWhiteSpace (value[index]))
@@ -817,7 +816,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				name = value.Substring (startIndex, index - startIndex);
+				ReadOnlySpan<char> name = value.AsSpan (startIndex, index - startIndex);
 
 				while (index < value.Length && value[index] != ';') {
 					if (!IsWhiteSpace (value[index]))
@@ -830,7 +829,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				if (lineLength + token.Length + 1 > format.MaxLineLength || name == "bh" || name == "b") {
+				if (lineLength + token.Length + 1 > format.MaxLineLength || name.SequenceEqual("bh".AsSpan()) || name.SequenceEqual("b".AsSpan())) {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
@@ -840,16 +839,14 @@ namespace MimeKit {
 				}
 
 				if (token.Length > format.MaxLineLength) {
-					switch (name) {
-					case "z":
-						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString ().AsSpan(), '|');
-						break;
-					case "h":
+					if (name.Length is 1 && name[0] == 'z') {
+						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString ().AsSpan (), '|');
+					}
+					else if (name.Length is 1 && name[0] == 'h') {
 						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString ().AsSpan (), ':');
-						break;
-					default:
+					}
+					else {
 						EncodeDkimLongValue (format, encoded, ref lineLength, token.ToString ().AsSpan ());
-						break;
 					}
 				} else {
 					encoded.Append (token);
