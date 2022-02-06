@@ -139,6 +139,11 @@ namespace MimeKit.Utils {
 				System.Buffers.ArrayPool<char>.Shared.Return (buffer);
 			}
 		}
+
+		public static void Append (this StringBuilder text, StringBuilder value)
+		{
+			text.Append (value.ToString ());
+		}
 #endif
 
 #if DEBUG

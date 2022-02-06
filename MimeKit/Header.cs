@@ -849,7 +849,7 @@ namespace MimeKit {
 						break;
 					}
 				} else {
-					encoded.Append (token.ToString ());
+					encoded.Append (token);
 					lineLength += token.Length;
 				}
 
