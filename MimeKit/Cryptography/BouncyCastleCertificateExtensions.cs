@@ -192,7 +192,7 @@ namespace MimeKit.Cryptography {
 
 		internal static string AsHex (this byte[] blob)
 		{
-			var hex = new StringBuilder (blob.Length * 2);
+			var hex = new ValueStringBuilder (blob.Length * 2);
 
 			for (int i = 0; i < blob.Length; i++)
 				hex.Append (blob[i].ToString ("x2"));

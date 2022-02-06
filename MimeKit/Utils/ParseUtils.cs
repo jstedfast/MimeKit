@@ -260,7 +260,7 @@ namespace MimeKit.Utils {
 
 		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, string tokenType, out string dotatom)
 		{
-			var token = new StringBuilder ();
+			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
 			int comment;
 
@@ -316,7 +316,8 @@ namespace MimeKit.Utils {
 
 		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, out string domain)
 		{
-			var token = new StringBuilder ("[");
+			using var token = new ValueStringBuilder (128);
+			token.Append('[');
 			int startIndex = index++;
 
 			domain = null;
@@ -400,7 +401,7 @@ namespace MimeKit.Utils {
 				return false;
 			}
 
-			var token = new StringBuilder ();
+			using var token = new ValueStringBuilder (128);
 
 			// consume the local-part of the msg-id using a very loose definition of 'local-part'
 			//

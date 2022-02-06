@@ -122,8 +122,8 @@ namespace MimeKit.Utils {
 				return false;
 			}
 
-			var charset = new StringBuilder ();
-			var culture = new StringBuilder ();
+			var charset = new ValueStringBuilder (32);
+			var culture = new ValueStringBuilder (32);
 
 			// find the end of the charset name
 			while (*inptr != '?' && *inptr != '*') {
@@ -433,7 +433,7 @@ namespace MimeKit.Utils {
 
 		static unsafe string DecodeTokens (ParserOptions options, IList<Token> tokens, byte[] input, byte* inbuf, int length)
 		{
-			var decoded = new StringBuilder (length);
+			var decoded = new ValueStringBuilder (length);
 			var qp = new QuotedPrintableDecoder (true);
 			var base64 = new Base64Decoder ();
 			var output = new byte[length];
@@ -484,11 +484,11 @@ namespace MimeKit.Utils {
 						i--;
 
 						var unicode = CharsetUtils.ConvertToUnicode (options, codepage, output, 0, outlen, out len);
-						decoded.Append (unicode, 0, len);
+						decoded.Append (unicode.AsSpan(0, len));
 					} else if (token.Is8bit) {
 						// *sigh* I hate broken mailers...
 						var unicode = CharsetUtils.ConvertToUnicode (options, input, token.StartIndex, token.Length, out len);
-						decoded.Append (unicode, 0, len);
+						decoded.Append (unicode.AsSpan(0, len));
 					} else {
 						// pure 7bit ascii, a breath of fresh air...
 						byte* inptr = inbuf + token.StartIndex;
@@ -809,7 +809,7 @@ namespace MimeKit.Utils {
 
 		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input)
 		{
-			var output = new StringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
+			var output = new ValueStringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
 			int lineLength = field.Length + 2;
 			var firstToken = true;
 			int lwsp = 0, tab = 0;
@@ -869,7 +869,12 @@ namespace MimeKit.Utils {
 					// it probably just means that we are folding a header written by a user-agent
 					// with a different max line length than ours.
 
-					output.AppendFormat ("=?{0}?{1}?", charset, token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
+					output.Append ("=?");
+					output.Append (charset);
+					output.Append ('?');
+					output.Append(token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
+					output.Append ('?');
+
 					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
 						output.Append ((char) input[n]);
 					output.Append ("?=");

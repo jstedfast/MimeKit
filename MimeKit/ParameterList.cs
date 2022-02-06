@@ -635,7 +635,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="ParameterList"/>.</returns>
 		public override string ToString ()
 		{
-			var values = new StringBuilder ();
+			var values = new ValueStringBuilder (128);
 
 			foreach (var param in parameters) {
 				values.Append ("; ");

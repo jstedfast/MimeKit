@@ -650,7 +650,7 @@ namespace MimeKit {
 		{
 			var tokens = new List<ReceivedTokenValue> ();
 			var rawValue = encoding.GetBytes (value);
-			var encoded = new StringBuilder ();
+			var encoded = new ValueStringBuilder (128);
 			int lineLength = field.Length + 1;
 			bool date = false;
 			int index = 0;
@@ -744,7 +744,7 @@ namespace MimeKit {
 			return encoding.GetBytes (encoded.ToString ());
 		}
 
-		static void EncodeDkimLongValue (FormatOptions format, StringBuilder encoded, ref int lineLength, string value)
+		static void EncodeDkimLongValue (FormatOptions format, ref ValueStringBuilder encoded, ref int lineLength, string value)
 		{
 			int startIndex = 0;
 
@@ -766,7 +766,7 @@ namespace MimeKit {
 			} while (true);
 		}
 
-		static void EncodeDkimHeaderList (FormatOptions format, StringBuilder encoded, ref int lineLength, string value, char delim)
+		static void EncodeDkimHeaderList (FormatOptions format, ref ValueStringBuilder encoded, ref int lineLength, string value, char delim)
 		{
 			var tokens = value.Split (delim);
 
@@ -782,7 +782,7 @@ namespace MimeKit {
 					lineLength = 1;
 
 					if (tokens[i].Length + 1 > format.MaxLineLength) {
-						EncodeDkimLongValue (format, encoded, ref lineLength, tokens[i]);
+						EncodeDkimLongValue (format, ref encoded, ref lineLength, tokens[i]);
 					} else {
 						lineLength += tokens[i].Length;
 						encoded.Append (tokens[i]);
@@ -796,9 +796,9 @@ namespace MimeKit {
 
 		static byte[] EncodeDkimOrArcSignatureHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new StringBuilder ();
+			var encoded = new ValueStringBuilder (128);
 			int lineLength = field.Length + 1;
-			var token = new StringBuilder ();
+			var token = new ValueStringBuilder (128);
 			int index = 0;
 
 			while (index < value.Length) {
@@ -839,17 +839,17 @@ namespace MimeKit {
 				if (token.Length > format.MaxLineLength) {
 					switch (name) {
 					case "z":
-						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString (), '|');
+						EncodeDkimHeaderList (format, ref encoded, ref lineLength, token.ToString (), '|');
 						break;
 					case "h":
-						EncodeDkimHeaderList (format, encoded, ref lineLength, token.ToString (), ':');
+						EncodeDkimHeaderList (format, ref encoded, ref lineLength, token.ToString (), ':');
 						break;
 					default:
-						EncodeDkimLongValue (format, encoded, ref lineLength, token.ToString ());
+						EncodeDkimLongValue (format, ref encoded, ref lineLength, token.ToString ());
 						break;
 					}
 				} else {
-					encoded.Append (token.ToString ());
+					encoded.Append (token.AsSpan());
 					lineLength += token.Length;
 				}
 
@@ -863,7 +863,7 @@ namespace MimeKit {
 
 		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new StringBuilder ();
+			var encoded = new ValueStringBuilder (128);
 			int lineLength = field.Length + 1;
 			int count = 0;
 
@@ -878,7 +878,9 @@ namespace MimeKit {
 					lineLength++;
 				}
 
-				encoded.Append ('<').Append (reference).Append ('>');
+				encoded.Append ('<');
+				encoded.Append (reference);
+				encoded.Append ('>');
 				lineLength += reference.Length + 2;
 				count++;
 			}
@@ -970,7 +972,7 @@ namespace MimeKit {
 
 		internal static string Fold (FormatOptions format, string field, string value)
 		{
-			var folded = new StringBuilder (value.Length);
+			var folded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 2;
 			int lastLwsp = -1;
 
