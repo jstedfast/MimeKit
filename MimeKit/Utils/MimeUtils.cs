@@ -423,6 +423,33 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
+		/// Quote the specified text and append it into the value string builder.
+		/// </summary>
+		/// <remarks>
+		/// Quotes the specified text, enclosing it in double-quotes and escaping
+		/// any backslashes and double-quotes within.
+		/// </remarks>
+		/// <returns>The string builder.</returns>
+		/// <param name="builder">The string builder.</param>
+		/// <param name="text">The text to quote.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		internal static void AppendQuoted (ref ValueStringBuilder builder, string text)
+		{
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
+			builder.Append ("\"");
+			for (int i = 0; i < text.Length; i++) {
+				if (text[i] == '\\' || text[i] == '"')
+					builder.Append ('\\');
+				builder.Append (text[i]);
+			}
+			builder.Append ("\"");
+		}
+
+		/// <summary>
 		/// Quote the specified text.
 		/// </summary>
 		/// <remarks>
