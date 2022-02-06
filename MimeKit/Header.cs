@@ -893,7 +893,7 @@ namespace MimeKit {
 			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 		}
 
-		static IEnumerable<string> TokenizeText (string text)
+		static IEnumerable<ReadOnlyMemory<char>> TokenizeText (string text)
 		{
 			int index = 0;
 
@@ -903,7 +903,7 @@ namespace MimeKit {
 				while (index < text.Length && !IsWhiteSpace (text[index]))
 					index++;
 
-				yield return text.Substring (startIndex, index - startIndex);
+				yield return text.AsMemory (startIndex, index - startIndex);
 
 				if (index == text.Length)
 					break;
@@ -913,40 +913,28 @@ namespace MimeKit {
 				while (index < text.Length && IsWhiteSpace (text[index]))
 					index++;
 
-				yield return text.Substring (startIndex, index - startIndex);
+				yield return text.AsMemory (startIndex, index - startIndex);
 			}
 
 			yield break;
 		}
 
-		class BrokenWord
-		{
-			public readonly char[] Text;
-			public readonly int StartIndex;
-			public readonly int Length;
+		
 
-			public BrokenWord (char[] text, int startIndex, int length)
-			{
-				StartIndex = startIndex;
-				Length = length;
-				Text = text;
-			}
-		}
-
-		static IEnumerable<BrokenWord> WordBreak (FormatOptions format, string word, int lineLength)
+		static IEnumerable<ReadOnlyMemory<char>> WordBreak (FormatOptions format, ReadOnlyMemory<char> word, int lineLength)
 		{
-			var chars = word.ToCharArray ();
 			int startIndex = 0;
 
 			lineLength = Math.Max (lineLength, 1);
 
-			while (startIndex < word.Length) {
+			while (startIndex < word.Span.Length) {
 				int length = Math.Min (format.MaxLineLength - lineLength, word.Length - startIndex);
+				int index = startIndex + length - 1;
 
-				if (char.IsSurrogatePair (word, startIndex + length - 1))
+				if (word.Length > (index + 1) && char.IsSurrogatePair (word.Span[index], word.Span[index + 1]))
 					length--;
 
-				yield return new BrokenWord (chars, startIndex, length);
+				yield return word.Slice (startIndex, length);
 
 				startIndex += length;
 				lineLength = 1;
@@ -966,7 +954,7 @@ namespace MimeKit {
 			var words = TokenizeText (value);
 
 			foreach (var word in words) {
-				if (IsWhiteSpace (word[0])) {
+				if (IsWhiteSpace (word.Span[0])) {
 					if (lineLength + word.Length > format.MaxLineLength) {
 						for (int i = 0; i < word.Length; i++) {
 							if (lineLength > format.MaxLineLength) {
@@ -974,7 +962,7 @@ namespace MimeKit {
 								lineLength = 0;
 							}
 
-							folded.Append (word[i]);
+							folded.Append (word.Span[i]);
 							lineLength++;
 						}
 					} else {
@@ -1000,7 +988,7 @@ namespace MimeKit {
 							lineLength = 1;
 						}
 
-						folded.Append (broken.Text, broken.StartIndex, broken.Length);
+						folded.Append (broken.Span);
 						lineLength += broken.Length;
 					}
 				} else {
