@@ -4,6 +4,7 @@
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
     <AssemblyTitle>MimeKit</AssemblyTitle>
     <VersionPrefix>3.1.1</VersionPrefix>
+    <LangVersion>8</LangVersion>
     <Authors>Jeffrey Stedfast</Authors>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net452;net46;net47;net48;net5.0;net6.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -315,6 +316,7 @@
     <Compile Include="RfcComplianceMode.cs" />
     <Compile Include="TextPart.cs" />
     <Compile Include="TextRfc822Headers.cs" />
+    <Compile Include="Utils\ValueStringBuilder.cs" />
     <Compile Include="XMessagePriority.cs" />
   </ItemGroup>
 
