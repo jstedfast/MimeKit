@@ -400,13 +400,13 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
 
-			builder.Append ("\"");
+			builder.Append ('"');
 			for (int i = 0; i < text.Length; i++) {
 				if (text[i] == '\\' || text[i] == '"')
 					builder.Append ('\\');
 				builder.Append (text[i]);
 			}
-			builder.Append ("\"");
+			builder.Append ('"');
 
 			return builder;
 		}
