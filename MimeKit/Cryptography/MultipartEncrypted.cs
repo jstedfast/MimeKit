@@ -100,6 +100,27 @@ namespace MimeKit.Cryptography {
 			visitor.VisitMultipartEncrypted (this);
 		}
 
+		static MultipartEncrypted CreateMultipartEncrypted (OpenPgpContext ctx, MimeEntity part)
+		{
+			var encrypted = new MultipartEncrypted ();
+
+			try {
+				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+
+				// add the protocol version part
+				encrypted.Add (new ApplicationPgpEncrypted ());
+
+				// add the encrypted entity as the second part
+				encrypted.Add (part);
+			} catch {
+				encrypted.Dispose ();
+				part.Dispose ();
+				throw;
+			}
+
+			return encrypted;
+		}
+
 		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
@@ -131,16 +152,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -287,16 +299,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -661,16 +664,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -817,16 +811,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -1223,16 +1208,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -1345,16 +1321,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.Encrypt (recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -1629,16 +1596,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
@@ -1751,16 +1709,7 @@ namespace MimeKit.Cryptography {
 				else
 					part = ctx.Encrypt (recipients, memory, cancellationToken);
 
-				var encrypted = new MultipartEncrypted ();
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
-
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
-
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-
-				return encrypted;
+				return CreateMultipartEncrypted (ctx, part);
 			}
 		}
 
