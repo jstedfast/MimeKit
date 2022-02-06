@@ -353,7 +353,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="MessageIdList"/>.</returns>
 		public override string ToString ()
 		{
-			var builder = new StringBuilder ();
+			var builder = new ValueStringBuilder (128);
 
 			for (int i = 0; i < references.Count; i++) {
 				if (builder.Length > 0)

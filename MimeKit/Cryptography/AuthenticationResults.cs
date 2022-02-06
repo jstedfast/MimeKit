@@ -1155,7 +1155,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The serialized string.</returns>
 		public override string ToString ()
 		{
-			var builder = new StringBuilder ();
+			var builder = new ValueStringBuilder (128);
 
 			if (Office365AuthenticationServiceIdentifier != null) {
 				builder.Append (Office365AuthenticationServiceIdentifier);
@@ -1180,15 +1180,15 @@ namespace MimeKit.Cryptography {
 
 			if (!string.IsNullOrEmpty (Reason)) {
 				builder.Append (" reason=");
-				MimeUtils.AppendQuoted (builder, Reason);
+				MimeUtils.AppendQuoted (ref builder, Reason);
 			} else if (!string.IsNullOrEmpty (Action)) {
 				builder.Append (" action=");
-				MimeUtils.AppendQuoted (builder, Action);
+				MimeUtils.AppendQuoted (ref builder, Action);
 			}
 
 			for (int i = 0; i < Properties.Count; i++) {
 				builder.Append (' ');
-				builder.Append (Properties[i]);
+				builder.Append (Properties[i].ToString());
 			}
 
 			return builder.ToString ();
