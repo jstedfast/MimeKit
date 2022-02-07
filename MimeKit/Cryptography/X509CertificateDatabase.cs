@@ -40,6 +40,7 @@ using Org.BouncyCastle.Asn1.BC;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -282,9 +283,12 @@ namespace MimeKit.Cryptography {
 
 			var algorithms = new List<EncryptionAlgorithm> ();
 			var values = reader.GetString (column);
+			var splitter = new StringSplitter (values.AsSpan (), ',');
 
-			foreach (var token in values.Split (new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-				if (Enum.TryParse (token.Trim (), true, out EncryptionAlgorithm algorithm))
+			while (splitter.TryReadNext (out var token)) {
+				if (token.IsEmpty) continue;
+
+				if (Enum.TryParse (token.Trim ().ToString(), true, out EncryptionAlgorithm algorithm))
 					algorithms.Add (algorithm);
 			}
 
