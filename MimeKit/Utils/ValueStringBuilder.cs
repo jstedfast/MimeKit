@@ -5,6 +5,7 @@
 
 using System.Buffers;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -249,6 +250,37 @@ namespace System.Text
 			_pos = origPos + length;
 			return _chars.Slice (origPos, length);
 		}
+
+#if NET6_0_OR_GREATER
+		internal void AppendInvariant<T> (T value) where T : ISpanFormattable
+		{
+			if (value.TryFormat (_chars.Slice (_pos), out int charsWritten, null, CultureInfo.InvariantCulture)) {
+				_pos += charsWritten;
+			} else {
+				Append (value.ToString (null, CultureInfo.InvariantCulture));
+			}
+		}
+
+		internal void AppendSpanFormattable<T> (T value, string? format = null, IFormatProvider? provider = null) where T : ISpanFormattable
+		{
+			if (value.TryFormat (_chars.Slice (_pos), out int charsWritten, format, provider)) {
+				_pos += charsWritten;
+			} else {
+				Append (value.ToString (format, provider));
+			}
+		}
+#else
+		internal void AppendInvariant<T> (T value, string? format = null, IFormatProvider? provider = null) where T: IFormattable
+		{
+			Append (value.ToString (null, CultureInfo.InvariantCulture));	
+		}
+
+		internal void AppendSpanFormattable<T> (T value, string? format = null, IFormatProvider? provider = null) where T: IFormattable
+		{
+			Append (value.ToString (format, provider));	
+		}
+#endif
+
 
 		[MethodImpl (MethodImplOptions.NoInlining)]
 		private void GrowAndAppend (char c)

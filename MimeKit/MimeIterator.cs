@@ -209,10 +209,11 @@ namespace MimeKit {
 				var specifier = new ValueStringBuilder(128);
 
 				for (int i = 0; i < path.Count; i++) {
-					specifier.Append ((path[i] + 1).ToString (CultureInfo.InvariantCulture));
+					specifier.AppendInvariant (path[i] + 1);
 					specifier.Append ('.');
 				}
-				specifier.Append ((index + 1).ToString(CultureInfo.InvariantCulture));
+
+				specifier.AppendInvariant (index + 1);
 
 				return specifier.ToString ();
 			}
