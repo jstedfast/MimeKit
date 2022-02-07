@@ -86,10 +86,16 @@ namespace MimeKit.Utils {
 
 			ulong value = (ulong) DateTime.UtcNow.Ticks;
 			var id = new ValueStringBuilder (64);
+
+#if NET6_0_OR_GREATER
+			Span<byte> block = stackalloc byte[8];
+
+			RandomNumberGenerator.Fill (block);
+#else
 			var block = new byte[8];
 
 			GetRandomBytes (block);
-
+#endif
 			do {
 				id.Append (base36[(int) (value % 36)]);
 				value /= 36;
