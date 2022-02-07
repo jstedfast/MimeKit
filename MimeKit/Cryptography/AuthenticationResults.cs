@@ -193,7 +193,7 @@ namespace MimeKit.Cryptography {
 
 			if (Instance.HasValue) {
 				builder.Append ("i=");
-				builder.Append(Instance.Value.ToString (CultureInfo.InvariantCulture));
+				builder.AppendInvariant(Instance.Value);
 				builder.Append ("; ");
 			}
 
@@ -202,7 +202,7 @@ namespace MimeKit.Cryptography {
 
 				if (Version.HasValue) {
 					builder.Append (' ');
-					builder.Append (Version.Value.ToString (CultureInfo.InvariantCulture));
+					builder.AppendInvariant (Version.Value);
 				}
 
 				builder.Append ("; ");
