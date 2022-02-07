@@ -5,8 +5,7 @@
     <AssemblyTitle>MimeKit Lite</AssemblyTitle>
     <VersionPrefix>3.1.1</VersionPrefix>
     <Authors>Jeffrey Stedfast</Authors>
-	<!-- net452;net46;net47;net48; -->
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net452;net46;net47;net48;net5.0;net6.0</TargetFrameworks>
     <LangVersion>8</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MimeKitLite</AssemblyName>
