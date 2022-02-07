@@ -233,11 +233,11 @@ namespace MimeKit.Cryptography {
 			return (long) (DateTime.UtcNow - DateUtils.UnixEpoch).TotalSeconds;
 		}
 
-		void WriteArcHeaderBuilder (StringBuilder value, int instance)
+		static void AppendInstanceAndSignatureAlgorithm (StringBuilder value, int instance, DkimSignatureAlgorithm signatureAlgorithm)
 		{
 			value.AppendFormat ("i={0}", instance.ToString (CultureInfo.InvariantCulture));
 
-			switch (SignatureAlgorithm) {
+			switch (signatureAlgorithm) {
 			case DkimSignatureAlgorithm.Ed25519Sha256:
 				value.Append ("; a=ed25519-sha256");
 				break;
@@ -253,9 +253,10 @@ namespace MimeKit.Cryptography {
 		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, long t, IList<string> headers)
 		{
 			var value = new StringBuilder ();
-			WriteArcHeaderBuilder (value, instance);
 			byte[] signature, hash;
 			Header ams;
+
+			AppendInstanceAndSignatureAlgorithm (value, instance, SignatureAlgorithm);
 
 			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
 			value.AppendFormat ("; c={0}/{1}",
@@ -301,12 +302,12 @@ namespace MimeKit.Cryptography {
 		Header GenerateArcSeal (FormatOptions options, int instance, string cv, long t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
 		{
 			var value = new StringBuilder ();
-			WriteArcHeaderBuilder (value, instance);
 			byte[] signature;
 			Header seal;
 
-			value.AppendFormat ("; cv={0}", cv);
+			AppendInstanceAndSignatureAlgorithm (value, instance, SignatureAlgorithm);
 
+			value.AppendFormat ("; cv={0}", cv);
 			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
 			value.AppendFormat ("; t={0}", t);
 
