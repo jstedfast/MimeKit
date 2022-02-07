@@ -34,7 +34,7 @@ namespace MimeKit.Encodings {
 	public interface IMimeEncoder
 	{
 		/// <summary>
-		/// Gets the encoding.
+		/// Get the encoding.
 		/// </summary>
 		/// <remarks>
 		/// Gets the encoding that the encoder supports.
@@ -52,7 +52,7 @@ namespace MimeKit.Encodings {
 		IMimeEncoder Clone ();
 
 		/// <summary>
-		/// Estimates the length of the output.
+		/// Estimate the length of the output.
 		/// </summary>
 		/// <remarks>
 		/// Estimates the number of bytes needed to encode the specified number of input bytes.
@@ -62,7 +62,7 @@ namespace MimeKit.Encodings {
 		int EstimateOutputLength (int inputLength);
 
 		/// <summary>
-		/// Encodes the specified input into the output buffer.
+		/// Encode the specified input into the output buffer.
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer.</para>
@@ -92,7 +92,7 @@ namespace MimeKit.Encodings {
 		int Encode (byte[] input, int startIndex, int length, byte[] output);
 
 		/// <summary>
-		/// Encodes the specified input into the output buffer, flushing any internal buffer state as well.
+		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
@@ -122,7 +122,7 @@ namespace MimeKit.Encodings {
 		int Flush (byte[] input, int startIndex, int length, byte[] output);
 
 		/// <summary>
-		/// Resets the encoder.
+		/// Reset the encoder.
 		/// </summary>
 		/// <remarks>
 		/// Resets the state of the encoder.

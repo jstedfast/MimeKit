@@ -120,7 +120,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the root document of the multipart/related part and the appropriate Content-Type parameters.
+		/// Get or set the root document of the multipart/related part and the appropriate Content-Type parameters.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets the root document that references the other MIME parts within the multipart/related.</para>
@@ -215,7 +215,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="MultipartRelated"/> contains a part matching the specified URI.
+		/// Check if the <see cref="MultipartRelated"/> contains a part matching the specified URI.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the multipart/related entity contains a part matching the specified URI.
@@ -234,7 +234,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the index of the part matching the specified URI.
+		/// Get the index of the part matching the specified URI.
 		/// </summary>
 		/// <remarks>
 		/// <para>Finds the index of the part matching the specified URI, if it exists.</para>
@@ -299,7 +299,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
+		/// Open a stream for reading the decoded content of the MIME part specified by the provided URI.
 		/// </summary>
 		/// <remarks>
 		/// Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
@@ -339,7 +339,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
+		/// Open a stream for reading the decoded content of the MIME part specified by the provided URI.
 		/// </summary>
 		/// <remarks>
 		/// Opens a stream for reading the decoded content of the MIME part specified by the provided URI.
@@ -365,9 +365,7 @@ namespace MimeKit {
 			if (index == -1)
 				throw new FileNotFoundException ();
 
-			var part = this[index] as MimePart;
-
-			if (part == null || part.Content == null)
+			if (!(this[index] is MimePart part) || part.Content == null)
 				throw new FileNotFoundException ();
 
 			return part.Content.Open ();

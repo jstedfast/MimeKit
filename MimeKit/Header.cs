@@ -401,7 +401,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the stream offset of the beginning of the header.
+		/// Get the stream offset of the beginning of the header.
 		/// </summary>
 		/// <remarks>
 		/// If the offset is set, it refers to the byte offset where it
@@ -413,7 +413,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the name of the header field.
+		/// Get the name of the header field.
 		/// </summary>
 		/// <remarks>
 		/// Represents the field name of the header.
@@ -424,7 +424,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the header identifier.
+		/// Get the header identifier.
 		/// </summary>
 		/// <remarks>
 		/// This property is mainly used for switch-statements for performance reasons.
@@ -439,7 +439,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the raw field name of the header.
+		/// Get the raw field name of the header.
 		/// </summary>
 		/// <remarks>
 		/// Contains the raw field name of the header.
@@ -450,7 +450,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the raw value of the header.
+		/// Get the raw value of the header.
 		/// </summary>
 		/// <remarks>
 		/// Contains the raw value of the header, before any decoding or charset conversion.
@@ -461,7 +461,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the header value.
+		/// Get or sets the header value.
 		/// </summary>
 		/// <remarks>
 		/// Represents the decoded header value and is suitable for displaying to the user.
@@ -483,7 +483,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the header value using the specified character encoding.
+		/// Get the header value using the specified character encoding.
 		/// </summary>
 		/// <remarks>
 		/// <para>If the raw header value does not properly encode non-ASCII text, the decoder
@@ -507,7 +507,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the header value using the specified charset.
+		/// Get the header value using the specified charset.
 		/// </summary>
 		/// <remarks>
 		/// <para>If the raw header value does not properly encode non-ASCII text, the decoder
@@ -1126,7 +1126,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the header value using the specified formatting options and character encoding.
+		/// Ses the header value using the specified formatting options and character encoding.
 		/// </summary>
 		/// <remarks>
 		/// When a particular charset is desired for encoding the header value
@@ -1169,7 +1169,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the header value using the specified character encoding.
+		/// Set the header value using the specified character encoding.
 		/// </summary>
 		/// <remarks>
 		/// When a particular charset is desired for encoding the header value
@@ -1189,7 +1189,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the header value using the specified formatting options and charset.
+		/// Set the header value using the specified formatting options and charset.
 		/// </summary>
 		/// <remarks>
 		/// When a particular charset is desired for encoding the header value
@@ -1223,7 +1223,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the header value using the specified charset.
+		/// Set the header value using the specified charset.
 		/// </summary>
 		/// <remarks>
 		/// When a particular charset is desired for encoding the header value
@@ -1288,7 +1288,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a string representation of the header.
+		/// Return a string representation of the header.
 		/// </summary>
 		/// <remarks>
 		/// Formats the header field and value in a way that is suitable for display.

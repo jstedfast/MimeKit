@@ -58,7 +58,7 @@ namespace MimeKit.Tnef {
 		bool eos;
 
 		/// <summary>
-		/// Gets the attachment key value.
+		/// Get the attachment key value.
 		/// </summary>
 		/// <remarks>
 		/// Gets the attachment key value.
@@ -69,7 +69,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the current attribute's level.
+		/// Get the current attribute's level.
 		/// </summary>
 		/// <remarks>
 		/// Gets the current attribute's level.
@@ -80,7 +80,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the length of the current attribute's raw value.
+		/// Get the length of the current attribute's raw value.
 		/// </summary>
 		/// <remarks>
 		/// Gets the length of the current attribute's raw value.
@@ -91,7 +91,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the stream offset of the current attribute's raw value.
+		/// Get the stream offset of the current attribute's raw value.
 		/// </summary>
 		/// <remarks>
 		/// Gets the stream offset of the current attribute's raw value.
@@ -102,7 +102,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the current attribute's tag.
+		/// Get the current attribute's tag.
 		/// </summary>
 		/// <remarks>
 		/// Gets the current attribute's tag.
@@ -117,7 +117,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the compliance mode.
+		/// Get the compliance mode.
 		/// </summary>
 		/// <remarks>
 		/// Gets the compliance mode.
@@ -128,7 +128,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the current compliance status of the TNEF stream.
+		/// Get the current compliance status of the TNEF stream.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets the current compliance status of the TNEF stream.</para>
@@ -144,7 +144,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the message codepage.
+		/// Get the message codepage.
 		/// </summary>
 		/// <remarks>
 		/// Gets the message codepage.
@@ -169,7 +169,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the TNEF property reader.
+		/// Get the TNEF property reader.
 		/// </summary>
 		/// <remarks>
 		/// Gets the TNEF property reader.
@@ -180,7 +180,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the current stream offset.
+		/// Get the current stream offset.
 		/// </summary>
 		/// <remarks>
 		/// Gets the current stream offset.
@@ -191,7 +191,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the TNEF version.
+		/// Get the TNEF version.
 		/// </summary>
 		/// <remarks>
 		/// Gets the TNEF version.
@@ -578,7 +578,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Advances to the next attribute in the TNEF stream.
+		/// Advance to the next attribute in the TNEF stream.
 		/// </summary>
 		/// <remarks>
 		/// Advances to the next attribute in the TNEF stream.
@@ -636,7 +636,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Reads the raw attribute value data from the underlying TNEF stream.
+		/// Read the raw attribute value data from the underlying TNEF stream.
 		/// </summary>
 		/// <remarks>
 		/// Reads the raw attribute value data from the underlying TNEF stream.
@@ -701,7 +701,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Resets the compliance status.
+		/// Reset the compliance status.
 		/// </summary>
 		/// <remarks>
 		/// Resets the compliance status.
@@ -712,7 +712,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Closes the TNEF reader and the underlying stream.
+		/// Close the TNEF reader and the underlying stream.
 		/// </summary>
 		/// <remarks>
 		/// Closes the TNEF reader and the underlying stream.
@@ -725,7 +725,7 @@ namespace MimeKit.Tnef {
 		#region IDisposable implementation
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="TnefReader"/> and
+		/// Release the unmanaged resources used by the <see cref="TnefReader"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
@@ -741,7 +741,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="TnefReader"/> object.
+		/// Release all resource used by the <see cref="TnefReader"/> object.
 		/// </summary>
 		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="TnefReader"/>. The
 		/// <see cref="Dispose()"/> method leaves the <see cref="TnefReader"/> in an unusable state. After calling

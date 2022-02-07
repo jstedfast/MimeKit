@@ -73,7 +73,7 @@ namespace MimeKit.Text {
 		public abstract void WriteTo (TextWriter output);
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="HtmlToken"/>.
+		/// Return a <see cref="System.String"/> that represents the current <see cref="HtmlToken"/>.
 		/// </summary>
 		/// <remarks>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="HtmlToken"/>.

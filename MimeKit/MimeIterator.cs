@@ -95,7 +95,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the top-level message.
+		/// Get the top-level message.
 		/// </summary>
 		/// <remarks>
 		/// Gets the top-level message.
@@ -106,7 +106,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the parent of the current entity.
+		/// Get the parent of the current entity.
 		/// </summary>
 		/// <remarks>
 		/// <para>After an iterator is created or after the <see cref="Reset()"/> method is called,
@@ -137,7 +137,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the current entity.
+		/// Get the current entity.
 		/// </summary>
 		/// <remarks>
 		/// After an iterator is created or after the <see cref="Reset()"/> method is called,
@@ -165,7 +165,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the current entity.
+		/// Get the current entity.
 		/// </summary>
 		/// <remarks>
 		/// After an iterator is created or after the <see cref="Reset()"/> method is called,
@@ -185,7 +185,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the path specifier for the current entity.
+		/// Get the path specifier for the current entity.
 		/// </summary>
 		/// <remarks>
 		/// After an iterator is created or after the <see cref="Reset()"/> method is called,
@@ -219,7 +219,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the depth of the current entity.
+		/// Get the depth of the current entity.
 		/// </summary>
 		/// <remarks>
 		/// After an iterator is created or after the <see cref="Reset()"/> method is called,
@@ -269,7 +269,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Advances the iterator to the next depth-first entity of the tree structure.
+		/// Advance the iterator to the next depth-first entity of the tree structure.
 		/// </summary>
 		/// <remarks>
 		/// After an iterator is created or after the <see cref="Reset()"/> method is called,
@@ -351,7 +351,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Advances to the entity specified by the path specifier.
+		/// Advance to the entity specified by the path specifier.
 		/// </summary>
 		/// <remarks>
 		/// <para>Advances the iterator to the entity specified by the path specifier which
@@ -411,7 +411,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Resets the iterator to its initial state.
+		/// Reset the iterator to its initial state.
 		/// </summary>
 		/// <remarks>
 		/// Resets the iterator to its initial state.
@@ -426,7 +426,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MimeIterator"/> and
+		/// Release the unmanaged resources used by the <see cref="MimeIterator"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
@@ -440,7 +440,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases all resources used by the <see cref="MimeIterator"/> object.
+		/// Release all resources used by the <see cref="MimeIterator"/> object.
 		/// </summary>
 		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeIterator"/>. The
 		/// <see cref="Dispose()"/> method leaves the <see cref="MimeIterator"/> in an unusable state. After

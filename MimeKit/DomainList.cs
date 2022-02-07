@@ -76,7 +76,7 @@ namespace MimeKit {
 		#region IList implementation
 
 		/// <summary>
-		/// Gets the index of the requested domain, if it exists.
+		/// Get the index of the requested domain, if it exists.
 		/// </summary>
 		/// <remarks>
 		/// Finds the index of the specified domain, if it exists.
@@ -95,7 +95,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Insert the domain at the specified index.
+		/// Insert a domain at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Inserts the domain at the specified index in the list.
@@ -118,7 +118,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the domain at the specified index.
+		/// Remove the domain at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Removes the domain at the specified index.
@@ -134,7 +134,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the domain at the specified index.
+		/// Get or set the domain at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the domain at the specified index.
@@ -166,7 +166,7 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Add the specified domain.
+		/// Add a domain.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified domain to the end of the list.
@@ -185,7 +185,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the domain list.
+		/// Clear the domain list.
 		/// </summary>
 		/// <remarks>
 		/// Removes all of the domains in the list.
@@ -197,7 +197,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the <see cref="DomainList"/> contains the specified domain.
+		/// Check if the <see cref="DomainList"/> contains the specified domain.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the domain list contains the specified domain.
@@ -217,7 +217,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the domains in the <see cref="DomainList"/> to the specified array.
+		/// Copy all of the domains in the <see cref="DomainList"/> to an array.
 		/// </summary>
 		/// <remarks>
 		/// Copies all of the domains within the <see cref="DomainList"/> into the array,
@@ -237,7 +237,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the specified domain.
+		/// Remove a domain.
 		/// </summary>
 		/// <remarks>
 		/// Removes the first instance of the specified domain from the list if it exists.
@@ -261,7 +261,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the number of domains in the <see cref="DomainList"/>.
+		/// Get the number of domains in the <see cref="DomainList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Indicates the number of domains in the list.
@@ -287,7 +287,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of domains.
+		/// Get an enumerator for the list of domains.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the list of domains.
@@ -303,7 +303,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of domains.
+		/// Get an enumerator for the list of domains.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the list of domains.
@@ -342,7 +342,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a string representation of the list of domains.
+		/// Return a string representation of the list of domains.
 		/// </summary>
 		/// <remarks>
 		/// <para>Each non-empty domain string will be prepended by an '@'.</para>

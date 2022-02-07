@@ -243,7 +243,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains enriched text.
+		/// Get whether or not this text part contains enriched text.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether or not the text part's Content-Type is <c>text/enriched</c> or its
@@ -262,7 +262,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains flowed text.
+		/// Get whether or not this text part contains flowed text.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether or not the text part's Content-Type is <c>text/plain</c> and
@@ -287,7 +287,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains HTML.
+		/// Get whether or not this text part contains HTML.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether or not the text part's Content-Type is <c>text/html</c>.
@@ -308,7 +308,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains plain text.
+		/// Get whether or not this text part contains plain text.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether or not the text part's Content-Type is <c>text/plain</c>.
@@ -326,7 +326,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not this text part contains RTF.
+		/// Get whether or not this text part contains RTF.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether or not the text part's Content-Type is <c>text/rtf</c>.
@@ -398,7 +398,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Determines whether or not the text is in the specified format.
+		/// Determine whether or not the text is in the specified format.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the text is in the specified format.
@@ -467,7 +467,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the decoded text content using the provided charset encoding to
+		/// Get the decoded text content using the provided charset encoding to
 		/// override the charset specified in the Content-Type parameters.
 		/// </summary>
 		/// <remarks>
@@ -508,7 +508,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the decoded text content using the provided charset to override
+		/// Get the decoded text content using the provided charset to override
 		/// the charset specified in the Content-Type parameters.
 		/// </summary>
 		/// <remarks>
@@ -536,7 +536,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the text content and the charset parameter in the Content-Type header.
+		/// Set the text content and the charset parameter in the Content-Type header.
 		/// </summary>
 		/// <remarks>
 		/// This method is similar to setting the <see cref="TextPart.Text"/> property,
@@ -569,7 +569,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sets the text content and the charset parameter in the Content-Type header.
+		/// Set the text content and the charset parameter in the Content-Type header.
 		/// </summary>
 		/// <remarks>
 		/// This method is similar to setting the <see cref="TextPart.Text"/> property,

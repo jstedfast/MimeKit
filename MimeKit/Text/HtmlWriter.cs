@@ -86,7 +86,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Releas unmanaged resources and perform other cleanup operations before the
+		/// Release unmanaged resources and perform other cleanup operations before the
 		/// <see cref="HtmlWriter"/> is reclaimed by garbage collection.
 		/// </summary>
 		/// <remarks>
@@ -896,7 +896,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="HtmlWriter"/> and
+		/// Release the unmanaged resources used by the <see cref="HtmlWriter"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
@@ -912,7 +912,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Releases all resource used by the <see cref="HtmlWriter"/> object.
+		/// Release all resource used by the <see cref="HtmlWriter"/> object.
 		/// </summary>
 		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="HtmlWriter"/>. The
 		/// <see cref="Dispose()"/> method leaves the <see cref="HtmlWriter"/> in an unusable state. After calling

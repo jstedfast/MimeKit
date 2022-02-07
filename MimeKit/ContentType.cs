@@ -225,7 +225,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the simple mime-type.
+		/// Get the simple mime-type.
 		/// </summary>
 		/// <remarks>
 		/// Gets the simple mime-type.

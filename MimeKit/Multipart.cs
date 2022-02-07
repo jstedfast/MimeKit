@@ -945,7 +945,7 @@ namespace MimeKit {
 		#endregion
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
+		/// Release the unmanaged resources used by the <see cref="Multipart"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>

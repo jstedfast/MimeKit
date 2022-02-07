@@ -182,7 +182,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the mailbox route.
+		/// Get the mailbox route.
 		/// </summary>
 		/// <remarks>
 		/// A route is convention that is rarely seen in modern email systems, but is supported
@@ -194,7 +194,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the mailbox address.
+		/// Get or set the mailbox address.
 		/// </summary>
 		/// <remarks>
 		/// Represents the actual email address and is in the form of <c>user@domain.com</c>.
@@ -239,7 +239,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not the address is an international address.
+		/// Get whether or not the address is an international address.
 		/// </summary>
 		/// <remarks>
 		/// <para>International addresses are addresses that contain international
@@ -442,7 +442,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a string representation of the <see cref="MailboxAddress"/>,
+		/// Return a string representation of the <see cref="MailboxAddress"/>,
 		/// optionally encoding it for transport.
 		/// </summary>
 		/// <remarks>
@@ -487,7 +487,7 @@ namespace MimeKit {
 		#region IEquatable implementation
 
 		/// <summary>
-		/// Determines whether the specified <see cref="MailboxAddress"/> is equal to the current <see cref="MailboxAddress"/>.
+		/// Determine whether the specified <see cref="MailboxAddress"/> is equal to the current <see cref="MailboxAddress"/>.
 		/// </summary>
 		/// <remarks>
 		/// Compares two mailbox addresses to determine if they are identical or not.

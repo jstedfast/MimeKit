@@ -202,7 +202,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the description of the content if available.
+		/// Get or set the description of the content if available.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-Description header can be used to set a description of the content.</para>
@@ -246,7 +246,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the duration of the content if available.
+		/// Get or set the duration of the content if available.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-Duration header specifies duration of timed media,
@@ -296,7 +296,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the md5sum of the content.
+		/// Get or set the md5sum of the content.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-MD5 header specifies the base64-encoded MD5 checksum of the content
@@ -339,7 +339,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content transfer encoding.
+		/// Get or set the content transfer encoding.
 		/// </summary>
 		/// <remarks>
 		/// The Content-Transfer-Encoding header specifies an auxiliary encoding
@@ -396,7 +396,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the name of the file.
+		/// Get or set the name of the file.
 		/// </summary>
 		/// <remarks>
 		/// <para>First checks for the "filename" parameter on the Content-Disposition header. If
@@ -437,7 +437,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the MIME content.
+		/// Get or set the MIME content.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the MIME content.
@@ -479,7 +479,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Calculates the most efficient content encoding given the specified constraint.
+		/// Calculate the most efficient content encoding given the specified constraint.
 		/// </summary>
 		/// <remarks>
 		/// If no <see cref="Content"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
@@ -505,7 +505,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Calculates the most efficient content encoding given the specified constraint.
+		/// Calculate the most efficient content encoding given the specified constraint.
 		/// </summary>
 		/// <remarks>
 		/// If no <see cref="Content"/> is set, <see cref="ContentEncoding.SevenBit"/> will be returned.
@@ -553,7 +553,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Computes the MD5 checksum of the content.
+		/// Compute the MD5 checksum of the content.
 		/// </summary>
 		/// <remarks>
 		/// Computes the MD5 checksum of the MIME content in its canonical
@@ -593,7 +593,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Verifies the Content-Md5 value against an independently computed md5sum.
+		/// Verify the Content-Md5 value against an independently computed md5sum.
 		/// </summary>
 		/// <remarks>
 		/// Computes the MD5 checksum of the MIME content and compares it with the

@@ -103,7 +103,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Converts the tag name into the equivalent tag id.
+		/// Convert the tag name into the equivalent tag id.
 		/// </summary>
 		/// <remarks>
 		/// Converts the tag name into the equivalent tag id.

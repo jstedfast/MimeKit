@@ -59,7 +59,7 @@ namespace MimeKit {
 		public static readonly ParserOptions Default = new ParserOptions ();
 
 		/// <summary>
-		/// Gets or sets the compliance mode that should be used when parsing rfc822 addresses.
+		/// Get or set the compliance mode that should be used when parsing rfc822 addresses.
 		/// </summary>
 		/// <remarks>
 		/// <para>In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
@@ -73,7 +73,7 @@ namespace MimeKit {
 		public RfcComplianceMode AddressParserComplianceMode { get; set; }
 
 		/// <summary>
-		/// Gets or sets whether the rfc822 address parser should ignore unquoted commas in address names.
+		/// Get or set whether the rfc822 address parser should ignore unquoted commas in address names.
 		/// </summary>
 		/// <remarks>
 		/// <para>In general, you'll probably want this value to be <c>true</c> (the default) as it allows
@@ -85,7 +85,7 @@ namespace MimeKit {
 		public bool AllowUnquotedCommasInAddresses { get; set; }
 
 		/// <summary>
-		/// Gets or sets whether the rfc822 address parser should allow addresses without a domain.
+		/// Get or set whether the rfc822 address parser should allow addresses without a domain.
 		/// </summary>
 		/// <remarks>
 		/// <para>In general, you'll probably want this value to be <c>true</c> (the default) as it allows
@@ -98,7 +98,7 @@ namespace MimeKit {
 		public bool AllowAddressesWithoutDomain { get; set; }
 
 		/// <summary>
-		/// Gets or sets the maximum address group depth the parser should accept.
+		/// Get or set the maximum address group depth the parser should accept.
 		/// </summary>
 		/// <remarks>
 		/// <para>This option exists in order to define the maximum recursive depth of an rfc822 group address
@@ -110,7 +110,7 @@ namespace MimeKit {
 		public int MaxAddressGroupDepth { get; set; }
 
 		/// <summary>
-		/// Gets or sets the maximum MIME nesting depth the parser should accept.
+		/// Get or set the maximum MIME nesting depth the parser should accept.
 		/// </summary>
 		/// <remarks>
 		/// <para>This option exists in order to define the maximum recursive depth of MIME parts that the parser
@@ -122,7 +122,7 @@ namespace MimeKit {
 		public int MaxMimeDepth { get; set; }
 
 		/// <summary>
-		/// Gets or sets the compliance mode that should be used when parsing Content-Type and Content-Disposition parameters.
+		/// Get or set the compliance mode that should be used when parsing Content-Type and Content-Disposition parameters.
 		/// </summary>
 		/// <remarks>
 		/// <para>In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
@@ -136,7 +136,7 @@ namespace MimeKit {
 		public RfcComplianceMode ParameterComplianceMode { get; set; }
 
 		/// <summary>
-		/// Gets or sets the compliance mode that should be used when decoding rfc2047 encoded words.
+		/// Get or set the compliance mode that should be used when decoding rfc2047 encoded words.
 		/// </summary>
 		/// <remarks>
 		/// In general, you'll probably want this value to be <see cref="RfcComplianceMode.Loose"/>
@@ -147,7 +147,7 @@ namespace MimeKit {
 		public RfcComplianceMode Rfc2047ComplianceMode { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating whether the Content-Length value should be
+		/// Get or set a value indicating whether the Content-Length value should be
 		/// respected when parsing mbox streams.
 		/// </summary>
 		/// <remarks>
@@ -160,7 +160,7 @@ namespace MimeKit {
 		public bool RespectContentLength { get; set; }
 
 		/// <summary>
-		/// Gets or sets the charset encoding to use as a fallback for 8bit headers.
+		/// Get or set the charset encoding to use as a fallback for 8bit headers.
 		/// </summary>
 		/// <remarks>
 		/// <see cref="Rfc2047.DecodeText(ParserOptions, byte[])"/> and
@@ -194,7 +194,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clones an instance of <see cref="ParserOptions"/>.
+		/// Clone an instance of <see cref="ParserOptions"/>.
 		/// </summary>
 		/// <remarks>
 		/// Clones a set of options, allowing you to change a specific option
@@ -221,7 +221,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Registers the <see cref="MimeEntity"/> subclass for the specified mime-type.
+		/// Register a <see cref="MimeEntity"/> subclass for the specified mime-type.
 		/// </summary>
 		/// <param name="mimeType">The MIME type.</param>
 		/// <param name="type">A custom subclass of <see cref="MimeEntity"/>.</param>

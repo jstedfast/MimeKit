@@ -103,7 +103,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the type of the report.
+		/// Get or set the type of the report.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets the type of the report.</para>

@@ -43,7 +43,7 @@ namespace MimeKit.IO {
 	public interface ICancellableStream
 	{
 		/// <summary>
-		/// Reads a sequence of bytes from the stream and advances the position
+		/// Read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
 		/// <remarks>
@@ -63,7 +63,7 @@ namespace MimeKit.IO {
 		int Read (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Writes a sequence of bytes to the stream and advances the current
+		/// Write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <remarks>
@@ -82,7 +82,7 @@ namespace MimeKit.IO {
 		void Write (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// Clear all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>

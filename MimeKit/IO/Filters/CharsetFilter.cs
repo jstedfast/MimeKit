@@ -130,7 +130,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Gets the source encoding.
+		/// Get the source encoding.
 		/// </summary>
 		/// <remarks>
 		/// Gets the source encoding.
@@ -141,7 +141,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Gets the target encoding.
+		/// Get the target encoding.
 		/// </summary>
 		/// <remarks>
 		/// Gets the target encoding.
@@ -214,7 +214,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Resets the filter.
+		/// Reset the filter.
 		/// </summary>
 		/// <remarks>
 		/// Resets the filter.

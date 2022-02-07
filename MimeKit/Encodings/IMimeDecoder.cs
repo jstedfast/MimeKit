@@ -34,7 +34,7 @@ namespace MimeKit.Encodings {
 	public interface IMimeDecoder
 	{
 		/// <summary>
-		/// Gets the encoding.
+		/// Get the encoding.
 		/// </summary>
 		/// <remarks>
 		/// Gets the encoding that the decoder supports.
@@ -52,7 +52,7 @@ namespace MimeKit.Encodings {
 		IMimeDecoder Clone ();
 
 		/// <summary>
-		/// Estimates the length of the output.
+		/// Estimate the length of the output.
 		/// </summary>
 		/// <remarks>
 		/// Estimates the number of bytes needed to decode the specified number of input bytes.
@@ -62,7 +62,7 @@ namespace MimeKit.Encodings {
 		int EstimateOutputLength (int inputLength);
 
 		/// <summary>
-		/// Decodes the specified input into the output buffer.
+		/// Decode the specified input into the output buffer.
 		/// </summary>
 		/// <remarks>
 		/// <para>Decodes the specified input into the output buffer.</para>
@@ -77,7 +77,7 @@ namespace MimeKit.Encodings {
 		unsafe int Decode (byte* input, int length, byte* output);
 
 		/// <summary>
-		/// Decodes the specified input into the output buffer.
+		/// Decode the specified input into the output buffer.
 		/// </summary>
 		/// <remarks>
 		/// <para>Decodes the specified input into the output buffer.</para>
@@ -107,7 +107,7 @@ namespace MimeKit.Encodings {
 		int Decode (byte[] input, int startIndex, int length, byte[] output);
 
 		/// <summary>
-		/// Resets the decoder.
+		/// Reset the decoder.
 		/// </summary>
 		/// <remarks>
 		/// Resets the state of the decoder.

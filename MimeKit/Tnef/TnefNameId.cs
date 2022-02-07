@@ -41,7 +41,7 @@ namespace MimeKit.Tnef {
 		readonly int id;
 
 		/// <summary>
-		/// Gets the property set GUID.
+		/// Get the property set GUID.
 		/// </summary>
 		/// <remarks>
 		/// Gets the property set GUID.
@@ -50,7 +50,7 @@ namespace MimeKit.Tnef {
 		public Guid PropertySetGuid => guid;
 
 		/// <summary>
-		/// Gets the kind of TNEF name identifier.
+		/// Get the kind of TNEF name identifier.
 		/// </summary>
 		/// <remarks>
 		/// Gets the kind of TNEF name identifier.
@@ -59,7 +59,7 @@ namespace MimeKit.Tnef {
 		public TnefNameIdKind Kind => kind;
 
 		/// <summary>
-		/// Gets the name, if available.
+		/// Get the name, if available.
 		/// </summary>
 		/// <remarks>
 		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Name"/>, then this property will be available.
@@ -68,7 +68,7 @@ namespace MimeKit.Tnef {
 		public string Name => name;
 
 		/// <summary>
-		/// Gets the identifier, if available.
+		/// Get the identifier, if available.
 		/// </summary>
 		/// <remarks>
 		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Id"/>, then this property will be available.
@@ -124,7 +124,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefNameId"/>.
+		/// Determine whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefNameId"/>.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefNameId"/>.
@@ -138,7 +138,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Determines whether the specified <see cref="TnefNameId"/> is equal to the current <see cref="TnefNameId"/>.
+		/// Determine whether the specified <see cref="TnefNameId"/> is equal to the current <see cref="TnefNameId"/>.
 		/// </summary>
 		/// <remarks>
 		/// Compares two TNEF name identifiers to determine if they are identical or not.

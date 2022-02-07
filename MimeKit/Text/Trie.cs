@@ -146,7 +146,7 @@ namespace MimeKit.Text {
 		//
 
 		/// <summary>
-		/// Add the specified search pattern.
+		/// Add a search pattern.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified search pattern.

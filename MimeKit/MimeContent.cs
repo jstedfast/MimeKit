@@ -372,7 +372,7 @@ namespace MimeKit {
 		#region IDisposable implementation
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MimeContent"/> and
+		/// Release the unmanaged resources used by the <see cref="MimeContent"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
@@ -390,7 +390,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases all resources used by the <see cref="MimeContent"/> object.
+		/// Release all resources used by the <see cref="MimeContent"/> object.
 		/// </summary>
 		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeContent"/>. The
 		/// <see cref="Dispose()"/> method leaves the <see cref="MimeContent"/> in an unusable state. After

@@ -409,7 +409,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the parameters in the list to the specified array.
+		/// Copy all of the parameters in the list to an array.
 		/// </summary>
 		/// <remarks>
 		/// Copies all of the parameters within the <see cref="ParameterList"/> into the array,
@@ -455,7 +455,7 @@ namespace MimeKit {
 		#region IList implementation
 
 		/// <summary>
-		/// Ges the index of the requested parameter, if it exists.
+		/// Get the index of the requested parameter, if it exists.
 		/// </summary>
 		/// <remarks>
 		/// Finds the index of the specified parameter, if it exists.

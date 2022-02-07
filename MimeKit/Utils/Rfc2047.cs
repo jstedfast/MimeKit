@@ -542,7 +542,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the phrase.
+		/// Decode a phrase.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the phrase(s) starting at the given index and spanning across
@@ -589,7 +589,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the phrase.
+		/// Decode a phrase.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the phrase(s) starting at the given index and spanning across
@@ -612,7 +612,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the phrase.
+		/// Decode a phrase.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the phrase(s) within the specified buffer using the supplied parser options.
@@ -637,7 +637,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes the phrase.
+		/// Decode a phrase.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the phrase(s) within the specified buffer using the default parser options.
@@ -694,7 +694,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes unstructured text.
+		/// Decode unstructured text.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the unstructured text buffer starting at the given index and spanning
@@ -741,7 +741,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes unstructured text.
+		/// Decode unstructured text.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the unstructured text buffer starting at the given index and spanning
@@ -764,7 +764,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes unstructured text.
+		/// Decode unstructured text.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the unstructured text buffer using the specified parser options.
@@ -789,7 +789,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Decodes unstructured text.
+		/// Decode unstructured text.
 		/// </summary>
 		/// <remarks>
 		/// Decodes the unstructured text buffer using the default parser options.
@@ -1466,7 +1466,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the phrase.
+		/// Encode a phrase.
 		/// </summary>
 		/// <remarks>
 		/// Encodes the phrase according to the rules of rfc2047 using
@@ -1498,7 +1498,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the phrase.
+		/// Encode a phrase.
 		/// </summary>
 		/// <remarks>
 		/// Encodes the phrase according to the rules of rfc2047 using
@@ -1518,7 +1518,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the unstructured text.
+		/// Encode unstructured text.
 		/// </summary>
 		/// <remarks>
 		/// Encodes the unstructured text according to the rules of rfc2047
@@ -1550,7 +1550,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encodes the unstructured text.
+		/// Encode unstructured text.
 		/// </summary>
 		/// <remarks>
 		/// Encodes the unstructured text according to the rules of rfc2047

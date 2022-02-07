@@ -102,7 +102,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the "id" parameter of the Content-Type header.
+		/// Get the "id" parameter of the Content-Type header.
 		/// </summary>
 		/// <remarks>
 		/// The "id" parameter is a unique identifier used to match the parts together.
@@ -113,7 +113,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the "number" parameter of the Content-Type header.
+		/// Get the "number" parameter of the Content-Type header.
 		/// </summary>
 		/// <remarks>
 		/// The "number" parameter is the sequential (1-based) index of the partial message fragment.
@@ -131,7 +131,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the "total" parameter of the Content-Type header.
+		/// Get the "total" parameter of the Content-Type header.
 		/// </summary>
 		/// <remarks>
 		/// The "total" parameter is the total number of pieces that make up the complete message.
@@ -194,7 +194,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Splits the specified message into multiple messages.
+		/// Split a message into multiple messages.
 		/// </summary>
 		/// <remarks>
 		/// Splits the specified message into multiple messages, each with a
@@ -433,7 +433,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Joins the specified message/partial parts into the complete message.
+		/// Join the specified message/partial parts into the complete message.
 		/// </summary>
 		/// <remarks>
 		/// Combines all of the message/partial fragments into its original,
@@ -463,7 +463,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Joins the specified message/partial parts into the complete message.
+		/// Join the specified message/partial parts into the complete message.
 		/// </summary>
 		/// <remarks>
 		/// Combines all of the message/partial fragments into its original,

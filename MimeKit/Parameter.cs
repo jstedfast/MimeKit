@@ -171,7 +171,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the parameter name.
+		/// Get the parameter name.
 		/// </summary>
 		/// <remarks>
 		/// Gets the parameter name.
@@ -182,7 +182,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the parameter value character encoding.
+		/// Get or set the parameter value character encoding.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the parameter value character encoding.
@@ -200,7 +200,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the parameter encoding method to use.
+		/// Get or set the parameter encoding method to use.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets the parameter encoding method to use.</para>
@@ -262,7 +262,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the parameter value.
+		/// Get or set the parameter value.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the parameter value.
@@ -709,7 +709,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a string representation of the <see cref="Parameter"/>.
+		/// Return a string representation of the <see cref="Parameter"/>.
 		/// </summary>
 		/// <remarks>
 		/// Formats the parameter name and value in the form <c>name="value"</c>.

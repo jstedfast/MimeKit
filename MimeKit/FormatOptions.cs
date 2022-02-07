@@ -96,7 +96,7 @@ namespace MimeKit {
 		public static readonly FormatOptions Default;
 
 		/// <summary>
-		/// Gets or sets the maximum line length used by the encoders. The encoders
+		/// Get or set the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
 		/// </summary>
 		/// <remarks>
@@ -352,7 +352,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clones an instance of <see cref="FormatOptions"/>.
+		/// Clone an instance of <see cref="FormatOptions"/>.
 		/// </summary>
 		/// <remarks>
 		/// Clones the formatting options.

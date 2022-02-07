@@ -5531,7 +5531,7 @@ namespace MimeKit.Tnef {
 		readonly TnefPropertyId id;
 
 		/// <summary>
-		/// Gets the property identifier.
+		/// Get the property identifier.
 		/// </summary>
 		/// <remarks>
 		/// Gets the property identifier.
@@ -5542,7 +5542,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether or not the property contains multiple values.
+		/// Get a value indicating whether or not the property contains multiple values.
 		/// </summary>
 		/// <remarks>
 		/// Gets a value indicating whether or not the property contains multiple values.
@@ -5553,7 +5553,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether or not the property has a special name.
+		/// Get a value indicating whether or not the property has a special name.
 		/// </summary>
 		/// <remarks>
 		/// Gets a value indicating whether or not the property has a special name.
@@ -5564,7 +5564,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether the property value type is valid.
+		/// Get a value indicating whether the property value type is valid.
 		/// </summary>
 		/// <remarks>
 		/// Gets a value indicating whether the property value type is valid.
@@ -5598,7 +5598,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the property's value type (including the multi-valued bit).
+		/// Get the property's value type (including the multi-valued bit).
 		/// </summary>
 		/// <remarks>
 		/// Gets the property's value type (including the multi-valued bit).
@@ -5609,7 +5609,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the type of the value that the property contains.
+		/// Get the type of the value that the property contains.
 		/// </summary>
 		/// <remarks>
 		/// Gets the type of the value that the property contains.
@@ -5655,7 +5655,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Casts an integer tag value into a TNEF property tag.
+		/// Cast an integer tag value into a TNEF property tag.
 		/// </summary>
 		/// <remarks>
 		/// Casts an integer tag value into a TNEF property tag.
@@ -5668,7 +5668,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Casts a TNEF property tag into a 32-bit integer value.
+		/// Cast a TNEF property tag into a 32-bit integer value.
 		/// </summary>
 		/// <remarks>
 		/// Casts a TNEF property tag into a 32-bit integer value.
@@ -5694,7 +5694,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyTag"/>.
+		/// Determine whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyTag"/>.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyTag"/>.
@@ -5713,7 +5713,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.
+		/// Return a <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.
 		/// </summary>
 		/// <remarks>
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.
@@ -5725,7 +5725,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Returns a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.
+		/// Return a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.
 		/// </summary>
 		/// <remarks>
 		/// Returns a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.

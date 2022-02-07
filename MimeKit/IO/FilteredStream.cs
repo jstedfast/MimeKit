@@ -76,7 +76,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the underlying source stream.
+		/// Get the underlying source stream.
 		/// </summary>
 		/// <remarks>
 		/// In general, it is not a good idea to manipulate the underlying
@@ -90,7 +90,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Adds the specified filter.
+		/// Add a filter.
 		/// </summary>
 		/// <remarks>
 		/// Adds the <paramref name="filter"/> to the end of the list of filters
@@ -110,7 +110,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Checks if the filtered stream contains the specified filter.
+		/// Check if the filtered stream contains the specified filter.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the filtered stream contains the specified filter.
@@ -130,7 +130,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Remove the specified filter.
+		/// Remove a filter.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified filter from the list if it exists.
@@ -169,7 +169,7 @@ namespace MimeKit.IO {
 		#region Stream implementation
 
 		/// <summary>
-		/// Checks whether or not the stream supports reading.
+		/// Check whether or not the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="FilteredStream"/> will only support reading if the
@@ -181,7 +181,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports writing.
+		/// Check whether or not the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="FilteredStream"/> will only support writing if the
@@ -193,7 +193,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports seeking.
+		/// Check whether or not the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// Seeking is not supported by the <see cref="FilteredStream"/>.
@@ -204,7 +204,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Checks whether or not I/O operations can timeout.
+		/// Check whether or not I/O operations can timeout.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="FilteredStream"/> will only support timing out if the
@@ -216,7 +216,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets the length of the stream, in bytes.
+		/// Get the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// Getting the length of a <see cref="FilteredStream"/> is not supported.
@@ -230,7 +230,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets the current position within the stream.
+		/// Get or set the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// Getting and setting the position of a <see cref="FilteredStream"/> is not supported.
@@ -245,7 +245,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
+		/// Get or set a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the read timeout on the <see cref="Source"/> stream.
@@ -258,7 +258,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Gets or sets a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
+		/// Get or set a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the write timeout on the <see cref="Source"/> stream.
@@ -283,7 +283,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Reads a sequence of bytes from the stream and advances the position
+		/// Read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
 		/// <remarks>
@@ -362,7 +362,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Reads a sequence of bytes from the stream and advances the position
+		/// Read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
 		/// <remarks>
@@ -398,7 +398,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Asynchronously reads a sequence of bytes from the stream and advances the position
+		/// Asynchronously read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
 		/// <remarks>
@@ -471,7 +471,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Writes a sequence of bytes to the stream and advances the current
+		/// Write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <remarks>
@@ -532,7 +532,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Writes a sequence of bytes to the stream and advances the current
+		/// Write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <remarks>
@@ -566,7 +566,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Asynchronously writes a sequence of bytes to the stream and advances the current
+		/// Asynchronously write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <remarks>
@@ -620,7 +620,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Sets the position within the current stream.
+		/// Set the position within the current stream.
 		/// </summary>
 		/// <remarks>
 		/// Seeking is not supported by the <see cref="FilteredStream"/>.
@@ -637,7 +637,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// Clear all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
@@ -694,7 +694,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// Clear all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
@@ -716,7 +716,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Asynchronously clears all buffers for this stream and causes any buffered data to be written
+		/// Asynchronously clear all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
@@ -769,7 +769,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Sets the length of the stream.
+		/// Set the length of the stream.
 		/// </summary>
 		/// <remarks>
 		/// Setting the length of a <see cref="FilteredStream"/> is not supported.
@@ -789,7 +789,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="FilteredStream"/> and
+		/// Release the unmanaged resources used by the <see cref="FilteredStream"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>

@@ -99,7 +99,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Gets an enumerator for the attribute collection.
+		/// Get an enumerator for the attribute collection.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the attribute collection.
@@ -111,7 +111,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Gets an enumerator for the attribute collection.
+		/// Get an enumerator for the attribute collection.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the attribute collection.

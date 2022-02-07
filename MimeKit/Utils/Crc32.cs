@@ -88,7 +88,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Clones the CRC32 context and state.
+		/// Clone the CRC32 context and state.
 		/// </summary>
 		/// <remarks>
 		/// Clones the CRC32 context and state.
@@ -99,7 +99,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Gets the computed checksum.
+		/// Get the computed checksum.
 		/// </summary>
 		/// <remarks>
 		/// Gets the computed checksum.
@@ -122,7 +122,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Updates the CRC based on the specified block of data.
+		/// Update the CRC based on the specified block of data.
 		/// </summary>
 		/// <remarks>
 		/// Updates the CRC based on the specified block of data.
@@ -152,7 +152,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Updates the CRC based on the specified byte.
+		/// Update the CRC based on the specified byte.
 		/// </summary>
 		/// <remarks>
 		/// Updates the CRC based on the specified byte.
@@ -166,7 +166,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Resets the checksum so that the <see cref="Crc32"/> context can be reused.
+		/// Reset the checksum so that the <see cref="Crc32"/> context can be reused.
 		/// </summary>
 		/// <remarks>
 		/// Resets the checksum so that the <see cref="Crc32"/> context can be reused.

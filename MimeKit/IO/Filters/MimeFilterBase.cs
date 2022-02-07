@@ -51,7 +51,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Gets the output buffer.
+		/// Get the output buffer.
 		/// </summary>
 		/// <remarks>
 		/// Gets the output buffer.
@@ -122,7 +122,7 @@ namespace MimeKit.IO.Filters {
 		}
 		
 		/// <summary>
-		/// Filters the specified input.
+		/// Filter the specified input.
 		/// </summary>
 		/// <remarks>
 		/// Filters the specified input buffer starting at the given index,
@@ -151,7 +151,7 @@ namespace MimeKit.IO.Filters {
 		}
 		
 		/// <summary>
-		/// Filters the specified input, flushing all internally buffered data to the output.
+		/// Filter the specified input, flushing all internally buffered data to the output.
 		/// </summary>
 		/// <remarks>
 		/// Filters the specified input buffer starting at the given index,
@@ -180,7 +180,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Resets the filter.
+		/// Reset the filter.
 		/// </summary>
 		/// <remarks>
 		/// Resets the filter.
@@ -191,7 +191,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Saves the remaining input for the next round of processing.
+		/// Save the remaining input for the next round of processing.
 		/// </summary>
 		/// <remarks>
 		/// Saves the remaining input for the next round of processing.
@@ -212,7 +212,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Ensures that the output buffer is greater than or equal to the specified size.
+		/// Ensure that the output buffer is greater than or equal to the specified size.
 		/// </summary>
 		/// <remarks>
 		/// Ensures that the output buffer is greater than or equal to the specified size.

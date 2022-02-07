@@ -107,7 +107,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Gets the current line number.
+		/// Get the current line number.
 		/// </summary>
 		/// <remarks>
 		/// <para>This property is most commonly used for error reporting, but can be called
@@ -121,7 +121,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Gets the current line position.
+		/// Get the current line position.
 		/// </summary>
 		/// <remarks>
 		/// <para>This property is most commonly used for error reporting, but can be called
@@ -2718,7 +2718,7 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Reads the next token.
+		/// Read the next token.
 		/// </summary>
 		/// <remarks>
 		/// Reads the next token.

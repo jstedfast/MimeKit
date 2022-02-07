@@ -54,7 +54,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clones the <see cref="MessageIdList"/>.
+		/// Clone the <see cref="MessageIdList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Creates an exact copy of the <see cref="MessageIdList"/>.
@@ -100,7 +100,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Insert the Message-Id at the specified index.
+		/// Insert a Message-Id at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Inserts the Message-Id at the specified index in the list.
@@ -171,7 +171,7 @@ namespace MimeKit {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Add the specified Message-Id.
+		/// Add a Message-Id.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified Message-Id to the end of the list.
@@ -190,7 +190,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add a collection of Message-Id items.
+		/// Add a collection of Message-Ids.
 		/// </summary>
 		/// <remarks>
 		/// Adds a collection of Message-Id items to append to the list.

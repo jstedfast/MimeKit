@@ -122,7 +122,7 @@ namespace MimeKit {
 #endif
 
 		/// <summary>
-		/// Gets the byte index of the token that was malformed.
+		/// Get the byte index of the token that was malformed.
 		/// </summary>
 		/// <remarks>
 		/// The token index is the byte offset at which the token started.
@@ -133,7 +133,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the index of the byte that caused the error.
+		/// Get the index of the byte that caused the error.
 		/// </summary>
 		/// <remarks>
 		/// The error index is the byte offset at which the parser encountered an error.

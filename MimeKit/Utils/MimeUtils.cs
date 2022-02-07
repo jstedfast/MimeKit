@@ -61,10 +61,10 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Generates a Message-Id.
+		/// Generate a Message-Id or Content-Id.
 		/// </summary>
 		/// <remarks>
-		/// Generates a new Message-Id using the supplied domain.
+		/// Generates a new Message-Id (or Content-Id) using the supplied domain.
 		/// </remarks>
 		/// <returns>The message identifier.</returns>
 		/// <param name="domain">A domain to use.</param>
@@ -111,10 +111,10 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Generates a Message-Id.
+		/// Generate a Message-Id or Content-Id.
 		/// </summary>
 		/// <remarks>
-		/// Generates a new Message-Id using the local machine's domain.
+		/// Generates a new Message-Id (or Content-Id) using the local machine's domain.
 		/// </remarks>
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
@@ -133,8 +133,8 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Enumerates the message-id references such as those that can be found in
-		/// the In-Reply-To or References header.
+		/// Enumerate the Message-Id references such as those that can be found in
+		/// the In-Reply-To or References headers.
 		/// </summary>
 		/// <remarks>
 		/// Incrementally parses Message-Ids (such as those from a References header
@@ -178,8 +178,8 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Enumerates the message-id references such as those that can be found in
-		/// the In-Reply-To or References header.
+		/// Enumerate the Message-Id references such as those that can be found in
+		/// the In-Reply-To or References headers.
 		/// </summary>
 		/// <remarks>
 		/// Incrementally parses Message-Ids (such as those from a References header
@@ -201,10 +201,10 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Parses a Message-Id header value.
+		/// Parse a Message-Id or Content-Id header value.
 		/// </summary>
 		/// <remarks>
-		/// Parses the Message-Id value, returning the addr-spec portion of the msg-id token.
+		/// Parses the Message-Id (or Content-Id) value, returning the addr-spec portion of the msg-id token.
 		/// </remarks>
 		/// <returns>The addr-spec portion of the msg-id token.</returns>
 		/// <param name="buffer">The raw byte buffer to parse.</param>
@@ -230,10 +230,10 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Parses a Message-Id header value.
+		/// Parse a Message-Id or Content-Id header value.
 		/// </summary>
 		/// <remarks>
-		/// Parses the Message-Id value, returning the addr-spec portion of the msg-id token.
+		/// Parses the Message-Id (or Content-Id) value, returning the addr-spec portion of the msg-id token.
 		/// </remarks>
 		/// <returns>The addr-spec portion of the msg-id token.</returns>
 		/// <param name="text">The text to parse.</param>

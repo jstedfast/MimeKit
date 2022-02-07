@@ -39,7 +39,7 @@ namespace MimeKit.IO.Filters {
 	public class EncoderFilter : MimeFilterBase
 	{
 		/// <summary>
-		/// Gets the encoder used by this filter.
+		/// Get the encoder used by this filter.
 		/// </summary>
 		/// <remarks>
 		/// Gets the encoder used by this filter.
@@ -50,7 +50,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Gets the encoding.
+		/// Get the encoding.
 		/// </summary>
 		/// <remarks>
 		/// Gets the encoding that the encoder supports.
@@ -155,7 +155,7 @@ namespace MimeKit.IO.Filters {
 		}
 
 		/// <summary>
-		/// Resets the filter.
+		/// Reset the filter.
 		/// </summary>
 		/// <remarks>
 		/// Resets the filter.

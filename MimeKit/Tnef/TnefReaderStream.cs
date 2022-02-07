@@ -63,7 +63,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports reading.
+		/// Check whether or not the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="TnefReaderStream"/> is always readable.
@@ -74,7 +74,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports writing.
+		/// Check whether or not the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// Writing to a <see cref="TnefReaderStream"/> is not supported.
@@ -85,7 +85,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports seeking.
+		/// Check whether or not the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// Seeking within a <see cref="TnefReaderStream"/> is not supported.
@@ -96,7 +96,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets the length of the stream, in bytes.
+		/// Get the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
 		/// Getting the length of a <see cref="TnefReaderStream"/> is not supported.
@@ -110,7 +110,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Gets or sets the current position within the stream.
+		/// Get or sets the current position within the stream.
 		/// </summary>
 		/// <remarks>
 		/// Getting and setting the position of a <see cref="TnefReaderStream"/> is not supported.
@@ -137,7 +137,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Reads a sequence of bytes from the stream and advances the position
+		/// Read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
 		/// </summary>
 		/// <remarks>
@@ -188,7 +188,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Writes a sequence of bytes to the stream and advances the current
+		/// Write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
 		/// </summary>
 		/// <remarks>
@@ -206,7 +206,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Sets the position within the current stream.
+		/// Set the position within the current stream.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="TnefReaderStream"/> does not support seeking.
@@ -223,7 +223,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Clears all buffers for this stream and causes any buffered data to be written
+		/// Clear all buffers for this stream and causes any buffered data to be written
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
@@ -238,7 +238,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Sets the length of the stream.
+		/// Set the length of the stream.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="TnefReaderStream"/> does not support setting the length.
@@ -253,7 +253,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="TnefReaderStream"/> and
+		/// Release the unmanaged resources used by the <see cref="TnefReaderStream"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>

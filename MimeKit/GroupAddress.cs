@@ -115,7 +115,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the members of the group.
+		/// Get the members of the group.
 		/// </summary>
 		/// <remarks>
 		/// <para>Represents the member addresses of the group. If the group address properly conforms
@@ -175,7 +175,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a string representation of the <see cref="GroupAddress"/>,
+		/// Return a string representation of the <see cref="GroupAddress"/>,
 		/// optionally encoding it for transport.
 		/// </summary>
 		/// <remarks>
@@ -222,7 +222,7 @@ namespace MimeKit {
 		#region IEquatable implementation
 
 		/// <summary>
-		/// Determines whether the specified <see cref="GroupAddress"/> is equal to the current <see cref="GroupAddress"/>.
+		/// Determine whether the specified <see cref="GroupAddress"/> is equal to the current <see cref="GroupAddress"/>.
 		/// </summary>
 		/// <remarks>
 		/// Compares two group addresses to determine if they are identical or not.

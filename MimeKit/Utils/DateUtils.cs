@@ -671,7 +671,7 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Formats the <see cref="System.DateTimeOffset"/> as an rfc822 date string.
+		/// Format the <see cref="System.DateTimeOffset"/> as an rfc822 date string.
 		/// </summary>
 		/// <remarks>
 		/// Formats the date and time in the format specified by rfc822, suitable for use

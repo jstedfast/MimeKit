@@ -197,7 +197,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the list of headers.
+		/// Get the list of headers.
 		/// </summary>
 		/// <remarks>
 		/// Represents the list of headers for a MIME part. Typically, the headers of
@@ -210,7 +210,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content disposition.
+		/// Get or set the content disposition.
 		/// </summary>
 		/// <remarks>
 		/// Represents the pre-parsed Content-Disposition header value, if present.
@@ -258,7 +258,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the type of the content.
+		/// Get the type of the content.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-Type header specifies information about the type of content contained
@@ -270,7 +270,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the base content URI.
+		/// Get or set the base content URI.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-Base header specifies the base URI for the <see cref="MimeEntity"/>
@@ -324,7 +324,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content location.
+		/// Get or set the content location.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-Location header specifies the URI for a MIME entity and can be
@@ -377,7 +377,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the content identifier.
+		/// Get or set the content identifier.
 		/// </summary>
 		/// <remarks>
 		/// <para>The Content-Id header is used for uniquely identifying a particular entity and
@@ -435,7 +435,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether this <see cref="MimePart"/> is an attachment.
+		/// Get a value indicating whether this <see cref="MimePart"/> is an attachment.
 		/// </summary>
 		/// <remarks>
 		/// If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
@@ -467,7 +467,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="String"/> that represents the <see cref="MimeEntity"/> for debugging purposes.
+		/// Return a <see cref="String"/> that represents the <see cref="MimeEntity"/> for debugging purposes.
 		/// </summary>
 		/// <remarks>
 		/// <para>Returns a <see cref="String"/> that represents the <see cref="MimeEntity"/> for debugging purposes.</para>

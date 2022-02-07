@@ -80,7 +80,7 @@ namespace MimeKit {
 		#region IList implementation
 
 		/// <summary>
-		/// Gets the number of attachments currently in the collection.
+		/// Get the number of attachments currently in the collection.
 		/// </summary>
 		/// <remarks>
 		/// Indicates the number of attachments in the collection.
@@ -91,7 +91,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whther or not the collection is read-only.
+		/// Get whther or not the collection is read-only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="AttachmentCollection"/> is never read-only.
@@ -297,7 +297,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
@@ -343,7 +343,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Adds the specified data as an attachment using the supplied Content-Type.</para>
@@ -394,7 +394,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously add the specified attachment.
+		/// Asynchronously add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously adds the specified data as an attachment using the supplied Content-Type.</para>
@@ -445,7 +445,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Adds the data as an attachment, using the specified file name for deducing
@@ -483,7 +483,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Adds the stream as an attachment, using the specified file name for deducing
@@ -526,7 +526,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously add the specified attachment.
+		/// Asynchronously add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously adds the stream as an attachment, using the specified file name for deducing
@@ -569,7 +569,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Adds the specified file as an attachment using the supplied Content-Type.</para>
@@ -621,7 +621,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously add the specified attachment.
+		/// Asynchronously add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously adds the specified file as an attachment using the supplied Content-Type.</para>
@@ -673,7 +673,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Adds the specified file as an attachment.</para>
@@ -724,7 +724,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously add the specified attachment.
+		/// Asynchronously add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously adds the specified file as an attachment.</para>
@@ -772,7 +772,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Add the specified attachment.
+		/// Add an attachment.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified <see cref="MimePart"/> as an attachment.
@@ -790,7 +790,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the attachment collection.
+		/// Clear the attachment collection.
 		/// </summary>
 		/// <remarks>
 		/// Removes all attachments from the collection.
@@ -801,7 +801,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the attachment collection.
+		/// Clear the attachment collection.
 		/// </summary>
 		/// <remarks>
 		/// Removes all attachments from the collection, optionally disposing them in the process.
@@ -818,7 +818,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the collection contains the specified attachment.
+		/// Check if the collection contains the specified attachment.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether or not the collection contains the specified attachment.
@@ -838,7 +838,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the attachments in the collection to the specified array.
+		/// Copy all of the attachments in the collection to an array.
 		/// </summary>
 		/// <remarks>
 		/// Copies all of the attachments within the <see cref="AttachmentCollection"/> into the array,
@@ -864,7 +864,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the index of the requested attachment, if it exists.
+		/// Get the index of the requested attachment, if it exists.
 		/// </summary>
 		/// <remarks>
 		/// Finds the index of the specified attachment, if it exists.
@@ -883,7 +883,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Inserts the specified attachment at the given index.
+		/// Insert an attachment at the given index.
 		/// </summary>
 		/// <remarks>
 		/// Inserts the attachment at the specified index.
@@ -908,7 +908,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the specified attachment.
+		/// Remove an attachment.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified attachment.
@@ -927,7 +927,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the attachment at the specified index.
+		/// Remove the attachment at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// <para>Removes the attachment at the specified index.</para>
@@ -950,7 +950,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of attachments.
+		/// Get an enumerator for the list of attachments.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the list of attachments.
@@ -966,7 +966,7 @@ namespace MimeKit {
 		#region IEnumerable implementation
 
 		/// <summary>
-		/// Gets an enumerator for the list of attachments.
+		/// Get an enumerator for the list of attachments.
 		/// </summary>
 		/// <remarks>
 		/// Gets an enumerator for the list of attachments.

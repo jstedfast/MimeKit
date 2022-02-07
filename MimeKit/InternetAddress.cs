@@ -193,7 +193,7 @@ namespace MimeKit {
 		#region IEquatable implementation
 
 		/// <summary>
-		/// Determines whether the specified <see cref="InternetAddress"/> is equal to the current <see cref="InternetAddress"/>.
+		/// Determine whether the specified <see cref="InternetAddress"/> is equal to the current <see cref="InternetAddress"/>.
 		/// </summary>
 		/// <remarks>
 		/// Compares two internet addresses to determine if they are identical or not.
