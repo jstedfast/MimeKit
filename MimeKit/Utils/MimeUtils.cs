@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-#nullable enable
-
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -42,7 +40,7 @@ namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		static string? DefaultHostName = null;
+		static string DefaultHostName = null;
 
 		/// <summary>
 		/// A string comparer that performs a case-insensitive ordinal string comparison.
