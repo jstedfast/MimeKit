@@ -177,7 +177,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static unsafe IList<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
+		static unsafe List<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
