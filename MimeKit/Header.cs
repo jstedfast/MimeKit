@@ -531,11 +531,11 @@ namespace MimeKit {
 
 		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new StringBuilder (" ");
-			int lineLength = field.Length + 2;
-
 			if (!InternetAddressList.TryParse (options, value, out var list))
 				return (byte[]) format.NewLineBytes.Clone ();
+
+			var encoded = new StringBuilder (" ");
+			int lineLength = field.Length + 2;
 
 			list.Encode (format, encoded, true, ref lineLength);
 			encoded.Append (format.NewLine);

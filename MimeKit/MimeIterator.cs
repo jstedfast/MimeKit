@@ -28,6 +28,7 @@ using System;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace MimeKit {
 	/// <summary>
@@ -205,12 +206,13 @@ namespace MimeKit {
 				if (current == null)
 					throw new InvalidOperationException ();
 
-				var specifier = new StringBuilder ();
+				var specifier = new ValueStringBuilder(128);
 
-				for (int i = 0; i < path.Count; i++)
-					specifier.AppendFormat ("{0}.", path[i] + 1);
-
-				specifier.AppendFormat ("{0}", index + 1);
+				for (int i = 0; i < path.Count; i++) {
+					specifier.Append ((path[i] + 1).ToString (CultureInfo.InvariantCulture));
+					specifier.Append ('.');
+				}
+				specifier.Append ((index + 1).ToString(CultureInfo.InvariantCulture));
 
 				return specifier.ToString ();
 			}

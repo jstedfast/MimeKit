@@ -189,10 +189,13 @@ namespace MimeKit.Cryptography {
 		/// <returns>The serialized string.</returns>
 		public override string ToString ()
 		{
-			var builder = new StringBuilder ();
+			var builder = new ValueStringBuilder (256);
 
-			if (Instance.HasValue)
-				builder.AppendFormat ("i={0}; ", Instance.Value.ToString (CultureInfo.InvariantCulture));
+			if (Instance.HasValue) {
+				builder.Append ("i=");
+				builder.Append(Instance.Value.ToString (CultureInfo.InvariantCulture));
+				builder.Append ("; ");
+			}
 
 			if (AuthenticationServiceIdentifier != null) {
 				builder.Append (AuthenticationServiceIdentifier);
@@ -209,7 +212,7 @@ namespace MimeKit.Cryptography {
 				for (int i = 0; i < Results.Count; i++) {
 					if (i > 0)
 						builder.Append ("; ");
-					builder.Append (Results[i]);
+					builder.Append (Results[i].ToString());
 				}
 			} else {
 				builder.Append ("none");

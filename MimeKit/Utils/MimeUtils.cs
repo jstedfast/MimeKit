@@ -82,8 +82,8 @@ namespace MimeKit.Utils {
 			if (domain.Length == 0)
 				throw new ArgumentException ("The domain is invalid.", nameof (domain));
 
-			ulong value = (ulong) DateTime.Now.Ticks;
-			var id = new StringBuilder ();
+			ulong value = (ulong) DateTime.UtcNow.Ticks;
+			var id = new ValueStringBuilder (64);
 			var block = new byte[8];
 
 			GetRandomBytes (block);
@@ -104,7 +104,8 @@ namespace MimeKit.Utils {
 				value /= 36;
 			} while (value != 0);
 
-			id.Append ('@').Append (ParseUtils.IdnEncode (domain));
+			id.Append ('@');
+			id.Append (ParseUtils.IdnEncode (domain));
 
 			return id.ToString ();
 		}
@@ -494,7 +495,7 @@ namespace MimeKit.Utils {
 			if (index == -1)
 				return text;
 
-			var builder = new StringBuilder (text.Length);
+			var builder = new ValueStringBuilder (text.Length);
 			bool escaped = false;
 			bool quoted = false;
 
