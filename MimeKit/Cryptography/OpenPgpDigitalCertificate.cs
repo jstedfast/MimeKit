@@ -41,7 +41,7 @@ namespace MimeKit.Cryptography {
 		internal OpenPgpDigitalCertificate (PgpPublicKeyRing keyring, PgpPublicKey pubkey)
 		{
 			var bytes = pubkey.GetFingerprint ();
-			var builder = new StringBuilder ();
+			var builder = new ValueStringBuilder (bytes.Length * 2);
 
 			for (int i = 0; i < bytes.Length; i++)
 				builder.Append (bytes[i].ToString ("X2"));
