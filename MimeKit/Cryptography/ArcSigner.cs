@@ -233,10 +233,8 @@ namespace MimeKit.Cryptography {
 			return (long) (DateTime.UtcNow - DateUtils.UnixEpoch).TotalSeconds;
 		}
 
-		StringBuilder CreateArcHeaderBuilder (int instance)
+		void WriteArcHeaderBuilder (StringBuilder value, int instance)
 		{
-			var value = new StringBuilder ();
-
 			value.AppendFormat ("i={0}", instance.ToString (CultureInfo.InvariantCulture));
 
 			switch (SignatureAlgorithm) {
@@ -250,13 +248,12 @@ namespace MimeKit.Cryptography {
 				value.Append ("; a=rsa-sha1");
 				break;
 			}
-
-			return value;
 		}
 
 		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, long t, IList<string> headers)
 		{
-			var value = CreateArcHeaderBuilder (instance);
+			var value = new StringBuilder ();
+			WriteArcHeaderBuilder (value, instance);
 			byte[] signature, hash;
 			Header ams;
 
@@ -303,7 +300,8 @@ namespace MimeKit.Cryptography {
 
 		Header GenerateArcSeal (FormatOptions options, int instance, string cv, long t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
 		{
-			var value = CreateArcHeaderBuilder (instance);
+			var value = new StringBuilder ();
+			WriteArcHeaderBuilder (value, instance);
 			byte[] signature;
 			Header seal;
 
