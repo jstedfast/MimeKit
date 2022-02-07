@@ -159,6 +159,7 @@
     <Compile Include="Utils\ParseUtils.cs" />
     <Compile Include="Utils\Rfc2047.cs" />
     <Compile Include="Utils\StringBuilderExtensions.cs" />
+    <Compile Include="Utils\ValueStringBuilder.cs" />
     <Compile Include="AsyncMimeParser.cs" />
     <Compile Include="AsyncMimeReader.cs" />
     <Compile Include="AttachmentCollection.cs" />
@@ -215,7 +216,6 @@
     <Compile Include="TextPart.cs" />
     <Compile Include="TextRfc822Headers.cs" />
     <Compile Include="XMessagePriority.cs" />
-    <Compile Include="Utils\ValueStringBuilder.cs" />
   </ItemGroup>
 
 </Project>
