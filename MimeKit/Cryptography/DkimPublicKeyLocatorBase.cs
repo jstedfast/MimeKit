@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 				if (index == txt.Length)
 					break;
 
-				ReadOnlySpan<char> key = txt.AsSpan (startIndex, index - startIndex);
+				var key = txt.AsSpan (startIndex, index - startIndex);
 
 				// skip over the '='
 				index++;
@@ -106,8 +106,7 @@ namespace MimeKit.Cryptography {
 					case "rsa": case "ed25519": k = value; break;
 					default: throw new ParseException ($"Unknown public key algorithm: {value}", startIndex, index);
 					}
-				} 
-				else if (key.SequenceEqual ("p".AsSpan ())) {
+				} else if (key.SequenceEqual ("p".AsSpan ())) {
 					p = value.Replace (" ", "");
 				}
 

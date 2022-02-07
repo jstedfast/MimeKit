@@ -31,11 +31,11 @@ using System.Threading;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.Encodings;
-using System.Security.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
@@ -160,18 +160,20 @@ namespace MimeKit {
 
 			RandomNumberGenerator.Fill (digest);
 
-			System.Buffers.Text.Base64.EncodeToUtf8(digest, buffer, out _, out int length);
+			System.Buffers.Text.Base64.EncodeToUtf8 (digest, buffer, out _, out int length);
 
 			Encoding.ASCII.GetChars (buffer.Slice (0, length), ascii);
+
 			return string.Concat ("=-", ascii.Slice (0, length));
 #else
 			var base64 = new Base64Encoder (true);
 			var digest = new byte[16];
 			var buf = new byte[24];
+			int length;
 
 			MimeUtils.GetRandomBytes (digest);
 
-			int length = base64.Flush (digest, 0, digest.Length, buf);
+			length = base64.Flush (digest, 0, digest.Length, buf);
 
 			return "=-" + Encoding.ASCII.GetString (buf, 0, length);
 #endif
@@ -380,7 +382,7 @@ namespace MimeKit {
 				}
 
 				if (length > 0) {
-					builder.Append (text.AsSpan(startIndex, length));
+					builder.Append (text.AsSpan (startIndex, length));
 					lineLength += length;
 				}
 			}
@@ -628,7 +630,7 @@ namespace MimeKit {
 				await WriteBytesAsync (options, stream, RawEpilogue, EnsureNewLine, cancellationToken).ConfigureAwait (false);
 		}
 
-#region ICollection implementation
+		#region ICollection implementation
 
 		/// <summary>
 		/// Get the number of parts in the multipart.
@@ -803,9 +805,9 @@ namespace MimeKit {
 			return true;
 		}
 
-#endregion
+		#endregion
 
-#region IList implementation
+		#region IList implementation
 
 		/// <summary>
 		/// Get the index of an entity.
@@ -918,9 +920,9 @@ namespace MimeKit {
 			}
 		}
 
-#endregion
+		#endregion
 
-#region IEnumerable implementation
+		#region IEnumerable implementation
 
 		/// <summary>
 		/// Get the enumerator for the children of the <see cref="Multipart"/>.
@@ -938,9 +940,9 @@ namespace MimeKit {
 			return children.GetEnumerator ();
 		}
 
-#endregion
+		#endregion
 
-#region IEnumerable implementation
+		#region IEnumerable implementation
 
 		/// <summary>
 		/// Get the enumerator for the children of the <see cref="Multipart"/>.
@@ -958,7 +960,7 @@ namespace MimeKit {
 			return children.GetEnumerator ();
 		}
 
-#endregion
+		#endregion
 
 		/// <summary>
 		/// Release the unmanaged resources used by the <see cref="Multipart"/> and

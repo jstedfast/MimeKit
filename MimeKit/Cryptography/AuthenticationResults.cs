@@ -290,7 +290,7 @@ namespace MimeKit.Cryptography {
 			// Note: we're forced to accept even tspecials in the property value because they are used in the real-world.
 			// See https://github.com/jstedfast/MimeKit/issues/518 ('/') and https://github.com/jstedfast/MimeKit/issues/590 ('=')
 			// for details.
-			while (index < endIndex && !text[index].IsWhitespace() && text[index] != (byte) ';' && text[index] != (byte) '(')
+			while (index < endIndex && !text[index].IsWhitespace () && text[index] != (byte) ';' && text[index] != (byte) '(')
 				index++;
 
 			return true;

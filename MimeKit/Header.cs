@@ -768,8 +768,8 @@ namespace MimeKit {
 
 		static void EncodeDkimHeaderList (FormatOptions format, ref ValueStringBuilder encoded, ref int lineLength, ReadOnlySpan<char> value, char delim)
 		{
-			int i = 0;
 			var splitter = new StringSplitter (value, delim);
+			int i = 0;
 
 			while (splitter.TryReadNext (out var item)) {
 				if (i > 0) {
@@ -830,7 +830,7 @@ namespace MimeKit {
 					index++;
 				}
 
-				if (lineLength + token.Length + 1 > format.MaxLineLength || name.SequenceEqual("bh".AsSpan()) || name.SequenceEqual("b".AsSpan())) {
+				if (lineLength + token.Length + 1 > format.MaxLineLength || name.SequenceEqual ("bh".AsSpan ()) || name.SequenceEqual ("b".AsSpan ())) {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
@@ -842,15 +842,13 @@ namespace MimeKit {
 				if (token.Length > format.MaxLineLength) {
 					if (name.SequenceEqual ("z".AsSpan ())) {
 						EncodeDkimHeaderList (format, ref encoded, ref lineLength, token.AsSpan (), '|');
-					}
-					else if (name.SequenceEqual ("h".AsSpan ())) {
+					} else if (name.SequenceEqual ("h".AsSpan ())) {
 						EncodeDkimHeaderList (format, ref encoded, ref lineLength, token.AsSpan (), ':');
-					}
-					else {
+					} else {
 						EncodeDkimLongValue (format, ref encoded, ref lineLength, token.AsSpan ());
 					}
 				} else {
-					encoded.Append (token.AsSpan());
+					encoded.Append (token.AsSpan ());
 					lineLength += token.Length;
 				}
 			}

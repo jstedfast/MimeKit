@@ -94,6 +94,7 @@ namespace MimeKit.Utils {
 
 			GetRandomBytes (block);
 #endif
+
 			do {
 				id.Append (base36[(int) (value % 36)]);
 				value /= 36;

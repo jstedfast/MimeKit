@@ -26,10 +26,10 @@
 
 using System;
 using System.Text;
+using System.Buffers;
 using System.Collections.Generic;
 
 using MimeKit.Encodings;
-using System.Buffers;
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -991,7 +991,7 @@ namespace MimeKit.Utils {
 			int startLength = str.Length;
 			var chars = new char[length];
 			IMimeEncoder encoder;
-			byte[] word;
+			byte[] word, encoded;
 			char encoding;
 			int len;
 
@@ -1012,8 +1012,8 @@ namespace MimeKit.Utils {
 				encoding = 'q';
 			}
 
-			byte[] encodedBuffer = ArrayPool<byte>.Shared.Rent(encoder.EstimateOutputLength (len));
-			len = encoder.Flush (word, 0, len, encodedBuffer);
+			encoded = ArrayPool<byte>.Shared.Rent (encoder.EstimateOutputLength (len));
+			len = encoder.Flush (word, 0, len, encoded);
 
 			str.Append ("=?");
 			str.Append (CharsetUtils.GetMimeCharset (charset));
@@ -1022,10 +1022,10 @@ namespace MimeKit.Utils {
 			str.Append ('?');
 
 			for (int i = 0; i < len; i++)
-				str.Append ((char) encodedBuffer[i]);
+				str.Append ((char) encoded[i]);
 			str.Append ("?=");
 
-			ArrayPool<byte>.Shared.Return (encodedBuffer);
+			ArrayPool<byte>.Shared.Return (encoded);
 
 			return str.Length - startLength;
 		}
