@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -40,7 +42,7 @@ namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		static string DefaultHostName = null;
+		static string? DefaultHostName = null;
 
 		/// <summary>
 		/// A string comparer that performs a case-insensitive ordinal string comparison.
@@ -412,13 +414,13 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
 
-			builder.Append ("\"");
+			builder.Append ('"');
 			for (int i = 0; i < text.Length; i++) {
 				if (text[i] == '\\' || text[i] == '"')
 					builder.Append ('\\');
 				builder.Append (text[i]);
 			}
-			builder.Append ("\"");
+			builder.Append ('"');
 
 			return builder;
 		}
@@ -430,24 +432,17 @@ namespace MimeKit.Utils {
 		/// Quotes the specified text, enclosing it in double-quotes and escaping
 		/// any backslashes and double-quotes within.
 		/// </remarks>
-		/// <returns>The string builder.</returns>
-		/// <param name="builder">The string builder.</param>
+		/// <param name="builder">The value string builder.</param>
 		/// <param name="text">The text to quote.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
-		/// </exception>
 		internal static void AppendQuoted (ref ValueStringBuilder builder, string text)
 		{
-			if (text == null)
-				throw new ArgumentNullException (nameof (text));
-
-			builder.Append ("\"");
+			builder.Append ('"');
 			for (int i = 0; i < text.Length; i++) {
 				if (text[i] == '\\' || text[i] == '"')
 					builder.Append ('\\');
 				builder.Append (text[i]);
 			}
-			builder.Append ("\"");
+			builder.Append ('"');
 		}
 
 		/// <summary>
@@ -467,9 +462,9 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
 
-			var quoted = new StringBuilder (text.Length + 2, (text.Length * 2) + 2);
+			var quoted = new ValueStringBuilder ((text.Length * 2) + 2);
 
-			AppendQuoted (quoted, text);
+			AppendQuoted (ref quoted, text);
 
 			return quoted.ToString ();
 		}
