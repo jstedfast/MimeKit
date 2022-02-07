@@ -341,7 +341,7 @@ namespace MimeKit {
 
 		internal static string FoldPreambleOrEpilogue (FormatOptions options, string text, bool isEpilogue)
 		{
-			var builder = new StringBuilder ();
+			var builder = new ValueStringBuilder (256);
 			int startIndex, wordIndex;
 			int lineLength = 0;
 			int index = 0;
@@ -380,7 +380,7 @@ namespace MimeKit {
 				}
 
 				if (length > 0) {
-					builder.Append (text, startIndex, length);
+					builder.Append (text.AsSpan(startIndex, length));
 					lineLength += length;
 				}
 			}
