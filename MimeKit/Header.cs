@@ -614,7 +614,7 @@ namespace MimeKit {
 			}
 		}
 
-		struct ReceivedToken {
+		readonly struct ReceivedToken {
 			public readonly ReceivedTokenSkipValueFunc Skip;
 			public readonly string Atom;
 
@@ -892,7 +892,7 @@ namespace MimeKit {
 			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 		}
 
-		struct Word
+		readonly struct Word
 		{
 			readonly string text;
 			readonly int startIndex;
