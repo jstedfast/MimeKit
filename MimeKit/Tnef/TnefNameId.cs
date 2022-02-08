@@ -33,7 +33,7 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF name identifier.
 	/// </remarks>
-	public struct TnefNameId : IEquatable<TnefNameId>
+	public readonly struct TnefNameId : IEquatable<TnefNameId>
 	{
 		readonly TnefNameIdKind kind;
 		readonly string name;

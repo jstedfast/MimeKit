@@ -35,7 +35,7 @@ namespace MimeKit.Text {
 
 		static readonly Dictionary<int, string> NamedEntities;
 
-		struct Transition
+		readonly struct Transition
 		{
 			public readonly int From;
 			public readonly int To;
