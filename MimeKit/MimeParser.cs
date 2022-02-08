@@ -561,15 +561,6 @@ namespace MimeKit {
 			MimeEntityEnd?.Invoke (this, args);
 		}
 
-#if DEBUG_PARSER
-		static string ConvertToCString (byte[] buffer, int startIndex, int length)
-		{
-			var cstr = new StringBuilder ();
-			cstr.AppendCString (buffer, startIndex, length);
-			return cstr.ToString ();
-		}
-#endif
-
 		static int NextAllocSize (int need)
 		{
 			return (need + 63) & ~63;
@@ -675,20 +666,6 @@ namespace MimeKit {
 			return lines;
 		}
 
-		static unsafe bool CStringsEqual (byte* str1, byte* str2, int length)
-		{
-			byte* se = str1 + length;
-			byte* s1 = str1;
-			byte* s2 = str2;
-
-			while (s1 < se) {
-				if (*s1++ != *s2++)
-					return false;
-			}
-
-			return true;
-		}
-
 		unsafe void StepByteOrderMark (byte* inbuf, ref int bomIndex)
 		{
 			byte* inptr = inbuf + inputIndex;
@@ -721,22 +698,16 @@ namespace MimeKit {
 			return bomIndex == 0 || bomIndex == UTF8ByteOrderMark.Length;
 		}
 
-		static unsafe bool IsMboxMarker (byte* text, bool allowMunged = false)
+		private static readonly byte[] From_ = new[] { (byte) 'F', (byte) 'r', (byte) 'o', (byte) 'm', (byte) ' ' };
+
+		static bool IsMboxMarker (ReadOnlySpan<byte> text, bool allowMunged = false)
 		{
-#if COMPARE_QWORD
-			const ulong FromMask = 0x000000FFFFFFFFFF;
-			const ulong From     = 0x000000206D6F7246;
-			ulong* qword = (ulong*) text;
+			if (allowMunged && text[0] == (byte) '>')
+				text = text.Slice (1);
 
-			return (*qword & FromMask) == From;
-#else
-			byte* inptr = text;
+			if (text.Length < 5) return false;
 
-			if (allowMunged && *inptr == (byte) '>')
-				inptr++;
-
-			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr == (byte) ' ';
-#endif
+			return text.Slice(0, 5).SequenceEqual (From_.AsSpan ());
 		}
 
 		unsafe bool StepMboxMarker (byte* inbuf, ref int left)
@@ -775,7 +746,7 @@ namespace MimeKit {
 				lineBeginOffset = GetOffset (inputIndex);
 				lineNumber++;
 
-				if (markerLength >= 5 && IsMboxMarker (start)) {
+				if (markerLength >= 5 && IsMboxMarker (new ReadOnlySpan<byte> (start, markerLength))) {
 					mboxMarkerOffset = GetOffset (startIndex);
 					mboxMarkerLength = markerLength;
 
@@ -925,7 +896,7 @@ namespace MimeKit {
 					if (!valid) {
 						length = inptr - start;
 
-						if (format == MimeFormat.Mbox && GetOffset ((int) (start - inbuf)) >= contentEnd && length >= 5 && IsMboxMarker (start)) {
+						if (format == MimeFormat.Mbox && GetOffset ((int) (start - inbuf)) >= contentEnd && length >= 5 && IsMboxMarker (new ReadOnlySpan<byte> (start, (int)length))) {
 							// we've found the start of the next message...
 							inputIndex = (int) (start - inbuf);
 							state = MimeParserState.Complete;
@@ -936,7 +907,7 @@ namespace MimeKit {
 						if (headers.Count == 0) {
 							if (state == MimeParserState.MessageHeaders) {
 								// ignore From-lines that might appear at the start of a message
-								if (toplevel && (length < 5 || !IsMboxMarker (start, true))) {
+								if (toplevel && (length < 5 || !IsMboxMarker (new ReadOnlySpan<byte> (start, (int)length), true))) {
 									// not a From-line...
 									inputIndex = (int) (start - inbuf);
 									state = MimeParserState.Error;
@@ -1183,45 +1154,44 @@ namespace MimeKit {
 			return new ContentType ("message", "rfc822");
 		}
 
-		unsafe bool IsPossibleBoundary (byte* text, int length)
+		unsafe bool IsPossibleBoundary (ReadOnlySpan<byte> text)
 		{
-			if (length < 2)
+			if (text.Length < 2)
 				return false;
 
-			if (*text == (byte) '-' && *(text + 1) == (byte) '-')
+			if (text[0] == (byte) '-' && text[1] == (byte) '-')
 				return true;
 
-			if (format == MimeFormat.Mbox && length >= 5 && IsMboxMarker (text))
+			if (format == MimeFormat.Mbox && text.Length >= 5 && IsMboxMarker (text))
 				return true;
 
 			return false;
 		}
 
-		static unsafe bool IsBoundary (byte* text, int length, byte[] boundary, int boundaryLength)
+		static unsafe bool IsBoundary (byte* textPtr, int length, byte[] boundary, int boundaryLength)
 		{
 			if (boundaryLength > length)
 				return false;
 
-			fixed (byte* boundaryptr = boundary) {
-				// make sure that the text matches the boundary
-				if (!CStringsEqual (text, boundaryptr, boundaryLength))
+			// make sure that the text matches the boundary
+			if (!new ReadOnlySpan<byte> (textPtr, boundaryLength).SequenceEqual (boundary.AsSpan (0, boundaryLength)))
+				return false;
+
+			// if this is an mbox marker, we're done
+			if (IsMboxMarker (new ReadOnlySpan<byte> (textPtr, length)))
+				return true;
+
+			// the boundary may optionally be followed by lwsp
+			byte* inptr = textPtr + boundaryLength;
+			byte* inend = textPtr + length;
+
+			while (inptr < inend) {
+				if (!(*inptr).IsWhitespace ())
 					return false;
 
-				// if this is an mbox marker, we're done
-				if (IsMboxMarker (text))
-					return true;
-
-				// the boundary may optionally be followed by lwsp
-				byte* inptr = text + boundaryLength;
-				byte* inend = text + length;
-
-				while (inptr < inend) {
-					if (!(*inptr).IsWhitespace ())
-						return false;
-
-					inptr++;
-				}
+				inptr++;
 			}
+			
 
 			return true;
 		}
@@ -1230,7 +1200,7 @@ namespace MimeKit {
 		{
 			int count = bounds.Count;
 
-			if (!IsPossibleBoundary (start, length))
+			if (!IsPossibleBoundary (new ReadOnlySpan<byte> (start, length)))
 				return BoundaryType.None;
 
 			if (contentEnd > 0) {
@@ -1269,10 +1239,11 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
-			while (*inptr != (byte) '\n')
-				inptr++;
+			var span = new ReadOnlySpan<byte>(start, (int)(inend - start));
 
-			return IsBoundary (start, (int) (inptr - start), bounds[0].Marker, boundaryLength);
+			int newLineIndex = span.IndexOf ((byte) '\n');
+
+			return IsBoundary (start, newLineIndex, bounds[0].Marker, boundaryLength);
 		}
 
 		int GetMaxBoundaryLength ()
