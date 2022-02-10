@@ -2470,7 +2470,7 @@ namespace MimeKit {
 			int index = 0;
 
 			// parse the addresses in the new header and add them to our address list
-			if (!InternetAddressList.TryParse (Headers.Options, header.RawValue, ref index, length, false, 0, false, out var parsed))
+			if (!InternetAddressList.TryParse (AddressParserFlags.InternalTryParse, Headers.Options, header.RawValue, ref index, length, false, 0, out var parsed))
 				return;
 
 			list.Changed -= InternetAddressListChanged;

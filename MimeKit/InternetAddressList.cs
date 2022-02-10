@@ -568,9 +568,9 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool isGroup, int groupDepth, bool throwOnError, out List<InternetAddress> addresses)
+		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, bool isGroup, int groupDepth, out List<InternetAddress> addresses)
 		{
-			var flags = throwOnError ? InternetAddress.AddressParserFlags.Parse : InternetAddress.AddressParserFlags.TryParse;
+			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
 			var list = new List<InternetAddress> ();
 
 			addresses = null;
@@ -589,7 +589,12 @@ namespace MimeKit {
 				if (isGroup && text[index] == (byte) ';')
 					break;
 
-				if (!InternetAddress.TryParse (options, text, ref index, endIndex, groupDepth, flags, out var address)) {
+				if (!InternetAddress.TryParse (flags, options, text, ref index, endIndex, groupDepth, out var address)) {
+					if ((flags & AddressParserFlags.Internal) == 0) {
+						// Note: If flags contains the ThrowOnError flag, then InternetAddress.TryParse() would have thrown.
+						return false;
+					}
+
 					// skip this address...
 					while (index < endIndex && text[index] != (byte) ',' && (!isGroup || text[index] != (byte) ';'))
 						index++;
@@ -642,7 +647,7 @@ namespace MimeKit {
 
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, startIndex + length, false, 0, false, out var addrlist)) {
+			if (!TryParse (AddressParserFlags.TryParse, options, buffer, ref index, startIndex + length, false, 0, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -701,7 +706,7 @@ namespace MimeKit {
 
 			int index = startIndex;
 
-			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out var addrlist)) {
+			if (!TryParse (AddressParserFlags.TryParse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -753,7 +758,7 @@ namespace MimeKit {
 
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out var addrlist)) {
+			if (!TryParse (AddressParserFlags.TryParse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -802,7 +807,7 @@ namespace MimeKit {
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
 
-			if (!TryParse (options, buffer, ref index, buffer.Length, false, 0, false, out var addrlist)) {
+			if (!TryParse (AddressParserFlags.TryParse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -859,7 +864,7 @@ namespace MimeKit {
 
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, startIndex + length, false, 0, true, out var addrlist);
+			TryParse (AddressParserFlags.Parse, options, buffer, ref index, startIndex + length, false, 0, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}
@@ -917,7 +922,7 @@ namespace MimeKit {
 
 			int index = startIndex;
 
-			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out var addrlist);
+			TryParse (AddressParserFlags.Parse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}
@@ -968,7 +973,7 @@ namespace MimeKit {
 
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out var addrlist);
+			TryParse (AddressParserFlags.Parse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}
@@ -1016,7 +1021,7 @@ namespace MimeKit {
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
 
-			TryParse (options, buffer, ref index, buffer.Length, false, 0, true, out var addrlist);
+			TryParse (AddressParserFlags.Parse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist);
 
 			return new InternetAddressList (addrlist);
 		}

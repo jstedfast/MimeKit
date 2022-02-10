@@ -254,7 +254,7 @@ namespace MimeKit {
 			if (throwOnError)
 				flags |= AddressParserFlags.ThrowOnError;
 
-			if (!InternetAddress.TryParse (options, text, ref index, endIndex, 0, flags, out var address)) {
+			if (!InternetAddress.TryParse (flags, options, text, ref index, endIndex, 0, out var address)) {
 				group = null;
 				return false;
 			}

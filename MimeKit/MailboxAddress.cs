@@ -519,7 +519,7 @@ namespace MimeKit {
 			if (throwOnError)
 				flags |= AddressParserFlags.ThrowOnError;
 
-			if (!TryParse (options, text, ref index, endIndex, 0, flags, out var address)) {
+			if (!InternetAddress.TryParse (flags, options, text, ref index, endIndex, 0, out var address)) {
 				mailbox = null;
 				return false;
 			}

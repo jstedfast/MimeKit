@@ -915,5 +915,13 @@ namespace UnitTests {
 		}
 
 		#endregion
+
+		[Test]
+		public void TestTryParseFailsWithInvalidAddrSpec ()
+		{
+			const string text = "name.@abc.com";
+
+			Assert.IsFalse (InternetAddressList.TryParse (text, out _));
+		}
 	}
 }
