@@ -65,10 +65,4 @@
     <Compile Include="Cryptography\AuthenticationResults.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="MacInterop\**" />
-    <Compile Remove="Cryptography\MacSecureMimeContext.cs" />
-    <Compile Remove="Cryptography\LdapUri.cs" />
-  </ItemGroup>
-
 </Project>
