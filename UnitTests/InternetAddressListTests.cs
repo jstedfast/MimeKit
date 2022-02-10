@@ -233,8 +233,8 @@ namespace UnitTests {
 		[Test]
 		public void TestParseNameLessThan ()
 		{
+			AssertTryParseFails ("\"Name\" <");
 			AssertParseFails ("\"Name\" <");
-			AssertTryParse ("\"Name\" <", "", new InternetAddressList ());
 		}
 
 		[Test]
