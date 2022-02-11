@@ -307,6 +307,55 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestMultipartSignedVerifyExceptions ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			using (var ctx = new DummyOpenPgpContext ()) {
+				var signed = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha256, body);
+
+				var protocol = signed.ContentType.Parameters["protocol"];
+				signed.ContentType.Parameters.Remove ("protocol");
+
+				Assert.Throws<FormatException> (() => signed.Verify (), "Verify() w/o protocol parameter");
+				Assert.Throws<FormatException> (() => signed.Verify (ctx), "Verify(ctx) w/o protocol parameter");
+				Assert.ThrowsAsync<FormatException> (() => signed.VerifyAsync (), "VerifyAsync() w/o protocol parameter");
+				Assert.ThrowsAsync<FormatException> (() => signed.VerifyAsync (ctx), "VerifyAsync(ctx) w/o protocol parameter");
+
+				signed.ContentType.Parameters.Add ("protocol", "invalid-protocol");
+				Assert.Throws<NotSupportedException> (() => signed.Verify (), "Verify() w/ invalid protocol parameter");
+				Assert.Throws<NotSupportedException> (() => signed.Verify (ctx), "Verify(ctx) w/ invalid protocol parameter");
+				Assert.ThrowsAsync<NotSupportedException> (() => signed.VerifyAsync (), "VerifyAsync() w/ invalid protocol parameter");
+				Assert.ThrowsAsync<NotSupportedException> (() => signed.VerifyAsync (ctx), "VerifyAsync(ctx) w/ invalid protocol parameter");
+
+				signed.ContentType.Parameters["protocol"] = protocol;
+				var signature = signed[1];
+				signed.RemoveAt (1);
+				Assert.Throws<FormatException> (() => signed.Verify (), "Verify() w/ < 2 parts");
+				Assert.Throws<FormatException> (() => signed.Verify (ctx), "Verify(ctx) w/ < 2 parts");
+				Assert.ThrowsAsync<FormatException> (() => signed.VerifyAsync (), "VerifyAsync() w/ < 2 parts");
+				Assert.ThrowsAsync<FormatException> (() => signed.VerifyAsync (ctx), "VerifyAsync(ctx) w/ < 2 parts");
+
+				var emptySignature = new MimePart ("application", "octet-stream");
+				signed.Add (emptySignature);
+				Assert.Throws<FormatException> (() => signed.Verify (), "Verify() w/ invalid signature part");
+				Assert.Throws<FormatException> (() => signed.Verify (ctx), "Verify(ctx) w/ invalid signature part");
+				Assert.ThrowsAsync<FormatException> (() => signed.VerifyAsync (), "VerifyAsync() w/ invalid signature part");
+				Assert.ThrowsAsync<FormatException> (() => signed.VerifyAsync (ctx), "VerifyAsync(ctx) w/ invalid signature part");
+
+				var invalidContent = new MimePart ("image", "jpeg") {
+					Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+				};
+				signed[1] = invalidContent;
+				Assert.Throws<NotSupportedException> (() => signed.Verify (), "Verify() w/ invalid content part");
+				Assert.Throws<NotSupportedException> (() => signed.Verify (ctx), "Verify(ctx) w/ invalid content part");
+				Assert.ThrowsAsync<NotSupportedException> (() => signed.VerifyAsync (), "VerifyAsync() w/ invalid content part");
+				Assert.ThrowsAsync<NotSupportedException> (() => signed.VerifyAsync (ctx), "VerifyAsync(ctx) w/ invalid content part");
+			}
+		}
+
+		[Test]
 		public void TestMultipartSignedSignUsingKeys ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1877,6 +1926,7 @@ namespace UnitTests.Cryptography {
 				var signed = MultipartSigned.Create (key, DigestAlgorithm.Sha1, entity);
 
 				Assert.Throws<ArgumentNullException> (() => signed.Accept (null));
+				Assert.Throws<ArgumentOutOfRangeException> (() => signed.Prepare (EncodingConstraint.SevenBit, 0));
 
 				Assert.Throws<ArgumentNullException> (() => signed.Verify (null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => signed.VerifyAsync (null));
