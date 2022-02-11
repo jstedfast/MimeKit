@@ -76,7 +76,7 @@ namespace UnitTests.Cryptography {
 				string path;
 
 				if (ctx is TemporarySecureMimeContext)
-					CryptographyContext.Register (() => CreateContext ());
+					CryptographyContext.Register (CreateContext);
 				else
 					CryptographyContext.Register (ctx.GetType ());
 
