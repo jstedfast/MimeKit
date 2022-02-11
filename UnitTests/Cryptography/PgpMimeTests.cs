@@ -525,6 +525,54 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestMultipartEncryptedDecryptExceptions ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			var encrypted = MultipartEncrypted.Encrypt (new[] { self }, body);
+
+			using (var ctx = new DummyOpenPgpContext ()) {
+				var protocol = encrypted.ContentType.Parameters["protocol"];
+				encrypted.ContentType.Parameters.Remove ("protocol");
+
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/o protocol parameter");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/o protocol parameter");
+
+				encrypted.ContentType.Parameters.Add ("protocol", "invalid-protocol");
+				//Assert.Throws<NotSupportedException> (() => encrypted.Decrypt (), "Decrypt() w/ invalid protocol parameter");
+				Assert.Throws<NotSupportedException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ invalid protocol parameter");
+
+				encrypted.ContentType.Parameters["protocol"] = protocol;
+				var version = encrypted[0];
+				encrypted.RemoveAt (0);
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/ < 2 parts");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ < 2 parts");
+
+				var invalidVersion = new MimePart ("application", "octet-stream") {
+					Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+				};
+				encrypted.Insert (0, invalidVersion);
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/ invalid version part");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ invalid version part");
+
+				var emptyContent = new MimePart ("application", "octet-stream");
+				var content = encrypted[1];
+				encrypted[1] = emptyContent;
+				encrypted[0] = version;
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/ empty content part");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ empty content part");
+
+				var invalidContent = new MimePart ("image", "jpeg") {
+					Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+				};
+				encrypted[1] = invalidContent;
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/ invalid content part");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ invalid content part");
+			}
+		}
+
+		[Test]
 		public void TestMultipartEncryptedEncrypt ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
