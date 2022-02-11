@@ -220,6 +220,39 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		[Test]
+		public void TestSecureMimeTypes ()
+		{
+			using (var stream = new MemoryStream (Array.Empty<byte> (), false)) {
+				ApplicationPkcs7Mime pkcs7;
+
+				Assert.Throws<ArgumentOutOfRangeException> (() => new ApplicationPkcs7Mime (SecureMimeType.Unknown, stream));
+
+				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.AuthEnvelopedData, stream);
+				Assert.AreEqual ("authenveloped-data", pkcs7.ContentType.Parameters["smime-type"]);
+				Assert.AreEqual (SecureMimeType.AuthEnvelopedData, pkcs7.SecureMimeType);
+
+				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, stream);
+				Assert.AreEqual ("enveloped-data", pkcs7.ContentType.Parameters["smime-type"]);
+				Assert.AreEqual (SecureMimeType.EnvelopedData, pkcs7.SecureMimeType);
+
+				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.CompressedData, stream);
+				Assert.AreEqual ("compressed-data", pkcs7.ContentType.Parameters["smime-type"]);
+				Assert.AreEqual (SecureMimeType.CompressedData, pkcs7.SecureMimeType);
+
+				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.SignedData, stream);
+				Assert.AreEqual ("signed-data", pkcs7.ContentType.Parameters["smime-type"]);
+				Assert.AreEqual (SecureMimeType.SignedData, pkcs7.SecureMimeType);
+
+				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, stream);
+				Assert.AreEqual ("certs-only", pkcs7.ContentType.Parameters["smime-type"]);
+				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7.SecureMimeType);
+
+				pkcs7.ContentType.Parameters.Remove ("smime-type");
+				Assert.AreEqual (SecureMimeType.Unknown, pkcs7.SecureMimeType);
+			}
+		}
+
 		void ImportAll (SecureMimeContext ctx)
 		{
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");

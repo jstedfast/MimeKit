@@ -103,6 +103,11 @@ namespace MimeKit.Cryptography {
 				ContentDisposition.FileName = "smime.p7m";
 				ContentType.Name = "smime.p7m";
 				break;
+			case SecureMimeType.AuthEnvelopedData:
+				ContentType.Parameters["smime-type"] = "authenveloped-data";
+				ContentDisposition.FileName = "smime.p7m";
+				ContentType.Name = "smime.p7m";
+				break;
 			case SecureMimeType.CertsOnly:
 				ContentType.Parameters["smime-type"] = "certs-only";
 				ContentDisposition.FileName = "smime.p7c";
@@ -132,14 +137,18 @@ namespace MimeKit.Cryptography {
 				if (type == null)
 					return SecureMimeType.Unknown;
 
-				switch (type.ToLowerInvariant ()) {
-				case "authenveloped-data": return SecureMimeType.AuthEnvelopedData;
-				case "compressed-data": return SecureMimeType.CompressedData;
-				case "enveloped-data": return SecureMimeType.EnvelopedData;
-				case "signed-data": return SecureMimeType.SignedData;
-				case "certs-only": return SecureMimeType.CertsOnly;
-				default: return SecureMimeType.Unknown;
-				}
+				if (type.Equals ("authenveloped-data", StringComparison.OrdinalIgnoreCase))
+					return SecureMimeType.AuthEnvelopedData;
+				if (type.Equals ("compressed-data", StringComparison.OrdinalIgnoreCase))
+					return SecureMimeType.CompressedData;
+				if (type.Equals ("enveloped-data", StringComparison.OrdinalIgnoreCase))
+					return SecureMimeType.EnvelopedData;
+				if (type.Equals ("signed-data", StringComparison.OrdinalIgnoreCase))
+					return SecureMimeType.SignedData;
+				if (type.Equals ("certs-only", StringComparison.OrdinalIgnoreCase))
+					return SecureMimeType.CertsOnly;
+
+				return SecureMimeType.Unknown;
 			}
 		}
 
