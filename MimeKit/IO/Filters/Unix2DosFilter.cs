@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System;
+
 namespace MimeKit.IO.Filters {
 	/// <summary>
 	/// A filter that will convert from Unix line endings to Windows/DOS line endings.
@@ -48,32 +50,30 @@ namespace MimeKit.IO.Filters {
 			this.ensureNewLine = ensureNewLine;
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf, bool flush)
+		int Filter (ReadOnlySpan<byte> input, byte[] output, bool flush)
 		{
-			byte* inend = inbuf + length;
-			byte* outptr = outbuf;
-			byte* inptr = inbuf;
+			int outputPosition = 0;
 
-			while (inptr < inend) {
-				if (*inptr == (byte) '\r') {
-					*outptr++ = *inptr;
-				} else if (*inptr == (byte) '\n') {
+			foreach (var c in input) {
+				if (c == (byte) '\r') {
+					output[outputPosition++] = c;
+				} else if (c == (byte) '\n') {
 					if (pc != (byte) '\r')
-						*outptr++ = (byte) '\r';
-					*outptr++ = *inptr;
+						output[outputPosition++] = (byte) '\r';
+					output[outputPosition++] = c;
 				} else {
-					*outptr++ = *inptr;
+					output[outputPosition++] = c;
 				}
 
-				pc = *inptr++;
+				pc = c;
 			}
 
 			if (flush && ensureNewLine && pc != (byte) '\n') {
-				*outptr++ = (byte) '\r';
-				*outptr++ = (byte) '\n';
+				output[outputPosition++] = (byte) '\r';
+				output[outputPosition++] = (byte) '\n';
 			}
 
-			return (int) (outptr - outbuf);
+			return outputPosition;
 		}
 
 		/// <summary>
@@ -95,12 +95,7 @@ namespace MimeKit.IO.Filters {
 			EnsureOutputSize (length * 2 + (flush && ensureNewLine ? 2 : 0), false);
 
 			outputIndex = 0;
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = OutputBuffer) {
-					outputLength = Filter (inptr + startIndex, length, outptr, flush);
-				}
-			}
+			outputLength = Filter (input.AsSpan(startIndex, length), OutputBuffer, flush);
 
 			return OutputBuffer;
 		}
