@@ -28,24 +28,15 @@ using System;
 using System.Buffers;
 
 namespace MimeKit.Utils {
-	internal sealed class ByteArrayBuilder : IDisposable
+	internal ref struct ByteArrayBuilder
 	{
 		byte[] buffer;
 		int length;
-
-		public ByteArrayBuilder () : this (256)
-		{
-		}
-
+				
 		public ByteArrayBuilder (int initialCapacity)
 		{
 			buffer = ArrayPool<byte>.Shared.Rent (initialCapacity);
 			length = 0;
-		}
-
-		~ByteArrayBuilder ()
-		{
-			Dispose (false);
 		}
 
 		void EnsureCapacity (int capacity)
@@ -75,18 +66,12 @@ namespace MimeKit.Utils {
 			return array;
 		}
 
-		void Dispose (bool disposing)
+		public void Dispose ()
 		{
 			if (buffer != null) {
 				ArrayPool<byte>.Shared.Return (buffer);
 				buffer = null;
 			}
-		}
-
-		public void Dispose ()
-		{
-			Dispose (true);
-			GC.SuppressFinalize (this);
 		}
 	}
 }

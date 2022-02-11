@@ -809,7 +809,7 @@ namespace MimeKit {
 					// Note: https://github.com/jstedfast/MimeKit/issues/159 adds to this suckage
 					// by having a multi-line unquoted value with spaces... don't you just love
 					// mail software written by people who have never heard of standards?
-					using (var buffer = new ByteArrayBuilder ()) {
+					using (var buffer = new ByteArrayBuilder (256)) {
 						buffer.Append (text, valueIndex, valueLength);
 
 						do {
