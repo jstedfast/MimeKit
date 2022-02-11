@@ -104,19 +104,13 @@ namespace MimeKit.Cryptography {
 		{
 			var encrypted = new MultipartEncrypted ();
 
-			try {
-				encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
+			encrypted.ContentType.Parameters["protocol"] = ctx.EncryptionProtocol;
 
-				// add the protocol version part
-				encrypted.Add (new ApplicationPgpEncrypted ());
+			// add the protocol version part
+			encrypted.Add (new ApplicationPgpEncrypted ());
 
-				// add the encrypted entity as the second part
-				encrypted.Add (part);
-			} catch {
-				encrypted.Dispose ();
-				part.Dispose ();
-				throw;
-			}
+			// add the encrypted entity as the second part
+			encrypted.Add (part);
 
 			return encrypted;
 		}

@@ -510,6 +510,8 @@ namespace MimeKit.Tnef {
 					switch (reader.AttributeTag) {
 					case TnefAttributeTag.AttachRenderData:
 						attachMethod = TnefAttachMethod.ByValue;
+						if (dispose)
+							attachment.Dispose ();
 						attachment = new MimePart ();
 						dispose = true;
 						break;

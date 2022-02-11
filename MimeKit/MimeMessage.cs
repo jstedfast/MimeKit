@@ -3088,8 +3088,23 @@ namespace MimeKit {
 #if ENABLE_SNM
 		static MimePart GetMimePart (AttachmentBase item)
 		{
+			if (item.ContentStream.CanSeek)
+				item.ContentStream.Position = 0;
+
+			var stream = new MemoryBlockStream ();
+
+			try {
+				item.ContentStream.CopyTo (stream);
+				stream.Position = 0;
+			} catch {
+				stream.Dispose ();
+				throw;
+			}
+
 			var mimeType = item.ContentType.ToString ();
-			var contentType = ContentType.Parse (mimeType);
+			if (!ContentType.TryParse (mimeType, out var contentType))
+				contentType = new ContentType ("application", "octet-stream");
+
 			MimePart part;
 
 			if (contentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase))
@@ -3097,48 +3112,31 @@ namespace MimeKit {
 			else
 				part = new MimePart (contentType);
 
-			try {
-				if (item is Attachment attachment) {
-					var disposition = attachment.ContentDisposition.ToString ();
-					part.ContentDisposition = ContentDisposition.Parse (disposition);
-				}
-
-				switch (item.TransferEncoding) {
-				case System.Net.Mime.TransferEncoding.QuotedPrintable:
-					part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
-					break;
-				case System.Net.Mime.TransferEncoding.Base64:
-					part.ContentTransferEncoding = ContentEncoding.Base64;
-					break;
-				case System.Net.Mime.TransferEncoding.SevenBit:
-					part.ContentTransferEncoding = ContentEncoding.SevenBit;
-					break;
-					//case System.Net.Mime.TransferEncoding.EightBit:
-					//	part.ContentTransferEncoding = ContentEncoding.EightBit;
-					//	break;
-				}
-
-				if (item.ContentId != null)
-					part.ContentId = item.ContentId;
-
-				if (item.ContentStream.CanSeek)
-					item.ContentStream.Position = 0;
-
-				var stream = new MemoryBlockStream ();
-
-				try {
-					item.ContentStream.CopyTo (stream);
-					stream.Position = 0;
-				} catch {
-					stream.Dispose ();
-					throw;
-				}
-
-				part.Content = new MimeContent (stream);
-			} catch {
-				part.Dispose ();
-				throw;
+			if (item is Attachment attachment) {
+				var value = attachment.ContentDisposition.ToString ();
+				if (ContentDisposition.TryParse (value, out var disposition))
+					part.ContentDisposition = disposition;
 			}
+
+			if (item.ContentId != null)
+				part.ContentId = item.ContentId;
+
+			switch (item.TransferEncoding) {
+			case System.Net.Mime.TransferEncoding.QuotedPrintable:
+				part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+				break;
+			case System.Net.Mime.TransferEncoding.Base64:
+				part.ContentTransferEncoding = ContentEncoding.Base64;
+				break;
+			case System.Net.Mime.TransferEncoding.SevenBit:
+				part.ContentTransferEncoding = ContentEncoding.SevenBit;
+				break;
+			case System.Net.Mime.TransferEncoding.EightBit:
+				part.ContentTransferEncoding = ContentEncoding.EightBit;
+				break;
+			}
+
+			part.Content = new MimeContent (stream);
 
 			return part;
 		}
@@ -3146,26 +3144,19 @@ namespace MimeKit {
 		static void AddLinkedResources (MultipartAlternative alternative, MimePart root, AlternateView view)
 		{
 			var related = new MultipartRelated ();
-			MimePart part = null;
 
-			try {
-				related.ContentType.Parameters.Add ("type", root.ContentType.MimeType);
-				related.ContentBase = view.BaseUri;
+			related.ContentType.Parameters.Add ("type", root.ContentType.MimeType);
+			related.ContentBase = view.BaseUri;
 
-				related.Add (root);
+			related.Add (root);
 
-				foreach (var resource in view.LinkedResources) {
-					part = GetMimePart (resource);
+			foreach (var resource in view.LinkedResources) {
+				var part = GetMimePart (resource);
 
-					if (resource.ContentLink != null)
-						part.ContentLocation = resource.ContentLink;
+				if (resource.ContentLink != null)
+					part.ContentLocation = resource.ContentLink;
 
-					related.Add (part);
-				}
-			} catch {
-				related.Dispose ();
-				part?.Dispose ();
-				throw;
+				related.Add (part);
 			}
 
 			alternative.Add (related);
@@ -3179,26 +3170,13 @@ namespace MimeKit {
 				alternative.Add (body);
 
 			foreach (var view in alternateViews) {
-				MimePart part;
+				var part = GetMimePart (view);
 
-				try {
-					part = GetMimePart (view);
-
-					if (view.LinkedResources.Count > 0) {
-						AddLinkedResources (alternative, part, view);
-					} else {
-						try {
-							part.ContentBase = view.BaseUri;
-						} catch {
-							part.Dispose ();
-							throw;
-						}
-
-						alternative.Add (part);
-					}
-				} catch {
-					alternative.Dispose ();
-					throw;
+				if (view.LinkedResources.Count > 0) {
+					AddLinkedResources (alternative, part, view);
+				} else {
+					part.ContentBase = view.BaseUri;
+					alternative.Add (part);
 				}
 			}
 
@@ -3230,100 +3208,89 @@ namespace MimeKit {
 			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
 			MimeEntity body = null;
 
-			try {
-				// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
-				// then the following MailMessage properties will have been merged into the Headers, so
-				// check to make sure our MimeMessage properties are empty before adding them.
-				if (message.Sender != null)
-					msg.Sender = (MailboxAddress) message.Sender;
+			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
+			// then the following MailMessage properties will have been merged into the Headers, so
+			// check to make sure our MimeMessage properties are empty before adding them.
+			if (message.Sender != null)
+				msg.Sender = (MailboxAddress) message.Sender;
 
-				if (message.From != null) {
-					msg.Headers.Replace (HeaderId.From, string.Empty);
-					msg.From.Add ((MailboxAddress) message.From);
-				}
-
-				if (message.ReplyToList.Count > 0) {
-					msg.Headers.Replace (HeaderId.ReplyTo, string.Empty);
-					msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
-				}
-
-				if (message.To.Count > 0) {
-					msg.Headers.Replace (HeaderId.To, string.Empty);
-					msg.To.AddRange ((InternetAddressList) message.To);
-				}
-
-				if (message.CC.Count > 0) {
-					msg.Headers.Replace (HeaderId.Cc, string.Empty);
-					msg.Cc.AddRange ((InternetAddressList) message.CC);
-				}
-
-				if (message.Bcc.Count > 0) {
-					msg.Headers.Replace (HeaderId.Bcc, string.Empty);
-					msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
-				}
-
-				if (message.SubjectEncoding != null)
-					msg.Headers.Replace (HeaderId.Subject, message.SubjectEncoding, message.Subject ?? string.Empty);
-				else
-					msg.Subject = message.Subject ?? string.Empty;
-
-				if (!msg.Headers.Contains (HeaderId.Date))
-					msg.Date = DateTimeOffset.Now;
-
-				switch (message.Priority) {
-				case MailPriority.Normal:
-					msg.Headers.RemoveAll (HeaderId.XMSMailPriority);
-					msg.Headers.RemoveAll (HeaderId.Importance);
-					msg.Headers.RemoveAll (HeaderId.XPriority);
-					msg.Headers.RemoveAll (HeaderId.Priority);
-					break;
-				case MailPriority.High:
-					msg.Headers.Replace (HeaderId.Priority, "urgent");
-					msg.Headers.Replace (HeaderId.Importance, "high");
-					msg.Headers.Replace (HeaderId.XPriority, "2 (High)");
-					break;
-				case MailPriority.Low:
-					msg.Headers.Replace (HeaderId.Priority, "non-urgent");
-					msg.Headers.Replace (HeaderId.Importance, "low");
-					msg.Headers.Replace (HeaderId.XPriority, "4 (Low)");
-					break;
-				}
-
-				if (!string.IsNullOrEmpty (message.Body)) {
-					var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
-					text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
-					body = text;
-				}
-
-				if (message.AlternateViews.Count > 0)
-					body = AddAlternateViews (body, message.AlternateViews);
-
-				if (body == null)
-					body = new TextPart (message.IsBodyHtml ? "html" : "plain");
-
-				if (message.Attachments.Count > 0) {
-					var mixed = new Multipart ("mixed");
-
-					if (body != null)
-						mixed.Add (body);
-
-					foreach (var attachment in message.Attachments) {
-						try {
-							mixed.Add (GetMimePart (attachment));
-						} catch {
-							mixed.Dispose ();
-							throw;
-						}
-					}
-
-					body = mixed;
-				}
-
-				msg.Body = body;
-			} catch {
-				msg.Dispose ();
-				throw;
+			if (message.From != null) {
+				msg.Headers.Replace (HeaderId.From, string.Empty);
+				msg.From.Add ((MailboxAddress) message.From);
 			}
+
+			if (message.ReplyToList.Count > 0) {
+				msg.Headers.Replace (HeaderId.ReplyTo, string.Empty);
+				msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+			}
+
+			if (message.To.Count > 0) {
+				msg.Headers.Replace (HeaderId.To, string.Empty);
+				msg.To.AddRange ((InternetAddressList) message.To);
+			}
+
+			if (message.CC.Count > 0) {
+				msg.Headers.Replace (HeaderId.Cc, string.Empty);
+				msg.Cc.AddRange ((InternetAddressList) message.CC);
+			}
+
+			if (message.Bcc.Count > 0) {
+				msg.Headers.Replace (HeaderId.Bcc, string.Empty);
+				msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
+			}
+
+			if (message.SubjectEncoding != null)
+				msg.Headers.Replace (HeaderId.Subject, message.SubjectEncoding, message.Subject ?? string.Empty);
+			else
+				msg.Subject = message.Subject ?? string.Empty;
+
+			if (!msg.Headers.Contains (HeaderId.Date))
+				msg.Date = DateTimeOffset.Now;
+
+			switch (message.Priority) {
+			case MailPriority.Normal:
+				msg.Headers.RemoveAll (HeaderId.XMSMailPriority);
+				msg.Headers.RemoveAll (HeaderId.Importance);
+				msg.Headers.RemoveAll (HeaderId.XPriority);
+				msg.Headers.RemoveAll (HeaderId.Priority);
+				break;
+			case MailPriority.High:
+				msg.Headers.Replace (HeaderId.Priority, "urgent");
+				msg.Headers.Replace (HeaderId.Importance, "high");
+				msg.Headers.Replace (HeaderId.XPriority, "2 (High)");
+				break;
+			case MailPriority.Low:
+				msg.Headers.Replace (HeaderId.Priority, "non-urgent");
+				msg.Headers.Replace (HeaderId.Importance, "low");
+				msg.Headers.Replace (HeaderId.XPriority, "4 (Low)");
+				break;
+			}
+
+			if (!string.IsNullOrEmpty (message.Body)) {
+				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
+				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
+				body = text;
+			}
+
+			if (message.AlternateViews.Count > 0)
+				body = AddAlternateViews (body, message.AlternateViews);
+
+			if (body == null)
+				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
+
+			if (message.Attachments.Count > 0) {
+				var mixed = new Multipart ("mixed");
+
+				if (body != null)
+					mixed.Add (body);
+
+				foreach (var attachment in message.Attachments)
+					mixed.Add (GetMimePart (attachment));
+
+				body = mixed;
+			}
+
+			msg.Body = body;
 
 			return msg;
 		}

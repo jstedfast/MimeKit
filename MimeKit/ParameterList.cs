@@ -25,7 +25,6 @@
 //
 
 using System;
-using System.IO;
 using System.Text;
 using System.Collections;
 using System.Globalization;
@@ -810,8 +809,8 @@ namespace MimeKit {
 					// Note: https://github.com/jstedfast/MimeKit/issues/159 adds to this suckage
 					// by having a multi-line unquoted value with spaces... don't you just love
 					// mail software written by people who have never heard of standards?
-					using (var memory = new MemoryStream ()) {
-						memory.Write (text, valueIndex, valueLength);
+					using (var buffer = new ByteArrayBuilder ()) {
+						buffer.Append (text, valueIndex, valueLength);
 
 						do {
 							while (index < endIndex && (text[index] == (byte) '\r' || text[index] == (byte) '\n'))
@@ -822,10 +821,10 @@ namespace MimeKit {
 							while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
 								index++;
 
-							memory.Write (text, valueIndex, index - valueIndex);
+							buffer.Append (text, valueIndex, index - valueIndex);
 						} while (index < endIndex && text[index] != ';');
 
-						value = memory.ToArray ();
+						value = buffer.ToArray ();
 						valueLength = value.Length;
 						valueIndex = 0;
 					}
