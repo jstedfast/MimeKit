@@ -44,11 +44,20 @@ namespace MimeKit.Utils {
 		HasSign        = (1 << 7),
 	}
 
-	class DateToken
+	readonly struct DateToken
 	{
-		public DateTokenFlags Flags { get; private set; }
-		public int StartIndex { get; private set; }
-		public int Length { get; private set; }
+		public DateToken (DateTokenFlags flags, int start, int length)
+		{
+			Flags = flags;
+			Start = start;
+			Length = length;
+		}
+
+		public DateTokenFlags Flags { get; }
+
+		public int Start { get; }
+
+		public int Length { get; }
 
 		public bool IsNumeric {
 			get { return (Flags & DateTokenFlags.NonNumeric) == 0; }
@@ -76,13 +85,6 @@ namespace MimeKit.Utils {
 
 		public bool IsTimeZone {
 			get { return IsNumericZone || IsAlphaZone; }
-		}
-
-		public DateToken (DateTokenFlags flags, int startIndex, int length)
-		{
-			StartIndex = startIndex;
-			Length = length;
-			Flags = flags;
 		}
 	}
 
@@ -167,14 +169,14 @@ namespace MimeKit.Utils {
 			datetok['-'] |= DateTokenFlags.HasSign;
 		}
 
-		static bool TryGetWeekday (DateToken token, byte[] text, out DayOfWeek weekday)
+		static bool TryGetWeekday (in DateToken token, byte[] text, out DayOfWeek weekday)
 		{
 			weekday = DayOfWeek.Sunday;
 
 			if (!token.IsWeekday || token.Length < 3)
 				return false;
 
-			var name = Encoding.ASCII.GetString (text, token.StartIndex, 3);
+			var name = Encoding.ASCII.GetString (text, token.Start, 3);
 
 			for (int day = 0; day < WeekDays.Length; day++) {
 				if (WeekDays[day].Equals (name, StringComparison.OrdinalIgnoreCase)) {
@@ -186,10 +188,10 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryGetDayOfMonth (DateToken token, byte[] text, out int day)
+		static bool TryGetDayOfMonth (in DateToken token, byte[] text, out int day)
 		{
-			int endIndex = token.StartIndex + token.Length;
-			int index = token.StartIndex;
+			int endIndex = token.Start + token.Length;
+			int index = token.Start;
 
 			day = 0;
 
@@ -205,14 +207,14 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static bool TryGetMonth (DateToken token, byte[] text, out int month)
+		static bool TryGetMonth (in DateToken token, byte[] text, out int month)
 		{
 			month = 0;
 
 			if (!token.IsMonth || token.Length < 3)
 				return false;
 
-			var name = Encoding.ASCII.GetString (text, token.StartIndex, 3);
+			var name = Encoding.ASCII.GetString (text, token.Start, 3);
 
 			for (int i = 0; i < Months.Length; i++) {
 				if (Months[i].Equals (name, StringComparison.OrdinalIgnoreCase)) {
@@ -224,10 +226,10 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryGetYear (DateToken token, byte[] text, out int year)
+		static bool TryGetYear (in DateToken token, byte[] text, out int year)
 		{
-			int endIndex = token.StartIndex + token.Length;
-			int index = token.StartIndex;
+			int endIndex = token.Start + token.Length;
+			int index = token.Start;
 
 			year = 0;
 
@@ -243,10 +245,10 @@ namespace MimeKit.Utils {
 			return year >= 1969;
 		}
 
-		static bool TryGetTimeOfDay (DateToken token, byte[] text, out int hour, out int minute, out int second)
+		static bool TryGetTimeOfDay (in DateToken token, byte[] text, out int hour, out int minute, out int second)
 		{
-			int endIndex = token.StartIndex + token.Length;
-			int index = token.StartIndex;
+			int endIndex = token.Start + token.Length;
+			int index = token.Start;
 
 			hour = minute = second = 0;
 
@@ -272,13 +274,13 @@ namespace MimeKit.Utils {
 			return index == endIndex;
 		}
 
-		static bool TryGetTimeZone (DateToken token, byte[] text, out int tzone)
+		static bool TryGetTimeZone (in DateToken token, byte[] text, out int tzone)
 		{
 			tzone = 0;
 
 			if (token.IsNumericZone) {
-				int endIndex = token.StartIndex + token.Length;
-				int index = token.StartIndex;
+				int endIndex = token.Start + token.Length;
+				int index = token.Start;
 				int sign;
 
 				if (text[index] == (byte) '-')
@@ -298,13 +300,13 @@ namespace MimeKit.Utils {
 				if (token.Length > 3)
 					return false;
 
-				var name = Encoding.ASCII.GetString (text, token.StartIndex, token.Length);
+				var name = Encoding.ASCII.GetString (text, token.Start, token.Length);
 
 				if (!timezones.TryGetValue (name, out tzone))
 					return false;
 			} else if (token.IsNumeric) {
-				int endIndex = token.StartIndex + token.Length;
-				int index = token.StartIndex;
+				int endIndex = token.Start + token.Length;
+				int index = token.Start;
 
 				if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out tzone) || index != endIndex)
 					return false;
@@ -353,7 +355,7 @@ namespace MimeKit.Utils {
 			yield break;
 		}
 
-		static bool TryParseStandardDateFormat (IList<DateToken> tokens, byte[] text, out DateTimeOffset date)
+		static bool TryParseStandardDateFormat (List<DateToken> tokens, byte[] text, out DateTimeOffset date)
 		{
 			//bool haveWeekday;
 			int n = 0;
@@ -464,8 +466,8 @@ namespace MimeKit.Utils {
 						continue;
 
 					// Note: we likely have either YYYY[-/]MM[-/]DD or MM[-/]DD[-/]YY
-					int endIndex = tokens[i].StartIndex + tokens[i].Length;
-					int index = tokens[i].StartIndex;
+					int endIndex = tokens[i].Start + tokens[i].Length;
+					int index = tokens[i].Start;
 
 					ParseUtils.TryParseInt32 (text, ref index, endIndex, out value);
 
