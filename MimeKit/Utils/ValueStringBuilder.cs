@@ -9,20 +9,21 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace System.Text
-{
+namespace System.Text {
 	internal ref partial struct ValueStringBuilder
 	{
 		private char[]? _arrayToReturnToPool;
 		private Span<char> _chars;
 		private int _pos;
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		public ValueStringBuilder (Span<char> initialBuffer)
 		{
 			_arrayToReturnToPool = null;
 			_chars = initialBuffer;
 			_pos = 0;
 		}
+#endif
 
 		public ValueStringBuilder (int initialCapacity)
 		{
@@ -33,14 +34,18 @@ namespace System.Text
 
 		public int Length {
 			get => _pos;
+#if UNUSED_VALUESTRINGBUILDER_API
 			set {
 				Debug.Assert (value >= 0);
 				Debug.Assert (value <= _chars.Length);
 				_pos = value;
 			}
+#endif
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		public int Capacity => _chars.Length;
+#endif
 
 		public void EnsureCapacity (int capacity)
 		{
@@ -52,6 +57,7 @@ namespace System.Text
 				Grow (capacity - _pos);
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		/// <summary>
 		/// Get a pinnable reference to the builder.
 		/// Does not ensure there is a null char after <see cref="Length"/>
@@ -75,6 +81,7 @@ namespace System.Text
 			}
 			return ref MemoryMarshal.GetReference (_chars);
 		}
+#endif
 
 		public ref char this[int index] {
 			get {
@@ -90,8 +97,10 @@ namespace System.Text
 			return s;
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		/// <summary>Returns the underlying storage of the builder.</summary>
 		public Span<char> RawChars => _chars;
+#endif
 
 		/// <summary>
 		/// Returns a span around the contents of the builder.
@@ -107,9 +116,12 @@ namespace System.Text
 		}
 
 		public ReadOnlySpan<char> AsSpan () => _chars.Slice (0, _pos);
+#if UNUSED_VALUESTRINGBUILDER_API
 		public ReadOnlySpan<char> AsSpan (int start) => _chars.Slice (start, _pos - start);
 		public ReadOnlySpan<char> AsSpan (int start, int length) => _chars.Slice (start, length);
+#endif
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		public bool TryCopyTo (Span<char> destination, out int charsWritten)
 		{
 			if (_chars.Slice (0, _pos).TryCopyTo (destination)) {
@@ -122,7 +134,9 @@ namespace System.Text
 				return false;
 			}
 		}
+#endif
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		public void Insert (int index, char value, int count)
 		{
 			if (_pos > _chars.Length - count) {
@@ -134,6 +148,7 @@ namespace System.Text
 			_chars.Slice (index, count).Fill (value);
 			_pos += count;
 		}
+#endif
 
 		public void Insert (int index, string? s)
 		{
@@ -201,6 +216,7 @@ namespace System.Text
 			_pos += s.Length;
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		public void Append (char c, int count)
 		{
 			if (_pos > _chars.Length - count) {
@@ -213,7 +229,9 @@ namespace System.Text
 			}
 			_pos += count;
 		}
+#endif
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		public unsafe void Append (char* value, int length)
 		{
 			int pos = _pos;
@@ -227,6 +245,7 @@ namespace System.Text
 			}
 			_pos += length;
 		}
+#endif
 
 		public void Append (ReadOnlySpan<char> value)
 		{
@@ -239,6 +258,7 @@ namespace System.Text
 			_pos += value.Length;
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		public Span<char> AppendSpan (int length)
 		{
@@ -250,6 +270,7 @@ namespace System.Text
 			_pos = origPos + length;
 			return _chars.Slice (origPos, length);
 		}
+#endif
 
 #if NET6_0_OR_GREATER
 		internal void AppendInvariant<T> (T value) where T : ISpanFormattable
@@ -261,6 +282,7 @@ namespace System.Text
 			}
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		internal void AppendSpanFormattable<T> (T value, string? format = null, IFormatProvider? provider = null) where T : ISpanFormattable
 		{
 			if (value.TryFormat (_chars.Slice (_pos), out int charsWritten, format, provider)) {
@@ -269,16 +291,19 @@ namespace System.Text
 				Append (value.ToString (format, provider));
 			}
 		}
+#endif
 #else
 		internal void AppendInvariant<T> (T value, string? format = null, IFormatProvider? provider = null) where T: IFormattable
 		{
 			Append (value.ToString (null, CultureInfo.InvariantCulture));	
 		}
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		internal void AppendSpanFormattable<T> (T value, string? format = null, IFormatProvider? provider = null) where T: IFormattable
 		{
 			Append (value.ToString (format, provider));	
 		}
+#endif
 #endif
 
 
