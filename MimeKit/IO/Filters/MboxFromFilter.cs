@@ -38,7 +38,7 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class MboxFromFilter : MimeFilterBase
 	{
-		const string From = "From ";
+		static readonly byte[] From = { (byte) 'F', (byte) 'r', (byte) 'o', (byte) 'm', (byte) ' ' };
 		bool midline;
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace MimeKit.IO.Filters {
 		static bool StartsWithFrom (byte[] input, int startIndex, int endIndex)
 		{
 			for (int i = 0, index = startIndex; i < From.Length && index < endIndex; i++, index++) {
-				if (input[index] != (byte) From[i])
+				if (input[index] != From[i])
 					return false;
 			}
 
