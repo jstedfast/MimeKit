@@ -79,6 +79,12 @@ namespace Benchmarks.IO.Filters {
 		}
 
 		[Benchmark]
+		public void HexEncoder ()
+		{
+			FilterInputStream (BinaryData, new HexEncoder ());
+		}
+
+		//[Benchmark]
 		public void QuotedPrintableEncoder ()
 		{
 			FilterInputStream (TextData, new QuotedPrintableEncoder ());
