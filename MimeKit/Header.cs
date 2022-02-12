@@ -1306,7 +1306,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The unfolded header value.</returns>
 		/// <param name="text">The header text.</param>
-		public static unsafe string Unfold (string text)
+		public static string Unfold (string text)
 		{
 			int startIndex;
 			int endIndex;
@@ -1332,15 +1332,9 @@ namespace MimeKit {
 			int count = endIndex - startIndex;
 			char[] chars = new char[count];
 
-			fixed (char* outbuf = chars) {
-				char* outptr = outbuf;
-
-				for (i = startIndex; i < endIndex; i++) {
-					if (text[i] != '\r' && text[i] != '\n')
-						*outptr++ = text[i];
-				}
-
-				count = (int) (outptr - outbuf);
+			for (i = startIndex, count = 0; i < endIndex; i++) {
+				if (text[i] != '\r' && text[i] != '\n')
+					chars[count++] = text[i];
 			}
 
 			return new string (chars, 0, count);
