@@ -102,6 +102,7 @@ namespace System.Text {
 		public Span<char> RawChars => _chars;
 #endif
 
+#if UNUSED_VALUESTRINGBUILDER_API
 		/// <summary>
 		/// Returns a span around the contents of the builder.
 		/// </summary>
@@ -114,6 +115,7 @@ namespace System.Text {
 			}
 			return _chars.Slice (0, _pos);
 		}
+#endif
 
 		public ReadOnlySpan<char> AsSpan () => _chars.Slice (0, _pos);
 #if UNUSED_VALUESTRINGBUILDER_API
