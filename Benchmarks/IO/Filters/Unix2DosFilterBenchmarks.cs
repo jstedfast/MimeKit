@@ -1,5 +1,5 @@
 ﻿//
-// MimeParserBenchmarks.cs
+// Unix2DosFilterBenchmarks.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -32,8 +32,7 @@ using MimeKit.IO.Filters;
 
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.IO.Filters
-{
+namespace Benchmarks.IO.Filters {
 	public class Unix2DosFilterBenchmarks : IDisposable
 	{
 		static readonly string TextDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "text");
