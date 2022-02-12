@@ -5,7 +5,6 @@
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -18,13 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
     <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="BenchmarkHelper.cs" />
-    <Compile Include="Benchmarks.cs" />
-    <Compile Include="LoopedInputStream.cs" />
-    <Compile Include="Program.cs" />
   </ItemGroup>
 
 </Project>

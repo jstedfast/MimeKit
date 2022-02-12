@@ -1,5 +1,5 @@
 ﻿//
-// Benchmarks.cs
+// MimeParserBenchmarks.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -33,7 +33,7 @@ using BenchmarkDotNet.Attributes;
 using MimeKit;
 
 namespace Benchmarks {
-    public class Benchmarks
+    public class MimeParserBenchmarks
     {
 		static readonly string MessagesDataDir = Path.Combine (BenchmarkHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "mbox");
