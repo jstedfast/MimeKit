@@ -306,7 +306,7 @@ namespace MimeKit.Utils {
 			return tokens;
 		}
 
-		static unsafe IList<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
+		static unsafe List<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
@@ -432,7 +432,7 @@ namespace MimeKit.Utils {
 			return decoder.Decode (inptr, token.Length, output);
 		}
 
-		static unsafe string DecodeTokens (ParserOptions options, IList<Token> tokens, byte[] input, byte* inbuf, int length)
+		static unsafe string DecodeTokens (ParserOptions options, List<Token> tokens, byte[] input, byte* inbuf, int length)
 		{
 			var decoded = new ValueStringBuilder (length);
 			var qp = new QuotedPrintableDecoder (true);
@@ -808,7 +808,7 @@ namespace MimeKit.Utils {
 			return DecodeText (text, 0, text.Length);
 		}
 
-		static byte[] FoldTokens (FormatOptions options, IList<Token> tokens, string field, byte[] input)
+		static byte[] FoldTokens (FormatOptions options, List<Token> tokens, string field, byte[] input)
 		{
 			var output = new ValueStringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
 			int lineLength = field.Length + 2;
@@ -1149,7 +1149,7 @@ namespace MimeKit.Utils {
 			return length + 1 >= options.MaxLineLength;
 		}
 
-		static IList<Word> GetRfc822Words (FormatOptions options, Encoding charset, string text, bool phrase)
+		static List<Word> GetRfc822Words (FormatOptions options, Encoding charset, string text, bool phrase)
 		{
 			var encoder = charset.GetEncoder ();
 			var words = new List<Word> ();
@@ -1257,7 +1257,7 @@ namespace MimeKit.Utils {
 			return words;
 		}
 
-		static bool ShouldMergeWords (FormatOptions options, Encoding charset, IList<Word> words, Word word, int i)
+		static bool ShouldMergeWords (FormatOptions options, Encoding charset, List<Word> words, Word word, int i)
 		{
 			Word next = words[i];
 
@@ -1322,7 +1322,7 @@ namespace MimeKit.Utils {
 			}
 		}
 
-		static IList<Word> Merge (FormatOptions options, Encoding charset, IList<Word> words)
+		static List<Word> Merge (FormatOptions options, Encoding charset, List<Word> words)
 		{
 			if (words.Count < 2)
 				return words;
