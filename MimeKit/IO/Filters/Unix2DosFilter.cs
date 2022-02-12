@@ -52,28 +52,28 @@ namespace MimeKit.IO.Filters {
 
 		int Filter (ReadOnlySpan<byte> input, byte[] output, bool flush)
 		{
-			int outputPosition = 0;
+			int outputIndex = 0;
 
 			foreach (var c in input) {
 				if (c == (byte) '\r') {
-					output[outputPosition++] = c;
+					output[outputIndex++] = c;
 				} else if (c == (byte) '\n') {
 					if (pc != (byte) '\r')
-						output[outputPosition++] = (byte) '\r';
-					output[outputPosition++] = c;
+						output[outputIndex++] = (byte) '\r';
+					output[outputIndex++] = c;
 				} else {
-					output[outputPosition++] = c;
+					output[outputIndex++] = c;
 				}
 
 				pc = c;
 			}
 
 			if (flush && ensureNewLine && pc != (byte) '\n') {
-				output[outputPosition++] = (byte) '\r';
-				output[outputPosition++] = (byte) '\n';
+				output[outputIndex++] = (byte) '\r';
+				output[outputIndex++] = (byte) '\n';
 			}
 
-			return outputPosition;
+			return outputIndex;
 		}
 
 		/// <summary>
@@ -94,8 +94,8 @@ namespace MimeKit.IO.Filters {
 		{
 			EnsureOutputSize (length * 2 + (flush && ensureNewLine ? 2 : 0), false);
 
+			outputLength = Filter (input.AsSpan (startIndex, length), OutputBuffer, flush);
 			outputIndex = 0;
-			outputLength = Filter (input.AsSpan(startIndex, length), OutputBuffer, flush);
 
 			return OutputBuffer;
 		}
