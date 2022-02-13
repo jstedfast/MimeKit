@@ -48,7 +48,24 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
+			var partials = new List<MessagePartial> ();
 			var message = new MimeMessage ();
+
+			partials.Add (new MessagePartial ("abc@example.com", 1, 5) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			});
+			partials.Add (new MessagePartial ("abc@example.com", 2, 5) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			});
+			partials.Add (new MessagePartial ("abc@example.com", 3, 5) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			});
+			partials.Add (new MessagePartial ("abc@example.com", 4, 5) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			});
+			partials.Add (new MessagePartial ("abc@example.com", 5, 5) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			});
 
 			Assert.Throws<ArgumentNullException> (() => new MessagePartial (null, 1, 5));
 			Assert.Throws<ArgumentOutOfRangeException> (() => new MessagePartial ("id", 0, 5));
@@ -57,6 +74,57 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Split (null, 500).ToList ());
 			Assert.Throws<ArgumentOutOfRangeException> (() => MessagePartial.Split (message, 0).ToList ());
+
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, partials));
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (message, null));
+
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message, partials));
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (ParserOptions.Default, null, partials));
+			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (ParserOptions.Default, message, null));
+
+			partials[4].ContentType.Parameters.Remove ("total");
+			Assert.Throws<ArgumentException> (() => MessagePartial.Join (message, partials));
+
+			partials.RemoveAt (4);
+			Assert.Throws<ArgumentException> (() => MessagePartial.Join (message, partials));
+
+			partials.Add (new MessagePartial ("abc@example.com", 5, 5) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			});
+			partials[3].ContentType.Parameters.Remove ("number");
+			partials[3].ContentType.Parameters.Add ("number", "1"); // this should leave us with a duplicate
+			Assert.Throws<ArgumentException> (() => MessagePartial.Join (message, partials));
+
+			partials[3].ContentType.Parameters["number"] = "4";
+			partials[3].ContentType.Parameters["id"] = "xyz@example.com"; // mismatch identifiers
+			Assert.Throws<InvalidOperationException> (() => MessagePartial.Join (message, partials));
+
+			partials[3].ContentType.Parameters["id"] = "abc@example.com";
+			partials[3].ContentType.Parameters.Remove ("number"); // missing number
+			Assert.Throws<InvalidOperationException> (() => MessagePartial.Join (message, partials));
+		}
+
+		[Test]
+		public void TestNumberAndTotalParameters ()
+		{
+			var partial = new MessagePartial ("abc@example.com", 1, 5);
+			partial.ContentType.Parameters["number"] = "invalid";
+			partial.ContentType.Parameters["total"] = "invalid";
+
+			Assert.IsNull (partial.Number, "Invalid number");
+			Assert.IsNull (partial.Total, "Invalid total");
+
+			partial.ContentType.Parameters.Remove ("number");
+			partial.ContentType.Parameters.Remove ("total");
+
+			Assert.IsNull (partial.Number, "No number");
+			Assert.IsNull (partial.Total, "No total");
+
+			partial.ContentType.Parameters["number"] = "1";
+			partial.ContentType.Parameters["total"] = "5";
+
+			Assert.AreEqual (1, partial.Number.Value, "Number");
+			Assert.AreEqual (5, partial.Total.Value, "Total");
 		}
 
 		static void AssertRawMessageStreams (MimeMessage expected, MimeMessage actual)
