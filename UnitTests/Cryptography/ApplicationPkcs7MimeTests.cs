@@ -242,6 +242,9 @@ namespace UnitTests.Cryptography {
 				Assert.AreEqual ("certs-only", pkcs7.ContentType.Parameters["smime-type"]);
 				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7.SecureMimeType);
 
+				pkcs7.ContentType.Parameters["smime-type"] = "x-unknown-data";
+				Assert.AreEqual (SecureMimeType.Unknown, pkcs7.SecureMimeType);
+
 				pkcs7.ContentType.Parameters.Remove ("smime-type");
 				Assert.AreEqual (SecureMimeType.Unknown, pkcs7.SecureMimeType);
 			}
@@ -437,7 +440,7 @@ namespace UnitTests.Cryptography {
 
 				await ctx.ImportAsync (path, "no.secret").ConfigureAwait (false);
 
-				encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
+				encrypted = await ApplicationPkcs7Mime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
 				decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted from EncryptAsync(mailboxes, entity)");
 				text = (TextPart) decrypted;

@@ -205,6 +205,37 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestEncodeLongOffice365RandomDomainTokensAndAction ()
+		{
+			const string expected = "Authentication-Results: lists.example.com 1;\n\tspf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com;\n\treally-really-long-receivingdomain.com; dkim=pass (signature was verified)\n\theader.d=domain.com; another-really-really-long-receivingdomain.com;\n\tdmarc=bestguesspass action=\"none\" header.from=domain.com\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("spf", "fail") {
+				ResultComment = "sender IP is 1.1.1.1",
+			});
+			authres.Results[0].Properties.Add (new AuthenticationMethodProperty ("smtp", "mailfrom", "eu-west-1.amazonses.com"));
+			authres.Results.Add (new AuthenticationMethodResult ("dkim", "pass") {
+				Office365AuthenticationServiceIdentifier = "really-really-long-receivingdomain.com",
+				ResultComment = "signature was verified",
+			});
+			authres.Results[1].Properties.Add (new AuthenticationMethodProperty ("header", "d", "domain.com"));
+			authres.Results.Add (new AuthenticationMethodResult ("dmarc", "bestguesspass") {
+				Office365AuthenticationServiceIdentifier = "another-really-really-long-receivingdomain.com",
+				Action = "none",
+			});
+			authres.Results[2].Properties.Add (new AuthenticationMethodProperty ("header", "from", "domain.com"));
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.AreEqual (expected, encoded.ToString ());
+		}
+
+		[Test]
 		public void TestParseArcAuthenticationResults ()
 		{
 			const string input = "i=1; example.com; foo=pass";
@@ -238,7 +269,14 @@ namespace UnitTests.Cryptography {
 
 			Assert.IsTrue (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres));
 			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual ("example.org; none", authres.ToString ());
 
+			authres = AuthenticationResults.Parse (buffer, 0, buffer.Length);
+			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
+			Assert.AreEqual ("example.org; none", authres.ToString ());
+
+			authres = AuthenticationResults.Parse (buffer);
+			Assert.AreEqual ("example.org", authres.AuthenticationServiceIdentifier, "authserv-id");
 			Assert.AreEqual ("example.org; none", authres.ToString ());
 
 			const string expected = " example.org; none\n";
@@ -1392,17 +1430,23 @@ namespace UnitTests.Cryptography {
 			AssertParseFailure ("authserv-id; method=pass ptype.prop", 25, 35);
 		}
 
-		// Note: TestParseFailureIncompleteProperty4 and 5 are commented out because of
+		[Test]
+		public void TestParseFailureIncompleteProperty4 ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop=", 25, 36);
+		}
+
+		[Test]
+		public void TestParseFailureIncompleteProperty5 ()
+		{
+			AssertParseFailure ("authserv-id; method=pass ptype.prop=\"incomplete qstring", 25, 55);
+		}
+
+		// Note: TestParseFailureIncompleteProperty6 is commented out because of
 		// https://github.com/jstedfast/MimeKit/issues/527 where we have "header.from=;"
 
 		//[Test]
-		//public void TestParseFailureIncompleteProperty4 ()
-		//{
-		//	AssertParseFailure ("authserv-id; method=pass ptype.prop=", 25, 36);
-		//}
-
-		//[Test]
-		//public void TestParseFailureIncompleteProperty5 ()
+		//public void TestParseFailureIncompleteProperty6 ()
 		//{
 		//	AssertParseFailure ("authserv-id; method=pass ptype.prop=;", 25, 36);
 		//}
