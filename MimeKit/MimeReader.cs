@@ -51,7 +51,8 @@ namespace MimeKit {
 			Multipart
 		}
 
-		static readonly byte[] UTF8ByteOrderMark = { 0xEF, 0xBB, 0xBF };
+		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
+
 		static readonly Task CompletedTask;
 		const int HeaderBufferGrowSize = 64;
 		const int ReadAheadSize = 128;
