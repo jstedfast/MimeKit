@@ -32,6 +32,7 @@ using System.Collections.Generic;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
+using System.Buffers;
 
 namespace MimeKit {
 	/// <summary>
@@ -906,17 +907,22 @@ namespace MimeKit {
 			}
 
 			int length = endIndex - index;
-			var decoded = new byte[hex.EstimateOutputLength (length)];
+			var decoded = ArrayPool<byte>.Shared.Rent(hex.EstimateOutputLength (length));
 
 			// hex decode...
 			length = hex.Decode (text, index, length, decoded);
 
 			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
-			var output = new char[outLength];
+			var output = ArrayPool<char>.Shared.Rent (outLength);
 
 			outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
 
-			return new string (output, 0, outLength);
+			var result = new string (output, 0, outLength);
+
+			ArrayPool<char>.Shared.Return (output);
+			ArrayPool<byte>.Shared.Return (decoded);
+
+			return result;
 		}
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
