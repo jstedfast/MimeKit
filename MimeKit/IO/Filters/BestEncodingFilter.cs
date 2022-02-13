@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Buffers.Binary;
 
 namespace MimeKit.IO.Filters {
 	/// <summary>
@@ -124,19 +125,17 @@ namespace MimeKit.IO.Filters {
 
 		#region IMimeFilter implementation
 
-		static unsafe bool IsMboxMarker (byte[] marker)
+		static bool IsMboxMarker (byte[] marker)
 		{
 			const uint FromMask = 0xFFFFFFFF;
-			const uint From     = 0x6D6F7246;
+			const uint From = 0x6D6F7246;
 
-			fixed (byte* buf = marker) {
-				uint* word = (uint*) buf;
+			uint word = BinaryPrimitives.ReadUInt32LittleEndian (marker.AsSpan());
 
-				if ((*word & FromMask) != From)
-					return false;
+			if ((word & FromMask) != From)
+				return false;
 
-				return *(buf + 4) == (byte) ' ';
-			}
+			return marker[4] == (byte) ' ';
 		}
 
 		unsafe void Scan (byte* inptr, byte* inend)
