@@ -54,6 +54,10 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => new Parameter (string.Empty, "value"));
 			Assert.Throws<ArgumentException> (() => new Parameter (invalid, "value"));
 			Assert.Throws<ArgumentNullException> (() => new Parameter ("name", null));
+
+			var parameter = new Parameter ("name", "value");
+			Assert.Throws<ArgumentNullException> (() => parameter.Value = null);
+			Assert.Throws<ArgumentOutOfRangeException> (() => parameter.EncodingMethod = (ParameterEncodingMethod) 512);
 		}
 
 		[Test]

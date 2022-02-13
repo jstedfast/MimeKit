@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Collections;
 
 using NUnit.Framework;
 
@@ -172,6 +173,12 @@ namespace UnitTests {
 
 			index = 0;
 			foreach (var param in list) {
+				Assert.AreEqual (array[index], param);
+				index++;
+			}
+
+			index = 0;
+			foreach (Parameter param in (IEnumerable) list) {
 				Assert.AreEqual (array[index], param);
 				index++;
 			}

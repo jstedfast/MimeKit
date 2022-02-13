@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Collections;
 
 using NUnit.Framework;
 
@@ -107,6 +108,23 @@ namespace UnitTests {
 
 			Assert.AreEqual (1, list.Count);
 			Assert.AreEqual ("id@localhost", list[0]);
+		}
+
+		[Test]
+		public void TestGetEnumerator ()
+		{
+			var list = new MessageIdList ();
+
+			for (int i = 0; i < 5; i++)
+				list.Add ($"{i}@example.com");
+
+			int index = 0;
+			foreach (string msgid in list)
+				Assert.AreEqual ($"{index++}@example.com", msgid);
+
+			index = 0;
+			foreach (string msgid in (IEnumerable) list)
+				Assert.AreEqual ($"{index++}@example.com", msgid);
 		}
 	}
 }
