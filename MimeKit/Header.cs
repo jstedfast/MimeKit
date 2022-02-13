@@ -1330,14 +1330,16 @@ namespace MimeKit {
 			}
 
 			int count = endIndex - startIndex;
-			char[] chars = new char[count];
+			Span<char> chars = count < 16
+				? stackalloc char[16]
+				: new char[count];
 
 			for (i = startIndex, count = 0; i < endIndex; i++) {
 				if (text[i] != '\r' && text[i] != '\n')
 					chars[count++] = text[i];
 			}
 
-			return new string (chars, 0, count);
+			return chars.Slice (0, count).ToString ();
 		}
 
 		static bool IsAsciiAtom (byte c)
