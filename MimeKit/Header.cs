@@ -1317,6 +1317,9 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The unfolded header value.</returns>
 		/// <param name="text">The header text.</param>
+#if NET5_0_OR_GREATER
+		[System.Runtime.CompilerServices.SkipLocalsInit]
+#endif
 		public static string Unfold (string text)
 		{
 			int startIndex;
@@ -1341,8 +1344,8 @@ namespace MimeKit {
 			}
 
 			int count = endIndex - startIndex;
-			Span<char> chars = count < 16
-				? stackalloc char[16]
+			Span<char> chars = count <= 32
+				? stackalloc char[32]
 				: new char[count];
 
 			for (i = startIndex, count = 0; i < endIndex; i++) {
