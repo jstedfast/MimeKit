@@ -184,5 +184,75 @@ namespace UnitTests {
 
 			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc", builder.ToString ());
 		}
+
+		[Test]
+		public void TestEncodeControlCharacters ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "tps\a-\breport.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.International = true;
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment; filename*=utf-8''tps%07-%08report.doc", builder.ToString ());
+		}
+
+#if false
+		[Test]
+		public void TestEncodeLongValueWithControlCharacters ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "\a\big-\bum\ble-\bee-flew-over-the-kitty's-he\ad-\and-then-l\anded-on-the-pretty-flower.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.International = true;
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%07%08ig-%08um%08le-%08ee-flew-over-the-kitty%27s-he%07d-;\r\n\tfilename*1*=%07nd-then-l%07nded-on-the-pretty-flower.doc", builder.ToString ());
+		}
+#endif
+
+		[Test]
+		public void TestEncodeInternational ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.International = true;
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment; filename=\"测试文本.doc\"", builder.ToString ());
+		}
+
+		[Test]
+		public void TestEncodeLongInternational ()
+		{
+			var builder = new StringBuilder ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.International = true;
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
+
+			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC%E6%B5%8B%E8%AF%95;\r\n\tfilename*1=\"文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc\"", builder.ToString ());
+		}
 	}
 }

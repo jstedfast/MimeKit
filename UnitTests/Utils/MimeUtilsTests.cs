@@ -60,7 +60,8 @@ namespace UnitTests.Utils {
 
 			Assert.Throws<ArgumentNullException> (() => MimeUtils.AppendQuoted (null, "text"), "MimeUtils.AppendQuoted (null, value)");
 			Assert.Throws<ArgumentNullException> (() => MimeUtils.AppendQuoted (new StringBuilder (), null), "MimeUtils.AppendQuoted (builder, null)");
-			Assert.Throws<ArgumentNullException> (() => MimeUtils.Quote (null), "MimeUtils.Quote (null)");
+			Assert.Throws<ArgumentNullException> (() => MimeUtils.Quote ((ReadOnlySpan<char>) null), "MimeUtils.Quote (null)");
+			Assert.Throws<ArgumentNullException> (() => MimeUtils.Quote ((string) null), "MimeUtils.Quote (null)");
 			Assert.Throws<ArgumentNullException> (() => MimeUtils.Unquote (null), "MimeUtils.Unquote (null)");
 		}
 

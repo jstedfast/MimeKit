@@ -420,7 +420,7 @@ namespace MimeKit {
 			if (length < maxLength) {
 				switch (GetEncodeMethod (options, chars, index, length)) {
 				case EncodeMethod.Quote:
-					value = MimeUtils.Quote (new string (chars, index, length));
+					value = MimeUtils.Quote (chars.AsSpan (index, length));
 					index += length;
 					return false;
 				case EncodeMethod.None:

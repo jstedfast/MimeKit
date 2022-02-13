@@ -439,15 +439,53 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <param name="builder">The value string builder.</param>
 		/// <param name="text">The text to quote.</param>
-		internal static void AppendQuoted (ref ValueStringBuilder builder, string text)
+		internal static void AppendQuoted (ref ValueStringBuilder builder, ReadOnlySpan<char> text)
 		{
 			builder.Append ('"');
-			for (int i = 0; i < text.Length; i++) {
-				if (text[i] == '\\' || text[i] == '"')
+			foreach (char c in text) {
+				if (c == '\\' || c == '"')
 					builder.Append ('\\');
-				builder.Append (text[i]);
+				builder.Append (c);
 			}
 			builder.Append ('"');
+		}
+
+		/// <summary>
+		/// Quote the specified text and append it into the value string builder.
+		/// </summary>
+		/// <remarks>
+		/// Quotes the specified text, enclosing it in double-quotes and escaping
+		/// any backslashes and double-quotes within.
+		/// </remarks>
+		/// <param name="builder">The value string builder.</param>
+		/// <param name="text">The text to quote.</param>
+		internal static void AppendQuoted (ref ValueStringBuilder builder, string text)
+		{
+			AppendQuoted (ref builder, text.AsSpan ());
+		}
+
+		/// <summary>
+		/// Quote the specified text.
+		/// </summary>
+		/// <remarks>
+		/// Quotes the specified text, enclosing it in double-quotes and escaping
+		/// any backslashes and double-quotes within.
+		/// </remarks>
+		/// <returns>The quoted text.</returns>
+		/// <param name="text">The text to quote.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="text"/> is <c>null</c>.
+		/// </exception>
+		public static string Quote (ReadOnlySpan<char> text)
+		{
+			if (text == null)
+				throw new ArgumentNullException (nameof (text));
+
+			var quoted = new ValueStringBuilder ((text.Length * 2) + 2);
+
+			AppendQuoted (ref quoted, text);
+
+			return quoted.ToString ();
 		}
 
 		/// <summary>
@@ -467,11 +505,7 @@ namespace MimeKit.Utils {
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
 
-			var quoted = new ValueStringBuilder ((text.Length * 2) + 2);
-
-			AppendQuoted (ref quoted, text);
-
-			return quoted.ToString ();
+			return Quote (text.AsSpan ());
 		}
 
 		/// <summary>
