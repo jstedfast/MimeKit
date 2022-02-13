@@ -312,9 +312,14 @@ namespace MimeKit {
 		/// <param name="fieldNameLength">The length of the field name (not including trailing whitespace).</param>
 		/// <param name="value">The raw value of the header.</param>
 		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+#if NET5_0_OR_GREATER
+		[System.Runtime.CompilerServices.SkipLocalsInit]
+#endif
 		internal protected Header (ParserOptions options, byte[] field, int fieldNameLength, byte[] value, bool invalid)
 		{
-			var chars = new char[fieldNameLength];
+			Span<char> chars = fieldNameLength <= 32
+				? stackalloc char[32]
+				: new char[fieldNameLength];
 
 			for (int i = 0; i < fieldNameLength; i++)
 				chars[i] = (char) field[i];
@@ -323,7 +328,7 @@ namespace MimeKit {
 			rawField = field;
 			rawValue = value;
 
-			Field = new string (chars, 0, fieldNameLength);
+			Field = chars.Slice (0, fieldNameLength).ToString ();
 			Id = Field.ToHeaderId ();
 			IsInvalid = invalid;
 		}
@@ -340,9 +345,15 @@ namespace MimeKit {
 		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
 		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+#if NET5_0_OR_GREATER
+		[System.Runtime.CompilerServices.SkipLocalsInit]
+#endif
 		internal protected Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
 		{
-			var chars = new char[field.Length];
+			Span<char> chars = field.Length <= 32
+				? stackalloc char[32]
+				: new char[field.Length];
+
 			int count = 0;
 
 			while (count < field.Length && (invalid || !field[count].IsBlank ())) {
@@ -354,7 +365,7 @@ namespace MimeKit {
 			rawField = field;
 			rawValue = value;
 
-			Field = new string (chars, 0, count);
+			Field = chars.Slice (0, count).ToString ();
 			Id = Field.ToHeaderId ();
 			IsInvalid = invalid;
 		}
