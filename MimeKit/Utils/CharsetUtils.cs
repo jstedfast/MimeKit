@@ -188,9 +188,9 @@ namespace MimeKit.Utils {
 		static bool TryParseInt32 (string text, int startIndex, int count, out int value)
 		{
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-			return int.TryParse (text.AsSpan (startIndex, count), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+			return int.TryParse (text.AsSpan (startIndex, count), NumberStyles.None, CultureInfo.InvariantCulture, out value);
 #else
-			return int.TryParse (text.Substring (startIndex, count), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+			return int.TryParse (text.Substring (startIndex, count), NumberStyles.None, CultureInfo.InvariantCulture, out value);
 #endif
 		}
 

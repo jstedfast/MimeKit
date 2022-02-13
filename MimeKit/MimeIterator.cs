@@ -27,8 +27,8 @@
 using System;
 using System.Text;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace MimeKit {
 	/// <summary>
@@ -342,7 +342,7 @@ namespace MimeKit {
 			var indexes = new int[path.Length];
 
 			for (int i = 0; i < path.Length; i++) {
-				if (!int.TryParse (path[i], out int index) || index < 0)
+				if (!int.TryParse (path[i], NumberStyles.None, CultureInfo.InvariantCulture, out int index) || index < 0)
 					throw new FormatException ("Invalid path specifier format.");
 
 				indexes[i] = index - 1;

@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.IO;
@@ -123,7 +124,7 @@ namespace MimeKit {
 			get {
 				var text = ContentType.Parameters["number"];
 
-				if (text == null || !int.TryParse (text, out int number))
+				if (text == null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int number))
 					return null;
 
 				return number;
@@ -141,7 +142,7 @@ namespace MimeKit {
 			get {
 				var text = ContentType.Parameters["total"];
 
-				if (text == null || !int.TryParse (text, out int total))
+				if (text == null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int total))
 					return null;
 
 				return total;
@@ -181,14 +182,10 @@ namespace MimeKit {
 			var options = message.Headers.Options;
 			var clone = new MimeMessage (options);
 
-			try {
-				foreach (var header in message.Headers)
-					clone.Headers.Add (header.Clone ());
+			foreach (var header in message.Headers)
+				clone.Headers.Add (header.Clone ());
 
-				clone.MessageId = MimeUtils.GenerateMessageId ();
-			} catch {
-				clone.Dispose ();
-			}
+			clone.Headers.Replace (HeaderId.MessageId, "<" + MimeUtils.GenerateMessageId () + ">");
 
 			return clone;
 		}

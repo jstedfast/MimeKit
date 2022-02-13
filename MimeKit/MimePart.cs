@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using MD5 = System.Security.Cryptography.MD5;
@@ -265,7 +266,7 @@ namespace MimeKit {
 
 				if ((LazyLoaded & LazyLoadedFields.ContentDuration) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentDuration, out var header)) {
-						if (int.TryParse (header.Value.Trim (), out var value))
+						if (int.TryParse (header.Value, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out var value))
 							duration = value;
 					}
 

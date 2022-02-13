@@ -243,7 +243,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException (string.Format ("Malformed {0} header: empty signature parameter detected.", header));
 
 			if (parameters.TryGetValue ("t", out string t)) {
-				if (!int.TryParse (t, NumberStyles.Integer, CultureInfo.InvariantCulture, out int timestamp) || timestamp < 0)
+				if (!int.TryParse (t, NumberStyles.None, CultureInfo.InvariantCulture, out int timestamp) || timestamp < 0)
 					throw new FormatException (string.Format ("Malformed {0} header: invalid timestamp parameter: t={1}.", header, t));
 			}
 		}
@@ -254,7 +254,7 @@ namespace MimeKit.Cryptography {
 			ValidateCommonParameters (header, parameters, out algorithm, out d, out s, out q, out b);
 
 			if (parameters.TryGetValue ("l", out string l)) {
-				if (!int.TryParse (l, NumberStyles.Integer, CultureInfo.InvariantCulture, out maxLength) || maxLength < 0)
+				if (!int.TryParse (l, NumberStyles.None, CultureInfo.InvariantCulture, out maxLength) || maxLength < 0)
 					throw new FormatException (string.Format ("Malformed {0} header: invalid length parameter: l={1}", header, l));
 			} else {
 				maxLength = -1;

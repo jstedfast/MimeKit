@@ -130,7 +130,7 @@ namespace MimeKit.IO.Filters {
 			const uint FromMask = 0xFFFFFFFF;
 			const uint From = 0x6D6F7246;
 
-			uint word = BinaryPrimitives.ReadUInt32LittleEndian (marker.AsSpan());
+			uint word = BinaryPrimitives.ReadUInt32LittleEndian (marker.AsSpan ());
 
 			if ((word & FromMask) != From)
 				return false;

@@ -533,7 +533,7 @@ namespace MimeKit.Cryptography {
 						break;
 					}
 
-					if (!int.TryParse (value, NumberStyles.Integer, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
+					if (!int.TryParse (value, NumberStyles.None, CultureInfo.InvariantCulture, out instance) || instance < 1 || instance > 50) {
 						if (throwOnError)
 							throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Invalid instance tag in {0} header: i={1}", header.Id.ToHeaderName (), value));
 
