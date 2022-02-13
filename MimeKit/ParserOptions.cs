@@ -46,7 +46,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class ParserOptions
 	{
-		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> (StringComparer.Ordinal);
+		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> (MimeUtils.OrdinalIgnoreCase);
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorArgs) };
 
 		/// <summary>
@@ -280,15 +280,23 @@ namespace MimeKit {
 
 		static bool IsEncoded (IList<Header> headers)
 		{
-			ContentEncoding encoding;
-
 			for (int i = 0; i < headers.Count; i++) {
 				if (headers[i].Id != HeaderId.ContentTransferEncoding)
 					continue;
 
-				MimeUtils.TryParse (headers[i].Value, out encoding);
+				MimeUtils.TryParse (headers[i].Value, out ContentEncoding encoding);
 
 				return IsEncoded (encoding);
+			}
+
+			return false;
+		}
+
+		static bool EqualsAny (string value, params string[] values)
+		{
+			for (int i = 0; i < values.Length; i++) {
+				if (value.Equals (values[i], StringComparison.OrdinalIgnoreCase))
+					return true;
 			}
 
 			return false;
@@ -301,101 +309,108 @@ namespace MimeKit {
 			if (depth >= MaxMimeDepth)
 				return new MimePart (args);
 
-			var subtype = contentType.MediaSubtype.ToLowerInvariant ();
-			var type = contentType.MediaType.ToLowerInvariant ();
+			var subtype = contentType.MediaSubtype;
+			var type = contentType.MediaType;
 
 			if (mimeTypes.Count > 0) {
 				var mimeType = string.Format ("{0}/{1}", type, subtype);
-				ConstructorInfo ctor;
 
-				if (mimeTypes.TryGetValue (mimeType, out ctor))
+				if (mimeTypes.TryGetValue (mimeType, out var ctor))
 					return (MimeEntity) ctor.Invoke (new object[] { args });
 			}
 
-			// Note: message/rfc822 and message/partial are not allowed to be encoded according to rfc2046
-			// (sections 5.2.1 and 5.2.2, respectively). Since some broken clients will encode them anyway,
-			// it is necessary for us to treat those as opaque blobs instead, and thus the parser should
-			// parse them as normal MimeParts instead of MessageParts.
-			//
-			// Technically message/disposition-notification is only allowed to have use the 7bit encoding
-			// as well, but since MessageDispositionNotification is a MImePart subclass rather than a
-			// MessagePart subclass, it means that the content won't be parsed until later and so we can
-			// actually handle that w/o any problems.
-			if (type == "message") {
-				switch (subtype) {
-				case "global-disposition-notification":
-				case "disposition-notification":
-					return new MessageDispositionNotification (args);
-				case "global-delivery-status":
-				case "delivery-status":
-					return new MessageDeliveryStatus (args);
-				case "partial":
-					if (!IsEncoded (headers))
-						return new MessagePartial (args);
-					break;
-				case "global-headers":
-					if (!IsEncoded (headers))
-						return new TextRfc822Headers (args);
-					break;
-				case "external-body":
-				case "rfc2822":
-				case "rfc822":
-				case "global":
-				case "news":
-					if (!IsEncoded (headers))
-						return new MessagePart (args);
-					break;
-				}
-			}
-
-			if (type == "multipart") {
-				switch (subtype) {
-				case "alternative":
-					return new MultipartAlternative (args);
-				case "related":
-					return new MultipartRelated (args);
-				case "report":
-					return new MultipartReport (args);
-#if ENABLE_CRYPTO
-				case "encrypted":
-					return new MultipartEncrypted (args);
-				case "signed":
-					return new MultipartSigned (args);
-#endif
-				default:
-					return new Multipart (args);
-				}
-			}
-
-			if (type == "application") {
-				switch (subtype) {
-#if ENABLE_CRYPTO
-				case "x-pkcs7-signature":
-				case "pkcs7-signature":
-					return new ApplicationPkcs7Signature (args);
-				case "x-pgp-encrypted":
-				case "pgp-encrypted":
-					return new ApplicationPgpEncrypted (args);
-				case "x-pgp-signature":
-				case "pgp-signature":
-					return new ApplicationPgpSignature (args);
-				case "x-pkcs7-mime":
-				case "pkcs7-mime":
-					return new ApplicationPkcs7Mime (args);
-#endif
-				case "vnd.ms-tnef":
-				case "ms-tnef":
-					return new TnefPart (args);
-				case "rtf":
-					return new TextPart (args);
-				}
-			}
-
-			if (type == "text") {
-				if (subtype == "rfc822-headers" && !IsEncoded (headers))
+			if (type.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
+				// text/rfc822-headers
+				if (subtype.Equals ("rfc822-headers", StringComparison.OrdinalIgnoreCase) && !IsEncoded (headers))
 					return new TextRfc822Headers (args);
 
 				return new TextPart (args);
+			} else if (type.Equals ("multipart", StringComparison.OrdinalIgnoreCase)) {
+				// multipart/alternative
+				if (subtype.Equals ("alternative", StringComparison.OrdinalIgnoreCase))
+					return new MultipartAlternative (args);
+
+				// multipart/related
+				if (subtype.Equals ("related", StringComparison.OrdinalIgnoreCase))
+					return new MultipartRelated (args);
+
+				// multipart/report
+				if (subtype.Equals ("report", StringComparison.OrdinalIgnoreCase))
+					return new MultipartReport (args);
+
+#if ENABLE_CRYPTO
+				// multipart/encrypted
+				if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
+					return new MultipartEncrypted (args);
+
+				// multipart/signed
+				if (subtype.Equals ("signed", StringComparison.OrdinalIgnoreCase))
+					return new MultipartSigned (args);
+#endif
+
+				// multipart/mixed, multipart/parallel, etc.
+				return new Multipart (args);
+			} else if (type.Equals ("message", StringComparison.OrdinalIgnoreCase)) {
+				// Note: message/rfc822 and message/partial are not allowed to be encoded according to rfc2046
+				// (sections 5.2.1 and 5.2.2, respectively). Since some broken clients will encode them anyway,
+				// it is necessary for us to treat those as opaque blobs instead, and thus the parser should
+				// parse them as normal MimeParts instead of MessageParts.
+				//
+				// Technically message/disposition-notification is only allowed to have use the 7bit encoding
+				// as well, but since MessageDispositionNotification is a MImePart subclass rather than a
+				// MessagePart subclass, it means that the content won't be parsed until later and so we can
+				// actually handle that w/o any problems.
+
+				// message/disposition-notification
+				if (EqualsAny (subtype, "disposition-notification", "global-disposition-notification"))
+					return new MessageDispositionNotification (args);
+
+				// message/delivery-status
+				if (EqualsAny (subtype, "delivery-status", "global -delivery-status"))
+					return new MessageDeliveryStatus (args);
+
+				// message/rfc822
+				if (EqualsAny (subtype, "rfc822", "global", "news", "external-body", "rfc2822")) {
+					if (!IsEncoded (headers))
+						return new MessagePart (args);
+				} else if (subtype.Equals ("partial", StringComparison.OrdinalIgnoreCase)) {
+					if (!IsEncoded (headers))
+						return new MessagePartial (args);
+				} else if (subtype.Equals ("global-headers", StringComparison.OrdinalIgnoreCase)) {
+					if (!IsEncoded (headers))
+						return new TextRfc822Headers (args);
+				}
+			} else if (type.Equals ("application", StringComparison.OrdinalIgnoreCase)) {
+#if ENABLE_CRYPTO
+				// application/pkcs7-mime
+				if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
+					subtype.Equals ("x-pkcs7-mime", StringComparison.OrdinalIgnoreCase))
+					return new ApplicationPkcs7Mime (args);
+
+				// application/pkcs7-signature
+				if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
+					subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
+					return new ApplicationPkcs7Signature (args);
+
+				// application/pgp-encrypted
+				if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
+					subtype.Equals ("x-pgp-encrypted", StringComparison.OrdinalIgnoreCase))
+					return new ApplicationPgpEncrypted (args);
+
+				// application/pgp-signature
+				if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
+					subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
+					return new ApplicationPgpSignature (args);
+#endif
+
+				// application/ms-tnef
+				if (subtype.Equals ("ms-tnef", StringComparison.OrdinalIgnoreCase) ||
+					subtype.Equals ("vnd.ms-tnef", StringComparison.OrdinalIgnoreCase))
+					return new TnefPart (args);
+
+				// application/rtf
+				if (subtype.Equals ("rtf", StringComparison.OrdinalIgnoreCase))
+					return new TextPart (args);
 			}
 
 			return new MimePart (args);
