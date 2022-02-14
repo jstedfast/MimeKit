@@ -25,20 +25,20 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Globalization;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using Org.BouncyCastle.Crypto;
 
 using MimeKit.IO;
 using MimeKit.Utils;
 
-namespace MimeKit.Cryptography {
+using Org.BouncyCastle.Crypto;
+
+namespace MimeKit.Cryptography
+{
 	/// <summary>
 	/// An ARC signer.
 	/// </summary>
@@ -233,9 +233,10 @@ namespace MimeKit.Cryptography {
 			return (long) (DateTime.UtcNow - DateUtils.UnixEpoch).TotalSeconds;
 		}
 
-		static void AppendInstanceAndSignatureAlgorithm (StringBuilder value, int instance, DkimSignatureAlgorithm signatureAlgorithm)
+		static void AppendInstanceAndSignatureAlgorithm (ref ValueStringBuilder value, int instance, DkimSignatureAlgorithm signatureAlgorithm)
 		{
-			value.AppendFormat ("i={0}", instance.ToString (CultureInfo.InvariantCulture));
+			value.Append ("i=");
+			value.AppendInvariant (instance);
 
 			switch (signatureAlgorithm) {
 			case DkimSignatureAlgorithm.Ed25519Sha256:
@@ -252,17 +253,22 @@ namespace MimeKit.Cryptography {
 
 		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, long t, IList<string> headers)
 		{
-			var value = new StringBuilder ();
+			var sb = new ValueStringBuilder (256);
 			byte[] signature, hash;
 			Header ams;
 
-			AppendInstanceAndSignatureAlgorithm (value, instance, SignatureAlgorithm);
+			AppendInstanceAndSignatureAlgorithm (ref sb, instance, SignatureAlgorithm);
 
-			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
-			value.AppendFormat ("; c={0}/{1}",
-				HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
-				BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
-			value.AppendFormat ("; t={0}", t);
+			sb.Append ("; d=");
+			sb.Append (Domain);
+			sb.Append ("; s="); 
+			sb.Append (Selector);
+			sb.Append ("; c=");
+			sb.Append (HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			sb.Append ('/');
+			sb.Append (BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			sb.Append ("; t=");
+			sb.AppendInvariant (t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -271,13 +277,15 @@ namespace MimeKit.Cryptography {
 					// write the specified message headers
 					DkimVerifierBase.WriteHeaders (options, message, headers, HeaderCanonicalizationAlgorithm, filtered);
 
-					value.AppendFormat ("; h={0}", string.Join (":", headers.ToArray ()));
+					sb.Append ("; h="); 
+					sb.AppendJoin(':', headers);
 
 					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
-					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
-					value.Append ("; b=");
+					sb.Append ("; bh="); 
+					sb.Append (Convert.ToBase64String (hash));
+					sb.Append ("; b=");
 
-					ams = new Header (HeaderId.ArcMessageSignature, value.ToString ());
+					ams = new Header (HeaderId.ArcMessageSignature, sb.ToString ());
 
 					switch (HeaderCanonicalizationAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
@@ -301,15 +309,20 @@ namespace MimeKit.Cryptography {
 
 		Header GenerateArcSeal (FormatOptions options, int instance, string cv, long t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
 		{
-			var value = new StringBuilder ();
+			var sb = new ValueStringBuilder (256);
 			byte[] signature;
 			Header seal;
 
-			AppendInstanceAndSignatureAlgorithm (value, instance, SignatureAlgorithm);
+			AppendInstanceAndSignatureAlgorithm (ref sb, instance, SignatureAlgorithm);
 
-			value.AppendFormat ("; cv={0}", cv);
-			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
-			value.AppendFormat ("; t={0}", t);
+			sb.Append ("; cv=");
+			sb.Append(cv);
+			sb.Append ("; d=");
+			sb.Append (Domain);
+			sb.Append ("; s=");
+			sb.Append(Selector);
+			sb.Append ("; t=");
+			sb.AppendInvariant (t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -324,9 +337,9 @@ namespace MimeKit.Cryptography {
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, aar, false);
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, ams, false);
 
-					value.Append ("; b=");
+					sb.Append ("; b=");
 
-					seal = new Header (HeaderId.ArcSeal, value.ToString ());
+					seal = new Header (HeaderId.ArcSeal, sb.ToString ());
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, seal, true);
 
 					filtered.Flush ();
