@@ -676,35 +676,35 @@ namespace MimeKit {
 			lineLength++;
 		}
 
-		internal void Encode (FormatOptions options, ref ValueStringBuilder sb, ref int lineLength, Encoding headerEncoding)
+		internal void Encode (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
 			switch (GetEncodeMethod (options, Name, Value, out string quoted)) {
 			case EncodeMethod.Rfc2231:
-				EncodeRfc2231 (options, ref sb, ref lineLength, headerEncoding);
+				EncodeRfc2231 (options, ref builder, ref lineLength, headerEncoding);
 				break;
 			case EncodeMethod.Rfc2047:
-				EncodeRfc2047 (options, ref sb, ref lineLength, headerEncoding);
+				EncodeRfc2047 (options, ref builder, ref lineLength, headerEncoding);
 				break;
 			case EncodeMethod.None:
 				quoted = Value;
 				goto default;
 			default:
-				sb.Append (';');
+				builder.Append (';');
 				lineLength++;
 
 				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
-					sb.Append (options.NewLine);
-					sb.Append ('\t');
+					builder.Append (options.NewLine);
+					builder.Append ('\t');
 					lineLength = 1;
 				} else {
-					sb.Append (' ');
+					builder.Append (' ');
 					lineLength++;
 				}
 
 				lineLength += Name.Length + 1 + quoted.Length;
-				sb.Append (Name);
-				sb.Append ('=');
-				sb.Append (quoted);
+				builder.Append (Name);
+				builder.Append ('=');
+				builder.Append (quoted);
 				break;
 			}
 		}
