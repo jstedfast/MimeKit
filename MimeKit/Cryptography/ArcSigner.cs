@@ -309,20 +309,20 @@ namespace MimeKit.Cryptography
 
 		Header GenerateArcSeal (FormatOptions options, int instance, string cv, long t, ArcHeaderSet[] sets, int count, Header aar, Header ams)
 		{
-			var sb = new ValueStringBuilder (256);
+			var builder = new ValueStringBuilder (256);
 			byte[] signature;
 			Header seal;
 
-			AppendInstanceAndSignatureAlgorithm (ref sb, instance, SignatureAlgorithm);
+			AppendInstanceAndSignatureAlgorithm (ref builder, instance, SignatureAlgorithm);
 
-			sb.Append ("; cv=");
-			sb.Append(cv);
-			sb.Append ("; d=");
-			sb.Append (Domain);
-			sb.Append ("; s=");
-			sb.Append(Selector);
-			sb.Append ("; t=");
-			sb.AppendInvariant (t);
+			builder.Append ("; cv=");
+			builder.Append(cv);
+			builder.Append ("; d=");
+			builder.Append (Domain);
+			builder.Append ("; s=");
+			builder.Append(Selector);
+			builder.Append ("; t=");
+			builder.AppendInvariant (t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -337,9 +337,9 @@ namespace MimeKit.Cryptography
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, aar, false);
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, ams, false);
 
-					sb.Append ("; b=");
+					builder.Append ("; b=");
 
-					seal = new Header (HeaderId.ArcSeal, sb.ToString ());
+					seal = new Header (HeaderId.ArcSeal, builder.ToString ());
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, seal, true);
 
 					filtered.Flush ();
