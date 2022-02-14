@@ -318,8 +318,8 @@ namespace MimeKit {
 		{
 			int lineLength = "Content-Disposition:".Length;
 			var builder = new ValueStringBuilder (128);
-			builder.Append(' ');
 
+			builder.Append (' ');
 			builder.Append (disposition);
 			lineLength += builder.Length;
 

@@ -290,8 +290,8 @@ namespace MimeKit {
 		{
 			int lineLength = "Content-Type:".Length;
 			var builder = new ValueStringBuilder (128);
-			builder.Append(' ');
 
+			builder.Append (' ');
 			builder.Append (MediaType);
 			builder.Append ('/');
 			builder.Append (MediaSubtype);

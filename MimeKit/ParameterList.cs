@@ -626,6 +626,14 @@ namespace MimeKit {
 				param.Encode (options, ref builder, ref lineLength, charset);
 		}
 
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
+			foreach (var param in parameters) {
+				builder.Append ("; ");
+				param.WriteTo (ref builder);
+			}
+		}
+
 		/// <summary>
 		/// Serialize a <see cref="ParameterList"/> to a string.
 		/// </summary>
@@ -635,19 +643,11 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="ParameterList"/>.</returns>
 		public override string ToString ()
 		{
-			var values = new ValueStringBuilder (128);
+			var builder = new ValueStringBuilder (128);
 
-			WriteTo (ref values);
+			WriteTo (ref builder);
 
-			return values.ToString ();
-		}
-
-		internal void WriteTo (ref ValueStringBuilder builder)
-		{
-			foreach (var param in parameters) {
-				builder.Append ("; ");
-				param.WriteTo (ref builder);
-			}
+			return builder.ToString ();
 		}
 
 		internal event EventHandler Changed;

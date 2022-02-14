@@ -709,6 +709,13 @@ namespace MimeKit {
 			}
 		}
 
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
+			builder.Append (Name);
+			builder.Append ('=');
+			MimeUtils.AppendQuoted (ref builder, Value.AsSpan ());
+		}
+
 		/// <summary>
 		/// Return a string representation of the <see cref="Parameter"/>.
 		/// </summary>
@@ -719,13 +726,6 @@ namespace MimeKit {
 		public override string ToString ()
 		{
 			return Name + "=" + MimeUtils.Quote (Value);
-		}
-
-		internal void WriteTo (ref ValueStringBuilder builder)
-		{
-			builder.Append (Name);
-			builder.Append ('=');
-			MimeUtils.AppendQuoted (ref builder, Value.AsSpan());
 		}
 
 		internal event EventHandler Changed;

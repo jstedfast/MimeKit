@@ -25,20 +25,19 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using Org.BouncyCastle.Crypto;
 
 using MimeKit.IO;
 using MimeKit.Utils;
 
-using Org.BouncyCastle.Crypto;
-
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An ARC signer.
 	/// </summary>
@@ -278,7 +277,7 @@ namespace MimeKit.Cryptography
 					DkimVerifierBase.WriteHeaders (options, message, headers, HeaderCanonicalizationAlgorithm, filtered);
 
 					builder.Append ("; h="); 
-					builder.AppendJoin(':', headers);
+					builder.AppendJoin (':', headers);
 
 					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
 					builder.Append ("; bh="); 
@@ -316,11 +315,11 @@ namespace MimeKit.Cryptography
 			AppendInstanceAndSignatureAlgorithm (ref builder, instance, SignatureAlgorithm);
 
 			builder.Append ("; cv=");
-			builder.Append(cv);
+			builder.Append (cv);
 			builder.Append ("; d=");
 			builder.Append (Domain);
 			builder.Append ("; s=");
-			builder.Append(Selector);
+			builder.Append (Selector);
 			builder.Append ("; t=");
 			builder.AppendInvariant (t);
 

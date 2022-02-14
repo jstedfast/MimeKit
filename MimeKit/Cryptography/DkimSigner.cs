@@ -243,7 +243,6 @@ namespace MimeKit.Cryptography {
 		void DkimSign (FormatOptions options, MimeMessage message, IList<string> headers)
 		{
 			using var builder = new ValueStringBuilder (256);
-			builder.Append("v=1");
 			var t = GetTimestamp ();
 			byte[] signature, hash;
 			Header dkim;
@@ -251,6 +250,8 @@ namespace MimeKit.Cryptography {
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 			options.EnsureNewLine = true;
+
+			builder.Append ("v=1");
 
 			switch (SignatureAlgorithm) {
 			case DkimSignatureAlgorithm.Ed25519Sha256:
