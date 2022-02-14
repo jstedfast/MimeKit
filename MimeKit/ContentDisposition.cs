@@ -353,7 +353,7 @@ namespace MimeKit {
 			if (charset == null)
 				throw new ArgumentNullException (nameof (charset));
 
-			var builder = new ValueStringBuilder (128);
+			var builder = new ValueStringBuilder (256);
 			builder.Append ("Content-Disposition: ");
 			builder.Append (disposition);
 
@@ -362,7 +362,7 @@ namespace MimeKit {
 
 				Parameters.Encode (options, ref builder, ref lineLength, charset);
 			} else {
-				builder.Append (Parameters.ToString ());
+				Parameters.WriteTo (ref builder);
 			}
 
 			return builder.ToString ();

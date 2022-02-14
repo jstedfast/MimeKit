@@ -637,12 +637,17 @@ namespace MimeKit {
 		{
 			var values = new ValueStringBuilder (128);
 
-			foreach (var param in parameters) {
-				values.Append ("; ");
-				values.Append (param.ToString ());
-			}
+			WriteTo (ref values);
 
 			return values.ToString ();
+		}
+
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
+			foreach (var param in parameters) {
+				builder.Append ("; ");
+				param.WriteTo (ref builder);
+			}
 		}
 
 		internal event EventHandler Changed;

@@ -721,6 +721,13 @@ namespace MimeKit {
 			return Name + "=" + MimeUtils.Quote (Value);
 		}
 
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
+			builder.Append (Name);
+			builder.Append ('=');
+			MimeUtils.AppendQuoted (ref builder, Value.AsSpan());
+		}
+
 		internal event EventHandler Changed;
 
 		void OnChanged ()

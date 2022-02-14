@@ -2451,7 +2451,9 @@ namespace MimeKit {
 					}
 
 					lineLength += references[i].Length;
-					builder.Append ("<" + references[i] + ">");
+					builder.Append ('<');
+					builder.Append (references[i]);
+					builder.Append ('>');
 				}
 
 				builder.Append (options.NewLine);
