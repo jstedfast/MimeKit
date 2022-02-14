@@ -37,7 +37,7 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class Base64Decoder : IMimeDecoder
 	{
-		static readonly byte[] base64_rank = new byte[256] {
+		static ReadOnlySpan<byte> base64_rank => new byte[256] {
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 			255,255,255,255,255,255,255,255,255,255,255, 62,255,255,255, 63,

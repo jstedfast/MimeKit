@@ -106,7 +106,7 @@ namespace MimeKit {
 	/// </remarks>
 	public partial class MimeParser : IEnumerable<MimeMessage>
 	{
-		static readonly byte[] UTF8ByteOrderMark = { 0xEF, 0xBB, 0xBF };
+		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 4;
