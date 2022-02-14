@@ -986,9 +986,9 @@ namespace MimeKit.Utils {
 			return encoding.CodePage == 50220 || encoding.CodePage == 50222;
 		}
 
-		internal static int AppendEncodedWord (StringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		internal static int AppendEncodedWord (ref ValueStringBuilder builder, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
-			int startLength = str.Length;
+			int startLength = builder.Length;
 			var chars = new char[length];
 			IMimeEncoder encoder;
 			byte[] word, encoded;
@@ -1015,22 +1015,22 @@ namespace MimeKit.Utils {
 			encoded = ArrayPool<byte>.Shared.Rent (encoder.EstimateOutputLength (len));
 			len = encoder.Flush (word, 0, len, encoded);
 
-			str.Append ("=?");
-			str.Append (CharsetUtils.GetMimeCharset (charset));
-			str.Append ('?');
-			str.Append (encoding);
-			str.Append ('?');
+			builder.Append ("=?");
+			builder.Append (CharsetUtils.GetMimeCharset (charset));
+			builder.Append ('?');
+			builder.Append (encoding);
+			builder.Append ('?');
 
 			for (int i = 0; i < len; i++)
-				str.Append ((char) encoded[i]);
-			str.Append ("?=");
+				builder.Append ((char) encoded[i]);
+			builder.Append ("?=");
 
 			ArrayPool<byte>.Shared.Return (encoded);
 
-			return str.Length - startLength;
+			return builder.Length - startLength;
 		}
 
-		static void AppendQuoted (StringBuilder str, string text, int startIndex, int length)
+		static void AppendQuoted (ref ValueStringBuilder str, string text, int startIndex, int length)
 		{
 			int lastIndex = startIndex + length;
 			char c;
@@ -1409,7 +1409,7 @@ namespace MimeKit.Utils {
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
 			var words = Merge (options, charset, GetRfc822Words (options, charset, text, phrase));
-			var str = new StringBuilder ();
+			var builder = new ValueStringBuilder (text.Length * 4);
 			int start, length;
 			Word prev = null;
 			byte[] encoded;
@@ -1426,15 +1426,15 @@ namespace MimeKit.Utils {
 				if (prev != null && !(prev.Type == WordType.EncodedWord && word.Type == WordType.EncodedWord)) {
 					start = prev.StartIndex + prev.CharCount;
 					length = word.StartIndex - start;
-					str.Append (text, start, length);
+					builder.Append (text.AsSpan (start, length));
 				}
 
 				switch (word.Type) {
 				case WordType.Atom:
-					str.Append (text, word.StartIndex, word.CharCount);
+					builder.Append (text.AsSpan (word.StartIndex, word.CharCount));
 					break;
 				case WordType.QuotedString:
-					AppendQuoted (str, text, word.StartIndex, word.CharCount);
+					AppendQuoted (ref builder, text, word.StartIndex, word.CharCount);
 					break;
 				case WordType.EncodedWord:
 					if (prev != null && prev.Type == WordType.EncodedWord) {
@@ -1443,7 +1443,7 @@ namespace MimeKit.Utils {
 						start = prev.StartIndex + prev.CharCount;
 						length = (word.StartIndex + word.CharCount) - start;
 
-						str.Append (phrase ? '\t' : ' ');
+						builder.Append (phrase ? '\t' : ' ');
 					} else {
 						start = word.StartIndex;
 						length = word.CharCount;
@@ -1451,13 +1451,13 @@ namespace MimeKit.Utils {
 
 					switch (word.Encoding) {
 					case WordEncoding.Ascii:
-						AppendEncodedWord (str, Encoding.ASCII, text, start, length, mode);
+						AppendEncodedWord (ref builder, Encoding.ASCII, text, start, length, mode);
 						break;
 					case WordEncoding.Latin1:
-						AppendEncodedWord (str, CharsetUtils.Latin1, text, start, length, mode);
+						AppendEncodedWord (ref builder, CharsetUtils.Latin1, text, start, length, mode);
 						break;
 					default: // custom charset
-						AppendEncodedWord (str, charset, text, start, length, mode);
+						AppendEncodedWord (ref builder, charset, text, start, length, mode);
 						break;
 					}
 					break;
@@ -1466,9 +1466,16 @@ namespace MimeKit.Utils {
 				prev = word;
 			}
 
-			encoded = new byte[str.Length];
-			for (int i = 0; i < str.Length; i++)
-				encoded[i] = (byte) str[i];
+			encoded = new byte[builder.Length];
+
+#if NET5_0_OR_GREATER
+			Encoding.ASCII.GetBytes (builder.AsSpan (), encoded);
+#else
+			for (int i = 0; i < builder.Length; i++)
+				encoded[i] = (byte) builder[i];
+#endif
+
+			builder.Dispose ();
 
 			return encoded;
 		}

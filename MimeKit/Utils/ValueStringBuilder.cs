@@ -4,6 +4,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -200,6 +201,16 @@ namespace System.Text {
 				_pos = pos + 1;
 			} else {
 				AppendSlow (s);
+			}
+		}
+
+		public void AppendJoin (char seperator, IList<string> values)
+		{
+			for (int i = 0; i < values.Count; i++) {
+				if (i > 0) 
+					Append (seperator);
+
+				Append (values[i]);
 			}
 		}
 

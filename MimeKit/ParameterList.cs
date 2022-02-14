@@ -620,10 +620,10 @@ namespace MimeKit {
 
 		#endregion
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding charset)
+		internal void Encode (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding charset)
 		{
 			foreach (var param in parameters)
-				param.Encode (options, builder, ref lineLength, charset);
+				param.Encode (options, ref builder, ref lineLength, charset);
 		}
 
 		/// <summary>
@@ -637,12 +637,17 @@ namespace MimeKit {
 		{
 			var values = new ValueStringBuilder (128);
 
-			foreach (var param in parameters) {
-				values.Append ("; ");
-				values.Append (param.ToString ());
-			}
+			WriteTo (ref values);
 
 			return values.ToString ();
+		}
+
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
+			foreach (var param in parameters) {
+				builder.Append ("; ");
+				param.WriteTo (ref builder);
+			}
 		}
 
 		internal event EventHandler Changed;

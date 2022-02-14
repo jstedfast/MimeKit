@@ -242,7 +242,8 @@ namespace MimeKit.Cryptography {
 
 		void DkimSign (FormatOptions options, MimeMessage message, IList<string> headers)
 		{
-			var value = new StringBuilder ("v=1");
+			using var builder = new ValueStringBuilder (256);
+			builder.Append("v=1");
 			var t = GetTimestamp ();
 			byte[] signature, hash;
 			Header dkim;
@@ -253,25 +254,36 @@ namespace MimeKit.Cryptography {
 
 			switch (SignatureAlgorithm) {
 			case DkimSignatureAlgorithm.Ed25519Sha256:
-				value.Append ("; a=ed25519-sha256");
+				builder.Append ("; a=ed25519-sha256");
 				break;
 			case DkimSignatureAlgorithm.RsaSha256:
-				value.Append ("; a=rsa-sha256");
+				builder.Append ("; a=rsa-sha256");
 				break;
 			default:
-				value.Append ("; a=rsa-sha1");
+				builder.Append ("; a=rsa-sha1");
 				break;
 			}
 
-			value.AppendFormat ("; d={0}; s={1}", Domain, Selector);
-			value.AppendFormat ("; c={0}/{1}",
-				HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant (),
-				BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
-			if (!string.IsNullOrEmpty (QueryMethod))
-				value.AppendFormat ("; q={0}", QueryMethod);
-			if (!string.IsNullOrEmpty (AgentOrUserIdentifier))
-				value.AppendFormat ("; i={0}", AgentOrUserIdentifier);
-			value.AppendFormat ("; t={0}", t);
+			builder.Append ("; d=");
+			builder.Append (Domain);
+			builder.Append ("; s=");
+			builder.Append (Selector);
+			builder.Append ("; c=");
+			builder.Append (HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			builder.Append ('/');
+			builder.Append (BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+
+			if (!string.IsNullOrEmpty (QueryMethod)) {
+				builder.Append ("; q=");
+				builder.Append (QueryMethod);
+			}
+			if (!string.IsNullOrEmpty (AgentOrUserIdentifier)) {
+				builder.Append ("; i=");
+				builder.Append (AgentOrUserIdentifier);
+			}
+
+			builder.Append ("; t=");
+			builder.AppendInvariant (t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -280,13 +292,15 @@ namespace MimeKit.Cryptography {
 					// write the specified message headers
 					DkimVerifierBase.WriteHeaders (options, message, headers, HeaderCanonicalizationAlgorithm, filtered);
 
-					value.AppendFormat ("; h={0}", string.Join (":", headers.ToArray ()));
+					builder.Append ("; h=");
+					builder.AppendJoin (':', headers);
 
 					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
-					value.AppendFormat ("; bh={0}", Convert.ToBase64String (hash));
-					value.Append ("; b=");
+					builder.Append ("; bh=");
+					builder.Append (Convert.ToBase64String (hash));
+					builder.Append ("; b=");
 
-					dkim = new Header (HeaderId.DkimSignature, value.ToString ());
+					dkim = new Header (HeaderId.DkimSignature, builder.ToString ());
 					message.Headers.Insert (0, dkim);
 
 					switch (HeaderCanonicalizationAlgorithm) {
