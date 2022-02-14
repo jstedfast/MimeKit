@@ -986,9 +986,9 @@ namespace MimeKit.Utils {
 			return encoding.CodePage == 50220 || encoding.CodePage == 50222;
 		}
 
-		internal static int AppendEncodedWord (ref ValueStringBuilder str, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		internal static int AppendEncodedWord (ref ValueStringBuilder builder, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
 		{
-			int startLength = str.Length;
+			int startLength = builder.Length;
 			var chars = new char[length];
 			IMimeEncoder encoder;
 			byte[] word, encoded;
@@ -1015,19 +1015,19 @@ namespace MimeKit.Utils {
 			encoded = ArrayPool<byte>.Shared.Rent (encoder.EstimateOutputLength (len));
 			len = encoder.Flush (word, 0, len, encoded);
 
-			str.Append ("=?");
-			str.Append (CharsetUtils.GetMimeCharset (charset));
-			str.Append ('?');
-			str.Append (encoding);
-			str.Append ('?');
+			builder.Append ("=?");
+			builder.Append (CharsetUtils.GetMimeCharset (charset));
+			builder.Append ('?');
+			builder.Append (encoding);
+			builder.Append ('?');
 
 			for (int i = 0; i < len; i++)
-				str.Append ((char) encoded[i]);
-			str.Append ("?=");
+				builder.Append ((char) encoded[i]);
+			builder.Append ("?=");
 
 			ArrayPool<byte>.Shared.Return (encoded);
 
-			return str.Length - startLength;
+			return builder.Length - startLength;
 		}
 
 		static void AppendQuoted (ref ValueStringBuilder str, string text, int startIndex, int length)
