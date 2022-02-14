@@ -253,22 +253,22 @@ namespace MimeKit.Cryptography
 
 		Header GenerateArcMessageSignature (FormatOptions options, MimeMessage message, int instance, long t, IList<string> headers)
 		{
-			var sb = new ValueStringBuilder (256);
+			var builder = new ValueStringBuilder (256);
 			byte[] signature, hash;
 			Header ams;
 
-			AppendInstanceAndSignatureAlgorithm (ref sb, instance, SignatureAlgorithm);
+			AppendInstanceAndSignatureAlgorithm (ref builder, instance, SignatureAlgorithm);
 
-			sb.Append ("; d=");
-			sb.Append (Domain);
-			sb.Append ("; s="); 
-			sb.Append (Selector);
-			sb.Append ("; c=");
-			sb.Append (HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
-			sb.Append ('/');
-			sb.Append (BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
-			sb.Append ("; t=");
-			sb.AppendInvariant (t);
+			builder.Append ("; d=");
+			builder.Append (Domain);
+			builder.Append ("; s="); 
+			builder.Append (Selector);
+			builder.Append ("; c=");
+			builder.Append (HeaderCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			builder.Append ('/');
+			builder.Append (BodyCanonicalizationAlgorithm.ToString ().ToLowerInvariant ());
+			builder.Append ("; t=");
+			builder.AppendInvariant (t);
 
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -277,15 +277,15 @@ namespace MimeKit.Cryptography
 					// write the specified message headers
 					DkimVerifierBase.WriteHeaders (options, message, headers, HeaderCanonicalizationAlgorithm, filtered);
 
-					sb.Append ("; h="); 
-					sb.AppendJoin(':', headers);
+					builder.Append ("; h="); 
+					builder.AppendJoin(':', headers);
 
 					hash = message.HashBody (options, SignatureAlgorithm, BodyCanonicalizationAlgorithm, -1);
-					sb.Append ("; bh="); 
-					sb.Append (Convert.ToBase64String (hash));
-					sb.Append ("; b=");
+					builder.Append ("; bh="); 
+					builder.Append (Convert.ToBase64String (hash));
+					builder.Append ("; b=");
 
-					ams = new Header (HeaderId.ArcMessageSignature, sb.ToString ());
+					ams = new Header (HeaderId.ArcMessageSignature, builder.ToString ());
 
 					switch (HeaderCanonicalizationAlgorithm) {
 					case DkimCanonicalizationAlgorithm.Relaxed:
