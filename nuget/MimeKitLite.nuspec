@@ -53,7 +53,7 @@
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
-      <group targetFramework="net46">
+      <group targetFramework="net461">
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
@@ -91,9 +91,9 @@
     <file src="..\MimeKit\bin\Release\net452\MimeKitLite.dll" target="lib\net452\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net452\MimeKitLite.pdb" target="lib\net452\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net452\MimeKitLite.xml" target="lib\net452\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net46\MimeKitLite.dll" target="lib\net46\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\net46\MimeKitLite.pdb" target="lib\net46\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\net46\MimeKitLite.xml" target="lib\net46\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net461\MimeKitLite.dll" target="lib\net461\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net461\MimeKitLite.pdb" target="lib\net461\MimeKitLite.pdb" />
+    <file src="..\MimeKit\bin\Release\net461\MimeKitLite.xml" target="lib\net461\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll" target="lib\net47\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.pdb" target="lib\net47\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.xml" target="lib\net47\MimeKitLite.xml" />

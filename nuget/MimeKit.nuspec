@@ -66,7 +66,7 @@
         <dependency id="System.Memory" version="4.5.4" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
-      <group targetFramework="net46">
+      <group targetFramework="net461">
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
@@ -118,9 +118,9 @@
     <file src="..\MimeKit\bin\Release\net452\MimeKit.dll" target="lib\net452\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net452\MimeKit.pdb" target="lib\net452\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net452\MimeKit.xml" target="lib\net452\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net46\MimeKit.dll" target="lib\net46\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net46\MimeKit.pdb" target="lib\net46\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net46\MimeKit.xml" target="lib\net46\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net461\MimeKit.dll" target="lib\net461\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net461\MimeKit.pdb" target="lib\net461\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\net461\MimeKit.xml" target="lib\net461\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.pdb" target="lib\net47\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
