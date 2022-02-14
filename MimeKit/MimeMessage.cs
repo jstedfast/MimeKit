@@ -2438,7 +2438,7 @@ namespace MimeKit {
 			if (references.Count > 0) {
 				int lineLength = "References".Length + 1;
 				var options = FormatOptions.Default;
-				var builder = new StringBuilder ();
+				var builder = new ValueStringBuilder (128);
 
 				for (int i = 0; i < references.Count; i++) {
 					if (i > 0 && lineLength + references[i].Length + 2 >= options.MaxLineLength) {

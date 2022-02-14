@@ -620,10 +620,10 @@ namespace MimeKit {
 
 		#endregion
 
-		internal void Encode (FormatOptions options, StringBuilder builder, ref int lineLength, Encoding charset)
+		internal void Encode (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding charset)
 		{
 			foreach (var param in parameters)
-				param.Encode (options, builder, ref lineLength, charset);
+				param.Encode (options, ref builder, ref lineLength, charset);
 		}
 
 		/// <summary>

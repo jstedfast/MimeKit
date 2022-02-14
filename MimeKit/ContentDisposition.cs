@@ -317,15 +317,16 @@ namespace MimeKit {
 		internal string Encode (FormatOptions options, Encoding charset)
 		{
 			int lineLength = "Content-Disposition:".Length;
-			var value = new StringBuilder (" ");
+			var builder = new ValueStringBuilder (128);
+			builder.Append(' ');
 
-			value.Append (disposition);
-			lineLength += value.Length;
+			builder.Append (disposition);
+			lineLength += builder.Length;
 
-			Parameters.Encode (options, value, ref lineLength, charset);
-			value.Append (options.NewLine);
+			Parameters.Encode (options, ref builder, ref lineLength, charset);
+			builder.Append (options.NewLine);
 
-			return value.ToString ();
+			return builder.ToString ();
 		}
 
 		/// <summary>
@@ -352,18 +353,19 @@ namespace MimeKit {
 			if (charset == null)
 				throw new ArgumentNullException (nameof (charset));
 
-			var value = new StringBuilder ("Content-Disposition: ");
-			value.Append (disposition);
+			var builder = new ValueStringBuilder (128);
+			builder.Append ("Content-Disposition: ");
+			builder.Append (disposition);
 
 			if (encode) {
-				int lineLength = value.Length;
+				int lineLength = builder.Length;
 
-				Parameters.Encode (options, value, ref lineLength, charset);
+				Parameters.Encode (options, ref builder, ref lineLength, charset);
 			} else {
-				value.Append (Parameters.ToString ());
+				builder.Append (Parameters.ToString ());
 			}
 
-			return value.ToString ();
+			return builder.ToString ();
 		}
 
 		/// <summary>

@@ -289,18 +289,19 @@ namespace MimeKit {
 		internal string Encode (FormatOptions options, Encoding charset)
 		{
 			int lineLength = "Content-Type:".Length;
-			var value = new StringBuilder (" ");
+			var builder = new ValueStringBuilder (128);
+			builder.Append(' ');
 
-			value.Append (MediaType);
-			value.Append ('/');
-			value.Append (MediaSubtype);
+			builder.Append (MediaType);
+			builder.Append ('/');
+			builder.Append (MediaSubtype);
 
-			lineLength += value.Length;
+			lineLength += builder.Length;
 
-			Parameters.Encode (options, value, ref lineLength, charset);
-			value.Append (options.NewLine);
+			Parameters.Encode (options, ref builder, ref lineLength, charset);
+			builder.Append (options.NewLine);
 
-			return value.ToString ();
+			return builder.ToString ();
 		}
 
 		/// <summary>
@@ -327,20 +328,21 @@ namespace MimeKit {
 			if (charset == null)
 				throw new ArgumentNullException (nameof (charset));
 
-			var value = new StringBuilder ("Content-Type: ");
-			value.Append (MediaType);
-			value.Append ('/');
-			value.Append (MediaSubtype);
+			var builder = new ValueStringBuilder (128);
+			builder.Append ("Content-Type: ");
+			builder.Append (MediaType);
+			builder.Append ('/');
+			builder.Append (MediaSubtype);
 
 			if (encode) {
-				int lineLength = value.Length;
+				int lineLength = builder.Length;
 
-				Parameters.Encode (options, value, ref lineLength, charset);
+				Parameters.Encode (options, ref builder, ref lineLength, charset);
 			} else {
-				value.Append (Parameters.ToString ());
+				builder.Append (Parameters.ToString ());
 			}
 
-			return value.ToString ();
+			return builder.ToString ();
 		}
 
 		/// <summary>
