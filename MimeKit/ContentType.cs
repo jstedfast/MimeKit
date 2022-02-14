@@ -339,7 +339,7 @@ namespace MimeKit {
 
 				Parameters.Encode (options, ref builder, ref lineLength, charset);
 			} else {
-				builder.Append (Parameters.ToString ());
+				Parameters.WriteTo (ref builder);
 			}
 
 			return builder.ToString ();
