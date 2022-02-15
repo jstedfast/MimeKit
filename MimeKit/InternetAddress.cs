@@ -303,7 +303,7 @@ namespace MimeKit {
 
 		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, RfcComplianceMode compliance, bool skipTrailingCfws, bool throwOnError, out string localpart)
 		{
-			var token = new StringBuilder ();
+			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
 
 			localpart = null;
