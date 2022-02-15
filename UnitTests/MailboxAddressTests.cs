@@ -96,6 +96,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestLocalPartAndDomain ()
+		{
+			var mailbox = new MailboxAddress ("User Name", "user@domain.com");
+
+			Assert.AreEqual ("user", mailbox.LocalPart, "LocalPart");
+			Assert.AreEqual ("domain.com", mailbox.Domain, "Domain");
+
+			mailbox = new MailboxAddress ("User Name", "user");
+
+			Assert.AreEqual ("user", mailbox.LocalPart, "Unix LocalPart");
+			Assert.AreEqual (string.Empty, mailbox.Domain, "Unix non-Domain");
+		}
+
+		[Test]
 		public void TestSetEmptyAddress ()
 		{
 			Assert.DoesNotThrow(() => new MailboxAddress ("Postmaster", string.Empty));
