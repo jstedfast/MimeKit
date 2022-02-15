@@ -63,6 +63,8 @@
   <ItemGroup>
     <Compile Remove="Cryptography\**" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
+    <Compile Remove="Utils\OptimizedOrdinalComparer.cs" />
+    <Compile Include="Utils\OptimizedOrdinalComparer.cs" Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
 
 </Project>

@@ -49,7 +49,16 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// A string comparer that performs a case-insensitive ordinal string comparison.
 		/// </remarks>
-		public static readonly IEqualityComparer<string> OrdinalIgnoreCase = new OptimizedOrdinalIgnoreCaseComparer ();
+		public static readonly IEqualityComparer<string> OrdinalIgnoreCase;
+
+		static MimeUtils ()
+		{
+#if NETFRAMEWORK || NETSTANDARD2_0
+			OrdinalIgnoreCase = new OptimizedOrdinalIgnoreCaseComparer ();
+#else
+			OrdinalIgnoreCase = StringComparer.OrdinalIgnoreCase;
+#endif
+		}
 
 		internal static void GetRandomBytes (byte[] buffer)
 		{

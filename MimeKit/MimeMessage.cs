@@ -1184,7 +1184,7 @@ namespace MimeKit {
 
 		IList<MailboxAddress> GetMailboxes (bool includeSenders, bool onlyUnique)
 		{
-			HashSet<string> unique = onlyUnique ? new HashSet<string> (StringComparer.OrdinalIgnoreCase) : null;
+			HashSet<string> unique = onlyUnique ? new HashSet<string> (MimeUtils.OrdinalIgnoreCase) : null;
 			var recipients = new List<MailboxAddress> ();
 
 			if (ResentSender != null || ResentFrom.Count > 0) {
