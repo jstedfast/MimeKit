@@ -287,7 +287,7 @@ namespace MimeKit {
 				duration = value;
 
 				if (value.HasValue) {
-					SetHeader ("Content-Duration", value.Value.ToString ());
+					SetHeader ("Content-Duration", value.Value.ToString (CultureInfo.InvariantCulture));
 				} else {
 					RemoveHeader ("Content-Duration");
 				}

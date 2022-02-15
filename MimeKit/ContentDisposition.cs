@@ -308,7 +308,7 @@ namespace MimeKit {
 			}
 			set {
 				if (value.HasValue)
-					Parameters["size"] = value.Value.ToString ();
+					Parameters["size"] = value.Value.ToString (CultureInfo.InvariantCulture);
 				else
 					Parameters.Remove ("size");
 			}
