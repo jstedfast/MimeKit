@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Reflection;
 using System.Globalization;
 using System.Collections.Generic;
 
@@ -44,16 +43,7 @@ namespace MimeKit.Utils {
 
 #if NET461_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
 			// Note: The CodePagesEncodingProvider was introduced in .NET Framework v4.6.1
-			try {
-				// System.Text.Encoding.RegisterProvider (System.Text.CodePagesEncodingProvider.Instance);
-				var assembly = Assembly.Load ("System.Text.Encoding.CodePages");
-				var providerType = assembly.GetType ("System.Text.CodePagesEncodingProvider");
-				var property = providerType.GetProperty ("Instance", typeof (EncodingProvider)).GetGetMethod ();
-				var instance = (EncodingProvider) property.Invoke (providerType, Array.Empty<object> ());
-
-				Encoding.RegisterProvider (instance);
-			} catch {
-			}
+			Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
 #endif
 
 			try {

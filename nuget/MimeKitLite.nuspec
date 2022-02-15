@@ -54,14 +54,17 @@
         <dependency id="System.Memory" version="4.5.4" />
       </group>
       <group targetFramework="net461">
+        <dependency id="System.Text.Encoding.CodePages" version="4.5.1" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
       <group targetFramework="net47">
+        <dependency id="System.Text.Encoding.CodePages" version="4.5.1" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
       <group targetFramework="net48">
+        <dependency id="System.Text.Encoding.CodePages" version="4.5.1" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
@@ -69,13 +72,13 @@
       <group targetFramework="net6.0" />
       <group targetFramework="netstandard2.0">
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.5.1" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
       <group targetFramework="netstandard2.1">
         <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="4.4.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.5.1" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
       </group>
