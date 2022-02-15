@@ -123,7 +123,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
-			StringBuilder para = new StringBuilder ();
+			var para = new StringBuilder ();
 			int paraQuoteDepth = -1;
 			string line;
 
