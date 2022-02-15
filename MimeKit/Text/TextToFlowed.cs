@@ -116,7 +116,7 @@ namespace MimeKit.Text {
 				flowed.Append ('>', quoteDepth);
 
 			// Space-stuffed lines which start with a space, "From ", or ">".
-			if (quoteDepth > 0 || (line.Length > index && line[index] == ' ') || line.Slice(index).StartsWith("From ".AsSpan(), StringComparison.Ordinal))
+			if (quoteDepth > 0 || (line.Length > index && line[index] == ' ') || line.Slice (index).StartsWith ("From ".AsSpan (), StringComparison.Ordinal))
 				flowed.Append (' ');
 
 			if (flowed.Length + (line.Length - index) <= MaxLineLength) {
@@ -127,20 +127,20 @@ namespace MimeKit.Text {
 			}
 
 			do {
-				int nextSpace = line.Slice(index).IndexOf (' ');
+				int nextSpace = line.Slice (index).IndexOf (' ');
 				int wordEnd = nextSpace == -1 ? line.Length : nextSpace + index;
 				int softBreak = nextSpace == -1 ? 0 : 2; // 2 = space + soft-break space
 				int wordLength = wordEnd - index;
 
 				if (flowed.Length + wordLength + softBreak <= MaxLineLength) {
 					// The entire word will fit on the remainder of the line.
-					flowed.Append (line.Slice(index, wordLength));
+					flowed.Append (line.Slice (index, wordLength));
 					index = wordEnd;
 				} else if (wordLength > MaxLineLength - (quoteDepth + 1)) {
 					// Even if we insert a soft-break here, the word is longer than what will fit on its own line.
 					// No matter what we do, we will need to break the word apart.
 					wordLength = MaxLineLength - (flowed.Length + 1);
-					flowed.Append (line.Slice(index, wordLength));
+					flowed.Append (line.Slice (index, wordLength));
 					index += wordLength;
 					break;
 				} else {
