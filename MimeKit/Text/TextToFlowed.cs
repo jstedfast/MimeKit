@@ -28,6 +28,8 @@ using System;
 using System.IO;
 using System.Text;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Text {
 	/// <summary>
 	/// A text to flowed text converter.
@@ -73,7 +75,7 @@ namespace MimeKit.Text {
 			get { return TextFormat.Flowed; }
 		}
 
-		static string Unquote (string line, out int quoteDepth)
+		static ReadOnlySpan<char> Unquote (ReadOnlySpan<char> line, out int quoteDepth)
 		{
 			int index = 0;
 
@@ -90,7 +92,7 @@ namespace MimeKit.Text {
 					index++;
 			} while (index < line.Length && line[index] == '>');
 
-			return line.Substring (index);
+			return line.Slice (index);
 		}
 
 		static bool StartsWith (string text, int startIndex, string value)
@@ -106,7 +108,7 @@ namespace MimeKit.Text {
 			return true;
 		}
 
-		static string GetFlowedLine (StringBuilder flowed, string line, ref int index, int quoteDepth)
+		static string GetFlowedLine (StringBuilder flowed, ReadOnlySpan<char> line, ref int index, int quoteDepth)
 		{
 			flowed.Length = 0;
 
@@ -114,31 +116,31 @@ namespace MimeKit.Text {
 				flowed.Append ('>', quoteDepth);
 
 			// Space-stuffed lines which start with a space, "From ", or ">".
-			if (quoteDepth > 0 || (line.Length > index && line[index] == ' ') || StartsWith (line, index, "From "))
+			if (quoteDepth > 0 || (line.Length > index && line[index] == ' ') || line.Slice(index).StartsWith("From ".AsSpan(), StringComparison.Ordinal))
 				flowed.Append (' ');
 
 			if (flowed.Length + (line.Length - index) <= MaxLineLength) {
-				flowed.Append (line.Substring (index));
+				flowed.Append (line.Slice (index));
 				index = line.Length;
 
 				return flowed.ToString ();
 			}
 
 			do {
-				int nextSpace = line.IndexOf (' ', index);
-				int wordEnd = nextSpace == -1 ? line.Length : nextSpace;
+				int nextSpace = line.Slice(index).IndexOf (' ');
+				int wordEnd = nextSpace == -1 ? line.Length : nextSpace + index;
 				int softBreak = nextSpace == -1 ? 0 : 2; // 2 = space + soft-break space
 				int wordLength = wordEnd - index;
 
 				if (flowed.Length + wordLength + softBreak <= MaxLineLength) {
 					// The entire word will fit on the remainder of the line.
-					flowed.Append (line, index, wordLength);
+					flowed.Append (line.Slice(index, wordLength));
 					index = wordEnd;
 				} else if (wordLength > MaxLineLength - (quoteDepth + 1)) {
 					// Even if we insert a soft-break here, the word is longer than what will fit on its own line.
 					// No matter what we do, we will need to break the word apart.
 					wordLength = MaxLineLength - (flowed.Length + 1);
-					flowed.Append (line, index, wordLength);
+					flowed.Append (line.Slice(index, wordLength));
 					index += wordLength;
 					break;
 				} else {
@@ -190,9 +192,7 @@ namespace MimeKit.Text {
 
 			while ((line = reader.ReadLine ()) != null) {
 				// Trim spaces before user-inserted hard line breaks.
-				line = line.TrimEnd (' ');
-
-				line = Unquote (line, out var quoteDepth);
+				var unquoted = Unquote (line.AsSpan ().TrimEnd (' '), out var quoteDepth);
 
 				// Ensure all lines (fixed and flowed) are 78 characters or fewer in
 				// length, counting any trailing space as well as a space added as
@@ -201,9 +201,9 @@ namespace MimeKit.Text {
 				int index = 0;
 
 				do {
-					var flowedLine = GetFlowedLine (flowed, line, ref index, quoteDepth);
+					var flowedLine = GetFlowedLine (flowed, unquoted, ref index, quoteDepth);
 					writer.WriteLine (flowedLine);
-				} while (index < line.Length);
+				} while (index < unquoted.Length);
 			}
 
 			if (!string.IsNullOrEmpty (Footer))
