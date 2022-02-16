@@ -286,12 +286,12 @@ namespace System.Text {
 #endif
 
 #if NET6_0_OR_GREATER
-		internal void AppendInvariant<T> (T value) where T : ISpanFormattable
+		internal void AppendInvariant<T> (T value, string? format = null) where T : ISpanFormattable
 		{
-			if (value.TryFormat (_chars.Slice (_pos), out int charsWritten, null, CultureInfo.InvariantCulture)) {
+			if (value.TryFormat (_chars.Slice (_pos), out int charsWritten, format, CultureInfo.InvariantCulture)) {
 				_pos += charsWritten;
 			} else {
-				Append (value.ToString (null, CultureInfo.InvariantCulture));
+				Append (value.ToString (format, CultureInfo.InvariantCulture));
 			}
 		}
 
@@ -306,9 +306,9 @@ namespace System.Text {
 		}
 #endif
 #else
-		internal void AppendInvariant<T> (T value, string? format = null, IFormatProvider? provider = null) where T: IFormattable
+		internal void AppendInvariant<T> (T value, string? format = null) where T: IFormattable
 		{
-			Append (value.ToString (null, CultureInfo.InvariantCulture));	
+			Append (value.ToString (format, CultureInfo.InvariantCulture));	
 		}
 
 #if UNUSED_VALUESTRINGBUILDER_API
