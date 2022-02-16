@@ -351,7 +351,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="DomainList"/>.</returns>
 		public override string ToString ()
 		{
-			var builder = new ValueStringBuilder ();
+			var builder = new ValueStringBuilder (128);
 
 			for (int i = 0; i < domains.Count; i++) {
 				if (string.IsNullOrWhiteSpace (domains[i]))

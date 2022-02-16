@@ -469,7 +469,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <param name="builder">The value string builder.</param>
 		/// <param name="text">The text to quote.</param>
-		internal static void AppendQuoted (ref ValueStringBuilder builder, string text)
+		internal static void AppendQuoted (this ref ValueStringBuilder builder, string text)
 		{
 			AppendQuoted (ref builder, text.AsSpan ());
 		}

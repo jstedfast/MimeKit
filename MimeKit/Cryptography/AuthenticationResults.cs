@@ -191,9 +191,16 @@ namespace MimeKit.Cryptography {
 		{
 			var builder = new ValueStringBuilder (256);
 
+			WriteTo (ref builder);
+
+			return builder.ToString ();
+		}
+
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
 			if (Instance.HasValue) {
 				builder.Append ("i=");
-				builder.AppendInvariant(Instance.Value);
+				builder.AppendInvariant (Instance.Value);
 				builder.Append ("; ");
 			}
 
@@ -212,13 +219,12 @@ namespace MimeKit.Cryptography {
 				for (int i = 0; i < Results.Count; i++) {
 					if (i > 0)
 						builder.Append ("; ");
-					builder.Append (Results[i].ToString());
+
+					Results[i].WriteTo (ref builder);
 				}
 			} else {
 				builder.Append ("none");
 			}
-
-			return builder.ToString ();
 		}
 
 		static bool IsKeyword (byte c)
@@ -1160,6 +1166,13 @@ namespace MimeKit.Cryptography {
 		{
 			var builder = new ValueStringBuilder (128);
 
+			WriteTo (ref builder);
+
+			return builder.ToString ();
+		}
+
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
 			if (Office365AuthenticationServiceIdentifier != null) {
 				builder.Append (Office365AuthenticationServiceIdentifier);
 				builder.Append ("; ");
@@ -1169,7 +1182,7 @@ namespace MimeKit.Cryptography {
 
 			if (Version.HasValue) {
 				builder.Append ('/');
-				builder.Append (Version.Value.ToString (CultureInfo.InvariantCulture));
+				builder.AppendInvariant (Version.Value);
 			}
 
 			builder.Append ('=');
@@ -1183,18 +1196,16 @@ namespace MimeKit.Cryptography {
 
 			if (!string.IsNullOrEmpty (Reason)) {
 				builder.Append (" reason=");
-				MimeUtils.AppendQuoted (ref builder, Reason);
+				builder.AppendQuoted (Reason);
 			} else if (!string.IsNullOrEmpty (Action)) {
 				builder.Append (" action=");
-				MimeUtils.AppendQuoted (ref builder, Action);
+				builder.AppendQuoted (Action);
 			}
 
 			for (int i = 0; i < Properties.Count; i++) {
 				builder.Append (' ');
-				builder.Append (Properties[i].ToString());
+				Properties[i].WriteTo (ref builder);
 			}
-
-			return builder.ToString ();
 		}
 	}
 
@@ -1326,10 +1337,27 @@ namespace MimeKit.Cryptography {
 		/// <returns>The serialized string.</returns>
 		public override string ToString ()
 		{
-			var quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
-			var value = quote ? MimeUtils.Quote (Value) : Value;
+			var builder = new ValueStringBuilder (128);
 
-			return $"{PropertyType}.{Property}={value}";
+			WriteTo (ref builder);
+
+			return builder.ToString ();
+		}
+
+		internal void WriteTo (ref ValueStringBuilder builder)
+		{
+			bool quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+
+			builder.Append (PropertyType);
+			builder.Append ('.');
+			builder.Append (Property);
+			builder.Append ('=');
+
+			if (quote) {
+				builder.AppendQuoted(Value);
+			} else {
+				builder.Append (Value);
+			}
 		}
 	}
 }
