@@ -136,12 +136,9 @@ namespace MimeKit.Encodings {
 			if (input.Length == 0)
 				return 0;
 
-			int inputIndex = 0;
 			int outputIndex = 0;
 
-			while (inputIndex < input.Length) {
-				byte c = input[inputIndex++];
-
+			foreach (var c in input) {
 				if (c == ' ') {
 					output[outputIndex++] = (byte) '_';
 				} else if (c != '_' && c.IsType (mask)) {
