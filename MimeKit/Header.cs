@@ -1371,26 +1371,24 @@ namespace MimeKit {
 			return c.IsBlank ();
 		}
 
-		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, out Header header)
+		internal static bool TryParse (ParserOptions options, ReadOnlySpan<byte> input, bool strict, out Header header)
 		{
-			byte* inend = input + length;
-			byte* start = input;
-			byte* inptr = input;
 			var invalid = false;
+			var index = 0;
 
 			// find the end of the field name
 			if (strict) {
-				while (inptr < inend && IsAsciiAtom (*inptr))
-					inptr++;
+				while (index < input.Length && IsAsciiAtom (input[index]))
+					index++;
 			} else {
-				while (inptr < inend && *inptr != (byte) ':' && !IsControl (*inptr))
-					inptr++;
+				while (index < input.Length && input[index] != (byte) ':' && !IsControl (input[index]))
+					index++;
 			}
 
-			while (inptr < inend && IsBlank (*inptr))
-				inptr++;
+			while (index < input.Length && IsBlank (input[index]))
+				index++;
 
-			if (inptr == inend || *inptr != ':') {
+			if (index == input.Length || input[index] != ':') {
 				if (strict) {
 					header = null;
 					return false;
@@ -1398,49 +1396,44 @@ namespace MimeKit {
 
 				// mark the header as invalid and consume the entire input as the 'field'
 				invalid = true;
-				inptr = inend;
+				index = input.Length;
 			}
 
-			var field = new byte[(int) (inptr - start)];
-			fixed (byte* outbuf = field) {
-				byte* outptr = outbuf;
+			var field = new byte[index];
 
-				while (start < inptr)
-					*outptr++ = *start++;
-			}
+			input.Slice (0, field.Length).CopyTo (field);
 
 			byte[] value;
 
-			if (inptr < inend) {
+			if (index < input.Length) {
 				// skip over the ':'
-				inptr++;
+				index++;
 
-				int count = (int) (inend - inptr);
+				int count = input.Length - index;
 
 				// When in strict mode (aka when called from any of the public Parse/TryParse APIs), force the value to be canonicalized by ending with a new-line sequence.
-				if (strict && inend[-1] != (byte) '\n')
+				if (strict && input[input.Length - 1] != (byte) '\n')
 					count += FormatOptions.Default.NewLine.Length;
 
 				value = new byte[count];
 
-				fixed (byte* outbuf = value) {
-					byte* outptr = outbuf;
+				int outputIndex = 0;
 
-					while (inptr < inend)
-						*outptr++ = *inptr++;
+				while (index < input.Length)
+					value[outputIndex++] = input[index++];
 
-					// When in strict mode (aka when called from any of the public Parse/TryParse APIs), force the value to be canonicalized by ending with a new-line sequence.
-					// See https://github.com/jstedfast/MimeKit/issues/695 for more information.
-					if (strict && inend[-1] != (byte) '\n') {
-						var newLine = FormatOptions.Default.NewLineBytes;
+				// When in strict mode (aka when called from any of the public Parse/TryParse APIs), force the value to be canonicalized by ending with a new-line sequence.
+				// See https://github.com/jstedfast/MimeKit/issues/695 for more information.
+				if (strict && input[input.Length - 1] != (byte) '\n') {
+					var newLine = FormatOptions.Default.NewLineBytes;
 
-						for (int i = 0; i < newLine.Length; i++)
-							*outptr++ = newLine[i];
+					for (int i = 0; i < newLine.Length; i++) {
+						value[outputIndex++] = newLine[i];
 					}
-				}
+				}				
 			} else {
 				// Note: The only way to get here is if we have an invalid header, in which case the entire 'header' is stored as the 'field'.
-#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+#if !NET452
 				value = Array.Empty<byte> ();
 #else
 				value = new byte[0];
@@ -1477,12 +1470,8 @@ namespace MimeKit {
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header header)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
-
-			unsafe {
-				fixed (byte* inptr = buffer) {
-					return TryParse (options.Clone (), inptr + startIndex, length, true, out header);
-				}
-			}
+			
+			return TryParse (options.Clone (), buffer.AsSpan(startIndex, length), true, out header);				
 		}
 
 		/// <summary>
@@ -1534,11 +1523,7 @@ namespace MimeKit {
 
 			int length = buffer.Length - startIndex;
 
-			unsafe {
-				fixed (byte* inptr = buffer) {
-					return TryParse (options.Clone (), inptr + startIndex, length, true, out header);
-				}
-			}
+			return TryParse (options.Clone (), buffer.AsSpan(startIndex, length), true, out header);				
 		}
 
 		/// <summary>
@@ -1620,11 +1605,7 @@ namespace MimeKit {
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
-			unsafe {
-				fixed (byte *inptr = buffer) {
-					return TryParse (options.Clone (), inptr, buffer.Length, true, out header);
-				}
-			}
+			return TryParse (options.Clone (), buffer.AsSpan(), true, out header);			
 		}
 
 		/// <summary>

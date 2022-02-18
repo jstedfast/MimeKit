@@ -833,18 +833,16 @@ namespace MimeKit {
 			headerIndex = 0;
 		}
 
-		unsafe void ParseAndAppendHeader ()
+		void ParseAndAppendHeader ()
 		{
 			if (headerIndex == 0)
 				return;
-
-			fixed (byte* buf = headerBuffer) {
-				if (Header.TryParse (options, buf, headerIndex, false, out var header)) {
-					header.Offset = headerOffset;
-					headers.Add (header);
-					headerIndex = 0;
-				}
-			}
+			
+			if (Header.TryParse (options, headerBuffer.AsSpan(0, headerIndex), false, out var header)) {
+				header.Offset = headerOffset;
+				headers.Add (header);
+				headerIndex = 0;
+			}			
 		}
 
 		static bool IsControl (byte c)
