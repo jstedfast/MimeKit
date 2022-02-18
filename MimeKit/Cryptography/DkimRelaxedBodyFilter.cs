@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System;
+
 using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
@@ -49,24 +51,23 @@ namespace MimeKit.Cryptography {
 			IsEmptyLine = true;
 		}
 
-		unsafe int Filter (byte* inbuf, int length, byte* outbuf)
+		int Filter (ReadOnlySpan<byte> input, Span<byte> output)
 		{
-			byte* inend = inbuf + length;
-			byte* outptr = outbuf;
-			byte* inptr = inbuf;
 			int count = 0;
+			int inputIndex = 0;
+			int outputIndex = 0;
 
-			while (inptr < inend) {
-				if (*inptr == (byte) '\n') {
+			while (inputIndex < input.Length) {
+				if (input[inputIndex] == (byte) '\n') {
 					if (IsEmptyLine) {
 						EmptyLines++;
 					} else {
 						if (cr) {
-							*outptr++ = (byte) '\r';
+							output[outputIndex++] = (byte) '\r';
 							count++;
 						}
 
-						*outptr++ = (byte) '\n';
+						output[outputIndex++] = (byte) '\n';
 						LastWasNewLine = true;
 						IsEmptyLine = true;
 						count++;
@@ -76,22 +77,22 @@ namespace MimeKit.Cryptography {
 					cr = false;
 				} else {
 					if (cr) {
-						*outptr++ = (byte) '\r';
+						output[outputIndex++] = (byte) '\r';
 						cr = false;
 						count++;
 					}
 
-					if (*inptr == (byte) '\r') {
+					if (input[inputIndex] == (byte) '\r') {
 						lwsp = false;
 						cr = true;
-					} else if ((*inptr).IsBlank ()) {
+					} else if ((input[inputIndex]).IsBlank ()) {
 						lwsp = true;
 					} else {
 						if (EmptyLines > 0) {
 							// unwind our collection of empty lines
 							while (EmptyLines > 0) {
-								*outptr++ = (byte) '\r';
-								*outptr++ = (byte) '\n';
+								output[outputIndex++] = (byte) '\r';
+								output[outputIndex++] = (byte) '\n';
 								EmptyLines--;
 								count += 2;
 							}
@@ -99,7 +100,7 @@ namespace MimeKit.Cryptography {
 
 						if (lwsp) {
 							// collapse lwsp to a single space
-							*outptr++ = (byte) ' ';
+							output[outputIndex++] = (byte) ' ';
 							lwsp = false;
 							count++;
 						}
@@ -107,12 +108,12 @@ namespace MimeKit.Cryptography {
 						LastWasNewLine = false;
 						IsEmptyLine = false;
 
-						*outptr++ = *inptr;
+						output[outputIndex++] = input[inputIndex];
 						count++;
 					}
 				}
 
-				inptr++;
+				inputIndex++;
 			}
 
 			return count;
@@ -136,12 +137,7 @@ namespace MimeKit.Cryptography {
 		{
 			EnsureOutputSize (length + (lwsp ? 1 : 0) + (EmptyLines * 2) + (cr ? 1 : 0) + 1, false);
 
-			unsafe {
-				fixed (byte* inptr = input, outptr = OutputBuffer) {
-					outputLength = Filter (inptr + startIndex, length, outptr);
-				}
-			}
-
+			outputLength = Filter (input.AsSpan(startIndex, length), OutputBuffer.AsSpan());
 			outputIndex = 0;
 
 			return OutputBuffer;
