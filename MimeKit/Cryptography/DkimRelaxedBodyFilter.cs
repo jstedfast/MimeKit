@@ -54,11 +54,10 @@ namespace MimeKit.Cryptography {
 		int Filter (ReadOnlySpan<byte> input, Span<byte> output)
 		{
 			int count = 0;
-			int inputIndex = 0;
 			int outputIndex = 0;
 
-			while (inputIndex < input.Length) {
-				if (input[inputIndex] == (byte) '\n') {
+			foreach (byte c in input) {
+				if (c == (byte) '\n') {
 					if (IsEmptyLine) {
 						EmptyLines++;
 					} else {
@@ -82,10 +81,10 @@ namespace MimeKit.Cryptography {
 						count++;
 					}
 
-					if (input[inputIndex] == (byte) '\r') {
+					if (c == (byte) '\r') {
 						lwsp = false;
 						cr = true;
-					} else if ((input[inputIndex]).IsBlank ()) {
+					} else if (c.IsBlank ()) {
 						lwsp = true;
 					} else {
 						if (EmptyLines > 0) {
@@ -108,12 +107,10 @@ namespace MimeKit.Cryptography {
 						LastWasNewLine = false;
 						IsEmptyLine = false;
 
-						output[outputIndex++] = input[inputIndex];
+						output[outputIndex++] = c;
 						count++;
 					}
 				}
-
-				inputIndex++;
 			}
 
 			return count;
