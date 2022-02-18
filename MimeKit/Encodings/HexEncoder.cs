@@ -107,28 +107,24 @@ namespace MimeKit.Encodings {
 				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", nameof (output));
 		}
 
-		static unsafe int Encode (byte* input, int length, byte* output)
+		static int Encode (ReadOnlySpan<byte> input, Span<byte> output)
 		{
-			if (length == 0)
+			if (input.Length == 0)
 				return 0;
 
-			byte* inend = input + length;
-			byte* outptr = output;
-			byte* inptr = input;
-
-			while (inptr < inend) {
-				byte c = *inptr++;
-
+			int outputIndex = 0;
+		
+			foreach (byte c in input) {
 				if (c.IsAttr ()) {
-					*outptr++ = c;
+					output[outputIndex++] = c;
 				} else {
-					*outptr++ = (byte) '%';
-					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
-					*outptr++ = hex_alphabet[c & 0x0f];
+					output[outputIndex++] = (byte) '%';
+					output[outputIndex++] = hex_alphabet[(c >> 4) & 0x0f];
+					output[outputIndex++] = hex_alphabet[c & 0x0f];
 				}
 			}
 
-			return (int) (outptr - output);
+			return outputIndex;
 		}
 
 		/// <summary>
@@ -163,11 +159,8 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Encode (inptr + startIndex, length, outptr);
-				}
-			}
+			return Encode (input.AsSpan(startIndex, length), output.AsSpan());
+			
 		}
 
 		/// <summary>
