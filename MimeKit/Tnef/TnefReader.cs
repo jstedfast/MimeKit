@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using System.Buffers.Binary;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -465,7 +466,11 @@ namespace MimeKit.Tnef {
 
 			UpdateChecksum (input, inputIndex, 2);
 
-			return (short) (input[inputIndex++] | (input[inputIndex++] << 8));
+			var result = BinaryPrimitives.ReadInt16LittleEndian (input.AsSpan (inputIndex));
+
+			inputIndex += 2;
+
+			return result;
 		}
 
 		internal int ReadInt32 ()
@@ -475,8 +480,11 @@ namespace MimeKit.Tnef {
 
 			UpdateChecksum (input, inputIndex, 4);
 
-			return input[inputIndex++] | (input[inputIndex++] << 8) |
-				(input[inputIndex++] << 16) | (input[inputIndex++] << 24);
+			var result = BinaryPrimitives.ReadInt32LittleEndian (input.AsSpan(inputIndex));
+
+			inputIndex += 4;
+
+			return result;
 		}
 
 		internal int PeekInt32 ()
@@ -484,8 +492,7 @@ namespace MimeKit.Tnef {
 			if (ReadAhead (4) < 4)
 				throw new EndOfStreamException ();
 
-			return input[inputIndex] | (input[inputIndex + 1] << 8) |
-				(input[inputIndex + 2] << 16) | (input[inputIndex + 3] << 24);
+			return BinaryPrimitives.ReadInt32LittleEndian (input.AsSpan (inputIndex));
 		}
 
 		internal long ReadInt64 ()
@@ -495,10 +502,11 @@ namespace MimeKit.Tnef {
 
 			UpdateChecksum (input, inputIndex, 8);
 
-			return (long) input[inputIndex++] | ((long) input[inputIndex++] << 8) |
-				((long) input[inputIndex++] << 16) | ((long) input[inputIndex++] << 24) |
-				((long) input[inputIndex++] << 32) | ((long) input[inputIndex++] << 40) |
-				((long) input[inputIndex++] << 48) | ((long) input[inputIndex++] << 56);
+			var result = BinaryPrimitives.ReadInt64LittleEndian (input.AsSpan (inputIndex));
+
+			inputIndex += 8;
+
+			return result;
 		}
 
 		static unsafe float Int32BitsToSingle (int value)
