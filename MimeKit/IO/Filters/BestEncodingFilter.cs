@@ -138,12 +138,13 @@ namespace MimeKit.IO.Filters {
 			return marker[4] == (byte) ' ';
 		}
 
-		unsafe void Scan (byte* inptr, byte* inend)
+		void Scan (ReadOnlySpan<byte> input)
 		{
-			while (inptr < inend) {
+			int index = 0;
+			while (index < input.Length) {
 				byte c = 0;
 
-				while (inptr < inend && (c = *inptr++) != (byte) '\n') {
+				while (index < input.Length && (c = input[index++]) != (byte) '\n') {
 					if (c == 0)
 						count0++;
 					else if ((c & 0x80) != 0)
@@ -208,11 +209,7 @@ namespace MimeKit.IO.Filters {
 		{
 			ValidateArguments (input, startIndex, length);
 
-			unsafe {
-				fixed (byte* inptr = input) {
-					Scan (inptr + startIndex, inptr + startIndex + length);
-				}
-			}
+			Scan (input.AsSpan (startIndex, length));
 
 			maxline = Math.Max (maxline, linelen);
 			total += length;
