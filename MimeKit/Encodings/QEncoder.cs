@@ -131,30 +131,29 @@ namespace MimeKit.Encodings {
 				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", nameof (output));
 		}
 
-		unsafe int Encode (byte* input, int length, byte* output)
+		int Encode (ReadOnlySpan<byte> input, Span<byte> output)
 		{
-			if (length == 0)
+			if (input.Length == 0)
 				return 0;
 
-			byte* inend = input + length;
-			byte* outptr = output;
-			byte* inptr = input;
+			int inputIndex = 0;
+			int outputIndex = 0;
 
-			while (inptr < inend) {
-				byte c = *inptr++;
+			while (inputIndex < input.Length) {
+				byte c = input[inputIndex++];
 
 				if (c == ' ') {
-					*outptr++ = (byte) '_';
+					output[outputIndex++] = (byte) '_';
 				} else if (c != '_' && c.IsType (mask)) {
-					*outptr++ = c;
+					output[outputIndex++] = c;
 				} else {
-					*outptr++ = (byte) '=';
-					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
-					*outptr++ = hex_alphabet[c & 0x0f];
+					output[outputIndex++] = (byte) '=';
+					output[outputIndex++] = hex_alphabet[(c >> 4) & 0x0f];
+					output[outputIndex++] = hex_alphabet[c & 0x0f];
 				}
 			}
 
-			return (int) (outptr - output);
+			return outputIndex;
 		}
 
 		/// <summary>
@@ -189,23 +188,20 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Encode (inptr + startIndex, length, outptr);
-				}
-			}
+			return Encode (input.AsSpan(startIndex, length), output.AsSpan());
 		}
 
-		unsafe int Flush (byte* input, int length, byte* output)
+		int Flush (ReadOnlySpan<byte> input, Span<byte> output)
 		{
-			byte* outptr = output;
+			int encodedBytes = 0;
 
-			if (length > 0)
-				outptr += Encode (input, length, output);
+			if (input.Length > 0) {
+				encodedBytes = Encode (input, output);
+			}
 
 			Reset ();
 
-			return (int) (outptr - output);
+			return encodedBytes;
 		}
 
 		/// <summary>
@@ -240,11 +236,7 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Flush (inptr + startIndex, length, outptr);
-				}
-			}
+			return Flush (input.AsSpan(startIndex, length), output.AsSpan());	
 		}
 
 		/// <summary>
