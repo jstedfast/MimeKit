@@ -124,6 +124,13 @@ namespace UnitTests.Encodings {
 			photo = File.ReadAllBytes (Path.Combine (dataDir, "photo.jpg"));
 		}
 
+		[Test]
+		public void TestConstructorArgumentExceptions ()
+		{
+			Assert.Throws<ArgumentOutOfRangeException> (() => new Base64Encoder (0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (0));
+		}
+
 		void TestEncoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
 		{
 			int n;

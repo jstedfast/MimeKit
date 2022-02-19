@@ -109,8 +109,7 @@ namespace MimeKit.Cryptography {
 		{
 			EnsureOutputSize (length + EmptyLines * 2 + 1, false);
 
-			outputLength = Filter (input.AsSpan(startIndex, length), OutputBuffer.AsSpan());
-
+			outputLength = Filter (input.AsSpan (startIndex, length), OutputBuffer.AsSpan ());
 			outputIndex = 0;
 
 			return OutputBuffer;
