@@ -27,7 +27,8 @@
 using System;
 using System.Buffers.Binary;
 
-namespace MimeKit.IO.Filters {
+namespace MimeKit.IO.Filters
+{
 	/// <summary>
 	/// A filter that can be used to determine the most efficient Content-Transfer-Encoding.
 	/// </summary>
@@ -37,13 +38,15 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class BestEncodingFilter : IMimeFilter
 	{
+		private static ReadOnlySpan<byte> NewLine => new byte[1] { (byte) '\n' };
+		private static ReadOnlySpan<byte> CR => new byte[1] { (byte) '\r' };
+
 		readonly byte[] marker = new byte[6];
 		int maxline, linelen;
 		int count0, count8;
 		int markerLength;
 		bool hasMarker;
 		int total;
-		byte pc;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="BestEncodingFilter"/> class.
@@ -142,24 +145,32 @@ namespace MimeKit.IO.Filters {
 		{
 			int index = 0;
 			while (index < input.Length) {
-				byte c = 0;
+				int newLineIndex = input.Slice (index).IndexOf (NewLine);
+				var line = newLineIndex != -1 ? input.Slice (index, newLineIndex) : input.Slice(index);
 
-				while (index < input.Length && (c = input[index++]) != (byte) '\n') {
+				foreach (var c in line) {
 					if (c == 0)
 						count0++;
 					else if ((c & 0x80) != 0)
 						count8++;
-
-					if (!hasMarker && markerLength < 5)
-						marker[markerLength++] = c;
-
-					linelen++;
-					pc = c;
 				}
+			
+				if (!hasMarker && markerLength < 5) {
+					int markerCopyLength = Math.Min (line.Length, 5 - markerLength);
 
-				if (c == (byte) '\n') {
-					if (pc == (byte) '\r')
-						linelen--;
+					line.Slice(0, markerCopyLength).CopyTo(marker.AsSpan(markerLength));
+
+					markerLength += markerCopyLength;
+				}				
+
+				linelen = line.EndsWith(CR)
+					? line.Length - 1
+					: line.Length;
+
+				index += line.Length;
+				
+				if (newLineIndex != -1) {
+					index++; // read \n
 
 					maxline = Math.Max (maxline, linelen);
 					linelen = 0;
@@ -260,7 +271,6 @@ namespace MimeKit.IO.Filters {
 			count0 = 0;
 			count8 = 0;
 			total = 0;
-			pc = 0;
 		}
 
 		#endregion
