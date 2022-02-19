@@ -52,19 +52,19 @@ namespace UnitTests {
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, -1, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.True (ex.ParamName == "startIndex" || ex.ParamName == "start");
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, 0, -1, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.True (ex.ParamName == "length" || ex.ParamName == "start"); // AsSpan throws the argument exception on start for invalid length
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, 1025, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.True (ex.ParamName == "startIndex" || ex.ParamName == "start");
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, 0, 1025, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.True (ex.ParamName == "length" || ex.ParamName == "start"); // AsSpan throws the argument exception on start for invalid length
 
 			// Flush
 			Assert.Throws<ArgumentNullException> (() => filter.Flush (null, 0, 0, out outputIndex, out outputLength),
@@ -72,19 +72,19 @@ namespace UnitTests {
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, -1, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.True (ex.ParamName == "startIndex" || ex.ParamName == "start");
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 0, -1, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.True (ex.ParamName == "length" || ex.ParamName == "start"); // AsSpan throws the argument exception on start for invalid length
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 1025, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.True (ex.ParamName == "startIndex" || ex.ParamName == "start");
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 0, 1025, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.True (ex.ParamName == "length" || ex.ParamName == "start"); // AsSpan throws the argument exception on start for invalid length
 
 			filter.Reset ();
 		}

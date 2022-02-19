@@ -184,18 +184,6 @@ namespace MimeKit.IO.Filters
 			}
 		}
 
-		static void ValidateArguments (byte[] input, int startIndex, int length)
-		{
-			if (input == null)
-				throw new ArgumentNullException (nameof (input));
-
-			if (startIndex < 0 || startIndex > input.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (input.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
-		}
-
 		/// <summary>
 		/// Filter the specified input.
 		/// </summary>
@@ -218,7 +206,8 @@ namespace MimeKit.IO.Filters
 		/// </exception>
 		public byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength)
 		{
-			ValidateArguments (input, startIndex, length);
+			if (input == null)
+				throw new ArgumentNullException (nameof (input));
 
 			Scan (input.AsSpan (startIndex, length));
 
