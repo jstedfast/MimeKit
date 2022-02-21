@@ -618,7 +618,11 @@ namespace MimeKit {
 			if (!contentOnly)
 				return Headers.WriteToAsync (options, stream, cancellationToken);
 
+#if NET46_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
+			return Task.CompletedTask;
+#else
 			return Task.FromResult (0);
+#endif
 		}
 
 		/// <summary>

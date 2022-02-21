@@ -55,6 +55,7 @@ namespace MimeKit.IO {
 
 		readonly List<byte[]> blocks = new List<byte[]> ();
 		readonly BufferPool pool;
+		Task<int> lastReadTask;
 		long position, length;
 		bool disposed;
 
@@ -287,7 +288,20 @@ namespace MimeKit.IO {
 		/// </exception>
 		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-			return Task.FromResult (Read (buffer, offset, count));
+			try {
+				int n = Read (buffer, offset, count);
+
+				if (lastReadTask == null || lastReadTask.Result != n)
+					lastReadTask = Task.FromResult<int> (n);
+
+				return lastReadTask;
+			} catch (Exception ex) {
+#if NET46_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
+				return Task.FromException<int> (ex);
+#else
+				throw;
+#endif
+			}
 		}
 
 		/// <summary>
@@ -388,7 +402,11 @@ namespace MimeKit.IO {
 		{
 			Write (buffer, offset, count);
 
+#if NET46_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
+			return Task.CompletedTask;
+#else
 			return Task.FromResult (0);
+#endif
 		}
 
 		/// <summary>
@@ -482,7 +500,11 @@ namespace MimeKit.IO {
 		{
 			CheckDisposed ();
 
+#if NET46_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
+			return Task.CompletedTask;
+#else
 			return Task.FromResult (0);
+#endif
 		}
 
 		/// <summary>
@@ -532,7 +554,7 @@ namespace MimeKit.IO {
 			length = value;
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Release the unmanaged resources used by the <see cref="MemoryBlockStream"/> and
