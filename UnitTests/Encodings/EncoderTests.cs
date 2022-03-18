@@ -358,7 +358,7 @@ namespace UnitTests.Encodings {
 		public void TestQuotedPrintableEncodeSpaceDosLineBreak ()
 		{
 			const string input = "This line ends with a space \r\nbefore a line break.";
-			const string expected = "This line ends with a space=20\nbefore a line break.";
+			const string expected = "This line ends with a space=20\nbefore a line break.=\n";
 			var encoder = new QuotedPrintableEncoder ();
 			var output = new byte[1024];
 			string actual;
@@ -377,7 +377,7 @@ namespace UnitTests.Encodings {
 		public void TestQuotedPrintableEncodeSpaceUnixLineBreak ()
 		{
 			const string input = "This line ends with a space \nbefore a line break.";
-			const string expected = "This line ends with a space=20\nbefore a line break.";
+			const string expected = "This line ends with a space=20\nbefore a line break.=\n";
 			var encoder = new QuotedPrintableEncoder ();
 			var output = new byte[1024];
 			string actual;
@@ -390,6 +390,27 @@ namespace UnitTests.Encodings {
 			n = encoder.Flush (buf, 0, buf.Length, output);
 			actual = Encoding.ASCII.GetString (output, 0, n);
 			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestQuotedPrintableEncodeEqualSignAt76 ()
+		{
+			var text = "<table style=\"width:100%;\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"width:100%;text-align:center;background-color:;\" bgcolor=\"\">Test</td></tr><table>";
+			var input = Encoding.ASCII.GetBytes (text);
+			var expected = "<table style=3D\"width:100%;\" cellpadding=3D\"0\" cellspacing=3D\"0\" border=3D\"=\n0\"><tr><td style=3D\"width:100%;text-align:center;background-color:;\" bgcolo=\nr=3D\"\">Test</td></tr><table>=\n";
+			var encoder = new QuotedPrintableEncoder (76);
+			var output = new byte[encoder.EstimateOutputLength (input.Length)];
+			var outputLength = encoder.Flush (input, 0, input.Length, output);
+			var encoded = Encoding.ASCII.GetString (output, 0, outputLength);
+
+			Assert.AreEqual (expected, encoded);
+
+			var decoder = new QuotedPrintableDecoder ();
+			var buffer = new byte[decoder.EstimateOutputLength (outputLength)];
+			var decodedLength = decoder.Decode (output, 0, outputLength, buffer);
+			var decoded = Encoding.ASCII.GetString (buffer, 0, decodedLength);
+
+			Assert.AreEqual (text, decoded);
 		}
 
 		[Test]
@@ -459,7 +480,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestQuotedPrintableEncode2 ()
 		{
-			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1=\n =E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).\n";
+			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1 =\n=E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).\n";
 			const string input = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).\n";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
 			var encoder = new QuotedPrintableEncoder (72);

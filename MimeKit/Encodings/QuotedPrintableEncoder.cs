@@ -44,15 +44,13 @@ namespace MimeKit.Encodings {
 			0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, // '8' -> 'F'
 		};
 
-		readonly short desiredLineLength;
 		readonly short tripletsPerLine;
 		readonly short maxLineLength;
 		short currentLineLength;
 		short saved;
 
-		QuotedPrintableEncoder (short desiredLineLength, short tripletsPerLine, short maxLineLength)
+		QuotedPrintableEncoder (short tripletsPerLine, short maxLineLength)
 		{
-			this.desiredLineLength = desiredLineLength;
 			this.tripletsPerLine = tripletsPerLine;
 			this.maxLineLength = maxLineLength;
 		}
@@ -76,9 +74,8 @@ namespace MimeKit.Encodings {
 			maxLineLength = Math.Min (maxLineLength, 76);
 
 			// normalize the maximum line length
-			tripletsPerLine = (short) ((maxLineLength - 1) / 3);
-			desiredLineLength = (short) (tripletsPerLine * 3);
-			this.maxLineLength = (short) (desiredLineLength + 2); // add "=\n"
+			tripletsPerLine = (short) (maxLineLength / 3);
+			this.maxLineLength = (short) maxLineLength;
 
 			Reset ();
 		}
@@ -92,7 +89,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="QuotedPrintableEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new QuotedPrintableEncoder (desiredLineLength, tripletsPerLine, maxLineLength);
+			var encoder = new QuotedPrintableEncoder (tripletsPerLine, maxLineLength);
 
 			encoder.currentLineLength = currentLineLength;
 			encoder.saved = saved;
@@ -121,7 +118,10 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return ((inputLength / tripletsPerLine) * maxLineLength) + maxLineLength;
+			if (saved != -1)
+				inputLength++;
+
+			return ((inputLength / tripletsPerLine) * (maxLineLength + 1)) + ((inputLength % tripletsPerLine) * 3) + 2;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -156,18 +156,33 @@ namespace MimeKit.Encodings {
 
 				if (c == (byte) '\r') {
 					if (saved != -1) {
-						*outptr++ = (byte) '=';
-						*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
-						*outptr++ = hex_alphabet[saved & 0x0f];
-						currentLineLength += 3;
+						byte b = (byte) saved;
+
+						// spaces and tabs must be encoded if they the last character on the line
+						if (b.IsBlank () || !b.IsQpSafe ()) {
+							*outptr++ = (byte) '=';
+							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
+							*outptr++ = hex_alphabet[b & 0x0f];
+							currentLineLength += 3;
+						} else {
+							*outptr++ = b;
+							currentLineLength++;
+						}
 					}
 
 					saved = c;
 				} else if (c == (byte) '\n') {
-					if (saved != -1 && saved != '\r') {
-						*outptr++ = (byte) '=';
-						*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
-						*outptr++ = hex_alphabet[saved & 0x0f];
+					if (saved != -1 && saved != (byte) '\r') {
+						byte b = (byte) saved;
+
+						// spaces and tabs must be encoded if they the last character on the line
+						if (b.IsBlank () || !b.IsQpSafe ()) {
+							*outptr++ = (byte) '=';
+							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
+							*outptr++ = hex_alphabet[b & 0x0f];
+						} else {
+							*outptr++ = b;
+						}
 					}
 
 					*outptr++ = (byte) '\n';
@@ -177,32 +192,24 @@ namespace MimeKit.Encodings {
 					if (saved != -1) {
 						byte b = (byte) saved;
 
-						*outptr++ = b;
-						currentLineLength++;
-					}
-
-					if (currentLineLength > desiredLineLength) {
-						*outptr++ = (byte) '=';
-						*outptr++ = (byte) '\n';
-						currentLineLength = 0;
-					}
-
-					if (c.IsQpSafe ()) {
-						// delay output of whitespace character
-						if (c.IsBlank ()) {
-							saved = c;
-						} else {
-							*outptr++ = c;
+						if (b.IsQpSafe ()) {
+							*outptr++ = b;
 							currentLineLength++;
-							saved = -1;
+						} else {
+							*outptr++ = (byte) '=';
+							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
+							*outptr++ = hex_alphabet[b & 0x0f];
+							currentLineLength += 3;
 						}
-					} else {
-						*outptr++ = (byte) '=';
-						*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
-						*outptr++ = hex_alphabet[c & 0x0f];
-						currentLineLength += 3;
-						saved = -1;
+
+						if (currentLineLength + 1 >= maxLineLength) {
+							*outptr++ = (byte) '=';
+							*outptr++ = (byte) '\n';
+							currentLineLength = 0;
+						}
 					}
+
+					saved = c;
 				}
 			}
 
@@ -256,12 +263,16 @@ namespace MimeKit.Encodings {
 				outptr += Encode (input, length, output);
 
 			if (saved != -1) {
-				// spaces and tabs must be encoded if they the last character on the line
 				byte c = (byte) saved;
 
-				*outptr++ = (byte) '=';
-				*outptr++ = hex_alphabet[(saved >> 4) & 0xf];
-				*outptr++ = hex_alphabet[saved & 0xf];
+				// spaces and tabs must be encoded if they the last character on the line
+				if (c.IsBlank () || !c.IsQpSafe ()) {
+					*outptr++ = (byte) '=';
+					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
+					*outptr++ = hex_alphabet[c & 0x0f];
+				} else {
+					*outptr++ = c;
+				}
 
 				// we end with =\n so that the \n isn't interpreted as
 				// a real \n when it gets decoded later
