@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -59,13 +60,20 @@ namespace Benchmarks.IO.Filters {
 
 		static void FilterInputStream (Stream input, IMimeFilter filter)
 		{
-			using (var output = new MeasuringStream ()) {
-				using (var filtered = new FilteredStream (output)) {
-					filtered.Add (filter);
+			var buffer = ArrayPool<byte>.Shared.Rent (4096);
+
+			try {
+				for (int i = 0; i < 100; i++) {
+					int n;
+
+					while ((n = input.Read (buffer, 0, 4096)) > 0)
+						filter.Filter (buffer, 0, n, out _, out _);
+					filter.Flush (buffer, 0, 0, out _, out _);
 					input.Position = 0;
-					input.CopyTo (filtered);
-					filtered.Flush ();
+					filter.Reset ();
 				}
+			} finally {
+				ArrayPool<byte>.Shared.Return (buffer);
 			}
 		}
 
