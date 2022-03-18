@@ -67,7 +67,7 @@ namespace MimeKit.Encodings {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
 		/// </exception>
-		public QuotedPrintableEncoder (int maxLineLength = 72)
+		public QuotedPrintableEncoder (int maxLineLength = 76)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));

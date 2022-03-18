@@ -62,7 +62,7 @@ namespace MimeKit.Encodings {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
 		/// </exception>
-		internal Base64Encoder (bool rfc2047, int maxLineLength = 72)
+		internal Base64Encoder (bool rfc2047, int maxLineLength = 76)
 		{
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
@@ -84,7 +84,7 @@ namespace MimeKit.Encodings {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
 		/// </exception>
-		public Base64Encoder (int maxLineLength = 72) : this (false, maxLineLength)
+		public Base64Encoder (int maxLineLength = 76) : this (false, maxLineLength)
 		{
 		}
 

@@ -151,7 +151,7 @@ namespace UnitTests.Encodings {
 					}
 
 					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (encoding, 72));
+						filtered.Add (EncoderFilter.Create (encoding));
 
 						using (var memory = new MemoryStream (rawData, false)) {
 							var buffer = new byte[bufferSize];
