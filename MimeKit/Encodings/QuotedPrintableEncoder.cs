@@ -177,15 +177,8 @@ namespace MimeKit.Encodings {
 					if (saved != -1) {
 						byte b = (byte) saved;
 
-						if (b.IsQpSafe ()) {
-							*outptr++ = b;
-							currentLineLength++;
-						} else {
-							*outptr++ = (byte) '=';
-							*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
-							*outptr++ = hex_alphabet[saved & 0x0f];
-							currentLineLength += 3;
-						}
+						*outptr++ = b;
+						currentLineLength++;
 					}
 
 					if (currentLineLength > desiredLineLength) {
