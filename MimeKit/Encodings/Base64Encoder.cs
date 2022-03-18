@@ -157,9 +157,6 @@ namespace MimeKit.Encodings {
 
 		unsafe int Encode (byte* input, int length, byte* output)
 		{
-			if (length == 0)
-				return 0;
-
 			int remaining = length;
 			byte* outptr = output;
 			byte* inptr = input;
