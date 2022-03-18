@@ -184,6 +184,7 @@ namespace MimeKit.Encodings {
 							*outptr++ = (byte) '=';
 							*outptr++ = hex_alphabet[(saved >> 4) & 0x0f];
 							*outptr++ = hex_alphabet[saved & 0x0f];
+							currentLineLength += 3;
 						}
 					}
 
