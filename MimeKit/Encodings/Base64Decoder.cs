@@ -41,7 +41,7 @@ namespace MimeKit.Encodings {
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 			255,255,255,255,255,255,255,255,255,255,255, 62,255,255,255, 63,
-			 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,255,255,255,255,255,255,
+			 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,255,255,255,  0,255,255,
 			255,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
 			 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,255,255,255,255,255,
 			255, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
@@ -56,9 +56,9 @@ namespace MimeKit.Encodings {
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 		};
 
+		int previous;
 		uint saved;
 		byte bytes;
-		bool eof;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Decoder"/> class.
@@ -80,9 +80,9 @@ namespace MimeKit.Encodings {
 		public IMimeDecoder Clone ()
 		{
 			var decoder = new Base64Decoder ();
+			decoder.previous = previous;
 			decoder.saved = saved;
 			decoder.bytes = bytes;
-			decoder.eof = eof;
 
 			return decoder;
 		}
@@ -108,12 +108,8 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			if (eof)
-				return 0;
-
-			int quartets = (inputLength + bytes) / 4;
-
-			return quartets * 3;
+			// may require up to 3 padding bytes
+			return inputLength + 3;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -154,44 +150,28 @@ namespace MimeKit.Encodings {
 			byte* inptr = input;
 			byte c;
 
-			if (eof)
-				return 0;
-
 			// decode every quartet into a triplet
 			while (inptr < inend) {
 				byte rank = base64_rank[(c = *inptr++)];
 
 				if (rank != 0xFF) {
+					previous = (previous << 8) | c;
 					saved = (saved << 6) | rank;
 					bytes++;
 
 					if (bytes == 4) {
-						// flush our decoded quartet
-						*outptr++ = (byte) ((saved >> 16) & 0xFF);
-						*outptr++ = (byte) ((saved >> 8) & 0xFF);
-						*outptr++ = (byte) (saved & 0xFF);
+						if ((previous & 0xFF0000) != ((byte) '=') << 16) {
+							*outptr++ = (byte) ((saved >> 16) & 0xFF);
+							if ((previous & 0xFF00) != ((byte) '=') << 8) {
+								*outptr++ = (byte) ((saved >> 8) & 0xFF);
+								if ((previous & 0xFF) != (byte) '=')
+									*outptr++ = (byte) (saved & 0xFF);
+							}
+						}
 						saved = 0;
 						bytes = 0;
 					}
-				} else if (c == (byte) '=') {
-					// Note: this marks the end of the base64 stream. The only octet that can
-					// appear after this is another '=' (and possibly mailing-list junk).
-					eof = true;
-					break;
 				}
-			}
-
-			// Note: there shouldn't be more than 2 '=' octets at the end of a quartet,
-			// so if bytes < 2, then it means the encoder is broken.
-			if (eof && bytes >= 2) {
-				// at this point, `bytes` should be either 2 or 3
-				int eq = 4 - bytes;
-
-				saved <<= (6 * eq);
-
-				*outptr++ = (byte) ((saved >> 16) & 0xFF);
-				if (bytes > 2)
-					*outptr++ = (byte) ((saved >> 8) & 0xFF);
 			}
 
 			return (int) (outptr - output);
@@ -229,9 +209,6 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			if (eof)
-				return 0;
-
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
 					return Decode (inptr + startIndex, length, outptr);
@@ -247,9 +224,9 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public void Reset ()
 		{
+			previous = 0;
 			saved = 0;
 			bytes = 0;
-			eof = false;
 		}
 	}
 }
