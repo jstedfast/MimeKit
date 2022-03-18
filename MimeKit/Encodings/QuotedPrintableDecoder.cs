@@ -56,9 +56,7 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new quoted-printable decoder.
 		/// </remarks>
-		/// <param name="rfc2047">
-		/// <c>true</c> if this decoder will be used to decode rfc2047 encoded-word payloads; <c>false</c> otherwise.
-		/// </param>
+		/// <param name="rfc2047"><c>true</c> if this decoder will be used to decode rfc2047 encoded-word tokens; otherwise, <c>false</c>.</param>
 		public QuotedPrintableDecoder (bool rfc2047)
 		{
 			this.rfc2047 = rfc2047;
