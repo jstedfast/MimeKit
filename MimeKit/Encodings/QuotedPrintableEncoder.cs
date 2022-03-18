@@ -259,13 +259,9 @@ namespace MimeKit.Encodings {
 				// spaces and tabs must be encoded if they the last character on the line
 				byte c = (byte) saved;
 
-				if (c.IsBlank () || !c.IsQpSafe ()) {
-					*outptr++ = (byte) '=';
-					*outptr++ = hex_alphabet[(saved >> 4) & 0xf];
-					*outptr++ = hex_alphabet[saved & 0xf];
-				} else {
-					*outptr++ = c;
-				}
+				*outptr++ = (byte) '=';
+				*outptr++ = hex_alphabet[(saved >> 4) & 0xf];
+				*outptr++ = hex_alphabet[saved & 0xf];
 
 				// we end with =\n so that the \n isn't interpreted as
 				// a real \n when it gets decoded later
