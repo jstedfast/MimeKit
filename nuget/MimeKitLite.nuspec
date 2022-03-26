@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,21 +26,36 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* When initializing character encodings for netstandard and net50/net60, wrap the Reflection logic to invoke System.Text.Encoding.RegisterProvider() in a try/catch to prevents exceptions when using the netstandard version of MimeKit in a .NET Framework app. (issue #751)
-* Added a work-around for Office365 `message/delivery-status` parts where all status groups after the first are base64 encoded. This seems to be a bug in Office365 where it treats the first status group as MIME entity and the following status groups as the content. (issue #250)
-* Fixed the MimeMessage .ctor that takes object parameters to first check that a Message-Id header was not supplied before generating one for the message. (issue #747)
-* Fixed the BestEncodingFilter logic such that if any line in binary content is > 998 and it contains nul bytes, it should recommend base64 (not quoted-printable).
+* Rewrote QuotedPrintableEncoder to more strictly fold at the specified line length. (issue #781)
+* Change the default maxLineLength for quoted-printable/base64 encoders to 76 to match the recommendation in the specification (was previously 72).
+* Use cached Task instances (e.g. Task.CompletedTask) when possible to improve performance.
+* Make use of ReadOnlySpan&lt;T&gt; instead of String.Substring() wherever possible to improve performance.
+* Reduced string allocations in other ways.
+* Provide MailboxAddress accessors for LocalPart and Domain. (issue #766)
+* Replaced support for .NET Framework v4.6 with 4.6.1 and added a System.Text.Encoding.CodePages dependency to solve various cases where MimeKit would fail to initialize properly on ASP.NET systems using net461 when system character encodings were not available.
+* Fixed MessagePartial to use invariant culture when setting number/total param values.
+* Make sure all int.TryParse() calls use the correct NumberStyles.
+* Make use of a ValueStringBuilder to construct strings without needing to allocate a StringBuilder.
+* Fixed InternetAddressList.TryParse() to fail on invalid input. (issue #762)
+* Added dispose handling to MimeMessage.CreateFromMailMessage().
+* Improved MIME structure returned by TnefPart.ConvertToMessage().
+* Rewrote header folding logic to avoid string allocations.
+* Implemented IEquatable&lt;T&gt; on TnefNameId.
+* If iso-8859-1 isn't available, fall back to ASCII instead of Windows-1252. (issue #751)
+
+Special Thanks to Jason Nelson for taking the lead on many of the listed (and unlisted) performance
+improvements and helping me make MimeKit even more awesome!
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime mbox mail email parser tnef net452 net46 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <tags>mime mbox mail email parser tnef net452 net461 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5.2" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5.2" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5.2" />
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6" />
-      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.1" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.1" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6.1" />
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />

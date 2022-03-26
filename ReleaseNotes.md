@@ -1,5 +1,34 @@
 # Release Notes
 
+### MimeKit 3.2.0 (2022-03-26)
+
+* Rewrote QuotedPrintableEncoder to more strictly fold at the specified line length.
+  (issue [#781](https://github.com/jstedfast/MimeKit/issues/781))
+* Change the default maxLineLength for quoted-printable/base64 encoders to 76 to match the recommendation
+  in the specification (was previously 72).
+* Use cached Task instances (e.g. Task.CompletedTask) when possible to improve performance.
+* Make use of ReadOnlySpan&lt;T&gt; instead of String.Substring() wherever possible to improve performance.
+* Reduced string allocations in other ways.
+* Provide MailboxAddress accessors for LocalPart and Domain.
+  (issue [#766](https://github.com/jstedfast/MimeKit/issues/766))
+* Replaced support for .NET Framework v4.6 with 4.6.1 and added a System.Text.Encoding.CodePages dependency
+  to solve various cases where MimeKit would fail to initialize properly on ASP.NET systems using net461
+  when system character encodings were not available.
+* Fixed MessagePartial to use invariant culture when setting number/total param values.
+* Make sure all int.TryParse() calls use the correct NumberStyles.
+* Make use of a ValueStringBuilder to construct strings without needing to allocate a StringBuilder.
+* Fixed InternetAddressList.TryParse() to fail on invalid input.
+  (issue [#762](https://github.com/jstedfast/MimeKit/issues/762))
+* Added dispose handling to MimeMessage.CreateFromMailMessage().
+* Improved MIME structure returned by TnefPart.ConvertToMessage().
+* Rewrote header folding logic to avoid string allocations.
+* Implemented IEquatable&lt;T&gt; on TnefNameId.
+* If iso-8859-1 isn't available, fall back to ASCII instead of Windows-1252.
+  (issue [#751](https://github.com/jstedfast/MimeKit/issues/751))
+
+Special Thanks to Jason Nelson for taking the lead on many of the listed (and unlisted) performance
+improvements and helping me make MimeKit even more awesome!
+
 ### MimeKit 3.1.1 (2022-01-30)
 
 * When initializing character encodings for netstandard and net50/net60, wrap the Reflection logic
