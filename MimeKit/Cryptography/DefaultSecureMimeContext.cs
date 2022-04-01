@@ -30,6 +30,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
@@ -38,6 +39,8 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Security;
+
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -575,24 +578,49 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously import a certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports the specified certificate into the database.
+		/// Imports a certificate.
 		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
+		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public override Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Import (certificate, cancellationToken);
-			return Task.FromResult (true);
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var cert = certificate.AsBouncyCastleCertificate ();
+
+			if (certificate.HasPrivateKey) {
+				var privateKey = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
+				X509CertificateRecord record;
+
+				if ((record = dbase.Find (cert, ImportPkcs12Fields)) == null) {
+					record = new X509CertificateRecord (cert, privateKey);
+					record.AlgorithmsUpdated = DateTime.UtcNow;
+					record.Algorithms = EnabledEncryptionAlgorithms;
+					record.IsTrusted = true;
+					dbase.Add (record);
+				} else {
+					record.AlgorithmsUpdated = DateTime.UtcNow;
+					record.Algorithms = EnabledEncryptionAlgorithms;
+					if (record.PrivateKey == null)
+						record.PrivateKey = privateKey;
+					record.IsTrusted = true;
+					dbase.Update (record, ImportPkcs12Fields);
+				}
+			} else {
+				Import (cert, true);
+			}
 		}
 
 		/// <summary>
@@ -641,27 +669,6 @@ namespace MimeKit.Cryptography {
 				dbase.Remove (record);
 
 			dbase.Add (new X509CrlRecord (crl));
-		}
-
-		/// <summary>
-		/// Asynchronously imports a certificate revocation list.
-		/// </summary>
-		/// <remarks>
-		/// Asynchronously imports the specified certificate revocation list.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="crl">The certificate revocation list.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		public override Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			Import (crl, cancellationToken);
-			return Task.FromResult (true);
 		}
 
 		/// <summary>

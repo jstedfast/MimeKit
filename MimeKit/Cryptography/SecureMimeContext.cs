@@ -28,16 +28,17 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.Ntt;
 using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.Smime;
-using MimeKit.IO;
+
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -1142,10 +1143,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Imports the specified certificate.
+		/// Imports a certificate.
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1158,10 +1159,10 @@ namespace MimeKit.Cryptography {
 		public abstract void Import (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Asynchronously import the specified certificate.
+		/// Asynchronously import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports the specified certificate.
+		/// Asynchronously imports a certificate.
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="certificate">The certificate.</param>
@@ -1172,13 +1173,57 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken));
+		public virtual Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Import (certificate, cancellationToken);
+			return Task.FromResult (true);
+		}
 
 		/// <summary>
-		/// Import the specified certificate revocation list.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Imports the specified certificate revocation list.
+		/// Imports a certificate.
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public virtual void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			throw new NotImplementedException ();
+		}
+
+		/// <summary>
+		/// Asynchronously import a certificate.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously imports a certificate.
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public virtual Task ImportAsync (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Import (certificate, cancellationToken);
+			return Task.FromResult (true);
+		}
+
+		/// <summary>
+		/// Import a certificate revocation list.
+		/// </summary>
+		/// <remarks>
+		/// Imports a certificate revocation list.
 		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1191,10 +1236,10 @@ namespace MimeKit.Cryptography {
 		public abstract void Import (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
-		/// Asynchronously import the specified certificate revocation list.
+		/// Asynchronously import a certificate revocation list.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports the specified certificate revocation list.
+		/// Asynchronously imports a certificate revocation list.
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="crl">The certificate revocation list.</param>
@@ -1205,7 +1250,11 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken));
+		public virtual Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Import (crl, cancellationToken);
+			return Task.FromResult (true);
+		}
 
 		async Task ImportAsync (Stream stream, bool doAsync, CancellationToken cancellationToken)
 		{

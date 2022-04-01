@@ -40,14 +40,14 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 
+using MimeKit.IO;
+
 using RealCmsSigner = System.Security.Cryptography.Pkcs.CmsSigner;
 using RealCmsRecipient = System.Security.Cryptography.Pkcs.CmsRecipient;
 using RealAlgorithmIdentifier = System.Security.Cryptography.Pkcs.AlgorithmIdentifier;
 using RealSubjectIdentifierType = System.Security.Cryptography.Pkcs.SubjectIdentifierType;
 using RealCmsRecipientCollection = System.Security.Cryptography.Pkcs.CmsRecipientCollection;
 using RealX509KeyUsageFlags = System.Security.Cryptography.X509Certificates.X509KeyUsageFlags;
-
-using MimeKit.IO;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -1476,10 +1476,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Imports the specified certificate into the <see cref="StoreName.AddressBook"/> store.
+		/// Imports a certificate into the <see cref="StoreName.AddressBook"/> store.
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1489,7 +1489,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			Import (StoreName.AddressBook, certificate, cancellationToken);
 		}
@@ -1518,10 +1518,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Imports the specified certificate into the <see cref="StoreName.AddressBook"/> store.
+		/// Imports a certificate into the <see cref="StoreName.AddressBook"/> store.
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1537,31 +1537,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously import the specified certificate.
+		/// Import a certificate revocation list.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports the specified certificate into the <see cref="StoreName.AddressBook"/> store.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="certificate">The certificate.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
-		/// </exception>
-		public override Task ImportAsync (Org.BouncyCastle.X509.X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			Import (certificate, cancellationToken);
-			return Task.FromResult (true);
-		}
-
-		/// <summary>
-		/// Import the specified certificate revocation list.
-		/// </summary>
-		/// <remarks>
-		/// Import the specified certificate revocation list.
+		/// Imports a certificate revocation list.
 		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1585,27 +1564,6 @@ namespace MimeKit.Cryptography {
 
 			foreach (Org.BouncyCastle.X509.X509Certificate certificate in revoked)
 				Import (StoreName.Disallowed, certificate, cancellationToken);
-		}
-
-		/// <summary>
-		/// Asynchronously import the specified certificate revocation list.
-		/// </summary>
-		/// <remarks>
-		/// Asynchronously import the specified certificate revocation list.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="crl">The certificate revocation list.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
-		/// </exception>
-		public override Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			Import (crl, cancellationToken);
-			return Task.FromResult (true);
 		}
 
 		/// <summary>

@@ -28,11 +28,14 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
 
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
 namespace MimeKit.Cryptography
@@ -149,6 +152,36 @@ namespace MimeKit.Cryptography
 			}
 
 			return new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
+		}
+
+		/// <summary>
+		/// Get the PrivateKey property as a BouncyCastle AsymmetricKeyParameter.
+		/// </summary>
+		/// <remarks>
+		/// Gets the PrivateKey property as a BouncyCastle AsymmetricKeyParameter.
+		/// </remarks>
+		/// <returns>The asymmetric key parameter.</returns>
+		/// <param name="certificate">The X.509 certificate.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		public static AsymmetricKeyParameter GetPrivateKeyAsAsymmetricKeyParameter (this X509Certificate2 certificate)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+#if NET6_0_OR_GREATER
+			AsymmetricAlgorithm privateKey;
+
+			privateKey = certificate.GetRSAPrivateKey ();
+			privateKey ??= certificate.GetDSAPrivateKey ();
+			privateKey ??= certificate.GetECDsaPrivateKey ();
+			privateKey ??= certificate.GetECDiffieHellmanPrivateKey ();
+
+			return privateKey?.AsAsymmetricKeyParameter ();
+#else
+			return certificate.PrivateKey?.AsAsymmetricKeyParameter ();
+#endif
 		}
 	}
 }

@@ -341,17 +341,7 @@ namespace MimeKit.Cryptography {
 			if (cert == null)
 				throw new ArgumentException ("Unable to convert certificate into the BouncyCastle format.", nameof (certificate));
 
-#if NET6_0_OR_GREATER
-			AsymmetricAlgorithm privateKey;
-
-			privateKey = certificate.GetRSAPrivateKey ();
-			privateKey ??= certificate.GetDSAPrivateKey ();
-			privateKey ??= certificate.GetECDsaPrivateKey ();
-			privateKey ??= certificate.GetECDiffieHellmanPrivateKey ();
-			var key = privateKey.AsAsymmetricKeyParameter ();
-#else
-			var key = certificate.PrivateKey.AsAsymmetricKeyParameter ();
-#endif
+			var key = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
 
 			CheckCertificateCanBeUsedForSigning (cert);
 

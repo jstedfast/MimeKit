@@ -39,7 +39,7 @@ using Org.BouncyCastle.Crypto.Prng;
 using MimeKit;
 using MimeKit.Cryptography;
 
-using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
+using BCX509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
@@ -261,12 +261,12 @@ namespace UnitTests.Cryptography {
 				var parser = new X509CertificateParser ();
 
 				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
-					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.AuthRoot, certificate);
 				}
 
 				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
-					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.CertificateAuthority, certificate);
 				}
 
@@ -284,7 +284,7 @@ namespace UnitTests.Cryptography {
 							sqlite.Import (stream, true);
 						} else {
 							var parser = new X509CertificateParser ();
-							foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 								ctx.Import (certificate);
 						}
 					}
@@ -315,12 +315,12 @@ namespace UnitTests.Cryptography {
 				var parser = new X509CertificateParser ();
 
 				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
-					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.AuthRoot, certificate);
 				}
 
 				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
-					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.CertificateAuthority, certificate);
 				}
 
@@ -338,7 +338,7 @@ namespace UnitTests.Cryptography {
 							await sqlite.ImportAsync (stream, true).ConfigureAwait (false);
 						} else {
 							var parser = new X509CertificateParser ();
-							foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 								await ctx.ImportAsync (certificate).ConfigureAwait (false);
 						}
 					}

@@ -38,6 +38,8 @@ using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Security;
 
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME context that does not persist certificates, private keys or CRLs.
@@ -466,10 +468,42 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Import the specified certificate.
+		/// Import a certificate.
 		/// </summary>
 		/// <remarks>
-		/// Imports the specified certificate.
+		/// Imports a certificate.
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was cancelled via the cancellation token.
+		/// </exception>
+		public override void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var fingerprint = certificate.Thumbprint.ToLowerInvariant ();
+
+			if (fingerprints.Add (fingerprint))
+				certificates.Add (certificate.AsBouncyCastleCertificate ());
+
+			if (certificate.HasPrivateKey && !keys.ContainsKey (fingerprint)) {
+				var privateKey = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
+				keys.Add (fingerprint, privateKey);
+			}
+		}
+
+		/// <summary>
+		/// Import a certificate.
+		/// </summary>
+		/// <remarks>
+		/// Imports a certificate.
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -491,31 +525,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously import the specified certificate.
+		/// Import a certificate revocation list.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports the specified certificate.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="certificate">The certificate.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
-		/// </exception>
-		public override Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			Import (certificate, cancellationToken);
-			return Task.FromResult (true);
-		}
-
-		/// <summary>
-		/// Import the specified certificate revocation list.
-		/// </summary>
-		/// <remarks>
-		/// Imports the specified certificate revocation list.
+		/// Imports a certificate revocation list.
 		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -533,27 +546,6 @@ namespace MimeKit.Cryptography {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			crls.Add (crl);
-		}
-
-		/// <summary>
-		/// Asynchronously import the specified certificate revocation list.
-		/// </summary>
-		/// <remarks>
-		/// Asynchronously import the specified certificate revocation list.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="crl">The certificate revocation list.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was cancelled via the cancellation token.
-		/// </exception>
-		public override Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			Import (crl, cancellationToken);
-			return Task.FromResult (true);
 		}
 
 		#endregion

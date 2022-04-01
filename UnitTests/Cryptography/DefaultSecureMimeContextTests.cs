@@ -28,7 +28,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Data.Common;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
@@ -48,12 +50,6 @@ namespace UnitTests.Cryptography {
 		static readonly string[] CertificateAuthorities = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
-
-		static DefaultSecureMimeContextTests ()
-		{
-			if (File.Exists ("smime.db"))
-				File.Delete ("smime.db");
-		}
 
 		[Test]
 		public void TestArgumentExceptions ()
@@ -119,32 +115,87 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestImportCertificates ()
 		{
-			var database = new SqliteCertificateDatabase ("smime.db", "no.secret");
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var certificates = new List<X509Certificate> ();
+			try {
+				var database = new SqliteCertificateDatabase ("smime.db", "no.secret");
+				var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+				var certificates = new List<X509Certificate> ();
 
-			using (var ctx = new DefaultSecureMimeContext (database)) {
-				foreach (var filename in CertificateAuthorities) {
-					var path = Path.Combine (dataDir, filename);
+				using (var ctx = new DefaultSecureMimeContext (database)) {
+					foreach (var filename in CertificateAuthorities) {
+						var path = Path.Combine (dataDir, filename);
 
-					using (var stream = File.OpenRead (path)) {
-						var parser = new X509CertificateParser ();
+						using (var stream = File.OpenRead (path)) {
+							var parser = new X509CertificateParser ();
 
-						foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
-							certificates.Add (certificate);
-							ctx.Import (certificate);
+							foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
+								certificates.Add (certificate);
+								ctx.Import (certificate);
+							}
 						}
 					}
+
+					// make sure each certificate is there and then delete them...
+					foreach (var certificate in certificates) {
+						var record = database.Find (certificate, X509CertificateRecordFields.Id);
+
+						Assert.IsNotNull (record, "Find");
+
+						database.Remove (record);
+					}
 				}
+			} finally {
+				if (File.Exists ("smime.db"))
+					File.Delete ("smime.db");
+			}
+		}
 
-				// make sure each certificate is there and then delete them...
-				foreach (var certificate in certificates) {
-					var record = database.Find (certificate, X509CertificateRecordFields.Id);
+		[Test]
+		public void TestImportX509Certificate2 ()
+		{
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+			var certificate = new X509Certificate2 (Path.Combine (dataDir, "smime.pfx"), "no.secret", X509KeyStorageFlags.Exportable);
 
-					Assert.IsNotNull (record, "Find");
+			try {
+				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
+					var secure = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", certificate.Thumbprint);
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
-					database.Remove (record);
+					ctx.Import (certificate);
+
+					// Check that the certificate exists in the context
+					Assert.IsTrue (ctx.CanSign (mailbox), "CanSign(MailboxAddress)");
+					Assert.IsTrue (ctx.CanEncrypt (mailbox), "CanEncrypt(MailboxAddress)");
+					Assert.IsTrue (ctx.CanSign (secure), "CanSign(SecureMailboxAddress)");
+					Assert.IsTrue (ctx.CanEncrypt (secure), "CanEncrypt(SecureMailboxAddress)");
 				}
+			} finally {
+				if (File.Exists ("smime.db"))
+					File.Delete ("smime.db");
+			}
+		}
+
+		[Test]
+		public async Task TestImportX509Certificate2Async ()
+		{
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+			var certificate = new X509Certificate2 (Path.Combine (dataDir, "smime.pfx"), "no.secret", X509KeyStorageFlags.Exportable);
+
+			try {
+				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
+					var secure = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", certificate.Thumbprint);
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+					await ctx.ImportAsync (certificate);
+
+					// Check that the certificate exists in the context
+					Assert.IsTrue (await ctx.CanSignAsync (mailbox), "CanSign(MailboxAddress)");
+					Assert.IsTrue (await ctx.CanEncryptAsync (mailbox), "CanEncrypt(MailboxAddress)");
+					Assert.IsTrue (await ctx.CanSignAsync (secure), "CanSign(SecureMailboxAddress)");
+					Assert.IsTrue (await ctx.CanEncryptAsync (secure), "CanEncrypt(SecureMailboxAddress)");
+				}
+			} finally {
+				if (File.Exists ("smime.db"))
+					File.Delete ("smime.db");
 			}
 		}
 	}
