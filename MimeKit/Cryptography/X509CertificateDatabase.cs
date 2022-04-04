@@ -284,13 +284,14 @@ namespace MimeKit.Cryptography {
 
 			var algorithms = new List<EncryptionAlgorithm> ();
 			var values = reader.GetString (column);
-			var splitter = new StringSplitter (values.AsSpan (), ',');
 
-			while (splitter.TryReadNext (out var token)) {
-				if (token.IsEmpty)
+			foreach (var token in values.Tokenize (',')) {
+				var value = token.Trim ();
+
+				if (value.IsEmpty)
 					continue;
 
-				if (Enum.TryParse (token.Trim ().ToString (), true, out EncryptionAlgorithm algorithm))
+				if (Enum.TryParse (value.ToString (), true, out EncryptionAlgorithm algorithm))
 					algorithms.Add (algorithm);
 			}
 

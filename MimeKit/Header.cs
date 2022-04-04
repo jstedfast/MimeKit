@@ -779,29 +779,28 @@ namespace MimeKit {
 
 		static void EncodeDkimHeaderList (FormatOptions format, ref ValueStringBuilder encoded, ref int lineLength, ReadOnlySpan<char> value, char delim)
 		{
-			var splitter = new StringSplitter (value, delim);
 			int i = 0;
 
-			while (splitter.TryReadNext (out var item)) {
+			foreach (var token in value.Tokenize (delim)) {
 				if (i > 0) {
 					encoded.Append (delim);
 					lineLength++;
 				}
 
-				if (lineLength + item.Length + 1 > format.MaxLineLength) {
+				if (lineLength + token.Length + 1 > format.MaxLineLength) {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
 
-					if (item.Length + 1 > format.MaxLineLength) {
-						EncodeDkimLongValue (format, ref encoded, ref lineLength, item);
+					if (token.Length + 1 > format.MaxLineLength) {
+						EncodeDkimLongValue (format, ref encoded, ref lineLength, token);
 					} else {
-						lineLength += item.Length;
-						encoded.Append (item);
+						lineLength += token.Length;
+						encoded.Append (token);
 					}
 				} else {
-					lineLength += item.Length;
-					encoded.Append (item);
+					lineLength += token.Length;
+					encoded.Append (token);
 				}
 
 				i++;
