@@ -265,14 +265,19 @@ namespace MimeKit.Cryptography {
 
 			switch (micalg.ToLowerInvariant ()) {
 			case "md5":         return DigestAlgorithm.MD5;
+			case "sha1":
 			case "sha-1":       return DigestAlgorithm.Sha1;
 			case "ripemd160":   return DigestAlgorithm.RipeMD160;
 			case "md2":         return DigestAlgorithm.MD2;
 			case "tiger192":    return DigestAlgorithm.Tiger192;
 			case "haval-5-160": return DigestAlgorithm.Haval5160;
+			case "sha256":
 			case "sha-256":     return DigestAlgorithm.Sha256;
+			case "sha384":
 			case "sha-384":     return DigestAlgorithm.Sha384;
+			case "sha512":
 			case "sha-512":     return DigestAlgorithm.Sha512;
+			case "sha224":
 			case "sha-224":     return DigestAlgorithm.Sha224;
 			case "md4":         return DigestAlgorithm.MD4;
 			default:            return DigestAlgorithm.None;
