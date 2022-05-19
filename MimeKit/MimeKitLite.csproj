@@ -52,11 +52,11 @@
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net46')) Or $(TargetFramework.StartsWith('net47')) Or $(TargetFramework.StartsWith('net48')) ">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
