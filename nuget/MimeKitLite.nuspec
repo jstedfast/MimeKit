@@ -50,12 +50,9 @@ improvements and helping me make MimeKit even more awesome!
     <language>en-US</language>
     <tags>mime mbox mail email parser tnef net452 net461 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
     <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5.2" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5.2" />
-      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.5.2" />
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.1" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.1" />
-      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6.1" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6.2" />
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
@@ -64,11 +61,7 @@ improvements and helping me make MimeKit even more awesome!
       <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
     </frameworkAssemblies>
     <dependencies>
-      <group targetFramework="net452">
-        <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="System.Memory" version="4.5.4" />
-      </group>
-      <group targetFramework="net461">
+      <group targetFramework="net462">
         <dependency id="System.Text.Encoding.CodePages" version="4.5.1" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.4" />
@@ -106,12 +99,9 @@ improvements and helping me make MimeKit even more awesome!
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.dll" target="lib\netstandard2.1\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.pdb" target="lib\netstandard2.1\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.xml" target="lib\netstandard2.1\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net452\MimeKitLite.dll" target="lib\net452\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\net452\MimeKitLite.pdb" target="lib\net452\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\net452\MimeKitLite.xml" target="lib\net452\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net461\MimeKitLite.dll" target="lib\net461\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\net461\MimeKitLite.pdb" target="lib\net461\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\net461\MimeKitLite.xml" target="lib\net461\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKitLite.dll" target="lib\net462\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKitLite.pdb" target="lib\net462\MimeKitLite.pdb" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKitLite.xml" target="lib\net462\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll" target="lib\net47\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.pdb" target="lib\net47\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.xml" target="lib\net47\MimeKitLite.xml" />
