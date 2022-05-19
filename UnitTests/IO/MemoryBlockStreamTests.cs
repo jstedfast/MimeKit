@@ -32,6 +32,8 @@ using NUnit.Framework;
 
 using MimeKit.IO;
 
+using System.Linq;
+
 namespace UnitTests.IO {
 	[TestFixture]
 	public class MemoryBlockStreamTests : IDisposable
@@ -114,6 +116,35 @@ namespace UnitTests.IO {
 				for (int i = 0; i < mread; i++)
 					Assert.AreEqual (mbuf[i], buf[i], "The bytes read do not match");
 			} while (master.Position < master.Length);
+		}
+
+		[Test]
+		public void TestReadLargeStream ()
+		{
+			const int n = 1024;
+			var bytes = new byte[n];
+			random.NextBytes (bytes);
+			
+			var stream = new MemoryBlockStream ();
+			while (stream.Position < (long) int.MaxValue + 1) {
+				stream.Write (bytes, 0, bytes.Length);
+			}
+
+			var buffer = new byte[n + 1];
+
+			// read and assert the first n + 1 bytes
+			stream.Position = 0;
+			int nread = stream.Read (buffer, 0, buffer.Length);
+			Assert.True (nread != 0);
+			CollectionAssert.AreEqual (
+				bytes.Concat (Enumerable.Repeat (bytes[0], 1)), buffer);
+
+			// read and assert the last n + 1 bytes
+			stream.Position = stream.Length - buffer.Length;
+			nread = stream.Read (buffer, 0, buffer.Length);
+			Assert.True (nread != 0);
+			CollectionAssert.AreEqual (
+				Enumerable.Repeat (bytes.Last(), 1).Concat (bytes), buffer);
 		}
 
 		[Test]
