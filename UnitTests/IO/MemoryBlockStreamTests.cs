@@ -121,7 +121,7 @@ namespace UnitTests.IO {
 		[Test]
 		public void TestReadLargeStream ()
 		{
-			const int n = 1024;
+			const int n = 4096;
 			var bytes = new byte[n];
 			random.NextBytes (bytes);
 			

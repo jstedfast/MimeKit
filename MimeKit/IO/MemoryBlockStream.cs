@@ -239,8 +239,7 @@ namespace MimeKit.IO {
 			if (position == MaxCapacity)
 				return 0;
 
-			long nrest = length - position;
-			int max =  nrest < int.MaxValue ? Math.Min ((int)nrest, count) : count;
+			int max = (int) Math.Min (length - position, (long) count);
 			int startIndex = (int) (position % BlockSize);
 			int block = (int) (position / BlockSize);
 			int nread = 0;
