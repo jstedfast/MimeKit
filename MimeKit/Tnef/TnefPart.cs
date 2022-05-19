@@ -732,6 +732,12 @@ namespace MimeKit.Tnef {
 					message.Dispose ();
 					throw;
 				}
+
+				if (attachments.Count == 1) {
+					message.Body = attachments[0];
+					attachments.Clear (false);
+					attachments.Dispose ();
+				}
 			} else {
 				message.Body = body;
 			}
@@ -768,9 +774,8 @@ namespace MimeKit.Tnef {
 					codepage = 0;
 			}
 
-			using (var reader = new TnefReader (Content.Open (), codepage, TnefComplianceMode.Loose)) {
+			using (var reader = new TnefReader (Content.Open (), codepage, TnefComplianceMode.Loose))
 				return ExtractTnefMessage (reader);
-			}
 		}
 
 		/// <summary>
