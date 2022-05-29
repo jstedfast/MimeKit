@@ -30,6 +30,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 
+using MimeKit.IO;
+
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
@@ -463,9 +465,12 @@ namespace MimeKit.Cryptography {
 			var compresser = new CmsCompressedDataGenerator ();
 			var processable = new CmsProcessableInputStream (stream);
 			var compressed = compresser.Generate (processable, CmsCompressedDataGenerator.ZLib);
-			var encoded = compressed.GetEncoded ();
 
-			return new ApplicationPkcs7Mime (SecureMimeType.CompressedData, new MemoryStream (encoded, false));
+			var content = new MemoryBlockStream ();
+			compressed.ContentInfo.EncodeTo (content);
+			content.Position = 0;
+
+			return new ApplicationPkcs7Mime (SecureMimeType.CompressedData, content);
 		}
 
 		/// <summary>
