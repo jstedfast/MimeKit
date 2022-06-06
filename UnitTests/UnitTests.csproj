@@ -30,7 +30,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
     <PackageReference Include="OpenCover" Version="4.6.519" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
-    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.115.5" GeneratePathProperty="true">
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.116" GeneratePathProperty="true">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
