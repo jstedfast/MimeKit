@@ -1,5 +1,22 @@
 # Release Notes
 
+### MimeKit 3.3.0 (2022-06-11)
+
+* Added Import() methods for X509Certificate2 for all S/MIME contexts.
+  (issue [#784](https://github.com/jstedfast/MimeKit/issues/784))
+* Handle S/MIME sha# as well as sha-# micalg names for improved interop.
+  (issue [#790](https://github.com/jstedfast/MimeKit/issues/790))
+* Fixed the MemoryBlockStream.Read() method to handle cases where the length of the stream is longer than
+  int.MaxValue.
+* Fixed TnefPart.ConvertToMessage() to promote lone multipart/mixed subparts to become the message body
+  much like it used to work pre-v3.2.0. (issue [#789](https://github.com/jstedfast/MimeKit/issues/789))
+* Reduced memory usage when using SecureMimeContext.Compress() and CompressAsync().
+* Dropped support for net452 and net461 now that their life cycles have ended and are no longer supported
+  by Microsoft. (issue [#768](https://github.com/jstedfast/MimeKit/issues/768))
+* Added support for net462.
+
+Special thanks to Fedir Klymenko for his improvements to MemoryBlockStream and SecureMimeContext.Compress!
+
 ### MimeKit 3.2.0 (2022-03-26)
 
 * Rewrote QuotedPrintableEncoder to more strictly fold at the specified line length.

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,29 +26,19 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Rewrote QuotedPrintableEncoder to more strictly fold at the specified line length. (issue #781)
-* Change the default maxLineLength for quoted-printable/base64 encoders to 76 to match the recommendation in the specification (was previously 72).
-* Use cached Task instances (e.g. Task.CompletedTask) when possible to improve performance.
-* Make use of ReadOnlySpan&lt;T&gt; instead of String.Substring() wherever possible to improve performance.
-* Reduced string allocations in other ways.
-* Provide MailboxAddress accessors for LocalPart and Domain. (issue #766)
-* Replaced support for .NET Framework v4.6 with 4.6.1 and added a System.Text.Encoding.CodePages dependency to solve various cases where MimeKit would fail to initialize properly on ASP.NET systems using net461 when system character encodings were not available.
-* Fixed MessagePartial to use invariant culture when setting number/total param values.
-* Make sure all int.TryParse() calls use the correct NumberStyles.
-* Make use of a ValueStringBuilder to construct strings without needing to allocate a StringBuilder.
-* Fixed InternetAddressList.TryParse() to fail on invalid input. (issue #762)
-* Added dispose handling to MimeMessage.CreateFromMailMessage().
-* Improved MIME structure returned by TnefPart.ConvertToMessage().
-* Rewrote header folding logic to avoid string allocations.
-* Implemented IEquatable&lt;T&gt; on TnefNameId.
-* If iso-8859-1 isn't available, fall back to ASCII instead of Windows-1252. (issue #751)
+* Added Import() methods for X509Certificate2 for all S/MIME contexts. (issue #784)
+* Handle S/MIME sha# as well as sha-# micalg names for improved interop. (issue #790)
+* Fixed the MemoryBlockStream.Read() method to handle cases where the length of the stream is longer than int.MaxValue.
+* Fixed TnefPart.ConvertToMessage() to promote lone multipart/mixed subparts to become the message body much like it used to work pre-v3.2.0. (issue #789)
+* Reduced memory usage when using SecureMimeContext.Compress() and CompressAsync().
+* Dropped support for net452 and net461 now that their life cycles have ended and are no longer supported by Microsoft. (issue #768)
+* Added support for net462.
 
-Special Thanks to Jason Nelson for taking the lead on many of the listed (and unlisted) performance
-improvements and helping me make MimeKit even more awesome!
+Special thanks to Fedir Klymenko for his improvements to MemoryBlockStream and SecureMimeContext.Compress!
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime mbox mail email parser tnef net452 net461 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <tags>mime mbox mail email parser tnef net462 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />
