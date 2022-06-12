@@ -480,7 +480,7 @@ namespace MimeKit.Utils {
 							return false;
 
 						if (IsIdnEncoded (domain))
-							domain = IdnDecode (domain);
+							domain = MailboxAddress.IdnMapping.Decode (domain);
 
 						token.Append (domain);
 
@@ -548,42 +548,6 @@ namespace MimeKit.Utils {
 				return true;
 
 			return value.IndexOf (".xn--", StringComparison.Ordinal) != -1;
-		}
-
-		public static string IdnEncode (string unicode, int startIndex, int count)
-		{
-			try {
-				return idn.GetAscii (unicode, startIndex, count);
-			} catch {
-				return unicode.Substring (startIndex, count);
-			}
-		}
-
-		public static string IdnEncode (string unicode, int startIndex)
-		{
-			try {
-				return idn.GetAscii (unicode, startIndex);
-			} catch {
-				return unicode.Substring (startIndex);
-			}
-		}
-
-		public static string IdnEncode (string unicode)
-		{
-			try {
-				return idn.GetAscii (unicode);
-			} catch {
-				return unicode;
-			}
-		}
-
-		public static string IdnDecode (string ascii)
-		{
-			try {
-				return idn.GetUnicode (ascii);
-			} catch {
-				return ascii;
-			}
 		}
     }
 }

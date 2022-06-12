@@ -365,7 +365,7 @@ namespace MimeKit {
 			localpart = token.ToString ();
 
 			if (ParseUtils.IsIdnEncoded (localpart))
-				localpart = ParseUtils.IdnDecode (localpart);
+				localpart = MailboxAddress.IdnMapping.Decode (localpart);
 
 			return true;
 		}
@@ -416,7 +416,7 @@ namespace MimeKit {
 				return false;
 
 			if (ParseUtils.IsIdnEncoded (domain))
-				domain = ParseUtils.IdnDecode (domain);
+				domain = MailboxAddress.IdnMapping.Decode (domain);
 
 			addrspec = localpart + "@" + domain;
 			at = localpart.Length;

@@ -330,7 +330,7 @@ namespace MimeKit {
 				builder.Append ('@');
 
 				if (!options.International && ParseUtils.IsInternational (domains[i])) {
-					var domain = ParseUtils.IdnEncode (domains[i]);
+					var domain = MailboxAddress.IdnMapping.Encode (domains[i]);
 
 					builder.Append (domain);
 				} else {

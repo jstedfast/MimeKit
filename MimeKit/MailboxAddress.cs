@@ -34,6 +34,7 @@ using System.Net.Mail;
 #endif
 
 using MimeKit.Utils;
+using MimeKit.Encodings;
 
 namespace MimeKit {
 	/// <summary>
@@ -50,8 +51,23 @@ namespace MimeKit {
 #else
 		static readonly byte[] EmptySentinels = new byte[0];
 #endif
+
+		/// <summary>
+		/// Get or set the punycode implementation that should be used for encoding and decoding mailbox addresses.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the punycode implementation that should be used for encoding and decoding mailbox addresses.
+		/// </remarks>
+		/// <value>The punycode implementation.</value>
+		public static IPunycode IdnMapping { get; set; }
+
 		string address;
 		int at;
+
+		static MailboxAddress ()
+		{
+			IdnMapping = new Punycode ();
+		}
 
 		internal MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address, int at) : base (encoding, name)
 		{
@@ -292,15 +308,21 @@ namespace MimeKit {
 		static string EncodeAddrspec (string addrspec, int at)
 		{
 			if (at != -1) {
+				var domainEncoded = ParseUtils.IsInternational (addrspec, at + 1);
+				var localEncoded = ParseUtils.IsInternational (addrspec, 0, at);
+
+				if (!localEncoded && !domainEncoded)
+					return addrspec;
+
 				string local, domain;
 
-				if (ParseUtils.IsInternational (addrspec, 0, at))
-					local = ParseUtils.IdnEncode (addrspec, 0, at);
+				if (localEncoded)
+					local = IdnMapping.Encode (addrspec, 0, at);
 				else
 					local = addrspec.Substring (0, at);
 
-				if (ParseUtils.IsInternational (addrspec, at + 1))
-					domain = ParseUtils.IdnEncode (addrspec, at + 1);
+				if (domainEncoded)
+					domain = IdnMapping.Encode (addrspec, at + 1);
 				else
 					domain = addrspec.Substring (at + 1);
 

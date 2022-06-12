@@ -122,7 +122,7 @@ namespace MimeKit.Utils {
 			} while (value != 0);
 
 			id.Append ('@');
-			id.Append (ParseUtils.IdnEncode (domain));
+			id.Append (MailboxAddress.IdnMapping.Encode (domain));
 
 			return id.ToString ();
 		}
