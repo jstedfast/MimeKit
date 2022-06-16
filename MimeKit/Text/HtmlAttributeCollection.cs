@@ -84,6 +84,77 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Check if an attribute exists.
+		/// </summary>
+		/// <remarks>
+		/// Checks if an attribute exists.
+		/// </remarks>
+		/// <param name="id">The attribute.</param>
+		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		public bool Contains (HtmlAttributeId id)
+		{
+			return IndexOf (id) != -1;
+		}
+
+		/// <summary>
+		/// Check if an attribute exists.
+		/// </summary>
+		/// <remarks>
+		/// Checks if an attribute exists.
+		/// </remarks>
+		/// <param name="name">The name of the attribute.</param>
+		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public bool Contains (string name)
+		{
+			return IndexOf (name) != -1;
+		}
+
+		/// <summary>
+		/// Get the index of a desired attribute.
+		/// </summary>
+		/// <remarks>
+		/// Gets the index of a desired attribute.
+		/// </remarks>
+		/// <param name="id">The attribute.</param>
+		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		public int IndexOf (HtmlAttributeId id)
+		{
+			for (int i = 0; i < attributes.Count; i++) {
+				if (attributes[i].Id == id)
+					return i;
+			}
+
+			return -1;
+		}
+
+		/// <summary>
+		/// Get the index of a desired attribute.
+		/// </summary>
+		/// <remarks>
+		/// Gets the index of a desired attribute.
+		/// </remarks>
+		/// <param name="name">The name of the attribute.</param>
+		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public int IndexOf (string name)
+		{
+			if (name == null)
+				throw new ArgumentNullException (nameof (name));
+
+			for (int i = 0; i < attributes.Count; i++) {
+				if (attributes[i].Name.Equals (name, StringComparison.OrdinalIgnoreCase))
+					return i;
+			}
+
+			return -1;
+		}
+
+		/// <summary>
 		/// Get the <see cref="HtmlAttribute"/> at the specified index.
 		/// </summary>
 		/// <remarks>
@@ -96,6 +167,55 @@ namespace MimeKit.Text {
 		/// </exception>
 		public HtmlAttribute this[int index] {
 			get { return attributes[index]; }
+		}
+
+		/// <summary>
+		/// Get an attribute from the collection if it exists.
+		/// </summary>
+		/// <remarks>
+		/// Gets an attribute from the collection if it exists.
+		/// </remarks>
+		/// <param name="id">The id of the attribute.</param>
+		/// <param name="attribute">The attribute if found; otherwise, <c>null</c>.</param>
+		/// <returns><c>true</c> if the desired attribute is found; otherwise, <c>false</c>.</returns>
+		public bool TryGetValue (HtmlAttributeId id, out HtmlAttribute attribute)
+		{
+			int index;
+
+			if ((index = IndexOf (id)) == -1) {
+				attribute = null;
+				return false;
+			}
+
+			attribute = attributes[index];
+
+			return true;
+		}
+
+		/// <summary>
+		/// Get an attribute from the collection if it exists.
+		/// </summary>
+		/// <remarks>
+		/// Gets an attribute from the collection if it exists.
+		/// </remarks>
+		/// <param name="name">The name of the attribute.</param>
+		/// <param name="attribute">The attribute if found; otherwise, <c>null</c>.</param>
+		/// <returns><c>true</c> if the desired attribute is found; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="name"/> is <c>null</c>.
+		/// </exception>
+		public bool TryGetValue (string name, out HtmlAttribute attribute)
+		{
+			int index;
+
+			if ((index = IndexOf (name)) == -1) {
+				attribute = null;
+				return false;
+			}
+
+			attribute = attributes[index];
+
+			return true;
 		}
 
 		/// <summary>
