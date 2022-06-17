@@ -78,10 +78,6 @@ Special thanks to Fedir Klymenko for his improvements to MemoryBlockStream and S
         <dependency id="System.Memory" version="4.5.4" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
-      <group targetFramework="net5.0">
-        <dependency id="System.Security.Cryptography.Pkcs" version="5.0.0" />
-        <dependency id="Portable.BouncyCastle" version="1.9.0" />
-      </group>
       <group targetFramework="net6.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="6.0.0" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />

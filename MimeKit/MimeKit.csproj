@@ -47,7 +47,7 @@
     <DefineConstants>$(DefineConstants);ENABLE_SNM</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net5')) Or $(TargetFramework.StartsWith('net6')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net6')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
@@ -76,10 +76,6 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net5')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net6')) ">
