@@ -291,11 +291,7 @@ namespace MimeKit.IO {
 		{
 			Write (buffer, offset, count);
 
-#if NET46_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
 			return Task.CompletedTask;
-#else
-			return Task.FromResult (0);
-#endif
 		}
 
 		/// <summary>
@@ -381,11 +377,7 @@ namespace MimeKit.IO {
 			CheckDisposed ();
 
 			// nothing to do...
-#if NET46_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
 			return Task.CompletedTask;
-#else
-			return Task.FromResult (0);
-#endif
 		}
 
 		/// <summary>
