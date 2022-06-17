@@ -5,12 +5,12 @@
     <AssemblyTitle>MimeKit Lite</AssemblyTitle>
     <VersionPrefix>3.3.0</VersionPrefix>
     <Authors>Jeffrey Stedfast</Authors>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net462;net47;net48;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net462;net47;net48;net6.0</TargetFrameworks>
     <LangVersion>8</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MimeKitLite</AssemblyName>
     <PackageId>MimeKitLite</PackageId>
-    <PackageTags>mime;mbox;mail;email;parser;tnef;net462;net47;net48;net5.0;net6.0;netstandard;netstandard2.0</PackageTags>
+    <PackageTags>mime;mbox;mail;email;parser;tnef;net462;net47;net48;net6.0;netstandard;netstandard2.0</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -46,7 +46,7 @@
     <DefineConstants>$(DefineConstants);ENABLE_SNM</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net5')) Or $(TargetFramework.StartsWith('net6')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net6')) ">
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
