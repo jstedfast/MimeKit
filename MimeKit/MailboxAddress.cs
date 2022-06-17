@@ -46,11 +46,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class MailboxAddress : InternetAddress
 	{
-#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
 		static readonly byte[] EmptySentinels = Array.Empty<byte> ();
-#else
-		static readonly byte[] EmptySentinels = new byte[0];
-#endif
 
 		/// <summary>
 		/// Get or set the punycode implementation that should be used for encoding and decoding mailbox addresses.
