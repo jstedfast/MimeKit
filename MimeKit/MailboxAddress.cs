@@ -215,7 +215,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (string address) : this (Encoding.UTF8, address, address)
+		public MailboxAddress (string address) : this (address, address)
 		{
 		}
 
