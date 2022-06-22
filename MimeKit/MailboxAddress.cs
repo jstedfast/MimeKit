@@ -167,6 +167,27 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MailboxAddress"/> class.
 		/// </summary>
 		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified name (as address) and address. The
+		/// specified text encoding is used when encoding the name according to the rules of rfc2047.
+		/// </remarks>
+		/// <param name="encoding">The character encoding to be used for encoding the name.</param>
+		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="ParseException">
+		/// <paramref name="address"/> is malformed.
+		/// </exception>
+		public MailboxAddress (Encoding encoding, string address) : this (encoding, address, address)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MailboxAddress"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new <see cref="MailboxAddress"/> with the specified name and address.
 		/// </remarks>
 		/// <param name="name">The name of the mailbox.</param>
@@ -178,6 +199,23 @@ namespace MimeKit {
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
 		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MailboxAddress"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MailboxAddress"/> with the specified name (as address) and address.
+		/// </remarks>
+		/// <param name="address">The address of the mailbox.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="address"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="ParseException">
+		/// <paramref name="address"/> is malformed.
+		/// </exception>
+		public MailboxAddress (string address) : this (Encoding.UTF8, address, address)
 		{
 		}
 
