@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -420,13 +421,180 @@ namespace MimeKit {
 			}
 		}
 
+		enum HtmlTagState
+		{
+			None,
+			Html,
+			Head,
+			Stop
+		}
+
+		static bool TryDetectHtmlEncoding (TextReader reader, out Encoding encoding, out TextEncodingConfidence confidence)
+		{
+			var tokenizer = new HtmlTokenizer (reader);
+			var state = HtmlTagState.None;
+
+			// https://html.spec.whatwg.org/multipage/parsing.html#prescan-a-byte-stream-to-determine-its-encoding
+			while (tokenizer.ReadNextToken (out var token)) {
+				if (token.Kind != HtmlTokenKind.Tag)
+					continue;
+
+				var tag = (HtmlTagToken) token;
+
+				switch (tag.Id) {
+				case HtmlTagId.Html:
+					if (state == HtmlTagState.None) {
+						if (tag.IsEndTag || tag.IsEmptyElement)
+							state = HtmlTagState.Stop;
+						else
+							state = HtmlTagState.Html;
+					}
+					break;
+				case HtmlTagId.Head:
+					if (state == HtmlTagState.Html) {
+						if (tag.IsEndTag || tag.IsEmptyElement)
+							state = HtmlTagState.Stop;
+						else
+							state = HtmlTagState.Head;
+					}
+					break;
+				case HtmlTagId.Meta:
+					if (state == HtmlTagState.Head && !tag.IsEndTag) {
+						var attributes = new HashSet<HtmlAttributeId> ();
+						bool? need_pragma = null;
+						var got_pragma = false;
+						string charset = null;
+
+						foreach (var attribute in tag.Attributes) {
+							if (attribute.Value == null || !attributes.Add (attribute.Id))
+								continue;
+
+							switch (attribute.Id) {
+							case HtmlAttributeId.HttpEquiv:
+								if (attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+									got_pragma = true;
+								break;
+							case HtmlAttributeId.Content:
+								if (charset == null && ContentType.TryParse (attribute.Value, out var contentType) && !string.IsNullOrEmpty (contentType.Charset)) {
+									charset = contentType.Charset.Trim ();
+									need_pragma = true;
+								}
+								break;
+							case HtmlAttributeId.Charset:
+								if (!string.IsNullOrEmpty (attribute.Value)) {
+									charset = attribute.Value.Trim ();
+									need_pragma = false;
+								}
+								break;
+							}
+						}
+
+						if (need_pragma.HasValue && charset != null && (!need_pragma.Value || got_pragma)) {
+							if (charset.Equals ("x-user-defined", StringComparison.OrdinalIgnoreCase))
+								charset = "windows-1252";
+
+							try {
+								encoding = CharsetUtils.GetEncoding (charset);
+								if (encoding.CodePage == Encoding.Unicode.CodePage || encoding.CodePage == Encoding.BigEndianUnicode.CodePage)
+									encoding = CharsetUtils.UTF8;
+
+								confidence = TextEncodingConfidence.Tentative;
+								return true;
+							} catch {
+								encoding = null;
+							}
+						}
+					}
+					break;
+				case HtmlTagId.Body:
+					state = HtmlTagState.Stop;
+					break;
+				}
+
+				if (state == HtmlTagState.Stop)
+					break;
+			}
+
+			confidence = TextEncodingConfidence.Undefined;
+			encoding = null;
+
+			return false;
+		}
+
+		bool TryDetectHtmlEncoding (out Encoding encoding, out TextEncodingConfidence confidence)
+		{
+			using (var content = Content.Open ()) {
+				// limit processing to first 1024 bytes as per https://html.spec.whatwg.org/multipage/parsing.html#the-input-byte-stream
+				using (var bounded = new BoundStream (content, 0, 1024, true)) {
+					using (var reader = new StreamReader (bounded, CharsetUtils.Latin1, false, 1024, true))
+						return TryDetectHtmlEncoding (reader, out encoding, out confidence);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Try to detect the encoding of the text content.
+		/// </summary>
+		/// <remarks>
+		/// <para>Attempts to detect the encoding of the text content.</para>
+		/// <para>If no content is defined, then <paramref name="encoding"/> is set to ASCII and <paramref name="confidence"/>
+		/// is set to <see cref="TextEncodingConfidence.Irrelevant"/>.</para>
+		/// <para>If a charset is specified on the <c>Content-Type</c> header and it is a supported encoding, then
+		/// <paramref name="encoding"/> is set to the encoding for the specified charset and <paramref name="confidence"/>
+		/// is set to <see cref="TextEncodingConfidence.Certain"/>.</para>
+		/// <para>If a Byte-Order-Mark (BOM) is found, then <paramref name="encoding"/> is set to the corresponding unicode
+		/// encoding and <paramref name="confidence"/> is set to <see cref="TextEncodingConfidence.Certain"/>.</para>
+		/// <para>If the content is in HTML format, then the first 1024 bytes are processed for <c>&lt;meta&gt;</c> tags
+		/// containing charset information. If charset information is found and the charset is a supported encoding, then
+		/// <paramref name="encoding"/> is set to the encoding for the specified charset and <paramref name="confidence"/> is
+		/// set to <see cref="TextEncodingConfidence.Tentative"/>.</para>
+		/// </remarks>
+		/// <returns><c>true</c> if an encoding was detected; otherwise, <c>false</c>.</returns>
+		/// <param name="encoding">The detected encoding; otherwise, <c>null</c>.</param>
+		/// <param name="confidence">The confidence in the detected encoding being correct.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TextPart"/> has been disposed.
+		/// </exception>
+		public bool TryDetectEncoding (out Encoding encoding, out TextEncodingConfidence confidence)
+		{
+			CheckDisposed ();
+
+			if (Content == null) {
+				confidence = TextEncodingConfidence.Irrelevant;
+				encoding = Encoding.ASCII;
+				return true;
+			}
+
+			// If the transport layer specifies a character encoding, and it is supported, return that encoding with the confidence certain.
+			encoding = ContentType.CharsetEncoding;
+			if (encoding != null) {
+				confidence = TextEncodingConfidence.Certain;
+				return true;
+			}
+
+			using (var content = Content.Open ()) {
+				if (CharsetUtils.TryGetBomEncoding (content, out encoding)) {
+					confidence = TextEncodingConfidence.Certain;
+					return true;
+				}
+			}
+
+			if (IsHtml)
+				return TryDetectHtmlEncoding (out encoding, out confidence);
+
+			confidence = TextEncodingConfidence.Undefined;
+			encoding = null;
+
+			return false;
+		}
+
 		/// <summary>
 		/// Get the decoded text and the encoding used to convert it into unicode.
 		/// </summary>
 		/// <remarks>
 		/// <para>If the charset parameter on the <see cref="MimeEntity.ContentType"/>
 		/// is set, it will be used in order to convert the raw content into unicode.
-		/// If that fails or if the charset parameter is not set, the first 2 bytes of
+		/// If that fails or if the charset parameter is not set, the first 3 bytes of
 		/// the content will be checked for a unicode BOM. If a BOM exists, then that
 		/// will be used for conversion. If no BOM is found, then UTF-8 is attempted.
 		/// If conversion fails, then iso-8859-1 will be used as the final fallback.</para>
@@ -442,25 +610,14 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
-			if (Content == null) {
-				encoding = Encoding.ASCII;
-				return string.Empty;
-			}
+			if (!TryDetectEncoding (out encoding, out _))
+				encoding = CharsetUtils.UTF8;
 
-			encoding = ContentType.CharsetEncoding;
-
-			if (encoding == null) {
-				try {
-					using (var content = Content.Open ()) {
-						if (!CharsetUtils.TryGetBomEncoding (content, out encoding))
-							encoding = CharsetUtils.UTF8;
-					}
-
-					return GetText (encoding);
-				} catch (DecoderFallbackException) {
-					// fall back to iso-8859-1
-					encoding = CharsetUtils.Latin1;
-				}
+			try {
+				return GetText (encoding);
+			} catch (DecoderFallbackException) {
+				// fall back to iso-8859-1
+				encoding = CharsetUtils.Latin1;
 			}
 
 			return GetText (encoding);

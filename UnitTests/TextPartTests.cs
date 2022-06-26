@@ -244,5 +244,339 @@ namespace UnitTests
 			Assert.AreEqual (expected, actual.Substring (1), "GetText(out Encoding)");
 			Assert.AreEqual (Encoding.Unicode.CodePage, encoding.CodePage, "Encoding");
 		}
+
+		[Test]
+		public void TestTryDetectEncodingNoContent ()
+		{
+			var part = new TextPart (TextFormat.Html);
+			TextEncodingConfidence confidence;
+			Encoding encoding;
+
+			Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+			Assert.AreEqual (TextEncodingConfidence.Irrelevant, confidence);
+			Assert.AreEqual ("us-ascii", encoding.WebName);
+		}
+
+		[Test]
+		public void TestTryDetectEncodingByteOrderMarkUTF8 ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream ()) {
+				stream.WriteByte (0xef);
+				stream.WriteByte (0xbb);
+				stream.WriteByte (0xbf);
+
+				var buffer = Encoding.ASCII.GetBytes (html);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Certain, confidence);
+				Assert.AreEqual ("utf-8", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectEncodingByteOrderMarkUTF16BE ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream ()) {
+				stream.WriteByte (0xfe);
+				stream.WriteByte (0xff);
+
+				var buffer = Encoding.BigEndianUnicode.GetBytes (html);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Certain, confidence);
+				Assert.AreEqual ("utf-16BE", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectEncodingByteOrderMarkUTF16LE ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream ()) {
+				stream.WriteByte (0xff);
+				stream.WriteByte (0xfe);
+
+				var buffer = Encoding.Unicode.GetBytes (html);
+				stream.Write (buffer, 0, buffer.Length);
+				stream.Position = 0;
+
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Certain, confidence);
+				Assert.AreEqual ("utf-16", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncoding ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=euc-kr\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
+				Assert.AreEqual ("euc-kr", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingInvalidCharset ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=x-unknown\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsFalse (part.TryDetectEncoding (out encoding, out confidence));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingXUserDefined ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=x-user-defined\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
+				Assert.AreEqual ("windows-1252", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingCharsetAttribute ()
+		{
+			const string html = "<html><head><meta charset=\"x-user-defined\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
+				Assert.AreEqual ("windows-1252", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingHttpEquivAndCharsetAttributes ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" charset=\"windows-1252\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
+				Assert.AreEqual ("windows-1252", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingHttpEquivAndCharsetAttributesReversed ()
+		{
+			const string html = "<html><head><meta charset=\"windows-1252\" http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+				TextEncodingConfidence confidence;
+				Encoding encoding;
+
+				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
+				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
+				Assert.AreEqual ("windows-1252", encoding.WebName);
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingNoCharsetParameter ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingInvalidContentType ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"this is invalid\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingEmptyContentAttribute ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingNoContentAttribute ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingEmptyHttpEquivNotContentType ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Transfer-Encoding\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingEmptyHttpEquivAttribute ()
+		{
+			const string html = "<html><head><meta http-equiv /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingMetaNotHttpEquiv ()
+		{
+			const string html = "<html><head><meta data=\"metadata\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingNoMetaTags ()
+		{
+			const string html = "<html><head></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingEmptyHtmlTag ()
+		{
+			const string html = "<html /><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=euc-kr\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingEmptyHeadTag ()
+		{
+			const string html = "<html><head /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=euc-kr\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.IsFalse (part.TryDetectEncoding (out _, out _));
+			}
+		}
 	}
 }
