@@ -342,7 +342,7 @@ namespace MimeKit.IO {
 			}
 
 			// make sure that the source stream is in the expected position
-			if (BaseStream.Position != StartBoundary + position)
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
 				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
 
 			int n = EndBoundary != -1 ? (int) Math.Min (EndBoundary - (StartBoundary + position), count) : count;
@@ -405,7 +405,7 @@ namespace MimeKit.IO {
 			}
 
 			// make sure that the source stream is in the expected position
-			if (BaseStream.Position != StartBoundary + position)
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
 				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
 
 			int n = EndBoundary != -1 ? (int) Math.Min (EndBoundary - (StartBoundary + position), count) : count;
@@ -462,7 +462,7 @@ namespace MimeKit.IO {
 			}
 
 			// make sure that the source stream is in the expected position
-			if (BaseStream.Position != StartBoundary + position)
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
 				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
 
 			BaseStream.Write (buffer, offset, count);
@@ -520,7 +520,7 @@ namespace MimeKit.IO {
 			}
 
 			// make sure that the source stream is in the expected position
-			if (BaseStream.Position != StartBoundary + position)
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
 				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
 
 			await BaseStream.WriteAsync (buffer, offset, count, cancellationToken).ConfigureAwait (false);
