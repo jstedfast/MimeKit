@@ -218,5 +218,17 @@ namespace UnitTests.Text {
 
 			Assert.AreEqual (expected, result);
 		}
+
+		[Test]
+		public void TestIssue808 ()
+		{
+			const string input = "<html><body>I'm on holiday until&nbsp; June 17, 2022.&#13;</body></html>";
+			const string expected = "<html><body>I'm on holiday until&nbsp; June 17, 2022.&#13;</body></html>";
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (input);
+
+			Assert.AreEqual (expected, result);
+		}
 	}
 }
