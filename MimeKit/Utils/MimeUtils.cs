@@ -526,10 +526,11 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <returns>The unquoted text.</returns>
 		/// <param name="text">The text to unquote.</param>
+		/// <param name="convertTabsToSpaces"><c>true</c> if tab characters should be converted to a space; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <c>null</c>.
 		/// </exception>
-		public static string Unquote (string text)
+		public static string Unquote (string text, bool convertTabsToSpaces = false)
 		{
 			if (text == null)
 				throw new ArgumentNullException (nameof (text));
@@ -550,7 +551,7 @@ namespace MimeKit.Utils {
 					escaped = false;
 					break;
 				case '\t':
-					builder.Append (' ');
+					builder.Append (convertTabsToSpaces ? ' ' : '\t');
 					escaped = false;
 					break;
 				case '\\':
@@ -578,7 +579,7 @@ namespace MimeKit.Utils {
 
 		internal static byte[] Unquote (byte[] text, int startIndex, int length)
 		{
-			var builder = new ByteArrayBuilder (length);
+			var builder = new ByteArrayBuilder (length - 2);
 			bool escaped = false;
 			bool quoted = false;
 
@@ -586,10 +587,6 @@ namespace MimeKit.Utils {
 				switch ((char) text[i]) {
 				case '\r':
 				case '\n':
-					escaped = false;
-					break;
-				case '\t':
-					builder.Append ((byte) ' ');
 					escaped = false;
 					break;
 				case '\\':

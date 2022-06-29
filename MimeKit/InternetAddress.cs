@@ -756,7 +756,7 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseGroup (flags, options, text, startIndex, ref index, endIndex, groupDepth + 1, MimeUtils.Unquote (name), codepage, out address);
+				return TryParseGroup (flags, options, text, startIndex, ref index, endIndex, groupDepth + 1, MimeUtils.Unquote (name, true), codepage, out address);
 			}
 
 			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
@@ -859,7 +859,7 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name), codepage, throwOnError, out address);
+				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name, true), codepage, throwOnError, out address);
 			}
 
 			if (throwOnError)

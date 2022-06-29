@@ -530,7 +530,7 @@ namespace MimeKit.Cryptography {
 					var reason = Encoding.UTF8.GetString (text, reasonIndex, index - reasonIndex);
 
 					if (quoted)
-						reason = MimeUtils.Unquote (reason);
+						reason = MimeUtils.Unquote (reason, true);
 
 					if (value == "action")
 						resinfo.Action = reason;
@@ -639,7 +639,7 @@ namespace MimeKit.Cryptography {
 					value = Encoding.UTF8.GetString (text, valueIndex, index - valueIndex);
 
 					if (quoted)
-						value = MimeUtils.Unquote (value);
+						value = MimeUtils.Unquote (value, true);
 
 					var propspec = new AuthenticationMethodProperty (ptype, property, value, quoted);
 					resinfo.Properties.Add (propspec);
@@ -695,7 +695,7 @@ namespace MimeKit.Cryptography {
 
 				if (quoted) {
 					// this can only be the authserv-id token
-					srvid = MimeUtils.Unquote (value);
+					srvid = MimeUtils.Unquote (value, true);
 				} else {
 					// this could either be the authserv-id or it could be "i=#" (ARC instance)
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))

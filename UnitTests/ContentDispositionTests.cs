@@ -260,10 +260,22 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestUnquotedFilenameParameterValues ()
+		public void TestFoldedQuotedFilenameParameterValue ()
 		{
-			const string text = " attachment; filename=Partnership Marketing Agreement\n Form - Mega Brands - Easter Toys - Week 11.pdf";
-			const string filename = "Partnership Marketing Agreement Form - Mega Brands - Easter Toys - Week 11.pdf";
+			const string text = "attachment; \r\n\tfilename=\"CR_A-EXCG-2020-0008 - Addition of UAT Email Domain in CMMP-GCN Connector\r\n\t.docx\"\r\n";
+			const string filename = "CR_A-EXCG-2020-0008 - Addition of UAT Email Domain in CMMP-GCN Connector\t.docx";
+			var expected = new ContentDisposition ("attachment");
+
+			expected.Parameters.Add ("filename", filename);
+
+			AssertParse (text, expected);
+		}
+
+		[Test]
+		public void TestFoldedUnquotedFilenameParameterValue ()
+		{
+			const string text = " attachment; filename=Partnership Marketing Agreement\n\tForm - Mega Brands - Easter Toys - Week 11.pdf";
+			const string filename = "Partnership Marketing Agreement\tForm - Mega Brands - Easter Toys - Week 11.pdf";
 			var expected = new ContentDisposition ("attachment");
 
 			expected.Parameters.Add ("filename", filename);
