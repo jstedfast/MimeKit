@@ -485,11 +485,11 @@ namespace MimeKit.Utils {
 						i--;
 
 						var unicode = CharsetUtils.ConvertToUnicode (options, codepage, output, 0, outlen, out len);
-						decoded.Append (unicode.AsSpan(0, len));
+						decoded.Append (unicode.AsSpan (0, len));
 					} else if (token.Is8bit) {
 						// *sigh* I hate broken mailers...
 						var unicode = CharsetUtils.ConvertToUnicode (options, input, token.StartIndex, token.Length, out len);
-						decoded.Append (unicode.AsSpan(0, len));
+						decoded.Append (unicode.AsSpan (0, len));
 					} else {
 						// pure 7bit ascii, a breath of fresh air...
 						byte* inptr = inbuf + token.StartIndex;
