@@ -147,6 +147,18 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Visit the message/feedback-report MIME entity.
+		/// </summary>
+		/// <remarks>
+		/// Visits the message/feedback-report MIME entity.
+		/// </remarks>
+		/// <param name="entity">The message/feedback-report MIME entity.</param>
+		protected internal virtual void VisitMessageFeedbackReport (MessageFeedbackReport entity)
+		{
+			VisitMimePart (entity);
+		}
+
+		/// <summary>
 		/// Visit the message contained within a message/rfc822 or message/news MIME entity.
 		/// </summary>
 		/// <remarks>

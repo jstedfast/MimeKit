@@ -90,6 +90,7 @@ namespace UnitTests {
 			public int Message;
 			public int MessageDeliveryStatus;
 			public int MessageDispositionNotification;
+			public int MessageFeedbackReport;
 			public int MessagePart;
 			public int MessagePartial;
 			public int MimeEntity;
@@ -145,6 +146,12 @@ namespace UnitTests {
 			{
 				MessageDispositionNotification++;
 				base.VisitMessageDispositionNotification (entity);
+			}
+
+			protected internal override void VisitMessageFeedbackReport (MessageFeedbackReport entity)
+			{
+				MessageFeedbackReport++;
+				base.VisitMessageFeedbackReport (entity);
 			}
 
 			protected internal override void VisitMessagePart (MessagePart entity)

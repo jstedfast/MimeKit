@@ -366,8 +366,11 @@ namespace MimeKit {
 					return new MessageDispositionNotification (args);
 
 				// message/delivery-status
-				if (EqualsAny (subtype, "delivery-status", "global -delivery-status"))
+				if (EqualsAny (subtype, "delivery-status", "global-delivery-status"))
 					return new MessageDeliveryStatus (args);
+
+				if (subtype.Equals ("feedback-report", StringComparison.OrdinalIgnoreCase))
+					return new MessageFeedbackReport (args);
 
 				// message/rfc822
 				if (EqualsAny (subtype, "rfc822", "global", "news", "external-body", "rfc2822")) {

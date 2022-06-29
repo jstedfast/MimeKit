@@ -1,5 +1,5 @@
 ﻿//
-// MessageDispositionNotification.cs
+// MessageFeedbackReport.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -30,20 +30,18 @@ using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
-	/// A message disposition notification MIME part.
+	/// A message feedback report MIME part.
 	/// </summary>
 	/// <remarks>
-	/// A message disposition notification MIME part is a machine readable notification
-	/// denoting the disposition of a message once it has been successfully delivered 
-	/// and has a MIME-type of message/disposition-notification.
+	/// A <c>message/feedback-report</c> MIME part is a machine readable feedback report.
 	/// <seealso cref="MimeKit.MultipartReport"/>
 	/// </remarks>
-	public class MessageDispositionNotification : MimePart
+	public class MessageFeedbackReport : MimePart
 	{
 		HeaderList fields;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="MessageDispositionNotification"/> class.
+		/// Initialize a new instance of the <see cref="MessageFeedbackReport"/> class.
 		/// </summary>
 		/// <remarks>
 		/// This constructor is used by <see cref="MimeParser"/>.
@@ -52,34 +50,34 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <c>null</c>.
 		/// </exception>
-		public MessageDispositionNotification (MimeEntityConstructorArgs args) : base (args)
+		public MessageFeedbackReport (MimeEntityConstructorArgs args) : base (args)
 		{
 		}
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="MessageDispositionNotification"/> class.
+		/// Initialize a new instance of the <see cref="MessageFeedbackReport"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MessageDispositionNotification"/>.
+		/// Creates a new <see cref="MessageFeedbackReport"/>.
 		/// </remarks>
-		public MessageDispositionNotification () : base ("message", "disposition-notification")
+		public MessageFeedbackReport () : base ("message", "feedback-report")
 		{
 		}
 
 		void CheckDisposed ()
 		{
-			CheckDisposed (nameof (MessageDispositionNotification));
+			CheckDisposed (nameof (MessageFeedbackReport));
 		}
 
 		/// <summary>
-		/// Get the disposition notification fields.
+		/// Get the feedback report fields.
 		/// </summary>
 		/// <remarks>
-		/// Gets the disposition notification fields.
+		/// Gets the feedback report fields.
 		/// </remarks>
-		/// <value>The disposition notification fields.</value>
+		/// <value>The feedback report fields.</value>
 		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="MessageDispositionNotification"/> has been disposed.
+		/// The <see cref="MessageFeedbackReport"/> has been disposed.
 		/// </exception>
 		public HeaderList Fields {
 			get {
@@ -117,19 +115,19 @@ namespace MimeKit {
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="MessageDispositionNotification"/> nodes
-		/// calls <see cref="MimeVisitor.VisitMessageDispositionNotification"/>. Override this
+		/// This default implementation for <see cref="MessageFeedbackReport"/> nodes
+		/// calls <see cref="MimeVisitor.VisitMessageFeedbackReport"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
 		/// of the <see cref="MimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeVisitor.VisitMessageDispositionNotification"/>.
+		/// <see cref="MimeVisitor.VisitMessageFeedbackReport"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="MessageDispositionNotification"/> has been disposed.
+		/// The <see cref="MessageFeedbackReport"/> has been disposed.
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
@@ -138,7 +136,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			visitor.VisitMessageDispositionNotification (this);
+			visitor.VisitMessageFeedbackReport (this);
 		}
 	}
 }
