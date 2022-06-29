@@ -912,22 +912,27 @@ namespace MimeKit {
 			}
 
 			int length = endIndex - index;
-			var decoded = ArrayPool<byte>.Shared.Rent(hex.EstimateOutputLength (length));
+			var decoded = ArrayPool<byte>.Shared.Rent (hex.EstimateOutputLength (length));
 
-			// hex decode...
-			length = hex.Decode (text, index, length, decoded);
+			try {
+				// hex decode...
+				length = hex.Decode (text, index, length, decoded);
 
-			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
-			var output = ArrayPool<char>.Shared.Rent (outLength);
+				int outLength = decoder.GetCharCount (decoded, 0, length, flush);
+				var output = ArrayPool<char>.Shared.Rent (outLength);
 
-			outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
+				try {
+					outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
 
-			var result = new string (output, 0, outLength);
+					var result = new string (output, 0, outLength);
 
-			ArrayPool<char>.Shared.Return (output);
-			ArrayPool<byte>.Shared.Return (decoded);
-
-			return result;
+					return result;
+				} finally {
+					ArrayPool<char>.Shared.Return (output);
+				}
+			} finally {
+				ArrayPool<byte>.Shared.Return (decoded);
+			}
 		}
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
