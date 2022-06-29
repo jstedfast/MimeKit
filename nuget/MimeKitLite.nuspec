@@ -97,9 +97,6 @@ Special thanks to Fedir Klymenko for his improvements to MemoryBlockStream and S
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll" target="lib\net48\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.pdb" target="lib\net48\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.xml" target="lib\net48\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net5.0\MimeKitLite.dll" target="lib\net5.0\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\net5.0\MimeKitLite.pdb" target="lib\net5.0\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\net5.0\MimeKitLite.xml" target="lib\net5.0\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.dll" target="lib\net6.0\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.pdb" target="lib\net6.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.xml" target="lib\net6.0\MimeKitLite.xml" />
