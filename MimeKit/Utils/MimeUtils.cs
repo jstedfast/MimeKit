@@ -575,5 +575,44 @@ namespace MimeKit.Utils {
 
 			return builder.ToString ();
 		}
+
+		internal static byte[] Unquote (byte[] text, int startIndex, int length)
+		{
+			var builder = new ByteArrayBuilder (length);
+			bool escaped = false;
+			bool quoted = false;
+
+			for (int i = startIndex; i < startIndex + length; i++) {
+				switch ((char) text[i]) {
+				case '\r':
+				case '\n':
+					escaped = false;
+					break;
+				case '\t':
+					builder.Append ((byte) ' ');
+					escaped = false;
+					break;
+				case '\\':
+					if (escaped)
+						builder.Append ((byte) '\\');
+					escaped = !escaped;
+					break;
+				case '"':
+					if (escaped) {
+						builder.Append ((byte) '"');
+						escaped = false;
+					} else {
+						quoted = !quoted;
+					}
+					break;
+				default:
+					builder.Append (text[i]);
+					escaped = false;
+					break;
+				}
+			}
+
+			return builder.ToArray ();
+		}
 	}
 }

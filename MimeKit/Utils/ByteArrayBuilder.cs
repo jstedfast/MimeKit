@@ -49,6 +49,13 @@ namespace MimeKit.Utils {
 			}
 		}
 
+		public void Append (byte c)
+		{
+			EnsureCapacity (length + 1);
+
+			buffer[length++] = c;
+		}
+
 		public void Append (byte[] text, int startIndex, int count)
 		{
 			EnsureCapacity (length + count);

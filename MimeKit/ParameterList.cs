@@ -1064,8 +1064,8 @@ namespace MimeKit {
 					int codepage = -1;
 
 					if (length >= 2 && text[startIndex] == (byte) '"') {
-						var quoted = Rfc2047.DecodeText (options, buffer, startIndex, length, out codepage);
-						value = MimeUtils.Unquote (quoted);
+						var unquoted = MimeUtils.Unquote (buffer, startIndex, length);
+						value = Rfc2047.DecodeText (options, unquoted, 0, unquoted.Length, out codepage);
 					} else if (length > 0) {
 						value = Rfc2047.DecodeText (options, buffer, startIndex, length, out codepage);
 					} else {
