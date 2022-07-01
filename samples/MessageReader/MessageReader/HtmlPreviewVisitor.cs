@@ -221,7 +221,7 @@ namespace MessageReader
 				string delsp;
 
 				if (entity.ContentType.Parameters.TryGetValue ("delsp", out delsp))
-					flowed.DeleteSpace = delsp.ToLowerInvariant () == "yes";
+					flowed.DeleteSpace = delsp.Equals ("yes", StringComparison.OrdinalIgnoreCase);
 
 				converter = flowed;
 			} else {

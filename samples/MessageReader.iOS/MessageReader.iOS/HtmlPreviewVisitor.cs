@@ -140,7 +140,7 @@ namespace MessageReader.iOS {
 				var flowed = new FlowedToHtml ();
 
 				if (entity.ContentType.Parameters.TryGetValue ("delsp", out string delsp))
-					flowed.DeleteSpace = delsp.ToLowerInvariant () == "yes";
+					flowed.DeleteSpace = delsp.Equals ("yes", StringComparison.OrdinalIgnoreCase);
 
 				converter = flowed;
 			} else {
