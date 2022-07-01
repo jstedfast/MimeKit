@@ -80,15 +80,36 @@ namespace MessageReader.Android
 			stack.RemoveAt (stack.Count - 1);
 		}
 
-		// Sets the "oncontextmenu" <body> attribute to "return false;"
+		// Modifies various HTML attributes for better suitability for rendering.
 		void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
-			if (ctx.TagId == HtmlTagId.Body && !ctx.IsEndTag) {
+			if (ctx.TagId == HtmlTagId.Meta && !ctx.IsEndTag) {
+				bool isContentType = false;
+
+				ctx.WriteTag (htmlWriter, false);
+
+				// replace charsets with "utf-8" since our output will be in utf-8 (and not whatever the original charset was)
+				foreach (var attribute in ctx.Attributes) {
+					if (attribute.Id == HtmlAttributeId.Charset) {
+						htmlWriter.WriteAttributeName (attribute.Name);
+						htmlWriter.WriteAttributeValue ("utf-8");
+					} else if (isContentType && attribute.Id == HtmlAttributeId.Content) {
+						htmlWriter.WriteAttributeName (attribute.Name);
+						htmlWriter.WriteAttributeValue ("text/html; charset=utf-8");
+					} else {
+						if (attribute.Id == HtmlAttributeId.HttpEquiv && attribute.Value != null
+							&& attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+							isContentType = true;
+
+						htmlWriter.WriteAttribute (attribute);
+					}
+				}
+			} else if (ctx.TagId == HtmlTagId.Body && !ctx.IsEndTag) {
 				ctx.WriteTag (htmlWriter, false);
 
 				// add and/or replace oncontextmenu="return false;"
 				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Name.ToLowerInvariant () == "oncontextmenu")
+					if (attribute.Name.Equals ("oncontextmenu", StringComparison.OrdinalIgnoreCase))
 						continue;
 
 					htmlWriter.WriteAttribute (attribute);

@@ -120,19 +120,23 @@ namespace MessageReader
 		}
 
 		/// <summary>
-		/// Gets the attachent content as a data URI.
+		/// Get a data: URI for the image attachment.
 		/// </summary>
-		/// <returns>The data URI.</returns>
-		/// <param name="attachment">The attachment.</param>
-		string GetDataUri (MimePart attachment)
+		/// <remarks>
+		/// Encodes the image attachment into a string suitable for setting as a src= attribute value in
+		/// an img tag.
+		/// </remarks>
+		/// <returns>The data: URI.</returns>
+		/// <param name="image">The image attachment.</param>
+		string GetDataUri (MimePart image)
 		{
 			using (var memory = new MemoryStream ()) {
-				attachment.Content.DecodeTo (memory);
+				image.Content.DecodeTo (memory);
 				var buffer = memory.GetBuffer ();
 				var length = (int) memory.Length;
 				var base64 = Convert.ToBase64String (buffer, 0, length);
 
-				return string.Format ("data:{0};base64,{1}", attachment.ContentType.MimeType, base64);
+				return string.Format ("data:{0};base64,{1}", image.ContentType.MimeType, base64);
 			}
 		}
 
@@ -140,24 +144,42 @@ namespace MessageReader
 		// "data:" urls that the browser control will actually be able to load.
 		void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
-			if (ctx.TagId == HtmlTagId.Image && !ctx.IsEndTag && stack.Count > 0) {
+			if (ctx.TagId == HtmlTagId.Meta && !ctx.IsEndTag) {
+				bool isContentType = false;
+
+				ctx.WriteTag (htmlWriter, false);
+
+				// replace charsets with "utf-8" since our output will be in utf-8 (and not whatever the original charset was)
+				foreach (var attribute in ctx.Attributes) {
+					if (attribute.Id == HtmlAttributeId.Charset) {
+						htmlWriter.WriteAttributeName (attribute.Name);
+						htmlWriter.WriteAttributeValue ("utf-8");
+					} else if (isContentType && attribute.Id == HtmlAttributeId.Content) {
+						htmlWriter.WriteAttributeName (attribute.Name);
+						htmlWriter.WriteAttributeValue ("text/html; charset=utf-8");
+					} else {
+						if (attribute.Id == HtmlAttributeId.HttpEquiv && attribute.Value != null
+							&& attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+							isContentType = true;
+
+						htmlWriter.WriteAttribute (attribute);
+					}
+				}
+			} else if (ctx.TagId == HtmlTagId.Image && !ctx.IsEndTag && stack.Count > 0) {
 				ctx.WriteTag (htmlWriter, false);
 
 				// replace the src attribute with a "data:" URL
 				foreach (var attribute in ctx.Attributes) {
 					if (attribute.Id == HtmlAttributeId.Src) {
-						MimePart image;
-						string url;
-
-						if (!TryGetImage (attribute.Value, out image)) {
+						if (!TryGetImage (attribute.Value, out var image)) {
 							htmlWriter.WriteAttribute (attribute);
 							continue;
 						}
 
-						url = GetDataUri (image);
+						var dataUri = GetDataUri (image);
 
 						htmlWriter.WriteAttributeName (attribute.Name);
-						htmlWriter.WriteAttributeValue (url);
+						htmlWriter.WriteAttributeValue (dataUri);
 					} else {
 						htmlWriter.WriteAttribute (attribute);
 					}
@@ -167,7 +189,7 @@ namespace MessageReader
 
 				// add and/or replace oncontextmenu="return false;"
 				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Name.ToLowerInvariant () == "oncontextmenu")
+					if (attribute.Name.Equals ("oncontextmenu", StringComparison.OrdinalIgnoreCase))
 						continue;
 
 					htmlWriter.WriteAttribute (attribute);
