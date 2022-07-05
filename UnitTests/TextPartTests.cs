@@ -381,7 +381,7 @@ namespace UnitTests
 
 				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
 				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
-				Assert.AreEqual ("windows-1252", encoding.WebName);
+				Assert.AreEqual ("windows-1252", encoding.WebName.ToLowerInvariant ());
 			}
 		}
 
@@ -399,7 +399,7 @@ namespace UnitTests
 
 				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
 				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
-				Assert.AreEqual ("windows-1252", encoding.WebName);
+				Assert.AreEqual ("windows-1252", encoding.WebName.ToLowerInvariant ());
 			}
 		}
 
@@ -417,7 +417,7 @@ namespace UnitTests
 
 				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
 				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
-				Assert.AreEqual ("windows-1252", encoding.WebName);
+				Assert.AreEqual ("windows-1252", encoding.WebName.ToLowerInvariant ());
 			}
 		}
 
@@ -435,7 +435,7 @@ namespace UnitTests
 
 				Assert.IsTrue (part.TryDetectEncoding (out encoding, out confidence));
 				Assert.AreEqual (TextEncodingConfidence.Tentative, confidence);
-				Assert.AreEqual ("windows-1252", encoding.WebName);
+				Assert.AreEqual ("windows-1252", encoding.WebName.ToLowerInvariant ());
 			}
 		}
 
