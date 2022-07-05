@@ -39,13 +39,6 @@ namespace MimeKit.Utils {
 
 		static CharsetUtils ()
 		{
-			int gb2312;
-
-#if NET461_OR_GREATER || NETSTANDARD || NET5_0_OR_GREATER
-			// Note: The CodePagesEncodingProvider was introduced in .NET Framework v4.6.1
-			Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
-#endif
-
 			try {
 				Latin1 = Encoding.GetEncoding (28591, new EncoderExceptionFallback (), new DecoderExceptionFallback ());
 			} catch (NotSupportedException) {
@@ -97,7 +90,7 @@ namespace MimeKit.Utils {
 			AddAliases (aliases, 950, -1, "big5", "big5-0", "big5-hkscs", "big5.eten-0", "big5hkscs-0");
 
 			// Chinese charsets (aliases for gb2312)
-			gb2312 = AddAliases (aliases, 936, -1, "gb2312", "gb-2312", "gb2312-0", "gb2312-80", "gb2312.1980-0");
+			int gb2312 = AddAliases (aliases, 936, -1, "gb2312", "gb-2312", "gb2312-0", "gb2312-80", "gb2312.1980-0");
 
 			// Chinese charsets (euc-cn and gbk not supported on Mono)
 			// https://bugzilla.mozilla.org/show_bug.cgi?id=844082 seems to suggest falling back to gb2312.
