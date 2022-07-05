@@ -50,16 +50,15 @@
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+  </ItemGroup>
+
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net46')) Or $(TargetFramework.StartsWith('net47')) Or $(TargetFramework.StartsWith('net48')) ">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>

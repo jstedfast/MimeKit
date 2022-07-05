@@ -51,17 +51,6 @@
     <DefineConstants>$(DefineConstants);ENABLE_SNM;SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
-    <PackageReference Include="System.Buffers" Version="4.5.1" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
-
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -69,19 +58,27 @@
     <Reference Include="System.Security" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net46')) Or $(TargetFramework.StartsWith('net47')) Or $(TargetFramework.StartsWith('net48')) ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('net6')) ">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net6')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.0" />
-  </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
   </ItemGroup>
