@@ -112,6 +112,6 @@ namespace MimeKit {
 		/// Gets or sets the line number of the beginning of the message.
 		/// </remarks>
 		/// <value>The line number.</value>
-		internal int LineNumber { get; set; }
+		public int LineNumber { get; set; }
 	}
 }
