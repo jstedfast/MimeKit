@@ -61,19 +61,16 @@ Special thanks to Fedir Klymenko for his improvements to MemoryBlockStream and S
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="System.Text.Encoding.CodePages" version="6.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
       <group targetFramework="net47">
-        <dependency id="System.Text.Encoding.CodePages" version="6.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
       <group targetFramework="net48">
-        <dependency id="System.Text.Encoding.CodePages" version="6.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
