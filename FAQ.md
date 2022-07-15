@@ -1189,12 +1189,13 @@ Keep in mind that not all messages will have a `TextBody` available, so you'll h
 
 ### <a name="GarbledText">Q: Why does text show up garbled in my ASP.NET Core / .NET Core / .NET 5 app?</a>
 
-.NET Core (and ASP.NET Core by extension) and .NET 5 only provide the Unicode encodings, ASCII and ISO-8859-1 by default.
+.NET Core (and ASP.NET Core by extension) and .NET >= 5 only provide the Unicode encodings, ASCII and ISO-8859-1 by default.
 Other text encodings are not available to your application unless your application
 [registers](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding.registerprovider?view=net-5.0) the encoding
 provider that provides all of the additional encodings.
 
-To register the additional text encodings, use the following code snippet:
+First, add a package reference for the [System.Text.Encoding.CodePages](https://www.nuget.org/packages/System.Text.Encoding.CodePages)
+nuget package to your project and then register the additional text encodings using the following code snippet:
 
 ```csharp
 System.Text.Encoding.RegisterProvider (System.Text.CodePagesEncodingProvider.Instance);
