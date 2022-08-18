@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,15 +26,18 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added Import() methods for X509Certificate2 for all S/MIME contexts. (issue #784)
-* Handle S/MIME sha# as well as sha-# micalg names for improved interop. (issue #790)
-* Fixed the MemoryBlockStream.Read() method to handle cases where the length of the stream is longer than int.MaxValue.
-* Fixed TnefPart.ConvertToMessage() to promote lone multipart/mixed subparts to become the message body much like it used to work pre-v3.2.0. (issue #789)
-* Reduced memory usage when using SecureMimeContext.Compress() and CompressAsync().
-* Dropped support for net452 and net461 now that their life cycles have ended and are no longer supported by Microsoft. (issue #768)
-* Added support for net462.
-
-Special thanks to Fedir Klymenko for his improvements to MemoryBlockStream and SecureMimeContext.Compress!
+* Introduced a new IPunycode interface and Punycode class allowing developers to override the default implementation that uses .NET's IdnMapping class. (issue #801)
+* Added HtmlAttributeCollection Contains, IndexOf and TryGetValue methods.
+* Dropped .NET5.0 support.
+* Changed HtmlToHtml converter to avoid decoding character references. (issue #808)
+* Fixed BoundStream to only seek in the base stream if seeking is supported.
+* Added a new TextPart.TryDetectEncoding() API. (issue #804)
+* Added support for message/feedback-report via a new MessageFeedbackReport class.
+* Fixed a potential memory leak.
+* When unquoting parameter values, don't convert tabs to spaces. (issue #809)
+* Don't call Encoding.RegisterProvider() anymore. Rely on developers doing this themselves in their application startup logic.
+* Remove System.Text.Encoding.CodePages dependency for net4x.
+* Expose the LineNumber property on MimeMessageBeginEventArgs and MimeEntityBeginEventArgs. (issue #819)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

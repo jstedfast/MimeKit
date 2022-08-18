@@ -1,5 +1,27 @@
 # Release Notes
 
+### MimeKit 3.4.0 (2022-08-17)
+
+* Introduced a new IPunycode interface and Punycode class allowing developers to override the default
+  implementation that uses .NET's IdnMapping class.
+  (issue [#801](https://github.com/jstedfast/MimeKit/issues/801))
+* Added HtmlAttributeCollection Contains, IndexOf and TryGetValue methods.
+* Dropped .NET5.0 support.
+* Changed HtmlToHtml converter to avoid decoding character references.
+  (issue [#808](https://github.com/jstedfast/MimeKit/issues/808))
+* Fixed BoundStream to only seek in the base stream if seeking is supported.
+* Added a new TextPart.TryDetectEncoding() API.
+  (issue [#804](https://github.com/jstedfast/MimeKit/issues/804))
+* Added support for message/feedback-report via a new MessageFeedbackReport class.
+* Fixed a potential memory leak.
+* When unquoting parameter values, don't convert tabs to spaces.
+  (issue [#809](https://github.com/jstedfast/MimeKit/issues/809))
+* Don't call Encoding.RegisterProvider() anymore. Rely on developers doing this themselves in their application
+  startup logic.
+* Remove System.Text.Encoding.CodePages dependency for net4x.
+* Expose the LineNumber property on MimeMessageBeginEventArgs and MimeEntityBeginEventArgs.
+  (issue [#819](https://github.com/jstedfast/MimeKit/issues/819))
+
 ### MimeKit 3.3.0 (2022-06-11)
 
 * Added Import() methods for X509Certificate2 for all S/MIME contexts.
