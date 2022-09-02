@@ -1062,6 +1062,7 @@ namespace MimeKit.Utils {
 		}
 
 		class Word {
+			public readonly string Text;
 			public WordType Type;
 			public int StartIndex;
 			public int CharCount;
@@ -1069,14 +1070,22 @@ namespace MimeKit.Utils {
 			public int ByteCount;
 			public int EncodeCount;
 			public int QuotedPairs;
+			public bool IsQuotedStart;
+			public bool IsQuotedEnd;
+			public bool IsCommentStart;
+			public bool IsCommentEnd;
 
-			public Word ()
+			public Word (string text)
 			{
-				Type = WordType.Atom;
+				Text = text;
 			}
 
 			public void CopyTo (Word word)
 			{
+				word.IsQuotedStart = IsQuotedStart;
+				word.IsQuotedEnd = IsQuotedEnd;
+				word.IsCommentStart = IsCommentStart;
+				word.IsCommentEnd = IsCommentEnd;
 				word.EncodeCount = EncodeCount;
 				word.QuotedPairs = QuotedPairs;
 				word.StartIndex = StartIndex;
@@ -1084,6 +1093,11 @@ namespace MimeKit.Utils {
 				word.ByteCount = ByteCount;
 				word.Encoding = Encoding;
 				word.Type = Type;
+			}
+
+			public override string ToString ()
+			{
+				return $"{Type}: {Text.Substring (StartIndex, CharCount)}";
 			}
 		}
 
@@ -1154,18 +1168,21 @@ namespace MimeKit.Utils {
 			var encoder = charset.GetEncoder ();
 			var words = new List<Word> ();
 			var chars = new char[2];
-			var saved = new Word ();
-			var word = new Word ();
+			var saved = new Word (text);
+			var word = new Word (text);
 			int nchars, n, i = 0;
+			int commentDepth = 0;
+			var escaped = false;
+			var quoted = false;
 			char c;
 
 			while (i < text.Length) {
 				c = text[i++];
 
-				if (IsBlank (c)) {
+				if (!quoted && commentDepth == 0 && IsBlank (c)) {
 					if (word.ByteCount > 0) {
 						words.Add (word);
-						word = new Word ();
+						word = new Word (text);
 					}
 
 					word.StartIndex = i;
@@ -1182,10 +1199,33 @@ namespace MimeKit.Utils {
 							// phrases can have quoted strings
 							if (word.Type == WordType.Atom)
 								word.Type = WordType.QuotedString;
-						}
 
-						if (c == '"' || c == '\\')
-							word.QuotedPairs++;
+							if (c == '\\') {
+								word.QuotedPairs++;
+								escaped = !escaped;
+							} else if (c == '"') {
+								if (!escaped) {
+									quoted = !quoted;
+									if (quoted) {
+										word.IsQuotedStart = true;
+									} else {
+										word.IsQuotedEnd = true;
+									}
+								}
+								word.QuotedPairs++;
+								escaped = false;
+							} else if (!quoted) {
+								if (c == '(') {
+									word.IsCommentStart = commentDepth == 0;
+									commentDepth++;
+								} else if (c == ')' && commentDepth > 0) {
+									commentDepth--;
+									word.IsCommentEnd = commentDepth == 0;
+								}
+							} else {
+								escaped = false;
+							}
+						}
 
 						word.ByteCount++;
 						word.CharCount++;
@@ -1242,10 +1282,32 @@ namespace MimeKit.Utils {
 						words.Add (word);
 
 						saved.Type = word.Type;
-						word = new Word ();
+						word = new Word (text);
 
 						// Note: the word-type needs to be preserved when breaking long words.
 						word.Type = saved.Type;
+						word.StartIndex = i;
+					} else if (word.IsQuotedEnd || word.IsCommentEnd) {
+						if (word.Type == WordType.EncodedWord) {
+							if (word.IsQuotedEnd && !word.IsQuotedStart) {
+								for (int j = words.Count - 1; j >= 0; j--) {
+									words[j].Type = WordType.EncodedWord;
+									if (words[j].IsQuotedStart)
+										break;
+								}
+							} else if (word.IsCommentEnd && !word.IsCommentStart) {
+								for (int j = words.Count - 1; j >= 0; j--) {
+									words[j].Type = WordType.EncodedWord;
+									if (words[j].IsCommentStart)
+										break;
+								}
+							}
+						}
+
+						// End the word here.
+						words.Add (word);
+
+						word = new Word (text);
 						word.StartIndex = i;
 					}
 				}
@@ -1276,7 +1338,8 @@ namespace MimeKit.Utils {
 				if (next.Type == WordType.EncodedWord)
 					return false;
 
-				return length + quoted + 3 < options.MaxLineLength;
+				// Quoted strings can always be combined with atoms or other quoted strings.
+				return true;
 			case WordType.EncodedWord:
 				if (next.Type == WordType.Atom) {
 					// whether we merge or not is dependent upon:
@@ -1322,11 +1385,21 @@ namespace MimeKit.Utils {
 			}
 		}
 
-		static List<Word> Merge (FormatOptions options, Encoding charset, List<Word> words)
+		static void Merge (Word word, Word next)
 		{
-			if (words.Count < 2)
-				return words;
+			// the resulting word is the max of the 2 types
+			int lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
 
+			word.Type = (WordType) Math.Max ((int) word.Type, (int) next.Type);
+			word.CharCount = (next.StartIndex + next.CharCount) - word.StartIndex;
+			word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
+			word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) next.Encoding);
+			word.EncodeCount += next.EncodeCount;
+			word.QuotedPairs += next.QuotedPairs;
+		}
+
+		static List<Word> MergeAdjacent (FormatOptions options, Encoding charset, List<Word> words)
+		{
 			int lwspCount, encoded, quoted, byteCount, length;
 			var merged = new List<Word> ();
 			WordEncoding encoding;
@@ -1335,7 +1408,7 @@ namespace MimeKit.Utils {
 			word = words[0];
 			merged.Add (word);
 
-			// first pass: merge qstrings with adjacent qstrings and encoded-words with adjacent encoded-words
+			// merge qstrings with adjacent qstrings and encoded-words with adjacent encoded-words
 			for (int i = 1; i < words.Count; i++) {
 				next = words[i];
 
@@ -1376,9 +1449,21 @@ namespace MimeKit.Utils {
 				word = next;
 			}
 
-			words = merged;
-			merged = new List<Word> ();
+			return merged;
+		}
 
+		static List<Word> Merge (FormatOptions options, Encoding charset, List<Word> words)
+		{
+			if (words.Count < 2)
+				return words;
+
+			List<Word> merged;
+			Word word, next;
+
+			merged = MergeAdjacent (options, charset, words);
+			words = merged;
+
+			merged = new List<Word> ();
 			word = words[0];
 			merged.Add (word);
 
@@ -1387,15 +1472,7 @@ namespace MimeKit.Utils {
 				next = words[i];
 
 				if (ShouldMergeWords (options, charset, words, word, i)) {
-					// the resulting word is the max of the 2 types
-					lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
-
-					word.Type = (WordType) Math.Max ((int) word.Type, (int) next.Type);
-					word.CharCount = (next.StartIndex + next.CharCount) - word.StartIndex;
-					word.ByteCount = word.ByteCount + lwspCount + next.ByteCount;
-					word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) next.Encoding);
-					word.EncodeCount += next.EncodeCount;
-					word.QuotedPairs += next.QuotedPairs;
+					Merge (word, next);
 				} else {
 					merged.Add (next);
 					word = next;

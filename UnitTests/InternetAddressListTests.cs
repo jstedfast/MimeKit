@@ -315,11 +315,6 @@ namespace UnitTests {
 
 			mailbox.Name = "Jeffrey \"fejj\" Stedfast";
 			mailbox.Address = "fejj@helixcode.com";
-			text = "Jeffrey \"fejj\" Stedfast <fejj@helixcode.com>";
-			AssertParseAndTryParse (text, "\"Jeffrey \\\"fejj\\\" Stedfast\" <fejj@helixcode.com>", expected);
-
-			mailbox.Name = "Jeffrey \"fejj\" Stedfast";
-			mailbox.Address = "fejj@helixcode.com";
 			text = "\"Jeffrey \\\"fejj\\\" Stedfast\" <fejj@helixcode.com>";
 			AssertParseAndTryParse (text, text, expected);
 

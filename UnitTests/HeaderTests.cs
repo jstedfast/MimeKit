@@ -433,7 +433,6 @@ namespace UnitTests {
 			Assert.AreEqual (expected, result);
 		}
 
-
 		[Test]
 		public void TestReformatAddressHeaderWithInnerQuotedString ()
 		{
@@ -515,6 +514,17 @@ namespace UnitTests {
 		public void TestReformatAddressHeaderWithInnerUnicodeComment3 ()
 		{
 			var mailbox = new MailboxAddress ("John (Jacob Jingle Heimer 點看@名がドメイン) Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithLongSentenceWithCommas ()
+		{
+			var mailbox = new MailboxAddress ("Once upon a time, back when things that are old now were new, there lived a man with a very particular set of skills.", "example@example.com");
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 			options.International = true;

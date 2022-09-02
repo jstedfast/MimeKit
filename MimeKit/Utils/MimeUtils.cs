@@ -577,7 +577,7 @@ namespace MimeKit.Utils {
 			return builder.ToString ();
 		}
 
-		internal static byte[] Unquote (byte[] text, int startIndex, int length)
+		internal static byte[] Unquote (byte[] text, int startIndex, int length, bool convertTabsToSpaces = false)
 		{
 			var builder = new ByteArrayBuilder (length - 2);
 			bool escaped = false;
@@ -587,6 +587,10 @@ namespace MimeKit.Utils {
 				switch ((char) text[i]) {
 				case '\r':
 				case '\n':
+					escaped = false;
+					break;
+				case '\t':
+					builder.Append ((byte) (convertTabsToSpaces ? ' ' : '\t'));
 					escaped = false;
 					break;
 				case '\\':

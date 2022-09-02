@@ -851,7 +851,9 @@ namespace MimeKit {
 				}
 
 				if (length > 0) {
-					name = Rfc2047.DecodePhrase (options, text, nameIndex, length, out codepage);
+					var unquoted = MimeUtils.Unquote (text, nameIndex, length, true);
+
+					name = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
 				} else {
 					name = string.Empty;
 				}
@@ -859,7 +861,7 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseMailbox (options, text, startIndex, ref index, endIndex, MimeUtils.Unquote (name, true), codepage, throwOnError, out address);
+				return TryParseMailbox (options, text, startIndex, ref index, endIndex, name, codepage, throwOnError, out address);
 			}
 
 			if (throwOnError)
