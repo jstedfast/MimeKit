@@ -1408,11 +1408,13 @@ namespace MimeKit.Utils {
 		static byte[] Encode (FormatOptions options, Encoding charset, string text, bool phrase)
 		{
 			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
-			var words = Merge (options, charset, GetRfc822Words (options, charset, text, phrase));
+			var words = GetRfc822Words (options, charset, text, phrase);
 			var builder = new ValueStringBuilder (text.Length * 4);
 			int start, length;
 			Word prev = null;
 			byte[] encoded;
+
+			words = Merge (options, charset, words);
 
 			if (!options.AllowMixedHeaderCharsets) {
 				for (int i = 0; i < words.Count; i++) {
