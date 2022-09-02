@@ -4,6 +4,8 @@ project.nuget.cache
 *project.lock.json
 *.csproj.nuget.cache
 *.csproj.nuget.dgspec.json
+*.nupkg
+*.patch
 *.userprefs
 *.user
 *.suo
@@ -19,6 +21,7 @@ bin
 exported.p12
 exported.crt
 gpg.conf
+pkcs7.db
 pubring.gpg
 secring.gpg
 smime.db
