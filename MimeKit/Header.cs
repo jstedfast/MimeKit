@@ -559,11 +559,8 @@ namespace MimeKit {
 
 		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			if (!InternetAddressList.TryParse (options, value, out var list)) {
-				var folded = Fold (format, field, value);
-
-				return Encoding.UTF8.GetBytes (folded);
-			}
+			if (!InternetAddressList.TryParse (options, value, out var list))
+				return EncodeUnstructuredHeader (options, format, encoding, field, value);
 
 			var encoded = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
