@@ -313,10 +313,10 @@ namespace UnitTests {
 			text = "this is\n\ta folded name <folded@name.com>";
 			AssertParseAndTryParse (text, "this is a folded name <folded@name.com>", expected);
 
-			mailbox.Name = "Jeffrey fejj Stedfast";
+			mailbox.Name = "Jeffrey \"fejj\" Stedfast";
 			mailbox.Address = "fejj@helixcode.com";
 			text = "Jeffrey \"fejj\" Stedfast <fejj@helixcode.com>";
-			AssertParseAndTryParse (text, "Jeffrey fejj Stedfast <fejj@helixcode.com>", expected);
+			AssertParseAndTryParse (text, "\"Jeffrey \\\"fejj\\\" Stedfast\" <fejj@helixcode.com>", expected);
 
 			mailbox.Name = "Jeffrey \"fejj\" Stedfast";
 			mailbox.Address = "fejj@helixcode.com";

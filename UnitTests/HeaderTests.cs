@@ -405,5 +405,121 @@ namespace UnitTests {
 			for (int i = 0; i < rawValue.Length; i++)
 				Assert.AreEqual (rawValue[i], value[i], "rawValue[{0}]", i);
 		}
+
+		static string EncodeMailbox (FormatOptions options, string field, MailboxAddress mailbox)
+		{
+			var list = new InternetAddressList ();
+			var builder = new StringBuilder (" ");
+			int lineLength = field.Length;
+
+			list.Add (mailbox);
+			list.Encode (options, builder, true, ref lineLength);
+			builder.Append (options.NewLine);
+
+			return builder.ToString ();
+		}
+
+		static void TestReformatAddressHeader (FormatOptions options, MailboxAddress mailbox)
+		{
+			// encode the mailbox the way it would be encoded if it was added to MimeMessage.From
+			var encoded = EncodeMailbox (FormatOptions.Default, "From: ", mailbox);
+			var rawValue = Encoding.UTF8.GetBytes (encoded);
+			var header = new Header (ParserOptions.Default, HeaderId.From, "From", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+			var expected = EncodeMailbox (options, "From: ", mailbox);
+
+			Assert.AreEqual (expected, result);
+		}
+
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerQuotedString ()
+		{
+			var mailbox = new MailboxAddress ("John \"Jacob Jingle Heimer\" Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeQuotedString1 ()
+		{
+			var mailbox = new MailboxAddress ("John \"點看@名がドメイン Jacob Jingle Heimer\" Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeQuotedString2 ()
+		{
+			var mailbox = new MailboxAddress ("John \"Jacob Jingle 點看@名がドメイン Heimer\" Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeQuotedString3 ()
+		{
+			var mailbox = new MailboxAddress ("John \"Jacob Jingle Heimer 點看@名がドメイン\" Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeComment ()
+		{
+			var mailbox = new MailboxAddress ("John (Jacob Jingle Heimer) Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeComment1 ()
+		{
+			var mailbox = new MailboxAddress ("John (點看@名がドメイン Jacob Jingle Heimer) Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeComment2 ()
+		{
+			var mailbox = new MailboxAddress ("John (Jacob Jingle 點看@名がドメイン Heimer) Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderWithInnerUnicodeComment3 ()
+		{
+			var mailbox = new MailboxAddress ("John (Jacob Jingle Heimer 點看@名がドメイン) Schmidt", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
 	}
 }

@@ -107,7 +107,7 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
-		public void TestEncodedWordEmptyCharset ()
+		public void TestDecodeEncodedWordEmptyCharset ()
 		{
 			const string text = "blurdy bloop =??q?no_charset?= beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -121,7 +121,7 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
-		public void TestEncodedWordEmptyCharsetWithLang ()
+		public void TestDecodeEncodedWordEmptyCharsetWithLang ()
 		{
 			const string text = "blurdy bloop =?*en?q?no_charset?= beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -135,7 +135,7 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
-		public void TestEncodedWordWithLang ()
+		public void TestDecodeEncodedWordWithLang ()
 		{
 			const string text = "blurdy bloop =?iso-8859-1*en?q?this_is_english?= beep boop";
 			const string expected = "blurdy bloop this is english beep boop";
@@ -150,7 +150,7 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
-		public void TestEncodedWordInvalidEncoding ()
+		public void TestDecodeEncodedWordInvalidEncoding ()
 		{
 			const string text = "blurdy bloop =?iso-8859-1?x?invalid_encoding?= beep boop";
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -164,7 +164,7 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
-		public void TestEncodedWordIncompletePayload ()
+		public void TestDecodeEncodedWordIncompletePayload ()
 		{
 			const string text = "blurdy bloop =?iso-8859-1?q?invalid_encoding";
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -178,7 +178,7 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
-		public void TestEncodedWordIncompleteCharset ()
+		public void TestDecodeEncodedWordIncompleteCharset ()
 		{
 			const string text = "blurdy bloop =?iso-8859-1";
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -232,6 +232,96 @@ namespace UnitTests.Utils {
 
 			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text));
 			Assert.AreEqual (expected, result, "EncodeText");
+		}
+
+		[Test]
+		public void TestEncodePhraseLongSentenceWithCommas ()
+		{
+			const string expected = "\"Once upon a time, back when things that are old now were new, there lived a man with a very particular set of skills.\"";
+			const string text = "Once upon a time, back when things that are old now were new, there lived a man with a very particular set of skills.";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerQuotedString ()
+		{
+			const string expected = "\"John \\\"Jacob Jingle Heimer\\\" Schmidt\"";
+			const string text = "John \"Jacob Jingle Heimer\" Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeQuotedString1 ()
+		{
+			const string expected = "John =?utf-8?b?Ium7nueci0DlkI3jgYzjg4njg6HjgqTjg7MgSmFjb2IgSmluZ2xlIEhlaW1lciI=?= Schmidt";
+			const string text = "John \"點看@名がドメイン Jacob Jingle Heimer\" Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeQuotedString2 ()
+		{
+			const string expected = "John =?utf-8?b?IkphY29iIEppbmdsZSDpu57nnItA5ZCN44GM44OJ44Oh44Kk44OzIEhlaW1lciI=?= Schmidt";
+			const string text = "John \"Jacob Jingle 點看@名がドメイン Heimer\" Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeQuotedString3 ()
+		{
+			const string expected = "John =?utf-8?b?IkphY29iIEppbmdsZSBIZWltZXIg6bue55yLQOWQjeOBjOODieODoeOCpOODsyI=?= Schmidt";
+			const string text = "John \"Jacob Jingle Heimer 點看@名がドメイン\" Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeComment ()
+		{
+			const string expected = "\"John (Jacob Jingle Heimer) Schmidt\"";
+			const string text = "John (Jacob Jingle Heimer) Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeComment1 ()
+		{
+			const string expected = "John =?utf-8?b?KOm7nueci0DlkI3jgYzjg4njg6HjgqTjg7MgSmFjb2IgSmluZ2xlIEhlaW1lcik=?= Schmidt";
+			const string text = "John (點看@名がドメイン Jacob Jingle Heimer) Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeComment2 ()
+		{
+			const string expected = "John =?utf-8?b?KEphY29iIEppbmdsZSDpu57nnItA5ZCN44GM44OJ44Oh44Kk44OzIEhlaW1lcik=?= Schmidt";
+			const string text = "John (Jacob Jingle 點看@名がドメイン Heimer) Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeComment3 ()
+		{
+			const string expected = "John =?utf-8?b?KEphY29iIEppbmdsZSBIZWltZXIg6bue55yLQOWQjeOBjOODieODoeOCpOODsyk=?= Schmidt";
+			const string text = "John (Jacob Jingle Heimer 點看@名がドメイン) Schmidt";
+
+			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase");
 		}
 
 		[Test]
