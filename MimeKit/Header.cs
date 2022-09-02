@@ -540,11 +540,26 @@ namespace MimeKit {
 			return GetValue (encoding);
 		}
 
+		static byte[] ReformatAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, byte[] rawValue)
+		{
+			if (!InternetAddressList.TryParse (options, rawValue, 0, rawValue.Length, out var list))
+				return rawValue;
+
+			var encoded = new StringBuilder (" ");
+			int lineLength = field.Length + 2;
+
+			list.Encode (format, encoded, true, ref lineLength);
+			encoded.Append (format.NewLine);
+
+			if (format.International)
+				return Encoding.UTF8.GetBytes (encoded.ToString ());
+
+			return Encoding.ASCII.GetBytes (encoded.ToString ());
+		}
+
 		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			if (!InternetAddressList.TryParse (options, value, out var list))
-				return (byte[]) format.NewLineBytes.Clone ();
-
+			var list = InternetAddressList.Parse (options, value);
 			var encoded = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
@@ -736,6 +751,19 @@ namespace MimeKit {
 			}
 
 			encoded.Append (format.NewLine);
+
+			return encoding.GetBytes (encoded.ToString ());
+		}
+
+		static byte[] ReformatAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, byte[] rawValue)
+		{
+			if (!AuthenticationResults.TryParse (rawValue, out AuthenticationResults authres))
+				return rawValue;
+
+			var encoded = new StringBuilder ();
+			int lineLength = field.Length + 1;
+
+			authres.Encode (format, encoded, lineLength);
 
 			return encoding.GetBytes (encoded.ToString ());
 		}
@@ -1036,10 +1064,30 @@ namespace MimeKit {
 			return folded.ToString ();
 		}
 
+		static byte[] ReformatContentDisposition (ParserOptions options, FormatOptions format, Encoding encoding, string field, byte[] rawValue)
+		{
+			if (!ContentDisposition.TryParse (options, rawValue, out var disposition))
+				return rawValue;
+
+			var encoded = disposition.Encode (format, encoding);
+
+			return Encoding.UTF8.GetBytes (encoded);
+		}
+
 		static byte[] EncodeContentDisposition (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var disposition = ContentDisposition.Parse (options, value);
 			var encoded = disposition.Encode (format, encoding);
+
+			return Encoding.UTF8.GetBytes (encoded);
+		}
+
+		static byte[] ReformatContentType (ParserOptions options, FormatOptions format, Encoding encoding, string field, byte[] rawValue)
+		{
+			if (!ContentType.TryParse (options, rawValue, out var contentType))
+				return rawValue;
+
+			var encoded = contentType.Encode (format, encoding);
 
 			return Encoding.UTF8.GetBytes (encoded);
 		}
@@ -1122,11 +1170,48 @@ namespace MimeKit {
 		internal byte[] GetRawValue (FormatOptions format)
 		{
 			if (format.International && !explicitRawValue) {
-				if (textValue == null)
-					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
-
-				// Note: if we're reformatting to be International, then charset doesn't matter.
-				return FormatRawValue (format, CharsetUtils.UTF8, textValue);
+				switch (Id) {
+				case HeaderId.DispositionNotificationTo:
+				case HeaderId.ResentReplyTo:
+				case HeaderId.ResentSender:
+				case HeaderId.ResentFrom:
+				case HeaderId.ResentBcc:
+				case HeaderId.ResentCc:
+				case HeaderId.ResentTo:
+				case HeaderId.ReplyTo:
+				case HeaderId.Sender:
+				case HeaderId.From:
+				case HeaderId.Bcc:
+				case HeaderId.Cc:
+				case HeaderId.To:
+					return ReformatAddressHeader (Options, format, CharsetUtils.UTF8, Field, rawValue);
+				case HeaderId.Received:
+					// Note: Received headers should never be reformatted.
+					return rawValue;
+				case HeaderId.ResentMessageId:
+				case HeaderId.InReplyTo:
+				case HeaderId.MessageId:
+				case HeaderId.ContentId:
+					// Note: No text that can be internationalized.
+					return rawValue;
+				case HeaderId.References:
+					// Note: No text that can be internationalized.
+					return rawValue;
+				case HeaderId.ContentDisposition:
+					return ReformatContentDisposition (Options, format, CharsetUtils.UTF8, Field, rawValue);
+				case HeaderId.ContentType:
+					return ReformatContentType (Options, format, CharsetUtils.UTF8, Field, rawValue);
+				case HeaderId.ArcAuthenticationResults:
+				case HeaderId.AuthenticationResults:
+					return ReformatAuthenticationResultsHeader (Options, format, CharsetUtils.UTF8, Field, rawValue);
+				case HeaderId.ArcMessageSignature:
+				case HeaderId.ArcSeal:
+				case HeaderId.DkimSignature:
+					// TODO: Is there any value in reformatting this for internationalized text?
+					return rawValue;
+				default:
+					return EncodeUnstructuredHeader (Options, format, CharsetUtils.UTF8, Field, Value);
+				}
 			}
 
 			return rawValue;
