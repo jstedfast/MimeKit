@@ -1162,7 +1162,7 @@ namespace MimeKit.Utils {
 			while (i < text.Length) {
 				c = text[i++];
 
-				if (c < 256 && IsBlank (c)) {
+				if (IsBlank (c)) {
 					if (word.ByteCount > 0) {
 						words.Add (word);
 						word = new Word ();
