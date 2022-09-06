@@ -1,16 +1,40 @@
 [xml]$project = Get-Content UnitTests\UnitTests.csproj
+
+$nugetDir = Join-Path $Home ".nuget"
+$nugetPackagesDir = Join-Path $nugetDir "packages"
+
+# Get the NUnit.ConsoleRunner executable path
 $packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='NUnit.ConsoleRunner']")
 $consoleRunnerVersion = $packageReference.GetAttribute("Version")
-$consoleRunnerBasePackageDir = Join-Path $Home ".nuget\packages\nunit.consolerunner"
+$consoleRunnerBasePackageDir = Join-Path $nugetPackagesDir "nunit.consolerunner"
 $consoleRunnerPackageDir = Join-Path $consoleRunnerBasePackageDir $consoleRunnerVersion
+$consoleRunnerToolsDir = Join-Path $consoleRunnerPackageDir "tools"
 
-$NUnitConsoleRunner = Join-Path $consoleRunnerPackageDir "tools/nunit3-console.exe"
-$Coveralls = Join-Path $Home ".nuget\packages\coveralls.net\0.7.0\tools\csmacnz.Coveralls.exe"
-$OpenCoverDir = Join-Path $Home ".nuget\packages\opencover\4.6.519\tools"
-$OpenCoverProfiler32 = Join-Path $OpenCoverDir "x86\OpenCover.Profiler.dll"
-$OpenCoverProfiler64 = Join-Path $OpenCoverDir "x64\OpenCover.Profiler.dll"
-$OpenCover = Join-Path $OpenCoverDir "OpenCover.Console.exe"
-$OutputDir = "UnitTests\bin\Debug\net48"
+$NUnitConsoleRunner = Join-Path $consoleRunnerToolsDir "nunit3-console.exe"
+
+# Get the OpenCover executable path
+$packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='OpenCover']")
+$openCoverVersion = $packageReference.GetAttribute("Version")
+$openCoverBasePackageDir = Join-Path $nugetPackagesDir "opencover"
+$openCoverPackageDir = Join-Path $openCoverBasePackageDir $openCoverVersion
+$openCoverToolsDir = Join-Path $openCoverPackageDir "tools"
+
+$OpenCoverProfiler32 = Join-Path $openCoverToolsDir "x86\OpenCover.Profiler.dll"
+$OpenCoverProfiler64 = Join-Path $openCoverToolsDir "x64\OpenCover.Profiler.dll"
+$OpenCover = Join-Path $openCoverToolsDir "OpenCover.Console.exe"
+
+# Get the coveralls.net executable path
+$packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='coveralls.net']")
+$coverallsPackageVersion = $packageReference.GetAttribute("Version")
+$coverallsBasePackageDir = Join-Path $nugetPackagesDir "coveralls.net"
+$coverallsPackageDir = Join-Path $coverallsBasePackageDir $openCoverVersion
+$coverallsToolsDir = Join-Path $coverallsPackageDir "tools"
+
+$Coveralls = Join-Path $coverallsToolsDir "csmacnz.Coveralls.exe"
+
+# Get the OutputPath
+$targetFramework = $project.SelectSingleNode("/Project/PropertyGroup/TargetFramework")
+$OutputDir = Join-Path "UnitTests\bin\Debug" $targetFramework
 
 & regsvr32 $OpenCoverProfiler32
 
