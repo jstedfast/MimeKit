@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Remove="TestData\smime\mkcert.cs" />
     <Compile Remove="Utils\OptimizedOrdinalComparerTests.cs" Condition=" !$(TargetFramework.StartsWith('net4')) " />
-    <Compile Include="Utils\OptimizedOrdinalComparerTests.cs" Condition=" $(TargetFramework.StartsWith('net4')) " />
   </ItemGroup>
 
   <ItemGroup>
