@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -38,12 +39,11 @@ using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
-using System.Threading;
 
 namespace UnitTests
 {
 	[TestFixture]
-	public class ExperimentalMimeParserTests
+	public class ExperimentalMimeParserTests : TestBase
 	{
 		static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");

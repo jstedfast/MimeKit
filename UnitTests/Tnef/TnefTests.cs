@@ -40,7 +40,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Tnef {
 	[TestFixture]
-	public class TnefTests
+	public class TnefTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

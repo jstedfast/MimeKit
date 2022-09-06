@@ -30,9 +30,9 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class UrlScannerTests
+	public class UrlScannerTests : TestBase
 	{
-		UrlScanner scanner;
+		readonly UrlScanner scanner;
 
 		public UrlScannerTests ()
 		{

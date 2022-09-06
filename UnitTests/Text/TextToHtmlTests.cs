@@ -35,7 +35,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class TextToHtmlTests
+	public class TextToHtmlTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

@@ -35,7 +35,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class RtfCompressedToRtfTests
+	public class RtfCompressedToRtfTests : TestBase
 	{
 		[Test]
 		public void TestSimpleCompressedRtfExample ()

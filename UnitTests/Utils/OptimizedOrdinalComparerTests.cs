@@ -32,7 +32,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class OptimizedOrdinalComparerTests
+	public class OptimizedOrdinalComparerTests : TestBase
 	{
 		[Test]
 		public void TestEquals ()

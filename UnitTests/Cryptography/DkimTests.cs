@@ -41,7 +41,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class DkimTests
+	public class DkimTests : TestBase
 	{
 		static readonly AsymmetricKeyParameter GMailDkimPublicKey;
 		static readonly AsymmetricKeyParameter Ed25519PrivateKey;

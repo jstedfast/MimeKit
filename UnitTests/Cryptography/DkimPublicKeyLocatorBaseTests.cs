@@ -33,7 +33,7 @@ using Org.BouncyCastle.Crypto.Parameters;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class DkimPublicKeyLocatorBaseTests
+	public class DkimPublicKeyLocatorBaseTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

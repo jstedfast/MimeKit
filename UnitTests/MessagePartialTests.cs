@@ -35,7 +35,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MessagePartialTests
+	public class MessagePartialTests : TestBase
 	{
 		static MimeMessage Load (string path)
 		{

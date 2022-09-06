@@ -34,7 +34,7 @@ using MimeKit.IO;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class MeasuringStreamTests
+	public class MeasuringStreamTests : TestBase
 	{
 		Random random = new Random ();
 

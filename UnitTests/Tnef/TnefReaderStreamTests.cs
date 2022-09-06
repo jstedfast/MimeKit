@@ -33,7 +33,7 @@ using MimeKit.Tnef;
 
 namespace UnitTests.Tnef {
 	[TestFixture]
-	public class TnefReaderStreamTests
+	public class TnefReaderStreamTests : TestBase
 	{
 		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "tnef");
 

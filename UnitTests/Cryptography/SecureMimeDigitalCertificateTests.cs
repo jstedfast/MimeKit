@@ -38,7 +38,7 @@ using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class SecureMimeDigitalCertificateTests
+	public class SecureMimeDigitalCertificateTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

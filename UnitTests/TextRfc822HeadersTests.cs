@@ -34,7 +34,7 @@ using MimeKit;
 namespace UnitTests
 {
 	[TestFixture]
-	public class TextRfc822HeadersTests
+	public class TextRfc822HeadersTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

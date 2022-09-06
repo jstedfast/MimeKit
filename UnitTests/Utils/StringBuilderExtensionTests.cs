@@ -35,7 +35,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class StringBuilderExtensionTests
+	public class StringBuilderExtensionTests : TestBase
 	{
 		[Test]
 		public void TestLineWrap ()

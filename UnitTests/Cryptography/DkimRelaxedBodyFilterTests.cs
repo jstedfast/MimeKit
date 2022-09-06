@@ -39,7 +39,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class DkimRelaxedBodyFilterTests
+	public class DkimRelaxedBodyFilterTests : TestBase
 	{
 		[Test]
 		public void TestWhiteSpaceBeforeNewLine ()

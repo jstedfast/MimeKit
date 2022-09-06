@@ -41,7 +41,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class CertificateExtensionTests
+	public class CertificateExtensionTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

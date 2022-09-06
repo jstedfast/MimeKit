@@ -43,7 +43,7 @@ using BCX509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public abstract class ApplicationPkcs7MimeTestsBase
+	public abstract class ApplicationPkcs7MimeTestsBase : TestBase
 	{
 		protected abstract SecureMimeContext CreateContext ();
 

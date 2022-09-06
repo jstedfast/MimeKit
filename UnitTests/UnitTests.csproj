@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="System.Security" />
+    <Reference Include="System.Security" Condition=" $(TargetFramework.StartsWith('net4')) " />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,7 +30,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
     <PackageReference Include="OpenCover" Version="4.6.519" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
-    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.116" GeneratePathProperty="true">
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.116" GeneratePathProperty="true" Condition=" $(TargetFramework.StartsWith('net4')) ">
+      <IncludeAssets>all</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.116" GeneratePathProperty="true" Condition=" !$(TargetFramework.StartsWith('net4')) ">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
@@ -39,6 +42,12 @@
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
     <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="TestData\smime\mkcert.cs" />
+    <Compile Remove="Utils\OptimizedOrdinalComparerTests.cs" Condition=" !$(TargetFramework.StartsWith('net4')) " />
+    <Compile Include="Utils\OptimizedOrdinalComparerTests.cs" Condition=" $(TargetFramework.StartsWith('net4')) " />
   </ItemGroup>
 
   <ItemGroup>

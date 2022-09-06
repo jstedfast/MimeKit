@@ -44,7 +44,7 @@ using MimeKit.IO.Filters;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MimeParserTests
+	public class MimeParserTests : TestBase
 	{
 		static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");

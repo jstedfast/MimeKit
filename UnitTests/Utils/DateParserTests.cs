@@ -32,7 +32,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class DateParserTests
+	public class DateParserTests : TestBase
 	{
 		static readonly string[] dates = {
 			"Sun, 08 Dec 91 09:11:00 +0000",

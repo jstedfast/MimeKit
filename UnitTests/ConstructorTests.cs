@@ -37,7 +37,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class ConstructorTests
+	public class ConstructorTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

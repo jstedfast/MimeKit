@@ -37,7 +37,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MimeVisitorTests
+	public class MimeVisitorTests : TestBase
 	{
 		[Test]
 		public void TestMimeVisitor ()

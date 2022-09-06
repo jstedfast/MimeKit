@@ -1,5 +1,5 @@
 ﻿//
-// PackedByteArrayTests.cs
+// TestBase.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,54 +24,31 @@
 // THE SOFTWARE.
 //
 
-using System;
+using System.Text;
 
 using NUnit.Framework;
 
 using MimeKit.Utils;
 
-namespace UnitTests.Utils {
-	[TestFixture]
-	public class PackedByteArrayTests : TestBase
+namespace UnitTests
+{
+	public abstract class TestBase
 	{
-		[Test]
-		public void TestArgumentExceptions ()
+		static bool Initialized;
+
+		[OneTimeSetUp]
+		public static void Init ()
 		{
-			var packed = new PackedByteArray ();
+			if (Initialized)
+				return;
 
-			Assert.Throws<ArgumentNullException> (() => packed.CopyTo (null, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => packed.CopyTo (new byte[16], -1));
-		}
-
-		[Test]
-		public void TestBasicFunctionality ()
-		{
-			var packed = new PackedByteArray ();
-			var expected = new byte[1024];
-			var buffer = new byte[1024];
-			int index = 0;
-
-			for (int i = 0; i < 257; i++) {
-				expected[index++] = (byte) 'A';
-				packed.Add ((byte) 'A');
+			lock (CodePagesEncodingProvider.Instance) {
+				if (!Initialized) {
+					Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
+					CharsetUtils.GetCodePage ("iso-2022-jp");
+					Initialized = true;
+				}
 			}
-
-			for (int i = 1; i < 26; i++) {
-				expected[index++] = (byte) ('A' + i);
-				packed.Add ((byte) ('A' + i));
-			}
-
-			for (int i = 0; i < 128; i++) {
-				expected[index++] = (byte) 'B';
-				packed.Add ((byte) 'B');
-			}
-
-			Assert.AreEqual (index, packed.Count, "Count");
-
-			packed.CopyTo (buffer, 0);
-
-			for (int i = 0; i < index; i++)
-				Assert.AreEqual (expected[i], buffer[i], "buffer[{0}]", i);
 		}
 	}
 }

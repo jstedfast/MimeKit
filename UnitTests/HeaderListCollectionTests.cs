@@ -35,7 +35,7 @@ using System.Collections;
 
 namespace UnitTests {
 	[TestFixture]
-	public class HeaderListCollectionTests
+	public class HeaderListCollectionTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

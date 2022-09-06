@@ -36,7 +36,7 @@ using MimeKit.Cryptography;
 namespace UnitTests.Cryptography
 {
 	[TestFixture]
-	public class ArcVerifierTests
+	public class ArcVerifierTests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

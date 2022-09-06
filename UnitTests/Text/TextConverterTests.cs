@@ -34,7 +34,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class TextConverterTests
+	public class TextConverterTests : TestBase
 	{
 		[Test]
 		public void TestPropertySetters ()

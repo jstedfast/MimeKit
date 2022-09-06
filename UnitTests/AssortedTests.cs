@@ -37,7 +37,7 @@ using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
-	public class AssortedTests
+	public class AssortedTests : TestBase
 	{
 		[Test]
 		public void TestParsingObsoleteInReplyToSyntax ()

@@ -34,7 +34,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class ParseUtilsTests
+	public class ParseUtilsTests : TestBase
 	{
 		[Test]
 		public void TestTryParseInt32 ()

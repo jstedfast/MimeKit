@@ -49,8 +49,13 @@ namespace UnitTests.Cryptography {
 	public abstract class SecureMimeTestsBase
 	{
 		//const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
+#if NET5_0_OR_GREATER
+		public const string ExpiredCertificateMessage = "Certificate trust could not be established. The first reported error is: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.";
+		public const string UntrustedRootCertificateMessage = "Certificate trust could not be established. The first reported error is: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.";
+#else
 		public const string ExpiredCertificateMessage = "The certificate is revoked.\r\n";
 		public const string UntrustedRootCertificateMessage = "A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.\r\n";
+#endif
 		public const string ThunderbirdFingerprint = "354ea4dcf98166639b58ec5df06a65de0cd8a95c";
 		public const string MimeKitFingerprint = "ba4403cd3d876ae8cd261575820330086cc3cbc8";
 		public const string ThunderbirdName = "fejj@gnome.org";

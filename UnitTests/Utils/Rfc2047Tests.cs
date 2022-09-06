@@ -34,7 +34,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class Rfc2047Tests
+	public class Rfc2047Tests : TestBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()

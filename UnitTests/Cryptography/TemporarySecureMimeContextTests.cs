@@ -35,7 +35,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class TemporarySecureMimeContextTests
+	public class TemporarySecureMimeContextTests : TestBase
 	{
 		[Test]
 		public void TestImportX509Certificate2 ()

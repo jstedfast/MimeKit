@@ -40,7 +40,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class ArcSignerTests
+	public class ArcSignerTests : TestBase
 	{
 		[Test]
 		public void TestArcSignerCtors ()

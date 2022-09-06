@@ -41,7 +41,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class RsaSignaturePaddingTests
+	public class RsaSignaturePaddingTests : TestBase
 	{
 		[Test]
 		public void TestEquality ()

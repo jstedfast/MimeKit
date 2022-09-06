@@ -34,6 +34,9 @@ namespace UnitTests {
 
 		static TestHelper ()
 		{
+#if NET5_0_OR_GREATER
+			var codeBase = typeof (TestHelper).Assembly.Location;
+#else
 			var codeBase = typeof (TestHelper).Assembly.CodeBase;
 			if (codeBase.StartsWith ("file://", StringComparison.OrdinalIgnoreCase))
 				codeBase = codeBase.Substring ("file://".Length);
@@ -44,7 +47,8 @@ namespace UnitTests {
 
 				codeBase = codeBase.Replace ('/', '\\');
 			}
-			
+#endif
+
 			var dir = Path.GetDirectoryName (codeBase);
 
 			while (Path.GetFileName (dir) != "UnitTests")
