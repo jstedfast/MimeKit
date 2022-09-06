@@ -25,9 +25,9 @@ $OpenCover = Join-Path $openCoverToolsDir "OpenCover.Console.exe"
 
 # Get the coveralls.net executable path
 $packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='coveralls.net']")
-$coverallsPackageVersion = $packageReference.GetAttribute("Version")
+$coverallsVersion = $packageReference.GetAttribute("Version")
 $coverallsBasePackageDir = Join-Path $nugetPackagesDir "coveralls.net"
-$coverallsPackageDir = Join-Path $coverallsBasePackageDir $openCoverVersion
+$coverallsPackageDir = Join-Path $coverallsBasePackageDir $coverallsVersion
 $coverallsToolsDir = Join-Path $coverallsPackageDir "tools"
 
 $Coveralls = Join-Path $coverallsToolsDir "csmacnz.Coveralls.exe"
