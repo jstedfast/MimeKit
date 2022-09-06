@@ -34,7 +34,7 @@ $Coveralls = Join-Path $coverallsToolsDir "csmacnz.Coveralls.exe"
 
 # Get the OutputPath
 $targetFramework = $project.SelectSingleNode("/Project/PropertyGroup/TargetFramework")
-$OutputDir = Join-Path "UnitTests\bin\Debug" $targetFramework
+$OutputDir = Join-Path "UnitTests\bin\Debug" $targetFramework.InnerText
 
 & regsvr32 $OpenCoverProfiler32
 
