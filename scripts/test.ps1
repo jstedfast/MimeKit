@@ -3,8 +3,8 @@ param (
     [Parameter()]
     [string]
     $TestResults = "TestResults.xml",
-    [Switch]
-    $GenerateCodeCoverage = $False
+    [string]
+    $GenerateCodeCoverage = "no"
 )
 
 Write-Output "TestResults:          $TestResults"
@@ -30,7 +30,7 @@ $targetFramework = $project.SelectSingleNode("/Project/PropertyGroup/TargetFrame
 $OutputDir = Join-Path "UnitTests\bin\Debug" $targetFramework.InnerText
 $UnitTestsAssembly = Join-Path $OutputDir "UnitTests.dll"
 
-if ($GenerateCodeCoverage) {
+if ($GenerateCodeCoverage == "yes") {
     # Get the OpenCover executable path
     $packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='OpenCover']")
     $openCoverVersion = $packageReference.GetAttribute("Version")
