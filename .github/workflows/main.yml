@@ -171,6 +171,7 @@ jobs:
         continue-on-error: false
         shell: pwsh
         run: |
+          dotnet new tool-manifest
           dotnet tool install coveralls.net
 
       - if: steps.configure.outputs.is_debug == 'true' && steps.configure.outputs.is_windows == 'true'
