@@ -31,14 +31,20 @@ $OutputDir = Join-Path "UnitTests\bin\Debug" $targetFramework.InnerText
 
 & regsvr32 $OpenCoverProfiler64
 
+Write-Host "Running the UnitTests"
+
+# Run OpenCover
 & $OpenCover -filter:"+[MimeKit]* -[UnitTests]*" `
 	-target:"$NUnitConsoleRunner" `
 	-targetdir:"$OutputDir" `
 	-targetargs:"--domain:single UnitTests.dll" `
 	-output:opencover.xml
 
-# Get the coveralls.net executable path
+# If the dotnet tools version of coveralls.net is being used, there will be a .config/dotnet-tools.json file
 $dotnetToolsPath = Join-Path ".config" "dotnet-tools.json"
+
+Write-Host "Uploading coverage data to coveralls.io"
+
 if (Test-Path -Path $dotnetToolsPath -PathType Leaf) {
 	& dotnet tool run csmacnz.Coveralls --opencover -i opencover.xml `
 		--repoToken $env:COVERALLS_REPO_TOKEN `
@@ -51,6 +57,7 @@ if (Test-Path -Path $dotnetToolsPath -PathType Leaf) {
 		--commitMessage $env:GIT_COMMIT_MESSAGE `
 		--jobId $env:COVERALLS_JOB_ID
 } else {
+	# Get the coveralls.net executable path
 	$packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='coveralls.net']")
 	$coverallsVersion = $packageReference.GetAttribute("Version")
 	$coverallsBasePackageDir = Join-Path $nugetPackagesDir "coveralls.net"
