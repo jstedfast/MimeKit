@@ -9,7 +9,7 @@ param (
 
 Write-Output "TestResults:          $TestResults"
 Write-Output "GenerateCodeCoverage: $GenerateCodeCoverage"
-Write-Output
+Write-Output ""
 
 [xml]$project = Get-Content UnitTests\UnitTests.csproj
 
