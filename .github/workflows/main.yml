@@ -146,7 +146,9 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          & ./scripts/test.ps1 -TestResults:TestResults.xml -GenerateCodeCoverage:$GENERATE_CODE_COVERAGE
+          & ./scripts/test.ps1 -TestResults:TestResults.xml -GenerateCodeCoverage:$env:GENERATE_CODE_COVERAGE
+        env:
+          GENERATE_CODE_COVERAGE: ${{ steps.configure.outputs.generate_code_coverage }}
 
       - name: Upload unit test results
         id: upload_test_results
