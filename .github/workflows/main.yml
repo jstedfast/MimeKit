@@ -58,7 +58,7 @@ jobs:
           if ( $env:OS -ceq 'ubuntu-latest' ) {
             $IS_UBUNTU = 'true'
           }
-          if ( $IS_WINDOWS -and $IS_DEBUG ) {
+          if ( $IS_WINDOWS -ceq 'true' -and $IS_DEBUG -ceq 'true' ) {
             $GENERATE_CODE_COVERAGE = 'true'
           }
 
@@ -166,8 +166,8 @@ jobs:
           dotnet tool install coveralls.net
 
       - if: steps.configure.outputs.generate_code_coverage == 'true'
-        name: Run unit tests and upload to Coveralls
-        id: test_results_to_coveralls
+        name: Upload code coverage data to coveralls.io
+        id: upload_to_coveralls
         shell: pwsh
         run: |
           & ./scripts/coveralls.ps1
