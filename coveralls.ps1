@@ -40,41 +40,16 @@ Write-Host "Running the UnitTests"
 	-targetargs:"--domain:single UnitTests.dll" `
 	-output:opencover.xml
 
-# If the dotnet tools version of coveralls.net is being used, there will be a .config/dotnet-tools.json file
-$dotnetToolsPath = Join-Path ".config" "dotnet-tools.json"
-
 Write-Host "Uploading coverage data to coveralls.io"
 
-if (Test-Path -Path $dotnetToolsPath -PathType Leaf) {
-	& dotnet tool run csmacnz.Coveralls --opencover -i opencover.xml `
-		--repoToken $env:COVERALLS_REPO_TOKEN `
-		--useRelativePaths `
-		--basePath $OutputDir `
-		--commitId $env:GIT_COMMIT_SHA `
-		--commitBranch $env:GIT_REF.Replace('refs/heads/', '') `
-		--commitAuthor $env:GIT_ACTOR `
-		--commitEmail $env:GIT_ACTOR_EMAIL `
-		--commitMessage $env:GIT_COMMIT_MESSAGE `
-		--jobId $env:COVERALLS_JOB_ID
-} else {
-	# Get the coveralls.net executable path
-	$packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='coveralls.net']")
-	$coverallsVersion = $packageReference.GetAttribute("Version")
-	$coverallsBasePackageDir = Join-Path $nugetPackagesDir "coveralls.net"
-	$coverallsPackageDir = Join-Path $coverallsBasePackageDir $coverallsVersion
-	$coverallsToolsDir = Join-Path $coverallsPackageDir "tools"
-
-	$Coveralls = Join-Path $coverallsToolsDir "csmacnz.Coveralls.exe"
-
-	& $Coveralls --opencover -i opencover.xml `
-		--repoToken $env:COVERALLS_REPO_TOKEN `
-		--useRelativePaths `
-		--basePath $OutputDir `
-		--commitId $env:GIT_COMMIT_SHA `
-		--commitBranch $env:GIT_REF.Replace('refs/heads/', '') `
-		--commitAuthor $env:GIT_ACTOR `
-		--commitEmail $env:GIT_ACTOR_EMAIL `
-		--commitMessage $env:GIT_COMMIT_MESSAGE `
-		--jobId $env:COVERALLS_JOB_ID
-}
-
+# Upload code-coverage data to coveralls.io
+& dotnet tool run csmacnz.Coveralls --opencover -i opencover.xml `
+	--repoToken $env:COVERALLS_REPO_TOKEN `
+	--useRelativePaths `
+	--basePath $OutputDir `
+	--commitId $env:GIT_COMMIT_SHA `
+	--commitBranch $env:GIT_REF.Replace('refs/heads/', '') `
+	--commitAuthor $env:GIT_ACTOR `
+	--commitEmail $env:GIT_ACTOR_EMAIL `
+	--commitMessage $env:GIT_COMMIT_MESSAGE `
+	--jobId $env:COVERALLS_JOB_ID
