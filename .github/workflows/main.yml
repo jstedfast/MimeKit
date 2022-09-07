@@ -35,7 +35,7 @@ jobs:
           $IS_GITHUB_RELEASE = 'false'
           $IS_WINDOWS = 'false'
           $IS_UBUNTU = 'false'
-          $GENERATE_CODE_COVERAGE = '$False'
+          $GENERATE_CODE_COVERAGE = '0'
 
           if ( $env:BUILD_CONFIGURATION -ceq 'Debug' ) {
             $IS_DEBUG = 'true'
@@ -59,7 +59,7 @@ jobs:
             $IS_UBUNTU = 'true'
           }
           if ( $IS_WINDOWS -ceq 'true' -and $IS_DEBUG -ceq 'true' ) {
-            $GENERATE_CODE_COVERAGE = '$True'
+            $GENERATE_CODE_COVERAGE = '1'
           }
 
           echo "::set-output name=is_debug::$(echo $IS_DEBUG)"
