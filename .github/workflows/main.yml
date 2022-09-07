@@ -35,6 +35,7 @@ jobs:
           $IS_GITHUB_RELEASE = 'false'
           $IS_WINDOWS = 'false'
           $IS_UBUNTU = 'false'
+          $GENERATE_CODE_COVERAGE = 'false'
 
           if ( $env:BUILD_CONFIGURATION -ceq 'Debug' ) {
             $IS_DEBUG = 'true'
@@ -57,6 +58,9 @@ jobs:
           if ( $env:OS -ceq 'ubuntu-latest' ) {
             $IS_UBUNTU = 'true'
           }
+          if ( $IS_WINDOWS -and $IS_DEBUG ) {
+            $GENERATE_CODE_COVERAGE = 'true'
+          }
 
           echo "::set-output name=is_debug::$(echo $IS_DEBUG)"
           echo "::set-output name=is_release::$(echo $IS_RELEASE)"
@@ -65,6 +69,7 @@ jobs:
           echo "::set-output name=is_github_release::$(echo $IS_GITHUB_RELEASE)"
           echo "::set-output name=is_windows::$(echo $IS_WINDOWS)"
           echo "::set-output name=is_ubuntu::$(echo $IS_UBUNTU)"
+          echo "::set-output name=generate_code_coverage::$(echo $GENERATE_CODE_COVERAGE)"
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_REF: ${{ github.ref }}
@@ -136,28 +141,14 @@ jobs:
         env:
           IS_UBUNTU: ${{ steps.configure.outputs.is_ubuntu }}
 
-      - if: steps.configure.outputs.is_release == 'true'
-        name: Run unit tests
+      - name: Run unit tests
         id: run_unit_tests
         continue-on-error: true
         shell: pwsh
         run: |
-          [xml]$project = Get-Content UnitTests/UnitTests.csproj
-          
-          $packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='NUnit.ConsoleRunner']")
-          
-          $consoleRunnerVersion = $packageReference.GetAttribute("Version")
-          
-          $consoleRunnerBasePackageDir = Join-Path $Home ".nuget/packages/nunit.consolerunner"
-          
-          $consoleRunnerPackageDir = Join-Path $consoleRunnerBasePackageDir $consoleRunnerVersion
-          
-          $consoleRunner = Join-Path $consoleRunnerPackageDir "tools/nunit3-console.exe"
+          & ./scripts/test.ps1 -TestResults TestResults.xml -GenerageCodeCoverage $GENERATE_CODE_COVERAGE
 
-          & $consoleRunner --domain:single "UnitTests/bin/Release/net48/UnitTests.dll"
-
-      - if: steps.configure.outputs.is_release == 'true'
-        name: Upload unit test results as artifact
+      - name: Upload unit test results as artifact
         id: upload_test_results
         continue-on-error: true
         uses: actions/upload-artifact@v1
@@ -165,7 +156,7 @@ jobs:
           name: Unit test results
           path: TestResult.xml
           
-      - if: steps.configure.outputs.is_debug == 'true' && steps.configure.outputs.is_windows == 'true'
+      - if: steps.configure.outputs.generate_code_coverage == 'true'
         name: Install coveralls.net
         id: install_coveralls_net
         continue-on-error: false
@@ -174,12 +165,12 @@ jobs:
           dotnet new tool-manifest
           dotnet tool install coveralls.net
 
-      - if: steps.configure.outputs.is_debug == 'true' && steps.configure.outputs.is_windows == 'true'
+      - if: steps.configure.outputs.generate_code_coverage == 'true'
         name: Run unit tests and upload to Coveralls
         id: test_results_to_coveralls
         shell: pwsh
         run: |
-          & ./coveralls.ps1
+          & ./scripts/coveralls.ps1
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
           GIT_COMMIT_SHA: ${{ github.sha }}
