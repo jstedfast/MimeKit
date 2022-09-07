@@ -146,15 +146,15 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          & ./scripts/test.ps1 -TestResults TestResults.xml -GenerageCodeCoverage $GENERATE_CODE_COVERAGE
+          & ./scripts/test.ps1 -TestResults TestResults.xml -GenerateCodeCoverage $GENERATE_CODE_COVERAGE
 
-      - name: Upload unit test results as artifact
+      - name: Upload unit test results
         id: upload_test_results
         continue-on-error: true
         uses: actions/upload-artifact@v1
         with:
           name: Unit test results
-          path: TestResult.xml
+          path: TestResults.xml
           
       - if: steps.configure.outputs.generate_code_coverage == 'true'
         name: Install coveralls.net
