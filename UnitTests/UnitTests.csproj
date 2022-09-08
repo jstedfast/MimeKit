@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>UnitTests</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
