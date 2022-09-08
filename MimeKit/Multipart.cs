@@ -156,15 +156,17 @@ namespace MimeKit {
 #if NET5_0_OR_GREATER
 			Span<byte> buffer = stackalloc byte[24];
 			Span<byte> digest = stackalloc byte[16];
-			Span<char> ascii  = stackalloc char[24];
+			Span<char> ascii  = stackalloc char[26];
 
 			RandomNumberGenerator.Fill (digest);
 
 			System.Buffers.Text.Base64.EncodeToUtf8 (digest, buffer, out _, out int length);
 
-			Encoding.ASCII.GetChars (buffer.Slice (0, length), ascii);
+			ascii[0] = '=';
+			ascii[1] = '-';
+			Encoding.ASCII.GetChars (buffer.Slice (0, length), ascii.Slice (2, length));
 
-			return string.Concat ("=-", ascii.Slice (0, length));
+			return new string (ascii.Slice (0, length + 2));
 #else
 			var base64 = new Base64Encoder (true);
 			var digest = new byte[16];
