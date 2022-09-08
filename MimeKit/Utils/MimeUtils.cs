@@ -60,6 +60,7 @@ namespace MimeKit.Utils {
 #endif
 		}
 
+#if !NET6_0_OR_GREATER
 		internal static void GetRandomBytes (byte[] buffer)
 		{
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
@@ -69,6 +70,7 @@ namespace MimeKit.Utils {
 				random.GetBytes (buffer);
 #endif
 		}
+#endif
 
 		/// <summary>
 		/// Generate a Message-Id or Content-Id.

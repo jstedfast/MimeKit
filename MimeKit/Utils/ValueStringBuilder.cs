@@ -46,7 +46,6 @@ namespace System.Text {
 
 #if UNUSED_VALUESTRINGBUILDER_API
 		public int Capacity => _chars.Length;
-#endif
 
 		public void EnsureCapacity (int capacity)
 		{
@@ -57,6 +56,7 @@ namespace System.Text {
 			if ((uint) capacity > (uint) _chars.Length)
 				Grow (capacity - _pos);
 		}
+#endif
 
 #if UNUSED_VALUESTRINGBUILDER_API
 		/// <summary>
