@@ -1062,7 +1062,7 @@ namespace MimeKit.Utils {
 		}
 
 		class Word {
-			public readonly string Text;
+			//public readonly string Text;
 			public WordType Type;
 			public int StartIndex;
 			public int CharCount;
@@ -1077,7 +1077,7 @@ namespace MimeKit.Utils {
 
 			public Word (string text)
 			{
-				Text = text;
+				//Text = text;
 			}
 
 			public void CopyTo (Word word)
@@ -1095,10 +1095,10 @@ namespace MimeKit.Utils {
 				word.Type = Type;
 			}
 
-			public override string ToString ()
-			{
-				return $"{Type}: {Text.Substring (StartIndex, CharCount)}";
-			}
+			//public override string ToString ()
+			//{
+			//	return $"{Type}: {Text.Substring (StartIndex, CharCount)}";
+			//}
 		}
 
 		static bool IsAtom (char c)

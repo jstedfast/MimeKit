@@ -240,8 +240,12 @@ namespace UnitTests.Utils {
 			const string expected = "\"Once upon a time, back when things that are old now were new, there lived a man with a very particular set of skills.\"";
 			const string text = "Once upon a time, back when things that are old now were new, there lived a man with a very particular set of skills.";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var unquoted = MimeUtils.Unquote (result);
+			Assert.AreEqual (text, unquoted, "Unquote");
 		}
 
 		[Test]
@@ -250,8 +254,12 @@ namespace UnitTests.Utils {
 			const string expected = "\"John \\\"Jacob Jingle Heimer\\\" Schmidt\"";
 			const string text = "John \"Jacob Jingle Heimer\" Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
-			Assert.AreEqual (expected, result);
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var unquoted = MimeUtils.Unquote (result);
+			Assert.AreEqual (text, unquoted, "Unquote");
 		}
 
 		[Test]
@@ -260,8 +268,12 @@ namespace UnitTests.Utils {
 			const string expected = "John =?utf-8?b?Ium7nueci0DlkI3jgYzjg4njg6HjgqTjg7MgSmFjb2IgSmluZ2xlIEhlaW1lciI=?= Schmidt";
 			const string text = "John \"點看@名がドメイン Jacob Jingle Heimer\" Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
 		}
 
 		[Test]
@@ -270,8 +282,12 @@ namespace UnitTests.Utils {
 			const string expected = "John =?utf-8?b?IkphY29iIEppbmdsZSDpu57nnItA5ZCN44GM44OJ44Oh44Kk44OzIEhlaW1lciI=?= Schmidt";
 			const string text = "John \"Jacob Jingle 點看@名がドメイン Heimer\" Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
 		}
 
 		[Test]
@@ -280,8 +296,40 @@ namespace UnitTests.Utils {
 			const string expected = "John =?utf-8?b?IkphY29iIEppbmdsZSBIZWltZXIg6bue55yLQOWQjeOBjOODieODoeOCpOODsyI=?= Schmidt";
 			const string text = "John \"Jacob Jingle Heimer 點看@名がドメイン\" Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeQuotedString4 ()
+		{
+			const string expected = "John =?utf-8?q?=22Jacob_Jingle_Heimer=2C_his_name_is_my_name_too!_Whenever_he_goes_out=2C_the_?=\t=?utf-8?q?people_always_shout=2C_=5C=22There_goes_John_Jacob_Jingle_Heimer_Schmidt!=5C=22_?=\t=?utf-8?b?6bue55yLQOWQjeOBjOODieODoeOCpOODsyI=?= Schmidt";
+			const string text = "John \"Jacob Jingle Heimer, his name is my name too! Whenever he goes out, the people always shout, \\\"There goes John Jacob Jingle Heimer Schmidt!\\\" 點看@名がドメイン\" Schmidt";
+
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeQuotedString5 ()
+		{
+			const string expected = "\"John \\\"Whenever he goes out, the people always shout, \\\\\\\"There goes John Jacob Jingle Heimer Schmidt!\\\\\\\"\\\" Schmidt\"";
+			const string text = "John \"Whenever he goes out, the people always shout, \\\"There goes John Jacob Jingle Heimer Schmidt!\\\"\" Schmidt";
+
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var unquoted = MimeUtils.Unquote (result);
+			Assert.AreEqual (text, unquoted, "Unquote");
 		}
 
 		[Test]
@@ -290,8 +338,12 @@ namespace UnitTests.Utils {
 			const string expected = "\"John (Jacob Jingle Heimer) Schmidt\"";
 			const string text = "John (Jacob Jingle Heimer) Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var unquoted = MimeUtils.Unquote (result);
+			Assert.AreEqual (text, unquoted, "Unquote");
 		}
 
 		[Test]
@@ -300,8 +352,12 @@ namespace UnitTests.Utils {
 			const string expected = "John =?utf-8?b?KOm7nueci0DlkI3jgYzjg4njg6HjgqTjg7MgSmFjb2IgSmluZ2xlIEhlaW1lcik=?= Schmidt";
 			const string text = "John (點看@名がドメイン Jacob Jingle Heimer) Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
 		}
 
 		[Test]
@@ -310,8 +366,12 @@ namespace UnitTests.Utils {
 			const string expected = "John =?utf-8?b?KEphY29iIEppbmdsZSDpu57nnItA5ZCN44GM44OJ44Oh44Kk44OzIEhlaW1lcik=?= Schmidt";
 			const string text = "John (Jacob Jingle 點看@名がドメイン Heimer) Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
 		}
 
 		[Test]
@@ -320,8 +380,26 @@ namespace UnitTests.Utils {
 			const string expected = "John =?utf-8?b?KEphY29iIEppbmdsZSBIZWltZXIg6bue55yLQOWQjeOBjOODieODoeOCpOODsyk=?= Schmidt";
 			const string text = "John (Jacob Jingle Heimer 點看@名がドメイン) Schmidt";
 
-			var result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
 			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
+		}
+
+		[Test]
+		public void TestEncodePhraseWithInnerUnicodeComment4 ()
+		{
+			const string expected = "John =?utf-8?q?=28Jacob_Jingle_Heimer=2C_his_name_is_my_name_too!_Whenever_he_goes_out=2C_the_p?=\t=?utf-8?q?eople_always_shout=2C_=22There_goes_John_Jacob_Jingle_Heimer_Schmidt!=22?=\t=?utf-8?b?IOm7nueci0DlkI3jgYzjg4njg6HjgqTjg7Mp?= Schmidt";
+			const string text = "John (Jacob Jingle Heimer, his name is my name too! Whenever he goes out, the people always shout, \"There goes John Jacob Jingle Heimer Schmidt!\" 點看@名がドメイン) Schmidt";
+
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
+			Assert.AreEqual (expected, result, "EncodePhrase");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+			Assert.AreEqual (text, decoded, "DecodePhrase");
 		}
 
 		[Test]
