@@ -1326,7 +1326,6 @@ namespace MimeKit.Utils {
 			int lwspCount = next.StartIndex - (word.StartIndex + word.CharCount);
 			int length = word.ByteCount + lwspCount + next.ByteCount;
 			int encoded = word.EncodeCount + next.EncodeCount;
-			int quoted = word.QuotedPairs + next.QuotedPairs;
 
 			switch (word.Type) {
 			case WordType.Atom:
