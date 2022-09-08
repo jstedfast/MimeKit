@@ -145,5 +145,33 @@ namespace UnitTests.Utils {
 
 			Assert.AreEqual ("xn--mjlnir-xxa", idn);
 		}
+
+		[Test]
+		public void TestAppendQuoted ()
+		{
+			const string expected = "\"This is a multi-line quoted string with \\\\backslashes\\\\ and an escaped dquote (\\\") inside of it.\"";
+			const string text = "This is a multi-line quoted string with \\backslashes\\ and an escaped dquote (\") inside of it.";
+			var builder = new StringBuilder ();
+
+			MimeUtils.AppendQuoted (builder, text);
+
+			Assert.AreEqual (expected, builder.ToString ());
+		}
+
+		[Test]
+		public void TestUnquote ()
+		{
+			const string quoted = "\"This is a multi-line quoted string with\r\n\t\\\\backslashes\\\\ and an escaped dquote (\\\") inside of it.\"";
+			const string expected = "This is a multi-line quoted string with \\backslashes\\ and an escaped dquote (\") inside of it.";
+			var unquoted = MimeUtils.Unquote (quoted, true);
+
+			Assert.AreEqual (expected, unquoted, "Unquote(string)");
+
+			var bytes = Encoding.ASCII.GetBytes (quoted);
+			var result = MimeUtils.Unquote (bytes, 0, bytes.Length, true);
+			unquoted = Encoding.ASCII.GetString (result);
+
+			Assert.AreEqual (expected, unquoted, "Unquote(byte[])");
+		}
 	}
 }
