@@ -4,12 +4,10 @@ param (
     [string]
     $Configuration = "Debug",
     [string]
-    $TestResults = "TestResults.xml",
-    [string]
     $GenerateCodeCoverage = "no"
 )
 
-Write-Output "TestResults:          $TestResults"
+Write-Output "Configuration:        $Configuration"
 Write-Output "GenerateCodeCoverage: $GenerateCodeCoverage"
 Write-Output ""
 
@@ -55,11 +53,11 @@ if ($GenerateCodeCoverage -eq 'yes') {
     # Run OpenCover
     & $OpenCover -filter:"+[MimeKit]* -[UnitTests]*" `
         -target:"$NUnitConsoleRunner" `
-        -targetargs:"--domain:single --output:$TestResults $UnitTestsAssembly" `
+        -targetargs:"--domain:single $UnitTestsAssembly" `
         -output:opencover.xml
 } else {
     Write-Output "Running the UnitTests"
 
     # Run OpenCover
-    & $NUnitConsoleRunner --domain:single --output:$TestResults $UnitTestsAssembly
+    & $NUnitConsoleRunner --domain:single $UnitTestsAssembly
 }
