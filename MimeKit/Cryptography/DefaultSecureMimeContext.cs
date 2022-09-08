@@ -87,10 +87,8 @@ namespace MimeKit.Cryptography {
 
 		static void CheckIsAvailable ()
 		{
-			if (!SqliteCertificateDatabase.IsAvailable) {
+			if (!SqliteCertificateDatabase.IsAvailable)
 				throw new NotSupportedException ("SQLite is not available. Install the System.Data.SQLite nuget package.");
-
-			}
 		}
 
 		/// <summary>
