@@ -46,9 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestData/*" />
-    <None Remove="submit.ps1" />
-    <None Remove="test.ps1" />
+    <None Include="TestData\*" />
   </ItemGroup>
 
   <ItemGroup>
