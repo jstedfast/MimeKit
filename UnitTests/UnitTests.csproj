@@ -9,6 +9,10 @@
     <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
     <IsPackable>false</IsPackable>
+
+    <SQLiteRuntime>win-x64</SQLiteRuntime>
+    <SQLiteRuntime Condition=" '$(MonoRuntime)' == 'true' ">linux-x64</SQLiteRuntime>
+    <SQLiteRuntime Condition=" Exists('/System') And Exists('/System/Library') ">osx-64</SQLiteRuntime>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,11 +54,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <MySQLiteInteropFiles Include="$(PkgStub_System_Data_SQLite_Core_NetFramework)\build\net46\**\SQLite.Interop.dll" />
+    <MySQLiteInteropFiles Include="$(PkgStub_System_Data_SQLite_Core_NetFramework)\build\net46\**\SQLite.Interop.dll" Condition=" $(TargetFramework.StartsWith('net4')) " />
+    <MySQLiteInteropFiles Include="$(PkgStub_System_Data_SQLite_Core_NetStandard)\runtimes\$(SQLiteRuntime)\native\SQLite.Interop.dll" Condition=" !$(TargetFramework.StartsWith('net4')) " />
   </ItemGroup>
 
   <Target Name="CopyMySQLiteInteropFiles" AfterTargets="Build">
-    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" Condition=" $(TargetFramework.StartsWith('net4')) " />
+    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(Filename)%(Extension)')" Condition=" !$(TargetFramework.StartsWith('net4')) " />
   </Target>
 
 </Project>
