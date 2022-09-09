@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
-    <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>
