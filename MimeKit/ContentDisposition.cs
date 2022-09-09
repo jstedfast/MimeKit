@@ -334,7 +334,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a string-representation of the <see cref="ContentDisposition"/>,
-		/// optionally encoding the parameters as they would be encoded for trabsport.
+		/// optionally encoding the parameters as they would be encoded for transport.
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="options">The formatting options.</param>
@@ -373,7 +373,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a string-representation of the <see cref="ContentDisposition"/>,
-		/// optionally encoding the parameters as they would be encoded for trabsport.
+		/// optionally encoding the parameters as they would be encoded for transport.
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
@@ -391,7 +391,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Creates a string-representation of the <see cref="ContentDisposition"/>,
-		/// optionally encoding the parameters as they would be encoded for trabsport.
+		/// optionally encoding the parameters as they would be encoded for transport.
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
