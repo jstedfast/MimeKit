@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+
 using NUnit.Framework;
 
 using MimeKit;
@@ -46,6 +47,98 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => disposition.ToString (null, Encoding.UTF8, true));
 			Assert.Throws<ArgumentNullException> (() => disposition.ToString (FormatOptions.Default, null, true));
+		}
+
+		[Test]
+		public void TestChangedEvents ()
+		{
+			var timestamp = new DateTimeOffset (2022, 9, 9, 7, 41, 23, new TimeSpan (-4, 0, 0));
+			var disposition = new ContentDisposition (ContentDisposition.Attachment);
+			int changed = 0;
+
+			disposition.Changed += (sender, args) => { changed++; };
+
+			disposition.Disposition = ContentDisposition.Attachment;
+			Assert.AreEqual (0, changed, "Setting the same Disposition value should not emit the Changed event");
+
+			disposition.Disposition = ContentDisposition.Inline;
+			Assert.AreEqual (1, changed, "Setting a different Disposition value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.FileName = "filename.txt";
+			Assert.AreEqual (1, changed, "Setting an initial FileName value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.FileName = "filename.txt";
+			Assert.AreEqual (0, changed, "Setting the same FileName value should not emit the Changed event");
+
+			disposition.FileName = "filename.pdf";
+			Assert.AreEqual (1, changed, "Setting a different FileName value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.FileName = null;
+			Assert.AreEqual (1, changed, "Removing the FileName SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.CreationDate = timestamp;
+			Assert.AreEqual (1, changed, "Setting an initial CreationDate value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.CreationDate = timestamp;
+			Assert.AreEqual (0, changed, "Setting the same CreationDate value should not emit the Changed event");
+
+			disposition.CreationDate = DateTimeOffset.Now;
+			Assert.AreEqual (1, changed, "Setting a different CreationDate value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.CreationDate = null;
+			Assert.AreEqual (1, changed, "Removing the CreationDate SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.ModificationDate = timestamp;
+			Assert.AreEqual (1, changed, "Setting an initial ModificationDate value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.ModificationDate = timestamp;
+			Assert.AreEqual (0, changed, "Setting the same ModificationDate value should not emit the Changed event");
+
+			disposition.ModificationDate = DateTimeOffset.Now;
+			Assert.AreEqual (1, changed, "Setting a different ModificationDate value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.ModificationDate = null;
+			Assert.AreEqual (1, changed, "Removing the ModificationDate SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.ReadDate = timestamp;
+			Assert.AreEqual (1, changed, "Setting an initial ReadDate value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.ReadDate = timestamp;
+			Assert.AreEqual (0, changed, "Setting the same ReadDate value should not emit the Changed event");
+
+			disposition.ReadDate = DateTimeOffset.Now;
+			Assert.AreEqual (1, changed, "Setting a different ReadDate value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.ReadDate = null;
+			Assert.AreEqual (1, changed, "Removing the ReadDate SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.Size = 1024;
+			Assert.AreEqual (1, changed, "Setting an initial Size value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.Size = 1024;
+			Assert.AreEqual (0, changed, "Setting the same Size value should not emit the Changed event");
+
+			disposition.Size = 2048;
+			Assert.AreEqual (1, changed, "Setting a different Size value SHOULD emit the Changed event");
+			changed = 0;
+
+			disposition.Size = null;
+			Assert.AreEqual (1, changed, "Removing the Size SHOULD emit the Changed event");
+			changed = 0;
 		}
 
 		static void AssertParseResults (ContentDisposition disposition, ContentDisposition expected)

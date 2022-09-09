@@ -51,6 +51,91 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => type.ToString (FormatOptions.Default, null, true));
 		}
 
+		[Test]
+		public void TestChangedEvents ()
+		{
+			var timestamp = new DateTimeOffset (2022, 9, 9, 7, 41, 23, new TimeSpan (-4, 0, 0));
+			var contentType = new ContentType ("text", "plain");
+			int changed = 0;
+
+			contentType.Changed += (sender, args) => { changed++; };
+
+			contentType.Name = "filename.txt";
+			Assert.AreEqual (1, changed, "Setting an initial Name value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Name = "filename.txt";
+			Assert.AreEqual (0, changed, "Setting the same Name value should not emit the Changed event");
+
+			contentType.Name = "filename.pdf";
+			Assert.AreEqual (1, changed, "Setting a different Name value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Name = null;
+			Assert.AreEqual (1, changed, "Removing the Name SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Boundary = "=-boundary-marker--";
+			Assert.AreEqual (1, changed, "Setting an initial Boundary value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Boundary = "=-boundary-marker--";
+			Assert.AreEqual (0, changed, "Setting the same Boundary value should not emit the Changed event");
+
+			contentType.Boundary = "=-boundary-marker-123--";
+			Assert.AreEqual (1, changed, "Setting a different Boundary value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Boundary = null;
+			Assert.AreEqual (1, changed, "Removing the Boundary SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Charset = "utf-8";
+			Assert.AreEqual (1, changed, "Setting an initial Charset value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Charset = "utf-8";
+			Assert.AreEqual (0, changed, "Setting the same Charset value should not emit the Changed event");
+
+			contentType.Charset = "iso-8859-1";
+			Assert.AreEqual (1, changed, "Setting a different Charset value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Charset = null;
+			Assert.AreEqual (1, changed, "Removing the Charset SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.CharsetEncoding = Encoding.UTF8;
+			Assert.AreEqual (1, changed, "Setting an initial CharsetEncoding value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.CharsetEncoding = Encoding.UTF8;
+			Assert.AreEqual (0, changed, "Setting the same CharsetEncoding value should not emit the Changed event");
+
+			contentType.CharsetEncoding = Encoding.ASCII;
+			Assert.AreEqual (1, changed, "Setting a different CharsetEncoding value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.CharsetEncoding = null;
+			Assert.AreEqual (1, changed, "Removing the CharsetEncoding SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Format = "flowed";
+			Assert.AreEqual (1, changed, "Setting an initial Format value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Format = "flowed";
+			Assert.AreEqual (0, changed, "Setting the same Format value should not emit the Changed event");
+
+			contentType.Format = "unknown";
+			Assert.AreEqual (1, changed, "Setting a different Format value SHOULD emit the Changed event");
+			changed = 0;
+
+			contentType.Format = null;
+			Assert.AreEqual (1, changed, "Removing the Format SHOULD emit the Changed event");
+			changed = 0;
+		}
+
 		static void AssertParseResults (ContentType type, ContentType expected)
 		{
 			if (expected == null) {
