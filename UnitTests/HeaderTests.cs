@@ -531,5 +531,128 @@ namespace UnitTests {
 
 			TestReformatAddressHeader (options, mailbox);
 		}
+
+		[Test]
+		public void TestReformatReceived ()
+		{
+			const string received = " from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41\r\n          via MS.5.6.greenbush.galaxy.sun4_41;\r\n          Fri, 12 Jun 1992 13:29:05 -0400 (EDT)";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (received);
+			var header = new Header (ParserOptions.Default, HeaderId.Received, "Received", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (received, result);
+		}
+
+		[Test]
+		public void TestReformatContentId ()
+		{
+			const string contentId = "\r\n\t<id@example.com>\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (contentId);
+			var header = new Header (ParserOptions.Default, HeaderId.ContentId, "Content-Id", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (contentId, result);
+		}
+
+		[Test]
+		public void TestReformatReferences ()
+		{
+			const string references = "\r\n\t<id1@example.com>\r\n\t<id2@example.com>\r\n\t<id3@example.com>\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (references);
+			var header = new Header (ParserOptions.Default, HeaderId.References, "References", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (references, result);
+		}
+
+		[Test]
+		public void TestReformatContentDisposition ()
+		{
+			const string contentDisposition = " attachment; filename*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.txt\r\n";
+			const string expected = " attachment; filename=\"测试文本.txt\"\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (contentDisposition);
+			var header = new Header (ParserOptions.Default, HeaderId.ContentDisposition, "Content-Disposition", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestReformatContentType ()
+		{
+			const string contentType = " text/plain; name*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.txt\r\n";
+			const string expected = " text/plain; name=\"测试文本.txt\"\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (contentType);
+			var header = new Header (ParserOptions.Default, HeaderId.ContentType, "Content-Type", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestReformatAuthenticationResults ()
+		{
+			const string authenticationResults = " mx.google.com;\r\n       dkim=pass header.i=@example.com header.s=default header.b=sQFuh0qx;\r\n       spf=pass (google.com: domain of info@example.com designates 123.456.1.1 as permitted sender) smtp.mailfrom=info@example.com;\r\n       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=example.com\r\n";
+			//const string expected = " mx.google.com;\r\n\tdkim=pass header.i=@example.com header.s=default header.b=sQFuh0qx; spf=pass\r\n\t(google.com: domain of info@example.com designates 123.456.1.1 as permitted sender)\r\n\tsmtp.mailfrom=info@example.com;\r\n\tdmarc=pass (p=NONE sp=NONE dis=NONE) header.from=example.com\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (authenticationResults);
+			var header = new Header (ParserOptions.Default, HeaderId.AuthenticationResults, "Authentication-Results", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (authenticationResults, result);
+		}
+
+		[Test]
+		public void TestReformatSubject ()
+		{
+			const string subject =  " I'm so happy! =?utf-8?b?5ZCN44GM44OJ44Oh44Kk44Oz?= I love MIME so\r\n much =?utf-8?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great?\r\n";
+			const string expected = " I'm so happy! 名がドメイン I love MIME so much ❤️‍🔥! Isn't it great?\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (subject);
+			var header = new Header (ParserOptions.Default, HeaderId.Subject, "Subject", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (expected, result);
+		}
 	}
 }

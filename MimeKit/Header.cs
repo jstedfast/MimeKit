@@ -757,19 +757,6 @@ namespace MimeKit {
 			return encoding.GetBytes (encoded.ToString ());
 		}
 
-		static byte[] ReformatAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, byte[] rawValue)
-		{
-			if (!AuthenticationResults.TryParse (rawValue, out AuthenticationResults authres))
-				return rawValue;
-
-			var encoded = new StringBuilder ();
-			int lineLength = field.Length + 1;
-
-			authres.Encode (format, encoded, lineLength);
-
-			return encoding.GetBytes (encoded.ToString ());
-		}
-
 		static byte[] EncodeAuthenticationResultsHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var buffer = Encoding.UTF8.GetBytes (value);
@@ -1205,7 +1192,8 @@ namespace MimeKit {
 					return ReformatContentType (Options, format, CharsetUtils.UTF8, Field, rawValue);
 				case HeaderId.ArcAuthenticationResults:
 				case HeaderId.AuthenticationResults:
-					return ReformatAuthenticationResultsHeader (Options, format, CharsetUtils.UTF8, Field, rawValue);
+					// Note: No text that can be internationalized.
+					return rawValue;
 				case HeaderId.ArcMessageSignature:
 				case HeaderId.ArcSeal:
 				case HeaderId.DkimSignature:
