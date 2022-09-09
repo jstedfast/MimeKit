@@ -12,7 +12,7 @@
 
     <SQLiteRuntime>win-x64</SQLiteRuntime>
     <SQLiteRuntime Condition=" '$(MonoRuntime)' == 'true' ">linux-x64</SQLiteRuntime>
-    <SQLiteRuntime Condition=" Exists('/System') And Exists('/System/Library') ">osx-64</SQLiteRuntime>
+    <SQLiteRuntime Condition=" Exists('/System') And Exists('/System/Library') ">osx-x64</SQLiteRuntime>
   </PropertyGroup>
 
   <ItemGroup>
