@@ -443,5 +443,22 @@ namespace UnitTests {
 			Assert.AreEqual (ContentDisposition.Inline, disposition.Disposition, "The disposition should be 'inline'.");
 			Assert.IsFalse (disposition.IsAttachment, "IsAttachment should be false.");
 		}
+
+		[Test]
+		public void TestToString ()
+		{
+			const string expected = "Content-Disposition: attachment; filename=\"filename.txt\"; creation-date=\"Fri, 09 Sep 2022 07:41:23 -0400\"; modification-date=\"Fri, 09 Sep 2022 07:41:23 -0400\"; size=\"2048\"";
+			var timestamp = new DateTimeOffset (2022, 9, 9, 7, 41, 23, new TimeSpan (-4, 0, 0));
+			ContentDisposition disposition = new ContentDisposition {
+				Disposition = ContentDisposition.Attachment,
+				FileName = "filename.txt",
+				CreationDate = timestamp,
+				ModificationDate = timestamp,
+				Size = 2048
+			};
+			var value = disposition.ToString ();
+
+			Assert.AreEqual (expected, value);
+		}
 	}
 }
