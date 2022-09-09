@@ -181,14 +181,19 @@ namespace UnitTests.Cryptography {
 
 			Assert.AreEqual (CertificateAuthorities.Length, count, "Unexpected number of certificates imported.");
 
-			store.Export ("exported.crt");
+			try {
+				store.Export ("exported.crt");
 
-			var imported = new X509CertificateStore ();
-			imported.Import ("exported.crt");
+				var imported = new X509CertificateStore ();
+				imported.Import ("exported.crt");
 
-			count = imported.Certificates.Count ();
+				count = imported.Certificates.Count ();
 
-			Assert.AreEqual (CertificateAuthorities.Length, count, "Unexpected number of certificates re-imported.");
+				Assert.AreEqual (CertificateAuthorities.Length, count, "Unexpected number of certificates re-imported.");
+			} finally {
+				if (File.Exists ("exported.crt"))
+					File.Delete ("exported.crt");
+			}
 		}
 
 		[Test]
@@ -206,15 +211,20 @@ namespace UnitTests.Cryptography {
 			foreach (var authority in CertificateAuthorities)
 				store.Import (GetTestDataPath (authority));
 
-			store.Export ("exported.p12", "no.secret");
+			try {
+				store.Export ("exported.p12", "no.secret");
 
-			var imported = new X509CertificateStore ();
-			imported.Import ("exported.p12", "no.secret");
+				var imported = new X509CertificateStore ();
+				imported.Import ("exported.p12", "no.secret");
 
-			count = imported.Certificates.Count ();
+				count = imported.Certificates.Count ();
 
-			Assert.AreEqual (store.Certificates.Count (), count, "Unexpected number of certificates re-imported.");
-			Assert.IsNotNull (imported.GetPrivateKey (certificate), "Failed to get private key after re-importing.");
+				Assert.AreEqual (store.Certificates.Count (), count, "Unexpected number of certificates re-imported.");
+				Assert.IsNotNull (imported.GetPrivateKey (certificate), "Failed to get private key after re-importing.");
+			} finally {
+				if (File.Exists ("exported.p12"))
+					File.Delete ("exported.p12");
+			}
 		}
 	}
 }

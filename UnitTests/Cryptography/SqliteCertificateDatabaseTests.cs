@@ -38,7 +38,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class SqliteCertificateDatabaseTests : TestBase
+	public class SqliteCertificateDatabaseTests : TestBase, IDisposable
 	{
 		static readonly string[] StartComCertificates = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
@@ -67,6 +67,12 @@ namespace UnitTests.Cryptography {
 				path = Path.Combine (dataDir, "smime.pfx");
 				ctx.Import (path, "no.secret");
 			}
+		}
+
+		public void Dispose ()
+		{
+			if (File.Exists ("sqlite.db"))
+				File.Delete ("sqlite.db");
 		}
 
 		[Test]

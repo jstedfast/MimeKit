@@ -459,6 +459,10 @@ namespace UnitTests {
 			var value = disposition.ToString ();
 
 			Assert.AreEqual (expected, value);
+
+			value = disposition.ToString (Encoding.UTF8, false);
+
+			Assert.AreEqual (expected, value);
 		}
 	}
 }
