@@ -68,6 +68,22 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestParsingOfApplicationRtf ()
+		{
+			const string rawMimeData = @"Content-type: application/rtf
+
+This is make-believe rtf data...";
+
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMimeData))) {
+				var part = MimeEntity.Load (stream);
+
+				Assert.IsInstanceOf<TextPart> (part, "Expected the application/rtf part to be parsed as TextPart.");
+				var text = (TextPart) part;
+				Assert.IsTrue (text.IsRichText, "IsRichText");
+			}
+		}
+
+		[Test]
 		public void TestParsingOfMessageGlobalHeaders ()
 		{
 			const string rawMimeData = @"Content-type: message/global-headers
