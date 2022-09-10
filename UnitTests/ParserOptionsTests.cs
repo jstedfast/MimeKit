@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
@@ -67,11 +68,33 @@ namespace UnitTests
 		}
 
 		[Test]
+		public void TestParsingOfMessageGlobalHeaders ()
+		{
+			const string rawMimeData = @"Content-type: message/global-headers
+
+Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
+From: MimeKit Unit Tests <unit.tests@mimekit.org>
+To: MimeKit Unit Tests <unit.tests@mimekit.org>
+MIME-Version: 1.0
+Content-type: text/plain
+";
+
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMimeData))) {
+				var part = MimeEntity.Load (stream);
+
+				Assert.IsInstanceOf<TextRfc822Headers> (part, "Expected the message/global-headers part to be parsed as TextRfc822Headers.");
+			}
+		}
+
+		[Test]
 		public void TestParsingOfCustomType ()
 		{
 			var options = ParserOptions.Default.Clone ();
 
 			options.RegisterMimeType ("text/html", typeof (CustomTextHtmlPart));
+
+			// now clone the options to make sure that the cloned copy still has the registered custom type
+			options = options.Clone ();
 
 			using (var stream = new MemoryStream ()) {
 				var text = new TextPart ("html") { Text = "<html>this is some html and stuff</html>" };
@@ -91,6 +114,9 @@ namespace UnitTests
 			var options = ParserOptions.Default.Clone ();
 
 			options.RegisterMimeType ("text/html", typeof (CustomTextHtmlPart));
+
+			// now clone the options to make sure that the cloned copy still has the registered custom type
+			options = options.Clone ();
 
 			using (var stream = new MemoryStream ()) {
 				var text = new TextPart ("html") { Text = "<html>this is some html and stuff</html>" };
