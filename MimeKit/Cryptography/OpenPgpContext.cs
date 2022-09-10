@@ -28,7 +28,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Linq;
-using System.Text;
 using System.Buffers;
 using System.Net.Http;
 using System.Threading;
@@ -41,6 +40,7 @@ using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>

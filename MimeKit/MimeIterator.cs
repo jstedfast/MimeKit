@@ -25,10 +25,11 @@
 //
 
 using System;
-using System.Text;
 using System.Collections;
 using System.Globalization;
 using System.Collections.Generic;
+
+using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>

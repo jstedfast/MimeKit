@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Asn1;
@@ -35,6 +34,8 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
+
+using MimeKit.Utils;
 
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 

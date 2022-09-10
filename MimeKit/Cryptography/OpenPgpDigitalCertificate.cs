@@ -29,6 +29,8 @@ using System.Text;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An OpenPGP digital certificate.
