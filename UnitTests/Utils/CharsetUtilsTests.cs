@@ -63,6 +63,13 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
+		public void TestNotSupportedExceptions ()
+		{
+			Assert.Throws<NotSupportedException> (() => CharsetUtils.GetEncoding ("x-undefined"));
+			Assert.Throws<NotSupportedException> (() => CharsetUtils.GetEncoding ("x-undefined", "?"));
+		}
+
+		[Test]
 		public void TestParseCodePage ()
 		{
 			Assert.AreEqual (1201, CharsetUtils.ParseCodePage ("iso10646"));
@@ -115,8 +122,10 @@ namespace UnitTests.Utils {
 			var input = gb2312.GetBytes (expected);
 
 			var actual = CharsetUtils.ConvertToUnicode (options, input, 0, input.Length);
+			Assert.AreEqual (expected, actual, "ConvertToUnicode(ParserOptions,byte[],int,int)");
 
-			Assert.AreEqual (expected, actual);
+			actual = CharsetUtils.ConvertToUnicode (gb2312, input, 0, input.Length);
+			Assert.AreEqual (expected, actual, "ConvertToUnicode(Encoding,byte[],int,int)");
 		}
 
 		[Test]
