@@ -67,7 +67,9 @@ namespace UnitTests.Utils {
 			"Sat, 10 Sep 2022 12:59:19 -1234567890123456789",
 			"Sat, 10 Sep 2022 12:59:19 1234567890123456789",
 			"Sat, 10 Sep 2022 12:59:19 04+00",
-			"Sat, 10 Sep 2022 12:59:19 ECST"
+			"Sat, 10 Sep 2022 12:59:19 ECST",
+			"Sat, Sep 10 2022 12:59:19 0400",
+			"Sat, Sep 10 77 12:59:19 0400"
 		};
 
 		static readonly string[] expected = {
@@ -103,7 +105,9 @@ namespace UnitTests.Utils {
 			"Sat, 10 Sep 2022 12:59:19 +0000",
 			"Sat, 10 Sep 2022 12:59:19 +0000",
 			"Sat, 10 Sep 2022 12:59:19 +0000",
-			"Sat, 10 Sep 2022 12:59:19 +0000"
+			"Sat, 10 Sep 2022 12:59:19 +0000",
+			"Sat, 10 Sep 2022 12:59:19 +0400",
+			"Sat, 10 Sep 1977 12:59:19 +0400",
 		};
 
 		[Test]

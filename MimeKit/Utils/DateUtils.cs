@@ -436,6 +436,7 @@ namespace MimeKit.Utils {
 					continue;
 				}
 
+				// Limit TryGetTimeZone to alpha and numeric timezone tokens (do not allow numeric tokens as they are handled below).
 				if (tzone == null && tokens[i].IsTimeZone && TryGetTimeZone (tokens[i], text, out value)) {
 					tzone = value;
 					continue;
