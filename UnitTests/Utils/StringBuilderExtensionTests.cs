@@ -96,13 +96,16 @@ namespace UnitTests.Utils {
 
 #if DEBUG
 		[Test]
-		public void TestAppendCStringByte ()
+		public void TestAppendCString ()
 		{
 			const string expected = "\\0\\x01\\x02\\x03\\x04\\x05\\x06\\a\\b\\t\\n\\v\\x0c\\r\\x0e\\x0f\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f ";
 			var builder = new StringBuilder ();
+			var cstr = new byte[0x21];
 
 			for (byte i = 0; i < 0x21; i++)
-				builder.AppendCStringByte (i);
+				cstr[i] = i;
+
+			builder.AppendCString (cstr, 0, cstr.Length);
 
 			Assert.AreEqual (expected, builder.ToString ());
 		}

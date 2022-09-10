@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace MimeKit.Utils {
 	static class StringBuilderExtensions
@@ -147,7 +148,8 @@ namespace MimeKit.Utils {
 #endif
 
 #if DEBUG
-		public static void AppendCStringByte (this StringBuilder text, byte c)
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void AppendCStringByte (this StringBuilder text, byte c)
 		{
 			switch (c) {
 			case 0x00: text.Append ("\\0"); break;
