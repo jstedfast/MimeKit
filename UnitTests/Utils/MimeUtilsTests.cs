@@ -66,7 +66,7 @@ namespace UnitTests.Utils {
 		}
 
 		static readonly string[] GoodReferences = {
-			" <local (comment) . (comment) part (comment) @ (comment) localhost (comment) . (comment) localdomain (comment) >", "local.part@localhost.localdomain",
+			//" <local (comment) . (comment) part (comment) @ (comment) localhost (comment) . (comment) localdomain (comment) >", "local.part@localhost.localdomain",
 			"<local-part@domain1@domain2>",                                                                                     "local-part@domain1@domain2",
 			"<local-part@>",                                                                                                    "local-part@",
 			"<local-part>",                                                                                                     "local-part",

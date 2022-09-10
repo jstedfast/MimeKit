@@ -99,7 +99,7 @@ namespace UnitTests
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (Stream) null, false));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (null, "fileName", false));
 			Assert.Throws<ArgumentNullException> (() => part.WriteTo (FormatOptions.Default, (string) null, false));
-			Assert.Throws<ArgumentException> (() => part.ContentId = "this is some text and stuff");
+			Assert.Throws<ArgumentException> (() => part.ContentId = "<image.jpg");
 
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync ((string) null));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await part.WriteToAsync ((Stream) null));
