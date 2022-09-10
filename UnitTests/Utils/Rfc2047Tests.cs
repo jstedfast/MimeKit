@@ -91,7 +91,7 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestDecodeEmptyString ()
 		{
-			var empty = new byte[0];
+			var empty = Array.Empty<byte> ();
 
 			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (empty));
 			Assert.AreEqual (string.Empty, Rfc2047.DecodePhrase (empty, 0, 0));

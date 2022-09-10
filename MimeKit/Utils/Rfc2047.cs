@@ -28,6 +28,7 @@ using System;
 using System.Text;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using MimeKit.Encodings;
 
@@ -77,26 +78,31 @@ namespace MimeKit.Utils {
 			}
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsAscii (byte c)
 		{
 			return c < 128;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsAsciiAtom (byte c)
 		{
 			return c.IsAsciiAtom ();
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsAtom (byte c)
 		{
 			return c.IsAtom ();
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsBbQq (byte c)
 		{
 			return c == 'B' || c == 'b' || c == 'Q' || c == 'q';
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsLwsp (byte c)
 		{
 			return c.IsWhitespace ();
@@ -123,30 +129,39 @@ namespace MimeKit.Utils {
 				return false;
 			}
 
-			var charset = new ValueStringBuilder (32);
-			var culture = new ValueStringBuilder (32);
+			string charset, culture;
 
-			// find the end of the charset name
-			while (*inptr != '?' && *inptr != '*') {
-				if (!IsAsciiAtom (*inptr))
-					return false;
+			using (var buffer = new ValueStringBuilder (32)) {
+				// find the end of the charset name
+				while (*inptr != '?' && *inptr != '*') {
+					if (!IsAsciiAtom (*inptr))
+						return false;
 
-				charset.Append ((char) *inptr);
-				inptr++;
+					buffer.Append ((char) *inptr);
+					inptr++;
+				}
+
+				charset = buffer.ToString ();
 			}
 
 			if (*inptr == '*') {
 				// we found a language code...
 				inptr++;
 
-				// find the end of the language code
-				while (*inptr != '?') {
-					if (!IsAsciiAtom (*inptr))
-						return false;
+				using (var buffer = new ValueStringBuilder (32)) {
+					// find the end of the language code
+					while (*inptr != '?') {
+						if (!IsAsciiAtom (*inptr))
+							return false;
 
-					culture.Append ((char) *inptr);
-					inptr++;
+						buffer.Append ((char) *inptr);
+						inptr++;
+					}
+
+					culture = buffer.ToString ();
 				}
+			} else {
+				culture = null;
 			}
 
 			// skip over the '?' to get to the encoding
@@ -173,7 +188,7 @@ namespace MimeKit.Utils {
 			int start = (int) (inptr - input);
 			int len = (int) (inend - inptr);
 
-			token = new Token (charset.ToString (), culture.ToString (), encoding, start, len);
+			token = new Token (charset, culture, encoding, start, len);
 
 			return true;
 		}
@@ -530,11 +545,10 @@ namespace MimeKit.Utils {
 
 					int max = 0;
 					foreach (var kvp in codepages) {
-						if (kvp.Value <= max)
-							continue;
-
-						codepage = kvp.Key;
-						max = kvp.Value;
+						if (kvp.Value > max) {
+							codepage = kvp.Key;
+							max = kvp.Value;
+						}
 					}
 
 					return DecodeTokens (options, tokens, phrase, inbuf, count);
@@ -682,11 +696,10 @@ namespace MimeKit.Utils {
 
 					int max = 0;
 					foreach (var kvp in codepages) {
-						if (kvp.Value <= max)
-							continue;
-
-						codepage = kvp.Key;
-						max = kvp.Value;
+						if (kvp.Value > max) {
+							codepage = kvp.Key;
+							max = kvp.Value;
+						}
 					}
 
 					return DecodeTokens (options, tokens, text, inbuf, count);
