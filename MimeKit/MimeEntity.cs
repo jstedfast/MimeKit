@@ -377,15 +377,18 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get or set the content identifier.
+		/// Get or set the Content-Id.
 		/// </summary>
 		/// <remarks>
-		/// <para>The Content-Id header is used for uniquely identifying a particular entity and
-		/// uses the same syntax as the Message-Id header on MIME messages.</para>
-		/// <para>Setting a Content-Id allows other <see cref="MimePart"/> objects within the same
+		/// <para>The <c>Content-Id</c> header is used for uniquely identifying a particular entity and
+		/// uses the same syntax as the <c>Message-Id</c> header on MIME messages.</para>
+		/// <para>Setting a <c>Content-Id</c> allows other <see cref="MimePart"/> objects within the same
 		/// multipart/related container to reference this part by its unique identifier, typically
 		/// by using a "cid:" URI in an HTML-formatted message body. This can be useful, for example,
 		/// when the HTML-formatted message body needs to reference image attachments.</para>
+		/// <note type="note">It is recommended that <see cref="MimeUtils.GenerateMessageId()"/> or
+		/// <see cref="MimeUtils.GenerateMessageId(string)"/> be used to generate a valid
+		/// <c>Content-Id</c> value.</note>
 		/// </remarks>
 		/// <value>The content identifier.</value>
 		/// <exception cref="System.ObjectDisposedException">
