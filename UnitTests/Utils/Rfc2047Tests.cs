@@ -440,5 +440,44 @@ namespace UnitTests.Utils {
 			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
 			Assert.AreEqual (expected, result);
 		}
+
+		[Test]
+		public void TestFoldHeaderValueWithEncodedWordsIncludingLanguageCodes ()
+		{
+			const string expected = " I'm so happy! =?utf-8*en-US?b?8J+YgA==?= I love MIME so much\r\n =?utf-8*en-US?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great?\r\n";
+			const string text = "I'm so happy! =?utf-8*en-US?b?8J+YgA==?= I love MIME so much =?utf-8*en-US?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great?";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestFoldHeaderValueAtTabs ()
+		{
+			const string expected = " I'm so happy! =?utf-8*en-US?b?8J+YgA==?= I love MIME so much\r\n\t=?utf-8*en-US?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great? MIME is\r\n\tsupercalafragalisticexpialadotious, don't you think?\r\n";
+			const string text = "I'm so happy! =?utf-8*en-US?b?8J+YgA==?= I love MIME so much\t=?utf-8*en-US?b?4p2k77iP4oCN8J+UpSE=?= Isn't it great? MIME is\tsupercalafragalisticexpialadotious, don't you think?";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestFoldHeaderValueWithEmbeddedEncodedWordTokens ()
+		{
+			const string expected = " This subject has embedded\r\n =?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding\r\n logic handle these embedded\r\n =?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=...?\r\n";
+			const string text = "This subject has embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding logic handle these embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=...?";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
 	}
 }
