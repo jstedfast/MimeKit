@@ -470,7 +470,7 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestFoldHeaderValueWithEmbeddedEncodedWordTokens ()
 		{
-			const string expected = " This subject has embedded\r\n =?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding\r\n logic handle these embedded\r\n =?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=...?\r\n";
+			const string expected = " This subject has embedded\r\n =?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding\r\n logic handle these embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=\r\n ...?\r\n";
 			const string text = "This subject has embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding logic handle these embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=...?";
 			var options = FormatOptions.Default.Clone ();
 
