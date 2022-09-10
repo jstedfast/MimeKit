@@ -416,37 +416,29 @@ namespace MimeKit.Utils {
 			for (int i = 0; i < tokens.Count; i++) {
 				int value;
 
-				if (!haveWeekday && tokens[i].IsWeekday) {
-					if (TryGetWeekday (tokens[i], text, out _)) {
-						haveWeekday = true;
-						continue;
-					}
+				if (!haveWeekday && TryGetWeekday (tokens[i], text, out _)) {
+					haveWeekday = true;
+					continue;
 				}
 
-				if ((month == null || numericMonth) && tokens[i].IsMonth) {
-					if (TryGetMonth (tokens[i], text, out value)) {
-						if (numericMonth) {
-							numericMonth = false;
-							day = month;
-						}
-
-						month = value;
-						continue;
+				if ((month == null || numericMonth) && TryGetMonth (tokens[i], text, out value)) {
+					if (numericMonth) {
+						numericMonth = false;
+						day = month;
 					}
+
+					month = value;
+					continue;
 				}
 
-				if (!haveTime && tokens[i].IsTimeOfDay) {
-					if (TryGetTimeOfDay (tokens[i], text, out hour, out minute, out second)) {
-						haveTime = true;
-						continue;
-					}
+				if (!haveTime && TryGetTimeOfDay (tokens[i], text, out hour, out minute, out second)) {
+					haveTime = true;
+					continue;
 				}
 
-				if (tzone == null && tokens[i].IsTimeZone) {
-					if (TryGetTimeZone (tokens[i], text, out value)) {
-						tzone = value;
-						continue;
-					}
+				if (tzone == null && tokens[i].IsTimeZone && TryGetTimeZone (tokens[i], text, out value)) {
+					tzone = value;
+					continue;
 				}
 
 				if (tokens[i].IsNumeric) {

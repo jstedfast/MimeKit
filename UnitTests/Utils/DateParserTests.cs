@@ -63,6 +63,7 @@ namespace UnitTests.Utils {
 			"May 9 2015 25:00:00 -0400",
 			"2015 May 9 25:00:00 -0400",
 			"2015 May 9 25:99:78 -0400",
+			"25 Sep 81 06:03:27 -0400"
 		};
 
 		static readonly string[] expected = {
@@ -94,6 +95,7 @@ namespace UnitTests.Utils {
 			"Sat, 09 May 2015 00:00:00 -0400",
 			"Sat, 09 May 2015 00:00:00 -0400",
 			"Sat, 09 May 2015 00:00:00 -0400",
+			"Fri, 25 Sep 1981 06:03:27 -0400"
 		};
 
 		[Test]
