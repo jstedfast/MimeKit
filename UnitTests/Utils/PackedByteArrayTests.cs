@@ -66,6 +66,16 @@ namespace UnitTests.Utils {
 				packed.Add ((byte) 'B');
 			}
 
+			for (int i = 0; i < 26; i++) {
+				expected[index++] = (byte) ('A' + i);
+				packed.Add ((byte) ('A' + i));
+			}
+
+			for (int i = 0; i < 26; i++) {
+				expected[index++] = (byte) ('A' + i);
+				packed.Add ((byte) ('A' + i));
+			}
+
 			Assert.AreEqual (index, packed.Count, "Count");
 
 			packed.CopyTo (buffer, 0);
