@@ -38,7 +38,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]
-	public class ArgumentExceptionTests : TestBase
+	public class ArgumentExceptionTests
 	{
 		static void AssertFilterArguments (IMimeFilter filter)
 		{

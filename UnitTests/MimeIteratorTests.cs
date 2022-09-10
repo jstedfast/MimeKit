@@ -33,7 +33,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MimeIteratorTests : TestBase
+	public class MimeIteratorTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

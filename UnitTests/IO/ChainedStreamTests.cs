@@ -37,7 +37,7 @@ using MimeKit;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class ChainedStreamTests : TestBase
+	public class ChainedStreamTests
 	{
 		readonly List<int> lengths = new List<int> ();
 		readonly MemoryStream master, backing;

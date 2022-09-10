@@ -38,7 +38,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class X509CertificateChainTests : TestBase
+	public class X509CertificateChainTests
 	{
 		static readonly string[] CertificateAuthorities = new string[] {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"

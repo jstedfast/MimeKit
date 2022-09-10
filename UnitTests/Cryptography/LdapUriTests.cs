@@ -34,7 +34,7 @@ using MimeKit.Cryptography;
 namespace UnitTests.Cryptography
 {
 	[TestFixture]
-	public class LdapUriTests : TestBase
+	public class LdapUriTests
 	{
 		[Test]
 		public void TestParseEmptyString ()

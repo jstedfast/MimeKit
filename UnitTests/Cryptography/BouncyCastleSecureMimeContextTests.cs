@@ -37,7 +37,7 @@ using MimeKit.Cryptography;
 namespace UnitTests.Cryptography
 {
 	[TestFixture]
-	public class BouncyCastleSecureMimeContextTests : TestBase
+	public class BouncyCastleSecureMimeContextTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

@@ -38,7 +38,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.IO.Filters {
 	[TestFixture]
-	public class FilterTests : TestBase
+	public class FilterTests
 	{
 		static void TestArgumentExceptions (IMimeFilter filter)
 		{

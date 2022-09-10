@@ -34,7 +34,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MessageDispositionNotificiationTests : TestBase
+	public class MessageDispositionNotificiationTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

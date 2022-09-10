@@ -36,7 +36,7 @@ using MimeKit.IO.Filters;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class FilteredStreamTests : TestBase
+	public class FilteredStreamTests
 	{
 		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
 

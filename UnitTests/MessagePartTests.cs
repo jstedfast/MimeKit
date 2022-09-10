@@ -38,7 +38,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MessagePartTests : TestBase
+	public class MessagePartTests
 	{
 		[Test]
 		public void TestPrepare ()

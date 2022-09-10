@@ -37,7 +37,7 @@ using MimeKit.Cryptography;
 namespace UnitTests
 {
 	[TestFixture]
-	public class ExceptionTests : TestBase
+	public class ExceptionTests
 	{
 		[Test]
 		public void TestParseException ()

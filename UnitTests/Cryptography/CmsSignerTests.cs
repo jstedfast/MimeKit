@@ -43,7 +43,7 @@ using X509KeyUsageFlags = MimeKit.Cryptography.X509KeyUsageFlags;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class CmsSignerTests : TestBase
+	public class CmsSignerTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

@@ -35,7 +35,7 @@ using MimeKit.IO;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class BoundStreamTests : TestBase
+	public class BoundStreamTests
 	{
 		[Test]
 		public void TestCanReadWriteSeek ()

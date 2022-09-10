@@ -34,7 +34,7 @@ using MimeKit.Tnef;
 
 namespace UnitTests.Tnef {
 	[TestFixture]
-	public class RtfCompressedToRtfTests : TestBase
+	public class RtfCompressedToRtfTests
 	{
 		[Test]
 		public void TestRtfCompressedToRtfUnknownCompressionType ()

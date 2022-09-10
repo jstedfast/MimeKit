@@ -38,7 +38,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class SqliteCertificateDatabaseTests : TestBase, IDisposable
+	public class SqliteCertificateDatabaseTests : IDisposable
 	{
 		static readonly string[] StartComCertificates = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"

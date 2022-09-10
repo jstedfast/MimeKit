@@ -33,7 +33,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class InternetAddressTests : TestBase
+	public class InternetAddressTests
 	{
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex)
 		{

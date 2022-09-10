@@ -54,7 +54,7 @@ namespace UnitTests
 	}
 
 	[TestFixture]
-	public class ParserOptionsTests : TestBase
+	public class ParserOptionsTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

@@ -26,8 +26,14 @@
 
 using System;
 using System.IO;
+using System.Text;
+
+using NUnit.Framework;
+
+using MimeKit.Utils;
 
 namespace UnitTests {
+	[SetUpFixture]
 	static class TestHelper
 	{
 		public static readonly string ProjectDir;
@@ -55,6 +61,15 @@ namespace UnitTests {
 				dir = Path.GetFullPath (Path.Combine (dir, ".."));
 
 			ProjectDir = Path.GetFullPath (dir);
+		}
+
+		[OneTimeSetUp]
+		public static void Init ()
+		{
+			lock (CodePagesEncodingProvider.Instance) {
+				Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
+				CharsetUtils.GetCodePage ("iso-2022-jp");
+			}
 		}
 	}
 }

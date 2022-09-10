@@ -33,7 +33,7 @@ using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
 	[TestFixture]
-	public class PunycodeTests : TestBase
+	public class PunycodeTests
 	{
 		Punycode punycode = new Punycode (new IdnMapping ());
 

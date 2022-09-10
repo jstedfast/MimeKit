@@ -32,7 +32,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class TrieTests : TestBase
+	public class TrieTests
 	{
 		static readonly string[] TriePatterns = {
 			"news://",

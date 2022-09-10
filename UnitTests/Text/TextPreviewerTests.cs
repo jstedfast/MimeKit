@@ -35,7 +35,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class TextPreviewerTests : TestBase
+	public class TextPreviewerTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

@@ -45,7 +45,7 @@ using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class DefaultSecureMimeContextTests : TestBase
+	public class DefaultSecureMimeContextTests
 	{
 		static readonly string[] CertificateAuthorities = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"

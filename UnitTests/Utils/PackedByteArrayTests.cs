@@ -32,7 +32,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class PackedByteArrayTests : TestBase
+	public class PackedByteArrayTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

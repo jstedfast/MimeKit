@@ -34,7 +34,7 @@ using MimeKit.Utils;
 
 namespace UnitTests.Utils {
 	[TestFixture]
-	public class CharsetUtilsTests : TestBase
+	public class CharsetUtilsTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

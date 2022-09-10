@@ -35,7 +35,7 @@ using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MessageDeliveryStatusTests : TestBase
+	public class MessageDeliveryStatusTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

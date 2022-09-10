@@ -43,7 +43,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class PgpMimeTests : TestBase
+	public class PgpMimeTests
 	{
 		static PgpMimeTests ()
 		{

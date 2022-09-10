@@ -37,7 +37,7 @@ using UnitTests.IO;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MimeContentTests : TestBase
+	public class MimeContentTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

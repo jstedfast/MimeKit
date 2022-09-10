@@ -36,7 +36,7 @@ using System.Linq;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class MemoryBlockStreamTests : TestBase, IDisposable
+	public class MemoryBlockStreamTests : IDisposable
 	{
 		MemoryBlockStream blocks;
 		MemoryStream master;

@@ -33,7 +33,7 @@ using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
-	public class HeaderTests : TestBase
+	public class HeaderTests
 	{
 		static string ByteArrayToString (byte[] text)
 		{

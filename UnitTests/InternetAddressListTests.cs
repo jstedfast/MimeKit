@@ -35,7 +35,7 @@ using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
-	public class InternetAddressListTests : TestBase
+	public class InternetAddressListTests
 	{
 		static FormatOptions UnixFormatOptions;
 

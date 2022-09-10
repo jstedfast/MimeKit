@@ -40,7 +40,7 @@ using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
 	[TestFixture]
-	public class EncoderTests : TestBase
+	public class EncoderTests
 	{
 		static readonly string[] base64EncodedPatterns = {
 			"VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ==",

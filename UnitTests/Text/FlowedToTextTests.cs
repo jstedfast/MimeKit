@@ -34,7 +34,7 @@ using NUnit.Framework;
 
 namespace UnitTests.Text {
 	[TestFixture]
-	public class FlowedToTextTests : TestBase
+	public class FlowedToTextTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

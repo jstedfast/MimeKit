@@ -37,7 +37,7 @@ using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
 	[TestFixture]
-	public class YEncodingTests : TestBase
+	public class YEncodingTests
 	{
 		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "yenc");
 

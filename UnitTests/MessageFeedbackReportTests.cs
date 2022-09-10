@@ -34,7 +34,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MessageFeedbackReportTests : TestBase
+	public class MessageFeedbackReportTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

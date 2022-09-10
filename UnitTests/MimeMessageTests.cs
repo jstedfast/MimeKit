@@ -40,7 +40,7 @@ using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]
-	public class MimeMessageTests : TestBase
+	public class MimeMessageTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()

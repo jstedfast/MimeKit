@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace Benchmarks {
 	static class BenchmarkHelper
@@ -46,6 +47,8 @@ namespace Benchmarks {
 			dir = Path.Combine (dir, "..", "UnitTests");
 
 			UnitTestsDir = Path.GetFullPath (dir);
+
+			Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
 		}
 	}
 }

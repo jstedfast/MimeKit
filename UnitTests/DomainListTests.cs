@@ -32,7 +32,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class DomainListTests : TestBase
+	public class DomainListTests
 	{
 		static void AssertParseFailure (string text)
 		{
