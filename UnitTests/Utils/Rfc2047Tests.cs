@@ -164,6 +164,20 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
+		public void TestDecodeEncodedWordInvalidMultiCharacterEncoding ()
+		{
+			const string text = "blurdy bloop =?iso-8859-1?qb?invalid_encoded_word?= beep boop";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
 		public void TestDecodeEncodedWordIncompletePayload ()
 		{
 			const string text = "blurdy bloop =?iso-8859-1?q?invalid_encoding";
@@ -189,6 +203,86 @@ namespace UnitTests.Utils {
 
 			result = Rfc2047.DecodeText (buffer);
 			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestDecodeEncodedWordInvalidCharsetName ()
+		{
+			const string text = "blurdy bloop =?isö-8859-1?q?invalid_charset_name?= beep boop";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestDecodeEncodedWordInvalidLanguageCode ()
+		{
+			const string text = "blurdy bloop =?iso-8859-1*eñ-US?q?invalid_charset_name?= beep boop";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (text, result);
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.AreEqual (text, result);
+		}
+
+		[Test]
+		public void TestDecodeEncodedWordEmbeddedInAnotherWord ()
+		{
+			const string text = "blurdy bloop=?iso-8859-1?q?_encoded_word_?=beep boop";
+			const string expected = "blurdy bloop encoded word beep boop";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.AreEqual (expected, result);
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestDecodeMultipleEncodedWordsWithCommonCodePage ()
+		{
+			const string text = "=?iso-8859-1?q?latin1_?= =?utf-8?q?unicode_?= =?iso-8859-1?q?and_latin1_again?=";
+			const string expected = "latin1 unicode and latin1 again";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+			int codepage;
+
+			result = Rfc2047.DecodePhrase (ParserOptions.Default, buffer, 0, buffer.Length, out codepage);
+			Assert.AreEqual (expected, result, "DecodePhrase");
+			Assert.AreEqual (28591, codepage, "DecodePhrase");
+
+			result = Rfc2047.DecodeText (ParserOptions.Default, buffer, 0, buffer.Length, out codepage);
+			Assert.AreEqual (expected, result, "DecodeText");
+			Assert.AreEqual (28591, codepage, "DecodeText");
+		}
+
+		// TODO: When no common codepage can be found, this logic should be smarter?
+		[Test]
+		public void TestDecodeMultipleEncodedWordsWithoutCommonCodePage ()
+		{
+			const string text = "=?iso-8859-1?q?latin1_?= =?iso-8859-2?q?latin2_?= =?iso-8859-3?q?latin3?=";
+			const string expected = "latin1 latin2 latin3";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+			int codepage;
+
+			result = Rfc2047.DecodePhrase (ParserOptions.Default, buffer, 0, buffer.Length, out codepage);
+			Assert.AreEqual (expected, result, "DecodePhrase");
+			Assert.AreEqual (28591, codepage, "DecodePhrase");
+
+			result = Rfc2047.DecodeText (ParserOptions.Default, buffer, 0, buffer.Length, out codepage);
+			Assert.AreEqual (expected, result, "DecodeText");
+			Assert.AreEqual (28591, codepage, "DecodeText");
 		}
 
 		[Test]
