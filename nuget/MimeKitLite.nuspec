@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>3.4.0</version>
+    <version>3.4.1</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,22 +26,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Introduced a new IPunycode interface and Punycode class allowing developers to override the default implementation that uses .NET's IdnMapping class. (issue #801)
-* Added HtmlAttributeCollection Contains, IndexOf and TryGetValue methods.
-* Dropped .NET5.0 support.
-* Changed HtmlToHtml converter to avoid decoding character references. (issue #808)
-* Fixed BoundStream to only seek in the base stream if seeking is supported.
-* Added a new TextPart.TryDetectEncoding() API. (issue #804)
-* Added support for message/feedback-report via a new MessageFeedbackReport class.
-* Fixed a potential memory leak.
-* When unquoting parameter values, don't convert tabs to spaces. (issue #809)
-* Don't call Encoding.RegisterProvider() anymore. Rely on developers doing this themselves in their application startup logic.
-* Remove System.Text.Encoding.CodePages dependency for net4x.
-* Expose the LineNumber property on MimeMessageBeginEventArgs and MimeEntityBeginEventArgs. (issue #819)
+* Improved logic for reformatting headers when MimeMessage.WriteTo() is called with FormatOptions.International set to true.
+* Fixed logic for quoting and/or encoding the MailboxAddress.Name in cases where the Name string contains quotes or parenthesis (especially when unicode characters are within the quotes or parenthesis).
+* Improved logic in the address parser when it comes to unquoting mailbox names (i.o.w. unquote *before* decoding rather than after). (issue #835)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime mbox mail email parser tnef net462 net47 net48 net5.0 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <tags>mime mbox mail email parser tnef net462 net47 net48 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />

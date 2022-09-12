@@ -1,5 +1,16 @@
 # Release Notes
 
+### MimeKit 3.4.1 (2022-09-12)
+
+* Improved logic for reformatting headers when MimeMessage.WriteTo() is called with FormatOptions.International
+  set to true.
+* Fixed logic for quoting and/or encoding the MailboxAddress.Name in cases where the Name string contains
+  quotes or parenthesis (especially when unicode characters are within the quotes or parenthesis).
+* Improved logic in the address parser when it comes to unquoting mailbox names (i.o.w. unquote *before* decoding
+  rather than after).
+* Modified the Message-ID/Content-ID parser to be more lenient.
+  (issue [#835](https://github.com/jstedfast/MimeKit/issues/835))
+
 ### MimeKit 3.4.0 (2022-08-17)
 
 * Introduced a new IPunycode interface and Punycode class allowing developers to override the default
