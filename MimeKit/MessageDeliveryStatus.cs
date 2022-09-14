@@ -166,7 +166,7 @@ namespace MimeKit {
 						}
 					}
 				}
-			} catch (ParseException) {
+			} catch (FormatException) {
 			}
 		}
 
