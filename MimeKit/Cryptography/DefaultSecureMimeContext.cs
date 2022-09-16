@@ -76,7 +76,16 @@ namespace MimeKit.Cryptography {
 
 			if (Path.DirectorySeparatorChar == '\\') {
 				var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
-				path = Path.Combine (appData, "Roaming\\mimekit");
+				var compatPath = Path.Combine (appData, "Roaming\\mimekit");
+				path = Path.Combine (appData, "mimekit");
+
+				if (!Directory.Exists (path) && Directory.Exists (compatPath)) {
+					try {
+						Directory.Move (compatPath, path);
+					} catch {
+						path = compatPath;
+					}
+				}
 			} else {
 				var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
 				path = Path.Combine (home, ".mimekit");
