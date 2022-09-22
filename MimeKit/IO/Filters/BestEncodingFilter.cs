@@ -127,12 +127,11 @@ namespace MimeKit.IO.Filters {
 
 		static bool IsMboxMarker (byte[] marker)
 		{
-			const uint FromMask = 0xFFFFFFFF;
 			const uint From = 0x6D6F7246;
 
 			uint word = BinaryPrimitives.ReadUInt32LittleEndian (marker.AsSpan ());
 
-			if ((word & FromMask) != From)
+			if (word != From)
 				return false;
 
 			return marker[4] == (byte) ' ';
