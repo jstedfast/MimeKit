@@ -133,5 +133,5 @@ $sampleProjects = Get-ChildItem "samples" -Filter "*.csproj" -Recurse
 foreach ($projectFile in $sampleProjects) {
     $projectFile = Resolve-Path $projectFile
     Write-Host "Updating $projectFile..."
-    Update-SamplePackageReferenceVersion -ProjectFile $projectFile -PackageName "MimeKit" -PackageVersion $Version
+    Update-SamplePackageReferenceVersion -ProjectFile $projectFile -PackageName $ProjectName -PackageVersion $Version
 }
