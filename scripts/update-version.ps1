@@ -63,6 +63,23 @@ function Update-Project {
 
 function Update-NuGetPackageVersion {
     param (
+        [string] $NuSpecFile,
+        [string] $Version
+    )
+
+    $nuspec = New-Object -TypeName System.Xml.XmlDocument
+    $nuspec.PreserveWhitespace = $True
+    $nuspec.Load($NuSpecFile)
+    $xmlns = $nuspec.package.GetAttribute("xmlns")
+    $ns = New-Object System.Xml.XmlNamespaceManager($nuspec.NameTable)
+    $ns.AddNamespace("ns", $xmlns)
+    $packageVersion = $nuspec.SelectSingleNode("ns:package/ns:metadata/ns:version", $ns)
+    $packageVersion.InnerText = $Version
+    $nuspec.Save($NuSpecFile)
+}
+
+function Update-SamplePackageReferenceVersion {
+    param (
         [string] $ProjectFile,
         [string] $PackageName,
         [string] $PackageVersion
@@ -100,9 +117,21 @@ $projectFile = Resolve-Path $projectFile
 Write-Host "Updating $projectFile..."
 Update-Project -ProjectFile $projectFile -Version $Version
 
+$fileName = $ProjectName + ".nuspec"
+$nuspec = Join-Path "nuget" $fileName
+$nuspec = Resolve-Path $nuspec
+Write-Host "Updating $nuspec..."
+Update-NuGetPackageVersion -NuSpecFile $nuspec -Version $Version
+
+$fileName = $ProjectName + "Lite.nuspec"
+$nuspec = Join-Path "nuget" $fileName
+$nuspec = Resolve-Path $nuspec
+Write-Host "Updating $nuspec..."
+Update-NuGetPackageVersion -NuSpecFile $nuspec -Version $Version
+
 $sampleProjects = Get-ChildItem "samples" -Filter "*.csproj" -Recurse
 foreach ($projectFile in $sampleProjects) {
     $projectFile = Resolve-Path $projectFile
     Write-Host "Updating $projectFile..."
-    Update-NuGetPackageVersion -ProjectFile $projectFile -PackageName "MimeKit" -PackageVersion $Version
+    Update-SamplePackageReferenceVersion -ProjectFile $projectFile -PackageName "MimeKit" -PackageVersion $Version
 }
