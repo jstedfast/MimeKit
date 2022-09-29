@@ -34,6 +34,7 @@ using System.Security.Cryptography;
 using NUnit.Framework;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -63,13 +64,17 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeMessageWithHeaders ()
 		{
+			const string timestamp = "Thu, 29 Sep 2022 08:55:19 +0400";
 			var msg = new MimeMessage (
 				new Header ("From", "Federico Di Gregorio <fog@dndg.it>"),
 				new Header ("To", "jeff@xamarin.com"),
 				new [] { new Header ("Cc", "fog@dndg.it"), new Header ("Cc", "<gg@dndg.it>") },
 				new Header ("Subject", "Hello"),
-				new TextPart ("plain", "Just a short message to say hello!")
+				new TextPart ("plain", "Just a short message to say hello!"),
+				new Header ("Date", "Thu, 29 Sep 2022 08:55:19 +0400")
 			);
+
+			DateUtils.TryParse (timestamp, out var date);
 
 			Assert.AreEqual (1, msg.From.Count, "Wrong count in From");
 			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msg.From[0].ToString(), "Wrong value in From[0]");
@@ -78,7 +83,8 @@ namespace UnitTests {
 			Assert.AreEqual (2, msg.Cc.Count, 2, "Wrong count in Cc");
 			Assert.AreEqual ("fog@dndg.it", msg.Cc[0].ToString(), "Wrong value in Cc[0]");
 			Assert.AreEqual ("gg@dndg.it", msg.Cc[1].ToString(), "Wrong value in Cc[1]");
-			Assert.AreEqual ("Hello", msg.Subject, "Wrong value in Subject");		
+			Assert.AreEqual ("Hello", msg.Subject, "Wrong value in Subject");
+			Assert.AreEqual (date, msg.Date, "Date");
 		}
 
 		[Test]

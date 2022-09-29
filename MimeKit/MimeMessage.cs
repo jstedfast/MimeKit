@@ -217,12 +217,10 @@ namespace MimeKit {
 			if (body != null)
 				Body = body;
 
-			// Do exactly as in the parameterless constructor but avoid setting a default
-			// value if an header already provided one.
-
+			// Only set the default headers if they have not already been provided.
 			if (!Headers.Contains (HeaderId.From))
 				Headers[HeaderId.From] = string.Empty;
-			if (date == default (DateTimeOffset))
+			if (!Headers.Contains (HeaderId.Date))
 				Date = DateTimeOffset.Now;
 			if (!Headers.Contains (HeaderId.Subject))
 				Subject = string.Empty;
