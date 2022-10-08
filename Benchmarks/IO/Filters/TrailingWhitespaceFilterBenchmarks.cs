@@ -33,7 +33,7 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class TrailingWhitespaceFilterBenchmarks
+	public class TrailingWhitespaceFilterBenchmarks : IDisposable
 	{
 		static readonly string TestDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData");
 		readonly Stream LoremIpsum;
