@@ -53,7 +53,6 @@ namespace MimeKit {
 
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
 
-		static readonly Task CompletedTask;
 		const int HeaderBufferGrowSize = 64;
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
@@ -93,11 +92,6 @@ namespace MimeKit {
 		ParserOptions options;
 		internal Stream stream;
 		internal long position;
-
-		static MimeReader ()
-		{
-			CompletedTask = Task.CompletedTask;
-		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeReader"/> class.
@@ -260,7 +254,7 @@ namespace MimeKit {
 		protected virtual Task OnMboxMarkerReadAsync (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 			OnMboxMarkerRead (buffer, startIndex, count, beginOffset, lineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		#endregion Mbox Events
@@ -295,7 +289,7 @@ namespace MimeKit {
 		protected virtual Task OnHeadersBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnHeadersBegin (beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -324,7 +318,7 @@ namespace MimeKit {
 		protected virtual Task OnHeaderReadAsync (Header header, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnHeaderRead (header, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -359,7 +353,7 @@ namespace MimeKit {
 		protected virtual Task OnHeadersEndAsync (long beginOffset, int beginLineNumber, long endOffset, int endLineNumber, CancellationToken cancellationToken)
 		{
 			OnHeadersEnd (beginOffset, beginLineNumber, endOffset, endLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		#endregion Header Events
@@ -394,7 +388,7 @@ namespace MimeKit {
 		protected virtual Task OnMimeMessageBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -431,7 +425,7 @@ namespace MimeKit {
 		protected virtual Task OnMimeMessageEndAsync (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 			OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		#endregion MimeMessage Events
@@ -468,7 +462,7 @@ namespace MimeKit {
 		protected virtual Task OnMimePartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMimePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -499,7 +493,7 @@ namespace MimeKit {
 		protected virtual Task OnMimePartContentBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMimePartContentBegin (beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -530,7 +524,7 @@ namespace MimeKit {
 		protected virtual Task OnMimePartContentReadAsync (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 			OnMimePartContentRead (buffer, startIndex, count, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -567,7 +561,7 @@ namespace MimeKit {
 		protected virtual Task OnMimePartContentEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
 		{
 			OnMimePartContentEnd (beginOffset, beginLineNumber, endOffset, lines, newLineFormat, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -606,7 +600,7 @@ namespace MimeKit {
 		protected virtual Task OnMimePartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 			OnMimePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		#endregion MimePart Events
@@ -643,7 +637,7 @@ namespace MimeKit {
 		protected virtual Task OnMessagePartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMessagePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -682,7 +676,7 @@ namespace MimeKit {
 		protected virtual Task OnMessagePartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 			OnMessagePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		#endregion MessagePart Events
@@ -719,7 +713,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartBeginAsync (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -752,7 +746,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartBoundaryAsync (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -785,7 +779,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartEndBoundaryAsync (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartEndBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -816,7 +810,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartPreambleBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartPreambleBegin (beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -847,7 +841,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartPreambleReadAsync (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 			OnMultipartPreambleRead (buffer, startIndex, count, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -882,7 +876,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartPreambleEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 			OnMultipartPreambleEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -913,7 +907,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartEpilogueBeginAsync (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartEpilogueBegin (beginOffset, beginLineNumber, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -944,7 +938,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartEpilogueReadAsync (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 			OnMultipartEpilogueRead (buffer, startIndex, count, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -979,7 +973,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartEpilogueEndAsync (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 			OnMultipartEpilogueEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -1018,7 +1012,7 @@ namespace MimeKit {
 		protected virtual Task OnMultipartEndAsync (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
 			OnMultipartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
-			return CompletedTask;
+			return Task.CompletedTask;
 		}
 
 		#endregion Multipart Events
