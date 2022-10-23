@@ -137,9 +137,10 @@ namespace UnitTests.Utils {
 			Assert.AreEqual ("iso-8859-1", CharsetUtils.GetMimeCharset (CharsetUtils.Latin1));
 			Assert.AreEqual ("gibberish", CharsetUtils.GetMimeCharset ("gibberish"));
 
-			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (932)));
+			Assert.AreEqual ("shift_jis", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (932)));
 			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50220)));
 			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50221)));
+			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50222)));
 
 			try {
 				encoding = Encoding.GetEncoding (50225);
