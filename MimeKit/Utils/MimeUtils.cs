@@ -581,7 +581,7 @@ namespace MimeKit.Utils {
 
 		internal static byte[] Unquote (byte[] text, int startIndex, int length, bool convertTabsToSpaces = false)
 		{
-			var builder = new ByteArrayBuilder (length - 2);
+			var builder = new ByteArrayBuilder (length);
 			bool escaped = false;
 			bool quoted = false;
 
