@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
     <AssemblyTitle>MimeKit</AssemblyTitle>
-    <VersionPrefix>3.4.1</VersionPrefix>
+    <VersionPrefix>3.4.2</VersionPrefix>
     <LangVersion>8</LangVersion>
     <Authors>Jeffrey Stedfast</Authors>
     <_LegacyFrameworks>net462;net47</_LegacyFrameworks>

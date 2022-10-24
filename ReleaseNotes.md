@@ -1,5 +1,19 @@
 # Release Notes
 
+### MimeKit 3.4.2 (2022-10-24)
+
+* Fixed MessageDeliveryStatus.ParseStatusGroups() to catch FormatException instead of ParseException.
+  (issue [#837](https://github.com/jstedfast/MimeKit/issues/837))
+* Fixed DefaultSecureMimeContext to use the correct AppData path on Windows.
+* Fixed MimeMessage .ctor(params object[] args) to respect a Date header argument.
+  (issue [#840](https://github.com/jstedfast/MimeKit/issues/840))
+* Updated MIME-Type to file extension mappings to add a few missing types/extensions.
+  (issue [#844](https://github.com/jstedfast/MimeKit/issues/844))
+* Fixed address parser to no longer throw ArgumentOutOfRangeException when parsing some mailbox names.
+  (issue [#846](https://github.com/jstedfast/MimeKit/issues/846) and [#847](https://github.com/jstedfast/MimeKit/issues/847))
+* Map codepage 932 to shift_jis instead of iso-2022-jp.
+  (issue [#848](https://github.com/jstedfast/MimeKit/issues/848))
+
 ### MimeKit 3.4.1 (2022-09-12)
 
 * Improved logic for reformatting headers when MimeMessage.WriteTo() is called with FormatOptions.International
