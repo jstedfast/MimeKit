@@ -267,34 +267,42 @@ namespace MimeKit.Cryptography {
 		{
 			var collection = new RealCmsRecipientCollection ();
 
-			foreach (var recipient in recipients) {
-				var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
-				RealSubjectIdentifierType type;
-				RealCmsRecipient real;
+			try {
+				foreach (var recipient in recipients) {
+					var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
+					RealSubjectIdentifierType type;
+					RealCmsRecipient real;
 
-				if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
-					type = RealSubjectIdentifierType.IssuerAndSerialNumber;
-				else
-					type = RealSubjectIdentifierType.SubjectKeyIdentifier;
+					if (recipient.RecipientIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
+						type = RealSubjectIdentifierType.IssuerAndSerialNumber;
+					else
+						type = RealSubjectIdentifierType.SubjectKeyIdentifier;
 
 #if NETCOREAPP3_0
-				var padding = recipient.RsaEncryptionPadding?.AsRSAEncryptionPadding ();
+					var padding = recipient.RsaEncryptionPadding?.AsRSAEncryptionPadding ();
 
-				if (padding != null)
-					real = new RealCmsRecipient (type, certificate, padding);
-				else
-					real = new RealCmsRecipient (type, certificate);
+					if (padding != null)
+						real = new RealCmsRecipient (type, certificate, padding);
+					else
+						real = new RealCmsRecipient (type, certificate);
 #else
-				if (recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep)
-					throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+					if (recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep) {
+						certificate.Dispose ();
+						throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
+					}
 
-				real = new RealCmsRecipient (type, certificate);
+					real = new RealCmsRecipient (type, certificate);
 #endif
 
-				collection.Add (real);
-			}
+					collection.Add (real);
+				}
 
-			return collection;
+				return collection;
+			} catch {
+				foreach (var recipient in collection)
+					recipient.Certificate.Dispose ();
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -1514,7 +1522,8 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			Import (storeName, new X509Certificate2 (certificate.GetEncoded ()), cancellationToken);
+			using (var certificate2 = new X509Certificate2 (certificate.GetEncoded ()))
+				Import (storeName, certificate2, cancellationToken);
 		}
 
 		/// <summary>
