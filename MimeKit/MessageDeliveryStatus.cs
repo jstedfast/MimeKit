@@ -175,11 +175,17 @@ namespace MimeKit {
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-			for (int i = 0; i < groups.Count; i++)
-				groups[i].WriteTo (options, stream);
+			try {
+				for (int i = 0; i < groups.Count; i++)
+					groups[i].WriteTo (options, stream);
 
-			stream.Position = 0;
+				stream.Position = 0;
+			} catch {
+				stream.Dispose ();
+				throw;
+			}
 
+			Content?.Dispose ();
 			Content = new MimeContent (stream);
 		}
 
