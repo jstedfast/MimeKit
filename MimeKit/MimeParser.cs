@@ -1694,17 +1694,22 @@ namespace MimeKit {
 		{
 			var content = new MemoryBlockStream ();
 
-			do {
-				if (ReadAhead (1, 0, CancellationToken.None) <= 0)
-					break;
+			try {
+				do {
+					if (ReadAhead (1, 0, CancellationToken.None) <= 0)
+						break;
 
-				content.Write (input, inputIndex, inputEnd - inputIndex);
-				inputIndex = inputEnd;
-			} while (!eos);
+					content.Write (input, inputIndex, inputEnd - inputIndex);
+					inputIndex = inputEnd;
+				} while (!eos);
 
-			content.Position = 0;
+				content.Position = 0;
 
-			return content;
+				return content;
+			} catch {
+				content.Dispose ();
+				throw;
+			}
 		}
 
 		unsafe HeaderList ParseHeaders (byte* inbuf, CancellationToken cancellationToken)
