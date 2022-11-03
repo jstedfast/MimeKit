@@ -1812,12 +1812,13 @@ namespace MimeKit {
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);
 			var header = string.Format ("Content-Type:{0}\r\n", encoded);
-			var chained = new ChainedStream ();
 
-			chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
-			chained.Add (content);
+			using (var chained = new ChainedStream ()) {
+				chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
+				chained.Add (content, true);
 
-			return Load (options, chained, cancellationToken);
+				return Load (options, chained, false, cancellationToken);
+			}
 		}
 
 		/// <summary>
@@ -1864,12 +1865,13 @@ namespace MimeKit {
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);
 			var header = string.Format ("Content-Type:{0}\r\n", encoded);
-			var chained = new ChainedStream ();
 
-			chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
-			chained.Add (content);
+			using (var chained = new ChainedStream ()) {
+				chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
+				chained.Add (content, true);
 
-			return LoadAsync (options, chained, cancellationToken);
+				return LoadAsync (options, chained, false, cancellationToken);
+			}
 		}
 
 		/// <summary>
