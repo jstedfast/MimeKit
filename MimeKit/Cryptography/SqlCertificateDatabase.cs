@@ -54,6 +54,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class SqlCertificateDatabase : X509CertificateDatabase
 	{
+		bool disposed;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="SqlCertificateDatabase"/> class.
 		/// </summary>
@@ -817,6 +819,17 @@ namespace MimeKit.Cryptography {
 			command.CommandType = CommandType.Text;
 
 			return command;
+		}
+
+		protected override void Dispose (bool disposing)
+		{
+			if (disposing && !disposed) {
+				CertificatesTable.Dispose ();
+				CrlsTable.Dispose ();
+				disposed = true;
+			}
+
+			base.Dispose (disposing);
 		}
 	}
 }
