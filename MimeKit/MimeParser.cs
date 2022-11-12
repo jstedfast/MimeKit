@@ -1755,6 +1755,52 @@ namespace MimeKit {
 			}
 		}
 
+		unsafe bool IsBlankLine (byte* inbuf, CancellationToken cancellationToken)
+		{
+			if (ReadAhead (ReadAheadSize, 1, cancellationToken) <= 0)
+				return false;
+
+			byte* inptr = inbuf + inputIndex;
+
+			return *inptr == (byte) '\r' || *inptr == (byte) '\n';
+		}
+
+		unsafe HeaderList ParseStatusGroup (byte* inbuf, CancellationToken cancellationToken)
+		{
+			while (IsBlankLine (inbuf, cancellationToken)) {
+				if (!SkipLine (inbuf, true, cancellationToken))
+					break;
+			}
+
+			return ParseHeaders (inbuf, cancellationToken);
+		}
+
+		/// <summary>
+		/// Parse a single message/delivery-status status group from the stream.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single message/delivery-status status group from the stream.
+		/// </remarks>
+		/// <returns>The parsed status group.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the status group.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		internal HeaderList ParseStatusGroup (CancellationToken cancellationToken = default (CancellationToken))
+		{
+			unsafe {
+				fixed (byte* inbuf = input) {
+					return ParseStatusGroup (inbuf, cancellationToken);
+				}
+			}
+		}
+
 		unsafe MimeEntity ParseEntity (byte* inbuf, CancellationToken cancellationToken)
 		{
 			// Note: if a previously parsed MimePart's content has been read,

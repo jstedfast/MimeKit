@@ -132,6 +132,32 @@ namespace UnitTests {
 			Assert.AreEqual ("smtp; 550 5.1.1 <netec.test@netecgc.com>: Recipient address    rejected: User unknown", groups[1]["Diagnostic-Code"]);
 		}
 
+		// This tests issue #855
+		[Test]
+		public void TestStatusGroupsMultipleBlankLines ()
+		{
+			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
+
+			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+
+			var report = (MultipartReport) message.Body;
+
+			Assert.IsInstanceOf<TextPart> (report[0], "Expected second part to be a text/plain.");
+			Assert.IsInstanceOf<MessageDeliveryStatus> (report[1], "Expected second part to be a message/delivery-status.");
+
+			var delivery = (MessageDeliveryStatus) report[1];
+			var groups = delivery.StatusGroups;
+
+			Assert.IsNotNull (groups, "Did not expect null status groups.");
+			Assert.AreEqual (2, groups.Count, "Expected 2 groups of headers.");
+
+			Assert.AreEqual ("dns;someserver.com", groups[0]["Reporting-MTA"]);
+
+			Assert.AreEqual ("rfc822;orig_recip@customer.com", groups[1]["Original-Recipient"]);
+			Assert.AreEqual ("5.5.0", groups[1]["Status"]);
+			Assert.AreEqual ("smtp;550 Requested action not taken", groups[1]["Diagnostic-Code"]);
+		}
+
 		[Test]
 		public void TestSerializedContent ()
 		{

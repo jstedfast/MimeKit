@@ -1,0 +1,19 @@
+Received: from server2.ms.domain.com (10.3.1.83) by
+ server1.ms.domain.com (10.3.1.86) with Microsoft SMTP Server (TLS)
+ id 15.0.1044.25; Tue, 21 Jul 2022 11:00:55 -0400
+Content-Type: multipart/report; report-type=delivery-status; boundary="==unit.test.boundary"
+
+--==unit.test.boundary
+Content-Type: text/plain
+
+This is human readable text about the bounce information
+
+--==unit.test.boundary
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns;someserver.com
+
+
+Original-Recipient:rfc822;orig_recip@customer.com
+Status:5.5.0
+Diagnostic-Code:smtp;550 Requested action not taken

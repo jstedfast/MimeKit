@@ -128,7 +128,7 @@ namespace MimeKit {
 					// According to rfc3464, there are 1 or more Status Groups consisting of a block of field/value
 					// pairs (aka headers) separated by a blank line.
 					while (!parser.IsEndOfStream) {
-						var fields = parser.ParseHeaders ();
+						var fields = parser.ParseStatusGroup ();
 						groups.Add (fields);
 
 						// Note: Office365 seems to sometimes base64 encode everything after the first Status Group of headers.
