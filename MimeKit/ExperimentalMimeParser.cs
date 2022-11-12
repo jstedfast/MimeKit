@@ -737,7 +737,18 @@ namespace MimeKit {
 
 		#endregion Multipart Events
 
-		void Reset (bool parsingMessageHeaders)
+		void Reset ()
+		{
+			while (stack.Count > 0) {
+				var item = (IDisposable) stack.Pop ();
+				item.Dispose ();
+			}
+
+			content?.Dispose ();
+			content = null;
+		}
+
+		void Initialize (bool parsingMessageHeaders)
 		{
 			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be
@@ -746,8 +757,6 @@ namespace MimeKit {
 				stream.Seek (position, SeekOrigin.Begin);
 
 			this.parsingMessageHeaders = parsingMessageHeaders;
-			content?.Dispose ();
-			content = null;
 			stack.Clear ();
 			depth = 0;
 		}
@@ -771,9 +780,14 @@ namespace MimeKit {
 		/// </exception>
 		public HeaderList ParseHeaders (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Reset (false);
+			Initialize (false);
 
-			ReadHeaders (cancellationToken);
+			try {
+				ReadHeaders (cancellationToken);
+			} catch {
+				Reset ();
+				throw;
+			}
 
 			var parsed = new HeaderList (Options);
 			foreach (var header in headers)
@@ -801,9 +815,14 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Reset (false);
+			Initialize (false);
 
-			await ReadHeadersAsync (cancellationToken).ConfigureAwait (false);
+			try {
+				await ReadHeadersAsync (cancellationToken).ConfigureAwait (false);
+			} catch {
+				Reset ();
+				throw;
+			}
 
 			var parsed = new HeaderList (Options);
 			foreach (var header in headers)
@@ -831,9 +850,14 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Reset (false);
+			Initialize (false);
 
-			ReadEntity (cancellationToken);
+			try {
+				ReadEntity (cancellationToken);
+			} catch {
+				Reset ();
+				throw;
+			}
 
 			return (MimeEntity) stack.Pop ();
 		}
@@ -857,9 +881,14 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<MimeEntity> ParseEntityAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Reset (false);
+			Initialize (false);
 
-			await ReadEntityAsync (cancellationToken).ConfigureAwait (false);
+			try {
+				await ReadEntityAsync (cancellationToken).ConfigureAwait (false);
+			} catch {
+				Reset ();
+				throw;
+			}
 
 			return (MimeEntity) stack.Pop ();
 		}
@@ -883,9 +912,14 @@ namespace MimeKit {
 		/// </exception>
 		public MimeMessage ParseMessage (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Reset (true);
+			Initialize (true);
 
-			ReadMessage (cancellationToken);
+			try {
+				ReadMessage (cancellationToken);
+			} catch {
+				Reset ();
+				throw;
+			}
 
 			return (MimeMessage) stack.Pop ();
 		}
@@ -909,9 +943,14 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<MimeMessage> ParseMessageAsync (CancellationToken cancellationToken = default (CancellationToken))
 		{
-			Reset (true);
+			Initialize (true);
 
-			await ReadMessageAsync (cancellationToken).ConfigureAwait (false);
+			try {
+				await ReadMessageAsync (cancellationToken).ConfigureAwait (false);
+			} catch {
+				Reset ();
+				throw;
+			}
 
 			return (MimeMessage) stack.Pop ();
 		}
