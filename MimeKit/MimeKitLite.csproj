@@ -66,6 +66,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Cryptography\**" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
     <Compile Remove="Utils\OptimizedOrdinalComparer.cs" />
