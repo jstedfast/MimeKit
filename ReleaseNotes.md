@@ -1,5 +1,13 @@
 # Release Notes
 
+### MimeKit 3.4.3 (2022-11-25)
+
+* Fixed a variety of memory leaks revealed by (issue [#852](https://github.com/jstedfast/MimeKit/issues/852))
+* Fixed the message/delivery-status parser to handle extra blank lines between status groups.
+  (issue [#855](https://github.com/jstedfast/MimeKit/issues/855))
+* Updated packages to explicitly depend on System.Runtime.CompilerServices.Unsafe v6.0.0.
+* Updated net6.0 dependencies to explicitly include System.Text.Encoding.CodePages v6.0.0.
+
 ### MimeKit 3.4.2 (2022-10-24)
 
 * Fixed MessageDeliveryStatus.ParseStatusGroups() to catch FormatException instead of ParseException.

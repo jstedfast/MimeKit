@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>3.4.2</version>
+    <version>3.4.3</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,12 +26,10 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed MessageDeliveryStatus.ParseStatusGroups() to catch FormatException instead of ParseException. (issue #837)
-* Fixed DefaultSecureMimeContext to use the correct AppData path on Windows.
-* Fixed MimeMessage .ctor(params object[] args) to respect a Date header argument. (issue #840)
-* Updated MIME-Type to file extension mappings to add a few missing types/extensions. (issue #844)
-* Fixed address parser to no longer throw ArgumentOutOfRangeException when parsing some mailbox names. (issue #846 and #847)
-* Map codepage 932 to shift_jis instead of iso-2022-jp. (issue #848)
+* Fixed a variety of memory leaks revealed by (issue #852)
+* Fixed the message/delivery-status parser to handle extra blank lines between status groups. (issue #855)
+* Updated packages to explicitly depend on System.Runtime.CompilerServices.Unsafe v6.0.0.
+* Updated net6.0 dependencies to explicitly include System.Text.Encoding.CodePages v6.0.0.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
