@@ -972,7 +972,7 @@ namespace MimeKit.Cryptography {
 
 		static DigestAlgorithm[] ParseDigestAlgorithms (string value)
 		{
-			var names = value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries);
+			var names = value != null ? value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries) : Array.Empty<string> ();
 			var algorithms = new List<DigestAlgorithm> ();
 			var seen = new HashSet<DigestAlgorithm> ();
 
