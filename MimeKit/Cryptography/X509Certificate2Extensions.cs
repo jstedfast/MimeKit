@@ -68,6 +68,9 @@ namespace MimeKit.Cryptography
 			var parser = new X509CertificateParser ();
 			var cert = parser.ReadCertificate (rawData);
 
+			if (cert == null)
+				throw new ArgumentException ("Cannot convert X509Certificate2 to a BouncyCastle X509Certificate.", nameof (certificate));
+
 			return cert;
 		}
 
