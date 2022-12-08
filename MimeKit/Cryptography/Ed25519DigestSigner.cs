@@ -42,6 +42,9 @@ namespace MimeKit.Cryptography {
 			this.digest = digest;
 		}
 
+		public int GetMaxSignatureSize ()
+			=> Ed25519PrivateKeyParameters.SignatureSize;
+
 		public string AlgorithmName {
 			get { return digest.AlgorithmName + "withEd25519"; }
 		}
@@ -68,6 +71,15 @@ namespace MimeKit.Cryptography {
 		{
 			digest.BlockUpdate (input, inOff, length);
 		}
+
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+		/// <summary>Update the signer with a span of bytes.</summary>
+		/// <param name="input">the span containing the data.</param>
+		public void BlockUpdate (ReadOnlySpan<byte> input)
+		{
+			digest.BlockUpdate (input);
+		}
+#endif
 
 		public byte[] GenerateSignature ()
 		{

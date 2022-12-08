@@ -27,16 +27,16 @@
 using System;
 using System.IO;
 
-using NUnit.Framework;
-
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.X509.Store;
-using Org.BouncyCastle.Utilities.Date;
-
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography {
+using NUnit.Framework;
+
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.X509.Store;
+
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class SqliteCertificateDatabaseTests : IDisposable
 	{
@@ -102,7 +102,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void AssertFindBy (IX509Selector selector, X509Certificate expected)
+		void AssertFindBy (Org.BouncyCastle.Utilities.Collections.ISelector<X509Certificate> selector, X509Certificate expected)
 		{
 			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
 				// Verify that we can select the Root Certificate
@@ -137,7 +137,7 @@ namespace UnitTests.Cryptography {
 		public void TestFindByCertificateValid ()
 		{
 			var selector = new X509CertStoreSelector ();
-			selector.CertificateValid = new DateTimeObject (chain[0].NotBefore.AddDays (10));
+			selector.CertificateValid = chain[0].NotBefore.AddDays (10);
 
 			AssertFindBy (selector, chain[0]);
 		}

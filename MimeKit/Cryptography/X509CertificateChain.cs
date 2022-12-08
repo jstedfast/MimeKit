@@ -28,6 +28,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 
@@ -38,7 +39,7 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An X.509 certificate chain.
 	/// </remarks>
-	public class X509CertificateChain : IList<X509Certificate>, IX509Store
+	public class X509CertificateChain : IList<X509Certificate>, IStore<X509Certificate>
 	{
 		readonly List<X509Certificate> certificates;
 
@@ -346,7 +347,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		public IEnumerable<X509Certificate> GetMatches (IX509Selector selector)
+		public IEnumerable<X509Certificate> GetMatches (ISelector<X509Certificate> selector)
 		{
 			foreach (var certificate in certificates) {
 				if (selector == null || selector.Match (certificate))
@@ -366,7 +367,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		ICollection IX509Store.GetMatches (IX509Selector selector)
+		IEnumerable<X509Certificate> IStore<X509Certificate>.EnumerateMatches (ISelector<X509Certificate> selector)
 		{
 			var matches = new List<X509Certificate> ();
 
