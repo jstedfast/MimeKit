@@ -1274,18 +1274,18 @@ namespace MimeKit.Cryptography {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var parser = new CmsSignedDataParser (stream);
-			var certificates = parser.GetCertificates ("Collection");
+			var certificates = parser.GetCertificates ();
 
-			foreach (X509Certificate certificate in certificates.GetMatches (null)) {
+			foreach (X509Certificate certificate in certificates.EnumerateMatches (null)) {
 				if (doAsync)
 					await ImportAsync (certificate, cancellationToken).ConfigureAwait (false);
 				else
 					Import (certificate, cancellationToken);
 			}
 
-			var crls = parser.GetCrls ("Collection");
+			var crls = parser.GetCrls ();
 
-			foreach (X509Crl crl in crls.GetMatches (null)) {
+			foreach (X509Crl crl in crls.EnumerateMatches (null)) {
 				if (doAsync)
 					await ImportAsync (crl, cancellationToken).ConfigureAwait (false);
 				else

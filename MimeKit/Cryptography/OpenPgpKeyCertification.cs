@@ -24,8 +24,7 @@
 // THE SOFTWARE.
 //
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An OpenPGP key certification.
 	/// </summary>

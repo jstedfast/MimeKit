@@ -393,7 +393,8 @@ namespace MimeKit.Cryptography {
 					var key = new AsymmetricKeyEntry (signer.PrivateKey);
 					var password = Guid.NewGuid ().ToString ();
 					var random = new SecureRandom ();
-					var pkcs12 = new Pkcs12Store ();
+					var pkcs12 = new Pkcs12StoreBuilder ().Build ();
+					pkcs12.Load (stream, password.ToCharArray ());
 
 					for (int i = 0; i < chain.Length; i++)
 						chain[i] = new X509CertificateEntry (signer.CertificateChain[i]);
@@ -1571,8 +1572,8 @@ namespace MimeKit.Cryptography {
 			if (revoked == null)
 				return;
 
-			foreach (Org.BouncyCastle.X509.X509Certificate certificate in revoked)
-				Import (StoreName.Disallowed, certificate, cancellationToken);
+			foreach (X509CrlEntry crlEntry in revoked)
+				Import (StoreName.Disallowed, crlEntry, cancellationToken);
 		}
 
 		/// <summary>

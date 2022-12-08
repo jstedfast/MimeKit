@@ -35,8 +35,6 @@ using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
 
-using MimeKit.Utils;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME digital signature.
@@ -51,11 +49,7 @@ namespace MimeKit.Cryptography {
 
 		static DateTime ToAdjustedDateTime (DerUtcTime time)
 		{
-			//try {
-			//	return time.ToAdjustedDateTime ();
-			//} catch {
-			return DateUtils.Parse (time.AdjustedTimeString, "yyyyMMddHHmmsszzz");
-			//}
+			return time.ToDateTime (2049);
 		}
 
 		/// <summary>

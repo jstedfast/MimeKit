@@ -31,8 +31,7 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// Extension methods for System.Security.Cryptography.AsymmetricAlgorithm.
 	/// </summary>

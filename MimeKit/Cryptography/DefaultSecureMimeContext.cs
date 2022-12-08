@@ -41,6 +41,7 @@ using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Security;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
+using Org.BouncyCastle.Utilities.Collections;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -360,7 +361,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected override X509Certificate GetCertificate (IX509Selector selector)
+		protected override X509Certificate GetCertificate (ISelector<X509Certificate> selector)
 		{
 			return dbase.FindCertificates (selector).FirstOrDefault ();
 		}
@@ -373,7 +374,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected override AsymmetricKeyParameter GetPrivateKey (IX509Selector selector)
+		protected override AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector)
 		{
 			return dbase.FindPrivateKeys (selector).FirstOrDefault ();
 		}
@@ -386,9 +387,9 @@ namespace MimeKit.Cryptography {
 		/// generally issued by a Certificate Authority (CA).
 		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
-		protected override Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors ()
+		protected override ISet<TrustAnchor> GetTrustedAnchors ()
 		{
-			var anchors = new Org.BouncyCastle.Utilities.Collections.HashSet ();
+			var anchors = new HashSet<TrustAnchor> ();
 			var selector = new X509CertStoreSelector ();
 			var keyUsage = new bool[9];
 
@@ -410,7 +411,7 @@ namespace MimeKit.Cryptography {
 		/// the end of the chain.
 		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
-		protected override IX509Store GetIntermediateCertificates ()
+		protected override IStore<X509Certificate> GetIntermediateCertificates ()
 		{
 			//var intermediates = new X509CertificateStore ();
 			//var selector = new X509CertStoreSelector ();
@@ -437,7 +438,7 @@ namespace MimeKit.Cryptography {
 		/// itself or by the owner of the revoked certificate.
 		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
-		protected override IX509Store GetCertificateRevocationLists ()
+		protected override IStore<X509Crl> GetCertificateRevocationLists ()
 		{
 			return dbase.GetCrlStore ();
 		}
@@ -708,7 +709,8 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
+			var pkcs12 = new Pkcs12StoreBuilder ().Build ();
+			pkcs12.Load (stream, password.ToCharArray ());
 			var enabledAlgorithms = EnabledEncryptionAlgorithms;
 			X509CertificateRecord record;
 
