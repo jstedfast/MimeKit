@@ -25,11 +25,9 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
-
-using MimeKit.Utils;
+using System.Data.Common;
+using System.Collections.Generic;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.BC;
@@ -40,6 +38,8 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.X509;
+
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>

@@ -45,8 +45,7 @@ using MimeKit.Cryptography;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace UnitTests.Cryptography
-{
+namespace UnitTests.Cryptography {
 	public abstract class SecureMimeTestsBase
 	{
 		//const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
