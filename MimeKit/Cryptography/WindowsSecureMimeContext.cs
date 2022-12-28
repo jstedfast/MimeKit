@@ -1572,7 +1572,7 @@ namespace MimeKit.Cryptography {
 			if (revoked == null)
 				return;
 
-			foreach (X509CrlEntry crlEntry in revoked)
+			foreach (var crlEntry in revoked)
 				Import (StoreName.Disallowed, crlEntry, cancellationToken);
 		}
 

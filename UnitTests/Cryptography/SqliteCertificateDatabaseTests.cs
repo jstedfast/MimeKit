@@ -27,16 +27,15 @@
 using System;
 using System.IO;
 
-using MimeKit.Cryptography;
-
 using NUnit.Framework;
 
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 
-namespace UnitTests.Cryptography
-{
+using MimeKit.Cryptography;
+
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class SqliteCertificateDatabaseTests : IDisposable
 	{

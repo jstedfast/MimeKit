@@ -37,9 +37,9 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Utilities.Collections;
 
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
-using Org.BouncyCastle.Utilities.Collections;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
