@@ -24,18 +24,11 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using NUnit.Framework;
+using System.Text;
 
 using Newtonsoft.Json;
 
 using MimeKit;
-using System.Text;
 
 namespace UnitTests {
 	[TestFixture]

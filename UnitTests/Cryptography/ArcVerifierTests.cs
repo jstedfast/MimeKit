@@ -24,17 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography
-{
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class ArcVerifierTests
 	{

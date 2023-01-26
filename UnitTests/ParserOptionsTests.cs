@@ -24,17 +24,11 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
 
 using MimeKit;
 
-namespace UnitTests
-{
+namespace UnitTests {
 	class BrokenTextHtmlPart : TextPart
 	{
 		public BrokenTextHtmlPart () : base ("html")

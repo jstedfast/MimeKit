@@ -24,10 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace UnitTests.IO {
 	class ReadOneByteStream : Stream
 	{

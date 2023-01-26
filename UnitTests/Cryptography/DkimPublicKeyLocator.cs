@@ -24,17 +24,11 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using Org.BouncyCastle.Crypto;
 
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography
-{
+namespace UnitTests.Cryptography {
 	class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
 	{
 		readonly Dictionary<string, string> keys;

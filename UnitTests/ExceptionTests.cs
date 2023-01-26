@@ -24,18 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Tnef;
 using MimeKit.Cryptography;
 
-namespace UnitTests
-{
+namespace UnitTests {
 	[TestFixture]
 	public class ExceptionTests
 	{

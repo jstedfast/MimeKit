@@ -24,10 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-using System.Linq;
 using System.Globalization;
 
 using MimeKit;
@@ -35,8 +32,6 @@ using MimeKit.IO;
 using MimeKit.Tnef;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
-
-using NUnit.Framework;
 
 namespace UnitTests.Tnef {
 	[TestFixture]

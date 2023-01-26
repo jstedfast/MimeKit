@@ -24,14 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Text;
-
-using NUnit.Framework;
+using System.Collections;
 
 using MimeKit;
-using System.Collections;
 
 namespace UnitTests {
 	[TestFixture]

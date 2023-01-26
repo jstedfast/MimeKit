@@ -24,16 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Text;
 using System.Globalization;
-using System.Collections.Generic;
-
-using NUnit.Framework;
 
 using MimeKit;
-using MimeKit.Cryptography;
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[TestFixture]

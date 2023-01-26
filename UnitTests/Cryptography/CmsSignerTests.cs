@@ -24,12 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-
-using NUnit.Framework;
 
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Crypto;

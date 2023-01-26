@@ -24,11 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-
-using NUnit.Framework;
-
 using MimeKit.Tnef;
 
 namespace UnitTests.Tnef {

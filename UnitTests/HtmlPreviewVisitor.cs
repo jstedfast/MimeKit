@@ -24,14 +24,10 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-
 using MimeKit;
 using MimeKit.Text;
 
-namespace UnitTests
-{
+namespace UnitTests {
 	/// <summary>
 	/// Visits a MimeMessage and generates HTML suitable to be rendered by a browser control.
 	/// </summary>

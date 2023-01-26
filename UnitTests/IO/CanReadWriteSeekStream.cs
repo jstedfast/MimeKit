@@ -24,11 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace UnitTests.IO {
 	class CanReadWriteSeekStream : Stream
 	{

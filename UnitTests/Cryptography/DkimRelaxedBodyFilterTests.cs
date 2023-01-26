@@ -24,17 +24,8 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-using System.Threading;
 
-using NUnit.Framework;
-
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
-
-using MimeKit;
 using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {

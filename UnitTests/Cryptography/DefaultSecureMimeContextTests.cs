@@ -24,19 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Data.Common;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Security;
-
-using NUnit.Framework;
+using Org.BouncyCastle.Asn1.X509;
 
 using MimeKit;
 using MimeKit.Cryptography;

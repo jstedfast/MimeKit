@@ -24,16 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
-
 using MimeKit;
 
-namespace UnitTests
-{
+namespace UnitTests {
 	[TestFixture]
 	public class AttachmentCollectionTests
 	{

@@ -24,12 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-
-using NUnit.Framework;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit;
-using Org.BouncyCastle.Crypto.Parameters;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]

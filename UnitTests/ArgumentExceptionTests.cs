@@ -24,11 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Reflection;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.IO;

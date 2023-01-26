@@ -24,16 +24,10 @@
 // THE SOFTWARE.
 //
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography
-{
+namespace UnitTests.Cryptography {
 	class UnknownCryptographyContext : CryptographyContext
 	{
 		public override string SignatureProtocol => throw new System.NotImplementedException ();

@@ -24,13 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-
-using NUnit.Framework;
-
 using MimeKit;
 
 namespace UnitTests {

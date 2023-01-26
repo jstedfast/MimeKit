@@ -24,11 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace UnitTests.IO {
 	public class TimeoutStream : Stream
 	{
@@ -36,25 +31,15 @@ namespace UnitTests.IO {
 		{
 		}
 
-		public override bool CanRead {
-			get { return false; }
-		}
+		public override bool CanRead => false;
 
-		public override bool CanWrite {
-			get { return false; }
-		}
+		public override bool CanWrite => false;
 
-		public override bool CanSeek {
-			get { return false; }
-		}
+		public override bool CanSeek => false;
 
-		public override bool CanTimeout {
-			get { return true; }
-		}
+		public override bool CanTimeout => true;
 
-		public override long Length {
-			get { return 17; }
-		}
+		public override long Length => 17;
 
 		public override long Position {
 			get { return 15; }

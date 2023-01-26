@@ -24,11 +24,8 @@
 // THE SOFTWARE.
 //
 
-using System.IO;
-
-using NUnit.Framework;
-
 using Newtonsoft.Json;
+
 using MimeKit.Text;
 
 namespace UnitTests.Text {

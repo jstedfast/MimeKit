@@ -24,15 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-
-using NUnit.Framework;
-
 using MimeKit;
 
-namespace UnitTests
-{
+namespace UnitTests {
 	[TestFixture]
 	public class TextRfc822HeadersTests
 	{

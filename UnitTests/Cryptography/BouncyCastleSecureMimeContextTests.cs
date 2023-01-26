@@ -24,18 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 
-using NUnit.Framework;
-
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography
-{
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class BouncyCastleSecureMimeContextTests
 	{

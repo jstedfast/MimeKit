@@ -24,14 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-
+using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.X509;
-
-using NUnit.Framework;
 
 using MimeKit.Cryptography;
 

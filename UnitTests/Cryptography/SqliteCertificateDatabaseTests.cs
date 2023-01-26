@@ -24,15 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-
-using NUnit.Framework;
-
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
-using Org.BouncyCastle.Utilities.Date;
 
 using MimeKit.Cryptography;
 

@@ -24,15 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Net.Mail;
 using System.Reflection;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Utils;

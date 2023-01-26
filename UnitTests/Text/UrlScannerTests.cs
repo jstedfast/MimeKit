@@ -26,8 +26,6 @@
 
 using MimeKit.Text;
 
-using NUnit.Framework;
-
 namespace UnitTests.Text {
 	[TestFixture]
 	public class UrlScannerTests

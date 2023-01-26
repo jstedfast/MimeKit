@@ -27,12 +27,9 @@
 #if ENABLE_LDAP
 using System.DirectoryServices.Protocols;
 
-using NUnit.Framework;
-
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography
-{
+namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class LdapUriTests
 	{

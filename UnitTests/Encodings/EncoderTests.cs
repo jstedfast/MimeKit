@@ -24,19 +24,15 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
 using System.Reflection;
 using System.Security.Cryptography;
 
-using NUnit.Framework;
-
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
-using MimeKit.IO.Filters;
 using MimeKit.Encodings;
+using MimeKit.IO.Filters;
 
 namespace UnitTests.Encodings {
 	[TestFixture]

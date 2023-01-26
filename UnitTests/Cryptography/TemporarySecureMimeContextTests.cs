@@ -24,11 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System.IO;
-using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Cryptography;

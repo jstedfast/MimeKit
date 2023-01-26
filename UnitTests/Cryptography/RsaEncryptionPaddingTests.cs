@@ -24,11 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Reflection;
-using System.Collections.Generic;
-
-using NUnit.Framework;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Oiw;

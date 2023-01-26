@@ -24,10 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Globalization;
-
-using NUnit.Framework;
 
 using MimeKit.Encodings;
 

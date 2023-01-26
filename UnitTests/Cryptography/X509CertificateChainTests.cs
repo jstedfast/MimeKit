@@ -24,15 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Collections;
-using System.Collections.Generic;
 
 using Org.BouncyCastle.X509;
-
-using NUnit.Framework;
 
 using MimeKit.Cryptography;
 

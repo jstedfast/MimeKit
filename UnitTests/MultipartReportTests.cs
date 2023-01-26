@@ -24,10 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-
-using NUnit.Framework;
-
 using MimeKit;
 using MimeKit.Text;
 
@@ -67,4 +63,3 @@ namespace UnitTests {
 		}
 	}
 }
-

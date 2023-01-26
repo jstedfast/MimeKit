@@ -24,14 +24,7 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using NUnit.Framework;
 
 using Newtonsoft.Json;
 
@@ -40,8 +33,7 @@ using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
-namespace UnitTests
-{
+namespace UnitTests {
 	[TestFixture]
 	public class ExperimentalMimeParserTests
 	{
