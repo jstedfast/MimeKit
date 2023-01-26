@@ -24,18 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
+using MimeKit.Cryptography;
 
 using Org.BouncyCastle.X509;
 
-using NUnit.Framework;
-
-using MimeKit.Cryptography;
-
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class X509CertificateStoreTests
 	{

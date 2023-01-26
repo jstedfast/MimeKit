@@ -24,19 +24,14 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
-
-using NUnit.Framework;
-
-using Org.BouncyCastle.X509;
-
-using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography {
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
+
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class CmsRecipientTests
 	{

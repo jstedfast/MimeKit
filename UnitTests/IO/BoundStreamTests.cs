@@ -24,16 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
 
 using MimeKit.IO;
 
-namespace UnitTests.IO {
+namespace UnitTests.IO
+{
 	[TestFixture]
 	public class BoundStreamTests
 	{

@@ -24,18 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Org.BouncyCastle.Crypto;
-
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography {
+using Org.BouncyCastle.Crypto;
+
+namespace UnitTests.Cryptography
+{
 	public class DummyArcSigner : ArcSigner
 	{
 		public DummyArcSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (stream, domain, selector, algorithm)

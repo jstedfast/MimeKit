@@ -24,16 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
 
 using MimeKit;
 using MimeKit.Text;
 
-using NUnit.Framework;
-
-namespace UnitTests.Text {
+namespace UnitTests.Text
+{
 	[TestFixture]
 	public class TextPreviewerTests
 	{

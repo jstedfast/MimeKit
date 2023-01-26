@@ -24,25 +24,17 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Globalization;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using NUnit.Framework;
-
-using Newtonsoft.Json;
 
 using MimeKit;
 using MimeKit.IO;
-using MimeKit.Utils;
 using MimeKit.IO.Filters;
+using MimeKit.Utils;
 
-namespace UnitTests {
+using Newtonsoft.Json;
+
+namespace UnitTests
+{
 	[TestFixture]
 	public class MimeParserTests
 	{

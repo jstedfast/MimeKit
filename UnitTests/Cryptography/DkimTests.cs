@@ -24,22 +24,15 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using NUnit.Framework;
-
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Crypto.Parameters;
-
 using MimeKit;
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography {
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class DkimTests
 	{

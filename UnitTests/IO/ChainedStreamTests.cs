@@ -24,18 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
-using NUnit.Framework;
-
-using MimeKit.IO;
 using MimeKit;
+using MimeKit.IO;
 
-namespace UnitTests.IO {
+namespace UnitTests.IO
+{
 	[TestFixture]
 	public class ChainedStreamTests
 	{

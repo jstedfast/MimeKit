@@ -24,18 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
-
 using MimeKit;
 
 using UnitTests.IO;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class MimeContentTests
 	{

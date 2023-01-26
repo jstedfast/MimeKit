@@ -24,17 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
-
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
 
-namespace UnitTests.IO {
+namespace UnitTests.IO
+{
 	[TestFixture]
 	public class FilteredStreamTests
 	{

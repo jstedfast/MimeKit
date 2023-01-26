@@ -24,18 +24,15 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Text;
 using System.Globalization;
-using System.Collections.Generic;
-
-using NUnit.Framework;
+using System.Text;
 
 using MimeKit;
 using MimeKit.Cryptography;
 using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class MailboxAddressTests
 	{

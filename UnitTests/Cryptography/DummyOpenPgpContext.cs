@@ -24,11 +24,12 @@
 // THE SOFTWARE.
 //
 
-using Org.BouncyCastle.Bcpg.OpenPgp;
-
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography {
+using Org.BouncyCastle.Bcpg.OpenPgp;
+
+namespace UnitTests.Cryptography
+{
 	public class DummyOpenPgpContext : GnuPGContext
 	{
 		public DummyOpenPgpContext ()

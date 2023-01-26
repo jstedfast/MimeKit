@@ -9,6 +9,7 @@
     <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
     <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
 
     <SQLiteRuntime>win-x64</SQLiteRuntime>
     <SQLiteRuntime Condition=" '$(MonoRuntime)' == 'true' ">linux-x64</SQLiteRuntime>
@@ -17,6 +18,10 @@
 
   <ItemGroup>
     <Reference Include="System.Security" Condition=" $(TargetFramework.StartsWith('net4')) " />
+  </ItemGroup>
+	
+  <ItemGroup>
+     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,16 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Text;
-using System.Collections.Generic;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class InternetAddressListTests
 	{

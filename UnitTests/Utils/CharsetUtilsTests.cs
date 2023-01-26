@@ -24,15 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Utils;
 
-namespace UnitTests.Utils {
+namespace UnitTests.Utils
+{
 	[TestFixture]
 	public class CharsetUtilsTests
 	{

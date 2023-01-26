@@ -24,15 +24,10 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
-
 using MimeKit.IO;
 
-namespace UnitTests.IO {
+namespace UnitTests.IO
+{
 	[TestFixture]
 	public class MeasuringStreamTests
 	{

@@ -24,22 +24,18 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 
-using MimeKit;
 using MimeKit.Cryptography;
 
-using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.X509;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509KeyUsageFlags = MimeKit.Cryptography.X509KeyUsageFlags;
 
-using NUnit.Framework;
-
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class CertificateExtensionTests
 	{

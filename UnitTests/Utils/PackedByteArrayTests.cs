@@ -24,13 +24,10 @@
 // THE SOFTWARE.
 //
 
-using System;
-
-using NUnit.Framework;
-
 using MimeKit.Utils;
 
-namespace UnitTests.Utils {
+namespace UnitTests.Utils
+{
 	[TestFixture]
 	public class PackedByteArrayTests
 	{

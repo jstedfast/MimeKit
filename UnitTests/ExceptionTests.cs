@@ -24,15 +24,11 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-using NUnit.Framework;
-
 using MimeKit;
-using MimeKit.Tnef;
 using MimeKit.Cryptography;
+using MimeKit.Tnef;
 
 namespace UnitTests
 {

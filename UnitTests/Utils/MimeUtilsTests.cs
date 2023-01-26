@@ -24,15 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Linq;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit.Utils;
 
-namespace UnitTests.Utils {
+namespace UnitTests.Utils
+{
 	[TestFixture]
 	public class MimeUtilsTests
 	{

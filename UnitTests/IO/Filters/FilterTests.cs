@@ -24,19 +24,16 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
 
-using NUnit.Framework;
-
 using MimeKit;
+using MimeKit.Cryptography;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
-using MimeKit.Cryptography;
 using MimeKit.Utils;
 
-namespace UnitTests.IO.Filters {
+namespace UnitTests.IO.Filters
+{
 	[TestFixture]
 	public class FilterTests
 	{

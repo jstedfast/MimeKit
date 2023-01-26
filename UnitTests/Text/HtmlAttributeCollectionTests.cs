@@ -24,14 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Collections;
-
-using NUnit.Framework;
 
 using MimeKit.Text;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class HtmlAttributeCollectionTests
 	{

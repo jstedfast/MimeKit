@@ -24,16 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Text;
-
-using NUnit.Framework;
-
-using MimeKit;
 using System.Collections;
 
-namespace UnitTests {
+using MimeKit;
+
+namespace UnitTests
+{
 	[TestFixture]
 	public class HeaderListCollectionTests
 	{

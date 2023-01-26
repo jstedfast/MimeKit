@@ -24,16 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-
-using NUnit.Framework;
-
 using MimeKit;
 using MimeKit.Text;
 using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class MultipartRelatedTests
 	{

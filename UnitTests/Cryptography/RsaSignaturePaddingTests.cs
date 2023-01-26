@@ -24,22 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Reflection;
-using System.Collections.Generic;
-
-using NUnit.Framework;
-
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
 
 using MimeKit.Cryptography;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class RsaSignaturePaddingTests
 	{

@@ -24,14 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class GroupAddressTests
 	{

@@ -24,14 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Collections;
-
-using NUnit.Framework;
 
 using MimeKit;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class MessageIdListTests
 	{

@@ -24,24 +24,16 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using NUnit.Framework;
+using MimeKit;
+using MimeKit.Cryptography;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using MimeKit;
-using MimeKit.IO;
-using MimeKit.IO.Filters;
-using MimeKit.Cryptography;
-
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class PgpMimeTests
 	{

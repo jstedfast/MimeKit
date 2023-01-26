@@ -24,19 +24,16 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Reflection;
 
-using NUnit.Framework;
-
 using MimeKit;
-using MimeKit.IO;
-using MimeKit.Utils;
-using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
+using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{

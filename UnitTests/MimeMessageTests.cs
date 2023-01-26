@@ -24,21 +24,16 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Net.Mail;
 using System.Reflection;
-using System.Threading.Tasks;
-
-using NUnit.Framework;
+using System.Text;
 
 using MimeKit;
-using MimeKit.Utils;
 using MimeKit.Cryptography;
+using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class MimeMessageTests
 	{

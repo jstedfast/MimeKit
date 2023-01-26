@@ -24,15 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit.Tnef;
 
-namespace UnitTests.Tnef {
+namespace UnitTests.Tnef
+{
 	[TestFixture]
 	public class RtfCompressedToRtfTests
 	{

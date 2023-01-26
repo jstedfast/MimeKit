@@ -24,28 +24,20 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-
-using NUnit.Framework;
-
-using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Prng;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
+
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	public abstract class SecureMimeTestsBase
 	{
 		//const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";

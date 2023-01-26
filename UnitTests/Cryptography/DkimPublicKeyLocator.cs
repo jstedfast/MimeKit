@@ -24,14 +24,9 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using MimeKit.Cryptography;
 
 using Org.BouncyCastle.Crypto;
-
-using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography
 {

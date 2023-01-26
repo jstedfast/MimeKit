@@ -27,8 +27,6 @@
 #if ENABLE_LDAP
 using System.DirectoryServices.Protocols;
 
-using NUnit.Framework;
-
 using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography

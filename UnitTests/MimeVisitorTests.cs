@@ -24,18 +24,15 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Text;
 using System.Globalization;
-
-using NUnit.Framework;
+using System.Text;
 
 using MimeKit;
-using MimeKit.Tnef;
 using MimeKit.Cryptography;
+using MimeKit.Tnef;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class MimeVisitorTests
 	{

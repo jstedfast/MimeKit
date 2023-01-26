@@ -24,24 +24,19 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-
-using NUnit.Framework;
-
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Prng;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
+
 using BCX509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public abstract class ApplicationPkcs7MimeTestsBase
 	{

@@ -24,15 +24,11 @@
 // THE SOFTWARE.
 //
 
-using System;
+using MimeKit.Cryptography;
 
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
-
-using NUnit.Framework;
-
-using MimeKit.Cryptography;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace UnitTests.Cryptography
 {

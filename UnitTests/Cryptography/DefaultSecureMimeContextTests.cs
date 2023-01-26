@@ -24,26 +24,20 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Data.Common;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Security;
-
-using NUnit.Framework;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
+
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class DefaultSecureMimeContextTests
 	{

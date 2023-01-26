@@ -24,16 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
 using System.Security.Cryptography;
 
-using NUnit.Framework;
+using MimeKit.Cryptography;
 
-using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
-
-using MimeKit.Cryptography;
+using Org.BouncyCastle.Math;
 
 namespace UnitTests.Cryptography
 {

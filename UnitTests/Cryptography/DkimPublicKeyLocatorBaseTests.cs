@@ -24,14 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-
-using NUnit.Framework;
-
 using MimeKit;
+
 using Org.BouncyCastle.Crypto.Parameters;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class DkimPublicKeyLocatorBaseTests
 	{

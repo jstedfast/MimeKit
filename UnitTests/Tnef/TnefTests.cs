@@ -24,21 +24,17 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Text;
-using System.Linq;
 using System.Globalization;
+using System.Text;
 
 using MimeKit;
 using MimeKit.IO;
+using MimeKit.IO.Filters;
 using MimeKit.Tnef;
 using MimeKit.Utils;
-using MimeKit.IO.Filters;
 
-using NUnit.Framework;
-
-namespace UnitTests.Tnef {
+namespace UnitTests.Tnef
+{
 	[TestFixture]
 	public class TnefTests
 	{

@@ -24,9 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-
 using MimeKit;
 using MimeKit.Text;
 

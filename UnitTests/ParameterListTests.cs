@@ -24,15 +24,13 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Text;
 using System.Collections;
-
-using NUnit.Framework;
+using System.Text;
 
 using MimeKit;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class ParameterListTests
 	{

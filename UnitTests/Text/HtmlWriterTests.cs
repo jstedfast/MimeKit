@@ -24,15 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit.Text;
 
-namespace UnitTests.Text {
+namespace UnitTests.Text
+{
 	[TestFixture]
 	public class HtmlWriterTests
 	{

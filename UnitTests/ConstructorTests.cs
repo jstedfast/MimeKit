@@ -24,19 +24,14 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-
-using NUnit.Framework;
+using System.Text;
 
 using MimeKit;
 using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
 	public class ConstructorTests
 	{

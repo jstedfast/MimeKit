@@ -24,19 +24,16 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
-
-using Org.BouncyCastle.OpenSsl;
-
-using NUnit.Framework;
 
 using MimeKit.Cryptography;
 
+using Org.BouncyCastle.OpenSsl;
+
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class SecureMimeDigitalCertificateTests
 	{

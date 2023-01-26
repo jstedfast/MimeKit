@@ -24,24 +24,20 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
-using NUnit.Framework;
+using MimeKit.Cryptography;
 
-using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
-
-using MimeKit.Cryptography;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509KeyUsageFlags = MimeKit.Cryptography.X509KeyUsageFlags;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	[TestFixture]
 	public class CmsSignerTests
 	{

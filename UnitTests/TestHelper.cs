@@ -24,15 +24,12 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.IO;
 using System.Text;
-
-using NUnit.Framework;
 
 using MimeKit.Utils;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[SetUpFixture]
 	static class TestHelper
 	{
