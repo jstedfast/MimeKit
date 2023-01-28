@@ -43,13 +43,18 @@ using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
-	public class PgpMimeTests
+	public class PgpMimeTests : IDisposable
 	{
-		static PgpMimeTests ()
+		readonly string GnuPGDir;
+
+		public PgpMimeTests ()
 		{
-			Environment.SetEnvironmentVariable ("GNUPGHOME", Path.GetFullPath ("."));
+			GnuPGDir = Path.Combine (Path.GetTempPath (), Guid.NewGuid ().ToString (), ".gnupg");
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp");
 
+			Directory.CreateDirectory (GnuPGDir);
+
+			Environment.SetEnvironmentVariable ("GNUPGHOME", GnuPGDir);
 			CryptographyContext.Register (typeof (DummyOpenPgpContext));
 
 			foreach (var name in new [] { "pubring.gpg", "pubring.gpg~", "secring.gpg", "secring.gpg~", "gpg.conf" }) {
@@ -67,7 +72,16 @@ namespace UnitTests.Cryptography {
 					ctx.Import (pubkeys);
 			}
 
-			File.Copy (Path.Combine (dataDir, "gpg.conf"), "gpg.conf", true);
+			File.Copy (Path.Combine (dataDir, "gpg.conf"), Path.Combine (GnuPGDir, "gpg.conf"), true);
+		}
+
+		public void Dispose ()
+		{
+			if (Directory.Exists (GnuPGDir)) {
+				Directory.Delete (GnuPGDir, true);
+			}
+
+			GC.SuppressFinalize (this);
 		}
 
 		static bool IsSupported (EncryptionAlgorithm algorithm)
@@ -114,7 +128,7 @@ namespace UnitTests.Cryptography {
 				int count = ctx.EnumeratePublicKeys ().Count ();
 
 				// Note: the count will be 8 if run as a complete unit test or 2 if run individually
-				Assert.IsTrue (count == 8 || count == 2, "Unexpected number of public keys");
+				Assert.IsTrue (count == 8 || count == 2, $"Unexpected number of public keys: {count}");
 				Assert.AreEqual (0, ctx.EnumeratePublicKeys (unknownMailbox).Count (), "Unexpected number of public keys for an unknown mailbox");
 				Assert.AreEqual (2, ctx.EnumeratePublicKeys (knownMailbox).Count (), "Unexpected number of public keys for a known mailbox");
 
