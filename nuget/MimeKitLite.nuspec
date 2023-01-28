@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>3.4.3</version>
+    <version>3.5.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,10 +26,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed a variety of memory leaks revealed by (issue #852)
-* Fixed the message/delivery-status parser to handle extra blank lines between status groups. (issue #855)
-* Updated packages to explicitly depend on System.Runtime.CompilerServices.Unsafe v6.0.0.
-* Updated net6.0 dependencies to explicitly include System.Text.Encoding.CodePages v6.0.0.
+* Fixed potential NRE's in the GnuPG config parser
+* Modified AsBouncyCastleCertificate() extension method to throw on fail
+* Added Clone() methods to ContentType, ContentDisposition and Parameter.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

@@ -1,5 +1,11 @@
 # Release Notes
 
+### MimeKit 3.5.0 (2023-01-28)
+
+* Fixed potential NRE's in the GnuPG config parser
+* Modified AsBouncyCastleCertificate() extension method to throw on fail
+* Added Clone() methods to ContentType, ContentDisposition and Parameter.
+
 ### MimeKit 3.4.3 (2022-11-25)
 
 * Fixed a variety of memory leaks revealed by (issue [#852](https://github.com/jstedfast/MimeKit/issues/852))
