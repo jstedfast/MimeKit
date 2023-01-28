@@ -35,6 +35,8 @@ using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An S/MIME digital signature.
@@ -47,9 +49,13 @@ namespace MimeKit.Cryptography {
 		DigitalSignatureVerifyException vex;
 		bool? valid;
 
-		static DateTime ToAdjustedDateTime (Asn1UtcTime time)
+		static DateTime ToAdjustedDateTime (DerUtcTime time)
 		{
-			return time.ToDateTime (2049);
+			//try {
+			//	return time.ToAdjustedDateTime ();
+			//} catch {
+			return DateUtils.Parse (time.AdjustedTimeString, "yyyyMMddHHmmsszzz");
+			//}
 		}
 
 		/// <summary>
@@ -75,7 +81,7 @@ namespace MimeKit.Cryptography {
 			if (signerInfo.SignedAttributes != null) {
 				Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
 				foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
-					var signingTime = (Asn1UtcTime) ((DerSet) attr.AttrValues)[0];
+					var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
 					CreationDate = ToAdjustedDateTime (signingTime);
 					break;
 				}

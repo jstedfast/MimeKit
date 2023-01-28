@@ -26,18 +26,20 @@
 
 using System;
 using System.IO;
+using System.Data;
 using System.Data.Common;
+using System.Collections;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.BC;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.X509;
+using Org.BouncyCastle.X509.Store;
 
 using MimeKit.Utils;
 
@@ -431,7 +433,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the column names for the specified fields.
@@ -664,7 +666,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match selector or <c>null</c> to return all certificates.</param>
-		public IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate> selector)
+		public IEnumerable<X509Certificate> FindCertificates (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
@@ -691,7 +693,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match selector or <c>null</c> to return all private keys.</param>
-		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (ISelector<X509Certificate> selector)
+		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector)
 		{
 			using (var command = GetSelectCommand (connection, selector, false, true, PrivateKeyFields)) {
 				using (var reader = command.ExecuteReader ()) {
@@ -756,7 +758,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
-		public IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
+		public IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
 			using (var command = GetSelectCommand (connection, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
@@ -961,7 +963,7 @@ namespace MimeKit.Cryptography {
 		/// Gets a certificate revocation list store.
 		/// </remarks>
 		/// <returns>A certificate revocation list store.</returns>
-		public IStore<X509Crl> GetCrlStore ()
+		public IX509Store GetCrlStore ()
 		{
 			var crls = new List<X509Crl> ();
 
@@ -977,7 +979,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			return CollectionUtilities.CreateStore (crls);
+			return X509StoreFactory.Create ("Crl/Collection", new X509CollectionStoreParameters (crls));
 		}
 
 #region IX509Store implementation
@@ -990,7 +992,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		IEnumerable<X509Certificate> IStore<X509Certificate>.EnumerateMatches (ISelector<X509Certificate> selector)
+		ICollection IX509Store.GetMatches (IX509Selector selector)
 		{
 			return new List<X509Certificate> (FindCertificates (selector));
 		}

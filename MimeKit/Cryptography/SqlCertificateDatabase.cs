@@ -41,7 +41,6 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities.Collections;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -441,7 +440,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
 		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, IX509Selector selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var match = selector as X509CertStoreSelector;
 			var command = connection.CreateCommand ();

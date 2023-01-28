@@ -62,8 +62,8 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		CmsSigner ()
 		{
-			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
-			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
+			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, Asn1Encodable> ());
 			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
 			DigestAlgorithm = DigestAlgorithm.Sha256;
 		}
@@ -183,8 +183,7 @@ namespace MimeKit.Cryptography {
 
 		void LoadPkcs12 (Stream stream, string password, SubjectIdentifierType signerIdentifierType)
 		{
-			var pkcs12 = new Pkcs12StoreBuilder ().Build ();
-			pkcs12.Load (stream, password.ToCharArray ());
+			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 			bool hasPrivateKey = false;
 
 			foreach (string alias in pkcs12.Aliases) {

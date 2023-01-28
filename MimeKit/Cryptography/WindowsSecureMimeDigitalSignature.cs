@@ -33,7 +33,8 @@ using Org.BouncyCastle.Asn1;
 using CmsAttributes = Org.BouncyCastle.Asn1.Cms.CmsAttributes;
 using SmimeAttributes = Org.BouncyCastle.Asn1.Smime.SmimeAttributes;
 
-namespace MimeKit.Cryptography {
+namespace MimeKit.Cryptography
+{
 	/// <summary>
 	/// An S/MIME digital signature.
 	/// </summary>

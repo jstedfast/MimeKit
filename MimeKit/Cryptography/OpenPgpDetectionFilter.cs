@@ -27,7 +27,8 @@
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
-namespace MimeKit.Cryptography {
+namespace MimeKit.Cryptography
+{
 	/// <summary>
 	/// A filter meant to aid in the detection of OpenPGP blocks.
 	/// </summary>

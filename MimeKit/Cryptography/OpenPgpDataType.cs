@@ -24,7 +24,8 @@
 // THE SOFTWARE.
 //
 
-namespace MimeKit.Cryptography {
+namespace MimeKit.Cryptography
+{
 	/// <summary>
 	/// An enum expressing a type of OpenPGP data.
 	/// </summary>

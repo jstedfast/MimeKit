@@ -34,7 +34,6 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
-using Org.BouncyCastle.Utilities.Collections;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -43,7 +42,7 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// A store for X.509 certificates and keys.
 	/// </remarks>
-	public class X509CertificateStore : IStore<X509Certificate>
+	public class X509CertificateStore : IX509Store
 	{
 		readonly Dictionary<X509Certificate, AsymmetricKeyParameter> keys;
 		readonly HashSet<X509Certificate> unique;
@@ -263,8 +262,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
-			var pkcs12 = new Pkcs12StoreBuilder ().Build ();
-			pkcs12.Load (stream, password.ToCharArray ());
+			var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 
 			foreach (string alias in pkcs12.Aliases) {
 				if (pkcs12.IsKeyEntry (alias)) {
@@ -427,9 +425,7 @@ namespace MimeKit.Cryptography {
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
 
-			var store = new Pkcs12StoreBuilder ().Build ();
-			store.Load (stream, password.ToCharArray ());
-
+			var store = new Pkcs12Store ();
 			foreach (var certificate in certs) {
 				if (keys.ContainsKey (certificate))
 					continue;
@@ -511,7 +507,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		public IEnumerable<X509Certificate> GetMatches (ISelector<X509Certificate> selector)
+		public IEnumerable<X509Certificate> GetMatches (IX509Selector selector)
 		{
 			foreach (var certificate in certs) {
 				if (selector == null || selector.Match (certificate))
@@ -531,7 +527,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match criteria.</param>
-		IEnumerable<X509Certificate> IStore<X509Certificate>.EnumerateMatches (ISelector<X509Certificate> selector)
+		ICollection IX509Store.GetMatches (IX509Selector selector)
 		{
 			var matches = new List<X509Certificate> ();
 

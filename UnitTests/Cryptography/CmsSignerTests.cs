@@ -86,8 +86,7 @@ namespace UnitTests.Cryptography {
 			privateKey = null;
 
 			using (var stream = File.OpenRead (path)) {
-				var pkcs12 = new Pkcs12StoreBuilder ().Build ();
-				pkcs12.Load (stream, password.ToCharArray ());
+				var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
 
 				foreach (string alias in pkcs12.Aliases) {
 					if (!pkcs12.IsKeyEntry (alias))

@@ -57,7 +57,8 @@ using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
 
 using MimeKit.IO;
 
-namespace MimeKit.Cryptography {
+namespace MimeKit.Cryptography
+{
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
 	/// </summary>
@@ -139,7 +140,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected abstract X509Certificate GetCertificate (ISelector<X509Certificate> selector);
+		protected abstract X509Certificate GetCertificate (IX509Selector selector);
 
 		/// <summary>
 		/// Get the private key for the certificate matching the specified selector.
@@ -150,7 +151,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise, <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected abstract AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector);
+		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
 
 		/// <summary>
 		/// Get the trusted anchors.
@@ -162,7 +163,7 @@ namespace MimeKit.Cryptography {
 		/// signed content.</para>
 		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
-		protected abstract ISet<TrustAnchor> GetTrustedAnchors ();
+		protected abstract HashSet GetTrustedAnchors ();
 
 		/// <summary>
 		/// Get the intermediate certificates.
@@ -175,7 +176,7 @@ namespace MimeKit.Cryptography {
 		/// signed content.</para>
 		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
-		protected abstract IStore<X509Certificate> GetIntermediateCertificates ();
+		protected abstract IX509Store GetIntermediateCertificates ();
 
 		/// <summary>
 		/// Get the certificate revocation lists.
@@ -186,7 +187,7 @@ namespace MimeKit.Cryptography {
 		/// itself or by the owner of the revoked certificate.
 		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
-		protected abstract IStore<X509Crl> GetCertificateRevocationLists ();
+		protected abstract IX509Store GetCertificateRevocationLists ();
 
 		/// <summary>
 		/// Get the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
@@ -645,9 +646,9 @@ namespace MimeKit.Cryptography {
 			return await SignAsync (cmsSigner, content, cancellationToken).ConfigureAwait (false);
 		}
 
-		X509Certificate GetCertificate (IStore<X509Certificate> store, SignerID signer)
+		X509Certificate GetCertificate (IX509Store store, SignerID signer)
 		{
-			var matches = store.EnumerateMatches (signer);
+			var matches = store.GetMatches (signer);
 
 			foreach (X509Certificate certificate in matches)
 				return certificate;
@@ -676,10 +677,10 @@ namespace MimeKit.Cryptography {
 
 			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector);
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
-			parameters.AddStoreCert (intermediates);
-			parameters.AddStoreCert (GetIntermediateCertificates ());
+			parameters.AddStore (intermediates);
+			parameters.AddStore (GetIntermediateCertificates ());
 			parameters.IsRevocationEnabled = false;
-			parameters.Date = DateTime.UtcNow;
+			parameters.Date = new DateTimeObject (DateTime.UtcNow);
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -692,7 +693,7 @@ namespace MimeKit.Cryptography {
 			return chain;
 		}
 
-		PkixCertPath BuildCertPath (ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
+		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime signingTime)
 		{
 			var selector = new X509CertStoreSelector ();
 			selector.Certificate = certificate;
@@ -700,21 +701,21 @@ namespace MimeKit.Cryptography {
 			var intermediates = new X509CertificateStore ();
 			intermediates.Add (certificate);
 
-			foreach (X509Certificate cert in certificates.EnumerateMatches (null))
+			foreach (X509Certificate cert in certificates.GetMatches (null))
 				intermediates.Add (cert);
 
 			var parameters = new PkixBuilderParameters (anchors, selector);
-			parameters.AddStoreCert (intermediates);
-			parameters.AddStoreCrl (crls);
+			parameters.AddStore (intermediates);
+			parameters.AddStore (crls);
 
-			parameters.AddStoreCert (GetIntermediateCertificates ());
-			parameters.AddStoreCrl (GetCertificateRevocationLists ());
+			parameters.AddStore (GetIntermediateCertificates ());
+			parameters.AddStore (GetCertificateRevocationLists ());
 
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
 			parameters.IsRevocationEnabled = false;
 
 			if (signingTime != default (DateTime))
-				parameters.Date = signingTime;
+				parameters.Date = new DateTimeObject (signingTime);
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -1014,9 +1015,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, bool doAsync, CancellationToken cancellationToken)
 		{
-			var certificates = parser.GetCertificates ();
+			var certificates = parser.GetCertificates ("Collection");
 			var signatures = new List<IDigitalSignature> ();
-			var crls = parser.GetCrls ();
+			var crls = parser.GetCrls ("Collection");
 			var store = parser.GetSignerInfos ();
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
