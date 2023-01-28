@@ -47,7 +47,7 @@ namespace MimeKit.Cryptography {
 		DigitalSignatureVerifyException vex;
 		bool? valid;
 
-		static DateTime ToAdjustedDateTime (DerUtcTime time)
+		static DateTime ToAdjustedDateTime (Asn1UtcTime time)
 		{
 			return time.ToDateTime (2049);
 		}
@@ -75,7 +75,7 @@ namespace MimeKit.Cryptography {
 			if (signerInfo.SignedAttributes != null) {
 				Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
 				foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
-					var signingTime = (DerUtcTime) ((DerSet) attr.AttrValues)[0];
+					var signingTime = (Asn1UtcTime) ((DerSet) attr.AttrValues)[0];
 					CreationDate = ToAdjustedDateTime (signingTime);
 					break;
 				}
