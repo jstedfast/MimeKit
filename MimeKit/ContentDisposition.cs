@@ -314,6 +314,23 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Clone the content disposition.
+		/// </summary>
+		/// <remarks>
+		/// Clones the content disposition.
+		/// </remarks>
+		/// <returns>The cloned content disposition.s</returns>
+		public ContentDisposition Clone ()
+		{
+			var contentDisposition = new ContentDisposition (disposition);
+
+			foreach (var parameter in parameters)
+				contentDisposition.Parameters.Add (parameter.Clone ());
+
+			return contentDisposition;
+		}
+
 		internal string Encode (FormatOptions options, Encoding charset)
 		{
 			int lineLength = "Content-Disposition:".Length;

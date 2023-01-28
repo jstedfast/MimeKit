@@ -256,6 +256,23 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Clone the content type.
+		/// </summary>
+		/// <remarks>
+		/// Clones the content type.
+		/// </remarks>
+		/// <returns>The cloned content type.</returns>
+		public ContentType Clone ()
+		{
+			var contentType = new ContentType (type, subtype);
+
+			foreach (var parameter in parameters)
+				contentType.Parameters.Add (parameter.Clone ());
+
+			return contentType;
+		}
+
+		/// <summary>
 		/// Check if the this instance of <see cref="ContentType"/> matches
 		/// the specified MIME media type and subtype.
 		/// </summary>

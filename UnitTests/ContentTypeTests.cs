@@ -52,6 +52,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestClone ()
+		{
+			var original = new ContentType ("text", "plain") {
+				Charset = "iso-8859-1",
+				Name = "clone-me.txt",
+			};
+			var clone = original.Clone ();
+
+			Assert.AreEqual (original.MediaType, clone.MediaType, "MediaType");
+			Assert.AreEqual (original.MediaSubtype, clone.MediaSubtype, "MediaSubtype");
+			Assert.AreEqual (original.Parameters.Count, clone.Parameters.Count, "Parameters.Count");
+			Assert.AreEqual (original.Charset, clone.Charset, "Charset");
+			Assert.AreEqual (original.Name, clone.Name, "Name");
+		}
+
+		[Test]
 		public void TestChangedEvents ()
 		{
 			var timestamp = new DateTimeOffset (2022, 9, 9, 7, 41, 23, new TimeSpan (-4, 0, 0));

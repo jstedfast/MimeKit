@@ -50,6 +50,27 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestClone ()
+		{
+			var original = new ContentDisposition {
+				CreationDate = DateTimeOffset.Now,
+				ModificationDate = DateTimeOffset.Now,
+				ReadDate = DateTimeOffset.Now,
+				FileName = "clone-me.txt",
+				Size = 10
+			};
+			var clone = original.Clone ();
+
+			Assert.AreEqual (original.Disposition, clone.Disposition, "Disposition");
+			Assert.AreEqual (original.Parameters.Count, clone.Parameters.Count, "Parameters.Count");
+			Assert.AreEqual (original.CreationDate, clone.CreationDate, "CreationDate");
+			Assert.AreEqual (original.ModificationDate, clone.ModificationDate, "ModificationDate");
+			Assert.AreEqual (original.ReadDate, clone.ReadDate, "ReadDate");
+			Assert.AreEqual (original.FileName, clone.FileName, "FileName");
+			Assert.AreEqual (original.Size, clone.Size, "Size");
+		}
+
+		[Test]
 		public void TestChangedEvents ()
 		{
 			var timestamp = new DateTimeOffset (2022, 9, 9, 7, 41, 23, new TimeSpan (-4, 0, 0));

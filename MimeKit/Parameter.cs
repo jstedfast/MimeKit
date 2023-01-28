@@ -285,6 +285,22 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Clone the parameter.
+		/// </summary>
+		/// <remarks>
+		/// Clones the parameter.
+		/// </remarks>
+		/// <returns>The cloned parameter.</returns>
+		public Parameter Clone ()
+		{
+			return new Parameter (Name, Value) {
+				encodingMethod = encodingMethod,
+				alwaysQuote = alwaysQuote,
+				encoding = encoding
+			};
+		}
+
 		static bool IsAttr (byte c)
 		{
 			return c.IsAttr ();
