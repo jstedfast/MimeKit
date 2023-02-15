@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 using MimeKit.Utils;
 using MimeKit.Cryptography;
@@ -1097,9 +1098,22 @@ namespace MimeKit {
 				return Encoding.UTF8.GetBytes (folded);
 			}
 
+			if (IsAsciiOnlyWithoutCrLf (value)) {
+				return Encoding.ASCII.GetBytes (value);
+			}
+
 			var encoded = Rfc2047.EncodeText (format, encoding, value);
 
 			return Rfc2047.FoldUnstructuredHeader (format, field, encoded);
+		}
+
+		static bool IsAsciiOnlyWithoutCrLf (string value)
+		{
+#if NET6_0_OR_GREATER
+			return value.All (c => char.IsAscii (c) && c != '\r' && c != '\n');
+#else
+			return value.All (c => c < 128 && c != '\r' && c != '\n');
+#endif
 		}
 
 		/// <summary>

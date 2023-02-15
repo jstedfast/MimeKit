@@ -654,5 +654,40 @@ namespace UnitTests {
 
 			Assert.AreEqual (expected, result);
 		}
+
+
+		[Test]
+		public void TestAsciiOnlyLongUnstructuredHeader ()
+		{
+			const string headerValue = "<https://www.some-link.com/query-params?abcd=efgh&this=is-very-long-string-which-should-not-be-Rfc2047-encoded-and-should-be-kept-the-way-it-is-by-default>";
+			var expected = Encoding.ASCII.GetBytes (headerValue);
+			var header = new Header ("List-Unsubscribe", headerValue);
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = false;
+
+			var result = header.GetRawValue (options);
+
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestUtf8UnstructuredHeader ()
+		{
+			const string headerValue = "ěščřžýáíé";
+			var expectedString = " =?utf-8?b?xJvFocSNxZnFvsO9w6HDrcOp?=\r\n";
+			var expected = Encoding.ASCII.GetBytes (expectedString);
+			var header = new Header ("List-Unsubscribe", headerValue);
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = false;
+
+			var result = header.GetRawValue (options);
+			var str = Encoding.ASCII.GetString (result);
+
+			Assert.AreEqual (expected, result);
+		}
 	}
 }
