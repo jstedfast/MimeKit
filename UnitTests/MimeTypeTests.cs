@@ -93,19 +93,13 @@ namespace UnitTests {
 		{
 			string extension;
 
-			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("message.msg"));
-			Assert.False (MimeTypes.TryGetExtension ("application/vnd.ms-outlook", out extension));
+			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename.bogus"));
+			Assert.False (MimeTypes.TryGetExtension ("application/vnd.bogus", out extension));
 
-			MimeTypes.Register ("application/vnd.ms-outlook", ".msg");
+			MimeTypes.Register ("application/vnd.bogus", ".bogus");
 
-			Assert.AreEqual ("application/vnd.ms-outlook", MimeTypes.GetMimeType ("message.msg"));
-			Assert.True (MimeTypes.TryGetExtension ("application/vnd.ms-outlook", out extension));
-			Assert.AreEqual (".msg", extension);
-
-			MimeTypes.Register ("application/bogus", "bogus");
-
-			Assert.AreEqual ("application/bogus", MimeTypes.GetMimeType ("fileName.bogus"));
-			Assert.True (MimeTypes.TryGetExtension ("application/bogus", out extension));
+			Assert.AreEqual ("application/vnd.bogus", MimeTypes.GetMimeType ("filename.bogus"));
+			Assert.True (MimeTypes.TryGetExtension ("application/vnd.bogus", out extension));
 			Assert.AreEqual (".bogus", extension);
 		}
 	}
