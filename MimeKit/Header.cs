@@ -978,7 +978,8 @@ namespace MimeKit {
 				while (index < text.Length && !IsWhiteSpace (text[index]))
 					index++;
 
-				yield return new Word (text, startIndex, index - startIndex);
+				if (index > startIndex)
+					yield return new Word (text, startIndex, index - startIndex);
 
 				if (index == text.Length)
 					break;
