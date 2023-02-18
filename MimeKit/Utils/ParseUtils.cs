@@ -152,6 +152,32 @@ namespace MimeKit.Utils {
 			return depth == 0;
 		}
 
+		public static bool SkipComment (string text, ref int index, int endIndex)
+		{
+			bool escaped = false;
+			int depth = 1;
+
+			index++;
+
+			while (index < endIndex && depth > 0) {
+				if (text[index] == '\\') {
+					escaped = !escaped;
+				} else if (!escaped) {
+					if (text[index] == '(')
+						depth++;
+					else if (text[index] == ')')
+						depth--;
+					escaped = false;
+				} else {
+					escaped = false;
+				}
+
+				index++;
+			}
+
+			return depth == 0;
+		}
+
 		public static bool SkipCommentsAndWhiteSpace (byte[] text, ref int index, int endIndex, bool throwOnError)
 		{
 			SkipWhiteSpace (text, ref index, endIndex);

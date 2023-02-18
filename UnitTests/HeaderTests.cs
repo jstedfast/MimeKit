@@ -654,5 +654,74 @@ namespace UnitTests {
 
 			Assert.AreEqual (expected, result);
 		}
+
+		// Note: These examples come from rfc2369
+		[TestCase (HeaderId.ListHelp, "<mailto:list@host.com?subject=help> (List Instructions)", " <mailto:list@host.com?subject=help> (List Instructions)\r\n")]
+		[TestCase (HeaderId.ListHelp, "<mailto:list-manager@host.com?body=info>", " <mailto:list-manager@host.com?body=info>\r\n")]
+		[TestCase (HeaderId.ListHelp, "<mailto:list-info@host.com> (Info about the list)", " <mailto:list-info@host.com> (Info about the list)\r\n")]
+		[TestCase (HeaderId.ListHelp, "<http://www.host.com/list/>, <mailto:list-info@host.com>", " <http://www.host.com/list/>, <mailto:list-info@host.com>\r\n")]
+		[TestCase (HeaderId.ListHelp, "<ftp://ftp.host.com/list.txt> (FTP), <mailto:list@host.com?subject=help>", " <ftp://ftp.host.com/list.txt> (FTP),\r\n <mailto:list@host.com?subject=help>\r\n")]
+		[TestCase (HeaderId.ListUnsubscribe, "<mailto:list@host.com?subject=unsubscribe>", " <mailto:list@host.com?subject=unsubscribe>\r\n")]
+		[TestCase (HeaderId.ListUnsubscribe, "(Use this command to get off the list) <mailto:list-manager@host.com?body=unsubscribe%20list>", " (Use this command to get off the list)\r\n <mailto:list-manager@host.com?body=unsubscribe%20list>\r\n")]
+		[TestCase (HeaderId.ListUnsubscribe, "<mailto:list-off@host.com>", " <mailto:list-off@host.com>\r\n")]
+		[TestCase (HeaderId.ListUnsubscribe, "<http://www.host.com/list.cgi?cmd=unsub&lst=list>, <mailto:list-request@host.com?subject=unsubscribe>", " <http://www.host.com/list.cgi?cmd=unsub&lst=list>,\r\n <mailto:list-request@host.com?subject=unsubscribe>\r\n")]
+		[TestCase (HeaderId.ListSubscribe, "<mailto:list@host.com?subject=subscribe>", " <mailto:list@host.com?subject=subscribe>\r\n")]
+		[TestCase (HeaderId.ListSubscribe, "<mailto:list-request@host.com?subject=subscribe>", " <mailto:list-request@host.com?subject=subscribe>\r\n")]
+		[TestCase (HeaderId.ListSubscribe, "(Use this command to join the list) <mailto:list-manager@host.com?body=subscribe%20list>", " (Use this command to join the list)\r\n <mailto:list-manager@host.com?body=subscribe%20list>\r\n")]
+		[TestCase (HeaderId.ListSubscribe, "<mailto:list-on@host.com>", " <mailto:list-on@host.com>\r\n")]
+		[TestCase (HeaderId.ListSubscribe, "<http://www.host.com/list.cgi?cmd=sub&lst=list>, <mailto:list-manager@host.com?body=subscribe%20list>", " <http://www.host.com/list.cgi?cmd=sub&lst=list>,\r\n <mailto:list-manager@host.com?body=subscribe%20list>\r\n")]
+		[TestCase (HeaderId.ListPost, "<mailto:list@host.com>", " <mailto:list@host.com>\r\n")]
+		[TestCase (HeaderId.ListPost, "<mailto:moderator@host.com> (Postings are Moderated)", " <mailto:moderator@host.com> (Postings are Moderated)\r\n")]
+		[TestCase (HeaderId.ListPost, "<mailto:moderator@host.com?subject=list%20posting>", " <mailto:moderator@host.com?subject=list%20posting>\r\n")]
+		[TestCase (HeaderId.ListPost, "NO (posting not allowed on this list)", " NO (posting not allowed on this list)\r\n")]
+		[TestCase (HeaderId.ListOwner, "<mailto:listmom@host.com> (Contact Person for Help)", " <mailto:listmom@host.com> (Contact Person for Help)\r\n")]
+		[TestCase (HeaderId.ListOwner, "<mailto:grant@foo.bar> (Grant Neufeld)", " <mailto:grant@foo.bar> (Grant Neufeld)\r\n")]
+		[TestCase (HeaderId.ListOwner, "<mailto:josh@foo.bar?Subject=list>", " <mailto:josh@foo.bar?Subject=list>\r\n")]
+		[TestCase (HeaderId.ListArchive, "<mailto:archive@host.com?subject=index%20list>", " <mailto:archive@host.com?subject=index%20list>\r\n")]
+		[TestCase (HeaderId.ListArchive, "<ftp://ftp.host.com/pub/list/archive/>", " <ftp://ftp.host.com/pub/list/archive/>\r\n")]
+		[TestCase (HeaderId.ListArchive, "<http://www.host.com/list/archive/> (Web Archive)", " <http://www.host.com/list/archive/> (Web Archive)\r\n")]
+		// The following examples are meant to test unicode comments
+		[TestCase (HeaderId.ListHelp, "<mailto:list@host.com?subject=help> (목록 지침)", " <mailto:list@host.com?subject=help>\r\n (=?utf-8?b?66qp66GdIOyngOy5qA==?=)\r\n", " <mailto:list@host.com?subject=help> (목록 지침)\r\n")]
+		[TestCase (HeaderId.ListUnsubscribe, "(이 명령을 사용하여 목록에서 구독을 취소합니다.) <mailto:list-manager@host.com?body=unsubscribe%20list>", "\r\n (=?utf-8?b?7J20IOuqheugueydhCDsgqzsmqntlZjsl6wg66qp66Gd7JeQ7ISc?=\r\n =?utf-8?b?IOq1rOuPheydhCDst6jshoztlanri4jri6Qu?=)\r\n <mailto:list-manager@host.com?body=unsubscribe%20list>\r\n", "\r\n (이 명령을 사용하여 목록에서 구독을 취소합니다.)\r\n <mailto:list-manager@host.com?body=unsubscribe%20list>\r\n")]
+		[TestCase (HeaderId.ListSubscribe, "(이 명령을 사용하여 목록에 조인합니다.) <mailto:list-manager@host.com?body=subscribe%20list>", " (=?utf-8?b?7J20IOuqheugueydhCDsgqzsmqntlZjsl6wg66qp66Gd7JeQ?=\r\n =?utf-8?b?IOyhsOyduO2VqeuLiOuLpC4=?=)\r\n <mailto:list-manager@host.com?body=subscribe%20list>\r\n", " (이 명령을 사용하여 목록에 조인합니다.)\r\n <mailto:list-manager@host.com?body=subscribe%20list>\r\n")]
+		[TestCase (HeaderId.ListPost, "NO (이 목록에 게시가 허용되지 않음)", " NO\r\n (=?utf-8?b?7J20IOuqqeuhneyXkCDqsozsi5zqsIAg7ZeI7Jqp65CY7KeAIOyViuydjA==?=)\r\n", " NO (이 목록에 게시가 허용되지 않음)\r\n")]
+		public void TestEncodeListCommandHeader (HeaderId id, string value, string expected, string international = null)
+		{
+			var header = new Header (id, value);
+
+			var result = Encoding.UTF8.GetString (header.RawValue);
+
+			Assert.AreEqual (expected, result, "RawValue");
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = false;
+
+			result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (expected, result, "GetValue");
+
+			options.International = true;
+
+			result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (international ?? expected, result, "GetValue International");
+		}
+
+		[Test]
+		public void TestEncodeListCommandHeaderWithExtremelyLongUrl ()
+		{
+			const string value = "<https://www.some-link.com/query-params?abcd=efgh&this=is-very-long-string-which-should-not-be-Rfc2047-encoded-and-should-be-kept-the-way-it-is-by-default>";
+			const string expected = "\r\n <https://www.some-link.com/query-params?abcd=efgh&this=is-very-long-string-which-should-not-be-Rfc2047-encoded-and-should-be-kept-the-way-it-is-by-default>\r\n";
+			var header = new Header (HeaderId.ListUnsubscribe, value);
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = false;
+
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (expected, result);
+		}
 	}
 }
