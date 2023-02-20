@@ -484,8 +484,7 @@ namespace MimeKit {
 		/// </exception>
 		public string Value {
 			get {
-				if (textValue is null)
-					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
+				textValue ??= Unfold (Rfc2047.DecodeText (Options, rawValue));
 
 				return textValue;
 			}

@@ -325,8 +325,7 @@ namespace MimeKit.IO {
 			ValidateArguments (buffer, offset, count);
 
 			lastOp = IOOperation.Read;
-			if (readbuf is null)
-				readbuf = new byte[ReadBufferSize];
+			readbuf ??= new byte[ReadBufferSize];
 
 			int nread;
 
@@ -440,8 +439,7 @@ namespace MimeKit.IO {
 			ValidateArguments (buffer, offset, count);
 
 			lastOp = IOOperation.Read;
-			if (readbuf is null)
-				readbuf = new byte[ReadBufferSize];
+			readbuf ??= new byte[ReadBufferSize];
 
 			int nread;
 
