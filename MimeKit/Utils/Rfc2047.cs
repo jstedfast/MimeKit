@@ -1753,6 +1753,32 @@ namespace MimeKit.Utils {
 		/// the specified charset encoding and formatting options.
 		/// </remarks>
 		/// <returns>The encoded phrase.</returns>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="phrase">The phrase to encode.</param>
+		/// <param name="startIndex">The starting index of the phrase to encode.</param>
+		/// <param name="count">The number of characters to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static byte[] EncodePhrase (Encoding charset, string phrase, int startIndex, int count)
+		{
+			return EncodePhrase (FormatOptions.Default, charset, phrase, startIndex, count);
+		}
+
+		/// <summary>
+		/// Encode a phrase.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the phrase according to the rules of rfc2047 using
+		/// the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded phrase.</returns>
 		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
@@ -1819,6 +1845,32 @@ namespace MimeKit.Utils {
 			ValidateArguments (options, charset, text, nameof (text), startIndex, count);
 
 			return EncodeAsBytes (options, charset, text, startIndex, count, EncodeType.Text);
+		}
+
+		/// <summary>
+		/// Encode unstructured text.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the unstructured text according to the rules of rfc2047
+		/// using the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded text.</returns>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="text">The text to encode.</param>
+		/// <param name="startIndex">The starting index of the phrase to encode.</param>
+		/// <param name="count">The number of characters to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static byte[] EncodeText (Encoding charset, string text, int startIndex, int count)
+		{
+			return EncodeText (FormatOptions.Default, charset, text, startIndex, count);
 		}
 
 		/// <summary>

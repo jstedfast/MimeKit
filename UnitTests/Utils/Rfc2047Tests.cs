@@ -75,6 +75,11 @@ namespace UnitTests.Utils {
 			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodePhrase (FormatOptions.Default, Encoding.UTF8, "phrase", -1, 6));
 			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodePhrase (FormatOptions.Default, Encoding.UTF8, "phrase", 0, 7));
 
+			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodePhrase (null, "phrase", 0, 6));
+			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodePhrase (Encoding.UTF8, null, 0, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodePhrase (Encoding.UTF8, "phrase", -1, 6));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodePhrase (Encoding.UTF8, "phrase", 0, 7));
+
 			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodePhrase (null, Encoding.UTF8, "phrase"));
 			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodePhrase (FormatOptions.Default, null, "phrase"));
 			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodePhrase (FormatOptions.Default, Encoding.UTF8, null));
@@ -88,6 +93,11 @@ namespace UnitTests.Utils {
 			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodeText (FormatOptions.Default, Encoding.UTF8, null, 0, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodeText (FormatOptions.Default, Encoding.UTF8, "text", -1, 4));
 			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodeText (FormatOptions.Default, Encoding.UTF8, "text", 0, 5));
+
+			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodeText (null, "text", 0, 4));
+			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodeText (Encoding.UTF8, null, 0, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodeText (Encoding.UTF8, "text", -1, 4));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2047.EncodeText (Encoding.UTF8, "text", 0, 5));
 
 			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodeText (null, Encoding.UTF8, "text"));
 			Assert.Throws<ArgumentNullException> (() => Rfc2047.EncodeText (FormatOptions.Default, null, "text"));
@@ -302,10 +312,16 @@ namespace UnitTests.Utils {
 			string result;
 
 			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
-			Assert.AreEqual (expected, result, "EncodePhrase");
+			Assert.AreEqual (expected, result, "EncodePhrase(Encoding, string)");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text, 0, text.Length));
+			Assert.AreEqual (expected, result, "EncodePhrase(Encoding, string, int, int)");
 
 			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
-			Assert.AreEqual (expected, result, "EncodeText");
+			Assert.AreEqual (expected, result, "EncodeText(Encoding, string)");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text, 0, text.Length));
+			Assert.AreEqual (expected, result, "EncodeText(Encoding, string, int, int)");
 		}
 
 		[Test]
@@ -316,10 +332,16 @@ namespace UnitTests.Utils {
 			string result;
 
 			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
-			Assert.AreEqual (expected, result, "EncodePhrase");
+			Assert.AreEqual (expected, result, "EncodePhrase(Encoding, string)");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text, 0, text.Length));
+			Assert.AreEqual (expected, result, "EncodePhrase(Encoding, string, int, int)");
 
 			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
-			Assert.AreEqual (expected, result, "EncodeText");
+			Assert.AreEqual (expected, result, "EncodeText(Encoding, string)");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text, 0, text.Length));
+			Assert.AreEqual (expected, result, "EncodeText(Encoding, string, int, int)");
 		}
 
 		[Test]
@@ -330,11 +352,17 @@ namespace UnitTests.Utils {
 			var latin1 = Encoding.GetEncoding ("iso-8859-1", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
 			string result;
 
-			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (latin1, text));
-			Assert.AreEqual (expected, result, "EncodePhrase");
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodePhrase(Encoding, string)");
 
-			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text));
-			Assert.AreEqual (expected, result, "EncodeText");
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text, 0, text.Length));
+			Assert.AreEqual (expected, result, "EncodePhrase(Encoding, string, int, int)");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
+			Assert.AreEqual (expected, result, "EncodeText(Encoding, string)");
+
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text, 0, text.Length));
+			Assert.AreEqual (expected, result, "EncodeText(Encoding, string, int, int)");
 		}
 
 		[Test]
