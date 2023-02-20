@@ -490,9 +490,6 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string Quote (ReadOnlySpan<char> text)
 		{
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
-
 			var quoted = new ValueStringBuilder ((text.Length * 2) + 2);
 
 			AppendQuoted (ref quoted, text);
