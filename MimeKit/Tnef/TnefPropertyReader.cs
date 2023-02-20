@@ -1559,9 +1559,7 @@ namespace MimeKit.Tnef {
 		/// <see cref="TnefPropertyReader"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
-			var prop = obj as TnefPropertyReader;
-
-			return prop != null && prop.reader == reader;
+			return obj is TnefPropertyReader prop && prop.reader == reader;
 		}
 
 		void LoadPropertyCount ()
