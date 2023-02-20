@@ -109,9 +109,6 @@ namespace MimeKit.Text {
 			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (value is null)
-				throw new ArgumentNullException (nameof (value));
-
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
@@ -180,9 +177,6 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlAttributeEncode (ReadOnlySpan<char> value, char quote = '"')
 		{
-			if (value is null)
-				throw new ArgumentNullException (nameof (value));
-
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
@@ -448,9 +442,6 @@ namespace MimeKit.Text {
 			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (data is null)
-				throw new ArgumentNullException (nameof (data));
-
 			int index = IndexOfHtmlEncodeChar (data);
 
 			if (index > 0)
@@ -508,9 +499,6 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlEncode (ReadOnlySpan<char> data)
 		{
-			if (data is null)
-				throw new ArgumentNullException (nameof (data));
-
 			using (var output = new StringWriter ()) {
 				HtmlEncode (output, data);
 				return output.ToString ();
