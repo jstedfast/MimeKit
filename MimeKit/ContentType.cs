@@ -59,10 +59,10 @@ namespace MimeKit {
 		/// </exception>
 		public ContentType (string mediaType, string mediaSubtype)
 		{
-			if (mediaType == null)
+			if (mediaType is null)
 				throw new ArgumentNullException (nameof (mediaType));
 
-			if (mediaSubtype == null)
+			if (mediaSubtype is null)
 				throw new ArgumentNullException (nameof (mediaSubtype));
 
 			Parameters = new ParameterList ();
@@ -85,7 +85,7 @@ namespace MimeKit {
 		public string MediaType {
 			get { return type; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (type == value)
@@ -112,7 +112,7 @@ namespace MimeKit {
 		public string MediaSubtype {
 			get { return subtype; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (subtype == value)
@@ -192,7 +192,7 @@ namespace MimeKit {
 			get {
 				var charset = Charset;
 
-				if (charset == null)
+				if (charset is null)
 					return null;
 
 				try {
@@ -239,7 +239,7 @@ namespace MimeKit {
 		/// Get or set the name parameter.
 		/// </summary>
 		/// <remarks>
-		/// The name parameter is a way for the originiating client to suggest
+		/// The name parameter is a way for the originating client to suggest
 		/// to the receiving client a display-name for the content, which may
 		/// be used by the receiving client if it cannot display the actual
 		/// content to the user.
@@ -291,10 +291,10 @@ namespace MimeKit {
 		/// </exception>
 		public bool IsMimeType (string mediaType, string mediaSubtype)
 		{
-			if (mediaType == null)
+			if (mediaType is null)
 				throw new ArgumentNullException (nameof (mediaType));
 
-			if (mediaSubtype == null)
+			if (mediaSubtype is null)
 				throw new ArgumentNullException (nameof (mediaSubtype));
 
 			if (mediaType == "*" || mediaType.Equals (type, StringComparison.OrdinalIgnoreCase))
@@ -339,10 +339,10 @@ namespace MimeKit {
 		/// </exception>
 		public string ToString (FormatOptions options, Encoding charset, bool encode)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			var builder = new ValueStringBuilder (128);

@@ -56,7 +56,7 @@ namespace MimeKit {
 		/// </exception>
 		public DomainList (IEnumerable<string> domains)
 		{
-			if (domains == null)
+			if (domains is null)
 				throw new ArgumentNullException (nameof (domains));
 
 			this.domains = new List<string> (domains);
@@ -88,7 +88,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (string domain)
 		{
-			if (domain == null)
+			if (domain is null)
 				throw new ArgumentNullException (nameof (domain));
 
 			return domains.IndexOf (domain);
@@ -110,7 +110,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Insert (int index, string domain)
 		{
-			if (domain == null)
+			if (domain is null)
 				throw new ArgumentNullException (nameof (domain));
 
 			domains.Insert (index, domain);
@@ -150,7 +150,7 @@ namespace MimeKit {
 		public string this [int index] {
 			get { return domains[index]; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (domains[index] == value)
@@ -177,7 +177,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (string domain)
 		{
-			if (domain == null)
+			if (domain is null)
 				throw new ArgumentNullException (nameof (domain));
 
 			domains.Add (domain);
@@ -210,7 +210,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (string domain)
 		{
-			if (domain == null)
+			if (domain is null)
 				throw new ArgumentNullException (nameof (domain));
 
 			return domains.Contains (domain);
@@ -249,7 +249,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (string domain)
 		{
-			if (domain == null)
+			if (domain is null)
 				throw new ArgumentNullException (nameof (domain));
 
 			if (domains.Remove (domain)) {
@@ -452,7 +452,7 @@ namespace MimeKit {
 		{
 			int index = 0;
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);

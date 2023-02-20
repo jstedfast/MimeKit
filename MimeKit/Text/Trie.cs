@@ -91,7 +91,7 @@ namespace MimeKit.Text {
 
 		static void ValidateArguments (char[] text, int startIndex, int count)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			if (startIndex < 0 || startIndex > text.Length)
@@ -136,7 +136,7 @@ namespace MimeKit.Text {
 		// FOR p = 1 TO #pat
 		//   q = root
 		//   FOR j = 1 TO m[p]
-		//     IF g(q, pat[p][j]) == null
+		//     IF g(q, pat[p][j]) is null
 		//       insert(q, pat[p][j])
 		//     ENDIF
 		//     q = g(q, pat[p][j])
@@ -165,7 +165,7 @@ namespace MimeKit.Text {
 			int depth = 0;
 			char c;
 
-			if (pattern == null)
+			if (pattern is null)
 				throw new ArgumentNullException (nameof (pattern));
 
 			if (pattern.Length == 0)
@@ -175,7 +175,7 @@ namespace MimeKit.Text {
 			for (int i = 0; i < pattern.Length; i++) {
 				c = icase ? char.ToLower (pattern[i]) : pattern[i];
 				match = FindMatch (state, c);
-				if (match == null)
+				if (match is null)
 					state = Insert (state, depth, c);
 				else
 					state = match.State;
@@ -199,7 +199,7 @@ namespace MimeKit.Text {
 
 						c = match.Value;
 
-						while (failState != null && (nextMatch = FindMatch (failState, c)) == null)
+						while (failState != null && (nextMatch = FindMatch (failState, c)) is null)
 							failState = failState.Fail;
 
 						if (failState != null) {
@@ -275,7 +275,7 @@ namespace MimeKit.Text {
 			for (int i = startIndex; i < endIndex; i++) {
 				c = icase ? char.ToLower (text[i]) : text[i];
 
-				while (state != null && (match = FindMatch (state, c)) == null && matched == 0)
+				while (state != null && (match = FindMatch (state, c)) is null && matched == 0)
 					state = state.Fail;
 
 				if (state == root) {
@@ -285,7 +285,7 @@ namespace MimeKit.Text {
 					offset = i;
 				}
 
-				if (state == null) {
+				if (state is null) {
 					if (matched > 0)
 						return offset;
 
@@ -324,7 +324,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public int Search (char[] text, int startIndex, out string pattern)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			return Search (text, startIndex, text.Length - startIndex, out pattern);
@@ -344,7 +344,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public int Search (char[] text, out string pattern)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			return Search (text, 0, text.Length, out pattern);

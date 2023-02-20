@@ -124,7 +124,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
 			Options = options;
@@ -144,7 +144,7 @@ namespace MimeKit {
 				return options;
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (value == ParserOptions.Default)
@@ -190,7 +190,7 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			this.format = format;
@@ -1302,9 +1302,9 @@ namespace MimeKit {
 				}
 				break;
 			case HeaderId.ContentType:
-				if (currentContentType == null) {
+				if (currentContentType is null) {
 					// FIXME: do we really need all this fallback stuff for parameters? I doubt it.
-					if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type == null) {
+					if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type is null) {
 						// if 'type' is null, then it means that even the mime-type was unintelligible
 						type = new ContentType ("application", "octet-stream");
 
@@ -1757,7 +1757,7 @@ namespace MimeKit {
 			if (currentContentType != null)
 				return currentContentType;
 
-			if (parent == null || !parent.IsMimeType ("multipart", "digest"))
+			if (parent is null || !parent.IsMimeType ("multipart", "digest"))
 				return new ContentType ("text", "plain");
 
 			return new ContentType ("message", "rfc822");
@@ -2252,7 +2252,7 @@ namespace MimeKit {
 			var beginLineNumber = lineNumber;
 			long endOffset;
 
-			if (marker == null) {
+			if (marker is null) {
 #if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
 #endif

@@ -77,13 +77,13 @@ namespace MimeKit {
 		/// </exception>
 		public Header (Encoding encoding, HeaderId id, string value)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			if (id == HeaderId.Unknown)
 				throw new ArgumentOutOfRangeException (nameof (id));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			Options = ParserOptions.Default.Clone ();
@@ -119,13 +119,13 @@ namespace MimeKit {
 		/// </exception>
 		public Header (string charset, HeaderId id, string value)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			if (id == HeaderId.Unknown)
 				throw new ArgumentOutOfRangeException (nameof (id));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
@@ -180,10 +180,10 @@ namespace MimeKit {
 		/// </exception>
 		public Header (Encoding encoding, string field, string value)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			if (field.Length == 0)
@@ -194,7 +194,7 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
 			}
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			Options = ParserOptions.Default.Clone ();
@@ -232,10 +232,10 @@ namespace MimeKit {
 		/// </exception>
 		public Header (string charset, string field, string value)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			if (field.Length == 0)
@@ -246,7 +246,7 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
 			}
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
@@ -312,7 +312,7 @@ namespace MimeKit {
 		/// <param name="field">The raw header field.</param>
 		/// <param name="fieldNameLength">The length of the field name (not including trailing whitespace).</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
 #if NET5_0_OR_GREATER
 		[System.Runtime.CompilerServices.SkipLocalsInit]
 #endif
@@ -345,7 +345,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options used.</param>
 		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
 #if NET5_0_OR_GREATER
 		[System.Runtime.CompilerServices.SkipLocalsInit]
 #endif
@@ -484,8 +484,7 @@ namespace MimeKit {
 		/// </exception>
 		public string Value {
 			get {
-				if (textValue == null)
-					textValue = Unfold (Rfc2047.DecodeText (Options, rawValue));
+				textValue ??= Unfold (Rfc2047.DecodeText (Options, rawValue));
 
 				return textValue;
 			}
@@ -509,7 +508,7 @@ namespace MimeKit {
 		/// <param name="encoding">The character encoding to use as a fallback.</param>
 		public string GetValue (Encoding encoding)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			var options = Options.Clone ();
@@ -533,7 +532,7 @@ namespace MimeKit {
 		/// <param name="charset">The charset to use as a fallback.</param>
 		public string GetValue (string charset)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
@@ -715,7 +714,7 @@ namespace MimeKit {
 					}
 				}
 
-				if (token == null) {
+				if (token is null) {
 					if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
 						while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
 							index++;
@@ -1583,13 +1582,13 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (FormatOptions format, Encoding encoding, string value)
 		{
-			if (format == null)
+			if (format is null)
 				throw new ArgumentNullException (nameof (format));
 
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			textValue = Unfold (value.Trim ());
@@ -1649,10 +1648,10 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (FormatOptions format, string charset, string value)
 		{
-			if (format == null)
+			if (format is null)
 				throw new ArgumentNullException (nameof (format));
 
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
@@ -1680,7 +1679,7 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (string charset, string value)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			var encoding = CharsetUtils.GetEncoding (charset);
@@ -1705,7 +1704,7 @@ namespace MimeKit {
 		/// </exception>
 		public void SetRawValue (byte[] value)
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (value.Length == 0 || value[value.Length - 1] != (byte) '\n')
@@ -1756,7 +1755,7 @@ namespace MimeKit {
 			int endIndex;
 			int i = 0;
 
-			if (text == null)
+			if (text is null)
 				return string.Empty;
 
 			while (i < text.Length && char.IsWhiteSpace (text[i]))

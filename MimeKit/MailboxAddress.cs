@@ -106,7 +106,7 @@ namespace MimeKit {
 		/// </exception>
 		public MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			Route = new DomainList (route);
@@ -155,7 +155,7 @@ namespace MimeKit {
 		/// </exception>
 		public MailboxAddress (Encoding encoding, string name, string address) : base (encoding, name)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			Route = new DomainList ();
@@ -221,7 +221,7 @@ namespace MimeKit {
 		public string Address {
 			get { return address; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (value == address)
@@ -341,7 +341,7 @@ namespace MimeKit {
 		/// </exception>
 		public static string EncodeAddrspec (string addrspec)
 		{
-			if (addrspec == null)
+			if (addrspec is null)
 				throw new ArgumentNullException (nameof (addrspec));
 
 			if (addrspec.Length == 0)
@@ -369,7 +369,7 @@ namespace MimeKit {
 		/// </exception>
 		public static string DecodeAddrspec (string addrspec)
 		{
-			if (addrspec == null)
+			if (addrspec is null)
 				throw new ArgumentNullException (nameof (addrspec));
 
 			if (addrspec.Length == 0)
@@ -503,7 +503,7 @@ namespace MimeKit {
 		/// </exception>
 		public override string ToString (FormatOptions options, bool encode)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
 			if (encode) {
@@ -543,7 +543,7 @@ namespace MimeKit {
 		{
 			var mailbox = other as MailboxAddress;
 
-			if (mailbox == null)
+			if (mailbox is null)
 				return false;
 
 			return Name == mailbox.Name && Address == mailbox.Address;
@@ -765,10 +765,10 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out MailboxAddress mailbox)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -1009,10 +1009,10 @@ namespace MimeKit {
 		/// </exception>
 		public static new MailboxAddress Parse (ParserOptions options, string text)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);

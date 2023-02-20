@@ -105,10 +105,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string GetPreviewText (TextPart body)
 		{
-			if (body == null)
+			if (body is null)
 				throw new ArgumentNullException (nameof (body));
 
-			if (body.Content == null)
+			if (body.Content is null)
 				return string.Empty;
 
 			var encoding = body.ContentType.CharsetEncoding;
@@ -126,7 +126,7 @@ namespace MimeKit.Text {
 				} while (nread < buffer.Length);
 			}
 
-			if (encoding == null) {
+			if (encoding is null) {
 				if (!CharsetUtils.TryGetBomEncoding (buffer, nread, out encoding))
 					encoding = CharsetUtils.UTF8;
 			}
@@ -157,7 +157,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public virtual string GetPreviewText (string text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			using (var reader = new StringReader (text))
@@ -180,10 +180,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public virtual string GetPreviewText (Stream stream, string charset)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			Encoding encoding;
@@ -213,10 +213,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public virtual string GetPreviewText (Stream stream, Encoding encoding)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			using (var reader = new StreamReader (stream, encoding, false, 4096, true))

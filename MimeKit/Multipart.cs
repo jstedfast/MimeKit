@@ -100,11 +100,11 @@ namespace MimeKit {
 		/// </exception>
 		public Multipart (string subtype, params object[] args) : this (subtype)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
 			foreach (object obj in args) {
-				if (obj == null || TryInit (obj))
+				if (obj is null || TryInit (obj))
 					continue;
 
 				if (obj is MimeEntity entity) {
@@ -194,7 +194,7 @@ namespace MimeKit {
 		public string Boundary {
 			get { return ContentType.Boundary; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (Boundary == value)
@@ -226,7 +226,7 @@ namespace MimeKit {
 			get {
 				CheckDisposed ();
 
-				if (preamble == null && RawPreamble != null)
+				if (preamble is null && RawPreamble != null)
 					preamble = CharsetUtils.ConvertToUnicode (Headers.Options, RawPreamble, 0, RawPreamble.Length);
 
 				return preamble;
@@ -270,7 +270,7 @@ namespace MimeKit {
 			get {
 				CheckDisposed ();
 
-				if (epilogue == null && RawEpilogue != null) {
+				if (epilogue is null && RawEpilogue != null) {
 					int index = 0;
 
 					// Note: In practice, the RawEpilogue contains the CRLF belonging to the end-boundary, but
@@ -335,7 +335,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -502,7 +502,7 @@ namespace MimeKit {
 						part = rfc822.Message.Body as MimePart;
 					}
 
-					if ((part != null && part.Content == null) ||
+					if ((part != null && part.Content is null) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -514,7 +514,7 @@ namespace MimeKit {
 
 				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
 
-				if (RawEpilogue == null)
+				if (RawEpilogue is null)
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
 				for (int i = 0; i < children.Count; i++) {
@@ -532,7 +532,7 @@ namespace MimeKit {
 						part = rfc822.Message.Body as MimePart;
 					}
 
-					if ((part != null && part.Content == null) ||
+					if ((part != null && part.Content is null) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -546,7 +546,7 @@ namespace MimeKit {
 				cancellationToken.ThrowIfCancellationRequested ();
 				stream.Write (boundary, 0, boundary.Length);
 
-				if (RawEpilogue == null) {
+				if (RawEpilogue is null) {
 					cancellationToken.ThrowIfCancellationRequested ();
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
@@ -613,7 +613,7 @@ namespace MimeKit {
 					part = rfc822.Message.Body as MimePart;
 				}
 
-				if ((part != null && part.Content == null) ||
+				if ((part != null && part.Content is null) ||
 				    (multi != null && !multi.WriteEndBoundary))
 					continue;
 
@@ -625,7 +625,7 @@ namespace MimeKit {
 
 			await stream.WriteAsync (boundary, 0, boundary.Length, cancellationToken).ConfigureAwait (false);
 
-			if (RawEpilogue == null)
+			if (RawEpilogue is null)
 				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
@@ -683,7 +683,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (MimeEntity entity)
 		{
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
 			CheckDisposed ();
@@ -746,7 +746,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (MimeEntity entity)
 		{
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
 			CheckDisposed ();
@@ -794,7 +794,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (MimeEntity entity)
 		{
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
 			CheckDisposed ();
@@ -827,7 +827,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (MimeEntity entity)
 		{
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
 			CheckDisposed ();
@@ -857,7 +857,7 @@ namespace MimeKit {
 			if (index < 0 || index > children.Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
 			CheckDisposed ();
@@ -912,7 +912,7 @@ namespace MimeKit {
 				return children[index];
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				CheckDisposed ();

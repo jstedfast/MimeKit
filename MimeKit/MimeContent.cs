@@ -68,7 +68,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeContent (Stream stream, ContentEncoding encoding = ContentEncoding.Default)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			if (!stream.CanRead)
@@ -96,7 +96,7 @@ namespace MimeKit {
 
 		void CheckDisposed ()
 		{
-			if (Stream == null)
+			if (Stream is null)
 				throw new ObjectDisposedException ("MimeContent");
 		}
 
@@ -185,7 +185,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			CheckDisposed ();
@@ -256,7 +256,7 @@ namespace MimeKit {
 		/// </exception>
 		public async Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			CheckDisposed ();
@@ -315,7 +315,7 @@ namespace MimeKit {
 		/// </exception>
 		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			CheckDisposed ();
@@ -355,7 +355,7 @@ namespace MimeKit {
 		/// </exception>
 		public async Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			CheckDisposed ();

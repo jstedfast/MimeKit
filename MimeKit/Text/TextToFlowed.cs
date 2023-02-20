@@ -179,10 +179,10 @@ namespace MimeKit.Text {
 			StringBuilder flowed;
 			string line;
 
-			if (reader == null)
+			if (reader is null)
 				throw new ArgumentNullException (nameof (reader));
 
-			if (writer == null)
+			if (writer is null)
 				throw new ArgumentNullException (nameof (writer));
 
 			if (!string.IsNullOrEmpty (Header))

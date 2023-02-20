@@ -106,11 +106,8 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlAttributeEncode (TextWriter output, ReadOnlySpan<char> value, char quote = '"')
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
-
-			if (value == null)
-				throw new ArgumentNullException (nameof (value));
 
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
@@ -180,9 +177,6 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlAttributeEncode (ReadOnlySpan<char> value, char quote = '"')
 		{
-			if (value == null)
-				throw new ArgumentNullException (nameof (value));
-
 			if (quote != '"' && quote != '\'')
 				throw new ArgumentException ("The quote character must either be '\"' or '\''.", nameof (quote));
 
@@ -217,10 +211,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlAttributeEncode (TextWriter output, char[] value, int startIndex, int count, char quote = '"')
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (startIndex < 0 || startIndex >= value.Length)
@@ -258,7 +252,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlAttributeEncode (char[] value, int startIndex, int count, char quote = '"')
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (startIndex < 0 || startIndex >= value.Length)
@@ -298,10 +292,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlAttributeEncode (TextWriter output, string value, int startIndex, int count, char quote = '"')
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (startIndex < 0 || startIndex >= value.Length)
@@ -339,7 +333,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlAttributeEncode (string value, int startIndex, int count, char quote = '"')
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (startIndex < 0 || startIndex >= value.Length)
@@ -373,10 +367,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlAttributeEncode (TextWriter output, string value, char quote = '"')
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (quote != '"' && quote != '\'')
@@ -402,7 +396,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlAttributeEncode (string value, char quote = '"')
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			if (quote != '"' && quote != '\'')
@@ -445,11 +439,8 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlEncode (TextWriter output, ReadOnlySpan<char> data)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
-
-			if (data == null)
-				throw new ArgumentNullException (nameof (data));
 
 			int index = IndexOfHtmlEncodeChar (data);
 
@@ -508,9 +499,6 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlEncode (ReadOnlySpan<char> data)
 		{
-			if (data == null)
-				throw new ArgumentNullException (nameof (data));
-
 			using (var output = new StringWriter ()) {
 				HtmlEncode (output, data);
 				return output.ToString ();
@@ -538,10 +526,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlEncode (TextWriter output, char[] data, int startIndex, int count)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			if (startIndex < 0 || startIndex >= data.Length)
@@ -572,7 +560,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlEncode (char[] data, int startIndex, int count)
 		{
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			if (startIndex < 0 || startIndex >= data.Length)
@@ -605,10 +593,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlEncode (TextWriter output, string data, int startIndex, int count)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			if (startIndex < 0 || startIndex >= data.Length)
@@ -639,7 +627,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlEncode (string data, int startIndex, int count)
 		{
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			if (startIndex < 0 || startIndex >= data.Length)
@@ -666,10 +654,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlEncode (TextWriter output, string data)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			HtmlEncode (output, data.AsSpan ());
@@ -688,7 +676,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlEncode (string data)
 		{
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			return HtmlEncode (data.AsSpan ());
@@ -715,10 +703,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlDecode (TextWriter output, string data, int startIndex, int count)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			if (startIndex < 0 || startIndex >= data.Length)
@@ -759,10 +747,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static void HtmlDecode (TextWriter output, string data)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			HtmlDecode (output, data, 0, data.Length);
@@ -787,7 +775,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlDecode (string data, int startIndex, int count)
 		{
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			if (startIndex < 0 || startIndex >= data.Length)
@@ -815,7 +803,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public static string HtmlDecode (string data)
 		{
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			using (var output = new StringWriter ()) {

@@ -63,7 +63,7 @@ namespace MimeKit {
 		/// </exception>
 		public Parameter (string name, string value)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
@@ -74,7 +74,7 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in parameter name.", nameof (name));
 			}
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			Value = value;
@@ -102,10 +102,10 @@ namespace MimeKit {
 		/// </exception>
 		public Parameter (Encoding encoding, string name, string value)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
@@ -116,7 +116,7 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in parameter name.", nameof (name));
 			}
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			Encoding = encoding;
@@ -148,10 +148,10 @@ namespace MimeKit {
 		/// </exception>
 		public Parameter (string charset, string name, string value)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
@@ -162,7 +162,7 @@ namespace MimeKit {
 					throw new ArgumentException ("Illegal characters in parameter name.", nameof (name));
 			}
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			Encoding = CharsetUtils.GetEncoding (charset);
@@ -274,7 +274,7 @@ namespace MimeKit {
 		public string Value {
 			get { return text; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (text == value)

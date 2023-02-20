@@ -130,7 +130,7 @@ namespace MimeKit.Utils
 					spinLock.Exit (false);
 			}
 
-			if (buffer == null)
+			if (buffer is null)
 				buffer = new byte[BufferSize];
 			else if (clear)
 				Array.Clear (buffer, 0, BufferSize);
@@ -160,7 +160,7 @@ namespace MimeKit.Utils
 		{
 			bool locked = false;
 
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (buffer.Length != BufferSize)

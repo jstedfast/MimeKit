@@ -176,13 +176,13 @@ namespace MimeKit {
 		/// </exception>
 		public MimeMessage (params object[] args) : this (ParserOptions.Default.Clone ())
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
 			MimeEntity body = null;
 
 			foreach (var obj in args) {
-				if (obj == null)
+				if (obj is null)
 					continue;
 
 				// Just add the headers and let the events (already setup) keep the
@@ -490,7 +490,7 @@ namespace MimeKit {
 				if ((lazyLoaded & LazyLoadedFields.Sender) != 0 && value == sender)
 					return;
 
-				if (value == null) {
+				if (value is null) {
 					RemoveHeader (HeaderId.Sender);
 					lazyLoaded |= LazyLoadedFields.Sender;
 					sender = null;
@@ -539,7 +539,7 @@ namespace MimeKit {
 				if ((lazyLoaded & LazyLoadedFields.ResentSender) != 0 && value == resentSender)
 					return;
 
-				if (value == null) {
+				if (value is null) {
 					RemoveHeader (HeaderId.ResentSender);
 					lazyLoaded |= LazyLoadedFields.ResentSender;
 					resentSender = null;
@@ -730,7 +730,7 @@ namespace MimeKit {
 		public string Subject {
 			get { return Headers["Subject"]; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				SetHeader ("Subject", value);
@@ -857,7 +857,7 @@ namespace MimeKit {
 				if ((lazyLoaded & LazyLoadedFields.InReplyTo) != 0 && inreplyto == value)
 					return;
 
-				if (value == null) {
+				if (value is null) {
 					RemoveHeader (HeaderId.InReplyTo);
 					lazyLoaded |= LazyLoadedFields.InReplyTo;
 					inreplyto = null;
@@ -908,7 +908,7 @@ namespace MimeKit {
 				return messageId;
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if ((lazyLoaded & LazyLoadedFields.MessageId) != 0 && messageId == value)
@@ -958,7 +958,7 @@ namespace MimeKit {
 				return resentMessageId;
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) != 0 && resentMessageId == value)
@@ -1003,7 +1003,7 @@ namespace MimeKit {
 				return version;
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (version != null && version.CompareTo (value) == 0)
@@ -1127,7 +1127,7 @@ namespace MimeKit {
 
 		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity entity)
 		{
-			if (entity == null)
+			if (entity is null)
 				yield break;
 
 			if (entity is Multipart multipart) {
@@ -1175,7 +1175,7 @@ namespace MimeKit {
 		static void AddMailboxes (IList<MailboxAddress> recipients, HashSet<string> unique, IEnumerable<MailboxAddress> mailboxes)
 		{
 			foreach (var mailbox in mailboxes) {
-				if (unique == null || unique.Add (mailbox.Address))
+				if (unique is null || unique.Add (mailbox.Address))
 					recipients.Add (mailbox);
 			}
 		}
@@ -1188,7 +1188,7 @@ namespace MimeKit {
 			if (ResentSender != null || ResentFrom.Count > 0) {
 				if (includeSenders) {
 					if (ResentSender != null) {
-						if (unique == null || unique.Add (ResentSender.Address))
+						if (unique is null || unique.Add (ResentSender.Address))
 							recipients.Add (ResentSender);
 					}
 
@@ -1201,7 +1201,7 @@ namespace MimeKit {
 			} else {
 				if (includeSenders) {
 					if (Sender != null) {
-						if (unique == null || unique.Add (Sender.Address))
+						if (unique is null || unique.Add (Sender.Address))
 							recipients.Add (Sender);
 					}
 
@@ -1272,7 +1272,7 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitMimeMessage (this);
@@ -1297,7 +1297,7 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			if (Body != null) {
-				if (MimeVersion == null && Body.Headers.Count > 0)
+				if (MimeVersion is null && Body.Headers.Count > 0)
 					MimeVersion = new Version (1, 0);
 
 				Body.Prepare (constraint, maxLineLength);
@@ -1327,10 +1327,10 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
@@ -1401,10 +1401,10 @@ namespace MimeKit {
 		/// </exception>
 		public async Task WriteToAsync (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
@@ -1624,10 +1624,10 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
@@ -1672,10 +1672,10 @@ namespace MimeKit {
 		/// </exception>
 		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
@@ -1845,14 +1845,14 @@ namespace MimeKit {
 		/// </exception>
 		public void Sign (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
+			if (ctx is null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (Body == null)
+			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
 			var signer = GetMessageSigner ();
-			if (signer == null)
+			if (signer is null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
 			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body, cancellationToken);
@@ -1896,14 +1896,14 @@ namespace MimeKit {
 		/// </exception>
 		public async Task SignAsync (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
+			if (ctx is null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (Body == null)
+			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
 			var signer = GetMessageSigner ();
-			if (signer == null)
+			if (signer is null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
 			Body = await MultipartSigned.CreateAsync (ctx, signer, digestAlgo, Body, cancellationToken).ConfigureAwait (false);
@@ -2011,10 +2011,10 @@ namespace MimeKit {
 		/// </exception>
 		public void Encrypt (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
+			if (ctx is null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (Body == null)
+			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
 			var recipients = GetEncryptionRecipients ();
@@ -2066,10 +2066,10 @@ namespace MimeKit {
 		/// </exception>
 		public async Task EncryptAsync (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
+			if (ctx is null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (Body == null)
+			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
 			var recipients = GetEncryptionRecipients ();
@@ -2136,14 +2136,14 @@ namespace MimeKit {
 		/// </exception>
 		public void SignAndEncrypt (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
+			if (ctx is null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (Body == null)
+			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
 			var signer = GetMessageSigner ();
-			if (signer == null)
+			if (signer is null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
 			var recipients = GetEncryptionRecipients ();
@@ -2209,14 +2209,14 @@ namespace MimeKit {
 		/// </exception>
 		public async Task SignAndEncryptAsync (CryptographyContext ctx, DigestAlgorithm digestAlgo, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (ctx == null)
+			if (ctx is null)
 				throw new ArgumentNullException (nameof (ctx));
 
-			if (Body == null)
+			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
 			var signer = GetMessageSigner ();
-			if (signer == null)
+			if (signer is null)
 				throw new InvalidOperationException ("The sender has not been set.");
 
 			var recipients = GetEncryptionRecipients ();
@@ -2670,10 +2670,10 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeMessage Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
@@ -2714,10 +2714,10 @@ namespace MimeKit {
 		/// </exception>
 		public static Task<MimeMessage> LoadAsync (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
@@ -2945,10 +2945,10 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeMessage Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
@@ -2995,10 +2995,10 @@ namespace MimeKit {
 		/// </exception>
 		public static async Task<MimeMessage> LoadAsync (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
@@ -3196,7 +3196,7 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeMessage CreateFromMailMessage (MailMessage message)
 		{
-			if (message == null)
+			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
 			var headers = new List<Header> ();
@@ -3275,7 +3275,7 @@ namespace MimeKit {
 			if (message.AlternateViews.Count > 0)
 				body = AddAlternateViews (body, message.AlternateViews);
 
-			if (body == null)
+			if (body is null)
 				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
 
 			if (message.Attachments.Count > 0) {

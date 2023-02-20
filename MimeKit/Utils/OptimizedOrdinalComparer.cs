@@ -79,10 +79,10 @@ namespace MimeKit.Utils {
 		/// <param name="y">A string to compare to <paramref name="x"/>.</param>
 		public bool Equals (string x, string y)
 		{
-			//if (x == null && y == null)
+			//if (x is null && y is null)
 			//	return true;
 
-			//if (x == null || y == null)
+			//if (x is null || y is null)
 			//	return false;
 
 			if (x.Length != y.Length)
@@ -110,7 +110,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public int GetHashCode (string obj)
 		{
-			if (obj == null)
+			if (obj is null)
 				throw new ArgumentNullException (nameof (obj));
 
 			unsafe {

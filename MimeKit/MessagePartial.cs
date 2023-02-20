@@ -83,7 +83,7 @@ namespace MimeKit {
 		/// </exception>
 		public MessagePartial (string id, int number, int total) : base ("message", "partial")
 		{
-			if (id == null)
+			if (id is null)
 				throw new ArgumentNullException (nameof (id));
 
 			if (number < 1)
@@ -124,7 +124,7 @@ namespace MimeKit {
 			get {
 				var text = ContentType.Parameters["number"];
 
-				if (text == null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int number))
+				if (text is null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int number))
 					return null;
 
 				return number;
@@ -142,7 +142,7 @@ namespace MimeKit {
 			get {
 				var text = ContentType.Parameters["total"];
 
-				if (text == null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int total))
+				if (text is null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int total))
 					return null;
 
 				return total;
@@ -169,7 +169,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -211,7 +211,7 @@ namespace MimeKit {
 		/// </exception>
 		public static IEnumerable<MimeMessage> Split (MimeMessage message, int maxSize)
 		{
-			if (message == null)
+			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
 			if (maxSize < 1)
@@ -414,13 +414,13 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeMessage Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (message == null)
+			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
-			if (partials == null)
+			if (partials is null)
 				throw new ArgumentNullException (nameof (partials));
 
 			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.

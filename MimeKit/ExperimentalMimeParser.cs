@@ -208,7 +208,7 @@ namespace MimeKit {
 			base.SetStream (stream, format);
 
 			this.persistent = persistent && stream.CanSeek;
-			if (format == MimeFormat.Mbox && mboxMarkerBuffer == null)
+			if (format == MimeFormat.Mbox && mboxMarkerBuffer is null)
 				mboxMarkerBuffer = new byte[64];
 		}
 
@@ -321,7 +321,7 @@ namespace MimeKit {
 		protected override void OnHeaderRead (Header header, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			if (parsingMessageHeaders && header.IsInvalid && headers.Count == 0) {
-				if (preHeaderBuffer == null)
+				if (preHeaderBuffer is null)
 					preHeaderBuffer = new byte[header.RawField.Length];
 				else if (header.RawField.Length + preHeaderLength > preHeaderBuffer.Length)
 					Array.Resize (ref preHeaderBuffer, header.RawField.Length + preHeaderLength);

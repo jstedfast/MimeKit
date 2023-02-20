@@ -85,7 +85,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (string messageId)
 		{
-			if (messageId == null)
+			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
 			return references.IndexOf (messageId);
@@ -115,7 +115,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Insert (int index, string messageId)
 		{
-			if (messageId == null)
+			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
 			references.Insert (index, ValidateMessageId (messageId));
@@ -155,7 +155,7 @@ namespace MimeKit {
 		public string this [int index] {
 			get { return references[index]; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (references[index] == value)
@@ -182,7 +182,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (string messageId)
 		{
-			if (messageId == null)
+			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
 			references.Add (ValidateMessageId (messageId));
@@ -201,7 +201,7 @@ namespace MimeKit {
 		/// </exception>
 		public void AddRange (IEnumerable<string> items)
 		{
-			if (items == null)
+			if (items is null)
 				throw new ArgumentNullException (nameof (items));
 
 			foreach (var msgid in items)
@@ -236,7 +236,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (string messageId)
 		{
-			if (messageId == null)
+			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
 			return references.Contains (messageId);
@@ -276,7 +276,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (string messageId)
 		{
-			if (messageId == null)
+			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
 			if (references.Remove (messageId)) {

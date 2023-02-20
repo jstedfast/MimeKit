@@ -65,7 +65,7 @@ namespace MimeKit {
 		/// </exception>
 		protected InternetAddress (Encoding encoding, string name)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			Encoding = encoding;
@@ -86,7 +86,7 @@ namespace MimeKit {
 		public Encoding Encoding {
 			get { return encoding; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (value == encoding)
@@ -142,7 +142,7 @@ namespace MimeKit {
 		{
 			int rv;
 
-			if (other == null)
+			if (other is null)
 				throw new ArgumentNullException (nameof (other));
 
 			if ((rv = string.Compare (Name, other.Name, StringComparison.OrdinalIgnoreCase)) != 0)
@@ -179,10 +179,10 @@ namespace MimeKit {
 			}
 
 			// sort mailbox addresses before group addresses
-			if (mailbox != null && otherMailbox == null)
+			if (mailbox != null && otherMailbox is null)
 				return -1;
 
-			if (mailbox == null && otherMailbox != null)
+			if (mailbox is null && otherMailbox != null)
 				return 1;
 
 			return 0;

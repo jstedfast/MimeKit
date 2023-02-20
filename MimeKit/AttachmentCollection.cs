@@ -127,7 +127,7 @@ namespace MimeKit {
 				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				attachments[index] = value;
@@ -321,16 +321,16 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Add (string fileName, byte[] data, ContentType contentType)
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
 			using (var stream = new MemoryStream (data, false)) {
@@ -374,16 +374,16 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Add (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
 			var attachment = CreateAttachment (contentType, fileName, stream, cancellationToken);
@@ -425,16 +425,16 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
 			var attachment = await CreateAttachmentAsync (contentType, fileName, stream, cancellationToken).ConfigureAwait (false);
@@ -464,13 +464,13 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Add (string fileName, byte[] data)
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (data == null)
+			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
 			using (var stream = new MemoryStream (data, false)) {
@@ -509,13 +509,13 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Add (string fileName, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, cancellationToken);
@@ -552,13 +552,13 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var attachment = await CreateAttachmentAsync (GetMimeType (fileName), fileName, stream, cancellationToken).ConfigureAwait (false);
@@ -602,13 +602,13 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Add (string fileName, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
 			using (var stream = File.OpenRead (fileName)) {
@@ -654,13 +654,13 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
 			using (var stream = File.OpenRead (fileName)) {
@@ -708,7 +708,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Add (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
@@ -756,7 +756,7 @@ namespace MimeKit {
 		/// </exception>
 		public async Task<MimeEntity> AddAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (fileName.Length == 0)
@@ -783,7 +783,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (MimeEntity attachment)
 		{
-			if (attachment == null)
+			if (attachment is null)
 				throw new ArgumentNullException (nameof (attachment));
 
 			attachments.Add (attachment);
@@ -831,7 +831,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (MimeEntity attachment)
 		{
-			if (attachment == null)
+			if (attachment is null)
 				throw new ArgumentNullException (nameof (attachment));
 
 			return attachments.Contains (attachment);
@@ -854,7 +854,7 @@ namespace MimeKit {
 		/// </exception>
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
-			if (array == null)
+			if (array is null)
 				throw new ArgumentNullException (nameof (array));
 
 			if (arrayIndex < 0 || arrayIndex >= array.Length)
@@ -876,7 +876,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (MimeEntity attachment)
 		{
-			if (attachment == null)
+			if (attachment is null)
 				throw new ArgumentNullException (nameof (attachment));
 
 			return attachments.IndexOf (attachment);
@@ -901,7 +901,7 @@ namespace MimeKit {
 			if (index < 0 || index >= Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
-			if (attachment == null)
+			if (attachment is null)
 				throw new ArgumentNullException (nameof (attachment));
 
 			attachments.Insert (index, attachment);
@@ -920,7 +920,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (MimeEntity attachment)
 		{
-			if (attachment == null)
+			if (attachment is null)
 				throw new ArgumentNullException (nameof (attachment));
 
 			return attachments.Remove (attachment);

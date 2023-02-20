@@ -45,7 +45,7 @@ namespace MimeKit.IO.Filters {
 
 		static Encoding GetEncoding (string paramName, string encodingName)
 		{
-			if (encodingName == null)
+			if (encodingName is null)
 				throw new ArgumentNullException (paramName);
 
 			return CharsetUtils.GetEncoding (encodingName);
@@ -116,10 +116,10 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public CharsetFilter (Encoding sourceEncoding, Encoding targetEncoding)
 		{
-			if (sourceEncoding == null)
+			if (sourceEncoding is null)
 				throw new ArgumentNullException (nameof (sourceEncoding));
 
-			if (targetEncoding == null)
+			if (targetEncoding is null)
 				throw new ArgumentNullException (nameof (targetEncoding));
 
 			SourceEncoding = sourceEncoding;

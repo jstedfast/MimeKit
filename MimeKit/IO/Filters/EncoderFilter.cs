@@ -72,7 +72,7 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public EncoderFilter (IMimeEncoder encoder)
 		{
-			if (encoder == null)
+			if (encoder is null)
 				throw new ArgumentNullException (nameof (encoder));
 
 			Encoder = encoder;
@@ -117,7 +117,7 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public static IMimeFilter Create (string name, int maxLineLength = 78)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (!MimeUtils.TryParse (name, out ContentEncoding encoding))

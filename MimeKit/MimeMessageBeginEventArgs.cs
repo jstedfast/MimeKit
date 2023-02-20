@@ -47,7 +47,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeMessageBeginEventArgs (MimeMessage message)
 		{
-			if (message == null)
+			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
 			Message = message;
@@ -68,10 +68,10 @@ namespace MimeKit {
 		/// </exception>
 		public MimeMessageBeginEventArgs (MimeMessage message, MessagePart parent)
 		{
-			if (message == null)
+			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
-			if (parent == null)
+			if (parent is null)
 				throw new ArgumentNullException (nameof (parent));
 
 			Message = message;

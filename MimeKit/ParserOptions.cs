@@ -245,10 +245,10 @@ namespace MimeKit {
 		/// </exception>
 		public void RegisterMimeType (string mimeType, Type type)
 		{
-			if (mimeType == null)
+			if (mimeType is null)
 				throw new ArgumentNullException (nameof (mimeType));
 
-			if (type == null)
+			if (type is null)
 				throw new ArgumentNullException (nameof (type));
 
 			if (!type.IsSubclassOf (typeof (MessagePart)) &&
@@ -258,7 +258,7 @@ namespace MimeKit {
 
 			var ctor = type.GetConstructor (ConstructorArgTypes);
 
-			if (ctor == null)
+			if (ctor is null)
 				throw new ArgumentException ("The specified type must have a constructor that takes a MimeEntityConstructorArgs argument.", nameof (type));
 
 			mimeType = mimeType.ToLowerInvariant ();

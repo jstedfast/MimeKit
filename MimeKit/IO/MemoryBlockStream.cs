@@ -192,7 +192,7 @@ namespace MimeKit.IO {
 
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
@@ -291,7 +291,7 @@ namespace MimeKit.IO {
 			try {
 				int n = Read (buffer, offset, count);
 
-				if (lastReadTask == null || lastReadTask.Result != n)
+				if (lastReadTask is null || lastReadTask.Result != n)
 					lastReadTask = Task.FromResult<int> (n);
 
 				return lastReadTask;

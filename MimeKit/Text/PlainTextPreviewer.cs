@@ -75,7 +75,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override string GetPreviewText (string text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			if (text.Length == 0)
@@ -120,7 +120,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override string GetPreviewText (TextReader reader)
 		{
-			if (reader == null)
+			if (reader is null)
 				throw new ArgumentNullException (nameof (reader));
 
 			var preview = new char[MaximumPreviewLength];

@@ -77,7 +77,7 @@ namespace MimeKit.Text {
 
 		internal void Add (HtmlAttribute attribute)
 		{
-			if (attribute == null)
+			if (attribute is null)
 				throw new ArgumentNullException (nameof (attribute));
 
 			attributes.Add (attribute);
@@ -143,7 +143,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public int IndexOf (string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			for (int i = 0; i < attributes.Count; i++) {

@@ -120,7 +120,7 @@ namespace MimeKit {
 		public string Disposition {
 			get { return disposition; }
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (value.Length == 0)
@@ -364,10 +364,10 @@ namespace MimeKit {
 		/// </exception>
 		public string ToString (FormatOptions options, Encoding charset, bool encode)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			var builder = new ValueStringBuilder (256);

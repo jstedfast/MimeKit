@@ -69,7 +69,7 @@ namespace MimeKit {
 			MimeMessage message = null;
 
 			foreach (object obj in args) {
-				if (obj == null || TryInit (obj))
+				if (obj is null || TryInit (obj))
 					continue;
 
 				if (obj is MimeMessage mesg) {
@@ -114,7 +114,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			visitor.VisitTextRfc822Headers (this);

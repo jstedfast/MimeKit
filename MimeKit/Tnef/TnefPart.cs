@@ -97,7 +97,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -234,7 +234,7 @@ namespace MimeKit.Tnef {
 							}
 						}
 
-						if (httpEquiv == null || content == null || !httpEquiv.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+						if (httpEquiv is null || content is null || !httpEquiv.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
 							continue;
 
 						if (!ContentType.TryParse (content, out var contentType) || string.IsNullOrEmpty (contentType.Charset))
@@ -516,7 +516,7 @@ namespace MimeKit.Tnef {
 						dispose = true;
 						break;
 					case TnefAttributeTag.Attachment:
-						if (attachment == null)
+						if (attachment is null)
 							break;
 
 						attachData = null;
@@ -527,7 +527,7 @@ namespace MimeKit.Tnef {
 								attachment.FileName = prop.ReadValueAsString ();
 								break;
 							case TnefPropertyId.AttachFilename:
-								if (attachment.FileName == null)
+								if (attachment.FileName is null)
 									attachment.FileName = prop.ReadValueAsString ();
 								break;
 							case TnefPropertyId.AttachContentLocation:
@@ -566,14 +566,14 @@ namespace MimeKit.Tnef {
 							case TnefPropertyId.AttachFlags:
 								flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
 								if ((flags & TnefAttachFlags.RenderedInBody) != 0) {
-									if (attachment.ContentDisposition == null)
+									if (attachment.ContentDisposition is null)
 										attachment.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
 									else
 										attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
 								}
 								break;
 							case TnefPropertyId.AttachSize:
-								if (attachment.ContentDisposition == null)
+								if (attachment.ContentDisposition is null)
 									attachment.ContentDisposition = new ContentDisposition ();
 
 								attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
@@ -608,7 +608,7 @@ namespace MimeKit.Tnef {
 						break;
 					case TnefAttributeTag.AttachCreateDate:
 						if (attachment != null) {
-							if (attachment.ContentDisposition == null)
+							if (attachment.ContentDisposition is null)
 								attachment.ContentDisposition = new ContentDisposition ();
 
 							attachment.ContentDisposition.CreationDate = prop.ReadValueAsDateTime ();
@@ -616,7 +616,7 @@ namespace MimeKit.Tnef {
 						break;
 					case TnefAttributeTag.AttachModifyDate:
 						if (attachment != null) {
-							if (attachment.ContentDisposition == null)
+							if (attachment.ContentDisposition is null)
 								attachment.ContentDisposition = new ContentDisposition ();
 
 							attachment.ContentDisposition.ModificationDate = prop.ReadValueAsDateTime ();
@@ -627,13 +627,13 @@ namespace MimeKit.Tnef {
 							attachment.FileName = prop.ReadValueAsString ();
 						break;
 					case TnefAttributeTag.AttachMetaFile:
-						if (attachment == null)
+						if (attachment is null)
 							break;
 
 						// TODO: what to do with the meta data?
 						break;
 					case TnefAttributeTag.AttachData:
-						if (attachment == null || attachMethod != TnefAttachMethod.ByValue)
+						if (attachment is null || attachMethod != TnefAttachMethod.ByValue)
 							break;
 
 						attachData = prop.ReadValueAsBytes ();
@@ -764,7 +764,7 @@ namespace MimeKit.Tnef {
 		{
 			CheckDisposed ();
 
-			if (Content == null)
+			if (Content is null)
 				throw new InvalidOperationException ("Cannot parse null TNEF data.");
 
 			int codepage = 0;

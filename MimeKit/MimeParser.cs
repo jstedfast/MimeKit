@@ -247,7 +247,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
 			Options = options;
@@ -267,7 +267,7 @@ namespace MimeKit {
 				return options;
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (value == ParserOptions.Default)
@@ -347,7 +347,7 @@ namespace MimeKit {
 		[Obsolete ("Use SetStream(Stream, MimeFormat) or SetStream(Stream, MimeFormat, bool) instead.")]
 		public void SetStream (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
 			Options = options;
@@ -403,7 +403,7 @@ namespace MimeKit {
 		/// </exception>
 		public void SetStream (Stream stream, MimeFormat format, bool persistent)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			this.persistent = persistent && stream.CanSeek;
@@ -434,7 +434,7 @@ namespace MimeKit {
 			if (format == MimeFormat.Mbox) {
 				bounds.Add (Boundary.CreateMboxBoundary ());
 
-				if (mboxMarkerBuffer == null)
+				if (mboxMarkerBuffer is null)
 					mboxMarkerBuffer = new byte[ReadAheadSize];
 			}
 
@@ -1160,7 +1160,7 @@ namespace MimeKit {
 				var rawValue = headers[i].RawValue;
 				int index = 0;
 
-				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type == null) {
+				if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type is null) {
 					// if 'type' is null, then it means that even the mime-type was unintelligible
 					type = new ContentType ("application", "octet-stream");
 
@@ -1177,7 +1177,7 @@ namespace MimeKit {
 				return type;
 			}
 
-			if (parent == null || !parent.IsMimeType ("multipart", "digest"))
+			if (parent is null || !parent.IsMimeType ("multipart", "digest"))
 				return new ContentType ("text", "plain");
 
 			return new ContentType ("message", "rfc822");
@@ -1636,7 +1636,7 @@ namespace MimeKit {
 			var marker = multipart.Boundary;
 			long endOffset;
 
-			if (marker == null) {
+			if (marker is null) {
 #if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
 #endif

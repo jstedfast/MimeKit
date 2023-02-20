@@ -579,10 +579,10 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodePhrase (ParserOptions options, byte[] phrase, int startIndex, int count)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (phrase == null)
+			if (phrase is null)
 				throw new ArgumentNullException (nameof (phrase));
 
 			if (startIndex < 0 || startIndex > phrase.Length)
@@ -642,10 +642,10 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodePhrase (ParserOptions options, byte[] phrase)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (phrase == null)
+			if (phrase is null)
 				throw new ArgumentNullException (nameof (phrase));
 
 			return DecodePhrase (options, phrase, 0, phrase.Length);
@@ -664,7 +664,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodePhrase (byte[] phrase)
 		{
-			if (phrase == null)
+			if (phrase is null)
 				throw new ArgumentNullException (nameof (phrase));
 
 			return DecodePhrase (phrase, 0, phrase.Length);
@@ -730,10 +730,10 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodeText (ParserOptions options, byte[] text, int startIndex, int count)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			if (startIndex < 0 || startIndex > text.Length)
@@ -793,10 +793,10 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodeText (ParserOptions options, byte[] text)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			return DecodeText (options, text, 0, text.Length);
@@ -815,7 +815,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string DecodeText (byte[] text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			return DecodeText (text, 0, text.Length);
@@ -1606,13 +1606,13 @@ namespace MimeKit.Utils {
 
 		static void ValidateArguments (FormatOptions options, Encoding charset, string text, string textArgName)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (textArgName);
 		}
 

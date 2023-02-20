@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public AuthenticationResults (string authservid) : this ()
 		{
-			if (authservid == null)
+			if (authservid is null)
 				throw new ArgumentNullException (nameof (authservid));
 
 			AuthenticationServiceIdentifier = authservid;
@@ -331,7 +331,7 @@ namespace MimeKit.Cryptography {
 				// method. This block of code is here to handle that case.
 				//
 				// See https://github.com/jstedfast/MimeKit/issues/527 for details.
-				if (srvid == null && index < endIndex && text[index] == '.') {
+				if (srvid is null && index < endIndex && text[index] == '.') {
 					index = methodIndex;
 
 					if (!SkipDomain (text, ref index, endIndex)) {
@@ -674,7 +674,6 @@ namespace MimeKit.Cryptography {
 			int? instance = null;
 			string srvid = null;
 			string value;
-			bool quoted;
 
 			authres = null;
 
@@ -684,7 +683,7 @@ namespace MimeKit.Cryptography {
 			do {
 				int start = index;
 
-				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
+				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out bool quoted)) {
 					if (throwOnError)
 						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete authserv-id token at offset {0}", start), start, index);
 
@@ -766,7 +765,7 @@ namespace MimeKit.Cryptography {
 						srvid = value;
 					}
 				}
-			} while (srvid == null);
+			} while (srvid is null);
 
 			authres = new AuthenticationResults (srvid) { Instance = instance };
 
@@ -851,7 +850,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out AuthenticationResults authres)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			int index = 0;
@@ -884,10 +883,9 @@ namespace MimeKit.Cryptography {
 		{
 			ParseUtils.ValidateArguments (buffer, startIndex, length);
 
-			AuthenticationResults authres;
 			int index = startIndex;
 
-			TryParse (buffer, ref index, startIndex + length, true, out authres);
+			TryParse (buffer, ref index, startIndex + length, true, out AuthenticationResults authres);
 
 			return authres;
 		}
@@ -908,13 +906,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static AuthenticationResults Parse (byte[] buffer)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
-			AuthenticationResults authres;
 			int index = 0;
 
-			TryParse (buffer, ref index, buffer.Length, true, out authres);
+			TryParse (buffer, ref index, buffer.Length, true, out AuthenticationResults authres);
 
 			return authres;
 		}
@@ -940,7 +937,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		internal AuthenticationMethodResult (string method)
 		{
-			if (method == null)
+			if (method is null)
 				throw new ArgumentNullException (nameof (method));
 
 			Properties = new List<AuthenticationMethodProperty> ();
@@ -962,7 +959,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public AuthenticationMethodResult (string method, string result) : this (method)
 		{
-			if (result == null)
+			if (result is null)
 				throw new ArgumentNullException (nameof (result));
 
 			Result = result;
@@ -1239,13 +1236,13 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		internal AuthenticationMethodProperty (string ptype, string property, string value, bool? quoted)
 		{
-			if (ptype == null)
+			if (ptype is null)
 				throw new ArgumentNullException (nameof (ptype));
 
-			if (property == null)
+			if (property is null)
 				throw new ArgumentNullException (nameof (property));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			this.quoted = quoted;
@@ -1309,7 +1306,7 @@ namespace MimeKit.Cryptography {
 
 		internal void AppendTokens (FormatOptions options, List<string> tokens)
 		{
-			var quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+			var quote = quoted ?? Value.IndexOfAny (TokenSpecials) != -1;
 			var value = quote ? MimeUtils.Quote (Value) : Value;
 
 			tokens.Add (" ");
@@ -1346,7 +1343,7 @@ namespace MimeKit.Cryptography {
 
 		internal void WriteTo (ref ValueStringBuilder builder)
 		{
-			bool quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+			bool quote = quoted ?? Value.IndexOfAny (TokenSpecials) != -1;
 
 			builder.Append (PropertyType);
 			builder.Append ('.');

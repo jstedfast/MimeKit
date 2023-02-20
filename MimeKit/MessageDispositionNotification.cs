@@ -85,8 +85,8 @@ namespace MimeKit {
 			get {
 				CheckDisposed ();
 
-				if (fields == null) {
-					if (Content == null) {
+				if (fields is null) {
+					if (Content is null) {
 						Content = new MimeContent (new MemoryBlockStream ());
 						fields = new HeaderList ();
 					} else {
@@ -133,7 +133,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
