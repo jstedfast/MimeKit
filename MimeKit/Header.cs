@@ -1092,19 +1092,17 @@ namespace MimeKit {
 
 		static void ReformatAppendWord (FormatOptions format, ref ByteArrayBuilder builder, ref int lineLength, byte[] rawValue, int startIndex, int length)
 		{
-			if (lineLength + length + 1 < format.MaxLineLength) {
+			if (lineLength + length + 1 <= format.MaxLineLength) {
 				builder.Append ((byte) ' ');
 				lineLength++;
 
 				builder.Append (rawValue, startIndex, length);
 				lineLength += length;
-			} else if (length + 1 < format.MaxLineLength) {
+			} else if (length + 1 <= format.MaxLineLength) {
 				builder.Append (format.NewLineBytes);
 				builder.Append ((byte) ' ');
-				lineLength = 1;
-
 				builder.Append (rawValue, startIndex, length);
-				lineLength += length;
+				lineLength = length + 1;
 			} else {
 				int remaining = length;
 				int index = startIndex;
@@ -1131,19 +1129,17 @@ namespace MimeKit {
 
 		static void EncodeAppendWord (FormatOptions format, ref ValueStringBuilder builder, ref int lineLength, ReadOnlySpan<char> word)
 		{
-			if (lineLength + word.Length + 1 < format.MaxLineLength) {
+			if (lineLength + word.Length + 1 <= format.MaxLineLength) {
 				builder.Append (' ');
 				lineLength++;
 
 				builder.Append (word);
 				lineLength += word.Length;
-			} else if (word.Length + 1 < format.MaxLineLength) {
+			} else if (word.Length + 1 <= format.MaxLineLength) {
 				builder.Append (format.NewLine);
 				builder.Append (' ');
-				lineLength = 1;
-
 				builder.Append (word);
-				lineLength += word.Length;
+				lineLength = word.Length + 1;
 			} else {
 				int remaining = word.Length;
 				int index = 0;
@@ -1184,19 +1180,17 @@ namespace MimeKit {
 			}
 
 			// Try to fit the entire comment on a single line.
-			if (lineLength + comment.Length + 1 < format.MaxLineLength) {
+			if (lineLength + comment.Length + 1 <= format.MaxLineLength) {
 				builder.Append ((byte) ' ');
 				lineLength++;
 
 				builder.Append (comment);
 				lineLength += comment.Length;
-			} else if (comment.Length + 3 < format.MaxLineLength) {
+			} else if (comment.Length + 1 <= format.MaxLineLength) {
 				builder.Append (format.NewLineBytes);
 				builder.Append ((byte) ' ');
-				lineLength++;
-
 				builder.Append (comment);
-				lineLength += comment.Length;
+				lineLength = comment.Length + 1;
 			} else {
 				// We'll need to split the comment over multiple lines.
 				int index = 0;
@@ -1234,19 +1228,17 @@ namespace MimeKit {
 			}
 
 			// Try to fit the entire comment on a single line.
-			if (lineLength + comment.Length + 1 < format.MaxLineLength) {
+			if (lineLength + comment.Length + 1 <= format.MaxLineLength) {
 				builder.Append (' ');
 				lineLength++;
 
 				builder.Append (comment);
 				lineLength += comment.Length;
-			} else if (comment.Length + 3 < format.MaxLineLength) {
+			} else if (comment.Length + 1 <= format.MaxLineLength) {
 				builder.Append (format.NewLine);
 				builder.Append (' ');
-				lineLength++;
-
 				builder.Append (comment);
-				lineLength += comment.Length;
+				lineLength = comment.Length + 1;
 			} else {
 				// We'll need to split the comment over multiple lines.
 				int index = 0;
