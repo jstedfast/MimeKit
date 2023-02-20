@@ -96,7 +96,7 @@ namespace MimeKit {
 			if (start != null) {
 				string contentId;
 
-				if ((contentId = MimeUtils.EnumerateReferences (start).FirstOrDefault ()) == null)
+				if ((contentId = MimeUtils.EnumerateReferences (start).FirstOrDefault ()) is null)
 					contentId = start;
 
 				var cid = new Uri (string.Format ("cid:{0}", contentId));
@@ -106,7 +106,7 @@ namespace MimeKit {
 
 			var type = ContentType.Parameters["type"];
 
-			if (type == null)
+			if (type is null)
 				return -1;
 
 			for (int index = 0; index < Count; index++) {
@@ -152,7 +152,7 @@ namespace MimeKit {
 				return this[Math.Max (index, 0)];
 			}
 			set {
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				CheckDisposed ();
@@ -206,7 +206,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -258,7 +258,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (Uri uri)
 		{
-			if (uri == null)
+			if (uri is null)
 				throw new ArgumentNullException (nameof (uri));
 
 			CheckDisposed ();
@@ -319,7 +319,7 @@ namespace MimeKit {
 		/// </exception>
 		public Stream Open (Uri uri, out string mimeType, out string charset)
 		{
-			if (uri == null)
+			if (uri is null)
 				throw new ArgumentNullException (nameof (uri));
 
 			int index = IndexOf (uri);
@@ -329,7 +329,7 @@ namespace MimeKit {
 
 			var part = this[index] as MimePart;
 
-			if (part == null || part.Content == null)
+			if (part is null || part.Content is null)
 				throw new FileNotFoundException ();
 
 			mimeType = part.ContentType.MimeType;
@@ -357,7 +357,7 @@ namespace MimeKit {
 		/// </exception>
 		public Stream Open (Uri uri)
 		{
-			if (uri == null)
+			if (uri is null)
 				throw new ArgumentNullException (nameof (uri));
 
 			int index = IndexOf (uri);
@@ -365,7 +365,7 @@ namespace MimeKit {
 			if (index == -1)
 				throw new FileNotFoundException ();
 
-			if (!(this[index] is MimePart part) || part.Content == null)
+			if (!(this[index] is MimePart part) || part.Content is null)
 				throw new FileNotFoundException ();
 
 			return part.Content.Open ();

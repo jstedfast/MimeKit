@@ -75,7 +75,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public void Add (Stream stream, bool leaveOpen = false)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			this.leaveOpen.Add (leaveOpen);
@@ -227,7 +227,7 @@ namespace MimeKit.IO {
 
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)

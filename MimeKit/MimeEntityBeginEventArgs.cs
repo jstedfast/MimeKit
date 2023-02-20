@@ -47,7 +47,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntityBeginEventArgs (MimeEntity entity)
 		{
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
 			Entity = entity;
@@ -68,10 +68,10 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntityBeginEventArgs (MimeEntity entity, Multipart parent)
 		{
-			if (entity == null)
+			if (entity is null)
 				throw new ArgumentNullException (nameof (entity));
 
-			if (parent == null)
+			if (parent is null)
 				throw new ArgumentNullException (nameof (parent));
 
 			Entity = entity;

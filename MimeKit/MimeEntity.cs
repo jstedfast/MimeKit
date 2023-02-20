@@ -89,7 +89,7 @@ namespace MimeKit {
 		/// </exception>
 		protected MimeEntity (MimeEntityConstructorArgs args)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
 			Headers = new HeaderList (args.ParserOptions);
@@ -135,7 +135,7 @@ namespace MimeKit {
 		/// </exception>
 		protected MimeEntity (ContentType contentType)
 		{
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
 			Headers = new HeaderList ();
@@ -417,7 +417,7 @@ namespace MimeKit {
 				if ((LazyLoaded & LazyLoadedFields.ContentId) != 0 && contentId == value)
 					return;
 
-				if (value == null) {
+				if (value is null) {
 					LazyLoaded |= LazyLoadedFields.ContentId;
 					RemoveHeader ("Content-Id");
 					contentId = null;
@@ -459,7 +459,7 @@ namespace MimeKit {
 				CheckDisposed ();
 
 				if (value) {
-					if (ContentDisposition == null)
+					if (ContentDisposition is null)
 						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 					else if (!ContentDisposition.IsAttachment)
 						ContentDisposition.Disposition = ContentDisposition.Attachment;
@@ -517,7 +517,7 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -570,10 +570,10 @@ namespace MimeKit {
 		/// </exception>
 		public virtual void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			CheckDisposed ();
@@ -610,10 +610,10 @@ namespace MimeKit {
 		/// </exception>
 		public virtual Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			CheckDisposed ();
@@ -826,10 +826,10 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
@@ -876,10 +876,10 @@ namespace MimeKit {
 		/// </exception>
 		public async Task WriteToAsync (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
@@ -924,10 +924,10 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
@@ -975,10 +975,10 @@ namespace MimeKit {
 		/// </exception>
 		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
@@ -1353,10 +1353,10 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeEntity Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
@@ -1397,10 +1397,10 @@ namespace MimeKit {
 		/// </exception>
 		public static Task<MimeEntity> LoadAsync (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
@@ -1628,10 +1628,10 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeEntity Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
@@ -1678,10 +1678,10 @@ namespace MimeKit {
 		/// </exception>
 		public static async Task<MimeEntity> LoadAsync (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
@@ -1798,13 +1798,13 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
-			if (content == null)
+			if (content is null)
 				throw new ArgumentNullException (nameof (content));
 
 			var format = FormatOptions.CloneDefault ();
@@ -1851,13 +1851,13 @@ namespace MimeKit {
 		/// </exception>
 		public static Task<MimeEntity> LoadAsync (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (contentType == null)
+			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
-			if (content == null)
+			if (content is null)
 				throw new ArgumentNullException (nameof (content));
 
 			var format = FormatOptions.CloneDefault ();

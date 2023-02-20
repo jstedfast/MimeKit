@@ -144,7 +144,7 @@ namespace MimeKit.Utils {
 
 		public static string GetMimeCharset (Encoding encoding)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			switch (encoding.CodePage) {
@@ -290,7 +290,7 @@ namespace MimeKit.Utils {
 
 		public static int GetCodePage (string charset)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			int codepage;
@@ -333,10 +333,10 @@ namespace MimeKit.Utils {
 		{
 			int codepage;
 
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
-			if (fallback == null)
+			if (fallback is null)
 				throw new ArgumentNullException (nameof (fallback));
 
 			if ((codepage = GetCodePage (charset)) == -1)
@@ -364,7 +364,7 @@ namespace MimeKit.Utils {
 
 		public static Encoding GetEncoding (int codepage, string fallback)
 		{
-			if (fallback == null)
+			if (fallback is null)
 				throw new ArgumentNullException (nameof (fallback));
 
 			var encoderFallback = new EncoderReplacementFallback (fallback);
@@ -510,10 +510,10 @@ namespace MimeKit.Utils {
 
 		public static string ConvertToUnicode (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
@@ -552,7 +552,7 @@ namespace MimeKit.Utils {
 				}
 			}
 
-			if (encoding == null)
+			if (encoding is null)
 				return ConvertToUnicode (options, input, startIndex, length, out charCount);
 
 			return ConvertToUnicode (encoding, input, startIndex, length, out charCount);
@@ -560,10 +560,10 @@ namespace MimeKit.Utils {
 
 		public static string ConvertToUnicode (Encoding encoding, byte[] buffer, int startIndex, int length)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)

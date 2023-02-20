@@ -66,7 +66,7 @@ namespace MimeKit {
 		/// </exception>
 		public InternetAddressList (IEnumerable<InternetAddress> addresses)
 		{
-			if (addresses == null)
+			if (addresses is null)
 				throw new ArgumentNullException (nameof (addresses));
 
 			foreach (var address in addresses) {
@@ -123,7 +123,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (InternetAddress address)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			return list.IndexOf (address);
@@ -148,7 +148,7 @@ namespace MimeKit {
 			if (index < 0 || index > list.Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			address.Changed += AddressChanged;
@@ -196,7 +196,7 @@ namespace MimeKit {
 				if (index < 0 || index >= list.Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (list[index] == value)
@@ -247,7 +247,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (InternetAddress address)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			address.Changed += AddressChanged;
@@ -267,7 +267,7 @@ namespace MimeKit {
 		/// </exception>
 		public void AddRange (IEnumerable<InternetAddress> addresses)
 		{
-			if (addresses == null)
+			if (addresses is null)
 				throw new ArgumentNullException (nameof (addresses));
 
 			bool changed = false;
@@ -314,7 +314,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (InternetAddress address)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			return list.Contains (address);
@@ -353,7 +353,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (InternetAddress address)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException (nameof (address));
 
 			if (list.Remove (address)) {
@@ -412,7 +412,7 @@ namespace MimeKit {
 		/// <see cref="InternetAddressList"/>; otherwise, <c>false</c>.</returns>
 		public bool Equals (InternetAddressList other)
 		{
-			if (other == null)
+			if (other is null)
 				return false;
 
 			if (other.Count != Count)
@@ -445,7 +445,7 @@ namespace MimeKit {
 		{
 			int rv;
 
-			if (other == null)
+			if (other is null)
 				throw new ArgumentNullException (nameof (other));
 
 			for (int i = 0; i < Math.Min (Count, other.Count); i++) {
@@ -1061,7 +1061,7 @@ namespace MimeKit {
 		/// </exception>
 		public static explicit operator MailAddressCollection (InternetAddressList addresses)
 		{
-			if (addresses == null)
+			if (addresses is null)
 				return null;
 
 			var collection = new MailAddressCollection ();
@@ -1089,7 +1089,7 @@ namespace MimeKit {
 		/// <param name="addresses">The mail address.</param>
 		public static explicit operator InternetAddressList (MailAddressCollection addresses)
 		{
-			if (addresses == null)
+			if (addresses is null)
 				return null;
 
 			var list = new InternetAddressList ();

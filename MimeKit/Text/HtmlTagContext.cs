@@ -201,7 +201,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void WriteTag (HtmlWriter htmlWriter, bool writeAttributes)
 		{
-			if (htmlWriter == null)
+			if (htmlWriter is null)
 				throw new ArgumentNullException (nameof (htmlWriter));
 
 			if (IsEndTag) {

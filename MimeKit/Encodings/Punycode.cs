@@ -61,7 +61,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public Punycode (IdnMapping idnMapping)
 		{
-			if (idnMapping == null)
+			if (idnMapping is null)
 				throw new ArgumentNullException (nameof (idnMapping));
 
 			idn = idnMapping;

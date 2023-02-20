@@ -93,7 +93,7 @@ namespace MimeKit.Utils {
 		
 		public void CopyTo (byte[] array, int arrayIndex)
 		{
-			if (array == null)
+			if (array is null)
 				throw new ArgumentNullException (nameof (array));
 
 			if (arrayIndex < 0 || arrayIndex + length > array.Length)

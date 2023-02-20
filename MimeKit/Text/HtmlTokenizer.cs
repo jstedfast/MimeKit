@@ -2929,7 +2929,7 @@ namespace MimeKit.Text {
 					token = null;
 					return false;
 				}
-			} while (token == null);
+			} while (token is null);
 
 			return true;
 		}

@@ -173,7 +173,7 @@ namespace MimeKit.IO.Filters {
 
 		static void ValidateArguments (byte[] input, int startIndex, int length)
 		{
-			if (input == null)
+			if (input is null)
 				throw new ArgumentNullException (nameof (input));
 
 			if (startIndex < 0 || startIndex > input.Length)

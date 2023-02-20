@@ -194,7 +194,7 @@ namespace MimeKit {
 		/// </exception>
 		public override string ToString (FormatOptions options, bool encode)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
 			var builder = new StringBuilder ();
@@ -236,7 +236,7 @@ namespace MimeKit {
 		{
 			var group = other as GroupAddress;
 
-			if (group == null)
+			if (group is null)
 				return false;
 
 			return Name == group.Name && Members.Equals (group.Members);
@@ -458,10 +458,10 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -702,10 +702,10 @@ namespace MimeKit {
 		/// </exception>
 		public static new GroupAddress Parse (ParserOptions options, string text)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);

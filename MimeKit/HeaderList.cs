@@ -188,7 +188,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (string field)
 		{
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			return table.ContainsKey (field);
@@ -231,7 +231,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (string field)
 		{
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			for (int i = 0; i < headers.Count; i++) {
@@ -379,7 +379,7 @@ namespace MimeKit {
 		/// </exception>
 		public int LastIndexOf (string field)
 		{
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
@@ -427,7 +427,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (string field)
 		{
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			if (!table.TryGetValue (field, out var header))
@@ -477,7 +477,7 @@ namespace MimeKit {
 		/// </exception>
 		public void RemoveAll (string field)
 		{
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			if (!table.Remove (field))
@@ -608,7 +608,7 @@ namespace MimeKit {
 				if (id == HeaderId.Unknown)
 					throw new ArgumentOutOfRangeException (nameof (id));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (table.TryGetValue (id.ToHeaderName (), out var header)) {
@@ -636,7 +636,7 @@ namespace MimeKit {
 		/// </exception>
 		public string this [string field] {
 			get {
-				if (field == null)
+				if (field is null)
 					throw new ArgumentNullException (nameof (field));
 
 				if (table.TryGetValue (field, out var header))
@@ -645,10 +645,10 @@ namespace MimeKit {
 				return null;
 			}
 			set {
-				if (field == null)
+				if (field is null)
 					throw new ArgumentNullException (nameof (field));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (table.TryGetValue (field, out var header)) {
@@ -681,10 +681,10 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			using (var filtered = new FilteredStream (stream)) {
@@ -735,10 +735,10 @@ namespace MimeKit {
 		/// </exception>
 		public async Task WriteToAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			using (var filtered = new FilteredStream (stream)) {
@@ -842,7 +842,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (Header header)
 		{
-			if (header == null)
+			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
 			if (!table.ContainsKey (header.Field))
@@ -885,7 +885,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (Header header)
 		{
-			if (header == null)
+			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
 			return headers.Contains (header);
@@ -925,7 +925,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (Header header)
 		{
-			if (header == null)
+			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
 			int index = headers.IndexOf (header);
@@ -969,7 +969,7 @@ namespace MimeKit {
 		{
 			int i;
 
-			if (header == null)
+			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
 			if (!table.TryGetValue (header.Field, out var first)) {
@@ -1015,7 +1015,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (Header header)
 		{
-			if (header == null)
+			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
 			return headers.IndexOf (header);
@@ -1040,7 +1040,7 @@ namespace MimeKit {
 			if (index < 0 || index > Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
-			if (header == null)
+			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
 			// update the lookup table
@@ -1120,7 +1120,7 @@ namespace MimeKit {
 				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				var header = headers[index];
@@ -1224,7 +1224,7 @@ namespace MimeKit {
 
 		internal bool TryGetHeader (string field, out Header header)
 		{
-			if (field == null)
+			if (field is null)
 				throw new ArgumentNullException (nameof (field));
 
 			return table.TryGetValue (field, out header);
@@ -1257,10 +1257,10 @@ namespace MimeKit {
 		/// </exception>
 		public static HeaderList Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity);
@@ -1295,10 +1295,10 @@ namespace MimeKit {
 		/// </exception>
 		public static Task<HeaderList> LoadAsync (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
 			var parser = new MimeParser (options, stream, MimeFormat.Entity);
@@ -1400,10 +1400,10 @@ namespace MimeKit {
 		/// </exception>
 		public static HeaderList Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))
@@ -1450,10 +1450,10 @@ namespace MimeKit {
 		/// </exception>
 		public static async Task<HeaderList> LoadAsync (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName))

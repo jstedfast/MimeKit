@@ -99,7 +99,7 @@ namespace MimeKit {
 				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (groups[index] == value)
@@ -123,7 +123,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (HeaderList group)
 		{
-			if (group == null)
+			if (group is null)
 				throw new ArgumentNullException (nameof (@group));
 
 			group.Changed += OnGroupChanged;
@@ -160,7 +160,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (HeaderList group)
 		{
-			if (group == null)
+			if (group is null)
 				throw new ArgumentNullException (nameof (@group));
 
 			return groups.Contains (group);
@@ -200,7 +200,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (HeaderList group)
 		{
-			if (group == null)
+			if (group is null)
 				throw new ArgumentNullException (nameof (@group));
 
 			if (!groups.Remove (group))

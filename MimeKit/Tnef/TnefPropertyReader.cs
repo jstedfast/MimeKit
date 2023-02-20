@@ -700,7 +700,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public int ReadRawValue (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset >= buffer.Length)
@@ -753,7 +753,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public int ReadTextValue (char[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset >= buffer.Length)
@@ -762,7 +762,7 @@ namespace MimeKit.Tnef {
 			if (count < 0 || count > (buffer.Length - offset))
 				throw new ArgumentOutOfRangeException (nameof (count));
 
-			if (reader.StreamOffset == RawValueStreamOffset && decoder == null)
+			if (reader.StreamOffset == RawValueStreamOffset && decoder is null)
 				throw new InvalidOperationException ();
 
 			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {

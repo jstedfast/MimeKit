@@ -112,7 +112,7 @@ namespace MimeKit.Text {
 		/// <param name="ns">The namespace.</param>
 		public static HtmlNamespace ToHtmlNamespace (this string ns)
 		{
-			if (ns == null)
+			if (ns is null)
 				throw new ArgumentNullException (nameof (ns));
 
 			if (!ns.StartsWith ("http://www.w3.org/", StringComparison.OrdinalIgnoreCase))

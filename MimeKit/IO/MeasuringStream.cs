@@ -151,7 +151,7 @@ namespace MimeKit.IO {
 
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)

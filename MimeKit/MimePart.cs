@@ -102,13 +102,13 @@ namespace MimeKit {
 		/// </exception>
 		public MimePart (string mediaType, string mediaSubtype, params object[] args) : this (mediaType, mediaSubtype)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
 			IMimeContent content = null;
 
 			foreach (object obj in args) {
-				if (obj == null || TryInit (obj))
+				if (obj is null || TryInit (obj))
 					continue;
 
 				if (obj is IMimeContent co) {
@@ -419,14 +419,14 @@ namespace MimeKit {
 				if (ContentDisposition != null)
 					filename = ContentDisposition.FileName;
 
-				if (filename == null)
+				if (filename is null)
 					filename = ContentType.Name;
 
 				return filename?.Trim ();
 			}
 			set {
 				if (value != null) {
-					if (ContentDisposition == null)
+					if (ContentDisposition is null)
 						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
 					ContentDisposition.FileName = value;
 				} else if (ContentDisposition != null) {
@@ -471,7 +471,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -534,7 +534,7 @@ namespace MimeKit {
 			CheckDisposed ();
 
 			if (ContentType.IsMimeType ("text", "*") || ContentType.IsMimeType ("message", "*")) {
-				if (Content == null)
+				if (Content is null)
 					return ContentEncoding.SevenBit;
 
 				using (var measure = new MeasuringStream ()) {
@@ -571,7 +571,7 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
-			if (Content == null)
+			if (Content is null)
 				throw new InvalidOperationException ("Cannot compute Md5 checksum without a ContentObject.");
 
 			using (var stream = Content.Open ()) {
@@ -609,7 +609,7 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
-			if (string.IsNullOrWhiteSpace (md5sum) || Content == null)
+			if (string.IsNullOrWhiteSpace (md5sum) || Content is null)
 				return false;
 
 			return md5sum == ComputeContentMd5 ();
@@ -689,7 +689,7 @@ namespace MimeKit {
 		{
 			base.WriteTo (options, stream, contentOnly, cancellationToken);
 
-			if (Content == null)
+			if (Content is null)
 				return;
 
 			if (Content.Encoding != ContentTransferEncoding) {
@@ -781,7 +781,7 @@ namespace MimeKit {
 		{
 			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
 
-			if (Content == null)
+			if (Content is null)
 				return;
 
 			if (Content.Encoding != ContentTransferEncoding) {

@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public AuthenticationResults (string authservid) : this ()
 		{
-			if (authservid == null)
+			if (authservid is null)
 				throw new ArgumentNullException (nameof (authservid));
 
 			AuthenticationServiceIdentifier = authservid;
@@ -331,7 +331,7 @@ namespace MimeKit.Cryptography {
 				// method. This block of code is here to handle that case.
 				//
 				// See https://github.com/jstedfast/MimeKit/issues/527 for details.
-				if (srvid == null && index < endIndex && text[index] == '.') {
+				if (srvid is null && index < endIndex && text[index] == '.') {
 					index = methodIndex;
 
 					if (!SkipDomain (text, ref index, endIndex)) {
@@ -766,7 +766,7 @@ namespace MimeKit.Cryptography {
 						srvid = value;
 					}
 				}
-			} while (srvid == null);
+			} while (srvid is null);
 
 			authres = new AuthenticationResults (srvid) { Instance = instance };
 
@@ -851,7 +851,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out AuthenticationResults authres)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			int index = 0;
@@ -908,7 +908,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static AuthenticationResults Parse (byte[] buffer)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			AuthenticationResults authres;
@@ -940,7 +940,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		internal AuthenticationMethodResult (string method)
 		{
-			if (method == null)
+			if (method is null)
 				throw new ArgumentNullException (nameof (method));
 
 			Properties = new List<AuthenticationMethodProperty> ();
@@ -962,7 +962,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public AuthenticationMethodResult (string method, string result) : this (method)
 		{
-			if (result == null)
+			if (result is null)
 				throw new ArgumentNullException (nameof (result));
 
 			Result = result;
@@ -1239,13 +1239,13 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		internal AuthenticationMethodProperty (string ptype, string property, string value, bool? quoted)
 		{
-			if (ptype == null)
+			if (ptype is null)
 				throw new ArgumentNullException (nameof (ptype));
 
-			if (property == null)
+			if (property is null)
 				throw new ArgumentNullException (nameof (property));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			this.quoted = quoted;

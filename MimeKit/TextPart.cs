@@ -92,7 +92,7 @@ namespace MimeKit {
 		/// </exception>
 		public TextPart (string subtype, params object[] args) : this (subtype)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
 			// Default to UTF8 if not given.
@@ -100,7 +100,7 @@ namespace MimeKit {
 			string text = null;
 
 			foreach (object obj in args) {
-				if (obj == null || TryInit (obj))
+				if (obj is null || TryInit (obj))
 					continue;
 
 				if (obj is Encoding enc) {
@@ -390,7 +390,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -466,7 +466,7 @@ namespace MimeKit {
 						string charset = null;
 
 						foreach (var attribute in tag.Attributes) {
-							if (attribute.Value == null || !attributes.Add (attribute.Id))
+							if (attribute.Value is null || !attributes.Add (attribute.Id))
 								continue;
 
 							switch (attribute.Id) {
@@ -475,7 +475,7 @@ namespace MimeKit {
 									got_pragma = true;
 								break;
 							case HtmlAttributeId.Content:
-								if (charset == null && ContentType.TryParse (attribute.Value, out var contentType) && !string.IsNullOrEmpty (contentType.Charset)) {
+								if (charset is null && ContentType.TryParse (attribute.Value, out var contentType) && !string.IsNullOrEmpty (contentType.Charset)) {
 									charset = contentType.Charset.Trim ();
 									need_pragma = true;
 								}
@@ -559,7 +559,7 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
-			if (Content == null) {
+			if (Content is null) {
 				confidence = TextEncodingConfidence.Irrelevant;
 				encoding = Encoding.ASCII;
 				return true;
@@ -642,12 +642,12 @@ namespace MimeKit {
 		/// </exception>
 		public string GetText (Encoding encoding)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			CheckDisposed ();
 
-			if (Content == null)
+			if (Content is null)
 				return string.Empty;
 
 			using (var memory = new MemoryStream ()) {
@@ -686,7 +686,7 @@ namespace MimeKit {
 		/// </exception>
 		public string GetText (string charset)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
 			return GetText (CharsetUtils.GetEncoding (charset));
@@ -712,10 +712,10 @@ namespace MimeKit {
 		/// </exception>
 		public void SetText (Encoding encoding, string text)
 		{
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			CheckDisposed ();
@@ -748,10 +748,10 @@ namespace MimeKit {
 		/// </exception>
 		public void SetText (string charset, string text)
 		{
-			if (charset == null)
+			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			SetText (CharsetUtils.GetEncoding (charset), text);

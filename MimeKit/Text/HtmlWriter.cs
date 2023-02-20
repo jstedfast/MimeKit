@@ -58,10 +58,10 @@ namespace MimeKit.Text {
 		/// </exception>
 		public HtmlWriter (Stream stream, Encoding encoding)
 		{
-			if (stream == null)
+			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			if (encoding == null)
+			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
 			html = new StreamWriter (stream, encoding, 4096);
@@ -79,7 +79,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public HtmlWriter (TextWriter output)
 		{
-			if (output == null)
+			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
 			html = output;
@@ -100,7 +100,7 @@ namespace MimeKit.Text {
 
 		void CheckDisposed ()
 		{
-			if (html == null)
+			if (html is null)
 				throw new ObjectDisposedException ("HtmlWriter");
 		}
 
@@ -117,7 +117,7 @@ namespace MimeKit.Text {
 
 		static void ValidateArguments (char[] buffer, int index, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (index < 0 || index > buffer.Length)
@@ -129,7 +129,7 @@ namespace MimeKit.Text {
 
 		static void ValidateAttributeName (string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
@@ -141,7 +141,7 @@ namespace MimeKit.Text {
 
 		static void ValidateTagName (string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (name.Length == 0)
@@ -302,7 +302,7 @@ namespace MimeKit.Text {
 			if (id == HtmlAttributeId.Unknown)
 				throw new ArgumentException ("Invalid attribute.", nameof (id));
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
@@ -339,7 +339,7 @@ namespace MimeKit.Text {
 		{
 			ValidateAttributeName (name);
 
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
@@ -368,7 +368,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void WriteAttribute (HtmlAttribute attribute)
 		{
-			if (attribute == null)
+			if (attribute is null)
 				throw new ArgumentNullException (nameof (attribute));
 
 			EncodeAttributeName (attribute.Name);
@@ -494,7 +494,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void WriteAttributeValue (string value)
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
@@ -676,7 +676,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void WriteMarkupText (string value)
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
@@ -807,7 +807,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void WriteText (string value)
 		{
-			if (value == null)
+			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
 			CheckDisposed ();
@@ -859,7 +859,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void WriteToken (HtmlToken token)
 		{
-			if (token == null)
+			if (token is null)
 				throw new ArgumentNullException (nameof (token));
 
 			CheckDisposed ();

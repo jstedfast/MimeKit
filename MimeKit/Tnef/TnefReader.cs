@@ -239,7 +239,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public TnefReader (Stream inputStream, int defaultMessageCodepage, TnefComplianceMode complianceMode)
 		{
-			if (inputStream == null)
+			if (inputStream is null)
 				throw new ArgumentNullException (nameof (inputStream));
 
 			if (defaultMessageCodepage < 0)
@@ -672,7 +672,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		public int ReadAttributeRawValue (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset >= buffer.Length)

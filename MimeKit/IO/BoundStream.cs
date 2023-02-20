@@ -68,7 +68,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
 		{
-			if (baseStream == null)
+			if (baseStream is null)
 				throw new ArgumentNullException (nameof (baseStream));
 
 			if (startBoundary < 0)
@@ -287,7 +287,7 @@ namespace MimeKit.IO {
 
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)

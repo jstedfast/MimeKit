@@ -91,7 +91,7 @@ namespace MimeKit.IO.Filters {
 			// the input buffer, so make sure that we have room...
 			int totalLength = length + preloadLength;
 
-			if (inbuf == null || inbuf.Length < totalLength) {
+			if (inbuf is null || inbuf.Length < totalLength) {
 				// NOTE: Array.Resize() copies data, we don't need that (slower)
 				inbuf = new byte[GetIdealBufferSize (totalLength)];
 			}
@@ -111,7 +111,7 @@ namespace MimeKit.IO.Filters {
 
 		static void ValidateArguments (byte[] input, int startIndex, int length)
 		{
-			if (input == null)
+			if (input is null)
 				throw new ArgumentNullException (nameof (input));
 
 			if (startIndex < 0 || startIndex > input.Length)
@@ -204,7 +204,7 @@ namespace MimeKit.IO.Filters {
 			if (length == 0)
 				return;
 
-			if (preload == null || preload.Length < length)
+			if (preload is null || preload.Length < length)
 				preload = new byte[GetIdealBufferSize (length)];
 
 			Buffer.BlockCopy (input, startIndex, preload, 0, length);

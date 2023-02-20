@@ -135,7 +135,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();

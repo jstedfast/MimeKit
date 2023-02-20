@@ -76,7 +76,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeIterator (MimeMessage message)
 		{
-			if (message == null)
+			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
 			Message = message;
@@ -130,7 +130,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Parent {
 			get {
-				if (current == null)
+				if (current is null)
 					throw new InvalidOperationException ();
 
 				return stack.Count > 0 ? stack.Peek ().Entity : null;
@@ -158,7 +158,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeEntity Current {
 			get {
-				if (current == null)
+				if (current is null)
 					throw new InvalidOperationException ();
 
 				return current;
@@ -204,7 +204,7 @@ namespace MimeKit {
 		/// </exception>
 		public string PathSpecifier {
 			get {
-				if (current == null)
+				if (current is null)
 					throw new InvalidOperationException ();
 
 				var specifier = new ValueStringBuilder(128);
@@ -238,7 +238,7 @@ namespace MimeKit {
 		/// </exception>
 		public int Depth {
 			get {
-				if (current == null)
+				if (current is null)
 					throw new InvalidOperationException ();
 
 				return stack.Count;
@@ -374,7 +374,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool MoveTo (string pathSpecifier)
 		{
-			if (pathSpecifier == null)
+			if (pathSpecifier is null)
 				throw new ArgumentNullException (nameof (pathSpecifier));
 
 			if (pathSpecifier.Length == 0)

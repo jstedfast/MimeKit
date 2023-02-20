@@ -74,13 +74,13 @@ namespace MimeKit {
 		/// </exception>
 		public MessagePart (string subtype, params object[] args) : this (subtype)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
 			MimeMessage message = null;
 
 			foreach (object obj in args) {
-				if (obj == null || TryInit (obj))
+				if (obj is null || TryInit (obj))
 					continue;
 
 				if (obj is MimeMessage mesg) {
@@ -175,7 +175,7 @@ namespace MimeKit {
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
-			if (visitor == null)
+			if (visitor is null)
 				throw new ArgumentNullException (nameof (visitor));
 
 			CheckDisposed ();
@@ -238,7 +238,7 @@ namespace MimeKit {
 		{
 			base.WriteTo (options, stream, contentOnly, cancellationToken);
 
-			if (Message == null)
+			if (Message is null)
 				return;
 
 			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0) {
@@ -286,7 +286,7 @@ namespace MimeKit {
 		{
 			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
 
-			if (Message == null)
+			if (Message is null)
 				return;
 
 			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0)

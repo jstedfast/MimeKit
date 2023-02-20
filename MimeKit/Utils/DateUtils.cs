@@ -421,7 +421,7 @@ namespace MimeKit.Utils {
 					continue;
 				}
 
-				if ((month == null || numericMonth) && TryGetMonth (tokens[i], text, out value)) {
+				if ((month is null || numericMonth) && TryGetMonth (tokens[i], text, out value)) {
 					if (numericMonth) {
 						numericMonth = false;
 						day = month;
@@ -437,17 +437,17 @@ namespace MimeKit.Utils {
 				}
 
 				// Limit TryGetTimeZone to alpha and numeric timezone tokens (do not allow numeric tokens as they are handled below).
-				if (tzone == null && tokens[i].IsTimeZone && TryGetTimeZone (tokens[i], text, out value)) {
+				if (tzone is null && tokens[i].IsTimeZone && TryGetTimeZone (tokens[i], text, out value)) {
 					tzone = value;
 					continue;
 				}
 
 				if (tokens[i].IsNumeric) {
 					if (tokens[i].Length == 4) {
-						if (year == null) {
+						if (year is null) {
 							if (TryGetYear (tokens[i], text, out value))
 								year = value;
-						} else if (tzone == null) {
+						} else if (tzone is null) {
 							if (TryGetTimeZone (tokens[i], text, out value))
 								tzone = value;
 						}
@@ -464,18 +464,18 @@ namespace MimeKit.Utils {
 
 					ParseUtils.TryParseInt32 (text, ref index, endIndex, out value);
 
-					if (month == null && value > 0 && value <= 12) {
+					if (month is null && value > 0 && value <= 12) {
 						numericMonth = true;
 						month = value;
 						continue;
 					}
 
-					if (day == null && value > 0 && value <= 31) {
+					if (day is null && value > 0 && value <= 31) {
 						day = value;
 						continue;
 					}
 
-					if (year == null && value >= 69) {
+					if (year is null && value >= 69) {
 						year = 1900 + value;
 						continue;
 					}
@@ -484,7 +484,7 @@ namespace MimeKit.Utils {
 				// WTF is this??
 			}
 
-			if (year == null || month == null || day == null) {
+			if (year is null || month is null || day is null) {
 				date = new DateTimeOffset ();
 				return false;
 			}
@@ -532,7 +532,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
@@ -572,7 +572,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, out DateTimeOffset date)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
@@ -595,7 +595,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out DateTimeOffset date)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			return TryParse (buffer, 0, buffer.Length, out date);
@@ -615,7 +615,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static bool TryParse (string text, out DateTimeOffset date)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);

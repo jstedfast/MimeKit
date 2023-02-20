@@ -171,7 +171,7 @@ namespace MimeKit.Text {
 		/// </exception>
 		public override string GetPreviewText (TextReader reader)
 		{
-			if (reader == null)
+			if (reader is null)
 				throw new ArgumentNullException (nameof (reader));
 
 			var tokenizer = new HtmlTokenizer (reader) { IgnoreTruncatedTags = true };

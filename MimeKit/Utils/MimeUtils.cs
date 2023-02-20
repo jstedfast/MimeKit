@@ -88,7 +88,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string GenerateMessageId (string domain)
 		{
-			if (domain == null)
+			if (domain is null)
 				throw new ArgumentNullException (nameof (domain));
 
 			if (domain.Length == 0)
@@ -138,7 +138,7 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
-			if (DefaultHostName == null) {
+			if (DefaultHostName is null) {
 				try {
 					var properties = IPGlobalProperties.GetIPGlobalProperties ();
 
@@ -211,7 +211,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (string text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -261,7 +261,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string ParseMessageId (string text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -341,7 +341,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static bool TryParse (string text, out Version version)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var buffer = Encoding.UTF8.GetBytes (text);
@@ -368,7 +368,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static bool TryParse (string text, out ContentEncoding encoding)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			int i = 0;
@@ -425,10 +425,10 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static StringBuilder AppendQuoted (StringBuilder builder, string text)
 		{
-			if (builder == null)
+			if (builder is null)
 				throw new ArgumentNullException (nameof (builder));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			builder.Append ('"');
@@ -490,7 +490,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string Quote (ReadOnlySpan<char> text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			var quoted = new ValueStringBuilder ((text.Length * 2) + 2);
@@ -514,7 +514,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string Quote (string text)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			return Quote (text.AsSpan ());
@@ -534,7 +534,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string Unquote (string text, bool convertTabsToSpaces = false)
 		{
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 
 			int index = text.IndexOfAny (UnquoteChars);

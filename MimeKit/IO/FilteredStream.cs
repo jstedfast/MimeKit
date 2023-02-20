@@ -69,7 +69,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public FilteredStream (Stream source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new ArgumentNullException (nameof (source));
 
 			Source = source;
@@ -103,7 +103,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public void Add (IMimeFilter filter)
 		{
-			if (filter == null)
+			if (filter is null)
 				throw new ArgumentNullException (nameof (filter));
 
 			filters.Add (filter);
@@ -123,7 +123,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public bool Contains (IMimeFilter filter)
 		{
-			if (filter == null)
+			if (filter is null)
 				throw new ArgumentNullException (nameof (filter));
 
 			return filters.Contains (filter);
@@ -142,7 +142,7 @@ namespace MimeKit.IO {
 		/// </exception>
 		public bool Remove (IMimeFilter filter)
 		{
-			if (filter == null)
+			if (filter is null)
 				throw new ArgumentNullException (nameof (filter));
 
 			return filters.Remove (filter);
@@ -272,7 +272,7 @@ namespace MimeKit.IO {
 
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (offset < 0 || offset > buffer.Length)
@@ -325,7 +325,7 @@ namespace MimeKit.IO {
 			ValidateArguments (buffer, offset, count);
 
 			lastOp = IOOperation.Read;
-			if (readbuf == null)
+			if (readbuf is null)
 				readbuf = new byte[ReadBufferSize];
 
 			int nread;
@@ -440,7 +440,7 @@ namespace MimeKit.IO {
 			ValidateArguments (buffer, offset, count);
 
 			lastOp = IOOperation.Read;
-			if (readbuf == null)
+			if (readbuf is null)
 				readbuf = new byte[ReadBufferSize];
 
 			int nread;

@@ -458,7 +458,7 @@ namespace MimeKit {
 			var marker = multipart.Boundary;
 			long endOffset;
 
-			if (marker == null) {
+			if (marker is null) {
 #if DEBUG
 				Debug.WriteLine ("Multipart without a boundary encountered!");
 #endif

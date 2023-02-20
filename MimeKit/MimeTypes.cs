@@ -1019,7 +1019,7 @@ namespace MimeKit {
 		/// </exception>
 		public static string GetMimeType (string fileName)
 		{
-			if (fileName == null)
+			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			var extension = Path.GetExtension (fileName);
@@ -1043,7 +1043,7 @@ namespace MimeKit {
 		/// </exception>
 		public static bool TryGetExtension (string mimeType, out string extension)
 		{
-			if (mimeType == null)
+			if (mimeType is null)
 				throw new ArgumentNullException (nameof (mimeType));
 
 			return extensions.TryGetValue (mimeType, out extension);
@@ -1071,13 +1071,13 @@ namespace MimeKit {
 		/// </exception>
 		public static void Register (string mimeType, string extension)
 		{
-			if (mimeType == null)
+			if (mimeType is null)
 				throw new ArgumentNullException (nameof (mimeType));
 
 			if (mimeType.Length == 0)
 				throw new ArgumentException ("Cannot register an empty MIME-type.", nameof (mimeType));
 
-			if (extension == null)
+			if (extension is null)
 				throw new ArgumentNullException (nameof (extension));
 
 			if (extension.Length == 0)

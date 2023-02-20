@@ -35,10 +35,10 @@ namespace MimeKit.Utils {
 
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
@@ -50,10 +50,10 @@ namespace MimeKit.Utils {
 
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)
@@ -62,25 +62,25 @@ namespace MimeKit.Utils {
 
 		public static void ValidateArguments (ParserOptions options, byte[] buffer)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 		}
 
 		public static void ValidateArguments (ParserOptions options, string text)
 		{
-			if (options == null)
+			if (options is null)
 				throw new ArgumentNullException (nameof (options));
 
-			if (text == null)
+			if (text is null)
 				throw new ArgumentNullException (nameof (text));
 		}
 
 		public static void ValidateArguments (byte[] buffer, int startIndex, int length)
 		{
-			if (buffer == null)
+			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
 			if (startIndex < 0 || startIndex > buffer.Length)

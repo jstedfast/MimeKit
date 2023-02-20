@@ -146,7 +146,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			return table.ContainsKey (name);
@@ -165,7 +165,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			for (int i = 0; i < parameters.Count; i++) {
@@ -218,7 +218,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (!table.TryGetValue (name, out var param))
@@ -245,7 +245,7 @@ namespace MimeKit {
 		/// </exception>
 		public string this [string name] {
 			get {
-				if (name == null)
+				if (name is null)
 					throw new ArgumentNullException (nameof (name));
 
 				if (table.TryGetValue (name, out var param))
@@ -254,10 +254,10 @@ namespace MimeKit {
 				return null;
 			}
 			set {
-				if (name == null)
+				if (name is null)
 					throw new ArgumentNullException (nameof (name));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				if (table.TryGetValue (name, out var param)) {
@@ -285,7 +285,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool TryGetValue (string name, out Parameter param)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			return table.TryGetValue (name, out param);
@@ -305,7 +305,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool TryGetValue (string name, out string value)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (!table.TryGetValue (name, out var param)) {
@@ -358,7 +358,7 @@ namespace MimeKit {
 		/// </exception>
 		public void Add (Parameter param)
 		{
-			if (param == null)
+			if (param is null)
 				throw new ArgumentNullException (nameof (param));
 
 			if (table.ContainsKey (param.Name))
@@ -402,7 +402,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Contains (Parameter param)
 		{
-			if (param == null)
+			if (param is null)
 				throw new ArgumentNullException (nameof (param));
 
 			return parameters.Contains (param);
@@ -436,7 +436,7 @@ namespace MimeKit {
 		/// </exception>
 		public bool Remove (Parameter param)
 		{
-			if (param == null)
+			if (param is null)
 				throw new ArgumentNullException (nameof (param));
 
 			if (!parameters.Remove (param))
@@ -467,7 +467,7 @@ namespace MimeKit {
 		/// </exception>
 		public int IndexOf (Parameter param)
 		{
-			if (param == null)
+			if (param is null)
 				throw new ArgumentNullException (nameof (param));
 
 			return parameters.IndexOf (param);
@@ -496,7 +496,7 @@ namespace MimeKit {
 			if (index < 0 || index > Count)
 				throw new ArgumentOutOfRangeException (nameof (index));
 
-			if (param == null)
+			if (param is null)
 				throw new ArgumentNullException (nameof (param));
 
 			if (table.ContainsKey (param.Name))
@@ -559,7 +559,7 @@ namespace MimeKit {
 				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException (nameof (index));
 
-				if (value == null)
+				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
 				var param = parameters[index];
@@ -892,7 +892,7 @@ namespace MimeKit {
 			int index = startIndex;
 
 			// Note: decoder is only null if this is the first segment
-			if (decoder == null) {
+			if (decoder is null) {
 				if (TryGetCharset (text, ref index, endIndex, out string charset)) {
 					try {
 						encoding = CharsetUtils.GetEncoding (charset, "?");
