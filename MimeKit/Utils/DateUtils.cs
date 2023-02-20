@@ -414,14 +414,13 @@ namespace MimeKit.Utils {
 			TimeSpan offset;
 
 			for (int i = 0; i < tokens.Count; i++) {
-				int value;
 
 				if (!haveWeekday && TryGetWeekday (tokens[i], text, out _)) {
 					haveWeekday = true;
 					continue;
 				}
 
-				if ((month is null || numericMonth) && TryGetMonth (tokens[i], text, out value)) {
+				if ((month is null || numericMonth) && TryGetMonth (tokens[i], text, out int value)) {
 					if (numericMonth) {
 						numericMonth = false;
 						day = month;

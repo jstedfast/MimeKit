@@ -674,7 +674,6 @@ namespace MimeKit.Cryptography {
 			int? instance = null;
 			string srvid = null;
 			string value;
-			bool quoted;
 
 			authres = null;
 
@@ -684,7 +683,7 @@ namespace MimeKit.Cryptography {
 			do {
 				int start = index;
 
-				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out quoted)) {
+				if (index >= endIndex || !SkipValue (text, ref index, endIndex, out bool quoted)) {
 					if (throwOnError)
 						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete authserv-id token at offset {0}", start), start, index);
 
@@ -884,10 +883,9 @@ namespace MimeKit.Cryptography {
 		{
 			ParseUtils.ValidateArguments (buffer, startIndex, length);
 
-			AuthenticationResults authres;
 			int index = startIndex;
 
-			TryParse (buffer, ref index, startIndex + length, true, out authres);
+			TryParse (buffer, ref index, startIndex + length, true, out AuthenticationResults authres);
 
 			return authres;
 		}
@@ -911,10 +909,9 @@ namespace MimeKit.Cryptography {
 			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
 
-			AuthenticationResults authres;
 			int index = 0;
 
-			TryParse (buffer, ref index, buffer.Length, true, out authres);
+			TryParse (buffer, ref index, buffer.Length, true, out AuthenticationResults authres);
 
 			return authres;
 		}
@@ -1309,7 +1306,7 @@ namespace MimeKit.Cryptography {
 
 		internal void AppendTokens (FormatOptions options, List<string> tokens)
 		{
-			var quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+			var quote = quoted ?? Value.IndexOfAny (TokenSpecials) != -1;
 			var value = quote ? MimeUtils.Quote (Value) : Value;
 
 			tokens.Add (" ");
@@ -1346,7 +1343,7 @@ namespace MimeKit.Cryptography {
 
 		internal void WriteTo (ref ValueStringBuilder builder)
 		{
-			bool quote = quoted.HasValue ? quoted.Value : Value.IndexOfAny (TokenSpecials) != -1;
+			bool quote = quoted ?? Value.IndexOfAny (TokenSpecials) != -1;
 
 			builder.Append (PropertyType);
 			builder.Append ('.');
