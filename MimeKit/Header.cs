@@ -1091,7 +1091,7 @@ namespace MimeKit {
 			return Encoding.UTF8.GetBytes (encoded);
 		}
 
-		static void AppendWord (FormatOptions format, ref ByteArrayBuilder builder, ref int lineLength, byte[] rawValue, int startIndex, int length)
+		static void ReformatAppendWord (FormatOptions format, ref ByteArrayBuilder builder, ref int lineLength, byte[] rawValue, int startIndex, int length)
 		{
 			if (lineLength + length + 1 < format.MaxLineLength) {
 				builder.Append ((byte) ' ');
@@ -1130,24 +1130,24 @@ namespace MimeKit {
 			}
 		}
 
-		static void AppendWord (FormatOptions format, ref ValueStringBuilder builder, ref int lineLength, string value, int startIndex, int length)
+		static void EncodeAppendWord (FormatOptions format, ref ValueStringBuilder builder, ref int lineLength, ReadOnlySpan<char> word)
 		{
-			if (lineLength + length + 1 < format.MaxLineLength) {
+			if (lineLength + word.Length + 1 < format.MaxLineLength) {
 				builder.Append (' ');
 				lineLength++;
 
-				builder.Append (value.AsSpan (startIndex, length));
-				lineLength += length;
-			} else if (length + 1 < format.MaxLineLength) {
+				builder.Append (word);
+				lineLength += word.Length;
+			} else if (word.Length + 1 < format.MaxLineLength) {
 				builder.Append (format.NewLine);
 				builder.Append (' ');
 				lineLength = 1;
 
-				builder.Append (value.AsSpan (startIndex, length));
-				lineLength += length;
+				builder.Append (word);
+				lineLength += word.Length;
 			} else {
-				int remaining = length;
-				int index = startIndex;
+				int remaining = word.Length;
+				int index = 0;
 
 				do {
 					int wordLength = Math.Min (remaining, format.MaxLineLength - (lineLength + 1));
@@ -1155,7 +1155,7 @@ namespace MimeKit {
 					builder.Append (' ');
 					lineLength++;
 
-					builder.Append (value.AsSpan (index, wordLength));
+					builder.Append (word.Slice (index, wordLength));
 					lineLength += wordLength;
 					remaining -= wordLength;
 					index += wordLength;
@@ -1169,21 +1169,20 @@ namespace MimeKit {
 			}
 		}
 
-		static void AppendComment (ParserOptions options, FormatOptions format, Encoding encoding, ref ByteArrayBuilder builder, ref int lineLength, byte[] rawValue, int startIndex, int length)
+		static void ReformatAppendComment (ParserOptions options, FormatOptions format, Encoding encoding, ref ByteArrayBuilder builder, ref int lineLength, byte[] rawValue, int startIndex, int length)
 		{
 			var decoded = Rfc2047.DecodeText (options, rawValue, startIndex + 1, length - 2);
-			byte[] rfc2047;
+			byte[] comment;
 
 			if (format.International) {
-				rfc2047 = Encoding.UTF8.GetBytes (decoded);
+				int outputLength = Encoding.UTF8.GetByteCount (decoded) + 2;
+				comment = new byte[outputLength];
+				comment[0] = (byte) '(';
+				int n = Encoding.UTF8.GetBytes (decoded, 0, decoded.Length, comment, 1);
+				comment[n + 1] = (byte) ')';
 			} else {
-				rfc2047 = Rfc2047.EncodeText (format, encoding, decoded);
+				comment = Rfc2047.EncodeCommentAsBytes (format, encoding, decoded, 0, decoded.Length);
 			}
-
-			var comment = new byte[rfc2047.Length + 2];
-			comment[0] = (byte) '(';
-			Buffer.BlockCopy (rfc2047, 0, comment, 1, rfc2047.Length);
-			comment[comment.Length - 1] = (byte) ')';
 
 			// Try to fit the entire comment on a single line.
 			if (lineLength + comment.Length + 1 < format.MaxLineLength) {
@@ -1204,7 +1203,7 @@ namespace MimeKit {
 				int index = 0;
 
 				do {
-					// Try to split on words within the subspan.
+					// Try to split on words within the comment.
 					int wspIndex = index;
 
 					while (wspIndex < comment.Length && !comment[wspIndex].IsWhitespace ())
@@ -1212,7 +1211,7 @@ namespace MimeKit {
 
 					int wordLength = wspIndex - index;
 
-					AppendWord (format, ref builder, ref lineLength, comment, index, wordLength);
+					ReformatAppendWord (format, ref builder, ref lineLength, comment, index, wordLength);
 					index = wspIndex;
 
 					if (index < comment.Length) {
@@ -1225,16 +1224,14 @@ namespace MimeKit {
 			}
 		}
 
-		static void AppendComment (FormatOptions format, Encoding encoding, ref ValueStringBuilder builder, ref int lineLength, string value, int startIndex, int length)
+		static void EncodeAppendComment (FormatOptions format, Encoding encoding, ref ValueStringBuilder builder, ref int lineLength, string value, int startIndex, int length)
 		{
-			string comment;
+			ReadOnlySpan<char> comment;
 
-			if (format.International) {
-				comment = value.Substring (startIndex, length);
+			if (!format.International) {
+				comment = Rfc2047.EncodeComment (format, encoding, value, startIndex + 1, length - 2).AsSpan ();
 			} else {
-				// FIXME: Rfc2047.EncodeText() should allow IReadOnlySpan<char> and/or startIndex/length arguments
-				var subspan = value.Substring (startIndex + 1, length - 2);
-				comment = "(" + Encoding.ASCII.GetString (Rfc2047.EncodeText (format, encoding, subspan)) + ")";
+				comment = value.AsSpan (startIndex, length);
 			}
 
 			// Try to fit the entire comment on a single line.
@@ -1257,12 +1254,12 @@ namespace MimeKit {
 
 				do {
 					// Try to split on words within the comment.
-					int wspIndex = comment.IndexOfAny (WhiteSpace, index, comment.Length - index);
-					wspIndex = wspIndex != -1 ? wspIndex : comment.Length;
+					int wspIndex = comment.Slice (index).IndexOfAny (WhiteSpace.AsSpan ());
+					wspIndex = wspIndex != -1 ? index + wspIndex : comment.Length;
 
 					int wordLength = wspIndex - index;
 
-					AppendWord (format, ref builder, ref lineLength, comment, index, wordLength);
+					EncodeAppendWord (format, ref builder, ref lineLength, comment.Slice (index, wordLength));
 					index = wspIndex;
 
 					if (index < comment.Length) {
@@ -1330,9 +1327,9 @@ namespace MimeKit {
 
 					// Fall through to handling this token as a normal word token.
 				} else if (rawValue[index] == (byte) '(') {
-					// subspan
+					// comment
 					if (ParseUtils.SkipComment (rawValue, ref index, rawValue.Length)) {
-						AppendComment (options, format, encoding, ref encoded, ref lineLength, rawValue, startIndex, index - startIndex);
+						ReformatAppendComment (options, format, encoding, ref encoded, ref lineLength, rawValue, startIndex, index - startIndex);
 						continue;
 					}
 
@@ -1351,7 +1348,7 @@ namespace MimeKit {
 				while (index < rawValue.Length && !rawValue[index].IsWhitespace () && !IsMailingListCommandSpecial (rawValue[index]))
 					index++;
 
-				AppendWord (format, ref encoded, ref lineLength, rawValue, startIndex, index - startIndex);
+				ReformatAppendWord (format, ref encoded, ref lineLength, rawValue, startIndex, index - startIndex);
 			}
 
 			encoded.Append (format.NewLineBytes);
@@ -1405,9 +1402,9 @@ namespace MimeKit {
 
 					// Fall through to handling this token as a normal word token.
 				} else if (value[index] == '(') {
-					// subspan
+					// comment
 					if (ParseUtils.SkipComment (value, ref index, value.Length)) {
-						AppendComment (format, encoding, ref encoded, ref lineLength, value, startIndex, index - startIndex);
+						EncodeAppendComment (format, encoding, ref encoded, ref lineLength, value, startIndex, index - startIndex);
 						continue;
 					}
 
@@ -1426,7 +1423,7 @@ namespace MimeKit {
 				while (index < value.Length && !IsWhiteSpace (value[index]) && !IsMailingListCommandSpecial (value[index]))
 					index++;
 
-				AppendWord (format, ref encoded, ref lineLength, value, startIndex, index - startIndex);
+				EncodeAppendWord (format, ref encoded, ref lineLength, value.AsSpan (startIndex, index - startIndex));
 			}
 
 			encoded.Append (format.NewLine);

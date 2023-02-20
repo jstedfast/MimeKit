@@ -823,6 +823,7 @@ namespace MimeKit.Utils {
 
 		static byte[] FoldTokens (FormatOptions options, List<Token> tokens, string field, byte[] input)
 		{
+			// FIXME: Use ByteArrayBuilder instead?
 			var output = new ValueStringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
 			int lineLength = field.Length + 2;
 			var firstToken = true;
@@ -886,7 +887,7 @@ namespace MimeKit.Utils {
 					output.Append ("=?");
 					output.Append (charset);
 					output.Append ('?');
-					output.Append(token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
+					output.Append (token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
 					output.Append ('?');
 
 					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
@@ -1088,9 +1089,10 @@ namespace MimeKit.Utils {
 			public bool IsCommentStart;
 			public bool IsCommentEnd;
 
-			public Word (string text)
+			public Word (string text, int startIndex)
 			{
 				//Text = text;
+				StartIndex = startIndex;
 			}
 
 			public void CopyTo (Word word)
@@ -1176,29 +1178,32 @@ namespace MimeKit.Utils {
 			return length + 1 >= options.MaxLineLength;
 		}
 
-		static List<Word> GetRfc822Words (FormatOptions options, Encoding charset, string text, bool phrase)
+		static List<Word> GetRfc822Words (FormatOptions options, Encoding charset, string text, int startIndex, int count, bool phrase)
 		{
 			var encoder = charset.GetEncoder ();
+			var saved = new Word (text, startIndex);
+			var word = new Word (text, startIndex);
 			var words = new List<Word> ();
+			int endIndex, nchars, n, i;
 			var chars = new char[2];
-			var saved = new Word (text);
-			var word = new Word (text);
-			int nchars, n, i = 0;
 			int commentDepth = 0;
 			var escaped = false;
 			var quoted = false;
 			char c;
 
-			while (i < text.Length) {
+			endIndex = startIndex + count;
+			i = startIndex;
+
+			while (i < endIndex) {
 				c = text[i++];
 
 				if (!quoted && commentDepth == 0 && IsBlank (c)) {
 					if (word.ByteCount > 0) {
 						words.Add (word);
-						word = new Word (text);
+						word = new Word (text, i);
+					} else {
+						word.StartIndex = i;
 					}
-
-					word.StartIndex = i;
 				} else {
 					// save state in case adding this character exceeds the max line length
 					word.CopyTo (saved);
@@ -1295,11 +1300,10 @@ namespace MimeKit.Utils {
 						words.Add (word);
 
 						saved.Type = word.Type;
-						word = new Word (text);
-
-						// Note: the word-type needs to be preserved when breaking long words.
-						word.Type = saved.Type;
-						word.StartIndex = i;
+						word = new Word (text, i) {
+							// Note: the word-type needs to be preserved when breaking long words.
+							Type = saved.Type
+						};
 					} else if (word.IsQuotedEnd || word.IsCommentEnd) {
 						if (word.Type == WordType.EncodedWord) {
 							if (word.IsQuotedEnd && !word.IsQuotedStart) {
@@ -1320,8 +1324,7 @@ namespace MimeKit.Utils {
 						// End the word here.
 						words.Add (word);
 
-						word = new Word (text);
-						word.StartIndex = i;
+						word = new Word (text, i);
 					}
 				}
 			}
@@ -1494,14 +1497,19 @@ namespace MimeKit.Utils {
 			return merged;
 		}
 
-		static byte[] Encode (FormatOptions options, Encoding charset, string text, bool phrase)
+		internal enum EncodeType
 		{
-			var mode = phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
-			var words = GetRfc822Words (options, charset, text, phrase);
-			var builder = new ValueStringBuilder (text.Length * 4);
+			Phrase,
+			Text,
+			Comment
+		}
+
+		static void Encode (ref ValueStringBuilder builder, FormatOptions options, Encoding charset, string text, int startIndex, int count, EncodeType type)
+		{
+			var mode = type == EncodeType.Phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
+			var words = GetRfc822Words (options, charset, text, startIndex, count, type == EncodeType.Phrase);
 			int start, length;
 			Word prev = null;
-			byte[] encoded;
 
 			words = Merge (options, charset, words);
 
@@ -1511,6 +1519,9 @@ namespace MimeKit.Utils {
 						words[i].Encoding = WordEncoding.UserSpecified;
 				}
 			}
+
+			if (type == EncodeType.Comment)
+				builder.Append ('(');
 
 			foreach (var word in words) {
 				// append the correct number of spaces between words...
@@ -1534,7 +1545,7 @@ namespace MimeKit.Utils {
 						start = prev.StartIndex + prev.CharCount;
 						length = (word.StartIndex + word.CharCount) - start;
 
-						builder.Append (phrase ? '\t' : ' ');
+						builder.Append (type == EncodeType.Phrase ? '\t' : ' ');
 					} else {
 						start = word.StartIndex;
 						length = word.CharCount;
@@ -1557,7 +1568,13 @@ namespace MimeKit.Utils {
 				prev = word;
 			}
 
-			encoded = new byte[builder.Length];
+			if (type == EncodeType.Comment)
+				builder.Append (')');
+		}
+
+		static byte[] AsByteArray (ref ValueStringBuilder builder)
+		{
+			var encoded = new byte[builder.Length];
 
 #if NET5_0_OR_GREATER
 			Encoding.ASCII.GetBytes (builder.AsSpan (), encoded);
@@ -1566,9 +1583,141 @@ namespace MimeKit.Utils {
 				encoded[i] = (byte) builder[i];
 #endif
 
-			builder.Dispose ();
-
 			return encoded;
+		}
+
+		static byte[] EncodeAsBytes (FormatOptions options, Encoding charset, string text, int startIndex, int count, EncodeType type)
+		{
+			var builder = new ValueStringBuilder (count * 4);
+			Encode (ref builder, options, charset, text, startIndex, count, type);
+			var encoded = AsByteArray (ref builder);
+			builder.Dispose ();
+			return encoded;
+		}
+
+		static string EncodeAsString (FormatOptions options, Encoding charset, string text, int startIndex, int count, EncodeType type)
+		{
+			var builder = new ValueStringBuilder (count * 4);
+			Encode (ref builder, options, charset, text, startIndex, count, type);
+			var encoded = builder.ToString ();
+			builder.Dispose ();
+			return encoded;
+		}
+
+		static void ValidateArguments (FormatOptions options, Encoding charset, string text, string textArgName)
+		{
+			if (options == null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (charset == null)
+				throw new ArgumentNullException (nameof (charset));
+
+			if (text == null)
+				throw new ArgumentNullException (textArgName);
+		}
+
+		static void ValidateArguments (FormatOptions options, Encoding charset, string text, string textArgName, int startIndex, int count)
+		{
+			ValidateArguments (options, charset, text, textArgName);
+
+			if (startIndex < 0 || startIndex > text.Length)
+				throw new ArgumentOutOfRangeException (nameof (startIndex));
+
+			if (count < 0 || count > (text.Length - startIndex))
+				throw new ArgumentOutOfRangeException (nameof (count));
+		}
+
+		/// <summary>
+		/// Encode comment text.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the comment text and wraps the result in parenthesis according to the rules of rfc2047
+		/// using the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded text.</returns>
+		/// <param name="options">The formatting options</param>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="text">The text to encode.</param>
+		/// <param name="startIndex">The starting index of the phrase to encode.</param>
+		/// <param name="count">The number of characters to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		internal static string EncodeComment (FormatOptions options, Encoding charset, string text, int startIndex, int count)
+		{
+			//ValidateArguments (options, charset, text, nameof (text), startIndex, count);
+
+			return EncodeAsString (options, charset, text, startIndex, count, EncodeType.Comment);
+		}
+
+		/// <summary>
+		/// Encode comment text.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the comment text and wraps the result in parenthesis according to the rules of rfc2047
+		/// using the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded text.</returns>
+		/// <param name="options">The formatting options</param>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="text">The text to encode.</param>
+		/// <param name="startIndex">The starting index of the phrase to encode.</param>
+		/// <param name="count">The number of characters to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		internal static byte[] EncodeCommentAsBytes (FormatOptions options, Encoding charset, string text, int startIndex, int count)
+		{
+			//ValidateArguments (options, charset, text, nameof (text), startIndex, count);
+
+			return EncodeAsBytes (options, charset, text, startIndex, count, EncodeType.Comment);
+		}
+
+		/// <summary>
+		/// Encode a phrase.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the phrase according to the rules of rfc2047 using
+		/// the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded phrase.</returns>
+		/// <param name="options">The formatting options</param>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="phrase">The phrase to encode.</param>
+		/// <param name="startIndex">The starting index of the phrase to encode.</param>
+		/// <param name="count">The number of characters to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static byte[] EncodePhrase (FormatOptions options, Encoding charset, string phrase, int startIndex, int count)
+		{
+			ValidateArguments (options, charset, phrase, nameof (phrase), startIndex, count);
+
+			return EncodeAsBytes (options, charset, phrase, startIndex, count, EncodeType.Phrase);
 		}
 
 		/// <summary>
@@ -1591,16 +1740,9 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static byte[] EncodePhrase (FormatOptions options, Encoding charset, string phrase)
 		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
+			ValidateArguments (options, charset, phrase, nameof (phrase));
 
-			if (charset == null)
-				throw new ArgumentNullException (nameof (charset));
-
-			if (phrase == null)
-				throw new ArgumentNullException (nameof (phrase));
-
-			return Encode (options, charset, phrase, true);
+			return EncodeAsBytes (options, charset, phrase, 0, phrase.Length, EncodeType.Phrase);
 		}
 
 		/// <summary>
@@ -1634,6 +1776,37 @@ namespace MimeKit.Utils {
 		/// <param name="options">The formatting options</param>
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text to encode.</param>
+		/// <param name="startIndex">The starting index of the phrase to encode.</param>
+		/// <param name="count">The number of characters to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
+		/// a valid range in the byte array.
+		/// </exception>
+		public static byte[] EncodeText (FormatOptions options, Encoding charset, string text, int startIndex, int count)
+		{
+			ValidateArguments (options, charset, text, nameof (text), startIndex, count);
+
+			return EncodeAsBytes (options, charset, text, startIndex, count, EncodeType.Text);
+		}
+
+		/// <summary>
+		/// Encode unstructured text.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the unstructured text according to the rules of rfc2047
+		/// using the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded text.</returns>
+		/// <param name="options">The formatting options</param>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="text">The text to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <c>null</c>.</para>
 		/// <para>-or-</para>
@@ -1643,16 +1816,9 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static byte[] EncodeText (FormatOptions options, Encoding charset, string text)
 		{
-			if (options == null)
-				throw new ArgumentNullException (nameof (options));
+			ValidateArguments (options, charset, text, nameof (text));
 
-			if (charset == null)
-				throw new ArgumentNullException (nameof (charset));
-
-			if (text == null)
-				throw new ArgumentNullException (nameof (text));
-
-			return Encode (options, charset, text, false);
+			return EncodeAsBytes (options, charset, text, 0, text.Length, EncodeType.Text);
 		}
 
 		/// <summary>
