@@ -414,10 +414,7 @@ namespace MimeKit {
 				string name;
 
 				if (!options.International) {
-					// FIXME: If Rfc2047.EncodePhrase() returned a string instead of byte[], we could improve performance
-					// especially since Rfc2047.EncodePhrase() uses a ValueStringBuilder internally anyway.
-					var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
-					name = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
+					name = Rfc2047.EncodePhraseAsString (options, Encoding, Name);
 				} else {
 					name = EncodeInternationalizedPhrase (Name);
 				}

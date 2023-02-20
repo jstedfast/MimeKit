@@ -1497,7 +1497,7 @@ namespace MimeKit.Utils {
 			return merged;
 		}
 
-		internal enum EncodeType
+		enum EncodeType
 		{
 			Phrase,
 			Text,
@@ -1687,6 +1687,31 @@ namespace MimeKit.Utils {
 			//ValidateArguments (options, charset, text, nameof (text), startIndex, count);
 
 			return EncodeAsBytes (options, charset, text, startIndex, count, EncodeType.Comment);
+		}
+
+		/// <summary>
+		/// Encode a phrase.
+		/// </summary>
+		/// <remarks>
+		/// Encodes the phrase according to the rules of rfc2047 using
+		/// the specified charset encoding and formatting options.
+		/// </remarks>
+		/// <returns>The encoded phrase.</returns>
+		/// <param name="options">The formatting options</param>
+		/// <param name="charset">The charset encoding.</param>
+		/// <param name="phrase">The phrase to encode.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// </exception>
+		internal static string EncodePhraseAsString (FormatOptions options, Encoding charset, string phrase)
+		{
+			ValidateArguments (options, charset, phrase, nameof (phrase));
+
+			return EncodeAsString (options, charset, phrase, 0, phrase.Length, EncodeType.Phrase);
 		}
 
 		/// <summary>
