@@ -318,7 +318,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static bool IsTokenDelimeter (byte c)
+		static bool IsTokenDelimiter (byte c)
 		{
 			return c == (byte) '-' || c == (byte) '/' || c == (byte) ',' || c.IsWhitespace ();
 		}
@@ -342,7 +342,7 @@ namespace MimeKit.Utils {
 					start = index++;
 
 					// find the end of this token
-					while (index < endIndex && !IsTokenDelimeter (text[index]))
+					while (index < endIndex && !IsTokenDelimiter (text[index]))
 						mask |= datetok[text[index++]];
 
 					yield return new DateToken (mask, start, index - start);
