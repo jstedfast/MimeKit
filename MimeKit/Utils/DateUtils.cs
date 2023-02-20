@@ -348,7 +348,7 @@ namespace MimeKit.Utils {
 					yield return new DateToken (mask, start, index - start);
 				}
 
-				// skip over the token delimeter
+				// skip over the token delimiter
 				index++;
 			}
 

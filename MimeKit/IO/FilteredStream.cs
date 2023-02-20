@@ -245,12 +245,12 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Get or set a value, in miliseconds, that determines how long the stream will attempt to read before timing out.
+		/// Get or set a value, in milliseconds, that determines how long the stream will attempt to read before timing out.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the read timeout on the <see cref="Source"/> stream.
 		/// </remarks>
-		/// <value>A value, in miliseconds, that determines how long the stream will attempt to read before timing out.</value>
+		/// <value>A value, in milliseconds, that determines how long the stream will attempt to read before timing out.</value>
 		public override int ReadTimeout
 		{
 			get { return Source.ReadTimeout; }
@@ -258,12 +258,12 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Get or set a value, in miliseconds, that determines how long the stream will attempt to write before timing out.
+		/// Get or set a value, in milliseconds, that determines how long the stream will attempt to write before timing out.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the write timeout on the <see cref="Source"/> stream.
 		/// </remarks>
-		/// <value>A value, in miliseconds, that determines how long the stream will attempt to write before timing out.</value>
+		/// <value>A value, in milliseconds, that determines how long the stream will attempt to write before timing out.</value>
 		public override int WriteTimeout
 		{
 			get { return Source.WriteTimeout; }

@@ -312,7 +312,7 @@ namespace MimeKit {
 		/// <param name="field">The raw header field.</param>
 		/// <param name="fieldNameLength">The length of the field name (not including trailing whitespace).</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
 #if NET5_0_OR_GREATER
 		[System.Runtime.CompilerServices.SkipLocalsInit]
 #endif
@@ -345,7 +345,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options used.</param>
 		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; othereise, <c>false</c>.</param>
+		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
 #if NET5_0_OR_GREATER
 		[System.Runtime.CompilerServices.SkipLocalsInit]
 #endif

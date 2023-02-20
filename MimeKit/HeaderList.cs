@@ -391,12 +391,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove the first occurance of the specified header field.
+		/// Remove the first occurrence of the specified header field.
 		/// </summary>
 		/// <remarks>
-		/// Removes the first occurance of the specified header field, if any exist.
+		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
-		/// <returns><value>true</value> if the first occurance of the specified
+		/// <returns><value>true</value> if the first occurrence of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -414,12 +414,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove the first occurance of the specified header field.
+		/// Remove the first occurrence of the specified header field.
 		/// </summary>
 		/// <remarks>
-		/// Removes the first occurance of the specified header field, if any exist.
+		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
-		/// <returns><value>true</value> if the first occurance of the specified
+		/// <returns><value>true</value> if the first occurrence of the specified
 		/// header was removed; otherwise <value>false</value>.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -582,14 +582,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get or set the value of the first occurance of a header
+		/// Get or set the value of the first occurrence of a header
 		/// with the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the value of the first occurance of a header
+		/// Gets or sets the value of the first occurrence of a header
 		/// with the specified field name.
 		/// </remarks>
-		/// <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
+		/// <value>The value of the first occurrence of the specified header if it exists; otherwise <c>null</c>.</value>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <c>null</c>.
@@ -620,14 +620,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get or set the value of the first occurance of a header
+		/// Get or set the value of the first occurrence of a header
 		/// with the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets the value of the first occurance of a header
+		/// Gets or sets the value of the first occurrence of a header
 		/// with the specified field name.
 		/// </remarks>
-		/// <value>The value of the first occurrance of the specified header if it exists; otherwise <c>null</c>.</value>
+		/// <value>The value of the first occurrence of the specified header if it exists; otherwise <c>null</c>.</value>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="field"/> is <c>null</c>.</para>
