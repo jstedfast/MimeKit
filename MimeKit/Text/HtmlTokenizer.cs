@@ -98,7 +98,7 @@ namespace MimeKit.Text {
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets whether or not the tokenizer should ignore truncated tags.</para>
-		/// <para>If <c>false</c> and the stream abrubtly ends in the middle of an HTML tag, it will be
+		/// <para>If <c>false</c> and the stream abruptly ends in the middle of an HTML tag, it will be
 		/// treated as an <see cref="HtmlDataToken"/> instead.</para>
 		/// </remarks>
 		/// <value><c>true</c> if truncated tags should be ignored; otherwise, <c>false</c>.</value>
