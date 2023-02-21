@@ -1659,37 +1659,6 @@ namespace MimeKit.Utils {
 		}
 
 		/// <summary>
-		/// Encode comment text.
-		/// </summary>
-		/// <remarks>
-		/// Encodes the comment text and wraps the result in parenthesis according to the rules of rfc2047
-		/// using the specified charset encoding and formatting options.
-		/// </remarks>
-		/// <returns>The encoded text.</returns>
-		/// <param name="options">The formatting options</param>
-		/// <param name="charset">The charset encoding.</param>
-		/// <param name="text">The text to encode.</param>
-		/// <param name="startIndex">The starting index of the phrase to encode.</param>
-		/// <param name="count">The number of characters to encode.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		internal static byte[] EncodeCommentAsBytes (FormatOptions options, Encoding charset, string text, int startIndex, int count)
-		{
-			//ValidateArguments (options, charset, text, nameof (text), startIndex, count);
-
-			return EncodeAsBytes (options, charset, text, startIndex, count, EncodeType.Comment);
-		}
-
-		/// <summary>
 		/// Encode a phrase.
 		/// </summary>
 		/// <remarks>
