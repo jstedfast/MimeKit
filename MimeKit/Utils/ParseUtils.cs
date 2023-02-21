@@ -439,7 +439,7 @@ namespace MimeKit.Utils {
 					if (!SkipQuoted (text, ref index, endIndex, throwOnError))
 						return false;
 				} else {
-					while (index < endIndex && text[index] != (byte) '@' && text[index] != (byte) '>' && !text[index].IsWhitespace ())
+					while (index < endIndex && text[index] != (byte) '.' && text[index] != (byte) '@' && text[index] != (byte) '>' && !text[index].IsWhitespace ())
 						index++;
 				}
 
@@ -457,7 +457,7 @@ namespace MimeKit.Utils {
 				if (index >= endIndex) {
 					if (angleAddr) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete msg-id at offset {0}", tokenIndex), tokenIndex, index);
 
 						return false;
 					}
@@ -468,6 +468,13 @@ namespace MimeKit.Utils {
 
 				if (text[index] == (byte) '@' || text[index] == (byte) '>')
 					break;
+
+				if (text[index] == (byte) '.') {
+					token.Append ('.');
+					index++;
+
+					SkipWhiteSpace (text, ref index, endIndex);
+				}
 
 				if (index >= endIndex) {
 					if (throwOnError)
