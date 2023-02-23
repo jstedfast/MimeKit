@@ -502,6 +502,15 @@ namespace MimeKit.Text {
 			EncodeAttributeValue (value);
 		}
 
+		void FlushWriterState ()
+		{
+			if (WriterState != HtmlWriterState.Default) {
+				WriterState = HtmlWriterState.Default;
+				html.Write (empty ? "/>" : ">");
+				empty = false;
+			}
+		}
+
 		/// <summary>
 		/// Write an empty element tag.
 		/// </summary>
@@ -522,10 +531,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-			}
+			FlushWriterState ();
 
 			html.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
 			WriterState = HtmlWriterState.Tag;
@@ -553,10 +559,7 @@ namespace MimeKit.Text {
 			ValidateTagName (name);
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-			}
+			FlushWriterState ();
 
 			html.Write (string.Format ("<{0}", name));
 			WriterState = HtmlWriterState.Tag;
@@ -586,11 +589,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			html.Write (string.Format ("</{0}>", id.ToHtmlTagName ()));
 		}
@@ -616,11 +615,7 @@ namespace MimeKit.Text {
 			ValidateTagName (name);
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			html.Write (string.Format ("</{0}>", name));
 		}
@@ -652,11 +647,7 @@ namespace MimeKit.Text {
 			ValidateArguments (buffer, index, count);
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState();
 
 			html.Write (buffer, index, count);
 		}
@@ -681,11 +672,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState();
 
 			html.Write (value);
 		}
@@ -713,10 +700,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			html.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
 			WriterState = HtmlWriterState.Tag;
@@ -743,10 +727,7 @@ namespace MimeKit.Text {
 			ValidateTagName (name);
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			html.Write (string.Format ("<{0}", name));
 			WriterState = HtmlWriterState.Tag;
@@ -779,11 +760,7 @@ namespace MimeKit.Text {
 			ValidateArguments (buffer, index, count);
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			if (count > 0)
 				HtmlUtils.HtmlEncode (html, buffer, index, count);
@@ -812,11 +789,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			if (value.Length > 0)
 				HtmlUtils.HtmlEncode (html, value.ToCharArray (), 0, value.Length);
@@ -864,11 +837,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			token.WriteTo (html);
 		}
@@ -886,11 +855,7 @@ namespace MimeKit.Text {
 		{
 			CheckDisposed ();
 
-			if (WriterState != HtmlWriterState.Default) {
-				WriterState = HtmlWriterState.Default;
-				html.Write (empty ? "/>" : ">");
-				empty = false;
-			}
+			FlushWriterState ();
 
 			html.Flush ();
 		}
