@@ -46,6 +46,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEmpty ()
+		{
+			Assert.AreEqual (0, HtmlAttributeCollection.Empty.Count);
+		}
+
+		[Test]
 		public void TestContains ()
 		{
 			var items = new HtmlAttribute[] { new HtmlAttribute (HtmlAttributeId.Alt, "This is some alt text."), new HtmlAttribute (HtmlAttributeId.Text, "And this is the text.") };
