@@ -98,7 +98,8 @@ namespace UnitTests.Text {
 		{
 			const string expected = "<html ltr=\"true\"><head/><body>" +
 				"<p class=\"paragraph\" style=\"font: arial; color: red\" align=\"left\">" +
-				"special characters in this text should get encoded: &lt;&gt;&#39;&amp;\n<br/><br/></p>" +
+				"special characters in this text should get encoded: &lt;&gt;&#39;&amp;\n" +
+				"and this is a formatted string with a few args: 1 apple<br/><br/></p>" +
 				"<p class=\"paragraph\" style=\"font: arial; color: red\" align=\"left\">" +
 				"special characters should not get encoded: &lt;&gt;" +
 				"</p><p></p>" +
@@ -107,9 +108,10 @@ namespace UnitTests.Text {
 				"<p class=\"paragraph\" style=\"font: arial; color: red\" align=\"left\">" +
 				"special characters should not get encoded: &lt;&gt;" +
 				"</p></body></html>";
-			var text = "special characters in this text should get encoded: <>'&\n";
-			var markup = "special characters should not get encoded: &lt;&gt;";
-			var style = "font: arial; color: red";
+			const string format = "and this is a formatted string with a few args: {0} {1}";
+			const string text = "special characters in this text should get encoded: <>'&\n";
+			const string markup = "special characters should not get encoded: &lt;&gt;";
+			const string style = "font: arial; color: red";
 			var actual = new StringBuilder ();
 
 			using (var html = new HtmlWriter (new StringWriter (actual))) {
@@ -157,6 +159,9 @@ namespace UnitTests.Text {
 				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
 				html.WriteText (text);
+				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+
+				html.WriteText (format, 1, "apple");
 				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
 				html.WriteEmptyElementTag ("br");
