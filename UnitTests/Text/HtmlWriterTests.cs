@@ -210,7 +210,9 @@ namespace UnitTests.Text {
 				html.WriteAttribute ("style", style);
 				html.WriteAttribute ("align", "left");
 				html.WriteMarkupText (markup.ToCharArray (), 0, markup.Length);
-				html.WriteEndTag ("p");
+
+				var paraEndTag = new HtmlTagToken ("p", true);
+				html.WriteToken (paraEndTag);
 
 				html.WriteEndTag (HtmlTagId.Body);
 				html.WriteEndTag ("html");
