@@ -30,6 +30,13 @@ namespace UnitTests.Text {
 	[TestFixture]
 	public class HtmlTokenTests
 	{
+		class BrokenHtmlDataToken : HtmlDataToken
+		{
+			public BrokenHtmlDataToken (string data) : base (HtmlTokenKind.Comment, data)
+			{
+			}
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -48,6 +55,7 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => cdata.WriteTo (null));
 
 			Assert.Throws<ArgumentNullException> (() => new HtmlDataToken (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new BrokenHtmlDataToken ("This is some character data."));
 			Assert.Throws<ArgumentNullException> (() => data.WriteTo (null));
 
 			Assert.Throws<ArgumentNullException> (() => doc.WriteTo (null));
@@ -59,6 +67,55 @@ namespace UnitTests.Text {
 
 			Assert.Throws<ArgumentNullException> (() => new HtmlScriptDataToken (null));
 			Assert.Throws<ArgumentNullException> (() => script.WriteTo (null));
+		}
+
+		[Test]
+		public void TestHtmlTagTokenCtor ()
+		{
+			var attrs = new HtmlAttribute[] { new HtmlAttribute ("src", "image.png"), new HtmlAttribute ("alt", "[image]") };
+			var token = new HtmlTagToken ("img", attrs, true);
+
+			Assert.AreEqual (HtmlTagId.Image, token.Id);
+			Assert.IsTrue (token.IsEmptyElement);
+			Assert.IsFalse (token.IsEndTag);
+			Assert.AreEqual (2, token.Attributes.Count);
+		}
+
+		[Test]
+		public void TestHtmlDocTypePublicIdentifier ()
+		{
+			var doctype = new HtmlDocTypeToken ();
+
+			doctype.PublicIdentifier = "public-identifier";
+			Assert.AreEqual ("public-identifier", doctype.PublicIdentifier, "PublicIdentifier");
+			Assert.AreEqual ("PUBLIC", doctype.PublicKeyword, "PublicKeyword");
+			Assert.IsNull (doctype.SystemKeyword, "SystemKeyword");
+
+			doctype.PublicIdentifier = null;
+			Assert.IsNull (doctype.PublicIdentifier, "PublicIdentifier");
+			Assert.AreEqual ("PUBLIC", doctype.PublicKeyword, "PublicKeyword");
+			Assert.IsNull (doctype.SystemKeyword, "SystemKeyword");
+
+			doctype.PublicIdentifier = "public-identifier";
+			doctype.SystemIdentifier = "system-identifier";
+			doctype.PublicIdentifier = null;
+			Assert.IsNull (doctype.PublicIdentifier, "PublicIdentifier");
+			Assert.AreEqual ("PUBLIC", doctype.PublicKeyword, "PublicKeyword");
+			Assert.AreEqual ("SYSTEM", doctype.SystemKeyword, "SystemKeyword");
+		}
+
+		[Test]
+		public void TestHtmlDocTypeSystemIdentifier ()
+		{
+			var doctype = new HtmlDocTypeToken ();
+
+			doctype.SystemIdentifier = "system-identifier";
+			Assert.AreEqual ("system-identifier", doctype.SystemIdentifier, "SystemIdentifier");
+			Assert.AreEqual ("SYSTEM", doctype.SystemKeyword, "SystemKeyword");
+
+			doctype.SystemIdentifier = null;
+			Assert.IsNull (doctype.SystemIdentifier, "SystemIdentifier");
+			Assert.IsNull (doctype.SystemKeyword, "SystemKeyword");
 		}
 	}
 }
