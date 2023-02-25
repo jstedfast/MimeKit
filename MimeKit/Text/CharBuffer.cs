@@ -85,9 +85,9 @@ namespace MimeKit.Text {
 			return new string (buffer, 0, Length);
 		}
 
-		public static implicit operator string (CharBuffer buffer)
-		{
-			return buffer.ToString ();
-		}
+		//public static implicit operator string (CharBuffer buffer)
+		//{
+		//	return buffer.ToString ();
+		//}
 	}
 }
