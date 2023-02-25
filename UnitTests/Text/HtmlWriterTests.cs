@@ -93,8 +93,7 @@ namespace UnitTests.Text {
 			}
 		}
 
-		[Test]
-		public void TestHtmlWriter ()
+		static void TestHtmlWriter (HtmlWriter html, object output)
 		{
 			const string expected = "<html ltr=\"true\"><head/><body>" +
 				"<p class=\"paragraph\" style=\"font: arial; color: red\" align=\"left\">" +
@@ -112,114 +111,139 @@ namespace UnitTests.Text {
 			const string text = "special characters in this text should get encoded: <>'&\n";
 			const string markup = "special characters should not get encoded: &lt;&gt;";
 			const string style = "font: arial; color: red";
-			var actual = new StringBuilder ();
 
-			using (var html = new HtmlWriter (new StringWriter (actual))) {
-				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
-				// make sure we can't start by writing an attribute since we are in the wrong state
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttribute (new HtmlAttribute (HtmlAttributeId.Action, "invalid state")));
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttribute (HtmlAttributeId.Action, "invalid state"));
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttribute ("action", "invalid state"));
+			// make sure we can't start by writing an attribute since we are in the wrong state
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttribute (new HtmlAttribute (HtmlAttributeId.Action, "invalid state")));
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttribute (HtmlAttributeId.Action, "invalid state"));
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttribute ("action", "invalid state"));
 
-				// write a tag
-				html.WriteStartTag (HtmlTagId.Html);
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			// write a tag
+			html.WriteStartTag (HtmlTagId.Html);
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				// *now* we should be able to write an attribute
-				html.WriteAttribute (new HtmlAttribute ("ltr", "true"));
+			// *now* we should be able to write an attribute
+			html.WriteAttribute (new HtmlAttribute ("ltr", "true"));
 
-				// write en empty element tag, this should change the state to Default
-				html.WriteEmptyElementTag (HtmlTagId.Head);
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			// write en empty element tag, this should change the state to Default
+			html.WriteEmptyElementTag (HtmlTagId.Head);
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteStartTag ("body");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteStartTag ("body");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteStartTag (HtmlTagId.P);
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteStartTag (HtmlTagId.P);
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				// make sure that we can't write an attribute value yet
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttributeValue ("attrValue"));
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttributeValue ("attrValue".ToCharArray (), 0, 9));
+			// make sure that we can't write an attribute value yet
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeValue ("attrValue"));
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeValue ("attrValue".ToCharArray (), 0, 9));
 
-				html.WriteAttributeName (HtmlAttributeId.Class);
-				Assert.AreEqual (HtmlWriterState.Attribute, html.WriterState);
+			html.WriteAttributeName (HtmlAttributeId.Class);
+			Assert.AreEqual (HtmlWriterState.Attribute, html.WriterState);
 
-				html.WriteAttributeValue ("paragraph");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteAttributeValue ("paragraph");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteAttributeName ("style");
-				Assert.AreEqual (HtmlWriterState.Attribute, html.WriterState);
+			html.WriteAttributeName ("style");
+			Assert.AreEqual (HtmlWriterState.Attribute, html.WriterState);
 
-				html.WriteAttributeValue (style.ToCharArray (), 0, style.Length);
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteAttributeValue (style.ToCharArray (), 0, style.Length);
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteAttribute (HtmlAttributeId.Align, "left");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteAttribute (HtmlAttributeId.Align, "left");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteText (text);
-				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			html.WriteText (text);
+			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
-				html.WriteText (format, 1, "apple");
-				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			html.WriteText (format, 1, "apple");
+			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
-				html.WriteEmptyElementTag ("br");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
-				html.WriteEmptyElementTag ("br");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteEmptyElementTag ("br");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteEmptyElementTag ("br");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteEndTag ("p");
-				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			html.WriteEndTag ("p");
+			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttributeName ("style"));
-				Assert.Throws<InvalidOperationException> (() => html.WriteAttributeName (HtmlAttributeId.Style));
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeName ("style"));
+			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeName (HtmlAttributeId.Style));
 
-				html.WriteStartTag ("p");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteStartTag ("p");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteAttribute (HtmlAttributeId.Class, "paragraph".ToCharArray (), 0, "paragraph".Length);
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteAttribute (HtmlAttributeId.Class, "paragraph".ToCharArray (), 0, "paragraph".Length);
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteAttribute ("style", style.ToCharArray (), 0, style.Length);
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteAttribute ("style", style.ToCharArray (), 0, style.Length);
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteAttribute ("align", "left");
-				Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			html.WriteAttribute ("align", "left");
+			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
 
-				html.WriteMarkupText (markup);
-				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			html.WriteMarkupText (markup);
+			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
-				html.WriteEndTag (HtmlTagId.P);
-				Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			html.WriteEndTag (HtmlTagId.P);
+			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
 
-				html.WriteStartTag (HtmlTagId.P);
-				html.WriteEndTag (HtmlTagId.P);
+			html.WriteStartTag (HtmlTagId.P);
+			html.WriteEndTag (HtmlTagId.P);
 
-				html.WriteStartTag ("p");
-				html.WriteAttribute ("class", "paragraph");
-				html.WriteAttribute ("style", style);
-				html.WriteAttribute ("align", "left");
-				html.WriteText (text.ToCharArray (), 0, text.Length);
-				html.WriteEmptyElementTag ("br");
-				html.WriteEmptyElementTag ("br");
-				html.WriteEndTag ("p");
+			html.WriteStartTag ("p");
+			html.WriteAttribute ("class", "paragraph");
+			html.WriteAttribute ("style", style);
+			html.WriteAttribute ("align", "left");
+			html.WriteText (text.ToCharArray (), 0, text.Length);
+			html.WriteEmptyElementTag ("br");
+			html.WriteEmptyElementTag ("br");
+			html.WriteEndTag ("p");
 
-				html.WriteStartTag ("p");
-				html.WriteAttribute ("class", "paragraph");
-				html.WriteAttribute ("style", style);
-				html.WriteAttribute ("align", "left");
-				html.WriteMarkupText (markup.ToCharArray (), 0, markup.Length);
+			html.WriteStartTag ("p");
+			html.WriteAttribute ("class", "paragraph");
+			html.WriteAttribute ("style", style);
+			html.WriteAttribute ("align", "left");
+			html.WriteMarkupText (markup.ToCharArray (), 0, markup.Length);
 
-				var paraEndTag = new HtmlTagToken ("p", true);
-				html.WriteToken (paraEndTag);
+			var paraEndTag = new HtmlTagToken ("p", true);
+			html.WriteToken (paraEndTag);
 
-				html.WriteEndTag (HtmlTagId.Body);
-				html.WriteEndTag ("html");
-				html.Flush ();
+			html.WriteEndTag (HtmlTagId.Body);
+			html.WriteEndTag ("html");
+			html.Flush ();
+
+			string actual;
+
+			if (output is MemoryStream memory) {
+				actual = Encoding.UTF8.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+			} else if (output is StringBuilder sb) {
+				actual = sb.ToString ();
+			} else {
+				throw new NotImplementedException ();
 			}
 
-			Assert.AreEqual (expected, actual.ToString ());
+			Assert.AreEqual (expected, actual);
+		}
+
+		[Test]
+		public void TestHtmlWriterToStringBuilder ()
+		{
+			var sb = new StringBuilder ();
+
+			using (var html = new HtmlWriter (new StringWriter (sb)))
+				TestHtmlWriter (html, sb);
+		}
+
+		[Test]
+		public void TestHtmlWriterToStream ()
+		{
+			var memory = new MemoryStream ();
+
+			using (var html = new HtmlWriter (memory, new UTF8Encoding (false)))
+				TestHtmlWriter (html, memory);
 		}
 	}
 }

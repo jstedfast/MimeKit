@@ -227,6 +227,17 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestEncodeIllegalControlCharacters ()
+		{
+			const string attributeValue = "\"This contains some embedded control sequences ()\"";
+			const string encoded = "This contains some embedded control sequences ()";
+			var text = "This contains some embedded control sequences (\x19\x80\x9F)";
+
+			AssertHtmlAttributeEncode (text, attributeValue);
+			AssertHtmlEncode (text, encoded, false);
+		}
+
+		[Test]
 		public void TestHtmlDecode ()
 		{
 			const string encoded = "&lt;&pound;&euro;&cent;&yen;&nbsp;&copy;&reg;&gt;";
@@ -253,6 +264,12 @@ namespace UnitTests.Text {
 
 				Assert.AreEqual (ns, value);
 			}
+		}
+
+		[Test]
+		public void TestIsValidTokenName ()
+		{
+			Assert.IsFalse (HtmlUtils.IsValidTokenName (string.Empty), "string.Empty");
 		}
 	}
 }

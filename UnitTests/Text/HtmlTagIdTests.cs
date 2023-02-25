@@ -56,5 +56,19 @@ namespace UnitTests.Text {
 
 			Assert.IsFalse ("body".ToHtmlTagId ().IsFormattingElement (), "body");
 		}
+
+		[Test]
+		public void TestIsEmptyElement ()
+		{
+			var emptyElements = new[] { "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" };
+
+			foreach (var element in emptyElements) {
+				var tag = element.ToHtmlTagId ();
+
+				Assert.IsTrue (tag.IsEmptyElement (), element);
+			}
+
+			Assert.IsFalse ("body".ToHtmlTagId ().IsEmptyElement (), "body");
+		}
 	}
 }

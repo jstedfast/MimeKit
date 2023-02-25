@@ -33,6 +33,14 @@ namespace UnitTests.Text {
 	public class HtmlEntityDecoderTests
 	{
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var decoder = new HtmlEntityDecoder ();
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Push ('a'));
+		}
+
+		[Test]
 		public void TestDecodeNamedEntities ()
 		{
 			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "html", "HtmlEntities.json");
@@ -136,6 +144,46 @@ namespace UnitTests.Text {
 
 			TestDecodeNumericEntity ("&#32;", " ");
 			TestDecodeNumericEntity ("&#x7a;", "z");
+		}
+
+		static void TestPushInvalidNumericEntity (string text)
+		{
+			var decoder = new HtmlEntityDecoder ();
+
+			for (int i = 0; i < text.Length; i++) {
+				if (i + 1 == text.Length)
+					Assert.IsFalse (decoder.Push (text[i]), "Should have failed to push char #{0} of \"{1}\".", i, text);
+				else
+					Assert.IsTrue (decoder.Push (text[i]), "Failed to push char #{0} of \"{1}\".", i, text);
+			}
+		}
+
+		[Test]
+		public void TestPushInvalidNumericEntities ()
+		{
+			TestPushInvalidNumericEntity ("&#a");
+			TestPushInvalidNumericEntity ("&#/");
+			TestPushInvalidNumericEntity ("&#x@");
+			TestPushInvalidNumericEntity ("&#xG");
+			TestPushInvalidNumericEntity ("&#xg");
+			TestPushInvalidNumericEntity ("&#xFFFFFFFF");
+			TestPushInvalidNumericEntity ("&#x7FFFFFFF0");
+			TestPushInvalidNumericEntity ($"&#{int.MaxValue / 10}{(int.MaxValue % 10) + 1}");
+		}
+
+		[Test]
+		public void TestIncompleteNumericEntity ()
+		{
+			var decoder = new HtmlEntityDecoder ();
+
+			Assert.IsTrue (decoder.Push ('&'));
+			Assert.IsTrue (decoder.Push ('#'));
+			Assert.IsTrue (decoder.Push ('x'));
+			Assert.IsTrue (decoder.Push ('9'));
+			Assert.IsTrue (decoder.Push ('5'));
+
+			var value = decoder.GetValue ();
+			Assert.AreEqual ("&#x95", value);
 		}
 	}
 }
