@@ -1094,6 +1094,7 @@ namespace MimeKit.Text {
 			default:
 				TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
 				data.Append (c == '\0' ? '\uFFFD' : c);
+				Read ();
 				break;
 			}
 
