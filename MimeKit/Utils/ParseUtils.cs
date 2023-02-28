@@ -31,8 +31,6 @@ using System.Globalization;
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
-		static readonly IdnMapping idn = new IdnMapping ();
-
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
 			if (options is null)
