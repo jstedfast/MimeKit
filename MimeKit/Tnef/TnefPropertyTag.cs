@@ -5719,10 +5719,7 @@ namespace MimeKit.Tnef {
 		/// Returns a <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.
 		/// </remarks>
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.</returns>
-		public override string ToString ()
-		{
-			return string.Format ("{0} ({1})", Id, ValueTnefType);
-		}
+		public override string ToString () => $"{Id} ({ValueTnefType})";
 
 		/// <summary>
 		/// Return a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.

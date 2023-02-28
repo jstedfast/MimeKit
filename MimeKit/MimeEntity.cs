@@ -1811,7 +1811,7 @@ namespace MimeKit {
 			format.NewLineFormat = NewLineFormat.Dos;
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);
-			var header = string.Format ("Content-Type:{0}\r\n", encoded);
+			var header = $"Content-Type:{encoded}\r\n";
 
 			using (var chained = new ChainedStream ()) {
 				chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
@@ -1864,7 +1864,7 @@ namespace MimeKit {
 			format.NewLineFormat = NewLineFormat.Dos;
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);
-			var header = string.Format ("Content-Type:{0}\r\n", encoded);
+			var header = $"Content-Type:{encoded}\r\n";
 
 			using (var chained = new ChainedStream ()) {
 				chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
