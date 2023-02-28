@@ -3199,10 +3199,12 @@ namespace MimeKit {
 			if (message is null)
 				throw new ArgumentNullException (nameof (message));
 
+			var headerEncoding = message.HeadersEncoding ?? Encoding.UTF8;
+
 			var headers = new List<Header> ();
 			foreach (var field in message.Headers.AllKeys) {
 				foreach (var value in message.Headers.GetValues (field))
-					headers.Add (new Header (field, value));
+					headers.Add (new Header (headerEncoding, field, value));
 			}
 
 			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
