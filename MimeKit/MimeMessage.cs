@@ -1050,7 +1050,7 @@ namespace MimeKit {
 					}
 
 					// Look for the first non-attachment text part (realistically, the body text will
-					// preceed any attachments, but I'm not sure we can rely on that assumption).
+					// precede any attachments, but I'm not sure we can rely on that assumption).
 					if (multipart[i] is TextPart text && !text.IsAttachment) {
 						if (text.IsFormat (format)) {
 							body = MultipartAlternative.GetText (text);
@@ -2794,7 +2794,7 @@ namespace MimeKit {
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
