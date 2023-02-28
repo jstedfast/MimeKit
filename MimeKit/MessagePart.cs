@@ -206,8 +206,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			if (Message != null)
-				Message.Prepare (constraint, maxLineLength);
+			Message?.Prepare (constraint, maxLineLength);
 		}
 
 		/// <summary>
