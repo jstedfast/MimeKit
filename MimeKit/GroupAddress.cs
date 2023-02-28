@@ -111,7 +111,7 @@ namespace MimeKit {
 		/// <returns>The cloned group address.</returns>
 		public override InternetAddress Clone ()
 		{
-			return new GroupAddress (Encoding, Name, Members.Select (x => x.Clone ()));
+			return new GroupAddress (Encoding, Name, Members.Select (static x => x.Clone ()));
 		}
 
 		/// <summary>

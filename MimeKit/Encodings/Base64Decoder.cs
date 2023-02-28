@@ -79,12 +79,11 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="Base64Decoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new Base64Decoder ();
-			decoder.previous = previous;
-			decoder.saved = saved;
-			decoder.bytes = bytes;
-
-			return decoder;
+			return new Base64Decoder {
+				previous = previous,
+				saved = saved,
+				bytes = bytes
+			};
 		}
 
 		/// <summary>
@@ -94,9 +93,7 @@ namespace MimeKit.Encodings {
 		/// Gets the encoding that the decoder supports.
 		/// </remarks>
 		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.Base64; }
-		}
+		public ContentEncoding Encoding => ContentEncoding.Base64; 
 
 		/// <summary>
 		/// Estimate the length of the output.

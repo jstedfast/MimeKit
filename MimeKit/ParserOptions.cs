@@ -203,16 +203,17 @@ namespace MimeKit {
 		/// <returns>An identical copy of the current instance.</returns>
 		public ParserOptions Clone ()
 		{
-			var options = new ParserOptions ();
-			options.AddressParserComplianceMode = AddressParserComplianceMode;
-			options.AllowUnquotedCommasInAddresses = AllowUnquotedCommasInAddresses;
-			options.AllowAddressesWithoutDomain = AllowAddressesWithoutDomain;
-			options.ParameterComplianceMode = ParameterComplianceMode;
-			options.Rfc2047ComplianceMode = Rfc2047ComplianceMode;
-			options.MaxAddressGroupDepth = MaxAddressGroupDepth;
-			options.RespectContentLength = RespectContentLength;
-			options.CharsetEncoding = CharsetEncoding;
-			options.MaxMimeDepth = MaxMimeDepth;
+			var options = new ParserOptions {
+				AddressParserComplianceMode = AddressParserComplianceMode,
+				AllowUnquotedCommasInAddresses = AllowUnquotedCommasInAddresses,
+				AllowAddressesWithoutDomain = AllowAddressesWithoutDomain,
+				ParameterComplianceMode = ParameterComplianceMode,
+				Rfc2047ComplianceMode = Rfc2047ComplianceMode,
+				MaxAddressGroupDepth = MaxAddressGroupDepth,
+				RespectContentLength = RespectContentLength,
+				CharsetEncoding = CharsetEncoding,
+				MaxMimeDepth = MaxMimeDepth
+			};
 
 			foreach (var mimeType in mimeTypes)
 				options.mimeTypes.Add (mimeType.Key, mimeType.Value);

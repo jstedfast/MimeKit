@@ -89,12 +89,10 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="QuotedPrintableEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new QuotedPrintableEncoder (tripletsPerLine, maxLineLength);
-
-			encoder.currentLineLength = currentLineLength;
-			encoder.saved = saved;
-
-			return encoder;
+			return new QuotedPrintableEncoder (tripletsPerLine, maxLineLength) {
+				currentLineLength = currentLineLength,
+				saved = saved
+			};
 		}
 
 		/// <summary>
@@ -104,9 +102,7 @@ namespace MimeKit.Encodings {
 		/// Gets the encoding that the encoder supports.
 		/// </remarks>
 		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.QuotedPrintable; }
-		}
+		public ContentEncoding Encoding => ContentEncoding.QuotedPrintable;
 
 		/// <summary>
 		/// Estimate the length of the output.

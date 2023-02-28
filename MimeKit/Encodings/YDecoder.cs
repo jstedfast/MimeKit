@@ -104,9 +104,7 @@ namespace MimeKit.Encodings {
 		/// Gets the checksum.
 		/// </remarks>
 		/// <value>The checksum.</value>
-		public int Checksum {
-			get { return crc.Checksum; }
-		}
+		public int Checksum => crc.Checksum;
 
 		/// <summary>
 		/// Clone the <see cref="YDecoder"/> with its current state.
@@ -117,15 +115,13 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="YDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new YDecoder (initial == YDecoderState.Payload);
-
-			decoder.crc = crc.Clone ();
-			decoder.escaped = escaped;
-			decoder.state = state;
-			decoder.octet = octet;
-			decoder.eoln = eoln;
-
-			return decoder;
+			return new YDecoder (initial == YDecoderState.Payload) {
+				crc = crc.Clone (),
+				escaped = escaped,
+				state = state,
+				octet = octet,
+				eoln = eoln
+			};
 		}
 
 		/// <summary>
@@ -135,9 +131,7 @@ namespace MimeKit.Encodings {
 		/// Gets the encoding that the decoder supports.
 		/// </remarks>
 		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.Default; }
-		}
+		public ContentEncoding Encoding => ContentEncoding.Default;
 
 		/// <summary>
 		/// Estimate the length of the output.

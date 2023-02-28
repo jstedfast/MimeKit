@@ -66,12 +66,10 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="HexDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new HexDecoder ();
-
-			decoder.state = state;
-			decoder.saved = saved;
-
-			return decoder;
+			return new HexDecoder {
+				state = state,
+				saved = saved
+			};
 		}
 
 		/// <summary>
@@ -81,9 +79,7 @@ namespace MimeKit.Encodings {
 		/// Gets the encoding that the decoder supports.
 		/// </remarks>
 		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.Default; }
-		}
+		public ContentEncoding Encoding => ContentEncoding.Default;
 
 		/// <summary>
 		/// Estimate the length of the output.
