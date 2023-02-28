@@ -105,9 +105,7 @@ namespace MimeKit.Utils {
 		/// Gets the computed checksum.
 		/// </remarks>
 		/// <value>The checksum.</value>
-		public int Checksum {
-			get { return crc; }
-		}
+		public int Checksum => crc;
 
 		static void ValidateArguments (byte[] buffer, int offset, int count)
 		{

@@ -59,33 +59,19 @@ namespace MimeKit.Utils {
 
 		public int Length { get; }
 
-		public bool IsNumeric {
-			get { return (Flags & DateTokenFlags.NonNumeric) == 0; }
-		}
+		public bool IsNumeric => (Flags & DateTokenFlags.NonNumeric) == 0;
 
-		public bool IsWeekday {
-			get { return (Flags & DateTokenFlags.NonWeekday) == 0; }
-		}
+		public bool IsWeekday => (Flags & DateTokenFlags.NonWeekday) == 0;
 
-		public bool IsMonth {
-			get { return (Flags & DateTokenFlags.NonMonth) == 0; }
-		}
+		public bool IsMonth => (Flags & DateTokenFlags.NonMonth) == 0;
 
-		public bool IsTimeOfDay {
-			get { return (Flags & DateTokenFlags.NonTime) == 0 && (Flags & DateTokenFlags.HasColon) != 0; }
-		}
+		public bool IsTimeOfDay => (Flags & DateTokenFlags.NonTime) == 0 && (Flags & DateTokenFlags.HasColon) != 0;
 
-		public bool IsNumericZone {
-			get { return (Flags & DateTokenFlags.NonNumericZone) == 0 && (Flags & DateTokenFlags.HasSign) != 0; }
-		}
+		public bool IsNumericZone => (Flags & DateTokenFlags.NonNumericZone) == 0 && (Flags & DateTokenFlags.HasSign) != 0;
 
-		public bool IsAlphaZone {
-			get { return (Flags & DateTokenFlags.NonAlphaZone) == 0; }
-		}
+		public bool IsAlphaZone => (Flags & DateTokenFlags.NonAlphaZone) == 0;
 
-		public bool IsTimeZone {
-			get { return IsNumericZone || IsAlphaZone; }
-		}
+		public bool IsTimeZone => IsNumericZone || IsAlphaZone;
 	}
 
 	/// <summary>

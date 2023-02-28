@@ -162,9 +162,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if this parser has reached the end of the input stream;
 		/// otherwise, <c>false</c>.</value>
-		public bool IsEndOfStream {
-			get { return state == MimeParserState.Eos; }
-		}
+		public bool IsEndOfStream => state == MimeParserState.Eos;
 
 		/// <summary>
 		/// Get the current position of the parser within the stream.
@@ -173,9 +171,7 @@ namespace MimeKit {
 		/// Gets the current position of the parser within the stream.
 		/// </remarks>
 		/// <value>The stream offset.</value>
-		public long Position {
-			get { return GetOffset (inputIndex); }
-		}
+		public long Position => GetOffset (inputIndex);
 
 		/// <summary>
 		/// Set the stream to parse.

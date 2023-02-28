@@ -127,9 +127,7 @@ namespace MimeKit.Tnef {
 		/// Gets a value indicating whether or not the current property has multiple values.
 		/// </remarks>
 		/// <value><c>true</c> if the current property has multiple values; otherwise, <c>false</c>.</value>
-		public bool IsMultiValuedProperty {
-			get { return propertyTag.IsMultiValued; }
-		}
+		public bool IsMultiValuedProperty => propertyTag.IsMultiValued;
 
 		/// <summary>
 		/// Get a value indicating whether or not the current property is a named property.
@@ -138,9 +136,7 @@ namespace MimeKit.Tnef {
 		/// Gets a value indicating whether or not the current property is a named property.
 		/// </remarks>
 		/// <value><c>true</c> if the current property is a named property; otherwise, <c>false</c>.</value>
-		public bool IsNamedProperty {
-			get { return propertyTag.IsNamed; }
-		}
+		public bool IsNamedProperty => propertyTag.IsNamed;
 
 		/// <summary>
 		/// Get a value indicating whether the current property contains object values.
@@ -149,9 +145,7 @@ namespace MimeKit.Tnef {
 		/// Gets a value indicating whether the current property contains object values.
 		/// </remarks>
 		/// <value><c>true</c> if the current property contains object values; otherwise, <c>false</c>.</value>
-		public bool IsObjectProperty {
-			get { return propertyTag.ValueTnefType == TnefPropertyType.Object; }
-		}
+		public bool IsObjectProperty => propertyTag.ValueTnefType == TnefPropertyType.Object;
 
 #if false
 		/// <summary>
@@ -173,9 +167,7 @@ namespace MimeKit.Tnef {
 		/// Gets the number of properties available.
 		/// </remarks>
 		/// <value>The property count.</value>
-		public int PropertyCount {
-			get { return propertyCount; }
-		}
+		public int PropertyCount => propertyCount;
 
 		/// <summary>
 		/// Get the property name identifier.
@@ -184,9 +176,7 @@ namespace MimeKit.Tnef {
 		/// Gets the property name identifier.
 		/// </remarks>
 		/// <value>The property name identifier.</value>
-		public TnefNameId PropertyNameId {
-			get { return propertyName; }
-		}
+		public TnefNameId PropertyNameId => propertyName;
 
 		/// <summary>
 		/// Get the property tag.
@@ -195,9 +185,7 @@ namespace MimeKit.Tnef {
 		/// Gets the property tag.
 		/// </remarks>
 		/// <value>The property tag.</value>
-		public TnefPropertyTag PropertyTag {
-			get { return propertyTag; }
-		}
+		public TnefPropertyTag PropertyTag => propertyTag;
 
 		/// <summary>
 		/// Get the length of the raw value.
@@ -206,9 +194,7 @@ namespace MimeKit.Tnef {
 		/// Gets the length of the raw value.
 		/// </remarks>
 		/// <value>The length of the raw value.</value>
-		public int RawValueLength {
-			get { return rawValueLength; }
-		}
+		public int RawValueLength => rawValueLength;
 
 		/// <summary>
 		/// Get the raw value stream offset.
@@ -217,9 +203,7 @@ namespace MimeKit.Tnef {
 		/// Gets the raw value stream offset.
 		/// </remarks>
 		/// <value>The raw value stream offset.</value>
-		public int RawValueStreamOffset {
-			get { return rawValueOffset; }
-		}
+		public int RawValueStreamOffset => rawValueOffset;
 
 		/// <summary>
 		/// Get the number of table rows available.
@@ -228,9 +212,7 @@ namespace MimeKit.Tnef {
 		/// Gets the number of table rows available.
 		/// </remarks>
 		/// <value>The row count.</value>
-		public int RowCount {
-			get { return rowCount; }
-		}
+		public int RowCount => rowCount;
 
 		/// <summary>
 		/// Get the number of values available.
@@ -239,9 +221,7 @@ namespace MimeKit.Tnef {
 		/// Gets the number of values available.
 		/// </remarks>
 		/// <value>The value count.</value>
-		public int ValueCount {
-			get { return valueCount; }
-		}
+		public int ValueCount => valueCount;
 
 		/// <summary>
 		/// Get the type of the value.

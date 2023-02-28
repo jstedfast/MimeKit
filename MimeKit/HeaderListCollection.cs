@@ -59,9 +59,7 @@ namespace MimeKit {
 		/// Gets the number of groups in the collection.
 		/// </remarks>
 		/// <value>The number of groups.</value>
-		public int Count {
-			get { return groups.Count; }
-		}
+		public int Count => groups.Count;
 
 		/// <summary>
 		/// Gets whether or not the header list collection is read only.
@@ -70,9 +68,7 @@ namespace MimeKit {
 		/// A <see cref="HeaderListCollection"/> is never read-only.
 		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
 		/// <summary>
 		/// Gets or sets the <see cref="HeaderList"/> at the specified index.

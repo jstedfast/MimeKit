@@ -256,11 +256,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the local-part of the email address, sometimes referred to as the "user" portion of an email address.
 		/// </remarks>
-		public string LocalPart {
-			get {
-				return at != -1 ? address.Substring (0, at) : address;
-			}
-		}
+		public string LocalPart => at != -1 ? address.Substring (0, at) : address;
 
 		/// <summary>
 		/// Get the domain of the email address.
@@ -268,11 +264,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the domain of the email address.
 		/// </remarks>
-		public string Domain {
-			get {
-				return at != -1 ? address.Substring (at + 1) : string.Empty;
-			}
-		}
+		public string Domain => at != -1 ? address.Substring (at + 1) : string.Empty;
 
 		/// <summary>
 		/// Get whether or not the address is an international address.

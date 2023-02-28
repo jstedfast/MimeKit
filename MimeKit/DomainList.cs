@@ -267,9 +267,7 @@ namespace MimeKit {
 		/// Indicates the number of domains in the list.
 		/// </remarks>
 		/// <value>The number of domains.</value>
-		public int Count {
-			get { return domains.Count; }
-		}
+		public int Count => domains.Count;
 
 		/// <summary>
 		/// Get a value indicating whether the <see cref="DomainList"/> is read only.
@@ -278,9 +276,7 @@ namespace MimeKit {
 		/// A <see cref="DomainList"/> is never read-only.
 		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
 		#endregion
 

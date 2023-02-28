@@ -641,9 +641,7 @@ namespace MimeKit {
 		/// Indicates the number of parts in the multipart.
 		/// </remarks>
 		/// <value>The number of parts in the multipart.</value>
-		public int Count {
-			get { return children.Count; }
-		}
+		public int Count => children.Count;
 
 		/// <summary>
 		/// Get a value indicating whether this instance is read only.
@@ -652,9 +650,7 @@ namespace MimeKit {
 		/// A <see cref="Multipart"/> is never read-only.
 		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
 		/// <summary>
 		/// Add an entity to the multipart.

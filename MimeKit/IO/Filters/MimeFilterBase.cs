@@ -57,9 +57,7 @@ namespace MimeKit.IO.Filters {
 		/// Gets the output buffer.
 		/// </remarks>
 		/// <value>The output buffer.</value>
-		protected byte[] OutputBuffer {
-			get { return output; }
-		}
+		protected byte[] OutputBuffer => output;
 
 		/// <summary>
 		/// Filter the specified input.

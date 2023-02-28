@@ -109,9 +109,7 @@ namespace MimeKit {
 		/// The "id" parameter is a unique identifier used to match the parts together.
 		/// </remarks>
 		/// <value>The identifier.</value>
-		public string Id {
-			get { return ContentType.Parameters["id"]; }
-		}
+		public string Id => ContentType.Parameters["id"];
 
 		/// <summary>
 		/// Get the "number" parameter of the Content-Type header.

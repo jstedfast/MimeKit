@@ -1089,9 +1089,7 @@ namespace MimeKit {
 		/// search order) which is not an attachment.</para>
 		/// </remarks>
 		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
-		public string TextBody {
-			get { return GetTextBody (TextFormat.Plain); }
-		}
+		public string TextBody => GetTextBody (TextFormat.Plain);
 
 		/// <summary>
 		/// Get the html body of the message if it exists.
@@ -1100,9 +1098,7 @@ namespace MimeKit {
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
 		/// </remarks>
 		/// <value>The html body if it exists; otherwise, <c>null</c>.</value>
-		public string HtmlBody {
-			get { return GetTextBody (TextFormat.Html); }
-		}
+		public string HtmlBody => GetTextBody (TextFormat.Html);
 
 		/// <summary>
 		/// Get the text body in the specified format.
@@ -1153,9 +1149,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveBodyParts" />
 		/// </example>
 		/// <value>The body parts.</value>
-		public IEnumerable<MimeEntity> BodyParts {
-			get { return EnumerateMimeParts (Body); }
-		}
+		public IEnumerable<MimeEntity> BodyParts => EnumerateMimeParts (Body);
 
 		/// <summary>
 		/// Get the attachments.

@@ -86,9 +86,7 @@ namespace MimeKit {
 		/// Indicates the number of attachments in the collection.
 		/// </remarks>
 		/// <value>The number of attachments.</value>
-		public int Count {
-			get { return attachments.Count; }
-		}
+		public int Count => attachments.Count;
 
 		/// <summary>
 		/// Get whther or not the collection is read-only.
@@ -97,9 +95,7 @@ namespace MimeKit {
 		/// A <see cref="AttachmentCollection"/> is never read-only.
 		/// </remarks>
 		/// <value><c>true</c> if the collection is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
 		/// <summary>
 		/// Get or set the <see cref="MimeEntity"/> at the specified index.

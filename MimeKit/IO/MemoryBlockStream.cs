@@ -114,9 +114,7 @@ namespace MimeKit.IO {
 		/// The <see cref="MemoryBlockStream"/> is always readable.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-		public override bool CanRead {
-			get { return true; }
-		}
+		public override bool CanRead => true;
 
 		/// <summary>
 		/// Check whether or not the stream supports writing.
@@ -125,9 +123,7 @@ namespace MimeKit.IO {
 		/// The <see cref="MemoryBlockStream"/> is always writable.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-		public override bool CanWrite {
-			get { return true; }
-		}
+		public override bool CanWrite => true;
 
 		/// <summary>
 		/// Check whether or not the stream supports seeking.
@@ -136,9 +132,7 @@ namespace MimeKit.IO {
 		/// The <see cref="MemoryBlockStream"/> is always seekable.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-		public override bool CanSeek {
-			get { return true; }
-		}
+		public override bool CanSeek => true;
 
 		/// <summary>
 		/// Check whether or not reading and writing to the stream can timeout.
@@ -147,9 +141,7 @@ namespace MimeKit.IO {
 		/// The <see cref="MemoryBlockStream"/> does not support timing out.
 		/// </remarks>
 		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
-		public override bool CanTimeout {
-			get { return false; }
-		}
+		public override bool CanTimeout => false;
 
 		/// <summary>
 		/// Get the length of the stream, in bytes.

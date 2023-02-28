@@ -294,9 +294,7 @@ namespace MimeKit {
 		/// Indicates the number of Message-Ids in the list.
 		/// </remarks>
 		/// <value>The number of Message-Ids.</value>
-		public int Count {
-			get { return references.Count; }
-		}
+		public int Count => references.Count;
 
 		/// <summary>
 		/// Get a value indicating whether the <see cref="MessageIdList"/> is read only.
@@ -305,9 +303,7 @@ namespace MimeKit {
 		/// A <see cref="MessageIdList"/> is never read-only.
 		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
 		#endregion
 

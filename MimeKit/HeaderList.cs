@@ -815,9 +815,7 @@ namespace MimeKit {
 		/// Gets the number of headers in the list.
 		/// </remarks>
 		/// <value>The number of headers.</value>
-		public int Count {
-			get { return headers.Count; }
-		}
+		public int Count => headers.Count;
 
 		/// <summary>
 		/// Get whether or not the header list is read only.
@@ -826,9 +824,7 @@ namespace MimeKit {
 		/// A <see cref="HeaderList"/> is never read-only.
 		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
 		/// <summary>
 		/// Add the specified header.

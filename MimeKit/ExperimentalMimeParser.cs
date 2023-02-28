@@ -169,9 +169,7 @@ namespace MimeKit {
 		/// Gets the most recent mbox marker offset.
 		/// </remarks>
 		/// <value>The mbox marker offset.</value>
-		public long MboxMarkerOffset {
-			get { return mboxMarkerOffset; }
-		}
+		public long MboxMarkerOffset => mboxMarkerOffset;
 
 		/// <summary>
 		/// Gets the most recent mbox marker.

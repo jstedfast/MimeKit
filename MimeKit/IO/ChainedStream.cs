@@ -172,15 +172,13 @@ namespace MimeKit.IO {
 		/// streams support them.
 		/// </remarks>
 		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
-		public override bool CanTimeout {
-			get { return false; }
-		}
+		public override bool CanTimeout => false;
 
 		/// <summary>
 		/// Get the length of the stream, in bytes.
 		/// </summary>
 		/// <remarks>
-		/// The length of a <see cref="ChainedStream"/> is the combined lenths of all
+		/// The length of a <see cref="ChainedStream"/> is the combined lengths of all
 		/// of its chained streams.
 		/// </remarks>
 		/// <value>The length of the stream in bytes.</value>

@@ -70,9 +70,7 @@ namespace MimeKit.IO {
 		/// A <see cref="MeasuringStream"/> is not readable.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-		public override bool CanRead {
-			get { return false; }
-		}
+		public override bool CanRead => false;
 
 		/// <summary>
 		/// Check whether or not the stream supports writing.
@@ -81,9 +79,7 @@ namespace MimeKit.IO {
 		/// A <see cref="MeasuringStream"/> is always writable.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-		public override bool CanWrite {
-			get { return true; }
-		}
+		public override bool CanWrite => true;
 
 		/// <summary>
 		/// Check whether or not the stream supports seeking.
@@ -92,9 +88,7 @@ namespace MimeKit.IO {
 		/// A <see cref="MeasuringStream"/> is always seekable.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-		public override bool CanSeek {
-			get { return true; }
-		}
+		public override bool CanSeek => true;
 
 		/// <summary>
 		/// Check whether or not reading and writing to the stream can timeout.
@@ -103,9 +97,7 @@ namespace MimeKit.IO {
 		/// Writing to a <see cref="MeasuringStream"/> cannot timeout.
 		/// </remarks>
 		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
-		public override bool CanTimeout {
-			get { return false; }
-		}
+		public override bool CanTimeout => false;
 
 		/// <summary>
 		/// Get the length of the stream, in bytes.

@@ -181,9 +181,7 @@ namespace MimeKit {
 		/// Either <see cref="MoveNext()"/> has not been called or <see cref="MoveNext()"/>
 		/// has moved beyond the end of the message.
 		/// </exception>
-		object IEnumerator.Current {
-			get { return Current; }
-		}
+		object IEnumerator.Current => Current;
 
 		/// <summary>
 		/// Get the path specifier for the current entity.

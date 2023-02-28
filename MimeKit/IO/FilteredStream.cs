@@ -176,9 +176,7 @@ namespace MimeKit.IO {
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-		public override bool CanRead {
-			get { return Source.CanRead; }
-		}
+		public override bool CanRead => Source.CanRead;
 
 		/// <summary>
 		/// Check whether or not the stream supports writing.
@@ -188,9 +186,7 @@ namespace MimeKit.IO {
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-		public override bool CanWrite {
-			get { return Source.CanWrite; }
-		}
+		public override bool CanWrite => Source.CanWrite;
 
 		/// <summary>
 		/// Check whether or not the stream supports seeking.
@@ -199,9 +195,7 @@ namespace MimeKit.IO {
 		/// Seeking is not supported by the <see cref="FilteredStream"/>.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-		public override bool CanSeek {
-			get { return false; }
-		}
+		public override bool CanSeek => false;
 
 		/// <summary>
 		/// Check whether or not I/O operations can timeout.
@@ -211,9 +205,7 @@ namespace MimeKit.IO {
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
-		public override bool CanTimeout {
-			get { return Source.CanTimeout; }
-		}
+		public override bool CanTimeout => Source.CanTimeout;
 
 		/// <summary>
 		/// Get the length of the stream, in bytes.

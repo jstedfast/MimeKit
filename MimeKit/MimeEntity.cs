@@ -1477,7 +1477,7 @@ namespace MimeKit {
 		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>

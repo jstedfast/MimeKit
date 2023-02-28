@@ -66,9 +66,7 @@ namespace MimeKit.Text {
 		/// Gets the input format.
 		/// </remarks>
 		/// <value>The input format.</value>
-		public override TextFormat InputFormat {
-			get { return TextFormat.Flowed; }
-		}
+		public override TextFormat InputFormat => TextFormat.Flowed;
 
 		/// <summary>
 		/// Get the output format.
@@ -77,9 +75,7 @@ namespace MimeKit.Text {
 		/// Gets the output format.
 		/// </remarks>
 		/// <value>The output format.</value>
-		public override TextFormat OutputFormat {
-			get { return TextFormat.Html; }
-		}
+		public override TextFormat OutputFormat => TextFormat.Html;
 
 		/// <summary>
 		/// Get or set whether the trailing space on a wrapped line should be deleted.
@@ -161,21 +157,13 @@ namespace MimeKit.Text {
 				attrs = HtmlAttributeCollection.Empty;
 			}
 
-			public override string TagName {
-				get { return TagId.ToHtmlTagName (); }
-			}
+			public override string TagName => TagId.ToHtmlTagName ();
 
-			public override HtmlAttributeCollection Attributes {
-				get { return attrs; }
-			}
+			public override HtmlAttributeCollection Attributes => attrs;
 
-			public override bool IsEmptyElementTag {
-				get { return TagId == HtmlTagId.Br; }
-			}
+			public override bool IsEmptyElementTag => TagId == HtmlTagId.Br;
 
-			public override bool IsEndTag {
-				get { return isEndTag; }
-			}
+			public override bool IsEndTag => isEndTag;
 
 			public void SetIsEndTag (bool value)
 			{

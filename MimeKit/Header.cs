@@ -457,9 +457,7 @@ namespace MimeKit {
 		/// Contains the raw field name of the header.
 		/// </remarks>
 		/// <value>The raw field name of the header.</value>
-		public byte[] RawField {
-			get { return rawField; }
-		}
+		public byte[] RawField => rawField;
 
 		/// <summary>
 		/// Get the raw value of the header.
@@ -468,9 +466,7 @@ namespace MimeKit {
 		/// Contains the raw value of the header, before any decoding or charset conversion.
 		/// </remarks>
 		/// <value>The raw value of the header.</value>
-		public byte[] RawValue {
-			get { return rawValue; }
-		}
+		public byte[] RawValue => rawValue;
 
 		/// <summary>
 		/// Get or sets the header value.

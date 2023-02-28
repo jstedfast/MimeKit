@@ -51,13 +51,16 @@ namespace MimeKit {
 		public static readonly byte[] MboxFrom = Encoding.ASCII.GetBytes ("From ");
 
 		public byte[] Marker { get; private set; }
-		public int FinalLength { get { return Marker.Length; } }
+
+		public int FinalLength => Marker.Length;
+		
 		public int Length { get; private set; }
+		
 		public int MaxLength { get; private set; }
 
 		public Boundary (string boundary, int currentMaxLength)
 		{
-			Marker = Encoding.UTF8.GetBytes ("--" + boundary + "--");
+			Marker = Encoding.UTF8.GetBytes ($"--{boundary}--");
 			Length = Marker.Length - 2;
 
 			MaxLength = Math.Max (currentMaxLength, Marker.Length);
@@ -285,9 +288,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if this parser has reached the end of the input stream;
 		/// otherwise, <c>false</c>.</value>
-		public bool IsEndOfStream {
-			get { return state == MimeParserState.Eos; }
-		}
+		public bool IsEndOfStream => state == MimeParserState.Eos;
 
 		/// <summary>
 		/// Get the current position of the parser within the stream.
@@ -296,9 +297,7 @@ namespace MimeKit {
 		/// Gets the current position of the parser within the stream.
 		/// </remarks>
 		/// <value>The stream offset.</value>
-		public long Position {
-			get { return GetOffset (inputIndex); }
-		}
+		public long Position => GetOffset (inputIndex);
 
 		/// <summary>
 		/// Get the most recent mbox marker offset.
@@ -307,9 +306,7 @@ namespace MimeKit {
 		/// Gets the most recent mbox marker offset.
 		/// </remarks>
 		/// <value>The mbox marker offset.</value>
-		public long MboxMarkerOffset {
-			get { return mboxMarkerOffset; }
-		}
+		public long MboxMarkerOffset => mboxMarkerOffset;
 
 		/// <summary>
 		/// Get the most recent mbox marker.

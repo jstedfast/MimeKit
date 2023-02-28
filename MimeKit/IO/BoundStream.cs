@@ -169,9 +169,7 @@ namespace MimeKit.IO {
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
-		public override bool CanRead {
-			get { return BaseStream.CanRead; }
-		}
+		public override bool CanRead => BaseStream.CanRead;
 
 		/// <summary>
 		/// Check whether or not the stream supports writing.
@@ -181,9 +179,7 @@ namespace MimeKit.IO {
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
-		public override bool CanWrite {
-			get { return BaseStream.CanWrite; }
-		}
+		public override bool CanWrite => BaseStream.CanWrite;
 
 		/// <summary>
 		/// Check whether or not the stream supports seeking.
@@ -193,9 +189,7 @@ namespace MimeKit.IO {
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
-		public override bool CanSeek {
-			get { return BaseStream.CanSeek; }
-		}
+		public override bool CanSeek => BaseStream.CanSeek;
 
 		/// <summary>
 		/// Check whether or not I/O operations can timeout.
@@ -205,9 +199,7 @@ namespace MimeKit.IO {
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
-		public override bool CanTimeout {
-			get { return BaseStream.CanTimeout; }
-		}
+		public override bool CanTimeout => BaseStream.CanTimeout;
 
 		/// <summary>
 		/// Get the length of the stream, in bytes.
