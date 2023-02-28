@@ -99,7 +99,7 @@ namespace MimeKit {
 				if ((contentId = MimeUtils.EnumerateReferences (start).FirstOrDefault ()) is null)
 					contentId = start;
 
-				var cid = new Uri (string.Format ("cid:{0}", contentId));
+				var cid = new Uri ($"cid:{contentId}");
 
 				return IndexOf (cid);
 			}

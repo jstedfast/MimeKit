@@ -561,7 +561,7 @@ namespace MimeKit.Text {
 
 			FlushWriterState ();
 
-			html.Write (string.Format ("<{0}", name));
+			html.Write ($"<{name}");
 			WriterState = HtmlWriterState.Tag;
 			empty = true;
 		}
@@ -617,7 +617,7 @@ namespace MimeKit.Text {
 
 			FlushWriterState ();
 
-			html.Write (string.Format ("</{0}>", name));
+			html.Write ($"</{name}>");
 		}
 
 		/// <summary>
@@ -729,7 +729,7 @@ namespace MimeKit.Text {
 
 			FlushWriterState ();
 
-			html.Write (string.Format ("<{0}", name));
+			html.Write ($"<{name}");
 			WriterState = HtmlWriterState.Tag;
 		}
 

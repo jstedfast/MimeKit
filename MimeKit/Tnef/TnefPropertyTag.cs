@@ -5721,7 +5721,7 @@ namespace MimeKit.Tnef {
 		/// <returns>A <see cref="System.String"/> that represents the current <see cref="TnefPropertyTag"/>.</returns>
 		public override string ToString ()
 		{
-			return string.Format ("{0} ({1})", Id, ValueTnefType);
+			return $"{Id} ({ValueTnefType})";
 		}
 
 		/// <summary>

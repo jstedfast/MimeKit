@@ -314,7 +314,7 @@ namespace MimeKit {
 			var type = contentType.MediaType;
 
 			if (mimeTypes.Count > 0) {
-				var mimeType = string.Format ("{0}/{1}", type, subtype);
+				var mimeType = $"{type}/{subtype}";
 
 				if (mimeTypes.TryGetValue (mimeType, out var ctor))
 					return (MimeEntity) ctor.Invoke (new object[] { args });
