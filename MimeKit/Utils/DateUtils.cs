@@ -320,7 +320,7 @@ namespace MimeKit.Utils {
 
 		static bool IsTokenDelimiter (byte c)
 		{
-			return c == (byte) '-' || c == (byte) '/' || c == (byte) ',' || c.IsWhitespace ();
+			return c is (byte) '-' or (byte) '/' or (byte) ',' || c.IsWhitespace ();
 		}
 
 		static IEnumerable<DateToken> TokenizeDate (byte[] text, int startIndex, int length)

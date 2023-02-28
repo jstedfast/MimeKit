@@ -60,7 +60,7 @@ namespace MimeKit.Text {
 			int v;
 
 			if (xbase == 0) {
-				if (c == 'X' || c == 'x') {
+				if (c is 'X' or 'x') {
 					states[index] = 0;
 					pushed[index] = c;
 					xbase = 16;

@@ -99,7 +99,7 @@ namespace MimeKit.Utils {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsBbQq (byte c)
 		{
-			return c == 'B' || c == 'b' || c == 'Q' || c == 'q';
+			return c is (byte)'B' or (byte)'b' or (byte)'Q' or (byte)'q';
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -997,7 +997,7 @@ namespace MimeKit.Utils {
 			//
 			// ISO-2022-JP may also be used in MIME Part 2 headers.  The "B"
 			// encoding should be used with ISO-2022-JP text.
-			return encoding.CodePage == 50220 || encoding.CodePage == 50222;
+			return encoding.CodePage is 50220 or 50222;
 		}
 
 		internal static int AppendEncodedWord (ref ValueStringBuilder builder, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
@@ -1054,7 +1054,7 @@ namespace MimeKit.Utils {
 			for (int i = startIndex; i < lastIndex; i++) {
 				c = text[i];
 
-				if (c == '"' || c == '\\')
+				if (c is '"' or '\\')
 					str.Append ('\\');
 
 				str.Append (c);
@@ -1123,7 +1123,7 @@ namespace MimeKit.Utils {
 
 		static bool IsBlank (char c)
 		{
-			return c == ' ' || c == '\t';
+			return c is ' ' or '\t';
 		}
 
 		static bool IsCtrl (char c)

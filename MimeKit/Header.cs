@@ -916,7 +916,7 @@ namespace MimeKit {
 
 		static bool IsWhiteSpace (char c)
 		{
-			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+			return c is ' ' or '\t' or '\r' or '\n';
 		}
 
 		readonly struct Word
@@ -1175,7 +1175,7 @@ namespace MimeKit {
 
 		static bool IsMailingListCommandSpecial (char c)
 		{
-			return c == '<' || c == '(' || c == ',';
+			return c is '<' or '(' or ',';
 		}
 
 		static byte[] EncodeMailingListCommandHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)

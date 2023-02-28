@@ -236,7 +236,7 @@ namespace MimeKit.Utils {
 				if (i == charset.Length)
 					return -1;
 
-				if (charset[i] == '-' || charset[i] == '_') {
+				if (charset[i] is '-' or '_') {
 					if (i + 1 == charset.Length)
 						return -1;
 
@@ -254,7 +254,7 @@ namespace MimeKit.Utils {
 				if (i == charset.Length)
 					return -1;
 
-				if (charset[i] == '-' || charset[i] == '_')
+				if (charset[i] is '-' or '_')
 					i++;
 
 				if (TryParseInt32 (charset, i, charset.Length - i, out codepage))
@@ -265,7 +265,7 @@ namespace MimeKit.Utils {
 				if (i == charset.Length)
 					return -1;
 
-				if (charset[i] == '-' || charset[i] == '_')
+				if (charset[i] is '-' or '_')
 					i++;
 
 				if ((codepage = ParseIsoCodePage (charset, i)) != -1)
@@ -276,7 +276,7 @@ namespace MimeKit.Utils {
 				if (i == charset.Length)
 					return -1;
 
-				if (charset[i] == '-' || charset[i] == '_')
+				if (charset[i] is '-' or '_')
 					i++;
 
 				if (TryParseInt32 (charset, i, charset.Length - i, out codepage))
@@ -340,7 +340,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException (nameof (fallback));
 
 			if ((codepage = GetCodePage (charset)) == -1)
-				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
+				throw new NotSupportedException ($"The '{charset}' encoding is not supported.");
 
 			var encoderFallback = new EncoderReplacementFallback (fallback);
 			var decoderFallback = new DecoderReplacementFallback (fallback);
@@ -353,12 +353,12 @@ namespace MimeKit.Utils {
 			int codepage;
 
 			if ((codepage = GetCodePage (charset)) == -1)
-				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
+				throw new NotSupportedException ($"The '{charset}' encoding is not supported.");
 
 			try {
 				return Encoding.GetEncoding (codepage);
 			} catch (Exception ex) {
-				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset), ex);
+				throw new NotSupportedException ($"The '{charset}' encoding is not supported.", ex);
 			}
 		}
 

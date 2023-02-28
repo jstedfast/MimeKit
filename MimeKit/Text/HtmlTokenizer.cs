@@ -929,7 +929,7 @@ namespace MimeKit.Text {
 
 			c = (char) nc;
 
-			if (c == 'S' || c == 's') {
+			if (c is 'S' or 's') {
 				TokenizerState = HtmlTokenizerState.ScriptDataEndTagName;
 				name.Append ('s');
 				data.Append (c);
@@ -1879,7 +1879,7 @@ namespace MimeKit.Text {
 
 			if (count == 0) {
 				// Check for "<!DOCTYPE " or "<![CDATA["
-				if (c == 'D' || c == 'd') {
+				if (c is 'D' or 'd') {
 					// Note: we save the data in case we hit a parse error and have to emit a data token
 					data.Append (c);
 					name.Append (c);

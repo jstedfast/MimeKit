@@ -659,7 +659,7 @@ namespace MimeKit {
 			//             /  "," / ";" / ":" / "\" / <">  ;  string, to use
 			//             /  "." / "[" / "]"              ;  within a word.
 
-			if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) '>' || text[index] == ';') {
+			if (index >= endIndex || text[index] is (byte) ',' or (byte) '>' or (byte)';') {
 				// we've completely gobbled up an addr-spec w/o a domain
 				byte sentinel = index < endIndex ? text[index] : (byte) ',';
 				string name;

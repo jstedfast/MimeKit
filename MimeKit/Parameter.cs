@@ -604,7 +604,7 @@ namespace MimeKit {
 				c = text[index++];
 
 				if (c < 127) {
-					if (IsCtrl (c) || c == '"' || c == '\\')
+					if (IsCtrl (c) || c is '"' or '\\')
 						encodeCount++;
 
 					byteCount++;

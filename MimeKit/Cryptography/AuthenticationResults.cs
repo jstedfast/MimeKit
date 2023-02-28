@@ -495,7 +495,7 @@ namespace MimeKit.Cryptography {
 
 				value = Encoding.ASCII.GetString (text, tokenIndex, index - tokenIndex);
 
-				if (value == "reason" || value == "action") {
+				if (value is "reason" or "action") {
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
