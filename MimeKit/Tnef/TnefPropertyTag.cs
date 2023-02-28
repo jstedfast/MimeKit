@@ -5704,12 +5704,9 @@ namespace MimeKit.Tnef {
 		/// <see cref="TnefPropertyTag"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (object obj)
 		{
-			if (!(obj is TnefPropertyTag))
-				return false;
-
-			var tag = (TnefPropertyTag) obj;
-
-			return tag.Id == Id && tag.TnefType == TnefType;
+			return obj is TnefPropertyTag tag
+				&& tag.Id == Id
+				&& tag.TnefType == TnefType;
 		}
 
 		/// <summary>

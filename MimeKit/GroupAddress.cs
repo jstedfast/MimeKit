@@ -231,12 +231,9 @@ namespace MimeKit {
 		/// <see cref="GroupAddress"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (InternetAddress other)
 		{
-			var group = other as GroupAddress;
-
-			if (group is null)
-				return false;
-
-			return Name == group.Name && Members.Equals (group.Members);
+			return other is GroupAddress group 
+				&& Name == group.Name
+				&& Members.Equals (group.Members);
 		}
 
 		#endregion
