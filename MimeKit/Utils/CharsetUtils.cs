@@ -340,7 +340,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException (nameof (fallback));
 
 			if ((codepage = GetCodePage (charset)) == -1)
-				throw new NotSupportedException (string.Format ("The '{0}' encoding is not supported.", charset));
+				throw new NotSupportedException ($"The '{charset}' encoding is not supported.");
 
 			var encoderFallback = new EncoderReplacementFallback (fallback);
 			var decoderFallback = new DecoderReplacementFallback (fallback);

@@ -287,7 +287,7 @@ namespace MimeKit.Text {
 							//if (NormalizeHtml && AutoClosingTags.Contains (startTag.TagName) &&
 							//	(ctx = Pop (stack, startTag.TagName)) != null &&
 							//	ctx.InvokeCallbackForEndTag && !SuppressContent (stack)) {
-							//	var value = string.Format ("</{0}>", ctx.TagName);
+							//	var value = $"</{ctx.TagName}>";
 							//	var name = ctx.TagName;
 							//
 							//	ctx = new HtmlToHtmlTagContext (new HtmlTokenTag (HtmlTokenKind.EndTag, name, value)) {

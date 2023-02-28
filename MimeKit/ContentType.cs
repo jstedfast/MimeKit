@@ -232,7 +232,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The mime-type.</value>
 		public string MimeType {
-			get { return string.Format ("{0}/{1}", MediaType, MediaSubtype); }
+			get { return $"{MediaType}/{MediaSubtype}"; }
 		}
 
 		/// <summary>
