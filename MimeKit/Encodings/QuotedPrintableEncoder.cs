@@ -89,12 +89,10 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="QuotedPrintableEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new QuotedPrintableEncoder (tripletsPerLine, maxLineLength);
-
-			encoder.currentLineLength = currentLineLength;
-			encoder.saved = saved;
-
-			return encoder;
+			return new QuotedPrintableEncoder (tripletsPerLine, maxLineLength) {
+				currentLineLength = currentLineLength,
+				saved = saved
+			};
 		}
 
 		/// <summary>

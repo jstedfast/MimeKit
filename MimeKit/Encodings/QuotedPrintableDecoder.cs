@@ -81,12 +81,10 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="QuotedPrintableDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new QuotedPrintableDecoder (rfc2047);
-
-			decoder.state = state;
-			decoder.saved = saved;
-
-			return decoder;
+			return new QuotedPrintableDecoder (rfc2047) {
+				state = state,
+				saved = saved
+			};
 		}
 
 		/// <summary>

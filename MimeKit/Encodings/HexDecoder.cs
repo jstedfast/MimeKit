@@ -66,12 +66,10 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="HexDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new HexDecoder ();
-
-			decoder.state = state;
-			decoder.saved = saved;
-
-			return decoder;
+			return new HexDecoder {
+				state = state,
+				saved = saved
+			};
 		}
 
 		/// <summary>

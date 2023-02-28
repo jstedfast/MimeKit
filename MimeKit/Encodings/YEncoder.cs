@@ -83,12 +83,10 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="YEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new YEncoder (lineLength);
-
-			encoder.crc = crc.Clone ();
-			encoder.octets = octets;
-
-			return encoder;
+			return new YEncoder (lineLength) {
+				crc = crc.Clone (),
+				octets = octets
+			};
 		}
 
 		/// <summary>

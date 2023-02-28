@@ -110,14 +110,12 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="UUDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new UUDecoder (initial == UUDecoderState.Payload);
-
-			decoder.state = state;
-			decoder.nsaved = nsaved;
-			decoder.saved = saved;
-			decoder.uulen = uulen;
-
-			return decoder;
+			return new UUDecoder (initial == UUDecoderState.Payload) {
+				state = state,
+				nsaved = nsaved,
+				saved = saved,
+				uulen = uulen
+			};
 		}
 
 		/// <summary>
