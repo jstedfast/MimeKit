@@ -115,7 +115,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>This option exists in order to define the maximum recursive depth of MIME parts that the parser
 		/// should accept before treating further nesting as a leaf-node MIME part and not recursing any further.
-		/// If the value is set too large, then it is possible that a maliciously formed set of rdeeply nested
+		/// If the value is set too large, then it is possible that a maliciously formed set of deeply nested
 		/// multipart MIME parts could cause a stack overflow.</para>
 		/// </remarks>
 		/// <value>The maximum MIME nesting depth.</value>

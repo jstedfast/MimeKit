@@ -462,7 +462,7 @@ namespace MimeKit {
 			atom = index;
 			if (text[index] == '"') {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unxpected qstring token at position {0}", atom), atom, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected qstring token at position {0}", atom), atom, index);
 
 				// Note: This is a work-around for broken mailers that quote the disposition value...
 				//
