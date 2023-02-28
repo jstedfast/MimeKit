@@ -360,17 +360,17 @@ namespace MimeKit {
 		/// <returns>An exact copy of the <see cref="FormatOptions"/>.</returns>
 		public FormatOptions Clone ()
 		{
-			var options = new FormatOptions ();
-			options.maxLineLength = maxLineLength;
-			options.newLineFormat = newLineFormat;
-			options.ensureNewLine = ensureNewLine;
-			options.HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders);
-			options.allowMixedHeaderCharsets = allowMixedHeaderCharsets;
-			options.parameterEncodingMethod = parameterEncodingMethod;
-			options.alwaysQuoteParameterValues = alwaysQuoteParameterValues;
-			options.verifyingSignature = verifyingSignature;
-			options.international = international;
-			return options;
+			return new FormatOptions {
+				maxLineLength = maxLineLength,
+				newLineFormat = newLineFormat,
+				ensureNewLine = ensureNewLine,
+				HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders),
+				allowMixedHeaderCharsets = allowMixedHeaderCharsets,
+				parameterEncodingMethod = parameterEncodingMethod,
+				alwaysQuoteParameterValues = alwaysQuoteParameterValues,
+				verifyingSignature = verifyingSignature,
+				international = international
+			};
 		}
 
 		/// <summary>

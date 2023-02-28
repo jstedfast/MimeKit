@@ -79,12 +79,11 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="Base64Decoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new Base64Decoder ();
-			decoder.previous = previous;
-			decoder.saved = saved;
-			decoder.bytes = bytes;
-
-			return decoder;
+			return new Base64Decoder {
+				previous = previous,
+				saved = saved,
+				bytes = bytes
+			};
 		}
 
 		/// <summary>

@@ -117,15 +117,13 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="YDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			var decoder = new YDecoder (initial == YDecoderState.Payload);
-
-			decoder.crc = crc.Clone ();
-			decoder.escaped = escaped;
-			decoder.state = state;
-			decoder.octet = octet;
-			decoder.eoln = eoln;
-
-			return decoder;
+			return new YDecoder (initial == YDecoderState.Payload) {
+				crc = crc.Clone (),
+				escaped = escaped,
+				state = state,
+				octet = octet,
+				eoln = eoln
+			};
 		}
 
 		/// <summary>
