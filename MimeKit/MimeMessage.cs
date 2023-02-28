@@ -3269,8 +3269,7 @@ namespace MimeKit {
 			if (message.AlternateViews.Count > 0)
 				body = AddAlternateViews (body, message.AlternateViews);
 
-			if (body is null)
-				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
+			body ??= new TextPart (message.IsBodyHtml ? "html" : "plain");
 
 			if (message.Attachments.Count > 0) {
 				var mixed = new Multipart ("mixed");

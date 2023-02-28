@@ -419,15 +419,13 @@ namespace MimeKit {
 				if (ContentDisposition != null)
 					filename = ContentDisposition.FileName;
 
-				if (filename is null)
-					filename = ContentType.Name;
+				filename ??= ContentType.Name;
 
 				return filename?.Trim ();
 			}
 			set {
 				if (value != null) {
-					if (ContentDisposition is null)
-						ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
+					ContentDisposition ??= new ContentDisposition (ContentDisposition.Attachment);
 					ContentDisposition.FileName = value;
 				} else if (ContentDisposition != null) {
 					ContentDisposition.FileName = value;
