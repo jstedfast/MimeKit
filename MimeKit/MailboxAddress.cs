@@ -538,12 +538,9 @@ namespace MimeKit {
 		/// <see cref="MailboxAddress"/>; otherwise, <c>false</c>.</returns>
 		public override bool Equals (InternetAddress other)
 		{
-			var mailbox = other as MailboxAddress;
-
-			if (mailbox is null)
-				return false;
-
-			return Name == mailbox.Name && Address == mailbox.Address;
+			return other is MailboxAddress mailbox
+				&& Name == mailbox.Name
+				&& Address == mailbox.Address;
 		}
 
 		#endregion
