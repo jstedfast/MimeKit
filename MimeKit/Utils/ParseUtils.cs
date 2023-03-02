@@ -274,7 +274,7 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		public static bool IsSentinel (byte c, byte[] sentinels)
+		public static bool IsSentinel (byte c, ReadOnlySpan<byte> sentinels)
 		{
 			for (int i = 0; i < sentinels.Length; i++) {
 				if (c == sentinels[i])
@@ -284,7 +284,7 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, string tokenType, out string dotatom)
+		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, out string dotatom)
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
@@ -384,7 +384,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, byte[] sentinels, bool throwOnError, out string domain)
+		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, out string domain)
 		{
 			if (text[index] == (byte) '[')
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);
@@ -392,11 +392,11 @@ namespace MimeKit.Utils {
 			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
 		}
 
-		static readonly byte[] GreaterThanOrAt = { (byte) '>', (byte) '@' };
+		static ReadOnlySpan<byte> GreaterThanOrAt => new[] { (byte) '>', (byte) '@' };
 
 		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{
-			//const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
+			// const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
 			var angleAddr = false;
 
 			msgid = null;
