@@ -608,8 +608,8 @@ namespace MimeKit {
 				index++;
 		}
 
-		static readonly byte[] ReceivedAddrSpecSentinels = { (byte) '>', (byte) ';' };
-		static readonly byte[] ReceivedMessageIdSentinels = { (byte) '>' };
+		static ReadOnlySpan<byte> ReceivedAddrSpecSentinels => new[] { (byte) '>', (byte) ';' };
+		static ReadOnlySpan<byte> ReceivedMessageIdSentinels => new[] { (byte) '>' };
 
 		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
 		{
