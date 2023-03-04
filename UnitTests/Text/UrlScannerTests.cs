@@ -218,6 +218,30 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestSimpleWebUrlWithQuery ()
+		{
+			TestUrlScanner ("This is some text with an http://www.xamarin.com?query url in it...", "http://www.xamarin.com?query");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithPortAndQuery ()
+		{
+			TestUrlScanner ("This is some text with an http://www.xamarin.com:80?query url in it...", "http://www.xamarin.com:80?query");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithQuestionMark ()
+		{
+			TestUrlScanner ("Have you seen this website: http://www.xamarin.com? Wow!", "http://www.xamarin.com");
+		}
+
+		[Test]
+		public void TestSimpleWebUrlWithTwoQuestionMarks ()
+		{
+			TestUrlScanner ("Have you seen this website: http://www.xamarin.com?? Wow!", "http://www.xamarin.com");
+		}
+
+		[Test]
 		public void TestTextEndingWithFtpDot ()
 		{
 			TestUrlScanner ("This is some text with that ends with ftp.", null);

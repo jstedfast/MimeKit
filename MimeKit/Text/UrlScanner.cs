@@ -602,12 +602,23 @@ namespace MimeKit.Text {
 					index++;
 			}
 
-			// check for a path
-			if (index < endIndex && text[index] == '/') {
-				index++;
-
-				while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
+			// check for a path or query in cases where the link looks like this: https://www.domain.com?query
+			if (index < endIndex && (text[index] == '/' || text[index] == '?')) {
+				if (text[index] == '/')
 					index++;
+
+				while (index < endIndex && text[index] != close) {
+					if (text[index] == '?' || text[index] == '&') {
+						if (index + 1 >= endIndex || !char.IsLetter (text[index + 1]))
+							break;
+
+						index++;
+					} else if (!IsUrlSafe (text[index])) {
+						break;
+					}
+
+					index++;
+				}
 			}
 
 			match.EndIndex = index;
