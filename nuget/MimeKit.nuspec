@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>3.5.0</version>
+    <version>3.6.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,9 +26,14 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed potential NRE's in the GnuPG config parser
-* Modified AsBouncyCastleCertificate() extension method to throw on fail
-* Added Clone() methods to ContentType, ContentDisposition and Parameter.
+* Added the .msg &lt;-&gt; application/vnd.ms-outlook mime-type mapping. (issue #880)
+* Improved encoding/formatting of List-Archive, List-Help, List-Post, List-Subscribe and List-Unsubscribe headers. (issue #885)
+* Reduced memory allocations when encoding the mailbox/group names.
+* Added more Rfc2047.EncodePhrase()/EncodeText() overloads that take `startIndex` and `count` arguments.
+* Fixed parsing of Message-Id's containing a quoted string dot-atom (among regular dot-atoms). (issue #889)
+* Fixed a bug in the parsing of HTML &lt;script&gt; content that sometimes caused a character to be duplicated.
+* Use MailMessage.HeadersEncoding when coverting a MailMessage to a MimeMessage.
+* Improved the UrlScanner to accept urls like `https://example.com?query` (issue #897)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

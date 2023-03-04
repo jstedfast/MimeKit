@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("MimeKit")]
-[assembly: AssemblyCopyright ("Copyright © 2013-2022 .NET Foundation and Contributors")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2023 .NET Foundation and Contributors")]
 [assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
 
@@ -78,6 +78,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("3.5.0.0")]
-[assembly: AssemblyFileVersion ("3.5.0.0")]
-[assembly: AssemblyVersion ("3.5.0.0")]
+[assembly: AssemblyInformationalVersion ("3.6.0.0")]
+[assembly: AssemblyFileVersion ("3.6.0.0")]
+[assembly: AssemblyVersion ("3.6.0.0")]
