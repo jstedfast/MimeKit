@@ -29,7 +29,6 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Threading;
-using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -38,12 +37,6 @@ using System.Net.Mail;
 #endif
 
 #if ENABLE_CRYPTO
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Parameters;
-
 using MimeKit.Cryptography;
 #endif
 
