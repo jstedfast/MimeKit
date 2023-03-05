@@ -49,8 +49,10 @@ namespace UnitTests.Cryptography {
 			CryptographyContext.Register (typeof (DummyOpenPgpContext));
 
 			foreach (var name in new [] { "pubring.gpg", "pubring.gpg~", "secring.gpg", "secring.gpg~", "gpg.conf" }) {
-				if (File.Exists (name))
-					File.Delete (name);
+				var path = Path.Combine (GnuPGDir, name);
+
+				if (File.Exists (path))
+					File.Delete (path);
 			}
 
 			using (var ctx = new DummyOpenPgpContext ()) {
