@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10</LangVersion>
     <AssemblyName>UnitTests</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
@@ -21,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Net.Http" Condition=" $(TargetFramework.StartsWith('net4')) " />
     <Reference Include="System.Security" Condition=" $(TargetFramework.StartsWith('net4')) " />
   </ItemGroup>
 
