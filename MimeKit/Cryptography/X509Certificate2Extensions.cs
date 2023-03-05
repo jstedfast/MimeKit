@@ -38,8 +38,7 @@ using Org.BouncyCastle.Asn1.X509;
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// Extension methods for X509Certificate2.
 	/// </summary>

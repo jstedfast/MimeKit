@@ -57,8 +57,7 @@ using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
 
 using MimeKit.IO;
 
-namespace MimeKit.Cryptography
-{
+namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
 	/// </summary>
@@ -140,7 +139,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected abstract X509Certificate GetCertificate (IX509Selector selector);
+		protected abstract X509Certificate GetCertificate (ISelector<X509Certificate> selector);
 
 		/// <summary>
 		/// Get the private key for the certificate matching the specified selector.
@@ -151,7 +150,7 @@ namespace MimeKit.Cryptography
 		/// </remarks>
 		/// <returns>The private key on success; otherwise, <c>null</c>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected abstract AsymmetricKeyParameter GetPrivateKey (IX509Selector selector);
+		protected abstract AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector);
 
 		/// <summary>
 		/// Get the trusted anchors.
@@ -163,7 +162,7 @@ namespace MimeKit.Cryptography
 		/// signed content.</para>
 		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
-		protected abstract HashSet GetTrustedAnchors ();
+		protected abstract ISet<TrustAnchor> GetTrustedAnchors ();
 
 		/// <summary>
 		/// Get the intermediate certificates.
@@ -176,7 +175,7 @@ namespace MimeKit.Cryptography
 		/// signed content.</para>
 		/// </remarks>
 		/// <returns>The intermediate certificates.</returns>
-		protected abstract IX509Store GetIntermediateCertificates ();
+		protected abstract IStore<X509Certificate> GetIntermediateCertificates ();
 
 		/// <summary>
 		/// Get the certificate revocation lists.
@@ -187,7 +186,7 @@ namespace MimeKit.Cryptography
 		/// itself or by the owner of the revoked certificate.
 		/// </remarks>
 		/// <returns>The certificate revocation lists.</returns>
-		protected abstract IX509Store GetCertificateRevocationLists ();
+		protected abstract IStore<X509Crl> GetCertificateRevocationLists ();
 
 		/// <summary>
 		/// Get the date &amp; time for the next scheduled certificate revocation list update for the specified issuer.
@@ -646,9 +645,9 @@ namespace MimeKit.Cryptography
 			return await SignAsync (cmsSigner, content, cancellationToken).ConfigureAwait (false);
 		}
 
-		X509Certificate GetCertificate (IX509Store store, SignerID signer)
+		X509Certificate GetCertificate (IStore<X509Certificate> store, SignerID signer)
 		{
-			var matches = store.GetMatches (signer);
+			var matches = store.EnumerateMatches (signer);
 
 			foreach (X509Certificate certificate in matches)
 				return certificate;
@@ -677,10 +676,10 @@ namespace MimeKit.Cryptography
 
 			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector);
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
-			parameters.AddStore (intermediates);
-			parameters.AddStore (GetIntermediateCertificates ());
+			parameters.AddStoreCert (intermediates);
+			parameters.AddStoreCert (GetIntermediateCertificates ());
 			parameters.IsRevocationEnabled = false;
-			parameters.Date = new DateTimeObject (DateTime.UtcNow);
+			parameters.Date = DateTime.UtcNow;
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -693,7 +692,7 @@ namespace MimeKit.Cryptography
 			return chain;
 		}
 
-		PkixCertPath BuildCertPath (HashSet anchors, IX509Store certificates, IX509Store crls, X509Certificate certificate, DateTime signingTime)
+		PkixCertPath BuildCertPath (ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
 		{
 			var selector = new X509CertStoreSelector ();
 			selector.Certificate = certificate;
@@ -701,21 +700,21 @@ namespace MimeKit.Cryptography
 			var intermediates = new X509CertificateStore ();
 			intermediates.Add (certificate);
 
-			foreach (X509Certificate cert in certificates.GetMatches (null))
+			foreach (X509Certificate cert in certificates.EnumerateMatches (null))
 				intermediates.Add (cert);
 
 			var parameters = new PkixBuilderParameters (anchors, selector);
-			parameters.AddStore (intermediates);
-			parameters.AddStore (crls);
+			parameters.AddStoreCert (intermediates);
+			parameters.AddStoreCrl (crls);
 
-			parameters.AddStore (GetIntermediateCertificates ());
-			parameters.AddStore (GetCertificateRevocationLists ());
+			parameters.AddStoreCert (GetIntermediateCertificates ());
+			parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			parameters.ValidityModel = PkixParameters.PkixValidityModel;
 			parameters.IsRevocationEnabled = false;
 
 			if (signingTime != default (DateTime))
-				parameters.Date = new DateTimeObject (signingTime);
+				parameters.Date = signingTime;
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -1015,9 +1014,9 @@ namespace MimeKit.Cryptography
 		/// <param name="cancellationToken">The cancellation token.</param>
 		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, bool doAsync, CancellationToken cancellationToken)
 		{
-			var certificates = parser.GetCertificates ("Collection");
+			var certificates = parser.GetCertificates ();
 			var signatures = new List<IDigitalSignature> ();
-			var crls = parser.GetCrls ("Collection");
+			var crls = parser.GetCrls ();
 			var store = parser.GetSignerInfos ();
 
 			foreach (SignerInformation signerInfo in store.GetSigners ()) {
@@ -1077,12 +1076,17 @@ namespace MimeKit.Cryptography
 			if (signatureData == null)
 				throw new ArgumentNullException (nameof (signatureData));
 
-			var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData);
-			var signed = parser.GetSignedContent ();
+			using (var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData)) {
+				var signed = parser.GetSignedContent ();
 
-			signed.Drain ();
+				try {
+					signed.ContentStream.CopyTo (Stream.Null, 4096);
+				} finally {
+					signed.ContentStream.Dispose ();
+				}
 
-			return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+				return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+			}
 		}
 
 		/// <summary>
@@ -1106,7 +1110,7 @@ namespace MimeKit.Cryptography
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1114,12 +1118,17 @@ namespace MimeKit.Cryptography
 			if (signatureData == null)
 				throw new ArgumentNullException (nameof (signatureData));
 
-			var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData);
-			var signed = parser.GetSignedContent ();
+			using (var parser = new CmsSignedDataParser (new CmsTypedStream (content), signatureData)) {
+				var signed = parser.GetSignedContent ();
 
-			signed.Drain ();
+				try {
+					await signed.ContentStream.CopyToAsync (Stream.Null, 4096).ConfigureAwait (false);
+				} finally {
+					signed.ContentStream.Dispose ();
+				}
 
-			return GetDigitalSignaturesAsync (parser, true, cancellationToken);
+				return await GetDigitalSignaturesAsync (parser, true, cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		/// <summary>
@@ -1149,13 +1158,18 @@ namespace MimeKit.Cryptography
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
 
-			var parser = new CmsSignedDataParser (signedData);
-			var signed = parser.GetSignedContent ();
+			using (var parser = new CmsSignedDataParser (signedData)) {
+				var signed = parser.GetSignedContent ();
 
-			entity = MimeEntity.Load (signed.ContentStream, cancellationToken);
-			signed.Drain ();
+				try {
+					entity = MimeEntity.Load (signed.ContentStream, cancellationToken);
+					signed.ContentStream.CopyTo (Stream.Null, 4096);
+				} finally {
+					signed.ContentStream.Dispose ();
+				}
 
-			return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+				return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+			}
 		}
 
 		/// <summary>
@@ -1182,17 +1196,23 @@ namespace MimeKit.Cryptography
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
 
-			var parser = new CmsSignedDataParser (signedData);
-			var signed = parser.GetSignedContent ();
-			var content = new MemoryBlockStream ();
+			using (var parser = new CmsSignedDataParser (signedData)) {
+				var signed = parser.GetSignedContent ();
+				var content = new MemoryBlockStream ();
 
-			signed.ContentStream.CopyTo (content, 4096);
-			content.Position = 0;
-			signed.Drain ();
+				try {
+					signed.ContentStream.CopyTo (content, 4096);
+					content.Position = 0;
+				} catch {
+					content.Dispose ();
+				} finally {
+					signed.ContentStream.Dispose ();
+				}
 
-			signatures = GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+				signatures = GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
 
-			return content;
+				return content;
+			}
 		}
 
 		class CmsRecipientInfoGenerator : RecipientInfoGenerator
@@ -1499,24 +1519,25 @@ namespace MimeKit.Cryptography
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
 
-			var parser = new CmsEnvelopedDataParser (encryptedData);
-			var recipients = parser.GetRecipientInfos ();
-			var algorithm = parser.EncryptionAlgorithmID;
-			AsymmetricKeyParameter key;
+			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
+				var recipients = parser.GetRecipientInfos ();
+				var algorithm = parser.EncryptionAlgorithmID;
+				AsymmetricKeyParameter key;
 
-			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
-				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
-					continue;
+				foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
+					if ((key = GetPrivateKey (recipient.RecipientID)) == null)
+						continue;
 
-				var content = recipient.GetContentStream (key);
+					var content = recipient.GetContentStream (key);
 
-				try {
-					if (doAsync)
-						return await MimeEntity.LoadAsync (content.ContentStream, false, cancellationToken).ConfigureAwait (false);
+					try {
+						if (doAsync)
+							return await MimeEntity.LoadAsync (content.ContentStream, false, cancellationToken).ConfigureAwait (false);
 
-					return MimeEntity.Load (content.ContentStream, false, cancellationToken);
-				} finally {
-					content.ContentStream.Dispose ();
+						return MimeEntity.Load (content.ContentStream, false, cancellationToken);
+					} finally {
+						content.ContentStream.Dispose ();
+					}
 				}
 			}
 
@@ -1577,21 +1598,22 @@ namespace MimeKit.Cryptography
 			if (decryptedData == null)
 				throw new ArgumentNullException (nameof (decryptedData));
 
-			var parser = new CmsEnvelopedDataParser (encryptedData);
-			var recipients = parser.GetRecipientInfos ();
-			var algorithm = parser.EncryptionAlgorithmID;
-			AsymmetricKeyParameter key;
+			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
+				var recipients = parser.GetRecipientInfos ();
+				var algorithm = parser.EncryptionAlgorithmID;
+				AsymmetricKeyParameter key;
 
-			foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
-				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
-					continue;
+				foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
+					if ((key = GetPrivateKey (recipient.RecipientID)) == null)
+						continue;
 
-				var content = recipient.GetContentStream (key);
-				if (doAsync)
-					await content.ContentStream.CopyToAsync (decryptedData, 4096, cancellationToken).ConfigureAwait (false);
-				else
-					content.ContentStream.CopyTo (decryptedData, 4096);
-				return;
+					var content = recipient.GetContentStream (key);
+					if (doAsync)
+						await content.ContentStream.CopyToAsync (decryptedData, 4096, cancellationToken).ConfigureAwait (false);
+					else
+						content.ContentStream.CopyTo (decryptedData, 4096);
+					return;
+				}
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");

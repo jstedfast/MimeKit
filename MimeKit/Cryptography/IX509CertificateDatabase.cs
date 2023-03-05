@@ -31,6 +31,7 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Utilities.Collections;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -41,7 +42,7 @@ namespace MimeKit.Cryptography {
 	/// (such as encryption algorithms supported by the associated client), certificate revocation lists (CRLs),
 	/// and private keys.
 	/// </remarks>
-	public interface IX509CertificateDatabase : IX509Store, IDisposable
+	public interface IX509CertificateDatabase : IStore<X509Certificate>, IDisposable
 	{
 		/// <summary>
 		/// Find the specified certificate.
@@ -64,7 +65,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match selector or <c>null</c> to return all certificates.</param>
-		IEnumerable<X509Certificate> FindCertificates (IX509Selector selector);
+		IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate> selector);
 
 		/// <summary>
 		/// Finds the private keys matching the specified selector.
@@ -75,7 +76,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match selector or <c>null</c> to return all private keys.</param>
-		IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (IX509Selector selector);
+		IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (ISelector<X509Certificate> selector);
 
 		/// <summary>
 		/// Finds the certificate records for the specified mailbox.
@@ -103,7 +104,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
-		IEnumerable<X509CertificateRecord> Find (IX509Selector selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields);
+		IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Add the specified certificate record.
@@ -191,6 +192,6 @@ namespace MimeKit.Cryptography {
 		/// Gets a certificate revocation list store.
 		/// </remarks>
 		/// <returns>A certificate recovation list store.</returns>
-		IX509Store GetCrlStore ();
+		IStore<X509Crl> GetCrlStore ();
 	}
 }

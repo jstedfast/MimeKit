@@ -142,7 +142,8 @@ namespace UnitTests.Cryptography {
 		public static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password)
 		{
 			using (var stream = File.OpenRead (fileName)) {
-				var pkcs12 = new Pkcs12Store (stream, password.ToCharArray ());
+				var pkcs12 = new Pkcs12StoreBuilder ().Build ();
+				pkcs12.Load (stream, password.ToCharArray ());
 
 				foreach (string alias in pkcs12.Aliases) {
 					if (pkcs12.IsKeyEntry (alias)) {
@@ -331,7 +332,7 @@ namespace UnitTests.Cryptography {
 			using (var ctx = CreateContext ()) {
 				foreach (DigestAlgorithm digestAlgo in Enum.GetValues (typeof (DigestAlgorithm))) {
 					if (digestAlgo == DigestAlgorithm.None ||
-					    digestAlgo == DigestAlgorithm.DoubleSha)
+						digestAlgo == DigestAlgorithm.DoubleSha)
 						continue;
 
 					// make sure that the name & enum values map back and forth correctly
@@ -2395,7 +2396,7 @@ namespace UnitTests.Cryptography {
 		}
 	}
 
-	#if false
+#if false
 	[TestFixture, Explicit]
 	public class SecureMimeNpgsqlTests : SecureMimeTestsBase
 	{
@@ -2413,7 +2414,7 @@ namespace UnitTests.Cryptography {
 			return new DefaultSecureMimeContext (db);
 		}
 	}
-	#endif
+#endif
 
 	[TestFixture]
 	public class WindowsSecureMimeTests : SecureMimeTestsBase

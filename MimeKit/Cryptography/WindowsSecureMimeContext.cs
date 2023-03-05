@@ -393,7 +393,7 @@ namespace MimeKit.Cryptography {
 					var key = new AsymmetricKeyEntry (signer.PrivateKey);
 					var password = Guid.NewGuid ().ToString ();
 					var random = new SecureRandom ();
-					var pkcs12 = new Pkcs12Store ();
+					var pkcs12 = new Pkcs12StoreBuilder ().Build ();
 
 					for (int i = 0; i < chain.Length; i++)
 						chain[i] = new X509CertificateEntry (signer.CertificateChain[i]);
@@ -1545,6 +1545,19 @@ namespace MimeKit.Cryptography {
 			Import (StoreName.AddressBook, certificate, cancellationToken);
 		}
 
+		static string GetSerialNumber (X509CrlEntry crlEntry)
+		{
+			return crlEntry.SerialNumber.ToString ();
+		}
+
+		static X500DistinguishedName GetIssuerName (X509CrlEntry crlEntry)
+		{
+			var issuer = crlEntry.GetCertificateIssuer ();
+			var rawData = issuer.GetEncoded ();
+
+			return new X500DistinguishedName (rawData);
+		}
+
 		/// <summary>
 		/// Import a certificate revocation list.
 		/// </summary>
@@ -1571,8 +1584,29 @@ namespace MimeKit.Cryptography {
 			if (revoked == null)
 				return;
 
-			foreach (Org.BouncyCastle.X509.X509Certificate certificate in revoked)
-				Import (StoreName.Disallowed, certificate, cancellationToken);
+			var addressbook = new X509Store (StoreName.AddressBook, StoreLocation);
+			var disallowed = new X509Store (StoreName.Disallowed, StoreLocation);
+
+			addressbook.Open (OpenFlags.ReadWrite);
+			disallowed.Open (OpenFlags.ReadWrite);
+
+			try {
+				foreach (var crlEntry in revoked) {
+					var serialNumber = GetSerialNumber (crlEntry);
+					var issuer = GetIssuerName (crlEntry);
+
+					var matching = addressbook.Certificates.Find (X509FindType.FindBySerialNumber, serialNumber, false);
+					matching = matching.Find (X509FindType.FindByIssuerDistinguishedName, issuer, false);
+
+					for (int i = 0; i < matching.Count; i++) {
+						addressbook.Remove (matching[i]);
+						disallowed.Add (matching[i]);
+					}
+				}
+			} finally {
+				addressbook.Close ();
+				disallowed.Close ();
+			}
 		}
 
 		/// <summary>

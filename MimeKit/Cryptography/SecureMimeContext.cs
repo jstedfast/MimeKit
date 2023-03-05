@@ -523,13 +523,14 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var parser = new CmsCompressedDataParser (stream);
-			var content = parser.GetContent ();
+			using (var parser = new CmsCompressedDataParser (stream)) {
+				var content = parser.GetContent ();
 
-			try {
-				return MimeEntity.Load (content.ContentStream, cancellationToken);
-			} finally {
-				content.ContentStream.Dispose ();
+				try {
+					return MimeEntity.Load (content.ContentStream, cancellationToken);
+				} finally {
+					content.ContentStream.Dispose ();
+				}
 			}
 		}
 
@@ -558,14 +559,14 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			// TODO: find a way to make reading the input stream asynchronous
-			var parser = new CmsCompressedDataParser (stream);
-			var content = parser.GetContent ();
+			using (var parser = new CmsCompressedDataParser (stream)) {
+				var content = parser.GetContent ();
 
-			try {
-				return await MimeEntity.LoadAsync (content.ContentStream, cancellationToken).ConfigureAwait (false);
-			} finally {
-				content.ContentStream.Dispose ();
+				try {
+					return await MimeEntity.LoadAsync (content.ContentStream, cancellationToken).ConfigureAwait (false);
+				} finally {
+					content.ContentStream.Dispose ();
+				}
 			}
 		}
 
@@ -599,14 +600,15 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var parser = new CmsCompressedDataParser (stream);
-			var content = parser.GetContent ();
+			using (var parser = new CmsCompressedDataParser (stream)) {
+				var content = parser.GetContent ();
 
-			try {
-				cancellationToken.ThrowIfCancellationRequested ();
-				content.ContentStream.CopyTo (output, 4096);
-			} finally {
-				content.ContentStream.Dispose ();
+				try {
+					cancellationToken.ThrowIfCancellationRequested ();
+					content.ContentStream.CopyTo (output, 4096);
+				} finally {
+					content.ContentStream.Dispose ();
+				}
 			}
 		}
 
@@ -641,15 +643,15 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			// TODO: find a way to make reading the input stream asynchronous
-			var parser = new CmsCompressedDataParser (stream);
-			var content = parser.GetContent ();
+			using (var parser = new CmsCompressedDataParser (stream)) {
+				var content = parser.GetContent ();
 
-			try {
-				cancellationToken.ThrowIfCancellationRequested ();
-				await content.ContentStream.CopyToAsync (output, 4096, cancellationToken).ConfigureAwait (false);
-			} finally {
-				content.ContentStream.Dispose ();
+				try {
+					cancellationToken.ThrowIfCancellationRequested ();
+					await content.ContentStream.CopyToAsync (output, 4096, cancellationToken).ConfigureAwait (false);
+				} finally {
+					content.ContentStream.Dispose ();
+				}
 			}
 		}
 
@@ -1273,23 +1275,24 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var parser = new CmsSignedDataParser (stream);
-			var certificates = parser.GetCertificates ("Collection");
+			using (var parser = new CmsSignedDataParser (stream)) {
+				var certificates = parser.GetCertificates ();
 
-			foreach (X509Certificate certificate in certificates.GetMatches (null)) {
-				if (doAsync)
-					await ImportAsync (certificate, cancellationToken).ConfigureAwait (false);
-				else
-					Import (certificate, cancellationToken);
-			}
+				foreach (X509Certificate certificate in certificates.EnumerateMatches (null)) {
+					if (doAsync)
+						await ImportAsync (certificate, cancellationToken).ConfigureAwait (false);
+					else
+						Import (certificate, cancellationToken);
+				}
 
-			var crls = parser.GetCrls ("Collection");
+				var crls = parser.GetCrls ();
 
-			foreach (X509Crl crl in crls.GetMatches (null)) {
-				if (doAsync)
-					await ImportAsync (crl, cancellationToken).ConfigureAwait (false);
-				else
-					Import (crl, cancellationToken);
+				foreach (X509Crl crl in crls.EnumerateMatches (null)) {
+					if (doAsync)
+						await ImportAsync (crl, cancellationToken).ConfigureAwait (false);
+					else
+						Import (crl, cancellationToken);
+				}
 			}
 		}
 
