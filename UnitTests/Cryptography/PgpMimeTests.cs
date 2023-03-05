@@ -117,11 +117,15 @@ namespace UnitTests.Cryptography {
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var unknownMailbox = new MailboxAddress ("Snarky McSnarkypants", "snarky@snarkypants.net");
 				var knownMailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+				var expectedKeyIds = new long[] { 5826761848774992290, -3218736509825932358 };
+				var keyIds = new List<long> ();
 
-				int count = ctx.EnumeratePublicKeys ().Count ();
+				foreach (var key in ctx.EnumeratePublicKeys ())
+					keyIds.Add (key.KeyId);
 
-				// Note: the count will be 8 if run as a complete unit test or 2 if run individually
-				Assert.IsTrue (count == 8 || count == 2, $"Unexpected number of public keys: {count}");
+				foreach (var keyId in expectedKeyIds)
+					Assert.IsTrue (keyIds.Contains (keyId), "Expected keyId: {0}", keyId);
+
 				Assert.AreEqual (0, ctx.EnumeratePublicKeys (unknownMailbox).Count (), "Unexpected number of public keys for an unknown mailbox");
 				Assert.AreEqual (2, ctx.EnumeratePublicKeys (knownMailbox).Count (), "Unexpected number of public keys for a known mailbox");
 
