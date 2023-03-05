@@ -609,7 +609,7 @@ namespace MimeKit.Text {
 
 				while (index < endIndex && text[index] != close) {
 					if (text[index] == '?' || text[index] == '&') {
-						if (index + 1 >= endIndex || !char.IsLetter (text[index + 1]))
+						if (index + 1 >= endIndex || !char.IsLetterOrDigit (text[index + 1]))
 							break;
 
 						index++;
