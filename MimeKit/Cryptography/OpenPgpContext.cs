@@ -1303,13 +1303,9 @@ namespace MimeKit.Cryptography {
 						using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 							int nread;
 
-							try {
-								while ((nread = compressed.Read (buf, 0, BufferLength)) > 0) {
-									cancellationToken.ThrowIfCancellationRequested ();
-									encrypted.Write (buf, 0, nread);
-								}
-							} finally {
-								ArrayPool<byte>.Shared.Return (buf);
+							while ((nread = compressed.Read (buf, 0, BufferLength)) > 0) {
+								cancellationToken.ThrowIfCancellationRequested ();
+								encrypted.Write (buf, 0, nread);
 							}
 
 							encrypted.Flush ();
