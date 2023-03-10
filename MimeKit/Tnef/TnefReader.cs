@@ -509,28 +509,32 @@ namespace MimeKit.Tnef {
 			return result;
 		}
 
-		static unsafe float Int32BitsToSingle (int value)
-		{
-			return *((float*) &value);
-		}
-
 		internal float ReadSingle ()
 		{
-			var value = ReadInt32 ();
+			if (ReadAhead (4) < 4)
+				throw new EndOfStreamException ();
 
-			return Int32BitsToSingle (value);
-		}
+			UpdateChecksum (input, inputIndex, 4);
 
-		static unsafe double Int64BitsToDouble (long value)
-		{
-			return *((double*) &value);
+			var result = BitConverter.ToSingle (input, inputIndex);
+
+			inputIndex += 4;
+
+			return result;
 		}
 
 		internal double ReadDouble ()
 		{
-			var value = ReadInt64 ();
+			if (ReadAhead (8) < 8)
+				throw new EndOfStreamException ();
 
-			return Int64BitsToDouble (value);
+			UpdateChecksum (input, inputIndex, 8);
+
+			var result = BitConverter.ToDouble (input, inputIndex);
+
+			inputIndex += 8;
+
+			return result;
 		}
 
 		internal bool Seek (int offset)
