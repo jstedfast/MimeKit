@@ -1,5 +1,12 @@
 # Release Notes
 
+## MimeKit 3.6.1 (2023-03-19)
+
+* Improved the UrlScanner to allow numeric key/value pairs (seems to match behavior in other url detection algorithms).
+* Fixed a mis-use of ArrayPool in the OpenPgpContext.Encrypt/EncryptAsync that could cause memory corruption.
+* Use BitConverter to decode floats/doubles from the input buffer instead of custom code.
+* Bumped the System.Security.Cryptography.Pkcs dependency to v6.0.2.
+
 ## MimeKit 3.6.0 (2023-03-04)
 
 * Added the .msg &lt;-&gt; application/vnd.ms-outlook mime-type mapping.

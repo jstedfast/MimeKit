@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>3.6.0</version>
+    <version>3.6.1</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,15 +26,11 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added the .msg &lt;-&gt; application/vnd.ms-outlook mime-type mapping. (issue #880)
-* Improved encoding/formatting of List-Archive, List-Help, List-Post, List-Subscribe and List-Unsubscribe headers. (issue #885)
-* Reduced memory allocations when encoding the mailbox/group names.
-* Added more Rfc2047.EncodePhrase()/EncodeText() overloads that take `startIndex` and `count` arguments.
-* Fixed parsing of Message-Id's containing a quoted string dot-atom (among regular dot-atoms). (issue #889)
-* Fixed a bug in the parsing of HTML &lt;script&gt; content that sometimes caused a character to be duplicated.
-* Use MailMessage.HeadersEncoding when coverting a MailMessage to a MimeMessage.
-* Improved the UrlScanner to accept urls like `https://example.com?query` (issue #897)
-    </releaseNotes>
+* Improved the UrlScanner to allow numeric key/value pairs (seems to match behavior in other url detection algorithms).
+* Fixed a mis-use of ArrayPool in the OpenPgpContext.Encrypt/EncryptAsync that could cause memory corruption.
+* Use BitConverter to decode floats/doubles from the input buffer instead of custom code.
+* Bumped the System.Security.Cryptography.Pkcs dependency to v6.0.2.
+	</releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
     <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net462 net47 net48 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
@@ -79,7 +75,7 @@
       </group>
       <group targetFramework="net6.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="6.0.0" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="6.0.2" />
         <dependency id="System.Text.Encoding.CodePages" version="6.0.0" />
         <dependency id="Portable.BouncyCastle" version="1.9.0" />
       </group>
