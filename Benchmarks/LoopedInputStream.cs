@@ -6,10 +6,10 @@ namespace Benchmarks
 	class LoopedInputStream : Stream
 	{
 		readonly int iterationCount;
-		Stream innerStream;
+		readonly Stream innerStream;
+		readonly long length;
 		int iteration;
 		long position;
-		long length;
 
 		public LoopedInputStream (Stream innerStream, int iterationCount)
 		{

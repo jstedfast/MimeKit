@@ -64,7 +64,7 @@ namespace UnitTests.Text {
 			}
 		}
 
-		void AssertPreviewText (string path, string expected)
+		static void AssertPreviewText (string path, string expected)
 		{
 			var previewer = new PlainTextPreviewer ();
 			var buffer = new byte[16 * 1024];

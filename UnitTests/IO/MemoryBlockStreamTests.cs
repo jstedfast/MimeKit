@@ -30,10 +30,10 @@ namespace UnitTests.IO {
 	[TestFixture]
 	public class MemoryBlockStreamTests : IDisposable
 	{
-		MemoryBlockStream blocks;
-		MemoryStream master;
-		byte[] buf, mbuf;
-		Random random;
+		readonly MemoryBlockStream blocks;
+		readonly MemoryStream master;
+		readonly byte[] buf, mbuf;
+		readonly Random random;
 
 		public MemoryBlockStreamTests ()
 		{

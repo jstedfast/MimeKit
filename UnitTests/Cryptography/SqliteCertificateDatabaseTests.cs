@@ -98,7 +98,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void AssertFindBy (Org.BouncyCastle.Utilities.Collections.ISelector<X509Certificate> selector, X509Certificate expected)
+		static void AssertFindBy (Org.BouncyCastle.Utilities.Collections.ISelector<X509Certificate> selector, X509Certificate expected)
 		{
 			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
 				// Verify that we can select the Root Certificate

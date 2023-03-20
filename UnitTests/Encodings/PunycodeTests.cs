@@ -32,7 +32,7 @@ namespace UnitTests.Encodings {
 	[TestFixture]
 	public class PunycodeTests
 	{
-		Punycode punycode = new Punycode (new IdnMapping ());
+		readonly Punycode punycode = new Punycode (new IdnMapping ());
 
 		[Test]
 		public void TestArgumentExceptions ()

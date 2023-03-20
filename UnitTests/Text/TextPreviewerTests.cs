@@ -46,7 +46,7 @@ namespace UnitTests.Text {
 			return new TextPart (format) { Text = text };
 		}
 
-		void AssertPreviewText (string path, TextFormat format, string expected)
+		static void AssertPreviewText (string path, TextFormat format, string expected)
 		{
 			var body = CreateTextPart (path, format);
 			string actual;

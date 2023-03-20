@@ -64,7 +64,7 @@ namespace UnitTests.Text {
 			}
 		}
 
-		void AssertPreviewText (string path, string expected, int maxPreviewLen)
+		static void AssertPreviewText (string path, string expected, int maxPreviewLen)
 		{
 			var previewer = new HtmlTextPreviewer { MaximumPreviewLength = maxPreviewLen };
 			var buffer = new byte[16 * 1024];

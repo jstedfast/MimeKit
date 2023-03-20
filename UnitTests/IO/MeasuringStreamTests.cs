@@ -30,7 +30,7 @@ namespace UnitTests.IO {
 	[TestFixture]
 	public class MeasuringStreamTests
 	{
-		Random random = new Random ();
+		readonly Random random = new Random ();
 
 		[Test]
 		public void TestCanReadWriteSeek ()

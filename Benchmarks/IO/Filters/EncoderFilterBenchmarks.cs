@@ -34,7 +34,7 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class EncoderFilterBenchmarks
+	public class EncoderFilterBenchmarks : IDisposable
 	{
 		static readonly string EncoderDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
 		readonly Stream BinaryData, TextData;

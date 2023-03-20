@@ -37,7 +37,7 @@ namespace UnitTests.IO {
 		readonly MemoryStream master, backing;
 		readonly ChainedStream chained;
 		readonly byte[] cbuf, mbuf;
-		Random random;
+		readonly Random random;
 
 		public ChainedStreamTests ()
 		{

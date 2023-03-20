@@ -48,9 +48,9 @@ namespace MimeKit.Cryptography {
 #else
 		readonly IDigest digest;
 #endif
+		readonly int max;
 		bool disposed;
 		int length;
-		int max;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="DkimHashStream"/> class.
