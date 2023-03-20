@@ -58,7 +58,7 @@ namespace UnitTests.Text {
 			using (var reader = new StringReader (string.Empty))
 				Assert.AreEqual (string.Empty, previewer.GetPreviewText (reader), "TextReader");
 
-			using (var stream = new MemoryStream (new byte[0], false)) {
+			using (var stream = new MemoryStream (Array.Empty<byte> (), false)) {
 				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, "x-unknown"), "Stream, string");
 				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, Encoding.UTF8), "Stream, Encoding");
 			}

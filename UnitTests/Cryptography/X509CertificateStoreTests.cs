@@ -60,7 +60,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import (Stream.Null, null));
 			Assert.Throws<ArgumentNullException> (() => store.Import (GetTestDataPath ("smime.pfx"), null));
-			Assert.Throws<ArgumentNullException> (() => store.Import (new byte[0], null));
+			Assert.Throws<ArgumentNullException> (() => store.Import (Array.Empty<byte> (), null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null));

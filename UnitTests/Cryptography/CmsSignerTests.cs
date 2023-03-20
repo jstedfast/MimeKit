@@ -58,7 +58,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentException> (() => new CmsSigner (chain, keyPair.Public));
 
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner ((IEnumerable<X509Certificate>) null, signer.PrivateKey));
-			Assert.Throws<ArgumentException> (() => new CmsSigner (new X509Certificate[0], signer.PrivateKey));
+			Assert.Throws<ArgumentException> (() => new CmsSigner (Array.Empty<X509Certificate> (), signer.PrivateKey));
 			Assert.Throws<ArgumentException> (() => new CmsSigner (signer.CertificateChain, keyPair.Public));
 			Assert.Throws<ArgumentNullException> (() => new CmsSigner (signer.CertificateChain, null));
 

@@ -133,8 +133,8 @@ namespace UnitTests {
 
 			builder.HtmlBody = "<html>This is an <b>html</b> body.</html>";
 
-			builder.LinkedResources.Add ("empty.gif", new byte[0], new ContentType ("image", "gif"));
-			builder.LinkedResources.Add ("empty.jpg", new byte[0], new ContentType ("image", "jpg"));
+			builder.LinkedResources.Add ("empty.gif", Array.Empty<byte> (), new ContentType ("image", "gif"));
+			builder.LinkedResources.Add ("empty.jpg", Array.Empty<byte> (), new ContentType ("image", "jpg"));
 
 			foreach (var attachment in builder.LinkedResources)
 				attachment.ContentId = MimeUtils.GenerateMessageId ();
@@ -177,8 +177,8 @@ namespace UnitTests {
 
 			builder.HtmlBody = "<html>This is an <b>html</b> body.</html>";
 
-			builder.LinkedResources.Add ("empty.gif", new byte[0], new ContentType ("image", "gif"));
-			builder.LinkedResources.Add ("empty.jpg", new byte[0], new ContentType ("image", "jpg"));
+			builder.LinkedResources.Add ("empty.gif", Array.Empty<byte> (), new ContentType ("image", "gif"));
+			builder.LinkedResources.Add ("empty.jpg", Array.Empty<byte> (), new ContentType ("image", "jpg"));
 
 			var body = builder.ToMessageBody ();
 

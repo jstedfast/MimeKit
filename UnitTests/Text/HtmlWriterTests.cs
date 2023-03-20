@@ -47,12 +47,12 @@ namespace UnitTests.Text {
 				Assert.Throws<ArgumentException> (() => html.WriteAttribute ("a b c", null));
 				Assert.Throws<ArgumentNullException> (() => html.WriteAttribute (null, new char[1], 0, 1));
 				Assert.Throws<ArgumentNullException> (() => html.WriteAttribute ("name", null, 0, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute ("name", new char[0], -1, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute ("name", new char[0], 0, 1));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute ("name", Array.Empty<char> (), -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute ("name", Array.Empty<char> (), 0, 1));
 				Assert.Throws<ArgumentException> (() => html.WriteAttribute (HtmlAttributeId.Unknown, new char[1], 0, 1));
 				Assert.Throws<ArgumentNullException> (() => html.WriteAttribute (HtmlAttributeId.Alt, null, 0, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute (HtmlAttributeId.Alt, new char[0], -1, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute (HtmlAttributeId.Alt, new char[0], 0, 1));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute (HtmlAttributeId.Alt, Array.Empty<char> (), -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttribute (HtmlAttributeId.Alt, Array.Empty<char> (), 0, 1));
 				Assert.Throws<ArgumentException> (() => html.WriteAttribute (HtmlAttributeId.Unknown, "value"));
 				Assert.Throws<ArgumentNullException> (() => html.WriteAttribute (HtmlAttributeId.Alt, null));
 
@@ -61,8 +61,8 @@ namespace UnitTests.Text {
 
 				Assert.Throws<ArgumentNullException> (() => html.WriteAttributeValue (null));
 				Assert.Throws<ArgumentNullException> (() => html.WriteAttributeValue (null, 0, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttributeValue (new char[0], -1, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttributeValue (new char[0], 0, 1));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttributeValue (Array.Empty<char> (), -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteAttributeValue (Array.Empty<char> (), 0, 1));
 
 				Assert.Throws<ArgumentException> (() => html.WriteEmptyElementTag (HtmlTagId.Unknown));
 				Assert.Throws<ArgumentNullException> (() => html.WriteEmptyElementTag (null));
@@ -76,8 +76,8 @@ namespace UnitTests.Text {
 
 				Assert.Throws<ArgumentNullException> (() => html.WriteMarkupText (null));
 				Assert.Throws<ArgumentNullException> (() => html.WriteMarkupText (null, 0, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteMarkupText (new char[0], -1, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteMarkupText (new char[0], 0, 1));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteMarkupText (Array.Empty<char> (), -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteMarkupText (Array.Empty<char> (), 0, 1));
 
 				Assert.Throws<ArgumentException> (() => html.WriteStartTag (HtmlTagId.Unknown));
 				Assert.Throws<ArgumentNullException> (() => html.WriteStartTag (null));
@@ -86,8 +86,8 @@ namespace UnitTests.Text {
 
 				Assert.Throws<ArgumentNullException> (() => html.WriteText (null));
 				Assert.Throws<ArgumentNullException> (() => html.WriteText (null, 0, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteText (new char[0], -1, 0));
-				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteText (new char[0], 0, 1));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteText (Array.Empty<char> (), -1, 0));
+				Assert.Throws<ArgumentOutOfRangeException> (() => html.WriteText (Array.Empty<char> (), 0, 1));
 
 				Assert.Throws<ArgumentNullException> (() => html.WriteToken (null));
 			}

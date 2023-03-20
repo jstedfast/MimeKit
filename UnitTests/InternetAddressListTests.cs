@@ -55,7 +55,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.CompareTo (null));
 			Assert.Throws<ArgumentNullException> (() => list.Contains (null));
 			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (new InternetAddress[0], -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (Array.Empty<InternetAddress> (), -1));
 			Assert.Throws<ArgumentNullException> (() => list.IndexOf (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, mailbox));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));

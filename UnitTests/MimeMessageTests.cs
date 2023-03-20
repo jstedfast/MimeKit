@@ -1116,50 +1116,50 @@ unsubscribe
 				case "MimeKit.InternetAddressList":
 					message.Headers[id] = addressList1;
 
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (addressList1, value.ToString (), "Unexpected result when setting {0} to addressList1", property.Name);
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, addressList2);
 
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (addressList2, value.ToString (), "Unexpected result when setting {0} to addressList2", property.Name);
 					break;
 				case "MimeKit.MailboxAddress":
 					message.Headers[id] = mailbox1;
 
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (mailbox1, value.ToString (), "Unexpected result when setting {0} to mailbox1", property.Name);
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, mailbox2);
 
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (mailbox2, value.ToString (), "Unexpected result when setting {0} to mailbox2", property.Name);
 
 					setter.Invoke (message, new object[] { null });
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.IsNull (value, "Expected null value after setting {0} to null.", property.Name);
 					Assert.AreEqual (-1, message.Headers.IndexOf (id), "Expected {0} header to be removed after setting it to null.", property.Name);
 					break;
 				case "MimeKit.MessageIdList":
 					message.Headers[id] = references1;
 
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (references1, value.ToString (), "Unexpected result when setting {0} to references1", property.Name);
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, references2);
 
-					value = getter.Invoke (message, new object[0]);
+					value = getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (references2, value.ToString (), "Unexpected result when setting {0} to references2", property.Name);
 					break;
 				case "System.DateTimeOffset":
 					message.Headers[id] = date1;
 
-					date = (DateTimeOffset) getter.Invoke (message, new object[0]);
+					date = (DateTimeOffset) getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (date1, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date1", property.Name);
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, date2);
 
-					date = (DateTimeOffset) getter.Invoke (message, new object[0]);
+					date = (DateTimeOffset) getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (date2, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date2", property.Name);
 
 					setter.Invoke (message, new object[] { date });
@@ -1167,12 +1167,12 @@ unsubscribe
 				case "System.Version":
 					message.Headers[id] = version1;
 
-					version = (Version) getter.Invoke (message, new object[0]);
+					version = (Version) getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (version1, version.ToString (), "Unexpected result when setting {0} to version1", property.Name);
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, version2);
 
-					version = (Version) getter.Invoke (message, new object[0]);
+					version = (Version) getter.Invoke (message, Array.Empty<object> ());
 					Assert.AreEqual (version2, version.ToString (), "Unexpected result when setting {0} to version2", property.Name);
 
 					setter.Invoke (message, new object[] { version });
@@ -1184,23 +1184,23 @@ unsubscribe
 					case HeaderId.InReplyTo:
 						message.Headers[id] = "<" + msgid1 + ">";
 
-						value = getter.Invoke (message, new object[0]);
+						value = getter.Invoke (message, Array.Empty<object> ());
 						Assert.AreEqual (msgid1, value.ToString (), "Unexpected result when setting {0} to msgid1", property.Name);
 
 						message.Headers[message.Headers.IndexOf (id)] = new Header (id, "<" + msgid2 + ">");
 
-						value = getter.Invoke (message, new object[0]);
+						value = getter.Invoke (message, Array.Empty<object> ());
 						Assert.AreEqual (msgid2, value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
 
 						setter.Invoke (message, new object[] { msgid1 });
 
 						setter.Invoke (message, new object[] { "<" + msgid1 + ">" });
-						value = getter.Invoke (message, new object[0]);
+						value = getter.Invoke (message, Array.Empty<object> ());
 						Assert.AreEqual (msgid1, value.ToString (), "Unexpected result when setting {0} to msgid1 via the setter.", property.Name);
 
 						if (id == HeaderId.InReplyTo) {
 							setter.Invoke (message, new object[] { null });
-							value = getter.Invoke (message, new object[0]);
+							value = getter.Invoke (message, Array.Empty<object> ());
 							Assert.IsNull (value, "Expected null value after setting {0} to null.", property.Name);
 							Assert.AreEqual (-1, message.Headers.IndexOf (id), "Expected {0} header to be removed after setting it to null.", property.Name);
 						}
@@ -1208,12 +1208,12 @@ unsubscribe
 					case HeaderId.Subject:
 						message.Headers[id] = "Subject #1";
 
-						value = getter.Invoke (message, new object[0]);
+						value = getter.Invoke (message, Array.Empty<object> ());
 						Assert.AreEqual ("Subject #1", value.ToString (), "Unexpected result when setting {0} to subject1", property.Name);
 
 						message.Headers[message.Headers.IndexOf (id)] = new Header (id, "Subject #2");
 
-						value = getter.Invoke (message, new object[0]);
+						value = getter.Invoke (message, Array.Empty<object> ());
 						Assert.AreEqual ("Subject #2", value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
 						break;
 					}

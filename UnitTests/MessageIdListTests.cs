@@ -41,7 +41,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.AddRange (null));
 			Assert.Throws<ArgumentNullException> (() => list.Contains (null));
 			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (new string[0], -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (Array.Empty<string> (), -1));
 			Assert.Throws<ArgumentNullException> (() => list.IndexOf (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => list.Insert (-1, "item"));
 			Assert.Throws<ArgumentNullException> (() => list.Insert (0, null));

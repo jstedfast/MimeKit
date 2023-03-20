@@ -161,7 +161,7 @@ namespace UnitTests.Cryptography {
 					}
 				}
 
-				return new X509Certificate[0];
+				return Array.Empty<X509Certificate> ();
 			}
 		}
 
@@ -229,13 +229,13 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((CmsRecipientCollection) null, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (recipients, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((IEnumerable<MailboxAddress>) null, stream));
-				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (new MailboxAddress[0], null));
-				Assert.Throws<ArgumentException> (() => ctx.Encrypt (new MailboxAddress[0], stream));
+				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (Array.Empty<MailboxAddress> (), null));
+				Assert.Throws<ArgumentException> (() => ctx.Encrypt (Array.Empty<MailboxAddress> (), stream));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync ((CmsRecipientCollection) null, stream));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync (recipients, null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync ((IEnumerable<MailboxAddress>) null, stream));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync (new MailboxAddress[0], null));
-				Assert.ThrowsAsync<ArgumentException> (() => ctx.EncryptAsync (new MailboxAddress[0], stream));
+				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync (Array.Empty<MailboxAddress> (), null));
+				Assert.ThrowsAsync<ArgumentException> (() => ctx.EncryptAsync (Array.Empty<MailboxAddress> (), stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Export (null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.ExportAsync (null));
 				Assert.Throws<ArgumentNullException> (() => ctx.GetDigestAlgorithm (null));

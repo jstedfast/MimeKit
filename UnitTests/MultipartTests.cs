@@ -56,7 +56,7 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentNullException> (() => multipart.Accept (null));
 
-			Assert.Throws<ArgumentOutOfRangeException> (() => multipart.CopyTo (new MimeEntity[0], -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => multipart.CopyTo (Array.Empty<MimeEntity> (), -1));
 			Assert.Throws<ArgumentNullException> (() => multipart.CopyTo (null, 0));
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => multipart.Prepare (EncodingConstraint.SevenBit, 1));

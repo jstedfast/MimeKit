@@ -58,7 +58,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => chain.AddRange (null));
 			Assert.Throws<ArgumentNullException> (() => chain.Contains (null));
 			Assert.Throws<ArgumentNullException> (() => chain.CopyTo (null, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => chain.CopyTo (new X509Certificate[0], -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => chain.CopyTo (Array.Empty<X509Certificate> (), -1));
 			Assert.Throws<ArgumentNullException> (() => chain.IndexOf (null));
 			Assert.Throws<ArgumentOutOfRangeException> (() => chain.Insert (-1, signer.Certificate));
 			Assert.Throws<ArgumentNullException> (() => chain.Insert (0, null));

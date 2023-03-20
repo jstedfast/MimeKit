@@ -105,7 +105,7 @@ namespace UnitTests {
 
 			// SetRawValue
 			Assert.Throws<ArgumentNullException> (() => header.SetRawValue (null));
-			Assert.Throws<ArgumentException> (() => header.SetRawValue (new byte[0]));
+			Assert.Throws<ArgumentException> (() => header.SetRawValue (Array.Empty<byte> ()));
 			Assert.Throws<ArgumentException> (() => header.SetRawValue (Encoding.ASCII.GetBytes ("abc")));
 		}
 

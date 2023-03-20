@@ -700,16 +700,16 @@ namespace UnitTests.Encodings {
 
 		static void AssertArgumentExceptions (IMimeEncoder encoder)
 		{
-			var output = new byte[0];
+			var output = Array.Empty<byte> ();
 
 			Assert.Throws<ArgumentNullException> (() => encoder.Encode (null, 0, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (new byte[0], -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (Array.Empty<byte> (), -1, 0, output));
 			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (new byte[1], 0, 10, output));
 			Assert.Throws<ArgumentNullException> (() => encoder.Encode (new byte[1], 0, 1, null));
 			Assert.Throws<ArgumentException> (() => encoder.Encode (new byte[1], 0, 1, output));
 
 			Assert.Throws<ArgumentNullException> (() => encoder.Flush (null, 0, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Flush (new byte[0], -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Flush (Array.Empty<byte> (), -1, 0, output));
 			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Flush (new byte[1], 0, 10, output));
 			Assert.Throws<ArgumentNullException> (() => encoder.Flush (new byte[1], 0, 1, null));
 			Assert.Throws<ArgumentException> (() => encoder.Flush (new byte[1], 0, 1, output));
@@ -717,10 +717,10 @@ namespace UnitTests.Encodings {
 
 		static void AssertArgumentExceptions (IMimeDecoder decoder)
 		{
-			var output = new byte[0];
+			var output = Array.Empty<byte> ();
 
 			Assert.Throws<ArgumentNullException> (() => decoder.Decode (null, 0, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Decode (new byte[0], -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Decode (Array.Empty<byte> (), -1, 0, output));
 			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Decode (new byte[1], 0, 10, output));
 			Assert.Throws<ArgumentNullException> (() => decoder.Decode (new byte[1], 0, 1, null));
 			Assert.Throws<ArgumentException> (() => decoder.Decode (new byte[1], 0, 1, output));

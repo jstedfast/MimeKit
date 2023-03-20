@@ -1536,10 +1536,10 @@ namespace UnitTests.Cryptography {
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var clientEastwood = new MailboxAddress ("Man with No Name", "client.eastwood@fistfullofdollars.com");
 				var mailboxes = new [] { new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com") };
-				var emptyMailboxes = new MailboxAddress[0];
+				var emptyMailboxes = Array.Empty<MailboxAddress> ();
 				var pubkeys = ctx.GetPublicKeys (mailboxes);
 				var key = ctx.GetSigningKey (mailboxes[0]);
-				var emptyPubkeys = new PgpPublicKey[0];
+				var emptyPubkeys = Array.Empty<PgpPublicKey> ();
 				DigitalSignatureCollection signatures;
 				var stream = new MemoryStream ();
 				var entity = new MimePart ();

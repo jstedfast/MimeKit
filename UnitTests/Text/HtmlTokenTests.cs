@@ -46,7 +46,7 @@ namespace UnitTests.Text {
 			var script = new HtmlScriptDataToken ("This is some script data.");
 			var doc = new HtmlDocTypeToken ();
 			var tag = new HtmlTagToken ("name", false);
-			var attributes = new HtmlAttribute[0];
+			var attributes = Array.Empty<HtmlAttribute> ();
 
 			Assert.Throws<ArgumentNullException> (() => new HtmlCommentToken (null));
 			Assert.Throws<ArgumentNullException> (() => comment.WriteTo (null));

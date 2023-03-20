@@ -72,7 +72,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list.Contains ((string) null));
 
 			// CopyTo
-			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (new Header[0], -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => list.CopyTo (Array.Empty<Header> (), -1));
 			Assert.Throws<ArgumentNullException> (() => list.CopyTo (null, 0));
 
 			// IndexOf
