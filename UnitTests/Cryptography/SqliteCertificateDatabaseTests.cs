@@ -67,6 +67,8 @@ namespace UnitTests.Cryptography {
 		{
 			if (File.Exists ("sqlite.db"))
 				File.Delete ("sqlite.db");
+
+			GC.SuppressFinalize (this);
 		}
 
 		[Test]

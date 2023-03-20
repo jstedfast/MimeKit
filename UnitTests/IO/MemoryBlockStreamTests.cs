@@ -65,6 +65,8 @@ namespace UnitTests.IO {
 		{
 			blocks.Dispose ();
 			master.Dispose ();
+
+			GC.SuppressFinalize (this);
 		}
 
 		[Test]

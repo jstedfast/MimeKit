@@ -34,7 +34,7 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class BestEncodingFilterBenchmarks
+	public class BestEncodingFilterBenchmarks : IDisposable
 	{
 		static readonly string TestDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData");
 		readonly Stream LoremIpsum, GirlJpeg;
