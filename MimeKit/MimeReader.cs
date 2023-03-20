@@ -1689,7 +1689,7 @@ namespace MimeKit {
 			OnHeadersEnd (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken);
 		}
 
-		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine)
+		unsafe bool InnerSkipLine (byte* inbuf, bool consumeNewLine)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1720,7 +1720,7 @@ namespace MimeKit {
 		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine, CancellationToken cancellationToken)
 		{
 			do {
-				if (SkipLine (inbuf, consumeNewLine))
+				if (InnerSkipLine (inbuf, consumeNewLine))
 					return true;
 
 				if (ReadAhead (ReadAheadSize, 1, cancellationToken) <= 0)

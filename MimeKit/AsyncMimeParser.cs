@@ -167,7 +167,7 @@ namespace MimeKit {
 			do {
 				unsafe {
 					fixed (byte* inbuf = input) {
-						if (SkipLine (inbuf, consumeNewLine))
+						if (InnerSkipLine (inbuf, consumeNewLine))
 							return true;
 					}
 				}
