@@ -41,29 +41,29 @@ namespace Benchmarks.IO.Filters {
 		public Unix2DosFilterBenchmarks ()
 		{
 			var path = Path.Combine (TextDataDir, "lorem-ipsum.txt");
-			using (var stream = File.OpenRead (path)) {
-				LoremIpsumDos = new MemoryStream ();
+			using var stream = File.OpenRead (path);
 
-				using (var filtered = new FilteredStream (LoremIpsumDos)) {
-					filtered.Add (new Unix2DosFilter ());
-					stream.CopyTo (filtered);
-					filtered.Flush ();
-				}
+			LoremIpsumDos = new MemoryStream ();
 
-				LoremIpsumDos.Position = 0;
-				stream.Position = 0;
-
-				LoremIpsumUnix = new MemoryStream ();
-
-				using (var filtered = new FilteredStream (LoremIpsumUnix)) {
-					filtered.Add (new Unix2DosFilter ());
-					stream.CopyTo (filtered);
-					filtered.Flush ();
-				}
-
-				LoremIpsumUnix.Position = 0;
-				stream.Position = 0;
+			using (var filtered = new FilteredStream (LoremIpsumDos)) {
+				filtered.Add (new Unix2DosFilter ());
+				stream.CopyTo (filtered);
+				filtered.Flush ();
 			}
+
+			LoremIpsumDos.Position = 0;
+			stream.Position = 0;
+
+			LoremIpsumUnix = new MemoryStream ();
+
+			using (var filtered = new FilteredStream (LoremIpsumUnix)) {
+				filtered.Add (new Unix2DosFilter ());
+				stream.CopyTo (filtered);
+				filtered.Flush ();
+			}
+
+			LoremIpsumUnix.Position = 0;
+			stream.Position = 0;
 		}
 
 		public void Dispose ()
@@ -75,14 +75,13 @@ namespace Benchmarks.IO.Filters {
 
 		static void FilterInputStream (Stream input, IMimeFilter filter)
 		{
-			using (var output = new MeasuringStream ()) {
-				using (var filtered = new FilteredStream (output)) {
-					filtered.Add (filter);
-					input.Position = 0;
-					input.CopyTo (filtered);
-					filtered.Flush ();
-				}
-			}
+			using var output = new MeasuringStream ();
+			using var filtered = new FilteredStream (output);
+
+			filtered.Add (filter);
+			input.Position = 0;
+			input.CopyTo (filtered);
+			filtered.Flush ();
 		}
 
 		[Benchmark]

@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoWarn>CA1822;IDE0017</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

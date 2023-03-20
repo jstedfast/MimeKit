@@ -116,16 +116,14 @@ header parser.
 		static void MimeParserSingleMessage (string fileName, bool persistent = false)
 		{
 			var path = Path.Combine (MessagesDataDir, fileName);
+			using var stream = File.OpenRead (path);
+			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
 
-			using (var stream = File.OpenRead (path)) {
-				var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
+			for (int i = 0; i < 1000; i++) {
+				parser.ParseMessage ();
 
-				for (int i = 0; i < 1000; i++) {
-					parser.ParseMessage ();
-
-					stream.Position = 0;
-					parser.SetStream (stream, MimeFormat.Entity, persistent);
-				}
+				stream.Position = 0;
+				parser.SetStream (stream, MimeFormat.Entity, persistent);
 			}
 		}
 
@@ -145,14 +143,12 @@ header parser.
 		{
 			var path = Path.Combine (MboxDataDir, fileName);
 
-			using (var stream = File.OpenRead (path)) {
-				using (var looped = new LoopedInputStream (stream, 10)) {
-					var parser = new MimeParser (looped, MimeFormat.Mbox, persistent);
+			using var stream = File.OpenRead (path);
+			using var looped = new LoopedInputStream (stream, 10);
+			var parser = new MimeParser (looped, MimeFormat.Mbox, persistent);
 
-					while (!parser.IsEndOfStream) {
-						parser.ParseMessage ();
-					}
-				}
+			while (!parser.IsEndOfStream) {
+				parser.ParseMessage ();
 			}
 		}
 
@@ -183,14 +179,12 @@ header parser.
 		[Benchmark]
 		public void MimeParser_HeaderStressTest ()
 		{
-			using (var stream = new MemoryStream (MessageHeaderStressTestData, false)) {
-				using (var looped = new LoopedInputStream (stream, 1000)) {
-					var parser = new MimeParser (looped, MimeFormat.Mbox, true);
+			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
+			using var looped = new LoopedInputStream (stream, 1000);
+			var parser = new MimeParser (looped, MimeFormat.Mbox, true);
 
-					while (!parser.IsEndOfStream) {
-						parser.ParseMessage ();
-					}
-				}
+			while (!parser.IsEndOfStream) {
+				parser.ParseMessage ();
 			}
 		}
 
@@ -201,16 +195,14 @@ header parser.
 		static void ExperimentalMimeParserSingleMessage (string fileName, bool persistent = false)
 		{
 			var path = Path.Combine (MessagesDataDir, fileName);
+			using var stream = File.OpenRead (path);
+			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
 
-			using (var stream = File.OpenRead (path)) {
-				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
+			for (int i = 0; i < 1000; i++) {
+				parser.ParseMessage ();
 
-				for (int i = 0; i < 1000; i++) {
-					parser.ParseMessage ();
-
-					stream.Position = 0;
-					parser.SetStream (stream, MimeFormat.Entity, persistent);
-				}
+				stream.Position = 0;
+				parser.SetStream (stream, MimeFormat.Entity, persistent);
 			}
 		}
 
@@ -229,15 +221,12 @@ header parser.
 		static void ExperimentalMimeParserMboxFile (string fileName, bool persistent = false)
 		{
 			var path = Path.Combine (MboxDataDir, fileName);
+			using var stream = File.OpenRead (path);
+			using var looped = new LoopedInputStream (stream, 10);
+			var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, persistent);
 
-			using (var stream = File.OpenRead (path)) {
-				using (var looped = new LoopedInputStream (stream, 10)) {
-					var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, persistent);
-
-					while (!parser.IsEndOfStream) {
-						parser.ParseMessage ();
-					}
-				}
+			while (!parser.IsEndOfStream) {
+				parser.ParseMessage ();
 			}
 		}
 
@@ -268,14 +257,12 @@ header parser.
 		[Benchmark]
 		public void ExperimentalMimeParser_HeaderStressTest ()
 		{
-			using (var stream = new MemoryStream (MessageHeaderStressTestData, false)) {
-				using (var looped = new LoopedInputStream (stream, 1000)) {
-					var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, true);
+			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
+			using var looped = new LoopedInputStream (stream, 1000);
+			var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, true);
 
-					while (!parser.IsEndOfStream) {
-						parser.ParseMessage ();
-					}
-				}
+			while (!parser.IsEndOfStream) {
+				parser.ParseMessage ();
 			}
 		}
 
@@ -286,16 +273,14 @@ header parser.
 		static void MimeReaderSingleMessage (string fileName)
 		{
 			var path = Path.Combine (MessagesDataDir, fileName);
+			using var stream = File.OpenRead (path);
+			var reader = new MimeReader (stream, MimeFormat.Entity);
 
-			using (var stream = File.OpenRead (path)) {
-				var reader = new MimeReader (stream, MimeFormat.Entity);
+			for (int i = 0; i < 1000; i++) {
+				reader.ReadMessage ();
 
-				for (int i = 0; i < 1000; i++) {
-					reader.ReadMessage ();
-
-					stream.Position = 0;
-					reader.SetStream (stream, MimeFormat.Entity);
-				}
+				stream.Position = 0;
+				reader.SetStream (stream, MimeFormat.Entity);
 			}
 		}
 
@@ -308,15 +293,12 @@ header parser.
 		static void MimeReaderMboxFile (string fileName)
 		{
 			var path = Path.Combine (MboxDataDir, fileName);
+			using var stream = File.OpenRead (path);
+			using var looped = new LoopedInputStream (stream, 10);
+			var reader = new MimeReader (looped, MimeFormat.Mbox);
 
-			using (var stream = File.OpenRead (path)) {
-				using (var looped = new LoopedInputStream (stream, 10)) {
-					var reader = new MimeReader (looped, MimeFormat.Mbox);
-
-					while (!reader.IsEndOfStream) {
-						reader.ReadMessage ();
-					}
-				}
+			while (!reader.IsEndOfStream) {
+				reader.ReadMessage ();
 			}
 		}
 
@@ -335,14 +317,12 @@ header parser.
 		[Benchmark]
 		public void MimeReader_HeaderStressTest ()
 		{
-			using (var stream = new MemoryStream (MessageHeaderStressTestData, false)) {
-				using (var looped = new LoopedInputStream (stream, 1000)) {
-					var reader = new MimeReader (looped, MimeFormat.Mbox);
+			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
+			using var looped = new LoopedInputStream (stream, 1000);
+			var reader = new MimeReader (looped, MimeFormat.Mbox);
 
-					while (!reader.IsEndOfStream) {
-						reader.ReadMessage ();
-					}
-				}
+			while (!reader.IsEndOfStream) {
+				reader.ReadMessage ();
 			}
 		}
 

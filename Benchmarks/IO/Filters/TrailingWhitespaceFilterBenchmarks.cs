@@ -54,14 +54,13 @@ namespace Benchmarks.IO.Filters {
 
 		static void FilterInputStream (Stream input, IMimeFilter filter)
 		{
-			using (var output = new MeasuringStream ()) {
-				using (var filtered = new FilteredStream (output)) {
-					filtered.Add (filter);
-					input.Position = 0;
-					input.CopyTo (filtered);
-					filtered.Flush ();
-				}
-			}
+			using var output = new MeasuringStream ();
+			using var filtered = new FilteredStream (output);
+
+			filtered.Add (filter);
+			input.Position = 0;
+			input.CopyTo (filtered);
+			filtered.Flush ();
 		}
 
 		[Benchmark]

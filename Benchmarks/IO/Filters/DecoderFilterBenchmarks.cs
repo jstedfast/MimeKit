@@ -68,14 +68,13 @@ namespace Benchmarks.IO.Filters {
 
 		static void FilterInputStream (Stream input, IMimeDecoder decoder)
 		{
-			using (var output = new MeasuringStream ()) {
-				using (var filtered = new FilteredStream (output)) {
-					filtered.Add (new DecoderFilter (decoder));
-					input.Position = 0;
-					input.CopyTo (filtered);
-					filtered.Flush ();
-				}
-			}
+			using var output = new MeasuringStream ();
+			using var filtered = new FilteredStream (output);
+
+			filtered.Add (new DecoderFilter (decoder));
+			input.Position = 0;
+			input.CopyTo (filtered);
+			filtered.Flush ();
 		}
 
 		[Benchmark]
