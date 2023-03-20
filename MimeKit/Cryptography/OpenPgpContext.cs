@@ -668,20 +668,25 @@ namespace MimeKit.Cryptography {
 					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
 
 					if (doAsync) {
-						using (var response = await client.GetAsync (builder.Uri, cancellationToken).ConfigureAwait (false))
+						using (var response = await client.GetAsync (builder.Uri, cancellationToken).ConfigureAwait (false)) {
+#if NET6_0_OR_GREATER
+							await response.Content.CopyToAsync (filtered, cancellationToken).ConfigureAwait (false);
+#else
 							await response.Content.CopyToAsync (filtered).ConfigureAwait (false);
+#endif
+						}
 
 						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 					} else {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6 && !NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
+						using (var response = client.GetAsync (builder.Uri, cancellationToken).GetAwaiter ().GetResult ())
+							response.Content.CopyToAsync (filtered, cancellationToken).GetAwaiter ().GetResult ();
+#else
 						var request = (HttpWebRequest) WebRequest.Create (builder.Uri);
 						using (var response = request.GetResponse ()) {
 							var content = response.GetResponseStream ();
 							content.CopyTo (filtered, 4096);
 						}
-#else
-						using (var response = client.GetAsync (builder.Uri, cancellationToken).GetAwaiter ().GetResult ())
-							response.Content.CopyToAsync (filtered).GetAwaiter ().GetResult ();
 #endif
 						filtered.Flush (cancellationToken);
 					}

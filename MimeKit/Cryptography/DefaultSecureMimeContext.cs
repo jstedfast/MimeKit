@@ -627,7 +627,7 @@ namespace MimeKit.Cryptography {
 					dbase.Update (record, ImportPkcs12Fields);
 				}
 			} else {
-				Import (cert, true);
+				Import (cert, true, cancellationToken);
 			}
 		}
 
@@ -740,7 +740,7 @@ namespace MimeKit.Cryptography {
 					}
 
 					for (int i = startIndex; i < chain.Length; i++)
-						Import (chain[i].Certificate, true);
+						Import (chain[i].Certificate, true, cancellationToken);
 				} else if (pkcs12.IsCertificateEntry (alias)) {
 					var entry = pkcs12.GetCertificate (alias);
 

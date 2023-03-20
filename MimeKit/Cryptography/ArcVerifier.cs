@@ -455,7 +455,7 @@ namespace MimeKit.Cryptography {
 
 					WriteHeaderRelaxed (options, filtered, seal, true);
 
-					filtered.Flush ();
+					filtered.Flush (cancellationToken);
 				}
 
 				return stream.VerifySignature (b);

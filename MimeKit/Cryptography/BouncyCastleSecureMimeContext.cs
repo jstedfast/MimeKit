@@ -860,10 +860,18 @@ namespace MimeKit.Cryptography {
 		{
 			try {
 				if (doAsync) {
-					using (var response = await client.GetAsync (location, cancellationToken).ConfigureAwait (false))
+					using (var response = await client.GetAsync (location, cancellationToken).ConfigureAwait (false)) {
+#if NET6_0_OR_GREATER
+						await response.Content.CopyToAsync (stream, cancellationToken).ConfigureAwait (false);
+#else
 						await response.Content.CopyToAsync (stream).ConfigureAwait (false);
+#endif
+					}
 				} else {
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6 && !NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
+					using (var response = client.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
+						response.Content.CopyToAsync (stream, cancellationToken).GetAwaiter ().GetResult ();
+#else
 					cancellationToken.ThrowIfCancellationRequested ();
 
 					var request = (HttpWebRequest) WebRequest.Create (location);
@@ -871,9 +879,6 @@ namespace MimeKit.Cryptography {
 						var content = response.GetResponseStream ();
 						content.CopyTo (stream, 4096);
 					}
-#else
-					using (var response = client.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
-						response.Content.CopyToAsync (stream).GetAwaiter ().GetResult ();
 #endif
 				}
 
@@ -995,7 +1000,7 @@ namespace MimeKit.Cryptography {
 
 				var parser = new X509CrlParser ();
 				foreach (X509Crl crl in parser.ReadCrls (stream))
-					Import (crl);
+					Import (crl, cancellationToken);
 			}
 		}
 
@@ -1027,7 +1032,7 @@ namespace MimeKit.Cryptography {
 					await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
 
 				if (certificate != null) {
-					Import (certificate);
+					Import (certificate, cancellationToken);
 
 					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate != default (DateTime))
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
@@ -1122,7 +1127,11 @@ namespace MimeKit.Cryptography {
 				var signed = parser.GetSignedContent ();
 
 				try {
+#if NET6_0_OR_GREATER
+					await signed.ContentStream.CopyToAsync (Stream.Null, 4096, cancellationToken).ConfigureAwait (false);
+#else
 					await signed.ContentStream.CopyToAsync (Stream.Null, 4096).ConfigureAwait (false);
+#endif
 				} finally {
 					signed.ContentStream.Dispose ();
 				}
