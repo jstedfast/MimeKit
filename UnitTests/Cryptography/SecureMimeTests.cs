@@ -1497,9 +1497,9 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeEncryption ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var recipients = new CmsRecipientCollection ();
-
-			recipients.Add (new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier));
+			var recipients = new CmsRecipientCollection {
+				new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier)
+			};
 
 			var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, body);
 
@@ -1515,9 +1515,9 @@ namespace UnitTests.Cryptography {
 		public virtual async Task TestSecureMimeEncryptionAsync ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var recipients = new CmsRecipientCollection ();
-
-			recipients.Add (new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier));
+			var recipients = new CmsRecipientCollection {
+				new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier)
+			};
 
 			var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, body);
 
@@ -2255,11 +2255,11 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeImportExport ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var mailboxes = new List<MailboxAddress> ();
-
-			// we're going to export our public certificate so that we can email it to someone
-			// so that they can then encrypt their emails to us.
-			mailboxes.Add (self);
+			var mailboxes = new List<MailboxAddress> {
+				// we're going to export our public certificate so that we can email it to someone
+				// so that they can then encrypt their emails to us.
+				self
+			};
 
 			using (var ctx = CreateContext ()) {
 				var certsonly = ctx.Export (mailboxes);
@@ -2283,11 +2283,11 @@ namespace UnitTests.Cryptography {
 		public virtual async Task TestSecureMimeImportExportAsync ()
 		{
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var mailboxes = new List<MailboxAddress> ();
-
-			// we're going to export our public certificate so that we can email it to someone
-			// so that they can then encrypt their emails to us.
-			mailboxes.Add (self);
+			var mailboxes = new List<MailboxAddress> {
+				// we're going to export our public certificate so that we can email it to someone
+				// so that they can then encrypt their emails to us.
+				self
+			};
 
 			using (var ctx = CreateContext ()) {
 				var certsonly = await ctx.ExportAsync (mailboxes);

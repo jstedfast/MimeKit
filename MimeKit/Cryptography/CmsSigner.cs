@@ -175,8 +175,9 @@ namespace MimeKit.Cryptography {
 			else
 				SignerIdentifierType = SubjectIdentifierType.SubjectKeyIdentifier;
 
-			CertificateChain = new X509CertificateChain ();
-			CertificateChain.Add (certificate);
+			CertificateChain = new X509CertificateChain {
+				certificate
+			};
 			Certificate = certificate;
 			PrivateKey = key;
 		}

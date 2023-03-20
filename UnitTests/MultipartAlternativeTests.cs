@@ -94,8 +94,9 @@ namespace UnitTests {
 			alternative.Add (richtext);
 			alternative.Add (html);
 
-			var outer = new MultipartAlternative ();
-			outer.Add (alternative);
+			var outer = new MultipartAlternative {
+				alternative
+			};
 
 			Assert.AreEqual ("plain\n", outer.TextBody.Replace ("\r\n", "\n"), "TextBody");
 			Assert.AreEqual ("html\n", outer.HtmlBody.Replace ("\r\n", "\n"), "HtmlBody");
@@ -123,11 +124,13 @@ namespace UnitTests {
 			alternative.Add (richtext);
 			alternative.Add (html);
 
-			var related = new MultipartRelated ();
-			related.Add (alternative);
+			var related = new MultipartRelated {
+				alternative
+			};
 
-			var outer = new MultipartAlternative ();
-			outer.Add (related);
+			var outer = new MultipartAlternative {
+				related
+			};
 
 			Assert.AreEqual ("plain\n", outer.TextBody.Replace ("\r\n", "\n"), "TextBody");
 			Assert.AreEqual ("html\n", outer.HtmlBody.Replace ("\r\n", "\n"), "HtmlBody");

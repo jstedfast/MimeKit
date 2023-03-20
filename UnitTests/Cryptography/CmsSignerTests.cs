@@ -99,8 +99,9 @@ namespace UnitTests.Cryptography {
 					if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
 						continue;
 
-					certificates = new List<X509Certificate> ();
-					certificates.Add (chain[0].Certificate);
+					certificates = new List<X509Certificate> {
+						chain[0].Certificate
+					};
 					privateKey = key.Key;
 
 					foreach (var entry in chain)

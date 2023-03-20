@@ -67,8 +67,9 @@ namespace UnitTests {
 		[Test]
 		public void TestRemove ()
 		{
-			var collection = new HeaderListCollection ();
-			collection.Add (new HeaderList ());
+			var collection = new HeaderListCollection {
+				new HeaderList ()
+			};
 			collection[0] = collection[0];
 
 			Assert.IsFalse (collection.Remove (new HeaderList ()), "Remove should fail");
@@ -78,10 +79,11 @@ namespace UnitTests {
 		[Test]
 		public void TestEnumerator ()
 		{
-			var collection = new HeaderListCollection ();
-			collection.Add (new HeaderList ());
-			collection.Add (new HeaderList ());
-			collection.Add (new HeaderList ());
+			var collection = new HeaderListCollection {
+				new HeaderList (),
+				new HeaderList (),
+				new HeaderList ()
+			};
 
 			collection[0].Add (HeaderId.Subject, "This is HeaderList #0");
 			collection[1].Add (HeaderId.Subject, "This is HeaderList #1");

@@ -451,9 +451,9 @@ namespace MimeKit.Cryptography {
 
 				var entry = new AsymmetricKeyEntry (kvp.Value);
 				var cert = new X509CertificateEntry (kvp.Key);
-				var chain = new List<X509CertificateEntry> ();
-
-				chain.Add (cert);
+				var chain = new List<X509CertificateEntry> {
+					cert
+				};
 
 				store.SetKeyEntry (alias, entry, chain.ToArray ());
 			}

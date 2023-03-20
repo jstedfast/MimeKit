@@ -1081,8 +1081,9 @@ namespace MimeKit.Cryptography {
 
 			// Note: if we've made it this far, then we can't put everything on one line...
 
-			var tokens = new List<string> ();
-			tokens.Add (" ");
+			var tokens = new List<string> {
+				" "
+			};
 
 			if (Office365AuthenticationServiceIdentifier != null) {
 				tokens.Add (Office365AuthenticationServiceIdentifier);

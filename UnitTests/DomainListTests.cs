@@ -171,10 +171,11 @@ namespace UnitTests {
 		[Test]
 		public void TestToString ()
 		{
-			var route = new DomainList ();
-			route.Add ("route1");
-			route.Add ("  \t\t ");
-			route.Add ("route2");
+			var route = new DomainList {
+				"route1",
+				"  \t\t ",
+				"route2"
+			};
 
 			Assert.AreEqual ("@route1,@route2", route.ToString ());
 		}

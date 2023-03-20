@@ -160,10 +160,10 @@ namespace UnitTests {
 			const string expected = "Reporting-MTA: dns; mm1\nArrival-Date: Mon, 29 Jul 1996 02:12:50 -0700\n\nFinal-Recipient: RFC822; newsletter-request@imusic.com\nAction: failed\nDiagnostic-Code: X-LOCAL; 500 (err.nosuchuser)\n\n";
 			var mds = new MessageDeliveryStatus ();
 			var recipient = new HeaderList ();
-			var status = new HeaderList ();
-
-			status.Add ("Reporting-MTA", "dns; mm1");
-			status.Add ("Arrival-Date", DateUtils.FormatDate (new DateTimeOffset (1996, 7, 29, 2, 12, 50, new TimeSpan (-7, 0, 0))));
+			var status = new HeaderList {
+				{ "Reporting-MTA", "dns; mm1" },
+				{ "Arrival-Date", DateUtils.FormatDate (new DateTimeOffset (1996, 7, 29, 2, 12, 50, new TimeSpan (-7, 0, 0))) }
+			};
 
 			recipient.Add ("Final-Recipient", "RFC822; newsletter-request@imusic.com");
 			recipient.Add ("Action", "failed");
@@ -183,8 +183,9 @@ namespace UnitTests {
 				Assert.AreEqual (expected, text);
 			}
 
-			var dummy = new HeaderList ();
-			dummy.Add ("Dummy-Header", "dummy value");
+			var dummy = new HeaderList {
+				{ "Dummy-Header", "dummy value" }
+			};
 
 			mds.StatusGroups.Add (dummy);
 

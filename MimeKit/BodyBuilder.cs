@@ -132,8 +132,9 @@ namespace MimeKit {
 				};
 
 				if (HtmlBody != null) {
-					alternative = new MultipartAlternative ();
-					alternative.Add (text);
+					alternative = new MultipartAlternative {
+						text
+					};
 					body = alternative;
 				} else {
 					body = text;

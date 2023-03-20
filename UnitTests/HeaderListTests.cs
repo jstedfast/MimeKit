@@ -166,14 +166,14 @@ namespace UnitTests {
 		[Test]
 		public void TestRemovingHeaders ()
 		{
-			var headers = new HeaderList ();
-
-			headers.Add ("From", "sender@localhost");
-			headers.Add ("To", "first@localhost");
-			headers.Add ("To", "second@localhost");
-			headers.Add ("To", "third@localhost");
-			headers.Add ("To", "fourth@localhost");
-			headers.Add ("Cc", "carbon.copy@localhost");
+			var headers = new HeaderList {
+				{ "From", "sender@localhost" },
+				{ "To", "first@localhost" },
+				{ "To", "second@localhost" },
+				{ "To", "third@localhost" },
+				{ "To", "fourth@localhost" },
+				{ "Cc", "carbon.copy@localhost" }
+			};
 
 			Assert.IsFalse (headers.IsReadOnly);
 			Assert.IsFalse (headers.Contains (new Header (HeaderId.Received, "value")));
@@ -206,10 +206,11 @@ namespace UnitTests {
 			const string ReplacedContentDisposition = "inline; filename=body.txt";
 			const string ReplacedContentLocation = "http://www.example.com/location";
 			const string ReplacedContentId = "<content.id.2@localhost>";
-			var headers = new HeaderList ();
+			var headers = new HeaderList {
+				{ HeaderId.ContentId, "<content-id.1@localhost>" },
+				{ "Content-Location", "http://www.location.com" }
+			};
 
-			headers.Add (HeaderId.ContentId, "<content-id.1@localhost>");
-			headers.Add ("Content-Location", "http://www.location.com");
 			headers.Insert (0, HeaderId.ContentDisposition, "attachment");
 			headers.Insert (0, "Content-Type", "text/plain");
 
@@ -257,13 +258,13 @@ namespace UnitTests {
 		public void TestReplacingMultipleHeaders ()
 		{
 			const string CombinedRecpients = "first@localhost, second@localhost, third@localhost";
-			var headers = new HeaderList ();
-
-			headers.Add ("From", "sender@localhost");
-			headers.Add ("To", "first@localhost");
-			headers.Add ("To", "second@localhost");
-			headers.Add ("To", "third@localhost");
-			headers.Add ("Cc", "carbon.copy@localhost");
+			var headers = new HeaderList {
+				{ "From", "sender@localhost" },
+				{ "To", "first@localhost" },
+				{ "To", "second@localhost" },
+				{ "To", "third@localhost" },
+				{ "Cc", "carbon.copy@localhost" }
+			};
 
 			headers.Replace ("To", CombinedRecpients);
 			Assert.AreEqual (3, headers.Count, "Unexpected number of headers after replacing To header.");
