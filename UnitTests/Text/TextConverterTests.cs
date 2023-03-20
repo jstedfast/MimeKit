@@ -37,9 +37,9 @@ namespace UnitTests.Text {
 		{
 			var latin1 = Encoding.GetEncoding ("iso-8859-1");
 			var utf16 = Encoding.Unicode;
-			var converter = new TextToText ();
-
-			converter.InputEncoding = latin1;
+			var converter = new TextToText {
+				InputEncoding = latin1
+			};
 			Assert.AreEqual (latin1, converter.InputEncoding, "InputEncoding");
 
 			converter.InputStreamBufferSize = 5000;

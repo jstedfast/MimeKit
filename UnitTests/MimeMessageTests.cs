@@ -896,10 +896,11 @@ unsubscribe
 		[Test]
 		public void TestIssue135 ()
 		{
-			var message = new MimeMessage ();
-			message.Body = new TextPart ("plain") {
-				ContentTransferEncoding = ContentEncoding.Base64,
-				Content = new MimeContent (new MemoryStream (new byte[1], false))
+			var message = new MimeMessage {
+				Body = new TextPart ("plain") {
+					ContentTransferEncoding = ContentEncoding.Base64,
+					Content = new MimeContent (new MemoryStream (new byte[1], false))
+				}
 			};
 
 			try {

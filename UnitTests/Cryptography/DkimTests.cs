@@ -425,9 +425,10 @@ namespace UnitTests.Cryptography {
 			message.Subject = "This is a unicode message";
 			message.Date = DateTimeOffset.Now;
 
-			var builder = new BodyBuilder ();
-			builder.TextBody = " تست  ";
-			builder.HtmlBody = "  <div> تست </div> ";
+			var builder = new BodyBuilder {
+				TextBody = " تست  ",
+				HtmlBody = "  <div> تست </div> "
+			};
 			message.Body = builder.ToMessageBody ();
 
 			((Multipart) message.Body).Boundary = "=-MultipartAlternativeBoundary";

@@ -292,8 +292,9 @@ namespace MimeKit.Utils {
 						if (lwsp != null)
 							tokens.Add (lwsp);
 
-						token = new Token ((int) (word - inbuf), n);
-						token.Is8bit = !ascii;
+						token = new Token ((int) (word - inbuf), n) {
+							Is8bit = !ascii
+						};
 						tokens.Add (token);
 
 						encoded = false;
@@ -310,8 +311,9 @@ namespace MimeKit.Utils {
 						inptr++;
 					}
 
-					token = new Token ((int) (word - inbuf), (int) (inptr - word));
-					token.Is8bit = !ascii;
+					token = new Token ((int) (word - inbuf), (int) (inptr - word)) {
+						Is8bit = !ascii
+					};
 					tokens.Add (token);
 
 					encoded = false;
@@ -422,8 +424,9 @@ namespace MimeKit.Utils {
 						if (lwsp != null)
 							tokens.Add (lwsp);
 
-						token = new Token ((int) (word - inbuf), n);
-						token.Is8bit = !ascii;
+						token = new Token ((int) (word - inbuf), n) {
+							Is8bit = !ascii
+						};
 						tokens.Add (token);
 
 						encoded = false;

@@ -129,9 +129,9 @@ namespace UnitTests {
 		[Test]
 		public void TestReferenceByContentId ()
 		{
-			var builder = new BodyBuilder ();
-
-			builder.HtmlBody = "<html>This is an <b>html</b> body.</html>";
+			var builder = new BodyBuilder {
+				HtmlBody = "<html>This is an <b>html</b> body.</html>"
+			};
 
 			builder.LinkedResources.Add ("empty.gif", Array.Empty<byte> (), new ContentType ("image", "gif"));
 			builder.LinkedResources.Add ("empty.jpg", Array.Empty<byte> (), new ContentType ("image", "jpg"));
@@ -173,9 +173,9 @@ namespace UnitTests {
 		[Test]
 		public void TestReferenceByContentLocation ()
 		{
-			var builder = new BodyBuilder ();
-
-			builder.HtmlBody = "<html>This is an <b>html</b> body.</html>";
+			var builder = new BodyBuilder {
+				HtmlBody = "<html>This is an <b>html</b> body.</html>"
+			};
 
 			builder.LinkedResources.Add ("empty.gif", Array.Empty<byte> (), new ContentType ("image", "gif"));
 			builder.LinkedResources.Add ("empty.jpg", Array.Empty<byte> (), new ContentType ("image", "jpg"));

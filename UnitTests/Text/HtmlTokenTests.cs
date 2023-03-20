@@ -84,9 +84,9 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestHtmlDocTypePublicIdentifier ()
 		{
-			var doctype = new HtmlDocTypeToken ();
-
-			doctype.PublicIdentifier = "public-identifier";
+			var doctype = new HtmlDocTypeToken {
+				PublicIdentifier = "public-identifier"
+			};
 			Assert.AreEqual ("public-identifier", doctype.PublicIdentifier, "PublicIdentifier");
 			Assert.AreEqual ("PUBLIC", doctype.PublicKeyword, "PublicKeyword");
 			Assert.IsNull (doctype.SystemKeyword, "SystemKeyword");
@@ -107,9 +107,9 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestHtmlDocTypeSystemIdentifier ()
 		{
-			var doctype = new HtmlDocTypeToken ();
-
-			doctype.SystemIdentifier = "system-identifier";
+			var doctype = new HtmlDocTypeToken {
+				SystemIdentifier = "system-identifier"
+			};
 			Assert.AreEqual ("system-identifier", doctype.SystemIdentifier, "SystemIdentifier");
 			Assert.AreEqual ("SYSTEM", doctype.SystemKeyword, "SystemKeyword");
 

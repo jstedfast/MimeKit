@@ -364,11 +364,12 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (RealSubjectIdentifierType type, X509Certificate2 certificate, DigestAlgorithm digestAlgo)
 		{
-			var signer = new RealCmsSigner (type, certificate);
-			signer.DigestAlgorithm = new Oid (GetDigestOid (digestAlgo));
+			var signer = new RealCmsSigner (type, certificate) {
+				DigestAlgorithm = new Oid (GetDigestOid (digestAlgo)),
+				IncludeOption = X509IncludeOption.ExcludeRoot
+			};
 			signer.SignedAttributes.Add (GetSecureMimeCapabilities ());
 			signer.SignedAttributes.Add (new Pkcs9SigningTime ());
-			signer.IncludeOption = X509IncludeOption.ExcludeRoot;
 			return signer;
 		}
 

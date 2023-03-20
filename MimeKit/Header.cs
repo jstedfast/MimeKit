@@ -401,15 +401,13 @@ namespace MimeKit {
 		/// <returns>A copy of the header with its current state.</returns>
 		public Header Clone ()
 		{
-			var header = new Header (Options, Id, Field, rawField, rawValue) {
+			return new Header (Options, Id, Field, rawField, rawValue) {
 				explicitRawValue = explicitRawValue,
-				IsInvalid = IsInvalid
+				IsInvalid = IsInvalid,
+
+				// if the textValue has already been calculated, set it on the cloned header as well.
+				textValue = textValue
 			};
-
-			// if the textValue has already been calculated, set it on the cloned header as well.
-			header.textValue = textValue;
-
-			return header;
 		}
 
 		/// <summary>

@@ -114,10 +114,10 @@ namespace MimeKit.Text {
 		TrieState Insert (TrieState state, int depth, char value)
 		{
 			var inserted = new TrieState (root);
-			var match = new TrieMatch (value);
-
-			match.Next = state.Match;
-			match.State = inserted;
+			var match = new TrieMatch (value) {
+				Next = state.Match,
+				State = inserted
+			};
 
 			state.Match = match;
 

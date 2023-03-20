@@ -389,8 +389,9 @@ namespace MimeKit.Cryptography {
 					break;
 				}
 
-				var resinfo = new AuthenticationMethodResult (method);
-				resinfo.Office365AuthenticationServiceIdentifier = srvid;
+				var resinfo = new AuthenticationMethodResult (method) {
+					Office365AuthenticationServiceIdentifier = srvid
+				};
 				authres.Results.Add (resinfo);
 
 				int tokenIndex;

@@ -683,9 +683,9 @@ namespace UnitTests {
 		[Test]
 		public void TestProperties ()
 		{
-			var type = new ContentType ("application", "octet-stream");
-
-			type.MediaType = "text";
+			var type = new ContentType ("application", "octet-stream") {
+				MediaType = "text"
+			};
 			Assert.AreEqual ("text", type.MediaType);
 
 			type.MediaSubtype = "plain";

@@ -668,18 +668,20 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate chain, including the specified certificate.</returns>
 		protected IList<X509Certificate> BuildCertificateChain (X509Certificate certificate)
 		{
-			var selector = new X509CertStoreSelector ();
-			selector.Certificate = certificate;
+			var selector = new X509CertStoreSelector {
+				Certificate = certificate
+			};
 
 			var intermediates = new X509CertificateStore ();
 			intermediates.Add (certificate);
 
-			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector);
-			parameters.ValidityModel = PkixParameters.PkixValidityModel;
+			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector) {
+				ValidityModel = PkixParameters.PkixValidityModel,
+				IsRevocationEnabled = false,
+				Date = DateTime.UtcNow
+			};
 			parameters.AddStoreCert (intermediates);
 			parameters.AddStoreCert (GetIntermediateCertificates ());
-			parameters.IsRevocationEnabled = false;
-			parameters.Date = DateTime.UtcNow;
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -687,15 +689,16 @@ namespace MimeKit.Cryptography {
 			var chain = new X509Certificate[result.CertPath.Certificates.Count];
 
 			for (int i = 0; i < chain.Length; i++)
-				chain[i] = (X509Certificate) result.CertPath.Certificates[i];
+				chain[i] = result.CertPath.Certificates[i];
 
 			return chain;
 		}
 
 		PkixCertPath BuildCertPath (ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
 		{
-			var selector = new X509CertStoreSelector ();
-			selector.Certificate = certificate;
+			var selector = new X509CertStoreSelector {
+				Certificate = certificate
+			};
 
 			var intermediates = new X509CertificateStore ();
 			intermediates.Add (certificate);
@@ -703,15 +706,15 @@ namespace MimeKit.Cryptography {
 			foreach (X509Certificate cert in certificates.EnumerateMatches (null))
 				intermediates.Add (cert);
 
-			var parameters = new PkixBuilderParameters (anchors, selector);
+			var parameters = new PkixBuilderParameters (anchors, selector) {
+				ValidityModel = PkixParameters.PkixValidityModel,
+				IsRevocationEnabled = false
+			};
 			parameters.AddStoreCert (intermediates);
 			parameters.AddStoreCrl (crls);
 
 			parameters.AddStoreCert (GetIntermediateCertificates ());
 			parameters.AddStoreCrl (GetCertificateRevocationLists ());
-
-			parameters.ValidityModel = PkixParameters.PkixValidityModel;
-			parameters.IsRevocationEnabled = false;
 
 			if (signingTime != default (DateTime))
 				parameters.Date = signingTime;

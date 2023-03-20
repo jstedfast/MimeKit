@@ -377,8 +377,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestSecureMimeCompressionAsync ()
 		{
-			var original = new TextPart ("plain");
-			original.Text = "This is some text that we'll end up compressing...";
+			var original = new TextPart ("plain") {
+				Text = "This is some text that we'll end up compressing..."
+			};
 
 			var compressed = await ApplicationPkcs7Mime.CompressAsync (original);
 
@@ -393,8 +394,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSecureMimeCompressionWithContext ()
 		{
-			var original = new TextPart ("plain");
-			original.Text = "This is some text that we'll end up compressing...";
+			var original = new TextPart ("plain") {
+				Text = "This is some text that we'll end up compressing..."
+			};
 
 			using (var ctx = CreateContext ()) {
 				var compressed = ApplicationPkcs7Mime.Compress (ctx, original);
@@ -425,8 +427,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestSecureMimeCompressionWithContextAsync ()
 		{
-			var original = new TextPart ("plain");
-			original.Text = "This is some text that we'll end up compressing...";
+			var original = new TextPart ("plain") {
+				Text = "This is some text that we'll end up compressing..."
+			};
 
 			using (var ctx = CreateContext ()) {
 				var compressed = await ApplicationPkcs7Mime.CompressAsync (ctx, original);
@@ -466,11 +469,10 @@ namespace UnitTests.Cryptography {
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
-			MimeEntity extracted;
 
 			Assert.AreEqual (SecureMimeType.SignedData, signed.SecureMimeType, "S/MIME type did not match.");
 
-			var signatures = signed.Verify (out extracted);
+			var signatures = signed.Verify (out var extracted);
 
 			Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
 			Assert.AreEqual (cleartext.Text, ((TextPart) extracted).Text, "Extracted content is not the same as the original.");
@@ -1766,9 +1768,10 @@ namespace UnitTests.Cryptography {
 			using (var ctx = CreateContext ()) {
 				var recipients = new CmsRecipientCollection ();
 
-				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber);
-				recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 };
-				recipient.RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm);
+				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber) {
+					EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 },
+					RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm)
+				};
 				recipients.Add (recipient);
 
 				ApplicationPkcs7Mime encrypted;
@@ -1806,9 +1809,10 @@ namespace UnitTests.Cryptography {
 			using (var ctx = CreateContext ()) {
 				var recipients = new CmsRecipientCollection ();
 
-				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber);
-				recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 };
-				recipient.RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm);
+				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber) {
+					EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 },
+					RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm)
+				};
 				recipients.Add (recipient);
 
 				ApplicationPkcs7Mime encrypted;

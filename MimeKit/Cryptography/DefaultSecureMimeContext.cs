@@ -524,8 +524,9 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (certificate != null && privateKey != null) {
-				var signer = new CmsSigner (BuildCertificateChain (certificate), privateKey);
-				signer.DigestAlgorithm = digestAlgo;
+				var signer = new CmsSigner (BuildCertificateChain (certificate), privateKey) {
+					DigestAlgorithm = digestAlgo
+				};
 
 				return signer;
 			}
@@ -547,9 +548,10 @@ namespace MimeKit.Cryptography {
 			X509CertificateRecord record;
 
 			if ((record = dbase.Find (certificate, AlgorithmFields)) == null) {
-				record = new X509CertificateRecord (certificate);
-				record.AlgorithmsUpdated = timestamp;
-				record.Algorithms = algorithms;
+				record = new X509CertificateRecord (certificate) {
+					AlgorithmsUpdated = timestamp,
+					Algorithms = algorithms
+				};
 
 				dbase.Add (record);
 			} else if (timestamp > record.AlgorithmsUpdated) {
@@ -613,10 +615,11 @@ namespace MimeKit.Cryptography {
 				X509CertificateRecord record;
 
 				if ((record = dbase.Find (cert, ImportPkcs12Fields)) == null) {
-					record = new X509CertificateRecord (cert, privateKey);
-					record.AlgorithmsUpdated = DateTime.UtcNow;
-					record.Algorithms = EnabledEncryptionAlgorithms;
-					record.IsTrusted = true;
+					record = new X509CertificateRecord (cert, privateKey) {
+						Algorithms = EnabledEncryptionAlgorithms,
+						AlgorithmsUpdated = DateTime.UtcNow,
+						IsTrusted = true
+					};
 					dbase.Add (record);
 				} else {
 					record.AlgorithmsUpdated = DateTime.UtcNow;
@@ -722,10 +725,11 @@ namespace MimeKit.Cryptography {
 
 					if (entry.Key.IsPrivate) {
 						if ((record = dbase.Find (chain[0].Certificate, ImportPkcs12Fields)) == null) {
-							record = new X509CertificateRecord (chain[0].Certificate, entry.Key);
-							record.AlgorithmsUpdated = DateTime.UtcNow;
-							record.Algorithms = enabledAlgorithms;
-							record.IsTrusted = true;
+							record = new X509CertificateRecord (chain[0].Certificate, entry.Key) {
+								AlgorithmsUpdated = DateTime.UtcNow,
+								Algorithms = enabledAlgorithms,
+								IsTrusted = true
+							};
 							dbase.Add (record);
 						} else {
 							record.AlgorithmsUpdated = DateTime.UtcNow;
@@ -812,8 +816,9 @@ namespace MimeKit.Cryptography {
 				return;
 			}
 
-			record = new X509CertificateRecord (certificate);
-			record.IsTrusted = trusted;
+			record = new X509CertificateRecord (certificate) {
+				IsTrusted = trusted
+			};
 			dbase.Add (record);
 		}
 

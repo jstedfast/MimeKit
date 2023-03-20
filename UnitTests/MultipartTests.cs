@@ -147,9 +147,9 @@ namespace UnitTests {
 		[Test]
 		public void TestDispose ()
 		{
-			var multipart = new Multipart ();
-
-			multipart.Boundary = "__Next_Part_123";
+			var multipart = new Multipart {
+				Boundary = "__Next_Part_123"
+			};
 
 			var generic = new MimePart ("application", "octet-stream") { Content = new MimeContent (new MemoryStream ()), IsAttachment = true };
 			var rfc822 = new MessagePart ("rfc822") {

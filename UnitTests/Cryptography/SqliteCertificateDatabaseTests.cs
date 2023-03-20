@@ -122,8 +122,9 @@ namespace UnitTests.Cryptography {
 				if (basicConstraints == -1)
 					basicConstraints = -2;
 
-				var selector = new X509CertStoreSelector ();
-				selector.BasicConstraints = basicConstraints;
+				var selector = new X509CertStoreSelector {
+					BasicConstraints = basicConstraints
+				};
 
 				AssertFindBy (selector, certificate);
 			}
@@ -132,8 +133,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestFindByCertificateValid ()
 		{
-			var selector = new X509CertStoreSelector ();
-			selector.CertificateValid = chain[0].NotBefore.AddDays (10);
+			var selector = new X509CertStoreSelector {
+				CertificateValid = chain[0].NotBefore.AddDays (10)
+			};
 
 			AssertFindBy (selector, chain[0]);
 		}
@@ -141,8 +143,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestFindBySubjectName ()
 		{
-			var selector = new X509CertStoreSelector ();
-			selector.Subject = chain[0].SubjectDN;
+			var selector = new X509CertStoreSelector {
+				Subject = chain[0].SubjectDN
+			};
 
 			AssertFindBy (selector, chain[0]);
 		}
@@ -151,8 +154,9 @@ namespace UnitTests.Cryptography {
 		public void TestFindBySubjectKeyIdentifier ()
 		{
 			var subjectKeyIdentifier = chain[0].GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
-			var selector = new X509CertStoreSelector ();
-			selector.SubjectKeyIdentifier = subjectKeyIdentifier.GetOctets ();
+			var selector = new X509CertStoreSelector {
+				SubjectKeyIdentifier = subjectKeyIdentifier.GetOctets ()
+			};
 
 			AssertFindBy (selector, chain[0]);
 		}

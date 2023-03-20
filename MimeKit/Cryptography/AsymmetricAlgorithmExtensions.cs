@@ -271,12 +271,12 @@ namespace MimeKit.Cryptography {
 
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaPrivateCrtKeyParameters key)
 		{
-			var parameters = new RSAParameters ();
-
-			parameters.Exponent = key.PublicExponent.ToByteArrayUnsigned ();
-			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
-			parameters.P = key.P.ToByteArrayUnsigned ();
-			parameters.Q = key.Q.ToByteArrayUnsigned ();
+			var parameters = new RSAParameters {
+				Exponent = key.PublicExponent.ToByteArrayUnsigned (),
+				Modulus = key.Modulus.ToByteArrayUnsigned (),
+				P = key.P.ToByteArrayUnsigned (),
+				Q = key.Q.ToByteArrayUnsigned ()
+			};
 
 			parameters.InverseQ = GetPaddedByteArray (key.QInv, parameters.Q.Length);
 			parameters.D = GetPaddedByteArray (key.Exponent, parameters.Modulus.Length);
@@ -292,9 +292,10 @@ namespace MimeKit.Cryptography {
 
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (RsaKeyParameters key)
 		{
-			var parameters = new RSAParameters ();
-			parameters.Exponent = key.Exponent.ToByteArrayUnsigned ();
-			parameters.Modulus = key.Modulus.ToByteArrayUnsigned ();
+			var parameters = new RSAParameters {
+				Exponent = key.Exponent.ToByteArrayUnsigned (),
+				Modulus = key.Modulus.ToByteArrayUnsigned ()
+			};
 
 			var rsa = new RSACryptoServiceProvider ();
 
