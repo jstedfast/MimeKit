@@ -3094,6 +3094,10 @@ namespace MimeKit {
 				throw;
 			}
 
+			try {
+				item.ContentStream.Position = 0;
+			} catch { }
+
 			var mimeType = item.ContentType.ToString ();
 			if (!ContentType.TryParse (mimeType, out var contentType))
 				contentType = new ContentType ("application", "octet-stream");
