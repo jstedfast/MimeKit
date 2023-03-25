@@ -50,13 +50,13 @@ namespace UnitTests.Utils {
 			buffer = Encoding.ASCII.GetBytes ((((long) int.MaxValue) + 1).ToString ());
 			index = 0;
 
-			Assert.IsFalse (ParseUtils.TryParseInt32 (buffer, ref index, buffer.Length, out value), "Parsing MaxValue+1 should result in overflow.");
+			Assert.IsFalse (ParseUtils.TryParseInt32 (buffer, ref index, buffer.Length, out _), "Parsing MaxValue+1 should result in overflow.");
 
 			// make sure that MaxValue*10 fails
 			buffer = Encoding.ASCII.GetBytes ((((long) int.MaxValue) * 10).ToString ());
 			index = 0;
 
-			Assert.IsFalse (ParseUtils.TryParseInt32 (buffer, ref index, buffer.Length, out value), "Parsing MaxValue*10 should result in overflow.");
+			Assert.IsFalse (ParseUtils.TryParseInt32 (buffer, ref index, buffer.Length, out _), "Parsing MaxValue*10 should result in overflow.");
 		}
 
 		[Test]

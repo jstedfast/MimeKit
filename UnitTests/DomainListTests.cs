@@ -32,9 +32,7 @@ namespace UnitTests {
 	{
 		static void AssertParseFailure (string text)
 		{
-			DomainList route;
-
-			Assert.IsFalse (DomainList.TryParse (text, out route), "DomainList.TryParse(string)");
+			Assert.IsFalse (DomainList.TryParse (text, out _), "DomainList.TryParse(string)");
 		}
 
 		static void AssertParse (string text, DomainList expected)

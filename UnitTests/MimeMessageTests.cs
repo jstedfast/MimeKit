@@ -1295,7 +1295,7 @@ unsubscribe
 
 			message.References.Clear ();
 
-			Assert.IsFalse (message.Headers.TryGetHeader ("References", out references), "References header should have been removed.");
+			Assert.IsFalse (message.Headers.TryGetHeader ("References", out _), "References header should have been removed.");
 		}
 
 		[Test]

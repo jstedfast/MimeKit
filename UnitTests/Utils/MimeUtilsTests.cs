@@ -123,11 +123,11 @@ namespace UnitTests.Utils {
 			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0.0\r\n", out version), "1.0.0.0");
 			Assert.AreEqual ("1.0.0.0", version.ToString ());
 
-			Assert.IsFalse (MimeUtils.TryParse ("1", out version), "1");
-			Assert.IsFalse (MimeUtils.TryParse ("1.2.3.4.5", out version), "1.2.3.4.5");
-			Assert.IsFalse (MimeUtils.TryParse ("1x2.3", out version), "1x2.3");
-			Assert.IsFalse (MimeUtils.TryParse ("(unterminated comment", out version), "unterminated comment");
-			Assert.IsFalse (MimeUtils.TryParse ("1 (unterminated comment", out version), "1 + unterminated comment");
+			Assert.IsFalse (MimeUtils.TryParse ("1", out Version _), "1");
+			Assert.IsFalse (MimeUtils.TryParse ("1.2.3.4.5", out Version _), "1.2.3.4.5");
+			Assert.IsFalse (MimeUtils.TryParse ("1x2.3", out Version _), "1x2.3");
+			Assert.IsFalse (MimeUtils.TryParse ("(unterminated comment", out Version _), "unterminated comment");
+			Assert.IsFalse (MimeUtils.TryParse ("1 (unterminated comment", out Version _), "1 + unterminated comment");
 		}
 
 		[Test]

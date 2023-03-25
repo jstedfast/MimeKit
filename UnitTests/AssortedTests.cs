@@ -141,8 +141,8 @@ namespace UnitTests {
 			var base64 = Convert.ToBase64String (utf8);
 			var builder = new StringBuilder ();
 
-			builder.Append ("=?utf-8?b?").Append (base64.Substring (0, base64.Length - 6)).Append ("?= ");
-			builder.Append ("=?utf-8?b?").Append (base64.Substring (base64.Length - 6)).Append ("?=");
+			builder.Append ("=?utf-8?b?").Append (base64.AsSpan (0, base64.Length - 6)).Append ("?= ");
+			builder.Append ("=?utf-8?b?").Append (base64.AsSpan (base64.Length - 6)).Append ("?=");
 
 			var decoded = Rfc2047.DecodeText (Encoding.ASCII.GetBytes (builder.ToString ()));
 
