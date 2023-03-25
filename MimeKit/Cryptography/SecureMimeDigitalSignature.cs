@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Cms;
@@ -74,14 +75,14 @@ namespace MimeKit.Cryptography {
 
 			if (signerInfo.SignedAttributes != null) {
 				Asn1EncodableVector vector = signerInfo.SignedAttributes.GetAll (CmsAttributes.SigningTime);
-				foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
+				foreach (var attr in vector.OfType<Org.BouncyCastle.Asn1.Cms.Attribute> ()) {
 					var signingTime = (Asn1UtcTime) ((DerSet) attr.AttrValues)[0];
 					CreationDate = ToAdjustedDateTime (signingTime);
 					break;
 				}
 
 				vector = signerInfo.SignedAttributes.GetAll (SmimeAttributes.SmimeCapabilities);
-				foreach (Org.BouncyCastle.Asn1.Cms.Attribute attr in vector) {
+				foreach (var attr in vector.OfType<Org.BouncyCastle.Asn1.Cms.Attribute> ()) {
 					foreach (Asn1Sequence sequence in attr.AttrValues) {
 						for (int i = 0; i < sequence.Count; i++) {
 							var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);

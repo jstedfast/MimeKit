@@ -406,9 +406,9 @@ namespace MimeKit.Cryptography {
 			for (int i = 0; i < fields.Count; i++) {
 				var headers = fields[i].StartsWith ("Content-", StringComparison.OrdinalIgnoreCase) ? message.Body.Headers : message.Headers;
 				var name = fields[i].ToLowerInvariant ();
-				int index, count, n = 0;
+				int index, n = 0;
 
-				if (!counts.TryGetValue (name, out count))
+				if (!counts.TryGetValue (name, out var count))
 					count = 0;
 
 				// Note: signers choosing to sign an existing header field that occurs more

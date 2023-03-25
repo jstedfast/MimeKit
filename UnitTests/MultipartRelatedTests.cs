@@ -157,12 +157,11 @@ namespace UnitTests {
 
 			for (int i = 1; i < related.Count; i++) {
 				var cid = new Uri (string.Format ("cid:{0}", related[i].ContentId));
-				string mimeType, charset;
 
 				Assert.IsTrue (related.Contains (cid), "Contains failed.");
 				Assert.AreEqual (i, related.IndexOf (cid), "IndexOf did not return the expected index.");
 
-				using (var stream = related.Open (cid, out mimeType, out charset)) {
+				using (var stream = related.Open (cid, out var mimeType, out var charset)) {
 					Assert.AreEqual (related[i].ContentType.MimeType, mimeType, "mime-types did not match.");
 				}
 
@@ -197,12 +196,10 @@ namespace UnitTests {
 			Assert.IsNull (related.ContentType.Parameters["start"], "The start parameter should be null.");
 
 			for (int i = 1; i < related.Count; i++) {
-				string mimeType, charset;
-
 				Assert.IsTrue (related.Contains (related[i].ContentLocation), "Contains failed.");
 				Assert.AreEqual (i, related.IndexOf (related[i].ContentLocation), "IndexOf did not return the expected index.");
 
-				using (var stream = related.Open (related[i].ContentLocation, out mimeType, out charset)) {
+				using (var stream = related.Open (related[i].ContentLocation, out var mimeType, out var charset)) {
 					Assert.AreEqual (related[i].ContentType.MimeType, mimeType, "mime-types did not match.");
 				}
 

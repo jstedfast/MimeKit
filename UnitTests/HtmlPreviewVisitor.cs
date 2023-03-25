@@ -139,15 +139,12 @@ namespace UnitTests {
 				// replace the src attribute with a file:// URL
 				foreach (var attribute in ctx.Attributes) {
 					if (attribute.Id == HtmlAttributeId.Src) {
-						MimePart image;
-						string data;
-
-						if (!TryGetImage (attribute.Value, out image)) {
+						if (!TryGetImage (attribute.Value, out var image)) {
 							htmlWriter.WriteAttribute (attribute);
 							continue;
 						}
 
-						data = GetImageData (image);
+						var data = GetImageData (image);
 
 						htmlWriter.WriteAttributeName (attribute.Name);
 						htmlWriter.WriteAttributeValue (data);

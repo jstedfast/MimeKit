@@ -87,16 +87,14 @@ namespace MimeKit.Text {
 		{
 			GetIndexDelegate getStartIndex, getEndIndex;
 			int endIndex = startIndex + count;
-			UrlPattern url;
-			string pattern;
 			int index;
 
-			if ((index = trie.Search (text, startIndex, count, out pattern)) == -1) {
+			if ((index = trie.Search (text, startIndex, count, out var pattern)) == -1) {
 				match = null;
 				return false;
 			}
 
-			if (!patterns.TryGetValue (pattern, out url)) {
+			if (!patterns.TryGetValue (pattern, out var url)) {
 				match = null;
 				return false;
 			}

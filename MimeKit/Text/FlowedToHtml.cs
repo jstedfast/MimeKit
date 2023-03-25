@@ -224,13 +224,12 @@ namespace MimeKit.Text {
 			var content = text.ToCharArray ();
 			int endIndex = content.Length;
 			int startIndex = 0;
-			UrlMatch match;
 			int count;
 
 			do {
 				count = endIndex - startIndex;
 
-				if (scanner.Scan (content, startIndex, count, out match)) {
+				if (scanner.Scan (content, startIndex, count, out var match)) {
 					count = match.EndIndex - match.StartIndex;
 
 					if (match.StartIndex > startIndex) {
