@@ -568,7 +568,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -608,7 +608,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -648,7 +648,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (FormatOptions options, Stream stream, CancellationToken cancellationToken = default)
 		{
 			WriteTo (options, stream, false, cancellationToken);
 		}
@@ -678,7 +678,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public Task WriteToAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken = default)
 		{
 			return WriteToAsync (options, stream, false, cancellationToken);
 		}
@@ -704,7 +704,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			WriteTo (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
@@ -731,7 +731,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public Task WriteToAsync (Stream stream, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			return WriteToAsync (FormatOptions.Default, stream, contentOnly, cancellationToken);
 		}
@@ -756,7 +756,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (Stream stream, CancellationToken cancellationToken = default)
 		{
 			WriteTo (FormatOptions.Default, stream, false, cancellationToken);
 		}
@@ -782,7 +782,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			return WriteToAsync (FormatOptions.Default, stream, false, cancellationToken);
 		}
@@ -824,7 +824,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -874,7 +874,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task WriteToAsync (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteToAsync (FormatOptions options, string fileName, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -922,7 +922,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -973,7 +973,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1021,7 +1021,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (string fileName, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			WriteTo (FormatOptions.Default, fileName, contentOnly, cancellationToken);
 		}
@@ -1061,7 +1061,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public Task WriteToAsync (string fileName, bool contentOnly, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (string fileName, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			return WriteToAsync (FormatOptions.Default, fileName, contentOnly, cancellationToken);
 		}
@@ -1099,7 +1099,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (string fileName, CancellationToken cancellationToken = default)
 		{
 			WriteTo (FormatOptions.Default, fileName, cancellationToken);
 		}
@@ -1138,7 +1138,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public Task WriteToAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public Task WriteToAsync (string fileName, CancellationToken cancellationToken = default)
 		{
 			return WriteToAsync (FormatOptions.Default, fileName, cancellationToken);
 		}
@@ -1351,7 +1351,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1395,7 +1395,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (ParserOptions options, Stream stream, bool persistent, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1433,7 +1433,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (ParserOptions options, Stream stream, CancellationToken cancellationToken = default)
 		{
 			return Load (options, stream, false, cancellationToken);
 		}
@@ -1463,7 +1463,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (ParserOptions options, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (ParserOptions options, Stream stream, CancellationToken cancellationToken = default)
 		{
 			return LoadAsync (options, stream, false, cancellationToken);
 		}
@@ -1496,7 +1496,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (Stream stream, bool persistent, CancellationToken cancellationToken = default)
 		{
 			return Load (ParserOptions.Default, stream, persistent, cancellationToken);
 		}
@@ -1529,7 +1529,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (Stream stream, bool persistent, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (Stream stream, bool persistent, CancellationToken cancellationToken = default)
 		{
 			return LoadAsync (ParserOptions.Default, stream, persistent, cancellationToken);
 		}
@@ -1556,7 +1556,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (Stream stream, CancellationToken cancellationToken = default)
 		{
 			return Load (ParserOptions.Default, stream, false, cancellationToken);
 		}
@@ -1583,7 +1583,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			return LoadAsync (ParserOptions.Default, stream, false, cancellationToken);
 		}
@@ -1626,7 +1626,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (ParserOptions options, string fileName, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1676,7 +1676,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static async Task<MimeEntity> LoadAsync (ParserOptions options, string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MimeEntity> LoadAsync (ParserOptions options, string fileName, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1723,7 +1723,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (string fileName, CancellationToken cancellationToken = default)
 		{
 			return Load (ParserOptions.Default, fileName, cancellationToken);
 		}
@@ -1763,7 +1763,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (string fileName, CancellationToken cancellationToken = default)
 		{
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
@@ -1796,7 +1796,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1849,7 +1849,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1902,7 +1902,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static MimeEntity Load (ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public static MimeEntity Load (ContentType contentType, Stream content, CancellationToken cancellationToken = default)
 		{
 			return Load (ParserOptions.Default, contentType, content, cancellationToken);
 		}
@@ -1932,7 +1932,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (ContentType contentType, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MimeEntity> LoadAsync (ContentType contentType, Stream content, CancellationToken cancellationToken = default)
 		{
 			return LoadAsync (ParserOptions.Default, contentType, content, cancellationToken);
 		}

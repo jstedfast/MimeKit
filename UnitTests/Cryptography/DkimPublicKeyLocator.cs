@@ -43,7 +43,7 @@ namespace UnitTests.Cryptography {
 			keys.Add (key, value);
 		}
 
-		public override AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		public override AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default)
 		{
 			var query = selector + "._domainkey." + domain;
 
@@ -53,7 +53,7 @@ namespace UnitTests.Cryptography {
 			throw new Exception (string.Format ("Failed to look up public key for: {0}", domain));
 		}
 
-		public override Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default)
 		{
 			return Task.FromResult (LocatePublicKey (methods, domain, selector, cancellationToken));
 		}

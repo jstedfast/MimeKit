@@ -201,7 +201,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -257,7 +257,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, true, cancellationToken);
 		}
@@ -338,7 +338,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -384,7 +384,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, true, cancellationToken);
 		}
@@ -439,7 +439,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -504,7 +504,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static async Task<MultipartEncrypted> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -558,7 +558,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -612,7 +612,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static async Task<MultipartEncrypted> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -713,7 +713,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -769,7 +769,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, true, cancellationToken);
 		}
@@ -857,7 +857,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -910,7 +910,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, true, cancellationToken);
 		}
@@ -965,7 +965,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1030,7 +1030,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static async Task<MultipartEncrypted> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1092,7 +1092,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1154,7 +1154,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static async Task<MultipartEncrypted> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1239,7 +1239,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1277,7 +1277,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, true, cancellationToken);
 		}
@@ -1348,7 +1348,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1382,7 +1382,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, true, cancellationToken);
 		}
@@ -1419,7 +1419,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1463,7 +1463,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static async Task<MultipartEncrypted> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1504,7 +1504,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1545,7 +1545,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static async Task<MultipartEncrypted> EncryptAsync (IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> EncryptAsync (IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1627,7 +1627,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1665,7 +1665,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, true, cancellationToken);
 		}
@@ -1736,7 +1736,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1770,7 +1770,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, true, cancellationToken);
 		}
@@ -1807,7 +1807,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1851,7 +1851,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static async Task<MultipartEncrypted> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1892,7 +1892,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartEncrypted Encrypt (IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1933,7 +1933,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static async Task<MultipartEncrypted> EncryptAsync (IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartEncrypted> EncryptAsync (IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1981,7 +1981,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -2056,7 +2056,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Decrypt (OpenPgpContext ctx, CancellationToken cancellationToken = default)
 		{
 			return Decrypt (ctx, out _, cancellationToken);
 		}
@@ -2094,7 +2094,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Decrypt (out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
 		{
 			CheckDisposed ();
 
@@ -2167,7 +2167,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Decrypt (CancellationToken cancellationToken = default)
 		{
 			return Decrypt (out _, cancellationToken);
 		}

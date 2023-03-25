@@ -158,7 +158,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="domain">The domain.</param>
 		/// <param name="selector">The selector.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		public abstract AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously locate and retrieve the public key for the given domain and selector.
@@ -179,6 +179,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="domain">The domain.</param>
 		/// <param name="selector">The selector.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		public abstract Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default);
 	}
 }

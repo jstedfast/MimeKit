@@ -498,7 +498,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public void Sign (FormatOptions options, MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public void Sign (FormatOptions options, MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default)
 		{
 			SignAsync (options, message, headers, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -533,7 +533,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public Task SignAsync (FormatOptions options, MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public Task SignAsync (FormatOptions options, MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default)
 		{
 			return SignAsync (options, message, headers, true, cancellationToken);
 		}
@@ -564,7 +564,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public void Sign (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public void Sign (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default)
 		{
 			Sign (FormatOptions.Default, message, headers, cancellationToken);
 		}
@@ -596,7 +596,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public Task SignAsync (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public Task SignAsync (MimeMessage message, IList<string> headers, CancellationToken cancellationToken = default)
 		{
 			return SignAsync (FormatOptions.Default, message, headers, cancellationToken);
 		}
@@ -630,7 +630,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public void Sign (FormatOptions options, MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public void Sign (FormatOptions options, MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default)
 		{
 			SignAsync (options, message, headers, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -665,7 +665,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public Task SignAsync (FormatOptions options, MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public Task SignAsync (FormatOptions options, MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default)
 		{
 			return SignAsync (options, message, headers, true, cancellationToken);
 		}
@@ -696,7 +696,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public void Sign (MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public void Sign (MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default)
 		{
 			Sign (FormatOptions.Default, message, headers, cancellationToken);
 		}
@@ -728,7 +728,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.FormatException">
 		/// One or more ARC headers either did not contain an instance tag or the instance tag was invalid.
 		/// </exception>
-		public Task SignAsync (MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default (CancellationToken))
+		public Task SignAsync (MimeMessage message, IList<HeaderId> headers, CancellationToken cancellationToken = default)
 		{
 			return SignAsync (FormatOptions.Default, message, headers, cancellationToken);
 		}

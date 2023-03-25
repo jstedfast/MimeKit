@@ -347,7 +347,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -382,7 +382,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override async Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -427,7 +427,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -472,7 +472,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -507,7 +507,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -542,7 +542,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override async Task<ApplicationPkcs7Signature> SignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<ApplicationPkcs7Signature> SignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -587,7 +587,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -632,7 +632,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override async Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -1076,7 +1076,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
+		public override DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default)
 		{
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1118,7 +1118,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override async Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default)
 		{
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1165,7 +1165,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public override DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
@@ -1203,7 +1203,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken))
+		public override Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
 		{
 			if (signedData == null)
 				throw new ArgumentNullException (nameof (signedData));
@@ -1392,7 +1392,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1427,7 +1427,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override async Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1476,7 +1476,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1515,7 +1515,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override async Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken))
+		public override async Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1574,7 +1574,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default)
 		{
 			return DecryptAsync (encryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1597,7 +1597,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default)
 		{
 			return DecryptAsync (encryptedData, true, cancellationToken);
 		}
@@ -1651,7 +1651,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		public override void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
 			DecryptToAsync (encryptedData, decryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1677,7 +1677,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
 			return DecryptToAsync (encryptedData, decryptedData, true, cancellationToken);
 		}
@@ -1707,7 +1707,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1759,7 +1759,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default)
 		{
 			return Task.FromResult (Export (mailboxes, cancellationToken));
 		}

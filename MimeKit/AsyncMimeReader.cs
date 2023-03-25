@@ -614,7 +614,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task ReadHeadersAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task ReadHeadersAsync (CancellationToken cancellationToken = default)
 		{
 			state = MimeParserState.Headers;
 			toplevel = true;
@@ -642,7 +642,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task ReadEntityAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task ReadEntityAsync (CancellationToken cancellationToken = default)
 		{
 			var beginLineNumber = lineNumber;
 
@@ -707,7 +707,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task ReadMessageAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task ReadMessageAsync (CancellationToken cancellationToken = default)
 		{
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {

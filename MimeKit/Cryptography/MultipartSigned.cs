@@ -251,7 +251,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartSigned Create (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return CreateAsync (ctx, signer, digestAlgo, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -298,7 +298,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static Task<MultipartSigned> CreateAsync (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartSigned> CreateAsync (CryptographyContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return CreateAsync (ctx, signer, digestAlgo, entity, true, cancellationToken);
 		}
@@ -375,7 +375,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartSigned Create (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return CreateAsync (ctx, signer, digestAlgo, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -419,7 +419,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static Task<MultipartSigned> CreateAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartSigned> CreateAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return CreateAsync (ctx, signer, digestAlgo, entity, true, cancellationToken);
 		}
@@ -462,7 +462,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartSigned Create (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature"))
 				return Create (ctx, signer, digestAlgo, entity, cancellationToken);
@@ -506,7 +506,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An error occurred in the OpenPGP subsystem.
 		/// </exception>
-		public static async Task<MultipartSigned> CreateAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartSigned> CreateAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-signature"))
 				return await CreateAsync (ctx, signer, digestAlgo, entity, cancellationToken).ConfigureAwait (false);
@@ -574,7 +574,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartSigned Create (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return CreateAsync (ctx, signer, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -608,7 +608,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static Task<MultipartSigned> CreateAsync (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static Task<MultipartSigned> CreateAsync (SecureMimeContext ctx, CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return CreateAsync (ctx, signer, entity, true, cancellationToken);
 		}
@@ -642,7 +642,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static MultipartSigned Create (CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature"))
 				return Create (ctx, signer, entity, cancellationToken);
@@ -677,7 +677,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public static async Task<MultipartSigned> CreateAsync (CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken))
+		public static async Task<MultipartSigned> CreateAsync (CmsSigner signer, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			using (var ctx = (SecureMimeContext) CryptographyContext.Create ("application/pkcs7-signature"))
 				return await CreateAsync (ctx, signer, entity, cancellationToken).ConfigureAwait (false);
@@ -733,7 +733,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		public DigitalSignatureCollection Verify (CryptographyContext ctx, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -804,7 +804,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public async Task<DigitalSignatureCollection> VerifyAsync (CryptographyContext ctx, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<DigitalSignatureCollection> VerifyAsync (CryptographyContext ctx, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -873,7 +873,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public DigitalSignatureCollection Verify (CancellationToken cancellationToken = default (CancellationToken))
+		public DigitalSignatureCollection Verify (CancellationToken cancellationToken = default)
 		{
 			CheckDisposed ();
 
@@ -911,7 +911,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public async Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<DigitalSignatureCollection> VerifyAsync (CancellationToken cancellationToken = default)
 		{
 			CheckDisposed ();
 

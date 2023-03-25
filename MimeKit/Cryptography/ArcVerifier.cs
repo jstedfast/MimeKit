@@ -737,7 +737,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public ArcValidationResult Verify (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default (CancellationToken))
+		public ArcValidationResult Verify (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default)
 		{
 			return VerifyAsync (options, message, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -763,7 +763,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default)
 		{
 			return VerifyAsync (options, message, true, cancellationToken);
 		}
@@ -786,7 +786,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public ArcValidationResult Verify (MimeMessage message, CancellationToken cancellationToken = default (CancellationToken))
+		public ArcValidationResult Verify (MimeMessage message, CancellationToken cancellationToken = default)
 		{
 			return Verify (FormatOptions.Default, message, cancellationToken);
 		}
@@ -809,7 +809,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<ArcValidationResult> VerifyAsync (MimeMessage message, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<ArcValidationResult> VerifyAsync (MimeMessage message, CancellationToken cancellationToken = default)
 		{
 			return VerifyAsync (FormatOptions.Default, message, cancellationToken);
 		}

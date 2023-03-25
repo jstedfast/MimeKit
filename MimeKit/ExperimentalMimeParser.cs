@@ -778,7 +778,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public HeaderList ParseHeaders (CancellationToken cancellationToken = default (CancellationToken))
+		public HeaderList ParseHeaders (CancellationToken cancellationToken = default)
 		{
 			Initialize (false);
 
@@ -813,7 +813,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default)
 		{
 			Initialize (false);
 
@@ -848,7 +848,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity ParseEntity (CancellationToken cancellationToken = default)
 		{
 			Initialize (false);
 
@@ -879,7 +879,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<MimeEntity> ParseEntityAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeEntity> ParseEntityAsync (CancellationToken cancellationToken = default)
 		{
 			Initialize (false);
 
@@ -910,7 +910,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeMessage ParseMessage (CancellationToken cancellationToken = default (CancellationToken))
+		public MimeMessage ParseMessage (CancellationToken cancellationToken = default)
 		{
 			Initialize (true);
 
@@ -941,7 +941,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<MimeMessage> ParseMessageAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeMessage> ParseMessageAsync (CancellationToken cancellationToken = default)
 		{
 			Initialize (true);
 

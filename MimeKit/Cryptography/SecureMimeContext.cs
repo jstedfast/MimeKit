@@ -455,7 +455,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public virtual ApplicationPkcs7Mime Compress (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual ApplicationPkcs7Mime Compress (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -492,7 +492,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public virtual Task<ApplicationPkcs7Mime> CompressAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task<ApplicationPkcs7Mime> CompressAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			// TODO: find a way to compress asynchronously
 			return Task.FromResult (Compress (stream, cancellationToken));
@@ -516,7 +516,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public virtual MimeEntity Decompress (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual MimeEntity Decompress (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -552,7 +552,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public virtual async Task<MimeEntity> DecompressAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual async Task<MimeEntity> DecompressAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -590,7 +590,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public virtual void DecompressTo (Stream stream, Stream output, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual void DecompressTo (Stream stream, Stream output, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -633,7 +633,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public virtual async Task DecompressToAsync (Stream stream, Stream output, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual async Task DecompressToAsync (Stream stream, Stream output, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -744,7 +744,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract ApplicationPkcs7Mime EncapsulatedSign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously sign and encapsulate the content using the specified signer.
@@ -765,7 +765,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Sign and encapsulate the content using the specified signer and digest algorithm.
@@ -799,7 +799,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public abstract ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract ApplicationPkcs7Mime EncapsulatedSign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously sign and encapsulate the content using the specified signer and digest algorithm.
@@ -833,7 +833,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public abstract Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<ApplicationPkcs7Mime> EncapsulatedSignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Sign the content using the specified signer.
@@ -854,7 +854,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract ApplicationPkcs7Signature Sign (CmsSigner signer, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously sign the content using the specified signer.
@@ -875,7 +875,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract Task<ApplicationPkcs7Signature> SignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<ApplicationPkcs7Signature> SignAsync (CmsSigner signer, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verify the digital signatures of the specified signed data and extract the original content.
@@ -896,7 +896,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract DigitalSignatureCollection Verify (Stream signedData, out MimeEntity entity, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verify the digital signatures of the specified signed data and extract the original content.
@@ -917,7 +917,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Encrypts the specified content for the specified recipients.
@@ -938,7 +938,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously encrypts the specified content for the specified recipients.
@@ -959,7 +959,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decrypts the specified encryptedData to an output stream.
@@ -978,7 +978,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously decrypts the specified encryptedData to an output stream.
@@ -998,7 +998,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
@@ -1020,7 +1020,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract void Import (Stream stream, string password, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract void Import (Stream stream, string password, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously imports certificates and keys from a pkcs12-encoded stream.
@@ -1043,7 +1043,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task ImportAsync (Stream stream, string password, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task ImportAsync (Stream stream, string password, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Imports certificates and keys from a pkcs12 file.
@@ -1085,7 +1085,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public virtual void Import (string fileName, string password, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual void Import (string fileName, string password, CancellationToken cancellationToken = default)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -1140,7 +1140,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public virtual async Task ImportAsync (string fileName, string password, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual async Task ImportAsync (string fileName, string password, CancellationToken cancellationToken = default)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -1168,7 +1168,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract void Import (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract void Import (X509Certificate certificate, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously import a certificate.
@@ -1185,7 +1185,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public virtual Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task ImportAsync (X509Certificate certificate, CancellationToken cancellationToken = default)
 		{
 			Import (certificate, cancellationToken);
 			return Task.FromResult (true);
@@ -1205,7 +1205,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public virtual void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default)
 		{
 			throw new NotImplementedException ();
 		}
@@ -1225,7 +1225,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public virtual Task ImportAsync (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task ImportAsync (X509Certificate2 certificate, CancellationToken cancellationToken = default)
 		{
 			Import (certificate, cancellationToken);
 			return Task.FromResult (true);
@@ -1245,7 +1245,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract void Import (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract void Import (X509Crl crl, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously import a certificate revocation list.
@@ -1262,7 +1262,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public virtual Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task ImportAsync (X509Crl crl, CancellationToken cancellationToken = default)
 		{
 			Import (crl, cancellationToken);
 			return Task.FromResult (true);
@@ -1315,7 +1315,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override void Import (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (Stream stream, CancellationToken cancellationToken = default)
 		{
 			ImportAsync (stream, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1340,7 +1340,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task ImportAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task ImportAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			return ImportAsync (stream, true, cancellationToken);
 		}

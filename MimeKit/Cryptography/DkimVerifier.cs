@@ -173,7 +173,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public bool Verify (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
 			return VerifyAsync (options, message, dkimSignature, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -208,7 +208,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
 			return VerifyAsync (options, message, dkimSignature, true, cancellationToken);
 		}
@@ -240,7 +240,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public bool Verify (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public bool Verify (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
 			return Verify (FormatOptions.Default, message, dkimSignature, cancellationToken);
 		}
@@ -272,7 +272,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default (CancellationToken))
+		public Task<bool> VerifyAsync (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
 			return VerifyAsync (FormatOptions.Default, message, dkimSignature, cancellationToken);
 		}

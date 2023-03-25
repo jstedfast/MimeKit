@@ -306,7 +306,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default (CancellationToken))
+		public override bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -336,7 +336,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
+		public override bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
@@ -576,7 +576,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Import (X509Certificate certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (X509Certificate certificate, CancellationToken cancellationToken = default)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -601,7 +601,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public override void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (X509Certificate2 certificate, CancellationToken cancellationToken = default)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -648,7 +648,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Import (X509Crl crl, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (X509Crl crl, CancellationToken cancellationToken = default)
 		{
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
@@ -702,7 +702,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override void Import (Stream stream, string password, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (Stream stream, string password, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -774,7 +774,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task ImportAsync (Stream stream, string password, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task ImportAsync (Stream stream, string password, CancellationToken cancellationToken = default)
 		{
 			Import (stream, password, cancellationToken);
 			return Task.FromResult (true);
@@ -800,7 +800,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public void Import (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
+		public void Import (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -841,7 +841,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task ImportAsync (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
+		public Task ImportAsync (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default)
 		{
 			// TODO: Add Async APIs to IX509CertificateDatabase
 			Import (certificate, trusted, cancellationToken);
@@ -863,7 +863,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public void Import (Stream stream, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
+		public void Import (Stream stream, bool trusted, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -892,7 +892,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task ImportAsync (Stream stream, bool trusted, CancellationToken cancellationToken = default (CancellationToken))
+		public Task ImportAsync (Stream stream, bool trusted, CancellationToken cancellationToken = default)
 		{
 			// TODO: Add Async APIs to IX509CertificateDatabase
 			Import (stream, trusted, cancellationToken);

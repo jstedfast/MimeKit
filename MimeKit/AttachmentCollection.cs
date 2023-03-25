@@ -372,7 +372,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public MimeEntity Add (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Add (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -423,7 +423,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, ContentType contentType, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -507,7 +507,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public MimeEntity Add (string fileName, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Add (string fileName, Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -550,7 +550,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeEntity> AddAsync (string fileName, Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -600,7 +600,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public MimeEntity Add (string fileName, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Add (string fileName, ContentType contentType, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -652,7 +652,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public async Task<MimeEntity> AddAsync (string fileName, ContentType contentType, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeEntity> AddAsync (string fileName, ContentType contentType, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -706,7 +706,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public MimeEntity Add (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity Add (string fileName, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
@@ -754,7 +754,7 @@ namespace MimeKit {
 		/// <exception cref="OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public async Task<MimeEntity> AddAsync (string fileName, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeEntity> AddAsync (string fileName, CancellationToken cancellationToken = default)
 		{
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));

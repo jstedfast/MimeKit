@@ -1746,7 +1746,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public HeaderList ParseHeaders (CancellationToken cancellationToken = default (CancellationToken))
+		public HeaderList ParseHeaders (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {
@@ -1792,7 +1792,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		internal HeaderList ParseStatusGroup (CancellationToken cancellationToken = default (CancellationToken))
+		internal HeaderList ParseStatusGroup (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {
@@ -1865,7 +1865,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
+		public MimeEntity ParseEntity (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {
@@ -1983,7 +1983,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeMessage ParseMessage (CancellationToken cancellationToken = default (CancellationToken))
+		public MimeMessage ParseMessage (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {

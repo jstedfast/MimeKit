@@ -345,7 +345,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously check whether or not a particular mailbox address can be used for signing.
@@ -362,7 +362,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public virtual Task<bool> CanSignAsync (MailboxAddress signer, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task<bool> CanSignAsync (MailboxAddress signer, CancellationToken cancellationToken = default)
 		{
 			return Task.FromResult (CanSign (signer, cancellationToken));
 		}
@@ -382,7 +382,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously check whether or not the cryptography context can encrypt to a particular recipient.
@@ -399,7 +399,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public virtual Task<bool> CanEncryptAsync (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
+		public virtual Task<bool> CanEncryptAsync (MailboxAddress mailbox, CancellationToken cancellationToken = default)
 		{
 			return Task.FromResult (CanEncrypt (mailbox, cancellationToken));
 		}
@@ -433,7 +433,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously sign the content using the specified signer and digest algorithm.
@@ -464,7 +464,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A signing certificate could not be found for <paramref name="signer"/>.
 		/// </exception>
-		public abstract Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verify the specified content using the detached signatureData.
@@ -484,7 +484,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract DigitalSignatureCollection Verify (Stream content, Stream signatureData, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously verify the specified content using the detached signatureData.
@@ -504,7 +504,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public abstract Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<DigitalSignatureCollection> VerifyAsync (Stream content, Stream signatureData, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Encrypt the specified content for the specified recipients.
@@ -527,7 +527,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously encrypt the specified content for the specified recipients.
@@ -550,7 +550,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		public abstract Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decrypt the specified encryptedData.
@@ -567,7 +567,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously decrypt the specified encryptedData.
@@ -584,7 +584,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Imports the public certificates or keys from the specified stream.
@@ -603,7 +603,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract void Import (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract void Import (Stream stream, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously imports the public certificates or keys from the specified stream.
@@ -623,7 +623,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task ImportAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task ImportAsync (Stream stream, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Exports the keys for the specified mailboxes.
@@ -646,7 +646,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously exports the keys for the specified mailboxes.
@@ -669,7 +669,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
 		/// </exception>
-		public abstract Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken));
+		public abstract Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Releases the unmanaged resources used by the <see cref="CryptographyContext"/> and

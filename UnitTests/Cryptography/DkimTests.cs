@@ -48,12 +48,12 @@ namespace UnitTests.Cryptography {
 				key = publicKey;
 			}
 
-			public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+			public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default)
 			{
 				return key;
 			}
 
-			public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+			public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default)
 			{
 				return Task.FromResult (key);
 			}

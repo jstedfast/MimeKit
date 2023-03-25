@@ -183,7 +183,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public void WriteTo (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
@@ -254,7 +254,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
@@ -313,7 +313,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public void DecodeTo (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
@@ -353,7 +353,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken))
+		public async Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));

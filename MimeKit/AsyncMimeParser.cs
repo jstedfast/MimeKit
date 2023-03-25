@@ -529,7 +529,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default)
 		{
 			state = MimeParserState.Headers;
 			toplevel = true;
@@ -563,7 +563,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<MimeEntity> ParseEntityAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeEntity> ParseEntityAsync (CancellationToken cancellationToken = default)
 		{
 			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be
@@ -627,7 +627,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task<MimeMessage> ParseMessageAsync (CancellationToken cancellationToken = default (CancellationToken))
+		public async Task<MimeMessage> ParseMessageAsync (CancellationToken cancellationToken = default)
 		{
 			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be

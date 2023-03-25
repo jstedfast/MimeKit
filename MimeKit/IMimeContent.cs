@@ -104,7 +104,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void DecodeTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		void DecodeTo (Stream stream, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously decode the content stream into another stream.
@@ -129,7 +129,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Copy the content stream to the specified output stream.
@@ -151,7 +151,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		void WriteTo (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		void WriteTo (Stream stream, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously copy the content stream to the specified output stream.
@@ -174,6 +174,6 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
+		Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default);
 	}
 }

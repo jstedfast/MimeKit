@@ -480,7 +480,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="mailboxes"/> could not be found.
 		/// </exception>
-		public override IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		public override IList<PgpPublicKey> GetPublicKeys (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -536,7 +536,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// A secret key for the specified <paramref name="mailbox"/> could not be found.
 		/// </exception>
-		public override PgpSecretKey GetSigningKey (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
+		public override PgpSecretKey GetSigningKey (MailboxAddress mailbox, CancellationToken cancellationToken = default)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
@@ -572,7 +572,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default (CancellationToken))
+		public override bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
 				throw new ArgumentNullException (nameof (signer));
@@ -606,7 +606,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default (CancellationToken))
+		public override bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
@@ -1065,7 +1065,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Import (PgpPublicKeyRing keyring, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (PgpPublicKeyRing keyring, CancellationToken cancellationToken = default)
 		{
 			if (keyring == null)
 				throw new ArgumentNullException (nameof (keyring));
@@ -1091,7 +1091,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Import (PgpPublicKeyRingBundle bundle, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (PgpPublicKeyRingBundle bundle, CancellationToken cancellationToken = default)
 		{
 			if (bundle == null)
 				throw new ArgumentNullException (nameof (bundle));
@@ -1124,7 +1124,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Import (PgpSecretKeyRing keyring, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (PgpSecretKeyRing keyring, CancellationToken cancellationToken = default)
 		{
 			if (keyring == null)
 				throw new ArgumentNullException (nameof (keyring));
@@ -1150,7 +1150,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Import (PgpSecretKeyRingBundle bundle, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Import (PgpSecretKeyRingBundle bundle, CancellationToken cancellationToken = default)
 		{
 			if (bundle == null)
 				throw new ArgumentNullException (nameof (bundle));
@@ -1184,7 +1184,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		public override MimePart Export (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1216,7 +1216,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1257,7 +1257,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
+		public override void Export (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));
@@ -1302,7 +1302,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public override Task ExportAsync (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default (CancellationToken))
+		public override Task ExportAsync (IEnumerable<MailboxAddress> mailboxes, Stream stream, bool armor, CancellationToken cancellationToken = default)
 		{
 			if (mailboxes == null)
 				throw new ArgumentNullException (nameof (mailboxes));

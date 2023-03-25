@@ -2329,7 +2329,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void ReadHeaders (CancellationToken cancellationToken = default (CancellationToken))
+		public void ReadHeaders (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {
@@ -2402,7 +2402,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void ReadEntity (CancellationToken cancellationToken = default (CancellationToken))
+		public void ReadEntity (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {
@@ -2502,7 +2502,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public void ReadMessage (CancellationToken cancellationToken = default (CancellationToken))
+		public void ReadMessage (CancellationToken cancellationToken = default)
 		{
 			unsafe {
 				fixed (byte* inbuf = input) {
