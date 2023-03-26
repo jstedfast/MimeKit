@@ -143,14 +143,13 @@ namespace UnitTests {
 		{
 			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
 			var options = ParserOptions.Default.Clone ();
-			MailboxAddress mailbox;
 
 			options.AddressParserComplianceMode = mode;
 
-			Assert.AreEqual (result, MailboxAddress.TryParse (options, text, out mailbox), "MailboxAddress.TryParse(string)");
-			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, out mailbox), "MailboxAddress.TryParse(byte[])");
-			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int)");
-			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(byte[], int, int)");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, text, out _), "MailboxAddress.TryParse(string)");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, out _), "MailboxAddress.TryParse(byte[])");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, 0, out _), "MailboxAddress.TryParse(byte[], int)");
+			Assert.AreEqual (result, MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out _), "MailboxAddress.TryParse(byte[], int, int)");
 
 			try {
 				MailboxAddress.Parse (options, text);

@@ -127,7 +127,7 @@ namespace UnitTests.Encodings {
 			Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (0));
 		}
 
-		void TestEncoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
+		static void TestEncoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
 		{
 			int n;
 
@@ -176,7 +176,7 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		void TestDecoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize, bool unix = false)
+		static void TestDecoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize, bool unix = false)
 		{
 			int n;
 

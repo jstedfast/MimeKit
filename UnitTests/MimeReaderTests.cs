@@ -324,7 +324,7 @@ namespace UnitTests {
 			}
 		}
 
-		void TestMbox (ParserOptions options, string baseName)
+		static void TestMbox (ParserOptions options, string baseName)
 		{
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			NewLineFormat newLineFormat;
@@ -346,7 +346,7 @@ namespace UnitTests {
 			AssertMboxResults (baseName, offsets, newLineFormat);
 		}
 
-		async Task TestMboxAsync (ParserOptions options, string baseName)
+		static async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			NewLineFormat newLineFormat;

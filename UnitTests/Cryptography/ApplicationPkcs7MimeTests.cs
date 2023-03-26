@@ -244,7 +244,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void ImportAll (SecureMimeContext ctx)
+		static void ImportAll (SecureMimeContext ctx)
 		{
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			string path;
@@ -298,7 +298,7 @@ namespace UnitTests.Cryptography {
 			ctx.Import (path, "no.secret");
 		}
 
-		async Task ImportAllAsync (SecureMimeContext ctx)
+		static async Task ImportAllAsync (SecureMimeContext ctx)
 		{
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			string path;

@@ -74,32 +74,26 @@ namespace UnitTests {
 		[Test]
 		public void TestTryGetExtensionTextPlain ()
 		{
-			string extension;
-
-			Assert.IsTrue (MimeTypes.TryGetExtension ("text/plain", out extension));
+			Assert.IsTrue (MimeTypes.TryGetExtension ("text/plain", out var extension));
 			Assert.AreEqual (".txt", extension);
 		}
 
 		[Test]
 		public void TestTryGetExtensionUnknownMimeType ()
 		{
-			string extension;
-
-			Assert.IsFalse (MimeTypes.TryGetExtension ("application/x-vnd.fake-mime-type", out extension));
+			Assert.IsFalse (MimeTypes.TryGetExtension ("application/x-vnd.fake-mime-type", out _));
 		}
 
 		[Test]
 		public void TestMimeTypeRegister ()
 		{
-			string extension;
-
 			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename.bogus"));
-			Assert.False (MimeTypes.TryGetExtension ("application/vnd.bogus", out extension));
+			Assert.False (MimeTypes.TryGetExtension ("application/vnd.bogus", out _));
 
 			MimeTypes.Register ("application/vnd.bogus", ".bogus");
 
 			Assert.AreEqual ("application/vnd.bogus", MimeTypes.GetMimeType ("filename.bogus"));
-			Assert.True (MimeTypes.TryGetExtension ("application/vnd.bogus", out extension));
+			Assert.True (MimeTypes.TryGetExtension ("application/vnd.bogus", out var extension));
 			Assert.AreEqual (".bogus", extension);
 		}
 	}

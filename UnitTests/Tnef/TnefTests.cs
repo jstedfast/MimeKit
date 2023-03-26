@@ -155,8 +155,7 @@ namespace UnitTests.Tnef {
 				Assert.IsNotNull (list, "The recipient type was never specified.");
 				Assert.IsNotNull (addr, "The address was never specified.");
 
-				if (list != null)
-					list.Add (new MailboxAddress (name, addr));
+				list?.Add (new MailboxAddress (name, addr));
 			}
 		}
 

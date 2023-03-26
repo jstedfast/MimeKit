@@ -2798,7 +2798,7 @@ This is some raw data.
 			}
 		}
 
-		void TestMbox (ParserOptions options, string baseName)
+		static void TestMbox (ParserOptions options, string baseName)
 		{
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			var output = new MemoryBlockStream ();
@@ -2838,7 +2838,7 @@ This is some raw data.
 			AssertMboxResults (baseName, builder.ToString (), output, offsets, newLineFormat);
 		}
 
-		async Task TestMboxAsync (ParserOptions options, string baseName)
+		static async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
 			var output = new MemoryBlockStream ();

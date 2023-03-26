@@ -57,14 +57,12 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetPublicKeyAlgorithm (null));
 		}
 
-		X509KeyUsageFlags GetX509Certificate2KeyUsageFlags (X509Certificate2 certificate)
+		static X509KeyUsageFlags GetX509Certificate2KeyUsageFlags (X509Certificate2 certificate)
 		{
-			var usage = certificate.Extensions[X509Extensions.KeyUsage.Id] as X509KeyUsageExtension;
+			if (certificate.Extensions[X509Extensions.KeyUsage.Id] is X509KeyUsageExtension usage)
+				return (X509KeyUsageFlags) usage.KeyUsages;
 
-			if (usage == null)
-				return BouncyCastleCertificateExtensions.GetKeyUsageFlags ((bool[]) null);
-
-			return (X509KeyUsageFlags) usage.KeyUsages;
+			return BouncyCastleCertificateExtensions.GetKeyUsageFlags ((bool[]) null);
 		}
 
 		[Test]

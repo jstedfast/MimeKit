@@ -35,12 +35,11 @@ namespace UnitTests {
 		static void AssertParseFailure (string text, bool result, int tokenIndex, int errorIndex)
 		{
 			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
-			GroupAddress group;
 
-			Assert.AreEqual (result, GroupAddress.TryParse (text, out group), "GroupAddress.TryParse(string)");
-			Assert.AreEqual (result, GroupAddress.TryParse (buffer, out group), "GroupAddress.TryParse(byte[])");
-			Assert.AreEqual (result, GroupAddress.TryParse (buffer, 0, out group), "GroupAddress.TryParse(byte[], int)");
-			Assert.AreEqual (result, GroupAddress.TryParse (buffer, 0, buffer.Length, out group), "GroupAddress.TryParse(byte[], int, int)");
+			Assert.AreEqual (result, GroupAddress.TryParse (text, out _), "GroupAddress.TryParse(string)");
+			Assert.AreEqual (result, GroupAddress.TryParse (buffer, out _), "GroupAddress.TryParse(byte[])");
+			Assert.AreEqual (result, GroupAddress.TryParse (buffer, 0, out _), "GroupAddress.TryParse(byte[], int)");
+			Assert.AreEqual (result, GroupAddress.TryParse (buffer, 0, buffer.Length, out _), "GroupAddress.TryParse(byte[], int, int)");
 
 			try {
 				GroupAddress.Parse (text);
