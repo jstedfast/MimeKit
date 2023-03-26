@@ -750,8 +750,7 @@ namespace MimeKit.Cryptography {
 			if (Count < 2)
 				throw new FormatException ("The multipart/signed part did not contain the expected children.");
 
-			var signature = this[1] as MimePart;
-			if (signature == null || signature.Content == null)
+			if (this[1] is not MimePart signature || signature.Content == null)
 				throw new FormatException ("The signature part could not be found.");
 
 			var ctype = signature.ContentType;
@@ -821,8 +820,7 @@ namespace MimeKit.Cryptography {
 			if (Count < 2)
 				throw new FormatException ("The multipart/signed part did not contain the expected children.");
 
-			var signature = this[1] as MimePart;
-			if (signature == null || signature.Content == null)
+			if (this[1] is not MimePart signature || signature.Content == null)
 				throw new FormatException ("The signature part could not be found.");
 
 			var ctype = signature.ContentType;

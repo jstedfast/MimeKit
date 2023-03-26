@@ -1187,8 +1187,7 @@ namespace MimeKit.Cryptography {
 				var data = factory.NextPgpObject ();
 				PgpSignatureList signatureList;
 
-				var compressed = data as PgpCompressedData;
-				if (compressed != null) {
+				if (data is PgpCompressedData compressed) {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
 					data = factory.NextPgpObject ();
 				}
@@ -2206,9 +2205,8 @@ namespace MimeKit.Cryptography {
 			using (var armored = new ArmoredInputStream (encryptedData)) {
 				var factory = new PgpObjectFactory (armored);
 				var obj = factory.NextPgpObject ();
-				var list = obj as PgpEncryptedDataList;
 
-				if (list == null) {
+				if (obj is not PgpEncryptedDataList list) {
 					// probably a PgpMarker...
 					obj = factory.NextPgpObject ();
 

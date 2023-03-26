@@ -1998,8 +1998,7 @@ namespace MimeKit.Cryptography {
 			if (Count < 2)
 				throw new FormatException ();
 
-			var version = this[0] as MimePart;
-			if (version == null)
+			if (this[0] is not MimePart version)
 				throw new FormatException ();
 
 			var ctype = version.ContentType;
@@ -2007,8 +2006,7 @@ namespace MimeKit.Cryptography {
 			if (!value.Equals (protocol, StringComparison.OrdinalIgnoreCase))
 				throw new FormatException ();
 
-			var encrypted = this[1] as MimePart;
-			if (encrypted == null || encrypted.Content == null)
+			if (this[1] is not MimePart encrypted || encrypted.Content == null)
 				throw new FormatException ();
 
 			if (!encrypted.ContentType.IsMimeType ("application", "octet-stream"))
@@ -2105,8 +2103,7 @@ namespace MimeKit.Cryptography {
 			if (Count < 2)
 				throw new FormatException ();
 
-			var version = this[0] as MimePart;
-			if (version == null)
+			if (this[0] is not MimePart version)
 				throw new FormatException ();
 
 			var ctype = version.ContentType;
@@ -2114,8 +2111,7 @@ namespace MimeKit.Cryptography {
 			if (!value.Equals (protocol, StringComparison.OrdinalIgnoreCase))
 				throw new FormatException ();
 
-			var encrypted = this[1] as MimePart;
-			if (encrypted == null || encrypted.Content == null)
+			if (this[1] is not MimePart encrypted || encrypted.Content == null)
 				throw new FormatException ();
 
 			if (!encrypted.ContentType.IsMimeType ("application", "octet-stream"))
