@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography.Pkcs;
 
@@ -72,7 +73,7 @@ namespace MimeKit.Cryptography {
 						foreach (var value in signerInfo.SignedAttributes[i].Values) {
 							var sequences = (DerSequence) Asn1Object.FromByteArray (value.RawData);
 
-							foreach (Asn1Sequence sequence in sequences) {
+							foreach (var sequence in sequences.OfType<Asn1Sequence> ()) {
 								var identifier = Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier.GetInstance (sequence);
 
 								if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm))

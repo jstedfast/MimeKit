@@ -83,7 +83,7 @@ namespace MimeKit.Cryptography {
 
 				vector = signerInfo.SignedAttributes.GetAll (SmimeAttributes.SmimeCapabilities);
 				foreach (var attr in vector.OfType<Org.BouncyCastle.Asn1.Cms.Attribute> ()) {
-					foreach (Asn1Sequence sequence in attr.AttrValues) {
+					foreach (var sequence in attr.AttrValues.OfType<Asn1Sequence> ()) {
 						for (int i = 0; i < sequence.Count; i++) {
 							var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
 
