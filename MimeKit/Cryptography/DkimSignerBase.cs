@@ -135,6 +135,17 @@ namespace MimeKit.Cryptography {
 		public DkimCanonicalizationAlgorithm BodyCanonicalizationAlgorithm {
 			get; set;
 		}
+		
+		/// <summary>
+		/// Get or set the signature expiration offset.
+		/// </summary>
+		/// <remarks>
+		/// Get or set the signature expiration offset.
+		/// </remarks>
+		/// <value>The signature expiration offset value.</value>
+		public TimeSpan? SignatureExpirationOffset {
+			get; set;
+		}
 
 		/// <summary>
 		/// Get or set the canonicalization algorithm to use for the message headers.

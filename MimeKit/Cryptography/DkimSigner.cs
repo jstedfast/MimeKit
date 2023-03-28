@@ -286,6 +286,12 @@ namespace MimeKit.Cryptography {
 			builder.Append ("; t=");
 			builder.AppendInvariant (t);
 
+			if (SignatureExpirationOffset != null) {
+				var x = t + SignatureExpirationOffset.Value.TotalSeconds;	
+				builder.Append ("; x=");
+				builder.AppendInvariant (x);
+			}
+
 			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
