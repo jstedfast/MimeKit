@@ -52,11 +52,7 @@ namespace MimeKit.Cryptography {
 		static readonly Dictionary<string, EncryptionAlgorithm> EncryptionAlgorithms;
 		//static readonly Dictionary<string, PublicKeyAlgorithm> PublicKeyAlgorithms;
 		static readonly Dictionary<string, DigestAlgorithm> DigestAlgorithms;
-#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
 		static readonly byte[] EmptyKeyRingBundle = Array.Empty<byte> ();
-#else
-		static readonly byte[] EmptyKeyRingBundle = new byte[0];
-#endif
 		static readonly char[] Whitespace = { ' ', '\t' };
 		static readonly string GnuPGHomeDir;
 

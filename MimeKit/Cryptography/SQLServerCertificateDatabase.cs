@@ -298,13 +298,8 @@ namespace MimeKit.Cryptography {
 				if (value is DateTime dateTime && dateTime < DateUtils.UnixEpoch)
 					value = DateUtils.UnixEpoch;
 
-				if (columns[i].ColumnName == "PRIVATEKEY" && value is DBNull) {
-#if NET46_OR_GREATER || NET5_0_OR_GREATER || NETSTANDARD
+				if (columns[i].ColumnName == "PRIVATEKEY" && value is DBNull)
 					value = Array.Empty<byte> ();
-#else
-					value = new byte[0];
-#endif
-				}
 
 				var variable = "@" + columns[i];
 
