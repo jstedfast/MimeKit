@@ -214,6 +214,49 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		[Test]
+		public void TestDkimSignatureExpirationHeaderValue ()
+		{
+			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
+			signer.SignatureExpirationOffset = TimeSpan.FromDays (1);
+			
+			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
+			var message = new MimeMessage ();
+
+			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
+			message.To.Add (new MailboxAddress ("", "mimekit@example.com"));
+			message.Subject = "This is an empty message";
+			message.Date = DateTimeOffset.Now;
+
+			message.Body = new TextPart ("plain") { Text = "" };
+
+			message.Prepare (EncodingConstraint.SevenBit);
+
+			signer.Sign (message, headers);
+			
+			var headerValue = message.Headers[HeaderId.DkimSignature];
+			
+			var parameters = headerValue.Split (';');
+			long? timestamp = null, expiration = null;
+
+			for (int i = 0; i < parameters.Length; i++) {
+				var param = parameters[i].Trim ();
+
+				if (param.StartsWith ("t=", StringComparison.Ordinal)) {
+					timestamp = long.Parse (param.Substring (3));
+				}
+				
+				if (param.StartsWith ("x=", StringComparison.Ordinal)) {
+					expiration =  long.Parse (param.Substring (3));
+				}
+			}
+			
+			Assert.NotNull (timestamp, "Timestamp should not be null.");
+			Assert.NotNull (expiration, "Signature expiration should not be null.");
+			var diff = expiration - timestamp;
+			Assert.AreEqual (TimeSpan.FromDays(1).TotalSeconds, diff, "Difference between timestamp and signature expiration should have expected value.");
+		}
+
 		static void VerifyDkimBodyHash (MimeMessage message, DkimSignatureAlgorithm algorithm, string expectedHash)
 		{
 			var value = message.Headers[HeaderId.DkimSignature];
