@@ -286,8 +286,8 @@ namespace MimeKit.Cryptography {
 			builder.Append ("; t=");
 			builder.AppendInvariant (t);
 
-			if (SignatureExpirationOffset != null) {
-				var x = t + SignatureExpirationOffset.Value.TotalSeconds;	
+			if (SignaturesExpireAfter.HasValue) {
+				var x = t + SignaturesExpireAfter.Value.TotalSeconds;	
 				builder.Append ("; x=");
 				builder.AppendInvariant (x);
 			}

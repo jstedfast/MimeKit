@@ -215,10 +215,10 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestDkimSignatureExpirationHeaderValue ()
+		public void TestDkimSignaturesExpirationHeaderValue ()
 		{
 			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
-			signer.SignatureExpirationOffset = TimeSpan.FromDays (1);
+			signer.SignaturesExpireAfter = TimeSpan.FromDays (1);
 			
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
 			var message = new MimeMessage ();

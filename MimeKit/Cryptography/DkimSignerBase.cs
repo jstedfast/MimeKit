@@ -137,13 +137,13 @@ namespace MimeKit.Cryptography {
 		}
 		
 		/// <summary>
-		/// Get or set the signature expiration offset.
+		/// Get or set the timespan after which signatures are no longer valid.
 		/// </summary>
 		/// <remarks>
-		/// Get or set the signature expiration offset.
+		/// Get or set the timespan after which signatures are no longer valid.
 		/// </remarks>
-		/// <value>The signature expiration offset value.</value>
-		public TimeSpan? SignatureExpirationOffset {
+		/// <value>The signatures expiration timespan value.</value>
+		public TimeSpan? SignaturesExpireAfter {
 			get; set;
 		}
 
