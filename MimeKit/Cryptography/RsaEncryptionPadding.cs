@@ -123,7 +123,7 @@ namespace MimeKit.Cryptography {
 		/// <see cref="RsaEncryptionPadding"/>; otherwise, <c>false</c>.</returns>
 		public bool Equals (RsaEncryptionPadding other)
 		{
-			if (other == null)
+			if (other is null)
 				return false;
 
 			return other.Scheme == Scheme && other.OaepHashAlgorithm == OaepHashAlgorithm;
@@ -182,8 +182,8 @@ namespace MimeKit.Cryptography {
 		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
 		public static bool operator == (RsaEncryptionPadding left, RsaEncryptionPadding right)
 		{
-			if (ReferenceEquals (left, null))
-				return ReferenceEquals (right, null);
+			if (left is null)
+				return right is null;
 
 			return left.Equals (right);
 		}

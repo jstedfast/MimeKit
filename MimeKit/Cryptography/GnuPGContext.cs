@@ -771,9 +771,7 @@ namespace MimeKit.Cryptography {
 					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now", nameof (expirationDate));
 			}
 
-			if (random == null) {
-				random = new SecureRandom (new CryptoApiRandomGenerator ());
-			}
+			random ??= new SecureRandom (new CryptoApiRandomGenerator ());
 
 			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now, random);
 
@@ -831,8 +829,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			if (keyring == null)
-				keyring = new PgpPublicKeyRing (signedKey.GetEncoded ());
+			keyring ??= new PgpPublicKeyRing (signedKey.GetEncoded ());
 
 			Import (keyring);
 		}

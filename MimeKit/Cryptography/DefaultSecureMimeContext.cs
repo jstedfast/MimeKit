@@ -624,8 +624,7 @@ namespace MimeKit.Cryptography {
 				} else {
 					record.AlgorithmsUpdated = DateTime.UtcNow;
 					record.Algorithms = EnabledEncryptionAlgorithms;
-					if (record.PrivateKey == null)
-						record.PrivateKey = privateKey;
+					record.PrivateKey ??= privateKey;
 					record.IsTrusted = true;
 					dbase.Update (record, ImportPkcs12Fields);
 				}
@@ -734,8 +733,7 @@ namespace MimeKit.Cryptography {
 						} else {
 							record.AlgorithmsUpdated = DateTime.UtcNow;
 							record.Algorithms = enabledAlgorithms;
-							if (record.PrivateKey == null)
-								record.PrivateKey = entry.Key;
+							record.PrivateKey ??= entry.Key;
 							record.IsTrusted = true;
 							dbase.Update (record, ImportPkcs12Fields);
 						}

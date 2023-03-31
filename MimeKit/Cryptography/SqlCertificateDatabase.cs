@@ -397,14 +397,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (DbConnection connection, MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
-			var secure = mailbox as SecureMailboxAddress;
 			var command = connection.CreateCommand ();
 			var query = CreateSelectQuery (fields);
 
 			query = query.Append (" WHERE BASICCONSTRAINTS = @BASICCONSTRAINTS ");
 			command.AddParameterWithValue ("@BASICCONSTRAINTS", -1);
 
-			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
+			if (mailbox is SecureMailboxAddress secure && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				if (secure.Fingerprint.Length < 40) {
 					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint.ToLowerInvariant () + "%");
 					query = query.Append ("AND FINGERPRINT LIKE @FINGERPRINT ");
@@ -443,7 +442,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
-			var match = selector as X509CertStoreSelector;
 			var command = connection.CreateCommand ();
 			var query = CreateSelectQuery (fields);
 			int baseQueryLength = query.Length;
@@ -459,7 +457,7 @@ namespace MimeKit.Cryptography {
 				command.AddParameterWithValue ("@ANCHOR", true);
 			}
 
-			if (match != null) {
+			if (selector is X509CertStoreSelector match) {
 				if (match.BasicConstraints >= 0 || match.BasicConstraints == -2) {
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");

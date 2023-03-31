@@ -233,8 +233,7 @@ namespace MimeKit.Cryptography {
 		{
 			using (var memory = new MemoryStream (buffer, 0, length, false)) {
 				using (var asn1 = new Asn1InputStream (memory)) {
-					var sequence = asn1.ReadObject () as Asn1Sequence;
-					if (sequence == null)
+					if (asn1.ReadObject () is not Asn1Sequence sequence)
 						return null;
 
 					var encrypted = EncryptedPrivateKeyInfo.GetInstance (sequence);

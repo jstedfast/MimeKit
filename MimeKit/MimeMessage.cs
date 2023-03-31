@@ -1030,7 +1030,19 @@ namespace MimeKit {
 				return body != null;
 			}
 
-			if (!(multipart is MultipartRelated related)) {
+			if (multipart is MultipartRelated related) {
+				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
+				var root = related.Root;
+
+				if (root is TextPart text) {
+					body = text.IsFormat (format) ? text.Text : null;
+					return body != null;
+				}
+
+				// maybe the root is another multipart (like multipart/alternative)?
+				if (root is Multipart multi)
+					return TryGetMultipartBody (multi, format, out body);
+			} else {
 				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
 				for (int i = 0; i < multipart.Count; i++) {
 					// descend into nested multiparts, if there are any...
@@ -1055,18 +1067,6 @@ namespace MimeKit {
 						break;
 					}
 				}
-			} else {
-				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
-				var root = related.Root;
-
-				if (root is TextPart text) {
-					body = text.IsFormat (format) ? text.Text : null;
-					return body != null;
-				}
-
-				// maybe the root is another multipart (like multipart/alternative)?
-				if (root is Multipart multi)
-					return TryGetMultipartBody (multi, format, out body);
 			}
 
 			body = null;
@@ -1844,10 +1844,7 @@ namespace MimeKit {
 			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
-			var signer = GetMessageSigner ();
-			if (signer is null)
-				throw new InvalidOperationException ("The sender has not been set.");
-
+			var signer = GetMessageSigner () ?? throw new InvalidOperationException ("The sender has not been set.");
 			Body = MultipartSigned.Create (ctx, signer, digestAlgo, Body, cancellationToken);
 		}
 
@@ -1895,10 +1892,7 @@ namespace MimeKit {
 			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
-			var signer = GetMessageSigner ();
-			if (signer is null)
-				throw new InvalidOperationException ("The sender has not been set.");
-
+			var signer = GetMessageSigner () ?? throw new InvalidOperationException ("The sender has not been set.");
 			Body = await MultipartSigned.CreateAsync (ctx, signer, digestAlgo, Body, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -2135,10 +2129,7 @@ namespace MimeKit {
 			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
-			var signer = GetMessageSigner ();
-			if (signer is null)
-				throw new InvalidOperationException ("The sender has not been set.");
-
+			var signer = GetMessageSigner () ?? throw new InvalidOperationException ("The sender has not been set.");
 			var recipients = GetEncryptionRecipients ();
 
 			if (ctx is SecureMimeContext smime) {
@@ -2208,10 +2199,7 @@ namespace MimeKit {
 			if (Body is null)
 				throw new InvalidOperationException ("No message body has been set.");
 
-			var signer = GetMessageSigner ();
-			if (signer is null)
-				throw new InvalidOperationException ("The sender has not been set.");
-
+			var signer = GetMessageSigner () ?? throw new InvalidOperationException ("The sender has not been set.");
 			var recipients = GetEncryptionRecipients ();
 
 			if (ctx is SecureMimeContext smime) {
@@ -3274,8 +3262,7 @@ namespace MimeKit {
 			if (message.AlternateViews.Count > 0)
 				body = AddAlternateViews (body, message.AlternateViews);
 
-			if (body is null)
-				body = new TextPart (message.IsBodyHtml ? "html" : "plain");
+			body ??= new TextPart (message.IsBodyHtml ? "html" : "plain");
 
 			if (message.Attachments.Count > 0) {
 				var mixed = new Multipart ("mixed");

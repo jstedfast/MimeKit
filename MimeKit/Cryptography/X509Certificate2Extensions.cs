@@ -105,11 +105,10 @@ namespace MimeKit.Cryptography {
 		{
 			using (var memory = new MemoryStream (rawData, false)) {
 				using (var asn1 = new Asn1InputStream (memory)) {
-					var algorithms = new List<EncryptionAlgorithm> ();
-					var sequence = asn1.ReadObject () as Asn1Sequence;
-
-					if (sequence == null)
+					if (asn1.ReadObject () is not Asn1Sequence sequence)
 						return null;
+
+					var algorithms = new List<EncryptionAlgorithm> ();
 
 					for (int i = 0; i < sequence.Count; i++) {
 						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
