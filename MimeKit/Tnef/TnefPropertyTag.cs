@@ -5734,5 +5734,33 @@ namespace MimeKit.Tnef {
 
 			return new TnefPropertyTag (id, unicode);
 		}
+
+		/// <summary>
+		/// Compare two <see cref="TnefPropertyTag"/> objects for equality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="TnefPropertyTag"/> objects for equality.
+		/// </remarks>
+		/// <param name="left">The first object to compare.</param>
+		/// <param name="right">The second object to compare.</param>
+		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
+		public static bool operator == (TnefPropertyTag left, TnefPropertyTag right)
+		{
+			return left.Equals (right);
+		}
+
+		/// <summary>
+		/// Compare two <see cref="TnefPropertyTag"/> objects for inequality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="TnefPropertyTag"/> objects for inequality.
+		/// </remarks>
+		/// <param name="left">The first object to compare.</param>
+		/// <param name="right">The second object to compare.</param>
+		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <c>false</c>.</returns>
+		public static bool operator != (TnefPropertyTag left, TnefPropertyTag right)
+		{
+			return !(left == right);
+		}
 	}
 }

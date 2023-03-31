@@ -153,5 +153,33 @@ namespace MimeKit.Tnef {
 
 			return kind is TnefNameIdKind.Id ? other.id == id : other.name == name;
 		}
+
+		/// <summary>
+		/// Compare two <see cref="TnefNameId"/> objects for equality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="TnefNameId"/> objects for equality.
+		/// </remarks>
+		/// <param name="left">The first object to compare.</param>
+		/// <param name="right">The second object to compare.</param>
+		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
+		public static bool operator == (TnefNameId left, TnefNameId right)
+		{
+			return left.Equals (right);
+		}
+
+		/// <summary>
+		/// Compare two <see cref="TnefNameId"/> objects for inequality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="TnefNameId"/> objects for inequality.
+		/// </remarks>
+		/// <param name="left">The first object to compare.</param>
+		/// <param name="right">The second object to compare.</param>
+		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <c>false</c>.</returns>
+		public static bool operator != (TnefNameId left, TnefNameId right)
+		{
+			return !(left == right);
+		}
 	}
 }
