@@ -204,12 +204,11 @@ namespace MimeKit.Cryptography {
 
 		byte[] EncryptAsymmetricKeyParameter (AsymmetricKeyParameter key)
 		{
-			var cipher = PbeUtilities.CreateEngine (EncryptionAlgorithm.Id) as IBufferedCipher;
+			if (PbeUtilities.CreateEngine (EncryptionAlgorithm.Id) is not IBufferedCipher cipher)
+				throw new Exception ("Unknown encryption algorithm: " + EncryptionAlgorithm.Id);
+
 			var keyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo (key);
 			var salt = new byte[SaltSize];
-
-			if (cipher == null)
-				throw new Exception ("Unknown encryption algorithm: " + EncryptionAlgorithm.Id);
 
 			RandomNumberGenerator.NextBytes (salt);
 
@@ -238,10 +237,8 @@ namespace MimeKit.Cryptography {
 
 					var encrypted = EncryptedPrivateKeyInfo.GetInstance (sequence);
 					var algorithm = encrypted.EncryptionAlgorithm;
-					var encoded = encrypted.GetEncryptedData ();
 
-					var cipher = PbeUtilities.CreateEngine (algorithm) as IBufferedCipher;
-					if (cipher == null)
+					if (PbeUtilities.CreateEngine (algorithm) is not IBufferedCipher cipher)
 						return null;
 
 					var cipherParameters = PbeUtilities.GenerateCipherParameters (algorithm, password);
@@ -251,6 +248,7 @@ namespace MimeKit.Cryptography {
 
 					cipher.Init (false, cipherParameters);
 
+					var encoded = encrypted.GetEncryptedData ();
 					var decrypted = cipher.DoFinal (encoded);
 					var keyInfo = PrivateKeyInfo.GetInstance (decrypted);
 
