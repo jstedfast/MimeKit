@@ -154,7 +154,7 @@ improvements and helping me make MimeKit even more awesome!
 * Added a maxLineLength argument to the QuotedPrintableEncoder .ctor.
 * Added maxLineLength arguments to EncoderFilter.Create() methods.
 * Fixed MimePart.Prepare() to remember the maxLineLength argument value for later use in the
-  WriteTo() implementation. This maxLineLength value can then be passed to the Base64 or 
+  WriteTo() implementation. This maxLineLength value can then be passed to the Base64 or
   QuotedPrintable encoder so that it can properly limit lines to that length (up to a max of
   76 characters as per the specs). (issue [#743](https://github.com/jstedfast/MimeKit/issues/743))
 * Added net6.0 to the list of TargetFrameworks.
@@ -290,7 +290,7 @@ improvements and helping me make MimeKit even more awesome!
   (issue [#595](https://github.com/jstedfast/MimeKit/issues/595))
 * Added improved error reporting for ArcVerifier.
   (issue [#591](https://github.com/jstedfast/MimeKit/issues/591))
-*  Added another work-around for parsing Authentication-Results headers.
+* Added another work-around for parsing Authentication-Results headers.
   (issue [#590](https://github.com/jstedfast/MimeKit/issues/590))
 * MimeMessage.ToString() now adds an X-MimeKit-Warning header to the
   beginning of the output string to make it clear to developers doing this
@@ -499,8 +499,8 @@ improvements and helping me make MimeKit even more awesome!
   ARC-Authentication-Results headers.
 * Added support for the Ed25519-SHA256 DKIM signature algorithm.
 * Obsoleted MimeMessage DKIM API's in favor of the newer DKIM API's:
-  - MimeMessage.Sign (DkimSigner, ...) has been replaced by DkimSigner.Sign (MimeMessage, ...).
-  - MimeMessage.Verify (Header, ...) has been replaced by DkimVerifier.Verify (MimeMessage, Header, ...).
+  * MimeMessage.Sign (DkimSigner, ...) has been replaced by DkimSigner.Sign (MimeMessage, ...).
+  * MimeMessage.Verify (Header, ...) has been replaced by DkimVerifier.Verify (MimeMessage, Header, ...).
 * Added DkimPublicKeyLocatorBase to help simplify implementing IDkimPublicKeyLocator.
 
 ## MimeKit 2.1.5 (2019-05-13)
@@ -616,10 +616,9 @@ improvements and helping me make MimeKit even more awesome!
 
 ## MimeKit 2.0.4 (2018-05-21)
 
-* The default value of the `CheckCertificateRevocation` property located on the
-  `BouncyCastleSecureMimeContext` has been changed to `false` due to privacy concerns noted
-  in the <a href="https://efail.de">Efail</a> document published in May of 2018. Clients that
-  wish to continue automatic downloads of S/MIME CRLs can manually set the property to `true`.
+* The default value of the `CheckCertificateRevocation` property located on the `BouncyCastleSecureMimeContext` has been changed
+  to `false` due to privacy concerns noted in the [Efail](https://efail.de) document published in May of 2018. Clients that wish
+  to continue automatic downloads of S/MIME CRLs can manually set the property to `true`.
 * Properly wrap long mailbox names with quoted phrases.
 * Fixed parsing of header blocks that span across read boundaries. (issue [#395](https://github.com/jstedfast/MimeKit/issues/395))
 * Added FormatOptions.EnsureNewLine property (MailKit issue [#251](https://github.com/jstedfast/MailKit/issues/251))
@@ -763,7 +762,7 @@ improvements and helping me make MimeKit even more awesome!
 
 ## MimeKit 1.12.0 (2017-03-12)
 
-* Added new DKIM MimeMessage.Sign() methods that take an IList<string> of header field names
+* Added new DKIM MimeMessage.Sign() methods that take an IList&lt;string&gt; of header field names
   to sign.
 * Improved the address parser to allow the lack of a terminating ';' character at the end of
   group addresses.
@@ -1013,7 +1012,7 @@ improvements and helping me make MimeKit even more awesome!
 
 ## MimeKit 1.2.5 (2015-06-22)
 
-* Changed BodyParts and Attachments to be IEnumerable<MimeEntity> -
+* Changed BodyParts and Attachments to be IEnumerable&lt;MimeEntity&gt; -
   WARNING! This is an API change! (issue [#148](https://github.com/jstedfast/MimeKit/issues/148))
 * Moved the IsAttachment property from MimePart down into MimeEntity.
 * Added MimeMessage.Importance and MimeMessage.Priority properties.
