@@ -28,6 +28,8 @@
     <DefineConstants>$(DefineConstants);ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SignAssembly>true</SignAssembly>
     <DebugSymbols>true</DebugSymbols>
     <NoWarn>1701;1702;CA1835;IDE0016;IDE0056;IDE0057;IDE0063;IDE0066;IDE0090</NoWarn>

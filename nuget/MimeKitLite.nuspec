@@ -83,21 +83,27 @@
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.dll" target="lib\netstandard2.0\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.pdb" target="lib\netstandard2.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.xml" target="lib\netstandard2.0\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.dll.config" target="lib\netstandard2.0\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.dll" target="lib\netstandard2.1\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.pdb" target="lib\netstandard2.1\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.xml" target="lib\netstandard2.1\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.dll.config" target="lib\netstandard2.1\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net462\MimeKitLite.dll" target="lib\net462\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net462\MimeKitLite.pdb" target="lib\net462\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net462\MimeKitLite.xml" target="lib\net462\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKitLite.dll.config" target="lib\net462\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll" target="lib\net47\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.pdb" target="lib\net47\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.xml" target="lib\net47\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll.config" target="lib\net47\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll" target="lib\net48\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.pdb" target="lib\net48\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.xml" target="lib\net48\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll.config" target="lib\net48\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.dll" target="lib\net6.0\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.pdb" target="lib\net6.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.xml" target="lib\net6.0\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.dll.config" target="lib\net6.0\MimeKitLite.dll.config" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>
