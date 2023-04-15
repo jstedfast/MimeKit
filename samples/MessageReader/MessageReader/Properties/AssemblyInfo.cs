@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("MessageReader")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
+[assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("MessageReader")]
-[assembly: AssemblyCopyright ("Copyright ©  2014")]
-[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2023 .NET Foundation and Contributors")]
+[assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

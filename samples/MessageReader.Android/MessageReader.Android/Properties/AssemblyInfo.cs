@@ -8,10 +8,10 @@ using Android.App;
 [assembly: AssemblyTitle ("MessageReader.Android")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Xamarin Inc.")]
+[assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("Xamarin Inc. (www.xamarin.com)")]
-[assembly: AssemblyTrademark ("Jeffrey Stedfast")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2023 .NET Foundation and Contributors")]
+[assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".

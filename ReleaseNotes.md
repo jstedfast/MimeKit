@@ -1,5 +1,19 @@
 # Release Notes
 
+## MimeKit 4.0.0 (2023-04-15)
+
+* Ported to BouncyCastle v2.1.1. (issue [#865](https://github.com/jstedfast/MimeKit/issues/865))
+* Fixed System.Net.Mail.MailMessage -> MimeMessage converter to reset MailMessage attachment/alternateview streams back
+  to 0 after copying them. (issue [#907](https://github.com/jstedfast/MimeKit/issues/907))
+* Added support for the signature expiration field in DKIM signatures which can be specified
+  using the new DkimSigner.SignatureExpiresAfter property.
+* Added equality operators for TnefNameId and TnefPropertyTag.
+* Fixed MimeMessage's MessageId, ResentMessageId and InReplyTo property setters to be more lax.
+  (issue [#912](https://github.com/jstedfast/MimeKit/issues/912))
+* MimeKit and MimeKitLite nuget packages now include MimeKit.dll.config that contain assembly redirects
+  which *may* resolve some issues some developers were having with loading assemblies such as
+  System.Runtime.CompilerServices.Unsafe.dll.
+
 ## MimeKit 3.6.1 (2023-03-19)
 
 * Improved the UrlScanner to allow numeric key/value pairs (seems to match behavior in other url detection algorithms).

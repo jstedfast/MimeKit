@@ -7,10 +7,10 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle ("DkimVerifier")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Microsoft Corp. (www.microsoft.com)")]
+[assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("Microsoft Corp.")]
-[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2023 .NET Foundation and Contributors")]
+[assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
