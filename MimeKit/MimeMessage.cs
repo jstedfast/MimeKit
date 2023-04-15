@@ -860,11 +860,11 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out var mailbox))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.InReplyTo;
-				inreplyto = mailbox.Address;
+				inreplyto = msgid;
 
 				SetHeader ("In-Reply-To", "<" + inreplyto + ">");
 			}
@@ -910,11 +910,11 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out var mailbox))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.MessageId;
-				messageId = mailbox.Address;
+				messageId = msgid;
 
 				SetHeader ("Message-Id", "<" + messageId + ">");
 			}
@@ -960,11 +960,11 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!MailboxAddress.TryParse (Headers.Options, buffer, ref index, buffer.Length, false, out var mailbox))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.ResentMessageId;
-				resentMessageId = mailbox.Address;
+				resentMessageId = msgid;
 
 				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">");
 			}

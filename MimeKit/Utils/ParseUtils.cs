@@ -395,6 +395,7 @@ namespace MimeKit.Utils {
 		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{
 			// const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
+			var squareBrackets = false;
 			var angleAddr = false;
 
 			msgid = null;
@@ -426,6 +427,12 @@ namespace MimeKit.Utils {
 			}
 
 			using var token = new ValueStringBuilder (128);
+
+			if (text[index] == '[') {
+				// Note: This seems to be a bug in Microsoft Exchange??
+				// See https://github.com/jstedfast/MimeKit/issues/912
+				squareBrackets = true;
+			}
 
 			// consume the local-part of the msg-id using a very loose definition of 'local-part'
 			//
@@ -520,6 +527,11 @@ namespace MimeKit.Utils {
 
 					//return false;
 				}
+			}
+
+			if (squareBrackets && index < endIndex && text[index] == (byte) ']') {
+				token.Append (']');
+				index++;
 			}
 
 			if (angleAddr && (index >= endIndex || text[index] != '>')) {

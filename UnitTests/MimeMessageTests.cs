@@ -191,6 +191,37 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSettingCommonInvalidMessageIds ()
+		{
+			const string msgid = "[d7e8bc604f797c18ba8120250cbd8c04-JFBVALKQOJXWILKCJQZFA7CDNRQXE2LUPF6EIYLUMFGG643TPRCXQ32TNV2HA===@microsoft.com]";
+			var message = new MimeMessage ();
+
+			try {
+				message.MessageId = msgid;
+			} catch (Exception ex) {
+				Assert.Fail ("Failed to set MessageId: {0}", ex.Message);
+			}
+
+			Assert.AreEqual (msgid, message.MessageId, "MessageId");
+
+			try {
+				message.ResentMessageId = msgid;
+			} catch (Exception ex) {
+				Assert.Fail ("Failed to set ResentMessageId: {0}", ex.Message);
+			}
+
+			Assert.AreEqual (msgid, message.ResentMessageId, "ResentMessageId");
+
+			try {
+				message.InReplyTo = msgid;
+			} catch (Exception ex) {
+				Assert.Fail ("Failed to set InReplyTo: {0}", ex.Message);
+			}
+
+			Assert.AreEqual (msgid, message.InReplyTo, "InReplyTo");
+		}
+
+		[Test]
 		public void TestPrependHeader ()
 		{
 			string rawMessageText = @"Date: Fri, 22 Jan 2016 8:44:05 -0500 (EST)
