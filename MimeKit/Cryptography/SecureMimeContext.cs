@@ -65,15 +65,15 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// <para>Enables the following encryption algorithms by default:</para>
 		/// <list type="bullet">
-		/// <item><term><see cref="EncryptionAlgorithm.Aes256"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Aes192"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Aes128"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Camellia256"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Camellia192"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Camellia128"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Cast5"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.TripleDes"/></term></item>
-		/// <item><term><see cref="EncryptionAlgorithm.Seed"/></term></item>
+		/// <item><see cref="EncryptionAlgorithm.Aes256"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Aes192"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Aes128"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Camellia256"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Camellia192"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Camellia128"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Cast5"/></item>
+		/// <item><see cref="EncryptionAlgorithm.TripleDes"/></item>
+		/// <item><see cref="EncryptionAlgorithm.Seed"/></item>
 		/// </list>
 		/// </remarks>
 		protected SecureMimeContext ()
