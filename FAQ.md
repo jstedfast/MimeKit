@@ -3,6 +3,7 @@
 ## Question Index
 
 ### General
+
 * [Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?](#CompletelyFree)
 
 ### Messages
@@ -25,14 +26,12 @@
 
 * [How would I parse multipart/form-data from an HTTP web request?](#ParseWebRequestFormData)
 
-
 ## General
 
 ### <a name="CompletelyFree">Q: Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?</a>
 
 Yes. MimeKit and MailKit are both completely free and open source. They are both covered under the
 [MIT](https://opensource.org/licenses/MIT) license.
-
 
 ## Messages
 
@@ -613,8 +612,8 @@ foreach (var attachment in message.Attachments) {
 
 ### <a name="AddressHeaders">Q: How do I get the email addresses in the From, To, and Cc headers?</a>
 
-The [From](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_From.htm), 
-[To](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_To.htm), and 
+The [From](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_From.htm),
+[To](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_To.htm), and
 [Cc](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_Cc.htm) properties of a
 [MimeMessage](http://www.mimekit.net/docs/html/T_MimeKit_MimeMessage.htm) are all of type
 [InternetAddressList](http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm). An
@@ -712,37 +711,39 @@ of the message rather than using the PGP/MIME format that MimeKit prefers.
 
 These messages often look something like this:
 
-    Return-Path: <pgp-enthusiast@example.com>
-    Received: from [127.0.0.1] (hostname.example.com. [201.95.8.17])
-        by mx.google.com with ESMTPSA id l67sm26628445yha.8.2014.04.27.13.49.44
-        for <pgp-enthusiast@example.com>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Sun, 27 Apr 2014 13:49:44 -0700 (PDT)
-    Message-ID: <535D6D67.8020803@example.com>
-    Date: Sun, 27 Apr 2014 17:49:43 -0300
-    From: Die-Hard PGP Fan <pgp-enthusiast@example.com>
-    User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:24.0) Gecko/20100101 Thunderbird/24.4.0
-    MIME-Version: 1.0
-    To: undisclosed-recipients:;
-    Subject: Test of inline encrypted PGP blocks
-    X-Enigmail-Version: 1.6
-    Content-Type: text/plain; charset=ISO-8859-1
-    Content-Transfer-Encoding: 8bit
-    X-Antivirus: avast! (VPS 140427-1, 27/04/2014), Outbound message
-    X-Antivirus-Status: Clean
-    
-    -----BEGIN PGP MESSAGE-----
-    Charset: ISO-8859-1
-    Version: GnuPG v2.0.22 (MingW32)
-    Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-    
-    SGFoISBJIGZvb2xlZCB5b3UsIHRoaXMgdGV4dCBpc24ndCBhY3R1YWxseSBlbmNy
-    eXB0ZWQgd2l0aCBQR1AsCml0J3MgYWN0dWFsbHkgb25seSBiYXNlNjQgZW5jb2Rl
-    ZCEKCkknbSBqdXN0IHVzaW5nIHRoaXMgYXMgYW4gZXhhbXBsZSwgdGhvdWdoLCBz
-    byBpdCBkb2Vzbid0IHJlYWxseSBtYXR0ZXIuCgpGb3IgdGhlIHNha2Ugb2YgYXJn
-    dW1lbnQsIHdlJ2xsIHByZXRlbmQgdGhhdCB0aGlzIGlzIGFjdHVhbGx5IGFuIGVu
-    Y3J5cHRlZApibHVyYi4gTW1ta2F5PyBUaGFua3MuCg==
-    -----END PGP MESSAGE-----
+```
+Return-Path: <pgp-enthusiast@example.com>
+Received: from [127.0.0.1] (hostname.example.com. [201.95.8.17])
+    by mx.google.com with ESMTPSA id l67sm26628445yha.8.2014.04.27.13.49.44
+    for <pgp-enthusiast@example.com>
+    (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+    Sun, 27 Apr 2014 13:49:44 -0700 (PDT)
+Message-ID: <535D6D67.8020803@example.com>
+Date: Sun, 27 Apr 2014 17:49:43 -0300
+From: Die-Hard PGP Fan <pgp-enthusiast@example.com>
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:24.0) Gecko/20100101 Thunderbird/24.4.0
+MIME-Version: 1.0
+To: undisclosed-recipients:;
+Subject: Test of inline encrypted PGP blocks
+X-Enigmail-Version: 1.6
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Antivirus: avast! (VPS 140427-1, 27/04/2014), Outbound message
+X-Antivirus-Status: Clean
+
+-----BEGIN PGP MESSAGE-----
+Charset: ISO-8859-1
+Version: GnuPG v2.0.22 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+SGFoISBJIGZvb2xlZCB5b3UsIHRoaXMgdGV4dCBpc24ndCBhY3R1YWxseSBlbmNy
+eXB0ZWQgd2l0aCBQR1AsCml0J3MgYWN0dWFsbHkgb25seSBiYXNlNjQgZW5jb2Rl
+ZCEKCkknbSBqdXN0IHVzaW5nIHRoaXMgYXMgYW4gZXhhbXBsZSwgdGhvdWdoLCBz
+byBpdCBkb2Vzbid0IHJlYWxseSBtYXR0ZXIuCgpGb3IgdGhlIHNha2Ugb2YgYXJn
+dW1lbnQsIHdlJ2xsIHByZXRlbmQgdGhhdCB0aGlzIGlzIGFjdHVhbGx5IGFuIGVu
+Y3J5cHRlZApibHVyYi4gTW1ta2F5PyBUaGFua3MuCg==
+-----END PGP MESSAGE-----
+```
 
 To deal with these kinds of messages, I've added a method to OpenPgpContext called `GetDecryptedStream` which
 can be used to get the raw decrypted stream.
@@ -762,11 +763,11 @@ public Stream GetDecryptedStream (Stream encryptedData)
 The first variant is useful in cases where the encrypted PGP blurb is also digitally signed, allowing you to get
 your hands on the list of digitial signatures in order for you to verify each of them.
 
-To decrypt the content of the message, you'll want to locate the `TextPart` (in this case, it'll just be 
+To decrypt the content of the message, you'll want to locate the `TextPart` (in this case, it'll just be
 `message.Body`)
 and then do this:
 
-```
+```csharp
 static Stream DecryptEmbeddedPgp (TextPart text)
 {
     using (var memory = new MemoryStream ()) {
@@ -803,59 +804,59 @@ If this logic were to be expressed in code, it might look something like this:
 ```csharp
 public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool replyToAll)
 {
-	var reply = new MimeMessage ();
+    var reply = new MimeMessage ();
 
-	reply.From.Add (from);
+    reply.From.Add (from);
 
-	// reply to the sender of the message
-	if (message.ReplyTo.Count > 0) {
-		reply.To.AddRange (message.ReplyTo);
-	} else if (message.From.Count > 0) {
-		reply.To.AddRange (message.From);
-	} else if (message.Sender != null) {
-		reply.To.Add (message.Sender);
-	}
+    // reply to the sender of the message
+    if (message.ReplyTo.Count > 0) {
+        reply.To.AddRange (message.ReplyTo);
+    } else if (message.From.Count > 0) {
+        reply.To.AddRange (message.From);
+    } else if (message.Sender != null) {
+        reply.To.Add (message.Sender);
+    }
 
-	if (replyToAll) {
-		// include all of the other original recipients - TODO: remove ourselves from these lists
-		reply.To.AddRange (message.To);
-		reply.Cc.AddRange (message.Cc);
-	}
+    if (replyToAll) {
+        // include all of the other original recipients - TODO: remove ourselves from these lists
+        reply.To.AddRange (message.To);
+        reply.Cc.AddRange (message.Cc);
+    }
 
-	// set the reply subject
-	if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
-		reply.Subject = "Re: " + message.Subject;
-	else
-		reply.Subject = message.Subject;
+    // set the reply subject
+    if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
+        reply.Subject = "Re: " + message.Subject;
+    else
+        reply.Subject = message.Subject;
 
-	// construct the In-Reply-To and References headers
-	if (!string.IsNullOrEmpty (message.MessageId)) {
-		reply.InReplyTo = message.MessageId;
-		foreach (var id in message.References)
-			reply.References.Add (id);
-		reply.References.Add (message.MessageId);
-	}
+    // construct the In-Reply-To and References headers
+    if (!string.IsNullOrEmpty (message.MessageId)) {
+        reply.InReplyTo = message.MessageId;
+        foreach (var id in message.References)
+            reply.References.Add (id);
+        reply.References.Add (message.MessageId);
+    }
 
-	// quote the original message text
-	using (var quoted = new StringWriter ()) {
-		var sender = message.Sender ?? message.From.Mailboxes.FirstOrDefault ();
+    // quote the original message text
+    using (var quoted = new StringWriter ()) {
+        var sender = message.Sender ?? message.From.Mailboxes.FirstOrDefault ();
 
-		quoted.WriteLine ("On {0}, {1} wrote:", message.Date.ToString ("f"), !string.IsNullOrEmpty (sender.Name) ? sender.Name : sender.Address);
-		using (var reader = new StringReader (message.TextBody)) {
-			string line;
+        quoted.WriteLine ("On {0}, {1} wrote:", message.Date.ToString ("f"), !string.IsNullOrEmpty (sender.Name) ? sender.Name : sender.Address);
+        using (var reader = new StringReader (message.TextBody)) {
+            string line;
 
-			while ((line = reader.ReadLine ()) != null) {
-				quoted.Write ("> ");
-				quoted.WriteLine (line);
-			}
-		}
+            while ((line = reader.ReadLine ()) != null) {
+                quoted.Write ("> ");
+                quoted.WriteLine (line);
+            }
+        }
 
-		reply.Body = new TextPart ("plain") {
-			Text = quoted.ToString ()
-		};
-	}
+        reply.Body = new TextPart ("plain") {
+            Text = quoted.ToString ()
+        };
+    }
 
-	return reply;
+    return reply;
 }
 ```
 
@@ -870,244 +871,244 @@ The first thing we'd need to do is implement our own
 ```csharp
 public class ReplyVisitor : MimeVisitor
 {
-	readonly Stack<Multipart> stack = new Stack<Multipart> ();
-	MimeMessage original, reply;
-	MailboxAddress from;
-	bool replyToAll;
+    readonly Stack<Multipart> stack = new Stack<Multipart> ();
+    MimeMessage original, reply;
+    MailboxAddress from;
+    bool replyToAll;
 
-	/// <summary>
-	/// Creates a new ReplyVisitor.
-	/// </summary>
-	public ReplyVisitor (MailboxAddress from, bool replyToAll)
-	{
-		this.replyToAll = replyToAll;
-		this.from = from;
-	}
+    /// <summary>
+    /// Creates a new ReplyVisitor.
+    /// </summary>
+    public ReplyVisitor (MailboxAddress from, bool replyToAll)
+    {
+        this.replyToAll = replyToAll;
+        this.from = from;
+    }
 
-	/// <summary>
-	/// Gets the reply.
-	/// </summary>
-	/// <value>The reply.</value>
-	public MimeMessage Reply {
-		get { return reply; }
-	}
+    /// <summary>
+    /// Gets the reply.
+    /// </summary>
+    /// <value>The reply.</value>
+    public MimeMessage Reply {
+        get { return reply; }
+    }
 
-	void Push (MimeEntity entity)
-	{
-		var multipart = entity as Multipart;
+    void Push (MimeEntity entity)
+    {
+        var multipart = entity as Multipart;
 
-		if (reply.Body == null) {
-			reply.Body = entity;
-		} else {
-			var parent = stack.Peek ();
-			parent.Add (entity);
-		}
+        if (reply.Body == null) {
+            reply.Body = entity;
+        } else {
+            var parent = stack.Peek ();
+            parent.Add (entity);
+        }
 
-		if (multipart != null)
-			stack.Push (multipart);
-	}
+        if (multipart != null)
+            stack.Push (multipart);
+    }
 
-	void Pop ()
-	{
-		stack.Pop ();
-	}
+    void Pop ()
+    {
+        stack.Pop ();
+    }
 
-	static string GetOnDateSenderWrote (MimeMessage message)
-	{
-		var sender = message.Sender != null ? message.Sender : message.From.Mailboxes.FirstOrDefault ();
-		var name = sender != null ? (!string.IsNullOrEmpty (sender.Name) ? sender.Name : sender.Address) : "an unknown sender";
+    static string GetOnDateSenderWrote (MimeMessage message)
+    {
+        var sender = message.Sender != null ? message.Sender : message.From.Mailboxes.FirstOrDefault ();
+        var name = sender != null ? (!string.IsNullOrEmpty (sender.Name) ? sender.Name : sender.Address) : "an unknown sender";
 
-		return string.Format ("On {0}, {1} wrote:", message.Date.ToString ("f"), name);
-	}
+        return string.Format ("On {0}, {1} wrote:", message.Date.ToString ("f"), name);
+    }
 
-	/// <summary>
-	/// Visit the specified message.
-	/// </summary>
-	/// <param name="message">The message.</param>
-	public override void Visit (MimeMessage message)
-	{
-		reply = new MimeMessage ();
-		original = message;
+    /// <summary>
+    /// Visit the specified message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    public override void Visit (MimeMessage message)
+    {
+        reply = new MimeMessage ();
+        original = message;
 
-		stack.Clear ();
+        stack.Clear ();
 
-		reply.From.Add (from.Clone ());
+        reply.From.Add (from.Clone ());
 
-		// reply to the sender of the message
-		if (message.ReplyTo.Count > 0) {
-			reply.To.AddRange (message.ReplyTo);
-		} else if (message.From.Count > 0) {
-			reply.To.AddRange (message.From);
-		} else if (message.Sender != null) {
-			reply.To.Add (message.Sender);
-		}
+        // reply to the sender of the message
+        if (message.ReplyTo.Count > 0) {
+            reply.To.AddRange (message.ReplyTo);
+        } else if (message.From.Count > 0) {
+            reply.To.AddRange (message.From);
+        } else if (message.Sender != null) {
+            reply.To.Add (message.Sender);
+        }
 
-		if (replyToAll) {
-			// include all of the other original recipients - TODO: remove ourselves from these lists
-			reply.To.AddRange (message.To);
-			reply.Cc.AddRange (message.Cc);
-		}
+        if (replyToAll) {
+            // include all of the other original recipients - TODO: remove ourselves from these lists
+            reply.To.AddRange (message.To);
+            reply.Cc.AddRange (message.Cc);
+        }
 
-		// set the reply subject
-		if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
-			reply.Subject = "Re: " + message.Subject;
-		else
-			reply.Subject = message.Subject;
+        // set the reply subject
+        if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
+            reply.Subject = "Re: " + message.Subject;
+        else
+            reply.Subject = message.Subject;
 
-		// construct the In-Reply-To and References headers
-		if (!string.IsNullOrEmpty (message.MessageId)) {
-			reply.InReplyTo = message.MessageId;
-			foreach (var id in message.References)
-				reply.References.Add (id);
-			reply.References.Add (message.MessageId);
-		}
+        // construct the In-Reply-To and References headers
+        if (!string.IsNullOrEmpty (message.MessageId)) {
+            reply.InReplyTo = message.MessageId;
+            foreach (var id in message.References)
+                reply.References.Add (id);
+            reply.References.Add (message.MessageId);
+        }
 
-		base.Visit (message);
-	}
+        base.Visit (message);
+    }
 
-	/// <summary>
-	/// Visit the specified entity.
-	/// </summary>
-	/// <param name="entity">The MIME entity.</param>
-	/// <exception cref="System.NotSupportedException">
-	/// Only Visit(MimeMessage) is supported.
-	/// </exception>
-	public override void Visit (MimeEntity entity)
-	{
-		throw new NotSupportedException ();
-	}
+    /// <summary>
+    /// Visit the specified entity.
+    /// </summary>
+    /// <param name="entity">The MIME entity.</param>
+    /// <exception cref="System.NotSupportedException">
+    /// Only Visit(MimeMessage) is supported.
+    /// </exception>
+    public override void Visit (MimeEntity entity)
+    {
+        throw new NotSupportedException ();
+    }
 
-	protected override void VisitMultipartAlternative (MultipartAlternative alternative)
-	{
-		var multipart = new MultipartAlternative ();
+    protected override void VisitMultipartAlternative (MultipartAlternative alternative)
+    {
+        var multipart = new MultipartAlternative ();
 
-		Push (multipart);
+        Push (multipart);
 
-		for (int i = 0; i < alternative.Count; i++)
-			alternative[i].Accept (this);
+        for (int i = 0; i < alternative.Count; i++)
+            alternative[i].Accept (this);
 
-		Pop ();
-	}
+        Pop ();
+    }
 
-	protected override void VisitMultipartRelated (MultipartRelated related)
-	{
-		var multipart = new MultipartRelated ();
-		var root = related.Root;
+    protected override void VisitMultipartRelated (MultipartRelated related)
+    {
+        var multipart = new MultipartRelated ();
+        var root = related.Root;
 
-		Push (multipart);
+        Push (multipart);
 
-		root.Accept (this);
+        root.Accept (this);
 
-		for (int i = 0; i < related.Count; i++) {
-			if (related[i] != root)
-				related[i].Accept (this);
-		}
+        for (int i = 0; i < related.Count; i++) {
+            if (related[i] != root)
+                related[i].Accept (this);
+        }
 
-		Pop ();
-	}
+        Pop ();
+    }
 
-	protected override void VisitMultipart (Multipart multipart)
-	{
-		foreach (var part in multipart) {
-			if (part is MultipartAlternative)
-				part.Accept (this);
-			else if (part is MultipartRelated)
-				part.Accept (this);
-			else if (part is TextPart)
-				part.Accept (this);
-		}
-	}
+    protected override void VisitMultipart (Multipart multipart)
+    {
+        foreach (var part in multipart) {
+            if (part is MultipartAlternative)
+                part.Accept (this);
+            else if (part is MultipartRelated)
+                part.Accept (this);
+            else if (part is TextPart)
+                part.Accept (this);
+        }
+    }
 
-	void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
-	{
-		if (ctx.TagId == HtmlTagId.Body && !ctx.IsEmptyElementTag) {
-			if (ctx.IsEndTag) {
-				// end our opening <blockquote>
-				htmlWriter.WriteEndTag (HtmlTagId.BlockQuote);
+    void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+    {
+        if (ctx.TagId == HtmlTagId.Body && !ctx.IsEmptyElementTag) {
+            if (ctx.IsEndTag) {
+                // end our opening <blockquote>
+                htmlWriter.WriteEndTag (HtmlTagId.BlockQuote);
 
-				// pass the </body> tag through to the output
-				ctx.WriteTag (htmlWriter, true);
-			} else {
-				// pass the <body> tag through to the output
-				ctx.WriteTag (htmlWriter, true);
+                // pass the </body> tag through to the output
+                ctx.WriteTag (htmlWriter, true);
+            } else {
+                // pass the <body> tag through to the output
+                ctx.WriteTag (htmlWriter, true);
 
-				// prepend the HTML reply with "On {DATE}, {SENDER} wrote:"
-				htmlWriter.WriteStartTag (HtmlTagId.P);
-				htmlWriter.WriteText (GetOnDateSenderWrote (original));
-				htmlWriter.WriteEndTag (HtmlTagId.P);
+                // prepend the HTML reply with "On {DATE}, {SENDER} wrote:"
+                htmlWriter.WriteStartTag (HtmlTagId.P);
+                htmlWriter.WriteText (GetOnDateSenderWrote (original));
+                htmlWriter.WriteEndTag (HtmlTagId.P);
 
-				// Wrap the original content in a <blockquote>
-				htmlWriter.WriteStartTag (HtmlTagId.BlockQuote);
-				htmlWriter.WriteAttribute (HtmlAttributeId.Style, "border-left: 1px #ccc solid; margin: 0 0 0 .8ex; padding-left: 1ex;");
+                // Wrap the original content in a <blockquote>
+                htmlWriter.WriteStartTag (HtmlTagId.BlockQuote);
+                htmlWriter.WriteAttribute (HtmlAttributeId.Style, "border-left: 1px #ccc solid; margin: 0 0 0 .8ex; padding-left: 1ex;");
 
-				ctx.InvokeCallbackForEndTag = true;
-			}
-		} else {
-			// pass the tag through to the output
-			ctx.WriteTag (htmlWriter, true);
-		}
-	}
+                ctx.InvokeCallbackForEndTag = true;
+            }
+        } else {
+            // pass the tag through to the output
+            ctx.WriteTag (htmlWriter, true);
+        }
+    }
 
-	string QuoteText (string text)
-	{
-		using (var quoted = new StringWriter ()) {
-			quoted.WriteLine (GetOnDateSenderWrote (original));
+    string QuoteText (string text)
+    {
+        using (var quoted = new StringWriter ()) {
+            quoted.WriteLine (GetOnDateSenderWrote (original));
 
-			using (var reader = new StringReader (text)) {
-				string line;
+            using (var reader = new StringReader (text)) {
+                string line;
 
-				while ((line = reader.ReadLine ()) != null) {
-					quoted.Write ("> ");
-					quoted.WriteLine (line);
-				}
-			}
+                while ((line = reader.ReadLine ()) != null) {
+                    quoted.Write ("> ");
+                    quoted.WriteLine (line);
+                }
+            }
 
-			return quoted.ToString ();
-		}
-	}
+            return quoted.ToString ();
+        }
+    }
 
-	protected override void VisitTextPart (TextPart entity)
-	{
-		string text;
+    protected override void VisitTextPart (TextPart entity)
+    {
+        string text;
 
-		if (entity.IsHtml) {
-			var converter = new HtmlToHtml {
-				HtmlTagCallback = HtmlTagCallback
-			};
+        if (entity.IsHtml) {
+            var converter = new HtmlToHtml {
+                HtmlTagCallback = HtmlTagCallback
+            };
 
-			text = converter.Convert (entity.Text);
-		} else if (entity.IsFlowed) {
-			var converter = new FlowedToText ();
+            text = converter.Convert (entity.Text);
+        } else if (entity.IsFlowed) {
+            var converter = new FlowedToText ();
 
-			text = converter.Convert (entity.Text);
-			text = QuoteText (text);
-		} else {
-			// quote the original message text
-			text = QuoteText (entity.Text);
-		}
+            text = converter.Convert (entity.Text);
+            text = QuoteText (text);
+        } else {
+            // quote the original message text
+            text = QuoteText (entity.Text);
+        }
 
-		var part = new TextPart (entity.ContentType.MediaSubtype.ToLowerInvariant ()) {
-			Text = text
-		};
+        var part = new TextPart (entity.ContentType.MediaSubtype.ToLowerInvariant ()) {
+            Text = text
+        };
 
-		Push (part);
-	}
+        Push (part);
+    }
 
-	protected override void VisitMessagePart (MessagePart entity)
-	{
-		// don't descend into message/rfc822 parts
-	}
+    protected override void VisitMessagePart (MessagePart entity)
+    {
+        // don't descend into message/rfc822 parts
+    }
 }
 ```
 
 ```csharp
 public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool replyToAll)
 {
-	var visitor = new ReplyVisitor (from, replyToAll);
+    var visitor = new ReplyVisitor (from, replyToAll);
 
-	visitor.Visit (message);
+    visitor.Visit (message);
 
-	return visitor.Reply;
+    return visitor.Reply;
 }
 ```
 
@@ -1121,31 +1122,31 @@ To forward a message by attaching it as an attachment, you would do do something
 ```csharp
 public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IEnumerable<InternetAddress> to)
 {
-	var message = new MimeMessage ();
-	message.From.Add (from);
-	message.To.AddRange (to);
+    var message = new MimeMessage ();
+    message.From.Add (from);
+    message.To.AddRange (to);
 
-	// set the forwarded subject
-	if (!original.Subject.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
-		message.Subject = "FW: " + original.Subject;
-	else
-		message.Subject = original.Subject;
+    // set the forwarded subject
+    if (!original.Subject.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
+        message.Subject = "FW: " + original.Subject;
+    else
+        message.Subject = original.Subject;
 
-	// create the main textual body of the message
-	var text = new TextPart ("plain") { Text = "Here's the forwarded message:" };
+    // create the main textual body of the message
+    var text = new TextPart ("plain") { Text = "Here's the forwarded message:" };
 
-	// create the message/rfc822 attachment for the original message
-	var rfc822 = new MessagePart { Message = original };
+    // create the message/rfc822 attachment for the original message
+    var rfc822 = new MessagePart { Message = original };
     
-	// create a multipart/mixed container for the text body and the forwarded message
-	var multipart = new Multipart ("mixed");
-	multipart.Add (text);
-	multipart.Add (rfc822);
+    // create a multipart/mixed container for the text body and the forwarded message
+    var multipart = new Multipart ("mixed");
+    multipart.Add (text);
+    multipart.Add (rfc822);
 
-	// set the multipart as the body of the message
-	message.Body = multipart;
+    // set the multipart as the body of the message
+    message.Body = multipart;
 
-	return message;
+    return message;
 }
 ```
 
@@ -1154,34 +1155,34 @@ To forward a message by inlining the original message's text content, you can do
 ```csharp
 public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IEnumerable<InternetAddress> to)
 {
-	var message = new MimeMessage ();
-	message.From.Add (from);
-	message.To.AddRange (to);
+    var message = new MimeMessage ();
+    message.From.Add (from);
+    message.To.AddRange (to);
 
-	// set the forwarded subject
-	if (!original.Subject.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
-		message.Subject = "FW: " + original.Subject;
-	else
-		message.Subject = original.Subject;
+    // set the forwarded subject
+    if (!original.Subject.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
+        message.Subject = "FW: " + original.Subject;
+    else
+        message.Subject = original.Subject;
 
-	// quote the original message text
-	using (var text = new StringWriter ()) {
-		text.WriteLine ();
-		text.WriteLine ("-------- Original Message --------");
-		text.WriteLine ("Subject: {0}", original.Subject);
-		text.WriteLine ("Date: {0}", DateUtils.FormatDate (original.Date));
-		text.WriteLine ("From: {0}", original.From);
-		text.WriteLine ("To: {0}", original.To);
-		text.WriteLine ();
-		
-		text.Write (original.TextBody);
+    // quote the original message text
+    using (var text = new StringWriter ()) {
+        text.WriteLine ();
+        text.WriteLine ("-------- Original Message --------");
+        text.WriteLine ("Subject: {0}", original.Subject);
+        text.WriteLine ("Date: {0}", DateUtils.FormatDate (original.Date));
+        text.WriteLine ("From: {0}", original.From);
+        text.WriteLine ("To: {0}", original.To);
+        text.WriteLine ();
 
-		message.Body = new TextPart ("plain") {
-			Text = text.ToString ()
-		};
-	}
+        text.Write (original.TextBody);
 
-	return message;
+        message.Body = new TextPart ("plain") {
+            Text = text.ToString ()
+        };
+    }
+
+    return message;
 }
 ```
 
