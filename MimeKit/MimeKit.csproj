@@ -78,7 +78,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.1.1" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
