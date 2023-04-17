@@ -32,7 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-#if ENABLE_SNM && !NETSTANDARD2_0
+#if ENABLE_SNM
 using System.Net.Mail;
 #endif
 
@@ -3066,7 +3066,7 @@ namespace MimeKit {
 			return LoadAsync (ParserOptions.Default, fileName, cancellationToken);
 		}
 
-#if ENABLE_SNM && !NETSTANDARD2_0
+#if ENABLE_SNM
 		static MimePart GetMimePart (AttachmentBase item)
 		{
 			if (item.ContentStream.CanSeek)

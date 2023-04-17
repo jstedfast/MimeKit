@@ -29,7 +29,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
-#if ENABLE_SNM && !NETSTANDARD2_0
+#if ENABLE_SNM
 using System.Net.Mail;
 #endif
 
@@ -1045,7 +1045,7 @@ namespace MimeKit {
 			return Parse (ParserOptions.Default, text);
 		}
 
-#if ENABLE_SNM && !NETSTANDARD2_0
+#if ENABLE_SNM
 		/// <summary>
 		/// Explicit cast to convert a <see cref="InternetAddressList"/> to a
 		/// <see cref="System.Net.Mail.MailAddressCollection"/>.
