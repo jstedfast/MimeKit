@@ -1,4 +1,4 @@
-﻿//
+//
 // InternetAddress.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Globalization;
+using System.ComponentModel;
 
 using MimeKit.Utils;
 
@@ -45,6 +46,7 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
+	[TypeConverter(typeof(InternetAddressTypeConverter))]
 	public abstract class InternetAddress : IComparable<InternetAddress>, IEquatable<InternetAddress>
 	{
 		const string AtomSpecials = "()<>@,;:\\\".[]";
