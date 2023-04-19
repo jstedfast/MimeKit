@@ -4,38 +4,38 @@
 
 ### General
 
-* [Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?](#CompletelyFree)
+* [Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?](#completely-free)
 
 ### Messages
 
-* [How do I create a message with attachments?](#CreateAttachments)
-* [How do I get the main body of a message?](#MessageBody)
-* [How do I tell if a message has attachments?](#HasAttachments)
-* [Why doesn't the `MimeMessage` class implement `ISerializable` so that I can serialize a message to disk and read it back later?](#Serialize)
-* [How do I parse messages?](#LoadMessages)
-* [How do I save messages?](#SaveMessages)
-* [How do I save attachments?](#SaveAttachments)
-* [How do I get the email addresses in the From, To, and Cc headers?](#AddressHeaders)
-* [Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?](#UntitledAttachments)
-* [How do I decrypt PGP messages that are embedded in the main message text?](#DecryptInlinePGP)
-* [How do I reply to a message using MimeKit?](#Reply)
-* [How do I forward a message?](#Forward)
-* [Why does text show up garbled in my ASP.NET Core / .NET Core / .NET 5 app?](#GarbledText)
+* [How do I create a message with attachments?](#create-attachments)
+* [How do I get the main body of a message?](#message-body)
+* [How do I tell if a message has attachments?](#has-attachments)
+* [Why doesn't the `MimeMessage` class implement `ISerializable` so that I can serialize a message to disk and read it back later?](#serialize-message)
+* [How do I parse messages?](#load-messages)
+* [How do I save messages?](#save-messages)
+* [How do I save attachments?](#save-attachments)
+* [How do I get the email addresses in the From, To, and Cc headers?](#address-headers)
+* [Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?](#untitled-attachments)
+* [How do I decrypt PGP messages that are embedded in the main message text?](#decrypt-inline-pgp)
+* [How do I reply to a message using MimeKit?](#reply)
+* [How do I forward a message?](#forward)
+* [Why does text show up garbled in my ASP.NET Core / .NET Core / .NET 5 app?](#garbled-text)
 
 ### Specialty
 
-* [How would I parse multipart/form-data from an HTTP web request?](#ParseWebRequestFormData)
+* [How would I parse multipart/form-data from an HTTP web request?](#parse-web-request-form-data)
 
 ## General
 
-### <a name="CompletelyFree">Q: Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?</a>
+### <a name="completely-free">Q: Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?</a>
 
 Yes. MimeKit and MailKit are both completely free and open source. They are both covered under the
 [MIT](https://opensource.org/licenses/MIT) license.
 
 ## Messages
 
-### <a name="CreateAttachments">Q: How do I create a message with attachments?</a>
+### <a name="create-attachments">Q: How do I create a message with attachments?</a>
 
 To construct a message with attachments, the first thing you'll need to do is create a `multipart/mixed`
 container which you'll then want to add the message body to first. Once you've added the body, you can
@@ -115,9 +115,9 @@ message.Body = builder.ToMessageBody ();
 
 For more information, see [Creating Messages](http://www.mimekit.net/docs/html/Creating-Messages.htm).
 
-### <a name="MessageBody">Q: How do I get the main body of a message?</a>
+### <a name="message-body">Q: How do I get the main body of a message?</a>
 
-(Note: for the TL;DR version, skip to [the end](#MessageBodyTLDR))
+(Note: for the TL;DR version, skip to [the end](#message-body-tldr))
 
 MIME is a tree structure of parts. There are multiparts which contain other parts (even other multiparts).
 There are message parts which contain messages. And finally, there are leaf-node parts which contain content.
@@ -179,7 +179,7 @@ There are a few common message structures:
        application/zip
     ```
 
-<a name="MessageBodyTLDR"></a>Now, if you don't care about any of that and just want to get the text of
+<a name="message-body-tldr"></a>Now, if you don't care about any of that and just want to get the text of
 the first `text/plain` or `text/html` part you can find, that's easy.
 
 [MimeMessage](http://www.mimekit.net/docs/html/T_MimeKit_MimeMessage.htm) has two convenience properties
@@ -192,7 +192,7 @@ Likewise, the `TextBody` property can be used to get the `text/plain` version of
 
 For more information, see [Working with Messages](http://www.mimekit.net/docs/html/Working-With-Messages.htm).
 
-### <a name="HasAttachments">Q: How do I tell if a message has attachments?</a>
+### <a name="has-attachments">Q: How do I tell if a message has attachments?</a>
 
 In most cases, a message with a body that has a MIME-type of `multipart/mixed` containing more than a
 single part probably has attachments. As illustrated above, the first part of a `multipart/mixed` is
@@ -482,7 +482,7 @@ Once you've rendered the message using the above technique, you'll have a list o
 were not used, even if they did not match the simplistic criteria used by the `MimeMessage.Attachments`
 property.
 
-### <a name="Serialize">Q: Why doesn't the `MimeMessage` class implement `ISerializable` so that I can serialize a message to disk and read it back later?</a>
+### <a name="serialize-message">Q: Why doesn't the `MimeMessage` class implement `ISerializable` so that I can serialize a message to disk and read it back later?</a>
 
 The MimeKit API was designed to use the existing MIME format for serialization. In light of this, the ability
 to use the .NET serialization API and format did not make much sense to support.
@@ -492,10 +492,10 @@ You can easily serialize a [MimeMessage](http://www.mimekit.net/docs/html/T_Mime
 
 For more information on this topic, see the following other two topics:
 
-* <a href="#LoadMessages">How do I parse messages?</a>
-* <a href="#SaveMessages">How do I save messages?</a>
+* [How do I parse messages?](#load-messages)
+* [How do I save messages?](#save-messages)
 
-### <a name="LoadMessages">Q: How do I parse messages?</a>
+### <a name="load-messages">Q: How do I parse messages?</a>
 
 One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams.
 There are two ways of accomplishing this task.
@@ -537,7 +537,7 @@ while (!parser.IsEndOfStream) {
 }
 ```
 
-### <a name="SaveMessages">Q: How do I save messages?</a>
+### <a name="save-messages">Q: How do I save messages?</a>
 
 One you've got a [MimeMessage](http://www.mimekit.net/docs/html/T_MimeKit_MimeMessage.htm), you can save
 it to a file using the [WriteTo](http://mimekit.net/docs/html/Overload_MimeKit_MimeMessage_WriteTo.htm) method:
@@ -569,7 +569,7 @@ strings due to the fact that each MIME part of the message *may* be encoded in a
 character set, thus making it impossible to convert the message into a unicode string using a
 single charset to do the conversion (which is *exactly* what `ToString` does).
 
-### <a name="SaveAttachments">Q: How do I save attachments?</a>
+### <a name="save-attachments">Q: How do I save attachments?</a>
 
 If you've already got a [MimePart](http://www.mimekit.net/docs/html/T_MimeKit_MimePart.htm) that represents
 the attachment that you'd like to save, here's how you might save it:
@@ -610,7 +610,7 @@ foreach (var attachment in message.Attachments) {
 }
 ```
 
-### <a name="AddressHeaders">Q: How do I get the email addresses in the From, To, and Cc headers?</a>
+### <a name="address-headers">Q: How do I get the email addresses in the From, To, and Cc headers?</a>
 
 The [From](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_From.htm),
 [To](http://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_To.htm), and
@@ -668,7 +668,7 @@ foreach (var mailbox in message.To.Mailboxes)
     Console.WriteLine ("{0}'s email address is {1}", mailbox.Name, mailbox.Address);
 ```
 
-### <a name="UntitledAttachments">Q: Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?</a>
+### <a name="untitled-attachments">Q: Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?</a>
 
 An attachment filename is stored as a MIME parameter on the `Content-Disposition` header. Unfortunately,
 the original MIME specifications did not specify a method for encoding non-ASCII filenames. In 1997,
@@ -704,7 +704,7 @@ foreach (var param in attachment.ContentDisposition.Parameters) {
 }
 ```
 
-### <a name="DecryptInlinePGP">Q: How do I decrypt PGP messages that are embedded in the main message text?</a>
+### <a name="decrypt-inline-pgp">Q: How do I decrypt PGP messages that are embedded in the main message text?</a>
 
 Some PGP-enabled mail clients, such as Thunderbird, embed encrypted PGP blurbs within the `text/plain` body
 of the message rather than using the PGP/MIME format that MimeKit prefers.
@@ -784,7 +784,7 @@ static Stream DecryptEmbeddedPgp (TextPart text)
 What you do with that decrypted stream is up to you. It's up to you to figure out what the decrypted content is
 (is it text? a jpeg image? a video?) and how to display it to the user.
 
-### <a name="Reply">Q: How do I reply to a message?</a>
+### <a name="reply">Q: How do I reply to a message?</a>
 
 Replying to a message is fairly simple. For the most part, you'd just create the reply message
 the same way you'd create any other message. There are only a few slight differences:
@@ -1112,7 +1112,7 @@ public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool 
 }
 ```
 
-### <a name="Forward">Q: How do I forward a message?</a>
+### <a name="forward">Q: How do I forward a message?</a>
 
 There are 2 common ways of forwarding a message: attaching the original message as an attachment and inlining
 the message body much like replying typically does. Which method you choose is up to you.
@@ -1188,7 +1188,7 @@ public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IE
 
 Keep in mind that not all messages will have a `TextBody` available, so you'll have to find a way to handle those cases.
 
-### <a name="GarbledText">Q: Why does text show up garbled in my ASP.NET Core / .NET Core / .NET 5 app?</a>
+### <a name="garbled-text">Q: Why does text show up garbled in my ASP.NET Core / .NET Core / .NET 5 app?</a>
 
 .NET Core (and ASP.NET Core by extension) and .NET >= 5 only provide the Unicode encodings, ASCII and ISO-8859-1 by default.
 Other text encodings are not available to your application unless your application
@@ -1206,7 +1206,7 @@ Note: The above code snippet should be safe to call in .NET Framework versions >
 
 ## Specialty
 
-### <a name="ParseWebRequestFormData">Q: How would I parse multipart/form-data from an HTTP web request?</a>
+### <a name="parse-web-request-form-data">Q: How would I parse multipart/form-data from an HTTP web request?</a>
 
 Since classes like `HttpWebResponse` take care of parsing the HTTP headers (which includes the `Content-Type`
 header) and only offer a content stream to consume, MimeKit provides a way to deal with this using the following
