@@ -18,8 +18,8 @@
 * [How do I get the email addresses in the From, To, and Cc headers?](#address-headers)
 * [Why do attachments with unicode or long filenames appear as "ATT0####.dat" in Outlook?](#untitled-attachments)
 * [How do I decrypt PGP messages that are embedded in the main message text?](#decrypt-inline-pgp)
-* [How do I reply to a message using MimeKit?](#reply)
-* [How do I forward a message?](#forward)
+* [How do I reply to a message using MimeKit?](#reply-message)
+* [How do I forward a message?](#forward-message)
 * [Why does text show up garbled in my ASP.NET Core / .NET Core / .NET 5 app?](#garbled-text)
 
 ### Specialty
@@ -784,7 +784,7 @@ static Stream DecryptEmbeddedPgp (TextPart text)
 What you do with that decrypted stream is up to you. It's up to you to figure out what the decrypted content is
 (is it text? a jpeg image? a video?) and how to display it to the user.
 
-### <a name="reply">Q: How do I reply to a message?</a>
+### <a name="reply-message">Q: How do I reply to a message?</a>
 
 Replying to a message is fairly simple. For the most part, you'd just create the reply message
 the same way you'd create any other message. There are only a few slight differences:
@@ -1112,7 +1112,7 @@ public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool 
 }
 ```
 
-### <a name="forward">Q: How do I forward a message?</a>
+### <a name="forward-message">Q: How do I forward a message?</a>
 
 There are 2 common ways of forwarding a message: attaching the original message as an attachment and inlining
 the message body much like replying typically does. Which method you choose is up to you.
