@@ -2672,9 +2672,7 @@ This is some raw data.
 					parentOffsets.Body = offsets;
 					isMessageBody = false;
 				} else {
-					if (parentOffsets.Children == null)
-						parentOffsets.Children = new List<MimeOffsets> ();
-
+					parentOffsets.Children ??= new List<MimeOffsets> ();
 					parentOffsets.Children.Add (offsets);
 				}
 

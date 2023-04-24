@@ -2659,9 +2659,7 @@ This is some raw data.
 				};
 
 				if (args.Parent != null && entities.TryGetValue (args.Parent, out var parentOffsets)) {
-					if (parentOffsets.Children == null)
-						parentOffsets.Children = new List<MimeOffsets> ();
-
+					parentOffsets.Children ??= new List<MimeOffsets> ();
 					parentOffsets.Children.Add (offsets);
 				}
 

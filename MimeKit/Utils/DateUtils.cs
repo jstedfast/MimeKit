@@ -651,10 +651,10 @@ namespace MimeKit.Utils {
 			}
 
 			minute += second / 60;
-			second = second % 60;
+			second %= 60;
 
 			hour += minute / 60;
-			minute = minute % 60;
+			minute %= 60;
 
 			if (!timezones.TryGetValue (text.Substring (i), out int timezone))
 				timezone = 0;

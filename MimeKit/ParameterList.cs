@@ -1025,7 +1025,7 @@ namespace MimeKit {
 							}
 
 							value += DecodeRfc2231 (out Encoding charset, ref decoder, hex, buffer, startIndex, length, flush);
-							encoding = encoding ?? charset;
+							encoding ??= charset;
 						} else if (length >= 2 && buffer[startIndex] == (byte) '"') {
 							var quoted = CharsetUtils.ConvertToUnicode (options, buffer, startIndex, length);
 							value += MimeUtils.Unquote (quoted);

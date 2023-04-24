@@ -327,9 +327,7 @@ namespace MimeKit {
 			if (index == -1)
 				throw new FileNotFoundException ();
 
-			var part = this[index] as MimePart;
-
-			if (part is null || part.Content is null)
+			if (this[index] is not MimePart part || part.Content is null)
 				throw new FileNotFoundException ();
 
 			mimeType = part.ContentType.MimeType;

@@ -434,8 +434,7 @@ namespace MimeKit {
 			if (format == MimeFormat.Mbox) {
 				bounds.Add (Boundary.CreateMboxBoundary ());
 
-				if (mboxMarkerBuffer is null)
-					mboxMarkerBuffer = new byte[ReadAheadSize];
+				mboxMarkerBuffer ??= new byte[ReadAheadSize];
 			}
 
 			state = MimeParserState.Initialized;
