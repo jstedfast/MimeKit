@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#pragma warning disable SYSLIB0011
+
 using System.Runtime.Serialization.Formatters.Binary;
 
 using MimeKit;
@@ -178,3 +180,5 @@ namespace UnitTests {
 		}
 	}
 }
+
+#pragma warning restore SYSLIB0011
