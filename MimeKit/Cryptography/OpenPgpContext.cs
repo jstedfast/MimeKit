@@ -1952,7 +1952,7 @@ namespace MimeKit.Cryptography {
 					var subpacket = new PgpSignatureSubpacketGenerator ();
 
 					foreach (string userId in signer.PublicKey.GetUserIds ()) {
-						subpacket.SetSignerUserId (false, userId);
+						subpacket.AddSignerUserId (false, userId);
 						break;
 					}
 
