@@ -1849,7 +1849,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public static Task<MimeEntity> LoadAsync (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default)
+		public static async Task<MimeEntity> LoadAsync (ParserOptions options, ContentType contentType, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -1870,7 +1870,7 @@ namespace MimeKit {
 				chained.Add (new MemoryStream (Encoding.UTF8.GetBytes (header), false));
 				chained.Add (content, true);
 
-				return LoadAsync (options, chained, false, cancellationToken);
+				return await LoadAsync (options, chained, false, cancellationToken).ConfigureAwait (false);
 			}
 		}
 
