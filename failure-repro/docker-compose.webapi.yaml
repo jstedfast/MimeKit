@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  webapi:
+    build:
+      context: Projects
+      dockerfile: Dockerfile.WebApi
+    ports:
+      - "32741:32741"
+    environment:
+      - ASPNETCORE_URLS=http://+:32741

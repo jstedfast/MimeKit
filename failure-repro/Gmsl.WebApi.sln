@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projects", "Projects", "{EA2537B9-FEDF-495E-9692-B469FF903EAE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B4E0CBF-E4DF-45F0-8E9F-9134AD0BD271}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.webapi.integration-tests.yaml = docker-compose.webapi.integration-tests.yaml
+		docker-compose.webapi.yaml = docker-compose.webapi.yaml
+		run-webapi.ps1 = run-webapi.ps1
+		test-webapi.ps1 = test-webapi.ps1
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gmsl.WebApi", "Projects\Gmsl.WebApi\Gmsl.WebApi.csproj", "{850E242E-9C87-43AE-9320-FF406B9649A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gmsl.WebApi.IntegrationTests", "Projects\Gmsl.WebApi.IntegrationTests\Gmsl.WebApi.IntegrationTests.csproj", "{FB953639-B114-48F8-95B9-CC4718647BEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{850E242E-9C87-43AE-9320-FF406B9649A1} = {EA2537B9-FEDF-495E-9692-B469FF903EAE}
+		{FB953639-B114-48F8-95B9-CC4718647BEC} = {EA2537B9-FEDF-495E-9692-B469FF903EAE}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{850E242E-9C87-43AE-9320-FF406B9649A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{850E242E-9C87-43AE-9320-FF406B9649A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{850E242E-9C87-43AE-9320-FF406B9649A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{850E242E-9C87-43AE-9320-FF406B9649A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB953639-B114-48F8-95B9-CC4718647BEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB953639-B114-48F8-95B9-CC4718647BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB953639-B114-48F8-95B9-CC4718647BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB953639-B114-48F8-95B9-CC4718647BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

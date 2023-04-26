@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  webapi.integration-tests:
+    build:
+      context: Projects
+      dockerfile: Dockerfile.WebApi.IntegrationTests
+    environment:
+      - WEBAPI_TEST_SUBJECT_URL=http://webapi:32741
+    depends_on:
+      - webapi

@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+WORKDIR /build
+
+COPY ./Gmsl.WebApi.IntegrationTests/Gmsl.WebApi.IntegrationTests.csproj ./Gmsl.WebApi.IntegrationTests/Gmsl.WebApi.IntegrationTests.csproj
+
+RUN dotnet restore ./Gmsl.WebApi.IntegrationTests/Gmsl.WebApi.IntegrationTests.csproj
+
+COPY . .
+
+RUN dotnet build --configuration Release --no-incremental --no-restore ./Gmsl.WebApi.IntegrationTests/Gmsl.WebApi.IntegrationTests.csproj
+
+CMD ["dotnet", "test", "--configuration", "Release", "--no-build", "./Gmsl.WebApi.IntegrationTests/Gmsl.WebApi.IntegrationTests.csproj", "--filter", "TestCategory=Integration"]

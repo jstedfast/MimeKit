@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+WORKDIR /build
+
+COPY ./Gmsl.WebApi/Gmsl.WebApi.csproj ./Gmsl.WebApi/Gmsl.WebApi.csproj
+
+RUN dotnet restore  ./Gmsl.WebApi/Gmsl.WebApi.csproj
+
+COPY . .
+
+RUN dotnet publish --configuration Release --no-restore ./Gmsl.WebApi/Gmsl.WebApi.csproj
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine
+WORKDIR /app
+
+COPY --from=build /build/Gmsl.WebApi/bin/Release/net6.0/publish .
+
+EXPOSE 32741
+
+# Using the exec form of CMD allows SIGINT to be passed from container to app
+CMD ["dotnet", "Gmsl.WebApi.dll"]
