@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// An abstract internet address, as specified by rfc0822.
 	/// </summary>
 	/// <remarks>
-	/// <para>A <see cref="InternetAddress"/> can be any type of address defined by the
+	/// <para>An <see cref="InternetAddress"/> can be any type of address defined by the
 	/// original Internet Message specification.</para>
 	/// <para>There are effectively two (2) types of addresses: mailboxes and groups.</para>
 	/// <para>Mailbox addresses are what are most commonly known as email addresses and are
@@ -100,8 +100,12 @@ namespace MimeKit {
 		/// Get or set the display name of the address.
 		/// </summary>
 		/// <remarks>
-		/// A name is optional and is typically set to the name of the person
-		/// or group that own the internet address.
+		/// <para>A name is optional and is typically set to the name of the person
+		/// or group that own the internet address.</para>
+		/// <para>For example, the <see cref="Name"/> property of the following <see cref="MailboxAddress"/> would be <c>"John Smith"</c>.</para>
+		/// <para><c>John Smith &lt;j.smith@example.com&gt;</c></para>
+		/// <para>Likewise, the <see cref="Name"/> property of the following <see cref="GroupAddress"/> would be <c>"undisclosed-recipients"</c>.</para>
+		/// <para><c>undisclosed-recipients: Alice &lt;alice@wonderland.com&gt;, Bob &lt;bob@the-builder.com&gt;;</c></para>
 		/// </remarks>
 		/// <value>The name of the address.</value>
 		public string Name {
