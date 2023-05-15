@@ -557,7 +557,7 @@ namespace MimeKit {
 
 		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			if (!InternetAddressList.TryParse (options, value, out var list))
+			if (options.AddressParserComplianceMode == RfcComplianceMode.Looser || !InternetAddressList.TryParse (options, value, out var list))
 				return EncodeUnstructuredHeader (options, format, encoding, field, value);
 
 			var encoded = new StringBuilder (" ");
