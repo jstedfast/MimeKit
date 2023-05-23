@@ -114,7 +114,7 @@ jobs:
         run: |
           git config --global user.name $env:GIT_USER_NAME
           git config --global user.email $env:GIT_USER_EMAIL
-          git tag -a -m "Tagged for $env:NEW_VERSION_NUM" $env:NEW_VERSION_NUM
+          git tag -a -m "Tagged for ${{ steps.semantic_version.outputs.version_num }}" ${{ steps.semantic_version.outputs.version_num }}
           git push --follow-tags
         env:
           GIT_USER_NAME: ${{ github.event.head_commit.author.username }}
@@ -137,7 +137,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          dotnet msbuild $env:SOLUTION_PATH -property:Platform=$env:BUILD_PLATFORM -property:Configuration=$env:BUILD_CONFIGURATION -property:MonoRuntime=$env:IS_UBUNTU
+          dotnet msbuild $env:SOLUTION_PATH -property:Platform=$env:BUILD_PLATFORM -property:Configuration=$env:BUILD_CONFIGURATION -property:MonoRuntime=${{ steps.configure.outputs.is_ubuntu }}
         env:
           IS_UBUNTU: ${{ steps.configure.outputs.is_ubuntu }}
 
@@ -146,7 +146,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          & ./scripts/test.ps1 -Configuration:$env:BUILD_CONFIGURATION -GenerateCodeCoverage:$env:GENERATE_CODE_COVERAGE
+          & ./scripts/test.ps1 -Configuration:$env:BUILD_CONFIGURATION -GenerateCodeCoverage:${{ steps.configure.outputs.generate_code_coverage }}
         env:
           BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
           GENERATE_CODE_COVERAGE: ${{ steps.configure.outputs.generate_code_coverage }}
