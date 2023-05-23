@@ -130,7 +130,7 @@ If you are using [TortoiseGit](https://tortoisegit.org) on Windows, you'll need 
 where you'd like to clone MimeKit and select **Git Clone...** in the menu. Once you do that, you'll get the
 following dialog:
 
-![Download the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/Documentation/media/clone.png)
+![Download the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/images/clone.png)
 
 Fill in the areas outlined in red and then click **OK**. This will recursively clone MimeKit onto your local machine.
 
@@ -147,7 +147,7 @@ If you are using [TortoiseGit](https://tortoisegit.org) on Windows, you'll need 
 directory and select **Git Sync...** in the menu. Once you do that, you'll need to click the **Pull** and
 **Submodule Update** buttons in the following dialog:
 
-![Update the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/Documentation/media/update.png)
+![Update the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/images/update.png)
 
 ## Building
 
