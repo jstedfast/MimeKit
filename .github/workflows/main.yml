@@ -62,14 +62,14 @@ jobs:
             $GENERATE_CODE_COVERAGE = 'yes'
           }
 
-          echo "::set-output name=is_debug::$(echo $IS_DEBUG)"
-          echo "::set-output name=is_release::$(echo $IS_RELEASE)"
-          echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
-          echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
-          echo "::set-output name=is_github_release::$(echo $IS_GITHUB_RELEASE)"
-          echo "::set-output name=is_windows::$(echo $IS_WINDOWS)"
-          echo "::set-output name=is_ubuntu::$(echo $IS_UBUNTU)"
-          echo "::set-output name=generate_code_coverage::$(echo $GENERATE_CODE_COVERAGE)"
+          echo "is_debug=$(echo $IS_DEBUG)" >> $GITHUB_OUTPUT
+          echo "is_release=$(echo $IS_RELEASE)" >> $GITHUB_OUTPUT
+          echo "is_push_to_master=$(echo $IS_PUSH_TO_MASTER)" >> $GITHUB_OUTPUT
+          echo "is_not_pr=$(echo $IS_NOT_PR)" >> $GITHUB_OUTPUT
+          echo "is_github_release=$(echo $IS_GITHUB_RELEASE)" >> $GITHUB_OUTPUT
+          echo "is_windows=$(echo $IS_WINDOWS)" >> $GITHUB_OUTPUT
+          echo "is_ubuntu=$(echo $IS_UBUNTU)" >> $GITHUB_OUTPUT
+          echo "generate_code_coverage=$(echo $GENERATE_CODE_COVERAGE)" >> $GITHUB_OUTPUT
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_REF: ${{ github.ref }}
@@ -94,8 +94,8 @@ jobs:
         run: |
           $xml = [xml](gc MimeKit/MimeKit.csproj)
           $SEMANTIC_VERSION_NUMBER = $xml.Project.PropertyGroup.VersionPrefix
-          echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
-          echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
+          echo "version_num=$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())" >> $GITHUB_OUTPUT
+          echo "version_tag=$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")" >> $GITHUB_OUTPUT
 
       - if: steps.configure.outputs.is_github_release == 'true'
         name: Get latest tag
@@ -103,7 +103,7 @@ jobs:
         shell: pwsh
         run: |
           $LATEST_TAG = git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags "https://github.com/$env:GIT_URL.git" '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3
-          echo "::set-output name=tag::$(echo $LATEST_TAG)"
+          echo "tag=$(echo $LATEST_TAG)" >> $GITHUB_OUTPUT
         env:
           GIT_URL: ${{ github.repository }}
 
