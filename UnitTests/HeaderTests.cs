@@ -691,7 +691,7 @@ namespace UnitTests {
 
 			var result = Encoding.UTF8.GetString (header.RawValue);
 
-			Assert.AreEqual (expected, result, "RawValue");
+			Assert.AreEqual (expected.ReplaceLineEndings (), result, "RawValue");
 
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
@@ -699,13 +699,13 @@ namespace UnitTests {
 
 			result = Encoding.UTF8.GetString (header.GetRawValue (options));
 
-			Assert.AreEqual (expected, result, "GetValue");
+			Assert.AreEqual (expected.ReplaceLineEndings (), result, "GetRawValue");
 
 			options.International = true;
 
 			result = Encoding.UTF8.GetString (header.GetRawValue (options));
 
-			Assert.AreEqual (international ?? expected, result, "GetValue International");
+			Assert.AreEqual (international ?? expected, result, "GetRawValue International");
 		}
 
 		[Test]
@@ -721,7 +721,7 @@ namespace UnitTests {
 
 			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
 
-			Assert.AreEqual (expected, result);
+			Assert.AreEqual (expected.ReplaceLineEndings (), result);
 		}
 	}
 }
