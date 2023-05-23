@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Setup/Install the .NET 6 SDK
         id: install-net6
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x
 
@@ -78,11 +78,11 @@ jobs:
       - if: steps.configure.outputs.is_windows == 'true'
         name: Setup MSBuild
         id: setup_msbuild
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v1.3.1
 
       - name: Checkout repository
         id: checkout_repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
@@ -154,7 +154,7 @@ jobs:
       - name: Upload unit test results
         id: upload_test_results
         continue-on-error: true
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}-${{ matrix.os }}-${{ matrix.build-configuration }}-TestResults.xml
           path: TestResult.xml
@@ -208,7 +208,7 @@ jobs:
       - if: steps.configure.outputs.is_github_release == 'true'
         name: Upload NuGet package as artifact
         id: upload_nuget_package
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
           path: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
