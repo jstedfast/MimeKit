@@ -207,11 +207,6 @@ namespace UnitTests {
 				case 10: case 12: case 14:
 					expected = -1;
 					break;
-				case 13:
-					if (Path.DirectorySeparatorChar == '\\')
-						goto default;
-					expected = -1;
-					break;
 				default:
 					expected = 28590 + i;
 					break;
