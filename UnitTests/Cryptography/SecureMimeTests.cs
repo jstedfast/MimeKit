@@ -2449,6 +2449,15 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public override Task TestCanSignAndEncryptAsync ()
+		{
+			if (Path.DirectorySeparatorChar != '\\')
+				return Task.CompletedTask;
+
+			return base.TestCanSignAndEncryptAsync ();
+		}
+
+		[Test]
 		public override void TestSecureMimeEncapsulatedSigning ()
 		{
 			if (Path.DirectorySeparatorChar != '\\')
