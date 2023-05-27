@@ -128,7 +128,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDSACng ()
 		{
-#if !MONO
+#if !MONO && ENABLE_DSA_CNG
 			using (var dsa = new DSACng (1024))
 				AssertDSA (dsa);
 #else
@@ -196,7 +196,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestRSACng ()
 		{
-#if !MONO
+#if !MONO && ENABLE_RSA_CNG
 			using (var rsa = new RSACng (1024))
 				AssertRSA (rsa);
 #else
