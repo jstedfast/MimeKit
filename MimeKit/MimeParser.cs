@@ -104,7 +104,7 @@ namespace MimeKit {
 	/// A MIME parser is used to parse <see cref="MimeMessage"/> and
 	/// <see cref="MimeEntity"/> objects from arbitrary streams.
 	/// </remarks>
-	public partial class MimeParser : IEnumerable<MimeMessage>
+	public partial class MimeParser : IMimeParser, IEnumerable<MimeMessage>
 	{
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
 		const int ReadAheadSize = 128;

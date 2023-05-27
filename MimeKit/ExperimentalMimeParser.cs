@@ -43,7 +43,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// An experimental replacement for <see cref="MimeParser"/>.
 	/// </remarks>
-	public class ExperimentalMimeParser : MimeReader
+	public class ExperimentalMimeParser : MimeReader, IMimeParser
 	{
 		readonly Stack<object> stack = new Stack<object> ();
 

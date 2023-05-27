@@ -133,10 +133,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get the parser options.
+		/// Get or set the parser options.
 		/// </summary>
 		/// <remarks>
-		/// Gets the parser options.
+		/// Gets or sets the parser options.
 		/// </remarks>
 		/// <value>The parser options.</value>
 		public ParserOptions Options {
