@@ -266,6 +266,13 @@ namespace MimeKit.Cryptography {
 			hash.TransformBlock (input, inOff, length, null, 0);
 		}
 
+#if NET6_0_OR_GREATER
+		public void BlockUpdate (ReadOnlySpan<byte> input)
+		{
+			throw new NotImplementedException ();
+		}
+#endif
+
 		public byte[] GenerateSignature ()
 		{
 			hash.TransformFinalBlock (new byte[0], 0, 0);
@@ -276,6 +283,11 @@ namespace MimeKit.Cryptography {
 		public void Init (bool forSigning, ICipherParameters parameters)
 		{
 			throw new NotImplementedException ();
+		}
+
+		public int GetMaxSignatureSize ()
+		{
+			return hash.HashSize;
 		}
 
 		public void Reset ()
