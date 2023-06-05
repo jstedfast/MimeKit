@@ -58,7 +58,7 @@ namespace MimeKit.Utils {
 
 			aliases = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 
-			AddAliases (aliases, 65001, -1, "utf-8", "utf8");
+			AddAliases (aliases, 65001, -1, "utf-8", "utf8", "unicode");
 
 			// ANSI_X3.4-1968 is used on some systems and should be
 			// treated the same as US-ASCII.
