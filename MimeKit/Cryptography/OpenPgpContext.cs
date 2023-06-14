@@ -1107,6 +1107,7 @@ namespace MimeKit.Cryptography {
 			case PublicKeyAlgorithmTag.Dsa: return PublicKeyAlgorithm.Dsa;
 			case PublicKeyAlgorithmTag.ECDH: return PublicKeyAlgorithm.EllipticCurve;
 			case PublicKeyAlgorithmTag.ECDsa: return PublicKeyAlgorithm.EllipticCurveDsa;
+			case PublicKeyAlgorithmTag.EdDsa: return PublicKeyAlgorithm.EdwardsCurveDsa;
 			case PublicKeyAlgorithmTag.DiffieHellman: return PublicKeyAlgorithm.DiffieHellman;
 			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
 			}
