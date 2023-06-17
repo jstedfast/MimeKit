@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,12 +26,14 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Ported to BouncyCastle v2.1.1. (issue #865)
-* Fixed System.Net.Mail.MailMessage -&gt; MimeMessage converter to reset MailMessage attachment/alternateview streams back to 0 after copying them. (issue #907)
-* Added support for the signature expiration field in DKIM signatures which can be specified using the new DkimSigner.SignatureExpiresAfter property.
-* Added equality operators for TnefNameId and TnefPropertyTag.
-* Fixed MimeMessage's MessageId, ResentMessageId and InReplyTo property setters to be more lax. (issue #912)
-* MimeKit and MimeKitLite nuget packages now include MimeKit.dll.config that contain assembly redirects which *may* resolve some issues some developers were having with loading assemblies such as System.Runtime.CompilerServices.Unsafe.dll.
+* Readded the System.Net.Mail-to-MimeKit conversion APIs for the netstandard2.x frameworks. (issue #913)
+* Fixed the MimeEntity.LoadAsync() overloads that take a ContentType parameter to to properly wait to dispose of the stream until after the entity has been parsed. (issue #916)
+* Optimized conversion between HeaderId and string.
+* Added a new IMimeParser interface that both MimeParser and ExperimentalMimePraser implement.
+* Added "unicode" to the list of charset aliases for UTF-8. (issue #923)
+* Added support for the Edwards Curve DSA PGP public key algorithm. (issue #932)
+* Bumped System.Security.Cryptography.Pkcs dependency to 7.0.2.
+* Bumped BouncyCastle dependency to 2.2.1.
 	</releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

@@ -36,7 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Heijden.Dns" version="2.0.0" />
-    <PackageReference Include="MimeKit" version="4.0.0" />
+    <PackageReference Include="MimeKit" version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

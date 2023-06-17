@@ -1,5 +1,21 @@
 # Release Notes
 
+## MimeKit 4.1.0 (2023-06-17)
+
+* Readded the System.Net.Mail-to-MimeKit conversion APIs for the netstandard2.x frameworks.
+  (issue [#913](https://github.com/jstedfast/MimeKit/issues/913))
+* Fixed the MimeEntity.LoadAsync() overloads that take a ContentType parameter to to properly wait
+  to dispose of the stream until after the entity has been parsed.
+  (issue [#916](https://github.com/jstedfast/MimeKit/issues/916))
+* Optimized conversion between HeaderId and string.
+* Added a new IMimeParser interface that both MimeParser and ExperimentalMimePraser implement.
+* Added "unicode" to the list of charset aliases for UTF-8.
+  (issue [#923](https://github.com/jstedfast/MimeKit/issues/923))
+* Added support for the Edwards Curve DSA PGP public key algorithm.
+  (issue [#932](https://github.com/jstedfast/MimeKit/issues/932))
+* Bumped System.Security.Cryptography.Pkcs dependency to 7.0.2.
+* Bumped BouncyCastle dependency to 2.2.1.
+
 ## MimeKit 4.0.0 (2023-04-15)
 
 * Ported to BouncyCastle v2.1.1. (issue [#865](https://github.com/jstedfast/MimeKit/issues/865))
