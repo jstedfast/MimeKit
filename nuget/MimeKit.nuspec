@@ -38,6 +38,7 @@
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
     <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net462 net47 net48 net6.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <readme>docs\README.md</readme>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
       <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />
@@ -103,6 +104,7 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="..\README.md" target="docs\README.md" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll" target="lib\netstandard2.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.pdb" target="lib\netstandard2.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.xml" target="lib\netstandard2.0\MimeKit.xml" />
