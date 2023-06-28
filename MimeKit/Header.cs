@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using MimeKit.Utils;
 using MimeKit.Cryptography;
@@ -190,7 +191,7 @@ namespace MimeKit {
 				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
 
 			for (int i = 0; i < field.Length; i++) {
-				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
+				if (field[i] >= 127 || !IsFieldText ((byte) field[i]))
 					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
 			}
 
@@ -242,7 +243,7 @@ namespace MimeKit {
 				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
 
 			for (int i = 0; i < field.Length; i++) {
-				if (field[i] >= 127 || !IsAsciiAtom ((byte) field[i]))
+				if (field[i] >= 127 || !IsFieldText ((byte) field[i]))
 					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
 			}
 
@@ -1608,16 +1609,19 @@ namespace MimeKit {
 			return chars.Slice (0, count).ToString ();
 		}
 
-		static bool IsAsciiAtom (byte c)
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static bool IsFieldText (byte c)
 		{
-			return c.IsAsciiAtom ();
+			return c.IsFieldText ();
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsControl (byte c)
 		{
 			return c.IsCtrl ();
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsBlank (byte c)
 		{
 			return c.IsBlank ();
@@ -1631,13 +1635,8 @@ namespace MimeKit {
 			var invalid = false;
 
 			// find the end of the field name
-			if (strict) {
-				while (inptr < inend && IsAsciiAtom (*inptr))
-					inptr++;
-			} else {
-				while (inptr < inend && *inptr != (byte) ':' && !IsControl (*inptr))
-					inptr++;
-			}
+			while (inptr < inend && IsFieldText (*inptr))
+				inptr++;
 
 			while (inptr < inend && IsBlank (*inptr))
 				inptr++;
