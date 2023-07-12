@@ -832,9 +832,8 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (identifier.Algorithm.Id == CmsEnvelopedGenerator.RC2Cbc) {
-				if (identifier.Parameters is DerSequence) {
-					var param = (DerSequence) identifier.Parameters;
-					var version = (DerInteger) param[0];
+				if (identifier.Parameters is DerSequence derSequence) {
+					var version = (DerInteger) derSequence[0];
 					int bits = version.Value.IntValue;
 
 					switch (bits) {
@@ -842,9 +841,8 @@ namespace MimeKit.Cryptography {
 					case 120: algorithm = EncryptionAlgorithm.RC264; return true;
 					case 160: algorithm = EncryptionAlgorithm.RC240; return true;
 					}
-				} else {
-					var param = (DerInteger) identifier.Parameters;
-					int bits = param.Value.IntValue;
+				} else if (identifier.Parameters is DerInteger derInteger) {
+					int bits = derInteger.Value.IntValue;
 
 					switch (bits) {
 					case 128: algorithm = EncryptionAlgorithm.RC2128; return true;
