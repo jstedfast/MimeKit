@@ -166,6 +166,9 @@ namespace MimeKit {
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMessage" />
+		/// </example>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
@@ -283,6 +286,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets a value indicating whether the parser has reached the end of the input stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
 		/// <value><c>true</c> if this parser has reached the end of the input stream;
 		/// otherwise, <c>false</c>.</value>
 		public bool IsEndOfStream {
@@ -306,6 +312,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the most recent mbox marker offset.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
 		/// <value>The mbox marker offset.</value>
 		public long MboxMarkerOffset {
 			get { return mboxMarkerOffset; }
@@ -317,6 +326,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the most recent mbox marker.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
 			get { return Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
@@ -486,6 +498,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// An event signifying the beginning of a new <see cref="MimeMessage"/> has been encountered.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
+		/// </example>
 		public event EventHandler<MimeMessageBeginEventArgs> MimeMessageBegin;
 
 		/// <summary>
@@ -506,6 +521,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// An event signifying the end of a <see cref="MimeMessage"/> has been encountered.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
+		/// </example>
 		public event EventHandler<MimeMessageEndEventArgs> MimeMessageEnd;
 
 		/// <summary>
@@ -526,6 +544,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// An event signifying the beginning of a new <see cref="MimeEntity"/> has been encountered.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
+		/// </example>
 		public event EventHandler<MimeEntityBeginEventArgs> MimeEntityBegin;
 
 		/// <summary>
@@ -546,6 +567,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// An event signifying the end of a <see cref="MimeEntity"/> has been encountered.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
+		/// </example>
 		public event EventHandler<MimeEntityEndEventArgs> MimeEntityEnd;
 
 		/// <summary>
@@ -1971,6 +1995,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a message from the stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMessage" />
+		/// </example>
 		/// <returns>The parsed message.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">

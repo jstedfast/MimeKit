@@ -1882,7 +1882,7 @@ namespace MimeKit {
 		/// where the headers are parsed separately from the content.
 		/// </remarks>
 		/// <example>
-		/// <code language="c#" source="Examples\MultipartFormDataExample.cs" region="ParseMultipartFormDataSimple" />
+		/// <code language="c#" source="Examples\MultipartFormDataExamples.cs" region="ParseMultipartFormDataSimple" />
 		/// </example>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="contentType">The Content-Type of the stream.</param>
