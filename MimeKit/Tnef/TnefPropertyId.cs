@@ -583,6 +583,11 @@ namespace MimeKit.Tnef {
 		CreationVersion                          = 0x0E19,
 
 		/// <summary>
+		/// The MAPI property PR_CREATOR_SMTP_ADDRESS.
+		/// </summary>
+		CreatorSmtpAddress                       = 0x5D0A,
+
+		/// <summary>
 		/// The MAPI property PR_CURRENT_VERSION.
 		/// </summary>
 		CurrentVersion                           = 0x0E00,
@@ -1151,6 +1156,11 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_LAST_MODIFIER_NAME.
 		/// </summary>
 		LastModifierName                         = 0x3FFA,
+
+		/// <summary>
+		/// THe MAPI property PR_LAST_MODIFIER_SMTP_ADDRESS.
+		/// </summary>
+		LastModifierSmtpAddress                  = 0x5D0B,
 
 		/// <summary>
 		/// The MAPI property PR_LATEST_DELIVERY_TIME.
@@ -2256,6 +2266,11 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_SENDER_SIMPLE_DISP_NAME.
 		/// </summary>
 		SenderSimpleDispName                     = 0x4030,
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </summary>
+		SenderSmtpAddress                        = 0x5D01,
 
 		/// <summary>
 		/// The MAPI property PR_SEND_INTERNET_ENCODING.
