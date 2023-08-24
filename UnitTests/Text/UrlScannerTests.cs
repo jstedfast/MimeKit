@@ -242,6 +242,12 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestWebUrlWithLeadingNumericDomain ()
+		{
+			TestUrlScanner ("Have you seen this website: https://23andme.com?? Now you can check if you really are 1/1024 native american!", "https://23andme.com");
+		}
+
+		[Test]
 		public void TestTextEndingWithFtpDot ()
 		{
 			TestUrlScanner ("This is some text with that ends with ftp.", null);
