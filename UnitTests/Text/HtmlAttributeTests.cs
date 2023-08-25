@@ -37,9 +37,30 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => new HtmlAttribute (null, string.Empty));
 			Assert.Throws<ArgumentException> (() => new HtmlAttribute (string.Empty, string.Empty));
 			Assert.Throws<ArgumentException> (() => new HtmlAttribute ("a b c", string.Empty));
+		}
 
-			Assert.Throws<ArgumentNullException> (() => new HtmlAttribute (null));
-			Assert.Throws<ArgumentException> (() => new HtmlAttribute (string.Empty));
+		[Test]
+		public void TestToHtmlAttributeId ()
+		{
+			Assert.AreEqual (HtmlAttributeId.Unknown, "".ToHtmlAttributeId (), "string.Empty");
+			Assert.AreEqual (HtmlAttributeId.Alt, "alt".ToHtmlAttributeId (), "alt");
+			Assert.AreEqual (HtmlAttributeId.Alt, "Alt".ToHtmlAttributeId (), "Alt");
+			Assert.AreEqual (HtmlAttributeId.Alt, "aLt".ToHtmlAttributeId (), "aLt");
+			Assert.AreEqual (HtmlAttributeId.Alt, "ALT".ToHtmlAttributeId (), "ALT");
+			Assert.AreEqual (HtmlAttributeId.Alt, "AlT".ToHtmlAttributeId (), "AlT");
+
+			HtmlAttributeId parsed;
+			string name;
+
+			foreach (HtmlAttributeId value in Enum.GetValues (typeof (HtmlAttributeId))) {
+				if (value == HtmlAttributeId.Unknown)
+					continue;
+
+				name = value.ToAttributeName ().ToUpperInvariant ();
+				parsed = name.ToHtmlAttributeId ();
+
+				Assert.AreEqual (value, parsed, "Failed to parse the HtmlAttributeId value for {0}", value);
+			}
 		}
 	}
 }

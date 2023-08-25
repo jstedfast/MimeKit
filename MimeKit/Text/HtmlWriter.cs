@@ -533,7 +533,7 @@ namespace MimeKit.Text {
 
 			FlushWriterState ();
 
-			html.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
+			html.Write ($"<{id.ToHtmlTagName ()}");
 			WriterState = HtmlWriterState.Tag;
 			empty = true;
 		}
@@ -591,7 +591,7 @@ namespace MimeKit.Text {
 
 			FlushWriterState ();
 
-			html.Write (string.Format ("</{0}>", id.ToHtmlTagName ()));
+			html.Write ($"</{id.ToHtmlTagName ()}>");
 		}
 
 		/// <summary>
@@ -647,7 +647,7 @@ namespace MimeKit.Text {
 			ValidateArguments (buffer, index, count);
 			CheckDisposed ();
 
-			FlushWriterState();
+			FlushWriterState ();
 
 			html.Write (buffer, index, count);
 		}
@@ -672,7 +672,7 @@ namespace MimeKit.Text {
 
 			CheckDisposed ();
 
-			FlushWriterState();
+			FlushWriterState ();
 
 			html.Write (value);
 		}
@@ -702,7 +702,7 @@ namespace MimeKit.Text {
 
 			FlushWriterState ();
 
-			html.Write (string.Format ("<{0}", id.ToHtmlTagName ()));
+			html.Write ($"<{id.ToHtmlTagName ()}");
 			WriterState = HtmlWriterState.Tag;
 		}
 

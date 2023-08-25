@@ -41,6 +41,19 @@ namespace UnitTests.Text {
 			Assert.AreEqual (HtmlTagId.Font, "font".ToHtmlTagId (), "font");
 			Assert.AreEqual (HtmlTagId.Font, "FONT".ToHtmlTagId (), "FONT");
 			Assert.AreEqual (HtmlTagId.Font, "FoNt".ToHtmlTagId (), "FoNt");
+
+			HtmlTagId parsed;
+			string name;
+
+			foreach (HtmlTagId value in Enum.GetValues (typeof (HtmlTagId))) {
+				if (value == HtmlTagId.Unknown)
+					continue;
+
+				name = value.ToHtmlTagName ().ToUpperInvariant ();
+				parsed = name.ToHtmlTagId ();
+
+				Assert.AreEqual (value, parsed, "Failed to parse the HtmlTagId value for {0}", value);
+			}
 		}
 
 		[Test]

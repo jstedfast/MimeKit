@@ -28,7 +28,7 @@ using System.Collections;
 
 using MimeKit.Text;
 
-namespace UnitTests {
+namespace UnitTests.Text {
 	[TestFixture]
 	public class HtmlAttributeCollectionTests
 	{
