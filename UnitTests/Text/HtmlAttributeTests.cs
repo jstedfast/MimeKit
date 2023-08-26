@@ -61,6 +61,9 @@ namespace UnitTests.Text {
 
 				Assert.AreEqual (value, parsed, "Failed to parse the HtmlAttributeId value for {0}", value);
 			}
+
+			name = ((HtmlAttributeId) 1024).ToAttributeName ();
+			Assert.AreEqual ("1024", name, "ToAttributeName() for unknown value");
 		}
 	}
 }

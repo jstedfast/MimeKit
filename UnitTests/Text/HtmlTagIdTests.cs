@@ -54,6 +54,9 @@ namespace UnitTests.Text {
 
 				Assert.AreEqual (value, parsed, "Failed to parse the HtmlTagId value for {0}", value);
 			}
+
+			name = ((HtmlTagId) 1024).ToHtmlTagName ();
+			Assert.AreEqual ("1024", name, "ToHtmlTagName() for unknown value");
 		}
 
 		[Test]

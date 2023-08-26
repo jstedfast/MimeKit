@@ -41,6 +41,9 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentNullException> (() => new HtmlTokenizer ((Stream) null, Encoding.UTF8));
 
 			Assert.Throws<ArgumentNullException> (() => new HtmlTokenizer (Stream.Null, null));
+
+			var nullTokenizer = new HtmlTokenizer (Stream.Null);
+			var utf8Tokenizer = new HtmlTokenizer (Stream.Null, Encoding.UTF8);
 		}
 
 		static string Quote (string text)
