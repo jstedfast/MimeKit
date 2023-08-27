@@ -453,8 +453,8 @@ namespace MimeKit.Utils {
 		static unsafe string DecodeTokens (ParserOptions options, List<Token> tokens, byte[] input, byte* inbuf, int length)
 		{
 			var decoded = new ValueStringBuilder (length);
-			var qp = new QuotedPrintableDecoder (true);
-			var base64 = new Base64Decoder ();
+			QuotedPrintableDecoder qp = null;
+			Base64Decoder base64 = null;
 			var output = new byte[length];
 			Token token;
 			int len;
@@ -480,10 +480,10 @@ namespace MimeKit.Utils {
 						}
 
 						// base64 / quoted-printable decode each of the tokens...
-						if (encoding == ContentEncoding.Base64)
-							decoder = base64;
+						if (encoding == ContentEncoding.QuotedPrintable)
+							decoder = qp ??= new QuotedPrintableDecoder (true);
 						else
-							decoder = qp;
+							decoder = base64 ??= new Base64Decoder ();
 
 						outptr = outbuf;
 						outlen = 0;
