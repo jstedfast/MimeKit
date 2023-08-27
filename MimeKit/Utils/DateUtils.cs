@@ -323,8 +323,10 @@ namespace MimeKit.Utils {
 			return c == (byte) '-' || c == (byte) '/' || c == (byte) ',' || c.IsWhitespace ();
 		}
 
-		static IEnumerable<DateToken> TokenizeDate (byte[] text, int startIndex, int length)
+		static List<DateToken> TokenizeDate (byte[] text, int startIndex, int length)
 		{
+			// Note: typical rfc822 date headers will have 6 tokens.
+			var tokens = new List<DateToken> (8);
 			int endIndex = startIndex + length;
 			int index = startIndex;
 			DateTokenFlags mask;
@@ -345,14 +347,15 @@ namespace MimeKit.Utils {
 					while (index < endIndex && !IsTokenDelimiter (text[index]))
 						mask |= datetok[text[index++]];
 
-					yield return new DateToken (mask, start, index - start);
+					var token = new DateToken (mask, start, index - start);
+					tokens.Add (token);
 				}
 
 				// skip over the token delimiter
 				index++;
 			}
 
-			yield break;
+			return tokens;
 		}
 
 		static bool TryParseStandardDateFormat (List<DateToken> tokens, byte[] text, out DateTimeOffset date)
@@ -540,7 +543,7 @@ namespace MimeKit.Utils {
 			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException (nameof (length));
 
-			var tokens = new List<DateToken> (TokenizeDate (buffer, startIndex, length));
+			var tokens = TokenizeDate (buffer, startIndex, length);
 
 			if (TryParseStandardDateFormat (tokens, buffer, out date))
 				return true;
