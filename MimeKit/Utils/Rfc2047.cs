@@ -41,6 +41,9 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class Rfc2047
 	{
+		const int PhraseTokenCapacity = 16;
+		const int TextTokenCapacity = 32;
+
 		class Token {
 			public ContentEncoding Encoding;
 			public string CharsetName;
@@ -195,9 +198,9 @@ namespace MimeKit.Utils {
 
 		static unsafe List<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
+			var tokens = new List<Token> (PhraseTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
-			var tokens = new List<Token> ();
 			bool encoded = false;
 			Token token = null;
 			Token lwsp = null;
@@ -325,9 +328,9 @@ namespace MimeKit.Utils {
 
 		static unsafe List<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
 		{
+			var tokens = new List<Token> (TextTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
-			var tokens = new List<Token> ();
 			bool encoded = false;
 			Token token = null;
 			Token lwsp = null;
