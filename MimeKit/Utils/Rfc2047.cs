@@ -219,9 +219,8 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static unsafe List<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
+		static unsafe void TokenizePhrase (ParserOptions options, ref ValueList<Token> tokens, byte* inbuf, int startIndex, int length)
 		{
-			var tokens = new List<Token> (PhraseTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
 			var lwsp = new Token (0, 0);
@@ -338,13 +337,10 @@ namespace MimeKit.Utils {
 					encoded = false;
 				}
 			}
-
-			return tokens;
 		}
 
-		static unsafe List<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
+		static unsafe void TokenizeText (ParserOptions options, ref ValueList<Token> tokens, byte* inbuf, int startIndex, int length)
 		{
-			var tokens = new List<Token> (TextTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
 			var lwsp = new Token (0, 0);
@@ -453,8 +449,6 @@ namespace MimeKit.Utils {
 					break;
 				}
 			}
-
-			return tokens;
 		}
 
 		static unsafe int DecodeToken (Token token, IMimeDecoder decoder, byte* input, byte* output)
@@ -464,7 +458,7 @@ namespace MimeKit.Utils {
 			return decoder.Decode (inptr, token.Length, output);
 		}
 
-		static unsafe string DecodeTokens (ParserOptions options, List<Token> tokens, byte[] input, byte* inbuf, int length)
+		static unsafe string DecodeTokens (ParserOptions options, ref ValueList<Token> tokens, byte[] input, byte* inbuf, int length)
 		{
 			var decoded = new ValueStringBuilder (length);
 			QuotedPrintableDecoder qp = null;
@@ -545,30 +539,36 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = phrase) {
-					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
+					var tokens = new ValueList<Token> (PhraseTokenCapacity);
 
-					// collect the charsets used to encode each encoded-word token
-					// (and the number of tokens each charset was used in)
-					var codepages = new Dictionary<int, int> ();
-					foreach (var token in tokens) {
-						if (token.CodePage == 0)
-							continue;
+					try {
+						TokenizePhrase (options, ref tokens, inbuf, startIndex, count);
 
-						if (!codepages.ContainsKey (token.CodePage))
-							codepages.Add (token.CodePage, 1);
-						else
-							codepages[token.CodePage]++;
-					}
+						// collect the charsets used to encode each encoded-word token
+						// (and the number of tokens each charset was used in)
+						var codepages = new Dictionary<int, int> ();
+						for (int i = 0; i < tokens.Count; i++) {
+							if (tokens[i].CodePage == 0)
+								continue;
 
-					int max = 0;
-					foreach (var kvp in codepages) {
-						if (kvp.Value > max) {
-							codepage = kvp.Key;
-							max = kvp.Value;
+							if (!codepages.ContainsKey (tokens[i].CodePage))
+								codepages.Add (tokens[i].CodePage, 1);
+							else
+								codepages[tokens[i].CodePage]++;
 						}
-					}
 
-					return DecodeTokens (options, tokens, phrase, inbuf, count);
+						int max = 0;
+						foreach (var kvp in codepages) {
+							if (kvp.Value > max) {
+								codepage = kvp.Key;
+								max = kvp.Value;
+							}
+						}
+
+						return DecodeTokens (options, ref tokens, phrase, inbuf, count);
+					} finally {
+						tokens.Dispose ();
+					}
 				}
 			}
 		}
@@ -613,9 +613,15 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = phrase) {
-					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
+					var tokens = new ValueList<Token> (PhraseTokenCapacity);
 
-					return DecodeTokens (options, tokens, phrase, inbuf, count);
+					try {
+						TokenizePhrase (options, ref tokens, inbuf, startIndex, count);
+
+						return DecodeTokens (options, ref tokens, phrase, inbuf, count);
+					} finally {
+						tokens.Dispose ();
+					}
 				}
 			}
 		}
@@ -696,30 +702,36 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (options, inbuf, startIndex, count);
+					var tokens = new ValueList<Token> (TextTokenCapacity);
 
-					// collect the charsets used to encode each encoded-word token
-					// (and the number of tokens each charset was used in)
-					var codepages = new Dictionary<int, int> ();
-					foreach (var token in tokens) {
-						if (token.CodePage == 0)
-							continue;
+					try {
+						TokenizeText (options, ref tokens, inbuf, startIndex, count);
 
-						if (!codepages.ContainsKey (token.CodePage))
-							codepages.Add (token.CodePage, 1);
-						else
-							codepages[token.CodePage]++;
-					}
+						// collect the charsets used to encode each encoded-word token
+						// (and the number of tokens each charset was used in)
+						var codepages = new Dictionary<int, int> ();
+						for (int i = 0; i < tokens.Count; i++) {
+							if (tokens[i].CodePage == 0)
+								continue;
 
-					int max = 0;
-					foreach (var kvp in codepages) {
-						if (kvp.Value > max) {
-							codepage = kvp.Key;
-							max = kvp.Value;
+							if (!codepages.ContainsKey (tokens[i].CodePage))
+								codepages.Add (tokens[i].CodePage, 1);
+							else
+								codepages[tokens[i].CodePage]++;
 						}
-					}
 
-					return DecodeTokens (options, tokens, text, inbuf, count);
+						int max = 0;
+						foreach (var kvp in codepages) {
+							if (kvp.Value > max) {
+								codepage = kvp.Key;
+								max = kvp.Value;
+							}
+						}
+
+						return DecodeTokens (options, ref tokens, text, inbuf, count);
+					} finally {
+						tokens.Dispose ();
+					}
 				}
 			}
 		}
@@ -764,9 +776,15 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (options, inbuf, startIndex, count);
+					var tokens = new ValueList<Token> (TextTokenCapacity);
 
-					return DecodeTokens (options, tokens, text, inbuf, count);
+					try {
+						TokenizeText (options, ref tokens, inbuf, startIndex, count);
+
+						return DecodeTokens (options, ref tokens, text, inbuf, count);
+					} finally {
+						tokens.Dispose ();
+					}
 				}
 			}
 		}
@@ -838,7 +856,7 @@ namespace MimeKit.Utils {
 			return DecodeText (text, 0, text.Length);
 		}
 
-		static byte[] FoldTokens (FormatOptions options, List<Token> tokens, string field, byte[] input)
+		static byte[] FoldTokens (FormatOptions options, ref ValueList<Token> tokens, string field, byte[] input)
 		{
 			// FIXME: Use ByteArrayBuilder instead?
 			var output = new ValueStringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
@@ -975,9 +993,15 @@ namespace MimeKit.Utils {
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
+					var tokens = new ValueList<Token> (TextTokenCapacity);
 
-					return FoldTokens (options, tokens, field, text);
+					try {
+						TokenizeText (ParserOptions.Default, ref tokens, inbuf, 0, text.Length);
+
+						return FoldTokens (options, ref tokens, field, text);
+					} finally {
+						tokens.Dispose ();
+					}
 				}
 			}
 		}
