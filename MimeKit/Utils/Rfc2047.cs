@@ -44,40 +44,68 @@ namespace MimeKit.Utils {
 		const int PhraseTokenCapacity = 16;
 		const int TextTokenCapacity = 32;
 
-		class Token {
-			public ContentEncoding Encoding;
-			public string CharsetName;
-			public string CultureName;
-			public int CodePage;
-			public int StartIndex;
-			public int Length;
-			public bool Is8bit;
+		// Note: Microsoft recommends using struct only for data structures that are 16 bytes and smaller. Currently,
+		// sizeof(Token) is 24 bytes (at least on a 64-bit machine where string pointers are 8 bytes and structs need
+		// to be a multiple of 8 bytes).
+		//
+		// If we modify StartIndex and Length to be ushorts, then we could get it down to 16 but we open ourselves up
+		// for potential problems if we ever encounter a header value > 65535 bytes (probably malicious). Even if we try
+		// to mitigate this by making the StartIndex offset relative to the previous token (or relative to the end of
+		// the previous token), it still means we'd have problems if we encounter a header value with a single token
+		// that exceeds 65535 bytes (again, probably only maliciously formed emails).
+		//
+		// CodePage values range from ~34-65001 which means we can't really get away with using anything smaller than
+		// ushort *unless* we use an indexed table. Even though the CodePage values range from ~34-65001, not every value
+		// is used. Realistically, there are less than 256 *actual* supported CodePages in .NET, which means we could use
+		// a single byte index into a table with the real CodePage mappings.
+		//
+		// Obviously we could also get away with using a byte for the Encoding value (the only values are 'B', 'Q', 'b',
+		// 'q',  and '!').
+		//
+		// Those 2 changes would get us down to a theoretical 18 bytes (but padding would still bring us back up to 24).
+		//
+		// Then, if we made some changes to the code such that we only really needed a Length value by having the code
+		// that loops over the tokens keep a running StartIndex (which would obviously start at `0`), that drops us down
+		// another 4 bytes, getting us to 14... which means we could skip the CodePages/Encoding changes because we'd be
+		// down to 16 bytes without them.
+		//
+		// The problem is that TokenizeText and TokenizePhrase will both drop lwsp tokens between encoded-word tokens,
+		// so we'll need to avoid that and instead modify DecodeTokens to perform this step instead. FoldTokens may
+		// also need modifications to handle this change in TokenizeText.
+		readonly struct Token
+		{
+			public readonly string CharsetCulture;
+			public readonly int StartIndex;
+			public readonly int Length;
+			public readonly char Encoding;
 
-			public string CharsetCulture {
-				get {
-					if (!string.IsNullOrEmpty (CultureName))
-						return CharsetName + "*" + CultureName;
+			// Note: .NET codepages range from ~34-65001 which all fit within a ushort, but we also need '-1'
+			// to denote "unknown" and 0 to denote an unencoded ascii word.
+			readonly ushort codePage;
 
-					return CharsetName;
-				}
-			}
+			public int CodePage { get { return codePage == ushort.MaxValue ? -1 : codePage; } }
 
-			public Token (string charset, string culture, ContentEncoding encoding, int startIndex, int length)
+			public bool Is8bit { get { return CodePage == 0 && Encoding == '!'; } }
+
+			public bool IsEncoded { get { return CodePage != 0; } }
+
+			public Token (string charset, string culture, char encoding, int startIndex, int length)
 			{
-				CodePage = CharsetUtils.GetCodePage (charset);
-				CharsetName = charset;
-				CultureName = culture;
+				CharsetCulture = string.IsNullOrEmpty (culture) ? charset : charset + "*" + culture;
+				int cp = CharsetUtils.GetCodePage (charset);
+				codePage = cp < 0 ? ushort.MaxValue : (ushort) cp;
+				StartIndex = startIndex;
+				Length = length;
 				Encoding = encoding;
-
-				StartIndex = startIndex;
-				Length = length;
 			}
 
-			public Token (int startIndex, int length)
+			public Token (int startIndex, int length, bool is8bit = false)
 			{
-				Encoding = ContentEncoding.Default;
+				Encoding = is8bit ? '!' : '\0';
+				CharsetCulture = null;
 				StartIndex = startIndex;
 				Length = length;
+				codePage = 0;
 			}
 		}
 
@@ -113,7 +141,7 @@ namespace MimeKit.Utils {
 
 		static unsafe bool TryGetEncodedWordToken (byte* input, byte* word, int length, out Token token)
 		{
-			token = null;
+			token = default;
 
 			if (length < 7)
 				return false;
@@ -170,17 +198,12 @@ namespace MimeKit.Utils {
 			// skip over the '?' to get to the encoding
 			inptr++;
 
-			ContentEncoding encoding;
-			if (*inptr == 'B' || *inptr == 'b') {
-				encoding = ContentEncoding.Base64;
-			} else if (*inptr == 'Q' || *inptr == 'q') {
-				encoding = ContentEncoding.QuotedPrintable;
+			char encoding;
+			if (*inptr == 'B' || *inptr == 'b' || *inptr == 'Q' || *inptr == 'q') {
+				encoding = (char) *inptr++;
 			} else {
 				return false;
 			}
-
-			// skip over the encoding
-			inptr++;
 
 			if (*inptr != '?' || inptr == inend)
 				return false;
@@ -201,9 +224,9 @@ namespace MimeKit.Utils {
 			var tokens = new List<Token> (PhraseTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
+			var lwsp = new Token (0, 0);
 			bool encoded = false;
-			Token token = null;
-			Token lwsp = null;
+			Token token;
 			bool ascii;
 			int n;
 
@@ -212,10 +235,7 @@ namespace MimeKit.Utils {
 				while (inptr < inend && IsLwsp (*inptr))
 					inptr++;
 
-				if (inptr > text)
-					lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
-				else
-					lwsp = null;
+				lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 
 				word = inptr;
 				ascii = true;
@@ -283,7 +303,7 @@ namespace MimeKit.Utils {
 					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
-						if (!encoded && lwsp != null) {
+						if (!encoded && lwsp.Length > 0) {
 							// previous token was not encoded, so preserve whitespace
 							tokens.Add (lwsp);
 						}
@@ -292,19 +312,17 @@ namespace MimeKit.Utils {
 						encoded = true;
 					} else {
 						// append the lwsp and atom tokens
-						if (lwsp != null)
+						if (lwsp.Length > 0)
 							tokens.Add (lwsp);
 
-						token = new Token ((int) (word - inbuf), n) {
-							Is8bit = !ascii
-						};
+						token = new Token ((int) (word - inbuf), n, !ascii);
 						tokens.Add (token);
 
 						encoded = false;
 					}
 				} else {
 					// append the lwsp token
-					if (lwsp != null)
+					if (lwsp.Length > 0)
 						tokens.Add (lwsp);
 
 					// append the non-ascii atom token
@@ -314,9 +332,7 @@ namespace MimeKit.Utils {
 						inptr++;
 					}
 
-					token = new Token ((int) (word - inbuf), (int) (inptr - word)) {
-						Is8bit = !ascii
-					};
+					token = new Token ((int) (word - inbuf), (int) (inptr - word), !ascii);
 					tokens.Add (token);
 
 					encoded = false;
@@ -331,9 +347,9 @@ namespace MimeKit.Utils {
 			var tokens = new List<Token> (TextTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
+			var lwsp = new Token (0, 0);
 			bool encoded = false;
-			Token token = null;
-			Token lwsp = null;
+			Token token;
 			bool ascii;
 			int n;
 
@@ -342,10 +358,7 @@ namespace MimeKit.Utils {
 				while (inptr < inend && IsLwsp (*inptr))
 					inptr++;
 
-				if (inptr > text)
-					lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
-				else
-					lwsp = null;
+				lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 
 				if (inptr < inend) {
 					word = inptr;
@@ -415,7 +428,7 @@ namespace MimeKit.Utils {
 					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
-						if (!encoded && lwsp != null) {
+						if (!encoded && lwsp.Length > 0) {
 							// previous token was not encoded, so preserve whitespace
 							tokens.Add (lwsp);
 						}
@@ -424,19 +437,17 @@ namespace MimeKit.Utils {
 						encoded = true;
 					} else {
 						// append the lwsp and atom tokens
-						if (lwsp != null)
+						if (lwsp.Length > 0)
 							tokens.Add (lwsp);
 
-						token = new Token ((int) (word - inbuf), n) {
-							Is8bit = !ascii
-						};
+						token = new Token ((int) (word - inbuf), n, !ascii);
 						tokens.Add (token);
 
 						encoded = false;
 					}
 				} else {
 					// append the trailing lwsp token
-					if (lwsp != null)
+					if (lwsp.Length > 0)
 						tokens.Add (lwsp);
 
 					break;
@@ -466,11 +477,11 @@ namespace MimeKit.Utils {
 				for (int i = 0; i < tokens.Count; i++) {
 					token = tokens[i];
 
-					if (token.Encoding != ContentEncoding.Default) {
+					if (token.IsEncoded) {
 						// In order to work around broken mailers, we need to combine the raw
 						// decoded content of runs of identically encoded word tokens before
 						// converting to unicode strings.
-						ContentEncoding encoding = token.Encoding;
+						char encoding = token.Encoding;
 						int codepage = token.CodePage;
 						IMimeDecoder decoder;
 						int outlen, n;
@@ -483,7 +494,7 @@ namespace MimeKit.Utils {
 						}
 
 						// base64 / quoted-printable decode each of the tokens...
-						if (encoding == ContentEncoding.QuotedPrintable)
+						if (encoding == 'Q' || encoding == 'q')
 							decoder = qp ??= new QuotedPrintableDecoder (true);
 						else
 							decoder = base64 ??= new Base64Decoder ();
@@ -866,7 +877,7 @@ namespace MimeKit.Utils {
 					}
 
 					firstToken = false;
-				} else if (token.Encoding != ContentEncoding.Default) {
+				} else if (token.IsEncoded) {
 					string charset = token.CharsetCulture;
 
 					if (lineLength + token.Length + charset.Length + 7 > options.MaxLineLength) {
@@ -893,7 +904,7 @@ namespace MimeKit.Utils {
 					output.Append ("=?");
 					output.Append (charset);
 					output.Append ('?');
-					output.Append (token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
+					output.Append (token.Encoding);
 					output.Append ('?');
 
 					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
