@@ -67,7 +67,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestSimpleRfc2047BEcnodedPhrase ()
+		public void TestSimpleRfc2047BEncodedPhrase ()
 		{
 			var options = ParserOptions.Default.Clone ();
 			var input = "=?iso-8859-1?B?aG9sYQ==?=";
