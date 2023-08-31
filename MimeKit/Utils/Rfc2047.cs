@@ -41,43 +41,353 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class Rfc2047
 	{
-		const int PhraseTokenCapacity = 16;
-		const int TextTokenCapacity = 32;
+		readonly struct Token
+		{
+			const char SevenBit = '7';
+			const char EightBit = '8';
 
-		class Token {
-			public ContentEncoding Encoding;
-			public string CharsetName;
-			public string CultureName;
-			public int CodePage;
-			public int StartIndex;
-			public int Length;
-			public bool Is8bit;
+			public readonly string CharsetCulture;
+			public readonly int StartIndex;
+			public readonly int Length;
+			public readonly char Encoding;
 
-			public string CharsetCulture {
-				get {
-					if (!string.IsNullOrEmpty (CultureName))
-						return CharsetName + "*" + CultureName;
+#if REDUCE_TOKEN_SIZE
+			// Note: .NET codepages range from ~34-65001 which all fit within a ushort, but we also need '-1'
+			// to denote "unknown" and 0 to denote an unencoded ascii word.
+			readonly ushort codePage;
 
-					return CharsetName;
+			public int CodePage { get { return codePage == ushort.MaxValue ? -1 : codePage; } }
+#else
+			public readonly int CodePage;
+#endif
+
+			public bool Is8bit { get { return CodePage == 0 && Encoding == EightBit; } }
+
+			public bool IsEncoded { get { return CodePage != 0; } }
+
+			public Token (string charset, string culture, char encoding, int startIndex, int length)
+			{
+				CharsetCulture = string.IsNullOrEmpty (culture) ? charset : charset + "*" + culture;
+#if REDUCE_TOKEN_SIZE
+				int cp = CharsetUtils.GetCodePage (charset);
+				codePage = cp < 0 ? ushort.MaxValue : (ushort) cp;
+#else
+				CodePage = CharsetUtils.GetCodePage (charset);
+#endif
+				StartIndex = startIndex;
+				Length = length;
+				Encoding = encoding;
+			}
+
+			public Token (int startIndex, int length, bool is8bit = false)
+			{
+				Encoding = is8bit ? EightBit : SevenBit;
+				CharsetCulture = null;
+				StartIndex = startIndex;
+				Length = length;
+#if REDUCE_TOKEN_SIZE
+				codePage = 0;
+#else
+				CodePage = 0;
+#endif
+			}
+		}
+
+		struct CodePageCount
+		{
+			public readonly int CodePage;
+			public int Count;
+
+			public CodePageCount (int codepage)
+			{
+				CodePage = codepage;
+				Count = 1;
+			}
+		}
+
+		interface ITokenWriter : IDisposable
+		{
+			bool IgnoreWhitespaceBetweenEncodedWords { get; }
+			void Write (ref ValueStringBuilder output, ref Token token);
+			void Flush (ref ValueStringBuilder output);
+		}
+
+		class TokenDecoder : ITokenWriter
+		{
+			readonly ParserOptions options;
+			readonly byte[] input, scratch;
+			CodePageCount[] codepages;
+			QuotedPrintableDecoder qp;
+			Base64Decoder base64;
+			IMimeDecoder decoder;
+			int codepageIndex;
+			int scratchLength;
+			char encoding;
+			int codepage;
+
+			public TokenDecoder (ParserOptions options, byte[] input, byte[] scratch)
+			{
+				this.options = options;
+				this.scratch = scratch;
+				this.input = input;
+
+				codepages = ArrayPool<CodePageCount>.Shared.Rent (16);
+				base64 = null;
+				qp = null;
+
+				decoder = null;
+				codepageIndex = 0;
+				scratchLength = 0;
+				encoding = '\0';
+				codepage = 0;
+			}
+
+			public bool IgnoreWhitespaceBetweenEncodedWords {
+				get { return true; }
+			}
+
+			void AddCodePage (int codepage)
+			{
+				for (int i = 0; i < codepageIndex; i++) {
+					if (codepages[i].CodePage == codepage) {
+						codepages[i].Count++;
+						return;
+					}
+				}
+
+				if (codepageIndex == codepages.Length) {
+					var resized = ArrayPool<CodePageCount>.Shared.Rent (codepages.Length * 2);
+					codepages.AsSpan ().CopyTo (resized);
+					ArrayPool<CodePageCount>.Shared.Return (codepages);
+					codepages = resized;
+				}
+
+				codepages[codepageIndex++] = new CodePageCount (codepage);
+			}
+
+			public unsafe void Write (ref ValueStringBuilder output, ref Token token)
+			{
+				if (decoder != null && (token.CodePage != codepage || char.ToUpperInvariant (token.Encoding) != encoding)) {
+					// We've reached the end of a series of encoded-word tokens using identical charsets & encodings.
+					//
+					// In order to work around broken mailers, we need to combine the raw decoded content of runs of
+					// identically encoded-word tokens before converting to unicode strings.
+					Flush (ref output);
+				}
+
+				if (token.IsEncoded) {
+					// Save encoded-word state so that we can treat consecutive encoded-word payloads with idential
+					// charsets & encodings as one continuous block, thus allowing us to handle cases where a
+					// hex-encoded triplet of a quoted-printable encoded payload is split between 2 or more
+					// encoded-word tokens.
+					encoding = char.ToUpperInvariant (token.Encoding);
+					codepage = token.CodePage;
+					if (encoding == 'Q')
+						decoder = qp ??= new QuotedPrintableDecoder (true);
+					else
+						decoder = base64 ??= new Base64Decoder ();
+
+					AddCodePage (codepage);
+
+					fixed (byte* inbuf = input, outbuf = scratch) {
+						int n = decoder.Decode (inbuf + token.StartIndex, token.Length, outbuf + scratchLength);
+						scratchLength += n;
+					}
+				} else if (token.Is8bit) {
+					// *sigh* I hate broken mailers...
+					var unicode = CharsetUtils.ConvertToUnicode (options, input, token.StartIndex, token.Length, out int length);
+					output.Append (unicode.AsSpan (0, length));
+				} else {
+					// pure 7bit ascii, a breath of fresh air...
+					int endIndex = token.StartIndex + token.Length;
+					for (int i = token.StartIndex; i < endIndex; i++)
+						output.Append ((char) input[i]);
 				}
 			}
 
-			public Token (string charset, string culture, ContentEncoding encoding, int startIndex, int length)
+			public void Flush (ref ValueStringBuilder output)
 			{
-				CodePage = CharsetUtils.GetCodePage (charset);
-				CharsetName = charset;
-				CultureName = culture;
-				Encoding = encoding;
+				// Reset any base64/quoted-printable decoder state
+				decoder?.Reset ();
+				decoder = null;
 
-				StartIndex = startIndex;
-				Length = length;
+				if (scratchLength > 0) {
+					// Convert any decoded encoded-word payloads into unicode and append to our 'decoded' buffer.
+					var unicode = CharsetUtils.ConvertToUnicode (options, codepage, scratch, 0, scratchLength, out int length);
+					output.Append (unicode.AsSpan (0, length));
+					scratchLength = 0;
+				}
 			}
 
-			public Token (int startIndex, int length)
+			public int GetMostCommonCodePage ()
 			{
-				Encoding = ContentEncoding.Default;
-				StartIndex = startIndex;
-				Length = length;
+				int codepage = Encoding.UTF8.CodePage;
+				int max = 0;
+
+				for (int i = 0; i < codepageIndex; i++) {
+					if (codepages[i].Count > max) {
+						codepage = codepages[i].CodePage;
+						max = codepages[i].Count;
+					}
+				}
+
+				return codepage;
+			}
+
+			public void Dispose ()
+			{
+				ArrayPool<CodePageCount>.Shared.Return (codepages);
+			}
+		}
+
+		class TokenFolder : ITokenWriter
+		{
+			readonly FormatOptions options;
+			readonly byte[] input;
+			bool firstToken;
+			int lineLength;
+			int lwsp, tab;
+
+			public TokenFolder (FormatOptions options, string field, byte[] input)
+			{
+				this.options = options;
+				this.input = input;
+
+				lineLength = field.Length + 1;
+				firstToken = true;
+				lwsp = tab = 0;
+			}
+
+			public bool IgnoreWhitespaceBetweenEncodedWords {
+				get { return false; }
+			}
+
+			public void Write (ref ValueStringBuilder output, ref Token token)
+			{
+				if (firstToken) {
+					output.Append (' ');
+					lineLength++;
+				} else if (lineLength == 0) {
+					output.Append (' ');
+					lineLength = 1;
+				}
+
+				if (input[token.StartIndex].IsWhitespace ()) {
+					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
+						if (input[n] == (byte) '\r')
+							continue;
+
+						lwsp = output.Length;
+						if (input[n] == (byte) '\t')
+							tab = output.Length;
+
+						if (input[n] == (byte) '\n') {
+							output.Append (options.NewLine);
+							lwsp = tab = 0;
+							lineLength = 0;
+						} else {
+							output.Append ((char) input[n]);
+							lineLength++;
+						}
+					}
+
+					firstToken = false;
+				} else if (token.IsEncoded) {
+					string charset = token.CharsetCulture;
+
+					if (lineLength + token.Length + charset.Length + 7 > options.MaxLineLength) {
+						if (tab != 0) {
+							// tabs are the perfect breaking opportunity...
+							output.Insert (tab, options.NewLine);
+							lineLength = (lwsp - tab) + 1;
+						} else if (lwsp != 0) {
+							// break just before the last lwsp character
+							output.Insert (lwsp, options.NewLine);
+							lineLength = 1;
+						} else if (lineLength > 1 && !firstToken) {
+							// force a line break...
+							output.Append (options.NewLine);
+							output.Append (' ');
+							lineLength = 1;
+						}
+					}
+
+					// Note: if the encoded-word token is longer than the fold length, oh well...
+					// it probably just means that we are folding a header written by a user-agent
+					// with a different max line length than ours.
+
+					output.Append ("=?");
+					output.Append (charset);
+					output.Append ('?');
+					output.Append (token.Encoding);
+					output.Append ('?');
+
+					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
+						output.Append ((char) input[n]);
+					output.Append ("?=");
+
+					lineLength += token.Length + charset.Length + 7;
+					firstToken = false;
+					lwsp = 0;
+					tab = 0;
+				} else if (lineLength + token.Length > options.MaxLineLength) {
+					if (tab != 0) {
+						// tabs are the perfect breaking opportunity...
+						output.Insert (tab, options.NewLine);
+						lineLength = (lwsp - tab) + 1;
+					} else if (lwsp != 0) {
+						// break just before the last lwsp character
+						output.Insert (lwsp, options.NewLine);
+						lineLength = 1;
+					} else if (lineLength > 1 && !firstToken) {
+						// force a line break...
+						output.Append (options.NewLine);
+						output.Append (' ');
+						lineLength = 1;
+					}
+
+					if (token.Length >= options.MaxLineLength) {
+						// the token is longer than the maximum allowable line length,
+						// so we'll have to break it apart...
+						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
+							if (lineLength >= options.MaxLineLength) {
+								output.Append (options.NewLine);
+								output.Append (' ');
+								lineLength = 1;
+							}
+
+							output.Append ((char) input[n]);
+							lineLength++;
+						}
+					} else {
+						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
+							output.Append ((char) input[n]);
+
+						lineLength += token.Length;
+					}
+
+					firstToken = false;
+					lwsp = 0;
+					tab = 0;
+				} else {
+					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
+						output.Append ((char) input[n]);
+
+					lineLength += token.Length;
+					firstToken = false;
+					lwsp = 0;
+					tab = 0;
+				}
+			}
+
+			public void Flush (ref ValueStringBuilder output)
+			{
+				if (output.Length == 0 || output[output.Length - 1] != '\n')
+					output.Append (options.NewLine);
+			}
+
+			public void Dispose ()
+			{
 			}
 		}
 
@@ -113,7 +423,7 @@ namespace MimeKit.Utils {
 
 		static unsafe bool TryGetEncodedWordToken (byte* input, byte* word, int length, out Token token)
 		{
-			token = null;
+			token = default;
 
 			if (length < 7)
 				return false;
@@ -170,17 +480,12 @@ namespace MimeKit.Utils {
 			// skip over the '?' to get to the encoding
 			inptr++;
 
-			ContentEncoding encoding;
-			if (*inptr == 'B' || *inptr == 'b') {
-				encoding = ContentEncoding.Base64;
-			} else if (*inptr == 'Q' || *inptr == 'q') {
-				encoding = ContentEncoding.QuotedPrintable;
+			char encoding;
+			if (*inptr == 'B' || *inptr == 'b' || *inptr == 'Q' || *inptr == 'q') {
+				encoding = (char) *inptr++;
 			} else {
 				return false;
 			}
-
-			// skip over the encoding
-			inptr++;
 
 			if (*inptr != '?' || inptr == inend)
 				return false;
@@ -196,14 +501,13 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static unsafe List<Token> TokenizePhrase (ParserOptions options, byte* inbuf, int startIndex, int length)
+		static unsafe void TokenizePhrase (ParserOptions options, ITokenWriter writer, ref ValueStringBuilder decoded, byte* inbuf, int startIndex, int length)
 		{
-			var tokens = new List<Token> (PhraseTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
+			var lwsp = new Token (0, 0);
 			bool encoded = false;
-			Token token = null;
-			Token lwsp = null;
+			Token token;
 			bool ascii;
 			int n;
 
@@ -212,10 +516,7 @@ namespace MimeKit.Utils {
 				while (inptr < inend && IsLwsp (*inptr))
 					inptr++;
 
-				if (inptr > text)
-					lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
-				else
-					lwsp = null;
+				lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 
 				word = inptr;
 				ascii = true;
@@ -283,29 +584,27 @@ namespace MimeKit.Utils {
 					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
-						if (!encoded && lwsp != null) {
+						if ((!encoded || !writer.IgnoreWhitespaceBetweenEncodedWords) && lwsp.Length > 0) {
 							// previous token was not encoded, so preserve whitespace
-							tokens.Add (lwsp);
+							writer.Write (ref decoded, ref lwsp);
 						}
 
-						tokens.Add (token);
+						writer.Write (ref decoded, ref token);
 						encoded = true;
 					} else {
 						// append the lwsp and atom tokens
-						if (lwsp != null)
-							tokens.Add (lwsp);
+						if (lwsp.Length > 0)
+							writer.Write (ref decoded, ref lwsp);
 
-						token = new Token ((int) (word - inbuf), n) {
-							Is8bit = !ascii
-						};
-						tokens.Add (token);
+						token = new Token ((int) (word - inbuf), n, !ascii);
+						writer.Write (ref decoded, ref token);
 
 						encoded = false;
 					}
 				} else {
 					// append the lwsp token
-					if (lwsp != null)
-						tokens.Add (lwsp);
+					if (lwsp.Length > 0)
+						writer.Write (ref decoded, ref lwsp);
 
 					// append the non-ascii atom token
 					ascii = true;
@@ -314,26 +613,23 @@ namespace MimeKit.Utils {
 						inptr++;
 					}
 
-					token = new Token ((int) (word - inbuf), (int) (inptr - word)) {
-						Is8bit = !ascii
-					};
-					tokens.Add (token);
+					token = new Token ((int) (word - inbuf), (int) (inptr - word), !ascii);
+					writer.Write (ref decoded, ref token);
 
 					encoded = false;
 				}
 			}
 
-			return tokens;
+			writer.Flush (ref decoded);
 		}
 
-		static unsafe List<Token> TokenizeText (ParserOptions options, byte* inbuf, int startIndex, int length)
+		static unsafe void TokenizeText (ParserOptions options, ITokenWriter writer, ref ValueStringBuilder output, byte* inbuf, int startIndex, int length)
 		{
-			var tokens = new List<Token> (TextTokenCapacity);
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
+			var lwsp = new Token (0, 0);
 			bool encoded = false;
-			Token token = null;
-			Token lwsp = null;
+			Token token;
 			bool ascii;
 			int n;
 
@@ -342,10 +638,7 @@ namespace MimeKit.Utils {
 				while (inptr < inend && IsLwsp (*inptr))
 					inptr++;
 
-				if (inptr > text)
-					lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
-				else
-					lwsp = null;
+				lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 
 				if (inptr < inend) {
 					word = inptr;
@@ -415,114 +708,33 @@ namespace MimeKit.Utils {
 					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
-						if (!encoded && lwsp != null) {
+						if ((!encoded || !writer.IgnoreWhitespaceBetweenEncodedWords) && lwsp.Length > 0) {
 							// previous token was not encoded, so preserve whitespace
-							tokens.Add (lwsp);
+							writer.Write (ref output, ref lwsp);
 						}
 
-						tokens.Add (token);
+						writer.Write (ref output, ref token);
 						encoded = true;
 					} else {
 						// append the lwsp and atom tokens
-						if (lwsp != null)
-							tokens.Add (lwsp);
+						if (lwsp.Length > 0)
+							writer.Write (ref output, ref lwsp);
 
-						token = new Token ((int) (word - inbuf), n) {
-							Is8bit = !ascii
-						};
-						tokens.Add (token);
+						token = new Token ((int) (word - inbuf), n, !ascii);
+						writer.Write (ref output, ref token);
 
 						encoded = false;
 					}
 				} else {
 					// append the trailing lwsp token
-					if (lwsp != null)
-						tokens.Add (lwsp);
+					if (lwsp.Length > 0)
+						writer.Write (ref output, ref lwsp);
 
 					break;
 				}
 			}
 
-			return tokens;
-		}
-
-		static unsafe int DecodeToken (Token token, IMimeDecoder decoder, byte* input, byte* output)
-		{
-			byte* inptr = input + token.StartIndex;
-
-			return decoder.Decode (inptr, token.Length, output);
-		}
-
-		static unsafe string DecodeTokens (ParserOptions options, List<Token> tokens, byte[] input, byte* inbuf, int length)
-		{
-			var decoded = new ValueStringBuilder (length);
-			QuotedPrintableDecoder qp = null;
-			Base64Decoder base64 = null;
-			var output = new byte[length];
-			Token token;
-			int len;
-
-			fixed (byte* outbuf = output) {
-				for (int i = 0; i < tokens.Count; i++) {
-					token = tokens[i];
-
-					if (token.Encoding != ContentEncoding.Default) {
-						// In order to work around broken mailers, we need to combine the raw
-						// decoded content of runs of identically encoded word tokens before
-						// converting to unicode strings.
-						ContentEncoding encoding = token.Encoding;
-						int codepage = token.CodePage;
-						IMimeDecoder decoder;
-						int outlen, n;
-						byte* outptr;
-
-						// find the end of this run (and measure the buffer length we'll need)
-						for (n = i + 1; n < tokens.Count; n++) {
-							if (tokens[n].Encoding != encoding || tokens[n].CodePage != codepage)
-								break;
-						}
-
-						// base64 / quoted-printable decode each of the tokens...
-						if (encoding == ContentEncoding.QuotedPrintable)
-							decoder = qp ??= new QuotedPrintableDecoder (true);
-						else
-							decoder = base64 ??= new Base64Decoder ();
-
-						outptr = outbuf;
-						outlen = 0;
-
-						do {
-							// Note: by not resetting the decoder state each loop, we effectively
-							// treat the payloads as one continuous block, thus allowing us to
-							// handle cases where a hex-encoded triplet of a quoted-printable
-							// encoded payload is split between 2 or more encoded-word tokens.
-							len = DecodeToken (tokens[i], decoder, inbuf, outptr);
-							outptr += len;
-							outlen += len;
-							i++;
-						} while (i < n);
-
-						decoder.Reset ();
-						i--;
-
-						var unicode = CharsetUtils.ConvertToUnicode (options, codepage, output, 0, outlen, out len);
-						decoded.Append (unicode.AsSpan (0, len));
-					} else if (token.Is8bit) {
-						// *sigh* I hate broken mailers...
-						var unicode = CharsetUtils.ConvertToUnicode (options, input, token.StartIndex, token.Length, out len);
-						decoded.Append (unicode.AsSpan (0, len));
-					} else {
-						// pure 7bit ascii, a breath of fresh air...
-						byte* inptr = inbuf + token.StartIndex;
-						byte* inend = inptr + token.Length;
-
-						while (inptr < inend)
-							decoded.Append ((char) *inptr++);
-					}
-				}
-			}
-
-			return decoded.ToString ();
+			writer.Flush (ref output);
 		}
 
 		internal static string DecodePhrase (ParserOptions options, byte[] phrase, int startIndex, int count, out int codepage)
@@ -534,30 +746,19 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = phrase) {
-					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
+					var scratch = count < 2048 ? ArrayPool<byte>.Shared.Rent (count) : new byte[count];
+					var decoder = new TokenDecoder (options, phrase, scratch);
+					var decoded = new ValueStringBuilder (count);
 
-					// collect the charsets used to encode each encoded-word token
-					// (and the number of tokens each charset was used in)
-					var codepages = new Dictionary<int, int> ();
-					foreach (var token in tokens) {
-						if (token.CodePage == 0)
-							continue;
-
-						if (!codepages.ContainsKey (token.CodePage))
-							codepages.Add (token.CodePage, 1);
-						else
-							codepages[token.CodePage]++;
+					try {
+						TokenizePhrase (options, decoder, ref decoded, inbuf, startIndex, count);
+						codepage = decoder.GetMostCommonCodePage ();
+						return decoded.ToString ();
+					} finally {
+						if (count < 2048)
+							ArrayPool<byte>.Shared.Return (scratch);
+						decoder.Dispose ();
 					}
-
-					int max = 0;
-					foreach (var kvp in codepages) {
-						if (kvp.Value > max) {
-							codepage = kvp.Key;
-							max = kvp.Value;
-						}
-					}
-
-					return DecodeTokens (options, tokens, phrase, inbuf, count);
 				}
 			}
 		}
@@ -597,16 +798,7 @@ namespace MimeKit.Utils {
 			if (count < 0 || startIndex + count > phrase.Length)
 				throw new ArgumentOutOfRangeException (nameof (count));
 
-			if (count == 0)
-				return string.Empty;
-
-			unsafe {
-				fixed (byte* inbuf = phrase) {
-					var tokens = TokenizePhrase (options, inbuf, startIndex, count);
-
-					return DecodeTokens (options, tokens, phrase, inbuf, count);
-				}
-			}
+			return DecodePhrase (options, phrase, startIndex, count, out _);
 		}
 
 		/// <summary>
@@ -685,30 +877,19 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (options, inbuf, startIndex, count);
+					var scratch = count < 2048 ? ArrayPool<byte>.Shared.Rent (count) : new byte[count];
+					var decoder = new TokenDecoder (options, text, scratch);
+					var decoded = new ValueStringBuilder (count);
 
-					// collect the charsets used to encode each encoded-word token
-					// (and the number of tokens each charset was used in)
-					var codepages = new Dictionary<int, int> ();
-					foreach (var token in tokens) {
-						if (token.CodePage == 0)
-							continue;
-
-						if (!codepages.ContainsKey (token.CodePage))
-							codepages.Add (token.CodePage, 1);
-						else
-							codepages[token.CodePage]++;
+					try {
+						TokenizeText (options, decoder, ref decoded, inbuf, startIndex, count);
+						codepage = decoder.GetMostCommonCodePage ();
+						return decoded.ToString ();
+					} finally {
+						if (count < 2048)
+							ArrayPool<byte>.Shared.Return (scratch);
+						decoder.Dispose ();
 					}
-
-					int max = 0;
-					foreach (var kvp in codepages) {
-						if (kvp.Value > max) {
-							codepage = kvp.Key;
-							max = kvp.Value;
-						}
-					}
-
-					return DecodeTokens (options, tokens, text, inbuf, count);
 				}
 			}
 		}
@@ -748,16 +929,7 @@ namespace MimeKit.Utils {
 			if (count < 0 || startIndex + count > text.Length)
 				throw new ArgumentOutOfRangeException (nameof (count));
 
-			if (count == 0)
-				return string.Empty;
-
-			unsafe {
-				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (options, inbuf, startIndex, count);
-
-					return DecodeTokens (options, tokens, text, inbuf, count);
-				}
-			}
+			return DecodeText (options, text, startIndex, count, out _);
 		}
 
 		/// <summary>
@@ -827,146 +999,19 @@ namespace MimeKit.Utils {
 			return DecodeText (text, 0, text.Length);
 		}
 
-		static byte[] FoldTokens (FormatOptions options, List<Token> tokens, string field, byte[] input)
-		{
-			// FIXME: Use ByteArrayBuilder instead?
-			var output = new ValueStringBuilder (input.Length + ((input.Length / options.MaxLineLength) * 2) + 2);
-			int lineLength = field.Length + 2;
-			var firstToken = true;
-			int lwsp = 0, tab = 0;
-			Token token;
-
-			output.Append (' ');
-
-			for (int i = 0; i < tokens.Count; i++) {
-				token = tokens[i];
-
-				if (input[token.StartIndex].IsWhitespace ()) {
-					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
-						if (input[n] == (byte) '\r')
-							continue;
-
-						lwsp = output.Length;
-						if (input[n] == (byte) '\t')
-							tab = output.Length;
-
-						if (input[n] == (byte) '\n') {
-							output.Append (options.NewLine);
-							lwsp = tab = 0;
-							lineLength = 0;
-						} else {
-							output.Append ((char) input[n]);
-							lineLength++;
-						}
-					}
-
-					if (lineLength == 0 && i + 1 < tokens.Count) {
-						output.Append (' ');
-						lineLength = 1;
-					}
-
-					firstToken = false;
-				} else if (token.Encoding != ContentEncoding.Default) {
-					string charset = token.CharsetCulture;
-
-					if (lineLength + token.Length + charset.Length + 7 > options.MaxLineLength) {
-						if (tab != 0) {
-							// tabs are the perfect breaking opportunity...
-							output.Insert (tab, options.NewLine);
-							lineLength = (lwsp - tab) + 1;
-						} else if (lwsp != 0) {
-							// break just before the last lwsp character
-							output.Insert (lwsp, options.NewLine);
-							lineLength = 1;
-						} else if (lineLength > 1 && !firstToken) {
-							// force a line break...
-							output.Append (options.NewLine);
-							output.Append (' ');
-							lineLength = 1;
-						}
-					}
-
-					// Note: if the encoded-word token is longer than the fold length, oh well...
-					// it probably just means that we are folding a header written by a user-agent
-					// with a different max line length than ours.
-
-					output.Append ("=?");
-					output.Append (charset);
-					output.Append ('?');
-					output.Append (token.Encoding == ContentEncoding.Base64 ? 'b' : 'q');
-					output.Append ('?');
-
-					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
-						output.Append ((char) input[n]);
-					output.Append ("?=");
-
-					lineLength += token.Length + charset.Length + 7;
-					firstToken = false;
-					lwsp = 0;
-					tab = 0;
-				} else if (lineLength + token.Length > options.MaxLineLength) {
-					if (tab != 0) {
-						// tabs are the perfect breaking opportunity...
-						output.Insert (tab, options.NewLine);
-						lineLength = (lwsp - tab) + 1;
-					} else if (lwsp != 0) {
-						// break just before the last lwsp character
-						output.Insert (lwsp, options.NewLine);
-						lineLength = 1;
-					} else if (lineLength > 1 && !firstToken) {
-						// force a line break...
-						output.Append (options.NewLine);
-						output.Append (' ');
-						lineLength = 1;
-					}
-
-					if (token.Length >= options.MaxLineLength) {
-						// the token is longer than the maximum allowable line length,
-						// so we'll have to break it apart...
-						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++) {
-							if (lineLength >= options.MaxLineLength) {
-								output.Append (options.NewLine);
-								output.Append (' ');
-								lineLength = 1;
-							}
-
-							output.Append ((char) input[n]);
-							lineLength++;
-						}
-					} else {
-						for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
-							output.Append ((char) input[n]);
-
-						lineLength += token.Length;
-					}
-
-					firstToken = false;
-					lwsp = 0;
-					tab = 0;
-				} else {
-					for (int n = token.StartIndex; n < token.StartIndex + token.Length; n++)
-						output.Append ((char) input[n]);
-
-					lineLength += token.Length;
-					firstToken = false;
-					lwsp = 0;
-					tab = 0;
-				}
-			}
-
-			if (output[output.Length - 1] != '\n')
-				output.Append (options.NewLine);
-
-			return Encoding.ASCII.GetBytes (output.ToString ());
-		}
-
 		internal static byte[] FoldUnstructuredHeader (FormatOptions options, string field, byte[] text)
 		{
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var tokens = TokenizeText (ParserOptions.Default, inbuf, 0, text.Length);
+					var output = new ValueStringBuilder (text.Length + ((text.Length / options.MaxLineLength) * 2) + 2);
+					var folder = new TokenFolder (options, field, text);
 
-					return FoldTokens (options, tokens, field, text);
+					try {
+						TokenizeText (ParserOptions.Default, folder, ref output, inbuf, 0, text.Length);
+						return Encoding.ASCII.GetBytes (output.ToString ());
+					} finally {
+						folder.Dispose ();
+					}
 				}
 			}
 		}
