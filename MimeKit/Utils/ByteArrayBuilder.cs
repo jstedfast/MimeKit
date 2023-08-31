@@ -28,11 +28,11 @@ using System;
 using System.Buffers;
 
 namespace MimeKit.Utils {
-	internal ref struct ByteArrayBuilder
+	ref struct ByteArrayBuilder
 	{
 		byte[] buffer;
 		int length;
-				
+
 		public ByteArrayBuilder (int initialCapacity)
 		{
 			buffer = ArrayPool<byte>.Shared.Rent (initialCapacity);
