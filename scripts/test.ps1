@@ -11,12 +11,28 @@ Write-Output "Configuration:        $Configuration"
 Write-Output "GenerateCodeCoverage: $GenerateCodeCoverage"
 Write-Output ""
 
+[xml]$project = Get-Content UnitTests\UnitTests.csproj
+
+$nugetPackagesDir = Join-Path $Home ".nuget" "packages"
+
+# Get the NUnit.ConsoleRunner executable path
+$packageReference = $project.SelectSingleNode("/Project/ItemGroup/PackageReference[@Include='NUnit.ConsoleRunner']")
+$consoleRunnerVersion = $packageReference.GetAttribute("Version")
+
+$NUnitConsoleRunner = Join-Path $nugetPackagesDir "nunit.consolerunner" $consoleRunnerVersion "tools" "nunit3-console.exe"
+
+# Get the OutputPath
+$targetFramework = $project.SelectSingleNode("/Project/PropertyGroup/TargetFramework")
+$OutputDir = Join-Path "UnitTests" "bin" $Configuration $targetFramework.InnerText
+$UnitTestsAssembly = Join-Path $OutputDir "UnitTests.dll"
+
 if ($GenerateCodeCoverage -eq 'yes') {
-    Write-Output "Running the UnitTests (code coverage enabled)"
+    Write-Output "Instrumenting code..."
 
-    dotnet test -v 5 /p:Configuration=$Configuration /p:AltCover=true /p:AltCoverAssemblyExcludeFilter="Microsoft*" /p:AltCoverAssemblyExcludeFilter="NUnit*" /p:AltCoverAssemblyExcludeFilter="UnitTests*" UnitTests\UnitTests.csproj
-} else {
-    Write-Output "Running the UnitTests"
-
-    dotnet test -v 5 /p:Configuration=$Configuration UnitTests\UnitTests.csproj
+    & dotnet AltCover -i=$OutputDir --inplace -s="System.*" -s="Microsoft.*" -s="Org.BouncyCastle.*" -s="Mono.*" -s="NUnit*" -s="AltCover.*" -s="testhost" -s="UnitTests"
+    # & dotnet AltCover Runner --recorderDirectory=$OutputDir --executable=$NUnitConsoleRunner --summary=O -- --domain:single $UnitTestsAssembly
 }
+
+Write-Output "Running the UnitTests"
+
+& $NUnitConsoleRunner --domain:single $UnitTestsAssembly
