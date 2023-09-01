@@ -1,6 +1,7 @@
 *.csproj text
 *.nuspec text
 *.sln eol=crlf
+*.xhtml binary
 *.html binary
 *.txt text
 *.yml text
