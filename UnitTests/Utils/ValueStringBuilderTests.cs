@@ -72,6 +72,53 @@ namespace UnitTests.Utils {
 			Assert.AreEqual (sb.ToString (), vsb.ToString ());
 		}
 
+		[Test]
+		public void Append_NullString_MatchesStringBuilder ()
+		{
+			var sb = new StringBuilder ();
+			var vsb = new ValueStringBuilder ();
+
+			sb.Append ("a");
+			sb.Append ((string) null);
+			sb.Append ("b");
+
+			vsb.Append ("a");
+			vsb.Append ((string?) null);
+			vsb.Append ("b");
+
+			Assert.AreEqual (sb.Length, vsb.Length);
+			Assert.AreEqual (sb.ToString (), vsb.ToString ());
+		}
+
+		[Test]
+		public void Insert_NullString_MatchesStringBuilder ()
+		{
+			var sb = new StringBuilder ();
+			var vsb = new ValueStringBuilder ();
+
+			sb.Append ("b");
+			sb.Insert (0, (string) null);
+			sb.Insert (0, "a");
+
+			vsb.Append ("b");
+			vsb.Insert (0, (string?) null);
+			vsb.Insert (0, "a");
+
+			Assert.AreEqual (sb.Length, vsb.Length);
+			Assert.AreEqual (sb.ToString (), vsb.ToString ());
+		}
+
+		[Test]
+		public void Insert_Grows_MatchesStringBuilder ()
+		{
+			var vsb = new ValueStringBuilder ();
+
+			vsb.Append ("s");
+			vsb.Insert (0, "Make sure that the ValueStringBuilder's capacity grow");
+
+			Assert.AreEqual ("Make sure that the capacity grows", vsb.ToString ());
+		}
+
 #if UNUSED_VALUESTRINGBUILDER_API
 		[TestCase (0, 4 * 1024 * 1024)]
 		[TestCase (1025, 4 * 1024 * 1024)]
