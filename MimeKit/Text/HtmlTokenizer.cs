@@ -359,16 +359,12 @@ namespace MimeKit.Text {
 
 		int SkipByteOrderMark (ReadOnlySpan<byte> preamble)
 		{
-			bool detected = true;
-
 			for (int i = 0; i < preamble.Length; i++) {
-				if (input[i] != preamble[i]) {
-					detected = false;
-					break;
-				}
+				if (input[i] != preamble[i])
+					return 0;
 			}
 
-			return detected ? preamble.Length : 0;
+			return preamble.Length;
 		}
 
 		int DetectByteOrderMark ()
