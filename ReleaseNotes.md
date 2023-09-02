@@ -1,5 +1,24 @@
 # Release Notes
 
+## MimeKit 4.2.0 (2023-09-02)
+
+* Follow the spec more closely for allowable header field characters.
+  (issue [#936](https://github.com/jstedfast/MimeKit/issues/936))
+* Avoid throwing NRE when an RC2 algorithm was used for S/MIME w/o parameters.
+  (issue [#941](https://github.com/jstedfast/MimeKit/issues/941))
+* Added a few more (undocumented) TnefPropertyIds.
+* Optimized AttachmentCollection.Add(byte[], ...) by not copying the data to a new stream.
+* Improved performance of HtmlTokenizer.
+* Added new HtmlTokenizer constructors that take a Stream instead of a TextReader. This
+  allows for a slight performance improvement over using a TextReader as well.
+* Lazy-allocate Base64/QuotedPrintable decoders when decoding rfc2047-encoded headers.
+  This is a very small reduction in GC pressure.
+* Reduced memory allocations in Rfc2047.DecodePhrase() and DecodeText().
+* Avoid allocating empty `List<string>`s in DomainList.ctor(), lazily allocate the
+  list only when a domain is added. Another minor reduction in GC pressure.
+* Updated the Date parser to allocate an internal list of tokens with a optimal
+  initial capacity to avoid the need for reallocating.
+
 ## MimeKit 4.1.0 (2023-06-17)
 
 * Readded the System.Net.Mail-to-MimeKit conversion APIs for the netstandard2.x frameworks.

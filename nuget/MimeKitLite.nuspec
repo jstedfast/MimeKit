@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.1.0.1</version>
+    <version>4.2.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,11 +26,16 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Readded the System.Net.Mail-to-MimeKit conversion APIs for the netstandard2.x frameworks. (issue #913)
-* Fixed the MimeEntity.LoadAsync() overloads that take a ContentType parameter to to properly wait to dispose of the stream until after the entity has been parsed. (issue #916)
-* Optimized conversion between HeaderId and string.
-* Added a new IMimeParser interface that both MimeParser and ExperimentalMimePraser implement.
-* Added "unicode" to the list of charset aliases for UTF-8. (issue #923)
+* Follow the spec more closely for allowable header field characters. (issue #936)
+* Avoid throwing NRE when an RC2 algorithm was used for S/MIME w/o parameters. (issue #941)
+* Added a few more (undocumented) TnefPropertyIds.
+* Optimized AttachmentCollection.Add(byte[], ...) by not copying the data to a new stream.
+* Improved performance of HtmlTokenizer.
+* Added new HtmlTokenizer constructors that take a Stream instead of a TextReader. This allows for a slight performance improvement over using a TextReader as well.
+* Lazy-allocate Base64/QuotedPrintable decoders when decoding rfc2047-encoded headers. This is a very small reduction in GC pressure.
+* Reduced memory allocations in Rfc2047.DecodePhrase() and DecodeText().
+* Avoid allocating empty List&lt;string&gt;`s in DomainList.ctor(), lazily allocate the list only when a domain is added. Another minor reduction in GC pressure.
+* Updated the Date parser to allocate an internal list of tokens with a optimal initial capacity to avoid the need for reallocating.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
