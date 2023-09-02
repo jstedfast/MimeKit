@@ -305,6 +305,24 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
+		public void TestDecodeEnsuresCodePageCapacity ()
+		{
+			const string text = "=?us-ascii?q?0?= =?iso-8859-1?q?1?= =?iso-8859-2?q?2?= =?iso-8859-3?q?3?= =?iso-8859-4?q?4?= =?iso-8859-5?q?5?= =?iso-8859-6?q?6?= =?iso-8859-7?q?7?= =?iso-8859-8?q?8?= =?iso-8859-9?q?9?= =?koi8-r?q?a?= =?koi8-u?q?b?= =?big5?q?c?= =?euc-cn?q?d?= =?euc-kr?q?e?= =?utf-8?q?f?= =?gb2312?q?g?=";
+			const string expected = "0123456789abcdefg";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+			int codepage;
+
+			result = Rfc2047.DecodePhrase (ParserOptions.Default, buffer, 0, buffer.Length, out codepage);
+			Assert.AreEqual (expected, result, "DecodePhrase");
+			Assert.AreEqual (20127, codepage, "DecodePhrase"); // FIXME: it should not select us-ascii
+
+			result = Rfc2047.DecodeText (ParserOptions.Default, buffer, 0, buffer.Length, out codepage);
+			Assert.AreEqual (expected, result, "DecodeText");
+			Assert.AreEqual (20127, codepage, "DecodeText"); // FIXME: it should not select us-ascii
+		}
+
+		[Test]
 		public void TestEncodeControls ()
 		{
 			const string expected = "I'm so happy! =?utf-8?q?=07?= I love MIME so much =?utf-8?q?=07=07!?= Isn't it great?";
@@ -603,6 +621,19 @@ namespace UnitTests.Utils {
 		{
 			const string expected = " This subject has embedded\r\n =?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding\r\n logic handle these embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=\r\n ...?\r\n";
 			const string text = "This subject has embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=... How does the folding logic handle these embedded=?iso-8859-1*en-US?q?rfc2047_encoded_word_tokens?=...?";
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var result = Encoding.ASCII.GetString (Rfc2047.FoldUnstructuredHeader (options, "Subject", Encoding.ASCII.GetBytes (text)));
+			Assert.AreEqual (expected, result);
+		}
+
+		[Test]
+		public void TestFolderHeaderValueDoesNotIgnoreWhitespaceBetweenEncodedWords ()
+		{
+			const string expected = " This test should demonstrate that\r\n =?iso-8859-1*en-US?q?whitespace_between_rfc2047_encoded_word_tokens?= \t \t \r\n\t =?iso-8859-1*en-US?q?does_not_get_ignored?=\r\n";
+			const string text = "This test should demonstrate that =?iso-8859-1*en-US?q?whitespace_between_rfc2047_encoded_word_tokens?= \t \t \t =?iso-8859-1*en-US?q?does_not_get_ignored?=";
 			var options = FormatOptions.Default.Clone ();
 
 			options.NewLineFormat = NewLineFormat.Dos;

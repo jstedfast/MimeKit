@@ -116,7 +116,7 @@ namespace UnitTests.Utils {
 			vsb.Append ("s");
 			vsb.Insert (0, "Make sure that the ValueStringBuilder's capacity grow");
 
-			Assert.AreEqual ("Make sure that the capacity grows", vsb.ToString ());
+			Assert.AreEqual ("Make sure that the ValueStringBuilder's capacity grows", vsb.ToString ());
 		}
 
 #if UNUSED_VALUESTRINGBUILDER_API
