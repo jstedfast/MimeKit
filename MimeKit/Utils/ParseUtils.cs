@@ -493,6 +493,12 @@ namespace MimeKit.Utils {
 				token.Append ('@');
 				index++;
 
+				// Note: some Message-Id's are broken and in the form "<local-part@@domain>"
+				//
+				// See https://github.com/jstedfast/MimeKit/issues/962 for details.
+				while (index < endIndex && text[index] == (byte) '@')
+					index++;
+
 				if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
 
