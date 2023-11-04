@@ -1023,57 +1023,6 @@ namespace MimeKit {
 			get; set;
 		}
 
-		static bool TryGetMultipartBody (Multipart multipart, TextFormat format, out string body)
-		{
-			if (multipart is MultipartAlternative alternative) {
-				body = alternative.GetTextBody (format);
-				return body != null;
-			}
-
-			if (multipart is MultipartRelated related) {
-				// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
-				var root = related.Root;
-
-				if (root is TextPart text) {
-					body = text.IsFormat (format) ? text.Text : null;
-					return body != null;
-				}
-
-				// maybe the root is another multipart (like multipart/alternative)?
-				if (root is Multipart multi)
-					return TryGetMultipartBody (multi, format, out body);
-			} else {
-				// Note: This is probably a multipart/mixed... and if not, we can still treat it like it is.
-				for (int i = 0; i < multipart.Count; i++) {
-					// descend into nested multiparts, if there are any...
-					if (multipart[i] is Multipart multi) {
-						if (TryGetMultipartBody (multi, format, out body))
-							return true;
-
-						// The text body should never come after a multipart.
-						break;
-					}
-
-					// Look for the first non-attachment text part (realistically, the body text will
-					// precede any attachments, but I'm not sure we can rely on that assumption).
-					if (multipart[i] is TextPart text && !text.IsAttachment) {
-						if (text.IsFormat (format)) {
-							body = MultipartAlternative.GetText (text);
-							return true;
-						}
-
-						// Note: the first text/* part in a multipart/mixed is the text body.
-						// If it's not in the format we're looking for, then it doesn't exist.
-						break;
-					}
-				}
-			}
-
-			body = null;
-
-			return false;
-		}
-
 		/// <summary>
 		/// Get the text body of the message if it exists.
 		/// </summary>
@@ -1108,11 +1057,10 @@ namespace MimeKit {
 		public string GetTextBody (TextFormat format)
 		{
 			if (Body is Multipart multipart) {
-				if (TryGetMultipartBody (multipart, format, out var text))
-					return text;
-			} else {
-				if (Body is TextPart body && body.IsFormat (format) && !body.IsAttachment)
-					return body.Text;
+				if (multipart.TryGetValue (format, out var body))
+					return MultipartAlternative.GetText (body);
+			} else if (Body is TextPart text && text.IsFormat (format) && !text.IsAttachment) {
+				return MultipartAlternative.GetText (text);
 			}
 
 			return null;

@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Linq;
 
+using MimeKit.Text;
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -212,6 +213,39 @@ namespace MimeKit {
 			CheckDisposed ();
 
 			visitor.VisitMultipartRelated (this);
+		}
+
+		/// <summary>
+		/// Get the preferred message body if it exists.
+		/// </summary>
+		/// <remarks>
+		/// Gets the preferred message body if it exists.
+		/// </remarks>
+		/// <param name="format">The preferred text format.</param>
+		/// <param name="body">The MIME part containing the message body in the preferred text format.</param>
+		/// <returns><c>true</c> if the body part is found; otherwise, <c>false</c>.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="Multipart"/> has been disposed.
+		/// </exception>
+		public override bool TryGetValue (TextFormat format, out TextPart body)
+		{
+			CheckDisposed ();
+
+			// Note: If the multipart/related root document is HTML, then this is the droid we are looking for.
+			var root = Root;
+
+			if (root is TextPart text) {
+				body = text.IsFormat (format) ? text : null;
+				return body != null;
+			}
+
+			// The root may be a multipart such as a multipart/alternative.
+			if (root is Multipart multipart)
+				return multipart.TryGetValue (format, out body);
+
+			body = null;
+
+			return false;
 		}
 
 		/// <summary>
