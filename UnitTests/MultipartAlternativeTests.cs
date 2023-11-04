@@ -144,5 +144,35 @@ namespace UnitTests {
 			Assert.AreEqual ("html\n", outer.GetTextBody (TextFormat.Html).Replace ("\r\n", "\n"), "Html");
 			Assert.IsNull (outer.GetTextBody (TextFormat.Enriched), "Enriched");
 		}
+
+		[Test]
+		public void TestGetTextBodyMixedInsideAlternative ()
+		{
+			var mixed = new Multipart ("mixed");
+			var plain = new TextPart ("plain") { Text = "plain\n" };
+			var flowed = new TextPart (TextFormat.Flowed) { Text = "flowed\n" };
+			var richtext = new TextPart ("rtf") { Text = "rtf\n" };
+			var html = new TextPart ("html") { Text = "html\n" };
+
+			mixed.Add (plain);
+			mixed.Add (richtext);
+			mixed.Add (html);
+
+			var alternative = new MultipartAlternative {
+				mixed
+			};
+
+			Assert.AreEqual ("plain\n", alternative.TextBody.Replace ("\r\n", "\n"), "TextBody");
+			//Assert.AreEqual ("html\n", alternative.HtmlBody.Replace ("\r\n", "\n"), "HtmlBody");
+
+			mixed.Insert (1, flowed);
+
+			// Note: Only the text/plain part will be found because Multipart.TryGetValue() will only look at the very first text part.
+			Assert.AreEqual ("plain\n", alternative.GetTextBody (TextFormat.Plain).Replace ("\r\n", "\n"), "Plain");
+			Assert.IsNull (alternative.GetTextBody (TextFormat.Flowed), "Flowed");
+			Assert.IsNull (alternative.GetTextBody (TextFormat.RichText), "RichText");
+			Assert.IsNull (alternative.GetTextBody (TextFormat.Html), "Html");
+			Assert.IsNull (alternative.GetTextBody (TextFormat.Enriched), "Enriched");
+		}
 	}
 }
