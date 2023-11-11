@@ -1,5 +1,15 @@
 # Release Notes
 
+## MimeKit 4.3.0 (2023-11-11)
+
+* Added work-around for broken Message-ID header values of the form &lt;id@@domain&gt;.
+  (issue [#962](https://github.com/jstedfast/MimeKit/issues/962))
+* Added virtual Multipart.TryGetValue(TextFormat, out TextPart) method that recursively
+  iterates over child parts to find the TextPart with the desired format.
+* Fixed MimeMessage.TextBody/HtmlBody to locate the text body in a multipart/mixed that is
+  inside of a multipart/alternative. This resolves an issue locating the text body within
+  some broken iOS Apple Mail messages. (issue [#963](https://github.com/jstedfast/MimeKit/issues/963))
+
 ## MimeKit 4.2.0 (2023-09-02)
 
 * Follow the spec more closely for allowable header field characters.

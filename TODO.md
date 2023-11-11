@@ -1,4 +1,4 @@
-## TODO
+# TODO
 
 * DKIM
   * It would be nice to make DKIM support not depend on BouncyCastle at all so
@@ -13,8 +13,7 @@
   * Add a RECORDVERSION table column to the SQL database so we can add columns
     in the future and work around gaps in the row data?
 
-### Pie-in-the-sky Ideas
+## Pie-in-the-sky Ideas
 
 * vCard support
 * iCal support
-

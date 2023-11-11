@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,16 +26,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Follow the spec more closely for allowable header field characters. (issue #936)
-* Avoid throwing NRE when an RC2 algorithm was used for S/MIME w/o parameters. (issue #941)
-* Added a few more (undocumented) TnefPropertyIds.
-* Optimized AttachmentCollection.Add(byte[], ...) by not copying the data to a new stream.
-* Improved performance of HtmlTokenizer.
-* Added new HtmlTokenizer constructors that take a Stream instead of a TextReader. This allows for a slight performance improvement over using a TextReader as well.
-* Lazy-allocate Base64/QuotedPrintable decoders when decoding rfc2047-encoded headers. This is a very small reduction in GC pressure.
-* Reduced memory allocations in Rfc2047.DecodePhrase() and DecodeText().
-* Avoid allocating empty List&lt;string&gt;`s in DomainList.ctor(), lazily allocate the list only when a domain is added. Another minor reduction in GC pressure.
-* Updated the Date parser to allocate an internal list of tokens with a optimal initial capacity to avoid the need for reallocating.
+* Added work-around for broken Message-ID header values of the form &lt;id@@domain&gt;. (issue #962)
+* Added virtual Multipart.TryGetValue(TextFormat, out TextPart) method that recursively iterates over child parts to find the TextPart with the desired format.
+* Fixed MimeMessage.TextBody/HtmlBody to locate the text body in a multipart/mixed that is inside of a multipart/alternative. This resolves an issue locating the text body within some broken iOS Apple Mail messages. (issue #963)
 	</releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
@@ -82,13 +75,13 @@
       </group>
       <group targetFramework="net6.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.2" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.3" />
         <dependency id="System.Text.Encoding.CodePages" version="7.0.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.2.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.2" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.3" />
         <dependency id="System.Text.Encoding.CodePages" version="7.0.0" />
         <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
         <dependency id="System.Buffers" version="4.5.1" />
@@ -97,7 +90,7 @@
       </group>
       <group targetFramework="netstandard2.1">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.2" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.3" />
         <dependency id="System.Text.Encoding.CodePages" version="7.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
@@ -106,6 +99,7 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="..\FAQ.md" target="docs\FAQ.md" />
     <file src="..\README.md" target="docs\README.md" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll" target="lib\netstandard2.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.pdb" target="lib\netstandard2.0\MimeKit.pdb" />
