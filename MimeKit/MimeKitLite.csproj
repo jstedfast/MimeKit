@@ -8,7 +8,7 @@
     <Authors>Jeffrey Stedfast</Authors>
     <_LegacyFrameworks>net462;net47</_LegacyFrameworks>
     <_LegacyFrameworks Condition=" Exists('C:\Windows') ">$(_LegacyFrameworks);net48</_LegacyFrameworks>
-    <TargetFrameworks>$(_LegacyFrameworks);netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>$(_LegacyFrameworks);netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MimeKitLite</AssemblyName>
     <PackageId>MimeKitLite</PackageId>
@@ -47,12 +47,16 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net6')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net6')) Or $(TargetFramework.StartsWith('net8')) ">
     <DefineConstants>$(DefineConstants);SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('net6')) ">
     <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net8')) ">
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
@@ -62,10 +66,7 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+	<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
