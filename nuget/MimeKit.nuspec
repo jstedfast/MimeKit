@@ -75,14 +75,20 @@
       </group>
       <group targetFramework="net6.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.3" />
-        <dependency id="System.Text.Encoding.CodePages" version="7.0.0" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.2.1" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.2.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.3" />
-        <dependency id="System.Text.Encoding.CodePages" version="7.0.0" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
@@ -90,8 +96,8 @@
       </group>
       <group targetFramework="netstandard2.1">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="7.0.3" />
-        <dependency id="System.Text.Encoding.CodePages" version="7.0.0" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
+        <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="BouncyCastle.Cryptography" version="2.2.1" />
@@ -125,6 +131,10 @@
     <file src="..\MimeKit\bin\Release\net6.0\MimeKit.pdb" target="lib\net6.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKit.xml" target="lib\net6.0\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net6.0\MimeKit.dll.config" target="lib\net6.0\MimeKit.dll.config" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll" target="lib\net8.0\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.pdb" target="lib\net8.0\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.xml" target="lib\net8.0\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll.config" target="lib\net8.0\MimeKit.dll.config" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>
