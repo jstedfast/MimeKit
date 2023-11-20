@@ -19,7 +19,7 @@ jobs:
       GITHUB_RUN_NUMBER: ${{ github.run_number }}
     steps:
       - name: Setup/Install the .NET 8 SDK
-        id: install-net6
+        id: install-netsdk
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
