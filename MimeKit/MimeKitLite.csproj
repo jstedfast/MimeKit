@@ -12,7 +12,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MimeKitLite</AssemblyName>
     <PackageId>MimeKitLite</PackageId>
-    <PackageTags>mime;mbox;mail;email;parser;tnef;net462;net47;net48;net6.0;netstandard;netstandard2.0</PackageTags>
+    <PackageTags>mime;mbox;mail;email;parser;tnef;net462;net47;net48;net6.0;net8.0;netstandard;netstandard2.0</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
