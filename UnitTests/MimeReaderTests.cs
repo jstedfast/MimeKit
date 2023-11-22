@@ -34,7 +34,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeReaderTests
 	{
-		static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
+		//static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
 		static FormatOptions UnixFormatOptions;
 
@@ -166,7 +166,7 @@ namespace UnitTests {
 			public readonly List<MimeOffsets> Offsets = new List<MimeOffsets> ();
 			public readonly List<MimeItem> stack = new List<MimeItem> ();
 			long mboxMarkerBeginOffset = -1;
-			int mboxMarkerLineNumber = -1;
+			//int mboxMarkerLineNumber = -1;
 
 			public CustomMimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default) : base (options, stream, format)
 			{
@@ -179,7 +179,7 @@ namespace UnitTests {
 			protected override void OnMboxMarkerRead (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 			{
 				mboxMarkerBeginOffset = beginOffset;
-				mboxMarkerLineNumber = lineNumber;
+				//mboxMarkerLineNumber = lineNumber;
 
 				base.OnMboxMarkerRead (marker, startIndex, count, beginOffset, lineNumber, cancellationToken);
 			}
@@ -236,8 +236,7 @@ namespace UnitTests {
 						parent.Offsets.Body = offsets;
 						break;
 					case MimeType.Multipart:
-						if (parent.Offsets.Children == null)
-							parent.Offsets.Children = new List<MimeOffsets> ();
+						parent.Offsets.Children ??= new List<MimeOffsets> ();
 						parent.Offsets.Children.Add (offsets);
 						break;
 					default:

@@ -184,9 +184,8 @@ namespace MimeKit.Text {
 			bool body = false;
 			bool full = false;
 			bool lwsp = true;
-			HtmlToken token;
 
-			while (!full && tokenizer.ReadNextToken (out token)) {
+			while (!full && tokenizer.ReadNextToken (out var token)) {
 				switch (token.Kind) {
 				case HtmlTokenKind.Tag:
 					var tag = (HtmlTagToken) token;

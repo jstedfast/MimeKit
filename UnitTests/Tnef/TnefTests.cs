@@ -546,9 +546,7 @@ namespace UnitTests.Tnef {
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentType.Name);
 							break;
 						case TnefPropertyId.AttachSize:
-							if (attachment.ContentDisposition == null)
-								attachment.ContentDisposition = new ContentDisposition ();
-
+							attachment.ContentDisposition ??= new ContentDisposition ();
 							attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, attachment.ContentDisposition.Size.Value);
 							break;
@@ -575,9 +573,7 @@ namespace UnitTests.Tnef {
 					time = prop.ReadValueAsDateTime ();
 
 					if (attachment != null) {
-						if (attachment.ContentDisposition == null)
-							attachment.ContentDisposition = new ContentDisposition ();
-
+						attachment.ContentDisposition ??= new ContentDisposition ();
 						attachment.ContentDisposition.CreationDate = time;
 					}
 
@@ -587,9 +583,7 @@ namespace UnitTests.Tnef {
 					time = prop.ReadValueAsDateTime ();
 
 					if (attachment != null) {
-						if (attachment.ContentDisposition == null)
-							attachment.ContentDisposition = new ContentDisposition ();
-
+						attachment.ContentDisposition ??= new ContentDisposition ();
 						attachment.ContentDisposition.ModificationDate = time;
 					}
 

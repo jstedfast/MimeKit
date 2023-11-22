@@ -88,7 +88,7 @@ namespace UnitTests.Text {
 			TextReader reader = null;
 			Stream stream = null;
 
-			encoding = encoding ?? Encoding.GetEncoding (1252);
+			encoding ??= Encoding.GetEncoding (1252);
 
 			if (useTextReader)
 				reader = new StreamReader (path, encoding, detectEncodingFromByteOrderMarks);

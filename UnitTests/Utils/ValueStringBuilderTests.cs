@@ -78,9 +78,11 @@ namespace UnitTests.Utils {
 			var sb = new StringBuilder ();
 			var vsb = new ValueStringBuilder ();
 
+#pragma warning disable CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
 			sb.Append ("a");
 			sb.Append ((string) null);
 			sb.Append ("b");
+#pragma warning restore CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
 
 			vsb.Append ("a");
 			vsb.Append ((string?) null);
@@ -96,9 +98,11 @@ namespace UnitTests.Utils {
 			var sb = new StringBuilder ();
 			var vsb = new ValueStringBuilder ();
 
+#pragma warning disable CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
 			sb.Append ("b");
 			sb.Insert (0, (string) null);
 			sb.Insert (0, "a");
+#pragma warning restore CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
 
 			vsb.Append ("b");
 			vsb.Insert (0, (string?) null);

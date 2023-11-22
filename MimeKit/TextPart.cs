@@ -123,7 +123,7 @@ namespace MimeKit {
 			}
 
 			if (text != null) {
-				encoding = encoding ?? Encoding.UTF8;
+				encoding ??= Encoding.UTF8;
 				SetText (encoding, text);
 			}
 		}

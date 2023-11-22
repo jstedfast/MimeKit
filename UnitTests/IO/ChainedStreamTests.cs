@@ -314,8 +314,8 @@ namespace UnitTests.IO {
 				long expected, actual;
 
 				switch (origin) {
-				case SeekOrigin.Current: offset = offset - master.Position; break;
-				case SeekOrigin.End: offset = offset - master.Length; break;
+				case SeekOrigin.Current: offset -= master.Position; break;
+				case SeekOrigin.End: offset -= master.Length; break;
 				}
 
 				if (origin == SeekOrigin.Begin) {

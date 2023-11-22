@@ -95,19 +95,6 @@ namespace MimeKit.Text {
 			return line.Slice (index);
 		}
 
-		static bool StartsWith (string text, int startIndex, string value)
-		{
-			if (startIndex + value.Length > text.Length)
-				return false;
-
-			for (int i = 0; i < value.Length; i++) {
-				if (text[startIndex + i] != value[i])
-					return false;
-			}
-
-			return true;
-		}
-
 		static string GetFlowedLine (StringBuilder flowed, ReadOnlySpan<char> line, ref int index, int quoteDepth)
 		{
 			flowed.Length = 0;

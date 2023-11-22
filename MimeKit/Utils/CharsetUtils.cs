@@ -33,6 +33,7 @@ using System.Collections.Generic;
 namespace MimeKit.Utils {
 	static class CharsetUtils
 	{
+		static readonly char[] DashUnderscore = new[] { '-', '_' };
 		static readonly Dictionary<string, int> aliases;
 		public static readonly Encoding Latin1;
 		public static readonly Encoding UTF8;
@@ -182,7 +183,7 @@ namespace MimeKit.Utils {
 			if ((charset.Length - startIndex) < 5)
 				return -1;
 
-			int dash = charset.IndexOfAny (new [] { '-', '_' }, startIndex);
+			int dash = charset.IndexOfAny (DashUnderscore, startIndex);
 			if (dash == -1)
 				dash = charset.Length;
 

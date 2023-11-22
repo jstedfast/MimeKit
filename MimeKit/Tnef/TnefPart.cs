@@ -210,9 +210,8 @@ namespace MimeKit.Tnef {
 				// It should be safe to assume ISO-8859-1 for this purpose. We don't want to risk using UTF-8 (or any other charset) and having it throw an exception...
 				using (var reader = new StreamReader (stream, CharsetUtils.Latin1, true)) {
 					var tokenizer = new HtmlTokenizer (reader);
-					HtmlToken token;
 
-					while (tokenizer.ReadNextToken (out token)) {
+					while (tokenizer.ReadNextToken (out var token)) {
 						if (token.Kind != HtmlTokenKind.Tag)
 							continue;
 
@@ -229,8 +228,8 @@ namespace MimeKit.Tnef {
 
 						for (int i = 0; i < tag.Attributes.Count; i++) {
 							switch (tag.Attributes[i].Id) {
-							case HtmlAttributeId.HttpEquiv: httpEquiv = httpEquiv ?? tag.Attributes[i].Value; break;
-							case HtmlAttributeId.Content: content = content ?? tag.Attributes[i].Value; break;
+							case HtmlAttributeId.HttpEquiv: httpEquiv ??= tag.Attributes[i].Value; break;
+							case HtmlAttributeId.Content: content ??= tag.Attributes[i].Value; break;
 							}
 						}
 
@@ -527,8 +526,7 @@ namespace MimeKit.Tnef {
 								attachment.FileName = prop.ReadValueAsString ();
 								break;
 							case TnefPropertyId.AttachFilename:
-								if (attachment.FileName is null)
-									attachment.FileName = prop.ReadValueAsString ();
+								attachment.FileName ??= prop.ReadValueAsString ();
 								break;
 							case TnefPropertyId.AttachContentLocation:
 								attachment.ContentLocation = prop.ReadValueAsUri ();
@@ -608,17 +606,13 @@ namespace MimeKit.Tnef {
 						break;
 					case TnefAttributeTag.AttachCreateDate:
 						if (attachment != null) {
-							if (attachment.ContentDisposition is null)
-								attachment.ContentDisposition = new ContentDisposition ();
-
+							attachment.ContentDisposition ??= new ContentDisposition ();
 							attachment.ContentDisposition.CreationDate = prop.ReadValueAsDateTime ();
 						}
 						break;
 					case TnefAttributeTag.AttachModifyDate:
 						if (attachment != null) {
-							if (attachment.ContentDisposition is null)
-								attachment.ContentDisposition = new ContentDisposition ();
-
+							attachment.ContentDisposition ??= new ContentDisposition ();
 							attachment.ContentDisposition.ModificationDate = prop.ReadValueAsDateTime ();
 						}
 						break;

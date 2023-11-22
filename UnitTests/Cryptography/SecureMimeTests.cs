@@ -843,7 +843,7 @@ namespace UnitTests.Cryptography {
 			var signature = signatures[0];
 
 			using (var ctx = CreateContext ()) {
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -892,7 +892,7 @@ namespace UnitTests.Cryptography {
 			var signature = signatures[0];
 
 			using (var ctx = CreateContext ()) {
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -941,7 +941,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1007,7 +1007,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1065,7 +1065,7 @@ namespace UnitTests.Cryptography {
 				try {
 					multipart = MultipartSigned.Create (signer, body);
 				} catch (NotSupportedException) {
-					if (!(ctx is WindowsSecureMimeContext))
+					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSASSA-PSS should be supported.");
 					return;
 				}
@@ -1083,7 +1083,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1124,7 +1124,7 @@ namespace UnitTests.Cryptography {
 				try {
 					multipart = await MultipartSigned.CreateAsync (signer, body);
 				} catch (NotSupportedException) {
-					if (!(ctx is WindowsSecureMimeContext))
+					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSASSA-PSS should be supported.");
 					return;
 				}
@@ -1142,7 +1142,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
 				Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1201,7 +1201,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1277,7 +1277,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1348,7 +1348,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1406,7 +1406,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -1779,7 +1779,7 @@ namespace UnitTests.Cryptography {
 				try {
 					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
 				} catch (NotSupportedException) {
-					if (!(ctx is WindowsSecureMimeContext))
+					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSAES-OAEP should be supported.");
 					return;
 				}
@@ -1820,7 +1820,7 @@ namespace UnitTests.Cryptography {
 				try {
 					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
 				} catch (NotSupportedException) {
-					if (!(ctx is WindowsSecureMimeContext))
+					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSAES-OAEP should be supported.");
 					return;
 				}
@@ -1960,7 +1960,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (self.Fingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -2045,7 +2045,7 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (self.Name, signature.SignerCertificate.Name);
 				Assert.AreEqual (self.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (self.Fingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -2141,7 +2141,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
@@ -2224,7 +2224,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (!(ctx is WindowsSecureMimeContext) || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
 					Assert.AreEqual (ThunderbirdName, signature.SignerCertificate.Name);
 				Assert.AreEqual (sender.Address, signature.SignerCertificate.Email);
 				Assert.AreEqual (ThunderbirdFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());

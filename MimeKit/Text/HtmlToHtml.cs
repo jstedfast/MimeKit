@@ -268,9 +268,8 @@ namespace MimeKit.Text {
 					DecodeCharacterReferences = false
 				};
 				HtmlToHtmlTagContext ctx;
-				HtmlToken token;
 
-				while (tokenizer.ReadNextToken (out token)) {
+				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {
 					default:
 						if (!SuppressContent (stack))
