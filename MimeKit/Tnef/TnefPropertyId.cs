@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#pragma warning disable CA1069 // Enums values should not be duplicated
+
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF property identifier.
@@ -2583,3 +2585,5 @@ namespace MimeKit.Tnef {
 		Ypos                                     = 0x3F06,
 	}
 }
+
+#pragma warning restore
