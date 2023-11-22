@@ -397,7 +397,7 @@ namespace MimeKit {
 			if (index == -1)
 				throw new FileNotFoundException ();
 
-			if (!(this[index] is MimePart part) || part.Content is null)
+			if (this[index] is not MimePart part || part.Content is null)
 				throw new FileNotFoundException ();
 
 			return part.Content.Open ();

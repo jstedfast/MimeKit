@@ -571,9 +571,7 @@ namespace MimeKit.Tnef {
 								}
 								break;
 							case TnefPropertyId.AttachSize:
-								if (attachment.ContentDisposition is null)
-									attachment.ContentDisposition = new ContentDisposition ();
-
+								attachment.ContentDisposition ??= new ContentDisposition ();
 								attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
 								break;
 							case TnefPropertyId.DisplayName:

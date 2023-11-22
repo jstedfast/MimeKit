@@ -2292,9 +2292,7 @@ namespace MimeKit.Cryptography {
 						}
 					} else if (obj is PgpSignatureList) {
 						signatureList = (PgpSignatureList) obj;
-					} else if (obj is PgpLiteralData) {
-						var literal = (PgpLiteralData) obj;
-
+					} else if (obj is PgpLiteralData literal) {
 						using (var stream = literal.GetDataStream ()) {
 							var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 							int nread;
