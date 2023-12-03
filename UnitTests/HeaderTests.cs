@@ -723,5 +723,21 @@ namespace UnitTests {
 
 			Assert.AreEqual (expected.ReplaceLineEndings (), result);
 		}
+
+		[Test]
+		public void TestEncodeDispositionNotificationOptions ()
+		{
+			const string value = "signed-receipt-protocol=optional,pkcs7-signature;signed-receipt-micalg=optional,sha1,sha128,sha256";
+			const string expected = " signed-receipt-protocol=optional,pkcs7-signature;\r\n\tsigned-receipt-micalg=optional,sha1,sha128,sha256\r\n";
+			var header = new Header (HeaderId.DispositionNotificationOptions, value);
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = false;
+
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.AreEqual (expected.ReplaceLineEndings (), result);
+		}
 	}
 }

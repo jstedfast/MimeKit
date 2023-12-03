@@ -677,7 +677,7 @@ namespace MimeKit {
 		{
 			var tokens = new List<ReceivedTokenValue> ();
 			var rawValue = encoding.GetBytes (value);
-			var encoded = new ValueStringBuilder (128);
+			var encoded = new ValueStringBuilder (rawValue.Length);
 			int lineLength = field.Length + 1;
 			bool date = false;
 			int index = 0;
@@ -825,7 +825,7 @@ namespace MimeKit {
 
 		static byte[] EncodeDkimOrArcSignatureHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new ValueStringBuilder (128);
+			var encoded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 1;
 			int index = 0;
 
@@ -884,9 +884,58 @@ namespace MimeKit {
 			return encoding.GetBytes (encoded.ToString ());
 		}
 
+		static byte[] EncodeDispositionNotificationOptions (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
+		{
+			var encoded = new ValueStringBuilder (value.Length);
+			int lineLength = field.Length + 1;
+			int index = 0;
+
+			while (index < value.Length) {
+				using var parameter = new ValueStringBuilder (128);
+
+				while (index < value.Length && IsWhiteSpace (value[index]))
+					index++;
+
+				int startIndex = index;
+
+				while (index < value.Length && value[index] != '=') {
+					if (!IsWhiteSpace (value[index]))
+						parameter.Append (value[index]);
+					index++;
+				}
+
+				while (index < value.Length && value[index] != ';') {
+					if (!IsWhiteSpace (value[index]))
+						parameter.Append (value[index]);
+					index++;
+				}
+
+				if (index < value.Length && value[index] == ';') {
+					parameter.Append (';');
+					index++;
+				}
+
+				if (lineLength + parameter.Length + 1 > format.MaxLineLength && encoded.Length > 0) {
+					encoded.Append (format.NewLine);
+					encoded.Append ('\t');
+					lineLength = 1;
+				} else {
+					encoded.Append (' ');
+					lineLength++;
+				}
+
+				encoded.Append (parameter.AsSpan ());
+				lineLength += parameter.Length;
+			}
+
+			encoded.Append (format.NewLine);
+
+			return encoding.GetBytes (encoded.ToString ());
+		}
+
 		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new ValueStringBuilder (128);
+			var encoded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 1;
 			int count = 0;
 
@@ -1179,7 +1228,7 @@ namespace MimeKit {
 
 		static byte[] EncodeMailingListCommandHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new ValueStringBuilder (128);
+			var encoded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 1;
 			int index = 0;
 
@@ -1309,6 +1358,8 @@ namespace MimeKit {
 				return EncodeContentDisposition (Options, format, encoding, Field, value);
 			case HeaderId.ContentType:
 				return EncodeContentType (Options, format, encoding, Field, value);
+			case HeaderId.DispositionNotificationOptions:
+				return EncodeDispositionNotificationOptions (Options, format, encoding, Field, value);
 			case HeaderId.ArcAuthenticationResults:
 			case HeaderId.AuthenticationResults:
 				return EncodeAuthenticationResultsHeader (Options, format, encoding, Field, value);
@@ -1362,6 +1413,8 @@ namespace MimeKit {
 					return ReformatContentDisposition (Options, format, CharsetUtils.UTF8, Field, rawValue);
 				case HeaderId.ContentType:
 					return ReformatContentType (Options, format, CharsetUtils.UTF8, Field, rawValue);
+				case HeaderId.DispositionNotificationOptions:
+					return rawValue;
 				case HeaderId.ArcAuthenticationResults:
 				case HeaderId.AuthenticationResults:
 					// Note: No text that can be internationalized.
