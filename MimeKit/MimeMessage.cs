@@ -54,7 +54,7 @@ namespace MimeKit {
 	/// tree of MIME entities such as a text/plain MIME part and a collection
 	/// of file attachments.</para>
 	/// </remarks>
-	public class MimeMessage : IDisposable
+	public class MimeMessage : IMimeMessage
 	{
 		static readonly HeaderId[] StandardAddressHeaders = {
 			HeaderId.ResentFrom, HeaderId.ResentReplyTo, HeaderId.ResentTo, HeaderId.ResentCc, HeaderId.ResentBcc,
