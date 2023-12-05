@@ -45,7 +45,7 @@ namespace MimeKit {
 	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
 	/// derivatives of one of those.</para>
 	/// </remarks>
-	public abstract class MimeEntity : IDisposable
+	public abstract class MimeEntity : IMimeEntity
 	{
 		[Flags]
 		internal enum LazyLoadedFields : short

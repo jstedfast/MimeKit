@@ -63,7 +63,7 @@ namespace MimeKit {
 	/// inter-related MIME parts which typically reference each other via URIs based on the Content-Id and/or
 	/// Content-Location headers.</para>
 	/// </remarks>
-	public class Multipart : MimeEntity, ICollection<MimeEntity>, IList<MimeEntity>
+	public class Multipart : MimeEntity, IMultipart
 	{
 		readonly List<MimeEntity> children;
 		string preamble, epilogue;

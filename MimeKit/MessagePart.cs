@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents MIME entities such as those with a Content-Type of message/rfc822 or message/news.
 	/// </remarks>
-	public class MessagePart : MimeEntity
+	public class MessagePart : MimeEntity, IMessagePart
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessagePart"/> class.

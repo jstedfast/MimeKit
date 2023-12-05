@@ -48,7 +48,7 @@ namespace MimeKit {
 	/// <example>
 	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 	/// </example>
-	public class MimePart : MimeEntity
+	public class MimePart : MimeEntity, IMimePart
 	{
 		static readonly string[] ContentTransferEncodings = {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
