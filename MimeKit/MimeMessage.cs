@@ -286,8 +286,9 @@ namespace MimeKit {
 		/// a message will contain transmission headers such as From and To along
 		/// with metadata headers such as Subject and Date, but may include just
 		/// about anything.</para>
-		/// <note type="tip">To access any MIME headers other than
-		/// <see cref="HeaderId.MimeVersion"/>, you will need to access the
+		/// <note type="tip">To access any MIME headers such as <see cref="HeaderId.ContentType"/>,
+		/// <see cref="HeaderId.ContentDisposition"/>, <see cref="HeaderId.ContentTransferEncoding"/>
+		/// or any other <c>Content-*</c> header, you will need to access the
 		/// <see cref="MimeEntity.Headers"/> property of the <see cref="Body"/>.
 		/// </note>
 		/// </remarks>
