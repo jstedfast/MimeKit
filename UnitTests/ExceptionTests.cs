@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#if NET6_0
+
 #pragma warning disable SYSLIB0011
 
 using System.Runtime.Serialization.Formatters.Binary;
@@ -182,3 +184,5 @@ namespace UnitTests {
 }
 
 #pragma warning restore SYSLIB0011
+
+#endif // NET6_0

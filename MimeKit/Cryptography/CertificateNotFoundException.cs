@@ -93,7 +93,7 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="info"/> is <c>null</c>.
 		/// </exception>
 		[SecurityCritical]
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
 		[Obsolete ("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
 #endif
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
