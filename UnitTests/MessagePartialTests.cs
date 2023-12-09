@@ -104,20 +104,20 @@ namespace UnitTests {
 			partial.ContentType.Parameters["number"] = "invalid";
 			partial.ContentType.Parameters["total"] = "invalid";
 
-			Assert.IsNull (partial.Number, "Invalid number");
-			Assert.IsNull (partial.Total, "Invalid total");
+			Assert.That (partial.Number, Is.Null, "Invalid number");
+			Assert.That (partial.Total, Is.Null, "Invalid total");
 
 			partial.ContentType.Parameters.Remove ("number");
 			partial.ContentType.Parameters.Remove ("total");
 
-			Assert.IsNull (partial.Number, "No number");
-			Assert.IsNull (partial.Total, "No total");
+			Assert.That (partial.Number, Is.Null, "No number");
+			Assert.That (partial.Total, Is.Null, "No total");
 
 			partial.ContentType.Parameters["number"] = "1";
 			partial.ContentType.Parameters["total"] = "5";
 
-			Assert.AreEqual (1, partial.Number.Value, "Number");
-			Assert.AreEqual (5, partial.Total.Value, "Total");
+			Assert.That (partial.Number.Value, Is.EqualTo (1), "Number");
+			Assert.That (partial.Total.Value, Is.EqualTo (5), "Total");
 		}
 
 		static void AssertRawMessageStreams (MimeMessage expected, MimeMessage actual)
@@ -138,10 +138,10 @@ namespace UnitTests {
 				var actualBytes = new byte[stream.Position];
 				Array.Copy (stream.GetBuffer (), 0, actualBytes, 0, (int) stream.Position);
 
-				Assert.AreEqual (expectedBytes.Length, actualBytes.Length, "bytes");
+				Assert.That (actualBytes.Length, Is.EqualTo (expectedBytes.Length), "bytes");
 
 				for (int i = 0; i < expectedBytes.Length; i++)
-					Assert.AreEqual (expectedBytes[i], actualBytes[i], "bytes[{0}]", i);
+					Assert.That (actualBytes[i], Is.EqualTo (expectedBytes[i]), $"bytes[{i}]");
 			}
 		}
 
@@ -153,30 +153,30 @@ namespace UnitTests {
 			var message2 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.2.eml"));
 			var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 
-			Assert.IsNotNull (message0, "Failed to parse message-partial.0.eml");
-			Assert.IsNotNull (message1, "Failed to parse message-partial.1.eml");
-			Assert.IsNotNull (message2, "Failed to parse message-partial.2.eml");
+			Assert.That (message0, Is.Not.Null, "Failed to parse message-partial.0.eml");
+			Assert.That (message1, Is.Not.Null, "Failed to parse message-partial.1.eml");
+			Assert.That (message2, Is.Not.Null, "Failed to parse message-partial.2.eml");
 
-			Assert.IsTrue (message0.Body is MessagePartial, "The body of message-partial.0.eml is not a message/partial");
-			Assert.IsTrue (message1.Body is MessagePartial, "The body of message-partial.1.eml is not a message/partial");
-			Assert.IsTrue (message2.Body is MessagePartial, "The body of message-partial.2.eml is not a message/partial");
+			Assert.That (message0.Body is MessagePartial, Is.True, "The body of message-partial.0.eml is not a message/partial");
+			Assert.That (message1.Body is MessagePartial, Is.True, "The body of message-partial.1.eml is not a message/partial");
+			Assert.That (message2.Body is MessagePartial, Is.True, "The body of message-partial.2.eml is not a message/partial");
 
 			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body, (MessagePartial) message2.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message0, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((MimeMessage) null, partials));
 			var message = MessagePartial.Join (message0, partials);
 
-			Assert.IsNotNull (message, "Failed to reconstruct the message");
-			Assert.AreEqual ("Photo of a girl with feather earrings", message.Subject, "Subjects do not match");
-			Assert.IsTrue (message.Body is Multipart, "Parsed message body is not a multipart");
+			Assert.That (message, Is.Not.Null, "Failed to reconstruct the message");
+			Assert.That (message.Subject, Is.EqualTo ("Photo of a girl with feather earrings"), "Subjects do not match");
+			Assert.That (message.Body is Multipart, Is.True, "Parsed message body is not a multipart");
 
 			var multipart = (Multipart) message.Body;
-			Assert.AreEqual (2, multipart.Count, "Multipart does not contain the expected number of parts");
+			Assert.That (multipart.Count, Is.EqualTo (2), "Multipart does not contain the expected number of parts");
 
 			var part = multipart[1] as MimePart;
-			Assert.IsNotNull (part, "Second part is null or not a MimePart");
-			Assert.IsTrue (part.ContentType.IsMimeType ("image", "jpeg"), "Attachment is not an image/jpeg");
-			Assert.AreEqual ("earrings.jpg", part.FileName, "Attachment filename is not the expected value");
+			Assert.That (part, Is.Not.Null, "Second part is null or not a MimePart");
+			Assert.That (part.ContentType.IsMimeType ("image", "jpeg"), Is.True, "Attachment is not an image/jpeg");
+			Assert.That (part.FileName, Is.EqualTo ("earrings.jpg"), "Attachment filename is not the expected value");
 
 			AssertRawMessageStreams (original, message);
 		}
@@ -188,20 +188,20 @@ namespace UnitTests {
 			var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.1.eml"));
 			var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.eml"));
 
-			Assert.IsNotNull (message0, "Failed to parse rfc2046.0.eml");
-			Assert.IsNotNull (message1, "Failed to parse rfc2046.1.eml");
+			Assert.That (message0, Is.Not.Null, "Failed to parse rfc2046.0.eml");
+			Assert.That (message1, Is.Not.Null, "Failed to parse rfc2046.1.eml");
 
-			Assert.IsTrue (message0.Body is MessagePartial, "The body of rfc2046.0.eml is not a message/partial");
-			Assert.IsTrue (message1.Body is MessagePartial, "The body of rfc2046.1.eml is not a message/partial");
+			Assert.That (message0.Body is MessagePartial, Is.True, "The body of rfc2046.0.eml is not a message/partial");
+			Assert.That (message1.Body is MessagePartial, Is.True, "The body of rfc2046.1.eml is not a message/partial");
 
 			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message0, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((MimeMessage) null, partials));
 			var message = MessagePartial.Join (message0, partials);
 
-			Assert.IsNotNull (message, "Failed to reconstruct the message");
-			Assert.AreEqual ("Audio mail", message.Subject, "Subjects do not match");
-			Assert.IsTrue (message.Body.ContentType.IsMimeType ("audio", "basic"), "Parsed message body is not audio/basic");
+			Assert.That (message, Is.Not.Null, "Failed to reconstruct the message");
+			Assert.That (message.Subject, Is.EqualTo ("Audio mail"), "Subjects do not match");
+			Assert.That (message.Body.ContentType.IsMimeType ("audio", "basic"), Is.True, "Parsed message body is not audio/basic");
 
 			AssertRawMessageStreams (original, message);
 		}
@@ -213,13 +213,13 @@ namespace UnitTests {
 			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
 			var parts = new List<MessagePartial> ();
 
-			Assert.AreEqual (11, split.Count, "Unexpected count");
+			Assert.That (split.Count, Is.EqualTo (11), "Unexpected count");
 
 			for (int i = 0; i < split.Count; i++) {
 				parts.Add ((MessagePartial) split[i].Body);
 
-				Assert.AreEqual (11, parts[i].Total, "Total");
-				Assert.AreEqual (i + 1, parts[i].Number, "Number");
+				Assert.That (parts[i].Total, Is.EqualTo (11), "Total");
+				Assert.That (parts[i].Number, Is.EqualTo (i + 1), "Number");
 			}
 
 			var combined = MessagePartial.Join (message, parts);

@@ -50,19 +50,19 @@ namespace UnitTests {
 			var multipart = (MultipartReport) message.Body;
 
 			Assert.IsInstanceOf<MessageDispositionNotification> (multipart[1], "Expected second part to be a message/disposition-notification.");
-			Assert.AreEqual ("disposition-notification", multipart.ReportType);
+			Assert.That (multipart.ReportType, Is.EqualTo ("disposition-notification"));
 
 			var mdn = (MessageDispositionNotification) multipart[1];
 			var fields = mdn.Fields;
 
-			Assert.IsNotNull (fields, "Did not expect null set of fields.");
-			Assert.AreEqual (5, fields.Count, "Expected 5 fields.");
+			Assert.That (fields, Is.Not.Null, "Did not expect null set of fields.");
+			Assert.That (fields.Count, Is.EqualTo (5), "Expected 5 fields.");
 
-			Assert.AreEqual ("joes-pc.cs.example.com; Foomail 97.1", fields["Reporting-UA"]);
-			Assert.AreEqual ("rfc822;Joe_Recipient@example.com", fields["Original-Recipient"]);
-			Assert.AreEqual ("rfc822;Joe_Recipient@example.com", fields["Final-Recipient"]);
-			Assert.AreEqual ("<199509192301.23456@example.org>", fields["Original-Message-Id"]);
-			Assert.AreEqual ("manual-action/MDN-sent-manually; displayed", fields["Disposition"]);
+			Assert.That (fields["Reporting-UA"], Is.EqualTo ("joes-pc.cs.example.com; Foomail 97.1"));
+			Assert.That (fields["Original-Recipient"], Is.EqualTo ("rfc822;Joe_Recipient@example.com"));
+			Assert.That (fields["Final-Recipient"], Is.EqualTo ("rfc822;Joe_Recipient@example.com"));
+			Assert.That (fields["Original-Message-Id"], Is.EqualTo ("<199509192301.23456@example.org>"));
+			Assert.That (fields["Disposition"], Is.EqualTo ("manual-action/MDN-sent-manually; displayed"));
 		}
 
 		[Test]
@@ -81,7 +81,7 @@ namespace UnitTests {
 				mdn.Content.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
-				Assert.AreEqual (expected, text);
+				Assert.That (text, Is.EqualTo (expected));
 			}
 		}
 	}

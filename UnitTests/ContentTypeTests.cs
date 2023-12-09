@@ -57,11 +57,11 @@ namespace UnitTests {
 			};
 			var clone = original.Clone ();
 
-			Assert.AreEqual (original.MediaType, clone.MediaType, "MediaType");
-			Assert.AreEqual (original.MediaSubtype, clone.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (original.Parameters.Count, clone.Parameters.Count, "Parameters.Count");
-			Assert.AreEqual (original.Charset, clone.Charset, "Charset");
-			Assert.AreEqual (original.Name, clone.Name, "Name");
+			Assert.That (clone.MediaType, Is.EqualTo (original.MediaType), "MediaType");
+			Assert.That (clone.MediaSubtype, Is.EqualTo (original.MediaSubtype), "MediaSubtype");
+			Assert.That (clone.Parameters.Count, Is.EqualTo (original.Parameters.Count), "Parameters.Count");
+			Assert.That (clone.Charset, Is.EqualTo (original.Charset), "Charset");
+			Assert.That (clone.Name, Is.EqualTo (original.Name), "Name");
 		}
 
 		[Test]
@@ -74,102 +74,102 @@ namespace UnitTests {
 			contentType.Changed += (sender, args) => { changed++; };
 
 			contentType.Name = "filename.txt";
-			Assert.AreEqual (1, changed, "Setting an initial Name value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial Name value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Name = "filename.txt";
-			Assert.AreEqual (0, changed, "Setting the same Name value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same Name value should not emit the Changed event");
 
 			contentType.Name = "filename.pdf";
-			Assert.AreEqual (1, changed, "Setting a different Name value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different Name value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Name = null;
-			Assert.AreEqual (1, changed, "Removing the Name SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the Name SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Boundary = "=-boundary-marker--";
-			Assert.AreEqual (1, changed, "Setting an initial Boundary value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial Boundary value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Boundary = "=-boundary-marker--";
-			Assert.AreEqual (0, changed, "Setting the same Boundary value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same Boundary value should not emit the Changed event");
 
 			contentType.Boundary = "=-boundary-marker-123--";
-			Assert.AreEqual (1, changed, "Setting a different Boundary value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different Boundary value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Boundary = null;
-			Assert.AreEqual (1, changed, "Removing the Boundary SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the Boundary SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Charset = "utf-8";
-			Assert.AreEqual (1, changed, "Setting an initial Charset value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial Charset value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Charset = "utf-8";
-			Assert.AreEqual (0, changed, "Setting the same Charset value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same Charset value should not emit the Changed event");
 
 			contentType.Charset = "iso-8859-1";
-			Assert.AreEqual (1, changed, "Setting a different Charset value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different Charset value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Charset = null;
-			Assert.AreEqual (1, changed, "Removing the Charset SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the Charset SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.CharsetEncoding = Encoding.UTF8;
-			Assert.AreEqual (1, changed, "Setting an initial CharsetEncoding value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial CharsetEncoding value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.CharsetEncoding = Encoding.UTF8;
-			Assert.AreEqual (0, changed, "Setting the same CharsetEncoding value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same CharsetEncoding value should not emit the Changed event");
 
 			contentType.CharsetEncoding = Encoding.ASCII;
-			Assert.AreEqual (1, changed, "Setting a different CharsetEncoding value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different CharsetEncoding value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.CharsetEncoding = null;
-			Assert.AreEqual (1, changed, "Removing the CharsetEncoding SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the CharsetEncoding SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Format = "flowed";
-			Assert.AreEqual (1, changed, "Setting an initial Format value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial Format value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Format = "flowed";
-			Assert.AreEqual (0, changed, "Setting the same Format value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same Format value should not emit the Changed event");
 
 			contentType.Format = "unknown";
-			Assert.AreEqual (1, changed, "Setting a different Format value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different Format value SHOULD emit the Changed event");
 			changed = 0;
 
 			contentType.Format = null;
-			Assert.AreEqual (1, changed, "Removing the Format SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the Format SHOULD emit the Changed event");
 			changed = 0;
 		}
 
 		static void AssertParseResults (ContentType type, ContentType expected)
 		{
 			if (expected == null) {
-				Assert.IsNull (type);
+				Assert.That (type, Is.Null);
 				return;
 			}
 
-			Assert.AreEqual (expected.MediaType, type.MediaType, "MediaType");
-			Assert.AreEqual (expected.MediaSubtype, type.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual (expected.Parameters.Count, type.Parameters.Count, "Parameter count");
+			Assert.That (type.MediaType, Is.EqualTo (expected.MediaType), "MediaType");
+			Assert.That (type.MediaSubtype, Is.EqualTo (expected.MediaSubtype), "MediaSubtype");
+			Assert.That (type.Parameters.Count, Is.EqualTo (expected.Parameters.Count), "Parameter count");
 
 			for (int i = 0; i < expected.Parameters.Count; i++) {
 				var encoding = expected.Parameters[i].Encoding;
 				var value = expected.Parameters[i].Value;
 				var name = expected.Parameters[i].Name;
 
-				Assert.AreEqual (name, type.Parameters[i].Name);
-				Assert.AreEqual (encoding, type.Parameters[i].Encoding);
-				Assert.AreEqual (value, type.Parameters[i].Value);
-				Assert.IsTrue (type.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], type.Parameters[name]);
+				Assert.That (type.Parameters[i].Name, Is.EqualTo (name));
+				Assert.That (type.Parameters[i].Encoding, Is.EqualTo (encoding));
+				Assert.That (type.Parameters[i].Value, Is.EqualTo (value));
+				Assert.That (type.Parameters.Contains (name), Is.True);
+				Assert.That (type.Parameters[name], Is.EqualTo (expected.Parameters[name]));
 			}
 		}
 
@@ -179,28 +179,28 @@ namespace UnitTests {
 			var options = ParserOptions.Default;
 			ContentType type;
 
-			Assert.AreEqual (result, ContentType.TryParse (text, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (text, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (options, text, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (options, text, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (buffer, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (buffer, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (options, buffer, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (buffer, 0, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (buffer, 0, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (options, buffer, 0, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, 0, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (buffer, 0, buffer.Length, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (buffer, 0, buffer.Length, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
-			Assert.AreEqual (result, ContentType.TryParse (options, buffer, 0, buffer.Length, out type), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, 0, buffer.Length, out type), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (type, expected);
 
 			try {
@@ -209,8 +209,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -221,8 +221,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -233,8 +233,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -245,8 +245,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -257,8 +257,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -269,8 +269,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -281,8 +281,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -293,8 +293,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -430,7 +430,7 @@ namespace UnitTests {
 
 			var encoded = type.Encode (format, Encoding.UTF8);
 
-			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+			Assert.That (encoded, Is.EqualTo (expected), $"Encoded Content-Type does not match: {expected}");
 		}
 
 		[Test]
@@ -447,7 +447,7 @@ namespace UnitTests {
 
 			var encoded = type.Encode (format, Encoding.UTF8);
 
-			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+			Assert.That (encoded, Is.EqualTo (expected), $"Encoded Content-Type does not match: {expected}");
 		}
 
 		[Test]
@@ -463,7 +463,7 @@ namespace UnitTests {
 
 			var encoded = type.Encode (format, Encoding.UTF8);
 
-			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+			Assert.That (encoded, Is.EqualTo (expected), $"Encoded Content-Type does not match: {expected}");
 		}
 
 		[Test]
@@ -480,7 +480,7 @@ namespace UnitTests {
 
 			var encoded = type.Encode (format, Encoding.UTF8);
 
-			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+			Assert.That (encoded, Is.EqualTo (expected), $"Encoded Content-Type does not match: {expected}");
 		}
 
 		[Test]
@@ -496,7 +496,7 @@ namespace UnitTests {
 
 			var encoded = type.Encode (format, Encoding.UTF8);
 
-			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+			Assert.That (encoded, Is.EqualTo (expected), $"Encoded Content-Type does not match: {expected}");
 		}
 
 		[Test]
@@ -513,7 +513,7 @@ namespace UnitTests {
 
 			var encoded = type.Encode (format, Encoding.UTF8);
 
-			Assert.AreEqual (expected, encoded, "Encoded Content-Type does not match: {0}", expected);
+			Assert.That (encoded, Is.EqualTo (expected), $"Encoded Content-Type does not match: {expected}");
 		}
 
 		[Test]
@@ -537,20 +537,20 @@ namespace UnitTests {
 
 			// it should fail using the strict parser...
 			options.ParameterComplianceMode = RfcComplianceMode.Strict;
-			Assert.IsFalse (ContentType.TryParse (options, buffer, out type), "Should not have parsed (strict mode): {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, out type), Is.False, $"Should not have parsed (strict mode): {text}");
 			// however, it should preserve at least the type/subtype info... (I call this a feature!)
-			Assert.IsNotNull (type, "Even though parsing failed, the content type should not be null.");
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "octet-stream", "Media subtype does not match: {0}", text);
+			Assert.That (type, Is.Not.Null, "Even though parsing failed, the content type should not be null.");
+			Assert.That (type.MediaType, Is.EqualTo ("application"), $"Media type does not match: {text}");
+			Assert.That (type.MediaSubtype, Is.EqualTo ("octet-stream"), $"Media subtype does not match: {text}");
 
 			// it *should* pass with the loose parser
 			options.ParameterComplianceMode = RfcComplianceMode.Loose;
-			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "application", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "octet-stream", "Media subtype does not match: {0}", text);
-			Assert.IsNotNull (type.Parameters, "Parameter list is null: {0}", text);
-			Assert.IsTrue (type.Parameters.Contains ("name"), "Parameter list does not contain name param: {0}", text);
-			Assert.AreEqual (type.Parameters["name"], "Test Name.pdf", "name values do not match: {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, out type), Is.True, $"Failed to parse: {text}");
+			Assert.That (type.MediaType, Is.EqualTo ("application"), $"Media type does not match: {text}");
+			Assert.That (type.MediaSubtype, Is.EqualTo ("octet-stream"), $"Media subtype does not match: {text}");
+			Assert.That (type.Parameters, Is.Not.Null, $"Parameter list is null: {text}");
+			Assert.That (type.Parameters.Contains ("name"), Is.True, $"Parameter list does not contain name param: {text}");
+			Assert.That (type.Parameters["name"], Is.EqualTo ("Test Name.pdf"), $"name values do not match: {text}");
 		}
 
 		[Test]
@@ -562,16 +562,16 @@ namespace UnitTests {
 			ContentType type;
 
 			options.ParameterComplianceMode = RfcComplianceMode.Strict;
-			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
-			Assert.AreEqual ("--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f", type.Boundary, "The boundary parameter does not match: {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, out type), Is.True, $"Failed to parse: {text}");
+			Assert.That (type.MediaType, Is.EqualTo ("multipart"), $"Media type does not match: {text}");
+			Assert.That (type.MediaSubtype, Is.EqualTo ("mixed"), $"Media subtype does not match: {text}");
+			Assert.That (type.Boundary, Is.EqualTo ("--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f"), $"The boundary parameter does not match: {text}");
 
 			options.ParameterComplianceMode = RfcComplianceMode.Loose;
-			Assert.IsTrue (ContentType.TryParse (options, buffer, out type), "Failed to parse: {0}", text);
-			Assert.AreEqual (type.MediaType, "multipart", "Media type does not match: {0}", text);
-			Assert.AreEqual (type.MediaSubtype, "mixed", "Media subtype does not match: {0}", text);
-			Assert.AreEqual ("--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f", type.Boundary, "The boundary parameter does not match: {0}", text);
+			Assert.That (ContentType.TryParse (options, buffer, out type), Is.True, $"Failed to parse: {text}");
+			Assert.That (type.MediaType, Is.EqualTo ("multipart"), $"Media type does not match: {text}");
+			Assert.That (type.MediaSubtype, Is.EqualTo ("mixed"), $"Media subtype does not match: {text}");
+			Assert.That (type.Boundary, Is.EqualTo ("--boundary_0_8ab0e518-760f-4a94-acc0-66f7cdea5c9f"), $"The boundary parameter does not match: {text}");
 		}
 
 		[Test]
@@ -580,8 +580,8 @@ namespace UnitTests {
 			const string text = " text/plain; format=flowed; x-eai-please-do-not=\"abstürzen\"";
 			ContentType type;
 
-			Assert.IsTrue (ContentType.TryParse (text, out type));
-			Assert.AreEqual ("abstürzen", type.Parameters["x-eai-please-do-not"]);
+			Assert.That (ContentType.TryParse (text, out type), Is.True);
+			Assert.That (type.Parameters["x-eai-please-do-not"], Is.EqualTo ("abstürzen"));
 		}
 
 		[Test]
@@ -686,30 +686,30 @@ namespace UnitTests {
 			var type = new ContentType ("application", "octet-stream") {
 				MediaType = "text"
 			};
-			Assert.AreEqual ("text", type.MediaType);
+			Assert.That (type.MediaType, Is.EqualTo ("text"));
 
 			type.MediaSubtype = "plain";
-			Assert.AreEqual ("plain", type.MediaSubtype);
+			Assert.That (type.MediaSubtype, Is.EqualTo ("plain"));
 
 			type.Boundary = "--=Boundary=--";
-			Assert.AreEqual ("--=Boundary=--", type.Boundary);
+			Assert.That (type.Boundary, Is.EqualTo ("--=Boundary=--"));
 			type.Boundary = null;
-			Assert.IsNull (type.Boundary);
+			Assert.That (type.Boundary, Is.Null);
 
 			type.Format = "flowed";
-			Assert.AreEqual ("flowed", type.Format);
+			Assert.That (type.Format, Is.EqualTo ("flowed"));
 			type.Format = null;
-			Assert.IsNull (type.Format);
+			Assert.That (type.Format, Is.Null);
 
 			type.Charset = "iso-8859-1";
-			Assert.AreEqual ("iso-8859-1", type.Charset);
+			Assert.That (type.Charset, Is.EqualTo ("iso-8859-1"));
 			type.Charset = null;
-			Assert.IsNull (type.Charset);
+			Assert.That (type.Charset, Is.Null);
 
 			type.Name = "filename.txt";
-			Assert.AreEqual ("filename.txt", type.Name);
+			Assert.That (type.Name, Is.EqualTo ("filename.txt"));
 			type.Name = null;
-			Assert.IsNull (type.Name);
+			Assert.That (type.Name, Is.Null);
 		}
 
 		[Test]
@@ -719,7 +719,7 @@ namespace UnitTests {
 			var type = new ContentType ("text", "plain") { Format = "flowed", Charset = "iso-8859-1", Name = "filename.txt" };
 			var value = type.ToString ().Replace ("\r\n", "\n");
 
-			Assert.AreEqual (expected, value);
+			Assert.That (value, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -731,19 +731,19 @@ namespace UnitTests {
 			string value;
 
 			value = type.ToString (Encoding.UTF8, true).Replace ("\r\n", "\n");
-			Assert.AreEqual (rfc2231, value, "Default");
+			Assert.That (value, Is.EqualTo (rfc2231), "Default");
 
 			foreach (var parameter in type.Parameters)
 				parameter.EncodingMethod = ParameterEncodingMethod.Rfc2231;
 
 			value = type.ToString (Encoding.UTF8, true).Replace ("\r\n", "\n");
-			Assert.AreEqual (rfc2231, value, "Rfc2231");
+			Assert.That (value, Is.EqualTo (rfc2231), "Rfc2231");
 
 			foreach (var parameter in type.Parameters)
 				parameter.EncodingMethod = ParameterEncodingMethod.Rfc2047;
 
 			value = type.ToString (Encoding.UTF8, true).Replace ("\r\n", "\n");
-			Assert.AreEqual (rfc2047, value, "Rfc2047");
+			Assert.That (value, Is.EqualTo (rfc2047), "Rfc2047");
 		}
 
 		[Test]
@@ -752,10 +752,10 @@ namespace UnitTests {
 			const string input = "multipart/multipart/mixed; boundary=\"boundary-marker\"\r\n";
 			ContentType contentType;
 
-			Assert.IsTrue (ContentType.TryParse (input, out contentType), "Expected TryParse to succeed.");
-			Assert.AreEqual ("multipart", contentType.MediaType, "MediaType");
-			Assert.AreEqual ("multipart/mixed", contentType.MediaSubtype, "MediaSubtype");
-			Assert.AreEqual ("boundary-marker", contentType.Boundary, "Boundary");
+			Assert.That (ContentType.TryParse (input, out contentType), Is.True, "Expected TryParse to succeed.");
+			Assert.That (contentType.MediaType, Is.EqualTo ("multipart"), "MediaType");
+			Assert.That (contentType.MediaSubtype, Is.EqualTo ("multipart/mixed"), "MediaSubtype");
+			Assert.That (contentType.Boundary, Is.EqualTo ("boundary-marker"), "Boundary");
 		}
 	}
 }

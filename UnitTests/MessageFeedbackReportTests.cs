@@ -50,26 +50,26 @@ namespace UnitTests {
 			var multipart = (MultipartReport) message.Body;
 
 			Assert.IsInstanceOf<MessageFeedbackReport> (multipart[1], "Expected second part to be a message/feedback-report.");
-			Assert.AreEqual ("feedback-report", multipart.ReportType);
+			Assert.That (multipart.ReportType, Is.EqualTo ("feedback-report"));
 
 			var mfr = (MessageFeedbackReport) multipart[1];
 			var fields = mfr.Fields;
 
-			Assert.IsNotNull (fields, "Did not expect null set of fields.");
-			Assert.AreEqual (12, fields.Count, "Expected 12 fields.");
+			Assert.That (fields, Is.Not.Null, "Did not expect null set of fields.");
+			Assert.That (fields.Count, Is.EqualTo (12), "Expected 12 fields.");
 
-			Assert.AreEqual ("abuse", fields["Feedback-Type"]);
-			Assert.AreEqual ("SomeGenerator/1.0", fields["User-Agent"]);
-			Assert.AreEqual ("1", fields["Version"]);
-			Assert.AreEqual ("<somespammer@example.net>", fields["Original-Mail-From"]);
-			Assert.AreEqual ("<user@example.com>", fields["Original-Rcpt-To"]);
-			Assert.AreEqual ("Thu, 8 Mar 2005 14:00:00 EDT", fields["Received-Date"]);
-			Assert.AreEqual ("192.0.2.2", fields["Source-IP"]);
-			Assert.AreEqual ("mail.example.com;               spf=fail smtp.mail=somespammer@example.com", fields["Authentication-Results"]);
-			Assert.AreEqual ("example.net", fields["Reported-Domain"]);
-			Assert.AreEqual ("http://example.net/earn_money.html", fields["Reported-Uri"]);
-			//Assert.AreEqual ("mailto:user@example.com", fields["Reported-Uri"]);
-			Assert.AreEqual ("user@example.com", fields["Removal-Recipient"]);
+			Assert.That (fields["Feedback-Type"], Is.EqualTo ("abuse"));
+			Assert.That (fields["User-Agent"], Is.EqualTo ("SomeGenerator/1.0"));
+			Assert.That (fields["Version"], Is.EqualTo ("1"));
+			Assert.That (fields["Original-Mail-From"], Is.EqualTo ("<somespammer@example.net>"));
+			Assert.That (fields["Original-Rcpt-To"], Is.EqualTo ("<user@example.com>"));
+			Assert.That (fields["Received-Date"], Is.EqualTo ("Thu, 8 Mar 2005 14:00:00 EDT"));
+			Assert.That (fields["Source-IP"], Is.EqualTo ("192.0.2.2"));
+			Assert.That (fields["Authentication-Results"], Is.EqualTo ("mail.example.com;               spf=fail smtp.mail=somespammer@example.com"));
+			Assert.That (fields["Reported-Domain"], Is.EqualTo ("example.net"));
+			Assert.That (fields["Reported-Uri"], Is.EqualTo ("http://example.net/earn_money.html"));
+			//Assert.That (fields["Reported-Uri"], Is.EqualTo ("mailto:user@example.com"));
+			Assert.That (fields["Removal-Recipient"], Is.EqualTo ("user@example.com"));
 		}
 
 		[Test]
@@ -86,7 +86,7 @@ namespace UnitTests {
 				mfr.Content.DecodeTo (memory);
 
 				var text = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length).Replace ("\r\n", "\n");
-				Assert.AreEqual (expected, text);
+				Assert.That (text, Is.EqualTo (expected));
 			}
 		}
 	}

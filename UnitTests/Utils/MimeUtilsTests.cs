@@ -75,11 +75,11 @@ namespace UnitTests.Utils {
 			for (int i = 0; i < GoodReferences.Length; i += 2) {
 				var reference = MimeUtils.EnumerateReferences (GoodReferences[i]).FirstOrDefault ();
 
-				Assert.AreEqual (GoodReferences[i + 1], reference, "Incorrectly parsed reference '{0}'.", GoodReferences[i]);
+				Assert.That (reference, Is.EqualTo (GoodReferences[i + 1]), $"Incorrectly parsed reference '{GoodReferences[i]}'.");
 
 				reference = MimeUtils.ParseMessageId (GoodReferences[i]);
 
-				Assert.AreEqual (GoodReferences[i + 1], reference, "Incorrectly parsed message-id '{0}'.", GoodReferences[i]);
+				Assert.That (reference, Is.EqualTo (GoodReferences[i + 1]), $"Incorrectly parsed message-id '{GoodReferences[i]}'.");
 			}
 		}
 
@@ -101,11 +101,11 @@ namespace UnitTests.Utils {
 			for (int i = 0; i < BrokenReferences.Length; i++) {
 				var reference = MimeUtils.EnumerateReferences (BrokenReferences[i]).FirstOrDefault ();
 
-				Assert.IsNull (reference, "MimeUtils.EnumerateReferences(\"{0}\")", BrokenReferences[i]);
+				Assert.That (reference, Is.Null, $"MimeUtils.EnumerateReferences(\"{BrokenReferences[i]}\")");
 
 				reference = MimeUtils.ParseMessageId (BrokenReferences[i]);
 
-				Assert.IsNull (reference, "MimeUtils.ParseMessageId (\"{0}\")", BrokenReferences[i]);
+				Assert.That (reference, Is.Null, $"MimeUtils.ParseMessageId (\"{BrokenReferences[i]}\")");
 			}
 		}
 
@@ -114,20 +114,20 @@ namespace UnitTests.Utils {
 		{
 			Version version;
 
-			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n", out version), "1.0");
-			Assert.AreEqual ("1.0", version.ToString ());
+			Assert.That (MimeUtils.TryParse (" 1 (comment) .\t0\r\n", out version), Is.True, "1.0");
+			Assert.That (version.ToString (), Is.EqualTo ("1.0"));
 
-			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0\r\n", out version), "1.0.0");
-			Assert.AreEqual ("1.0.0", version.ToString ());
+			Assert.That (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0\r\n", out version), Is.True, "1.0.0");
+			Assert.That (version.ToString (), Is.EqualTo ("1.0.0"));
 
-			Assert.IsTrue (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0.0\r\n", out version), "1.0.0.0");
-			Assert.AreEqual ("1.0.0.0", version.ToString ());
+			Assert.That (MimeUtils.TryParse (" 1 (comment) .\t0\r\n .0.0\r\n", out version), Is.True, "1.0.0.0");
+			Assert.That (version.ToString (), Is.EqualTo ("1.0.0.0"));
 
-			Assert.IsFalse (MimeUtils.TryParse ("1", out Version _), "1");
-			Assert.IsFalse (MimeUtils.TryParse ("1.2.3.4.5", out Version _), "1.2.3.4.5");
-			Assert.IsFalse (MimeUtils.TryParse ("1x2.3", out Version _), "1x2.3");
-			Assert.IsFalse (MimeUtils.TryParse ("(unterminated comment", out Version _), "unterminated comment");
-			Assert.IsFalse (MimeUtils.TryParse ("1 (unterminated comment", out Version _), "1 + unterminated comment");
+			Assert.That (MimeUtils.TryParse ("1", out Version _), Is.False, "1");
+			Assert.That (MimeUtils.TryParse ("1.2.3.4.5", out Version _), Is.False, "1.2.3.4.5");
+			Assert.That (MimeUtils.TryParse ("1x2.3", out Version _), Is.False, "1x2.3");
+			Assert.That (MimeUtils.TryParse ("(unterminated comment", out Version _), Is.False, "unterminated comment");
+			Assert.That (MimeUtils.TryParse ("1 (unterminated comment", out Version _), Is.False, "1 + unterminated comment");
 		}
 
 		[Test]
@@ -139,7 +139,7 @@ namespace UnitTests.Utils {
 			int at = msgid.IndexOf ('@');
 			var idn = msgid.Substring (at + 1);
 
-			Assert.AreEqual ("xn--mjlnir-xxa", idn);
+			Assert.That (idn, Is.EqualTo ("xn--mjlnir-xxa"));
 		}
 
 		[Test]
@@ -151,7 +151,7 @@ namespace UnitTests.Utils {
 
 			MimeUtils.AppendQuoted (builder, text);
 
-			Assert.AreEqual (expected, builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -161,13 +161,13 @@ namespace UnitTests.Utils {
 			const string expected = "This is a multi-line quoted string with \\backslashes\\ and an escaped dquote (\") inside of it.";
 			var unquoted = MimeUtils.Unquote (quoted, true);
 
-			Assert.AreEqual (expected, unquoted, "Unquote(string)");
+			Assert.That (unquoted, Is.EqualTo (expected), "Unquote(string)");
 
 			var bytes = Encoding.ASCII.GetBytes (quoted);
 			var result = MimeUtils.Unquote (bytes, 0, bytes.Length, true);
 			unquoted = Encoding.ASCII.GetString (result);
 
-			Assert.AreEqual (expected, unquoted, "Unquote(byte[])");
+			Assert.That (unquoted, Is.EqualTo (expected), "Unquote(byte[])");
 		}
 	}
 }

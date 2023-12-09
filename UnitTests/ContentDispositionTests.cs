@@ -58,13 +58,13 @@ namespace UnitTests {
 			};
 			var clone = original.Clone ();
 
-			Assert.AreEqual (original.Disposition, clone.Disposition, "Disposition");
-			Assert.AreEqual (original.Parameters.Count, clone.Parameters.Count, "Parameters.Count");
-			Assert.AreEqual (original.CreationDate, clone.CreationDate, "CreationDate");
-			Assert.AreEqual (original.ModificationDate, clone.ModificationDate, "ModificationDate");
-			Assert.AreEqual (original.ReadDate, clone.ReadDate, "ReadDate");
-			Assert.AreEqual (original.FileName, clone.FileName, "FileName");
-			Assert.AreEqual (original.Size, clone.Size, "Size");
+			Assert.That (clone.Disposition, Is.EqualTo (original.Disposition), "Disposition");
+			Assert.That (clone.Parameters.Count, Is.EqualTo (original.Parameters.Count), "Parameters.Count");
+			Assert.That (clone.CreationDate, Is.EqualTo (original.CreationDate), "CreationDate");
+			Assert.That (clone.ModificationDate, Is.EqualTo (original.ModificationDate), "ModificationDate");
+			Assert.That (clone.ReadDate, Is.EqualTo (original.ReadDate), "ReadDate");
+			Assert.That (clone.FileName, Is.EqualTo (original.FileName), "FileName");
+			Assert.That (clone.Size, Is.EqualTo (original.Size), "Size");
 		}
 
 		[Test]
@@ -77,108 +77,108 @@ namespace UnitTests {
 			disposition.Changed += (sender, args) => { changed++; };
 
 			disposition.Disposition = ContentDisposition.Attachment;
-			Assert.AreEqual (0, changed, "Setting the same Disposition value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same Disposition value should not emit the Changed event");
 
 			disposition.Disposition = ContentDisposition.Inline;
-			Assert.AreEqual (1, changed, "Setting a different Disposition value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different Disposition value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.FileName = "filename.txt";
-			Assert.AreEqual (1, changed, "Setting an initial FileName value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial FileName value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.FileName = "filename.txt";
-			Assert.AreEqual (0, changed, "Setting the same FileName value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same FileName value should not emit the Changed event");
 
 			disposition.FileName = "filename.pdf";
-			Assert.AreEqual (1, changed, "Setting a different FileName value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different FileName value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.FileName = null;
-			Assert.AreEqual (1, changed, "Removing the FileName SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the FileName SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.CreationDate = timestamp;
-			Assert.AreEqual (1, changed, "Setting an initial CreationDate value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial CreationDate value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.CreationDate = timestamp;
-			Assert.AreEqual (0, changed, "Setting the same CreationDate value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same CreationDate value should not emit the Changed event");
 
 			disposition.CreationDate = DateTimeOffset.Now;
-			Assert.AreEqual (1, changed, "Setting a different CreationDate value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different CreationDate value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.CreationDate = null;
-			Assert.AreEqual (1, changed, "Removing the CreationDate SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the CreationDate SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.ModificationDate = timestamp;
-			Assert.AreEqual (1, changed, "Setting an initial ModificationDate value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial ModificationDate value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.ModificationDate = timestamp;
-			Assert.AreEqual (0, changed, "Setting the same ModificationDate value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same ModificationDate value should not emit the Changed event");
 
 			disposition.ModificationDate = DateTimeOffset.Now;
-			Assert.AreEqual (1, changed, "Setting a different ModificationDate value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different ModificationDate value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.ModificationDate = null;
-			Assert.AreEqual (1, changed, "Removing the ModificationDate SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the ModificationDate SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.ReadDate = timestamp;
-			Assert.AreEqual (1, changed, "Setting an initial ReadDate value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial ReadDate value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.ReadDate = timestamp;
-			Assert.AreEqual (0, changed, "Setting the same ReadDate value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same ReadDate value should not emit the Changed event");
 
 			disposition.ReadDate = DateTimeOffset.Now;
-			Assert.AreEqual (1, changed, "Setting a different ReadDate value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different ReadDate value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.ReadDate = null;
-			Assert.AreEqual (1, changed, "Removing the ReadDate SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the ReadDate SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.Size = 1024;
-			Assert.AreEqual (1, changed, "Setting an initial Size value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting an initial Size value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.Size = 1024;
-			Assert.AreEqual (0, changed, "Setting the same Size value should not emit the Changed event");
+			Assert.That (changed, Is.EqualTo (0), "Setting the same Size value should not emit the Changed event");
 
 			disposition.Size = 2048;
-			Assert.AreEqual (1, changed, "Setting a different Size value SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Setting a different Size value SHOULD emit the Changed event");
 			changed = 0;
 
 			disposition.Size = null;
-			Assert.AreEqual (1, changed, "Removing the Size SHOULD emit the Changed event");
+			Assert.That (changed, Is.EqualTo (1), "Removing the Size SHOULD emit the Changed event");
 			changed = 0;
 		}
 
 		static void AssertParseResults (ContentDisposition disposition, ContentDisposition expected)
 		{
 			if (expected == null) {
-				Assert.IsNull (disposition);
+				Assert.That (disposition, Is.Null);
 				return;
 			}
 
-			Assert.AreEqual (expected.Disposition, disposition.Disposition, "Disposition");
-			Assert.AreEqual (expected.Parameters.Count, disposition.Parameters.Count, "Parameter count");
+			Assert.That (disposition.Disposition, Is.EqualTo (expected.Disposition), "Disposition");
+			Assert.That (disposition.Parameters.Count, Is.EqualTo (expected.Parameters.Count), "Parameter count");
 
 			for (int i = 0; i < expected.Parameters.Count; i++) {
 				var encoding = expected.Parameters[i].Encoding;
 				var value = expected.Parameters[i].Value;
 				var name = expected.Parameters[i].Name;
 
-				Assert.AreEqual (name, disposition.Parameters[i].Name);
-				Assert.AreEqual (encoding.EncodingName, disposition.Parameters[i].Encoding.EncodingName);
-				Assert.AreEqual (value, disposition.Parameters[i].Value);
-				Assert.IsTrue (disposition.Parameters.Contains (name));
-				Assert.AreEqual (expected.Parameters[name], disposition.Parameters[name]);
+				Assert.That (disposition.Parameters[i].Name, Is.EqualTo (name));
+				Assert.That (disposition.Parameters[i].Encoding.EncodingName, Is.EqualTo (encoding.EncodingName));
+				Assert.That (disposition.Parameters[i].Value, Is.EqualTo (value));
+				Assert.That (disposition.Parameters.Contains (name), Is.True);
+				Assert.That (disposition.Parameters[name], Is.EqualTo (expected.Parameters[name]));
 			}
 		}
 
@@ -188,28 +188,28 @@ namespace UnitTests {
 			var options = ParserOptions.Default;
 			ContentDisposition disposition;
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (text, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (text, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (options, text, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (options, text, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (buffer, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (buffer, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (options, buffer, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (options, buffer, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (buffer, 0, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (buffer, 0, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (options, buffer, 0, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (options, buffer, 0, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
-			Assert.AreEqual (result, ContentDisposition.TryParse (options, buffer, 0, buffer.Length, out disposition), "Unexpected result for TryParse: {0}", text);
+			Assert.That (ContentDisposition.TryParse (options, buffer, 0, buffer.Length, out disposition), Is.EqualTo (result), $"Unexpected result for TryParse: {text}");
 			AssertParseResults (disposition, expected);
 
 			try {
@@ -218,8 +218,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -230,8 +230,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -242,8 +242,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -254,8 +254,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -266,8 +266,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -278,8 +278,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -290,8 +290,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -302,8 +302,8 @@ namespace UnitTests {
 					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (disposition, expected);
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "Unexpected token index");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "Unexpected error index");
 			} catch (Exception e) {
 				Assert.Fail ($"Unexpected exception: {e}");
 			}
@@ -425,11 +425,11 @@ namespace UnitTests {
 			var encoded = disposition.Encode (format, Encoding.UTF8);
 			Parameter param;
 
-			Assert.AreEqual (expected, encoded, "The encoded Chinese filename parameter does not match the expected value.");
-			Assert.IsTrue (ContentDisposition.TryParse (encoded, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("测试文本.txt", disposition.FileName, "The decoded Chinese filename does not match.");
-			Assert.IsTrue (disposition.Parameters.TryGetValue ("filename", out param), "Failed to locate filename parameter.");
-			Assert.AreEqual ("gb18030", param.Encoding.HeaderName.ToLowerInvariant (), "The filename encoding did not match.");
+			Assert.That (encoded, Is.EqualTo (expected), "The encoded Chinese filename parameter does not match the expected value.");
+			Assert.That (ContentDisposition.TryParse (encoded, out disposition), Is.True, "Failed to parse Content-Disposition");
+			Assert.That (disposition.FileName, Is.EqualTo ("测试文本.txt"), "The decoded Chinese filename does not match.");
+			Assert.That (disposition.Parameters.TryGetValue ("filename", out param), Is.True, "Failed to locate filename parameter.");
+			Assert.That (param.Encoding.HeaderName.ToLowerInvariant (), Is.EqualTo ("gb18030"), "The filename encoding did not match.");
 		}
 
 		[Test]
@@ -446,11 +446,11 @@ namespace UnitTests {
 			var encoded = disposition.Encode (format, Encoding.UTF8);
 			Parameter param;
 
-			Assert.AreEqual (expected, encoded, "The encoded Chinese filename parameter does not match the expected value.");
-			Assert.IsTrue (ContentDisposition.TryParse (encoded, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("测试文本.txt", disposition.FileName, "The decoded Chinese filename does not match.");
-			Assert.IsTrue (disposition.Parameters.TryGetValue ("filename", out param), "Failed to locate filename parameter.");
-			Assert.AreEqual ("gb18030", param.Encoding.HeaderName.ToLowerInvariant (), "The filename encoding did not match.");
+			Assert.That (encoded, Is.EqualTo (expected), "The encoded Chinese filename parameter does not match the expected value.");
+			Assert.That (ContentDisposition.TryParse (encoded, out disposition), Is.True, "Failed to parse Content-Disposition");
+			Assert.That (disposition.FileName, Is.EqualTo ("测试文本.txt"), "The decoded Chinese filename does not match.");
+			Assert.That (disposition.Parameters.TryGetValue ("filename", out param), Is.True, "Failed to locate filename parameter.");
+			Assert.That (param.Encoding.HeaderName.ToLowerInvariant (), Is.EqualTo ("gb18030"), "The filename encoding did not match.");
 		}
 
 		[Test]
@@ -473,21 +473,21 @@ namespace UnitTests {
 			var buffer = Encoding.ASCII.GetBytes (text);
 			ContentDisposition disposition;
 
-			Assert.IsTrue (ContentDisposition.TryParse (text, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
-			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+			Assert.That (ContentDisposition.TryParse (text, out disposition), Is.True, "Failed to parse Content-Disposition");
+			Assert.That (disposition.Disposition, Is.EqualTo ("form-data"), "The disposition values do not match.");
+			Assert.That (disposition.FileName, Is.EqualTo ("form.txt"), "The filename value does not match.");
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
-			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+			Assert.That (ContentDisposition.TryParse (buffer, 0, buffer.Length, out disposition), Is.True, "Failed to parse Content-Disposition");
+			Assert.That (disposition.Disposition, Is.EqualTo ("form-data"), "The disposition values do not match.");
+			Assert.That (disposition.FileName, Is.EqualTo ("form.txt"), "The filename value does not match.");
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, 0, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
-			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+			Assert.That (ContentDisposition.TryParse (buffer, 0, out disposition), Is.True, "Failed to parse Content-Disposition");
+			Assert.That (disposition.Disposition, Is.EqualTo ("form-data"), "The disposition values do not match.");
+			Assert.That (disposition.FileName, Is.EqualTo ("form.txt"), "The filename value does not match.");
 
-			Assert.IsTrue (ContentDisposition.TryParse (buffer, out disposition), "Failed to parse Content-Disposition");
-			Assert.AreEqual ("form-data", disposition.Disposition, "The disposition values do not match.");
-			Assert.AreEqual ("form.txt", disposition.FileName, "The filename value does not match.");
+			Assert.That (ContentDisposition.TryParse (buffer, out disposition), Is.True, "Failed to parse Content-Disposition");
+			Assert.That (disposition.Disposition, Is.EqualTo ("form-data"), "The disposition values do not match.");
+			Assert.That (disposition.FileName, Is.EqualTo ("form.txt"), "The filename value does not match.");
 		}
 
 		[Test]
@@ -508,14 +508,14 @@ namespace UnitTests {
 
 			format.NewLineFormat = NewLineFormat.Unix;
 
-			Assert.AreEqual (ContentDisposition.Attachment, disposition.Disposition, "The disposition should be 'attachment'.");
-			Assert.IsTrue (disposition.IsAttachment, "IsAttachment should be true by default.");
+			Assert.That (disposition.Disposition, Is.EqualTo (ContentDisposition.Attachment), "The disposition should be 'attachment'.");
+			Assert.That (disposition.IsAttachment, Is.True, "IsAttachment should be true by default.");
 
-			Assert.IsNull (disposition.FileName, "The filename should default to null.");
-			Assert.IsNull (disposition.CreationDate, "The creation-date should default to null.");
-			Assert.IsNull (disposition.ModificationDate, "The modification-date should default to null.");
-			Assert.IsNull (disposition.ReadDate, "The read-date should default to null.");
-			Assert.IsNull (disposition.Size, "The size should default to null.");
+			Assert.That (disposition.FileName, Is.Null, "The filename should default to null.");
+			Assert.That (disposition.CreationDate, Is.Null, "The creation-date should default to null.");
+			Assert.That (disposition.ModificationDate, Is.Null, "The modification-date should default to null.");
+			Assert.That (disposition.ReadDate, Is.Null, "The read-date should default to null.");
+			Assert.That (disposition.Size, Is.Null, "The size should default to null.");
 
 			disposition.FileName = "document.doc";
 			disposition.CreationDate = ctime;
@@ -525,34 +525,34 @@ namespace UnitTests {
 
 			encoded = disposition.ToString (format, Encoding.UTF8, true);
 
-			Assert.AreEqual (expected, encoded, "The encoded Content-Disposition does not match.");
+			Assert.That (encoded, Is.EqualTo (expected), "The encoded Content-Disposition does not match.");
 
 			disposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
-			Assert.AreEqual ("document.doc", disposition.FileName, "The filename parameter does not match.");
-			Assert.AreEqual (ctime, disposition.CreationDate, "The creation-date parameter does not match.");
-			Assert.AreEqual (mtime, disposition.ModificationDate, "The modification-date parameter does not match.");
-			Assert.AreEqual (atime, disposition.ReadDate, "The read-date parameter does not match.");
-			Assert.AreEqual (size, disposition.Size, "The size parameter does not match.");
+			Assert.That (disposition.FileName, Is.EqualTo ("document.doc"), "The filename parameter does not match.");
+			Assert.That (disposition.CreationDate, Is.EqualTo (ctime), "The creation-date parameter does not match.");
+			Assert.That (disposition.ModificationDate, Is.EqualTo (mtime), "The modification-date parameter does not match.");
+			Assert.That (disposition.ReadDate, Is.EqualTo (atime), "The read-date parameter does not match.");
+			Assert.That (disposition.Size, Is.EqualTo (size), "The size parameter does not match.");
 
 			disposition.CreationDate = null;
-			Assert.IsFalse (disposition.Parameters.TryGetValue ("creation-date", out param), "The creation-date parameter should have been removed.");
+			Assert.That (disposition.Parameters.TryGetValue ("creation-date", out param), Is.False, "The creation-date parameter should have been removed.");
 
 			disposition.ModificationDate = null;
-			Assert.IsFalse (disposition.Parameters.TryGetValue ("modification-date", out param), "The modification-date parameter should have been removed.");
+			Assert.That (disposition.Parameters.TryGetValue ("modification-date", out param), Is.False, "The modification-date parameter should have been removed.");
 
 			disposition.ReadDate = null;
-			Assert.IsFalse (disposition.Parameters.TryGetValue ("read-date", out param), "The read-date parameter should have been removed.");
+			Assert.That (disposition.Parameters.TryGetValue ("read-date", out param), Is.False, "The read-date parameter should have been removed.");
 
 			disposition.FileName = null;
-			Assert.IsFalse (disposition.Parameters.TryGetValue ("filename", out param), "The filename parameter should have been removed.");
+			Assert.That (disposition.Parameters.TryGetValue ("filename", out param), Is.False, "The filename parameter should have been removed.");
 
 			disposition.Size = null;
-			Assert.IsFalse (disposition.Parameters.TryGetValue ("size", out param), "The size parameter should have been removed.");
+			Assert.That (disposition.Parameters.TryGetValue ("size", out param), Is.False, "The size parameter should have been removed.");
 
 			disposition.IsAttachment = false;
-			Assert.AreEqual (ContentDisposition.Inline, disposition.Disposition, "The disposition should be 'inline'.");
-			Assert.IsFalse (disposition.IsAttachment, "IsAttachment should be false.");
+			Assert.That (disposition.Disposition, Is.EqualTo (ContentDisposition.Inline), "The disposition should be 'inline'.");
+			Assert.That (disposition.IsAttachment, Is.False, "IsAttachment should be false.");
 		}
 
 		[Test]
@@ -569,11 +569,11 @@ namespace UnitTests {
 			};
 			var value = disposition.ToString ();
 
-			Assert.AreEqual (expected, value);
+			Assert.That (value, Is.EqualTo (expected));
 
 			value = disposition.ToString (Encoding.UTF8, false);
 
-			Assert.AreEqual (expected, value);
+			Assert.That (value, Is.EqualTo (expected));
 		}
 	}
 }

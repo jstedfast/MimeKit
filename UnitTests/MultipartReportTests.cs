@@ -55,11 +55,11 @@ namespace UnitTests {
 				new MimePart ("image", "gif") { FileName = "attachment.gif" }
 				);
 
-			Assert.AreEqual ("disposition-notification", multipart.ReportType, "ReportType");
-			Assert.IsTrue (multipart.Headers.Contains (HeaderId.ContentDescription), "Content-Description header");
-			Assert.AreEqual (2, multipart.Count, "Child part count");
-			Assert.AreEqual ("text/plain", multipart[0].ContentType.MimeType, "MimeType[0]");
-			Assert.AreEqual ("image/gif", multipart[1].ContentType.MimeType, "MimeType[1]");
+			Assert.That (multipart.ReportType, Is.EqualTo ("disposition-notification"), "ReportType");
+			Assert.That (multipart.Headers.Contains (HeaderId.ContentDescription), Is.True, "Content-Description header");
+			Assert.That (multipart.Count, Is.EqualTo (2), "Child part count");
+			Assert.That (multipart[0].ContentType.MimeType, Is.EqualTo ("text/plain"), "MimeType[0]");
+			Assert.That (multipart[1].ContentType.MimeType, Is.EqualTo ("image/gif"), "MimeType[1]");
 		}
 	}
 }

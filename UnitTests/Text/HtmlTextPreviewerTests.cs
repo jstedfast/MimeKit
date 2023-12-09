@@ -53,14 +53,14 @@ namespace UnitTests.Text {
 		{
 			var previewer = new HtmlTextPreviewer ();
 
-			Assert.AreEqual (string.Empty, previewer.GetPreviewText (string.Empty), "string");
+			Assert.That (previewer.GetPreviewText (string.Empty), Is.EqualTo (string.Empty), "string");
 
 			using (var reader = new StringReader (string.Empty))
-				Assert.AreEqual (string.Empty, previewer.GetPreviewText (reader), "TextReader");
+				Assert.That (previewer.GetPreviewText (reader), Is.EqualTo (string.Empty), "TextReader");
 
 			using (var stream = new MemoryStream (Array.Empty<byte> (), false)) {
-				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, "x-unknown"), "Stream, string");
-				Assert.AreEqual (string.Empty, previewer.GetPreviewText (stream, Encoding.UTF8), "Stream, Encoding");
+				Assert.That (previewer.GetPreviewText (stream, "x-unknown"), Is.EqualTo (string.Empty), "Stream, string");
+				Assert.That (previewer.GetPreviewText (stream, Encoding.UTF8), Is.EqualTo (string.Empty), "Stream, Encoding");
 			}
 		}
 
@@ -71,27 +71,27 @@ namespace UnitTests.Text {
 			string actual;
 			int nread;
 
-			Assert.AreEqual (TextFormat.Html, previewer.InputFormat);
+			Assert.That (previewer.InputFormat, Is.EqualTo (TextFormat.Html));
 
 			using (var stream = File.OpenRead (path))
 				nread = stream.Read (buffer, 0, buffer.Length);
 
 			var text = Encoding.UTF8.GetString (buffer, 0, nread);
 			actual = previewer.GetPreviewText (text);
-			Assert.AreEqual (expected, actual, "GetPreviewText(string)");
+			Assert.That (actual, Is.EqualTo (expected), "GetPreviewText(string)");
 
 			using (var stream = new MemoryStream (buffer, 0, nread, false)) {
 				actual = previewer.GetPreviewText (stream, "utf-8");
-				Assert.AreEqual (expected, actual, "GetPreviewText(Stream, string)");
+				Assert.That (actual, Is.EqualTo (expected), "GetPreviewText(Stream, string)");
 
 				stream.Position = 0;
 				actual = previewer.GetPreviewText (stream, Encoding.UTF8);
-				Assert.AreEqual (expected, actual, "GetPreviewText(Stream, Encoding)");
+				Assert.That (actual, Is.EqualTo (expected), "GetPreviewText(Stream, Encoding)");
 
 				stream.Position = 0;
 				using (var reader = new StreamReader (stream, Encoding.UTF8, false, 4096, true)) {
 					actual = previewer.GetPreviewText (stream, Encoding.UTF8);
-					Assert.AreEqual (expected, actual, "GetPreviewText(TextReader)");
+					Assert.That (actual, Is.EqualTo (expected), "GetPreviewText(TextReader)");
 				}
 			}
 		}

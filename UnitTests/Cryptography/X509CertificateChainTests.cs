@@ -83,21 +83,21 @@ namespace UnitTests.Cryptography {
 
 			chain.AddRange (certificates);
 
-			Assert.AreEqual (CertificateAuthorities.Length, chain.Count, "Unexpected number of certificates after AddRange.");
+			Assert.That (chain.Count, Is.EqualTo (CertificateAuthorities.Length), "Unexpected number of certificates after AddRange.");
 
 			int index = 0;
 			foreach (var certificate in chain)
-				Assert.AreEqual (certificates[index++], certificate, "GetEnumerator");
+				Assert.That (certificate, Is.EqualTo (certificates[index++]), "GetEnumerator");
 
 			index = 0;
 			foreach (X509Certificate certificate in ((IEnumerable) chain))
-				Assert.AreEqual (certificates[index++], certificate, "GetEnumerator");
+				Assert.That (certificate, Is.EqualTo (certificates[index++]), "GetEnumerator");
 
 			Assert.Throws<ArgumentNullException> (() => chain.RemoveRange (null));
 
 			chain.RemoveRange (certificates);
 
-			Assert.AreEqual (0, chain.Count, "Unexpected number of certificates after RemoveRange.");
+			Assert.That (chain.Count, Is.EqualTo (0), "Unexpected number of certificates after RemoveRange.");
 		}
 
 		[Test]
@@ -106,50 +106,50 @@ namespace UnitTests.Cryptography {
 			var certs = SecureMimeTestsBase.LoadPkcs12CertificateChain (GetTestDataPath ("smime.pfx"), "no.secret");
 			var chain = new X509CertificateChain ();
 
-			Assert.IsFalse (chain.IsReadOnly);
-			Assert.AreEqual (0, chain.Count, "Initial count");
+			Assert.That (chain.IsReadOnly, Is.False);
+			Assert.That (chain.Count, Is.EqualTo (0), "Initial count");
 
 			chain.Add (certs[2]);
 
-			Assert.AreEqual (1, chain.Count);
-			Assert.AreEqual (certs[2], chain[0]);
+			Assert.That (chain.Count, Is.EqualTo (1));
+			Assert.That (chain[0], Is.EqualTo (certs[2]));
 
 			chain.Insert (0, certs[0]);
 			chain.Insert (1, certs[1]);
 
-			Assert.AreEqual (3, chain.Count);
-			Assert.AreEqual (certs[0], chain[0]);
-			Assert.AreEqual (certs[1], chain[1]);
-			Assert.AreEqual (certs[2], chain[2]);
+			Assert.That (chain.Count, Is.EqualTo (3));
+			Assert.That (chain[0], Is.EqualTo (certs[0]));
+			Assert.That (chain[1], Is.EqualTo (certs[1]));
+			Assert.That (chain[2], Is.EqualTo (certs[2]));
 
-			Assert.IsTrue (chain.Contains (certs[1]), "Contains");
-			Assert.AreEqual (1, chain.IndexOf (certs[1]), "IndexOf");
+			Assert.That (chain.Contains (certs[1]), Is.True, "Contains");
+			Assert.That (chain.IndexOf (certs[1]), Is.EqualTo (1), "IndexOf");
 
 			var array = new X509Certificate[chain.Count];
 			chain.CopyTo (array, 0);
 			chain.Clear ();
 
-			Assert.AreEqual (0, chain.Count);
+			Assert.That (chain.Count, Is.EqualTo (0));
 
 			foreach (var cert in array)
 				chain.Add (cert);
 
-			Assert.AreEqual (array.Length, chain.Count);
+			Assert.That (chain.Count, Is.EqualTo (array.Length));
 
-			Assert.IsTrue (chain.Remove (certs[2]));
-			Assert.AreEqual (2, chain.Count);
-			Assert.AreEqual (certs[0], chain[0]);
-			Assert.AreEqual (certs[1], chain[1]);
+			Assert.That (chain.Remove (certs[2]), Is.True);
+			Assert.That (chain.Count, Is.EqualTo (2));
+			Assert.That (chain[0], Is.EqualTo (certs[0]));
+			Assert.That (chain[1], Is.EqualTo (certs[1]));
 
 			chain.RemoveAt (0);
 
-			Assert.AreEqual (1, chain.Count);
-			Assert.AreEqual (certs[1], chain[0]);
+			Assert.That (chain.Count, Is.EqualTo (1));
+			Assert.That (chain[0], Is.EqualTo (certs[1]));
 
 			chain[0] = certs[2];
 
-			Assert.AreEqual (1, chain.Count);
-			Assert.AreEqual (certs[2], chain[0]);
+			Assert.That (chain.Count, Is.EqualTo (1));
+			Assert.That (chain[0], Is.EqualTo (certs[2]));
 		}
 	}
 }

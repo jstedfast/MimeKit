@@ -45,13 +45,13 @@ namespace UnitTests.Utils {
 
 			builder.LineWrap (format);
 
-			Assert.AreEqual (expected1, builder.ToString (), "#1");
+			Assert.That (builder.ToString (), Is.EqualTo (expected1), "#1");
 
 			builder.Length -= 2;
 
 			builder.LineWrap (format);
 
-			Assert.AreEqual (expected2, builder.ToString (), "#2");
+			Assert.That (builder.ToString (), Is.EqualTo (expected2), "#2");
 		}
 
 		[Test]
@@ -71,7 +71,7 @@ namespace UnitTests.Utils {
 
 			builder.AppendTokens (format, ref lineLength, tokens);
 
-			Assert.AreEqual ("Authentication-Results: this-is-a-really-long-parameter-name=\n\tthis-is-a-really-long-parameter-value", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Authentication-Results: this-is-a-really-long-parameter-name=\n\tthis-is-a-really-long-parameter-value"));
 		}
 
 		[Test]
@@ -86,8 +86,8 @@ namespace UnitTests.Utils {
 
 			builder.AppendFolded (format, false, "to it: \"and this is a \\\"quoted string\\\" that must not get broken up!\" Got it? Good. There should be another wrap in here...", ref lineLength);
 
-			Assert.AreEqual (expected, builder.ToString ());
-			Assert.AreEqual (40, lineLength);
+			Assert.That (builder.ToString (), Is.EqualTo (expected));
+			Assert.That (lineLength, Is.EqualTo (40));
 		}
 
 #if DEBUG
@@ -103,7 +103,7 @@ namespace UnitTests.Utils {
 
 			builder.AppendCString (cstr, 0, cstr.Length);
 
-			Assert.AreEqual (expected, builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo (expected));
 		}
 #endif
 	}

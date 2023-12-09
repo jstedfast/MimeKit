@@ -41,26 +41,26 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEquality ()
 		{
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha1, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), "CreateOaep(SHA-1)");
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha256, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha256), "CreateOaep(SHA-256)");
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha384, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha384), "CreateOaep(SHA-384)");
-			Assert.AreEqual (RsaEncryptionPadding.OaepSha512, RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha512), "CreateOaep(SHA-512)");
+			Assert.That (RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), Is.EqualTo (RsaEncryptionPadding.OaepSha1), "CreateOaep(SHA-1)");
+			Assert.That (RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha256), Is.EqualTo (RsaEncryptionPadding.OaepSha256), "CreateOaep(SHA-256)");
+			Assert.That (RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha384), Is.EqualTo (RsaEncryptionPadding.OaepSha384), "CreateOaep(SHA-384)");
+			Assert.That (RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha512), Is.EqualTo (RsaEncryptionPadding.OaepSha512), "CreateOaep(SHA-512)");
 
-			Assert.AreNotEqual (RsaEncryptionPadding.Pkcs1, RsaEncryptionPadding.OaepSha1, "PKCS1 !Equals SHA-1");
-			Assert.AreNotEqual (RsaEncryptionPadding.Pkcs1, RsaEncryptionPadding.OaepSha256, "PKCS1 !Equals SHA-256");
-			Assert.AreNotEqual (RsaEncryptionPadding.OaepSha1, RsaEncryptionPadding.OaepSha256, "SHA-1 !Equals SHA-256");
+			Assert.That (RsaEncryptionPadding.OaepSha1, Is.Not.EqualTo (RsaEncryptionPadding.Pkcs1), "PKCS1 !Equals SHA-1");
+			Assert.That (RsaEncryptionPadding.OaepSha256, Is.Not.EqualTo (RsaEncryptionPadding.Pkcs1), "PKCS1 !Equals SHA-256");
+			Assert.That (RsaEncryptionPadding.OaepSha256, Is.Not.EqualTo (RsaEncryptionPadding.OaepSha1), "SHA-1 !Equals SHA-256");
 
-			Assert.AreNotEqual (RsaEncryptionPadding.Pkcs1, new object (), "PKCS1 !Equals object");
+			Assert.That (new object (), Is.Not.EqualTo (RsaEncryptionPadding.Pkcs1), "PKCS1 !Equals object");
 
-			Assert.IsTrue (RsaEncryptionPadding.OaepSha1 == RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), "SHA-1 == SHA-1");
-			Assert.IsFalse (RsaEncryptionPadding.OaepSha1 == RsaEncryptionPadding.OaepSha256, "SHA-1 == SHA-256");
-			Assert.IsFalse (RsaEncryptionPadding.OaepSha1 == null, "SHA-1 == null");
-			Assert.IsFalse (null == RsaEncryptionPadding.OaepSha1, "null == SHA-1");
+			Assert.That (RsaEncryptionPadding.OaepSha1 == RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), Is.True, "SHA-1 == SHA-1");
+			Assert.That (RsaEncryptionPadding.OaepSha1 == RsaEncryptionPadding.OaepSha256, Is.False, "SHA-1 == SHA-256");
+			Assert.That (RsaEncryptionPadding.OaepSha1 == null, Is.False, "SHA-1 == null");
+			Assert.That (null == RsaEncryptionPadding.OaepSha1, Is.False, "null == SHA-1");
 
-			Assert.IsFalse (RsaEncryptionPadding.OaepSha1 != RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), "SHA-1 != SHA-1");
-			Assert.IsTrue (RsaEncryptionPadding.OaepSha1 != RsaEncryptionPadding.OaepSha256, "SHA-1 != SHA-256");
-			Assert.IsTrue (RsaEncryptionPadding.OaepSha1 != null, "SHA-1 != null");
-			Assert.IsTrue (null != RsaEncryptionPadding.OaepSha1, "null != SHA-1");
+			Assert.That (RsaEncryptionPadding.OaepSha1 != RsaEncryptionPadding.CreateOaep (DigestAlgorithm.Sha1), Is.False, "SHA-1 != SHA-1");
+			Assert.That (RsaEncryptionPadding.OaepSha1 != RsaEncryptionPadding.OaepSha256, Is.True, "SHA-1 != SHA-256");
+			Assert.That (RsaEncryptionPadding.OaepSha1 != null, Is.True, "SHA-1 != null");
+			Assert.That (null != RsaEncryptionPadding.OaepSha1, Is.True, "null != SHA-1");
 		}
 
 		[Test]
@@ -108,11 +108,11 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestToString ()
 		{
-			Assert.AreEqual ("Pkcs1", RsaEncryptionPadding.Pkcs1.ToString (), "Pkcs1");
-			Assert.AreEqual ("OaepSha1", RsaEncryptionPadding.OaepSha1.ToString (), "OaepSha1");
-			Assert.AreEqual ("OaepSha256", RsaEncryptionPadding.OaepSha256.ToString (), "OaepSha256");
-			Assert.AreEqual ("OaepSha384", RsaEncryptionPadding.OaepSha384.ToString (), "OaepSha384");
-			Assert.AreEqual ("OaepSha512", RsaEncryptionPadding.OaepSha512.ToString (), "OaepSha512");
+			Assert.That (RsaEncryptionPadding.Pkcs1.ToString (), Is.EqualTo ("Pkcs1"), "Pkcs1");
+			Assert.That (RsaEncryptionPadding.OaepSha1.ToString (), Is.EqualTo ("OaepSha1"), "OaepSha1");
+			Assert.That (RsaEncryptionPadding.OaepSha256.ToString (), Is.EqualTo ("OaepSha256"), "OaepSha256");
+			Assert.That (RsaEncryptionPadding.OaepSha384.ToString (), Is.EqualTo ("OaepSha384"), "OaepSha384");
+			Assert.That (RsaEncryptionPadding.OaepSha512.ToString (), Is.EqualTo ("OaepSha512"), "OaepSha512");
 		}
 
 		static void AssertOaepAlgorithmIdentifier (RsaEncryptionPadding padding, DerObjectIdentifier hashAlgorithm)
@@ -120,19 +120,19 @@ namespace UnitTests.Cryptography {
 			var name = $"Oaep{padding.Scheme}";
 
 			var algorithm = padding.GetAlgorithmIdentifier ();
-			Assert.IsNotNull (algorithm, $"{name} != null");
-			Assert.AreEqual (PkcsObjectIdentifiers.IdRsaesOaep, algorithm.Algorithm, $"{name}.Algorithm == RSAES-OAEP");
+			Assert.That (algorithm, Is.Not.Null, $"{name} != null");
+			Assert.That (algorithm.Algorithm, Is.EqualTo (PkcsObjectIdentifiers.IdRsaesOaep), $"{name}.Algorithm == RSAES-OAEP");
 			var parameters = (RsaesOaepParameters) algorithm.Parameters;
-			Assert.AreEqual (hashAlgorithm, parameters.HashAlgorithm.Algorithm, $"{name}.HashAlgorithm == {padding.OaepHashAlgorithm}");
-			Assert.AreEqual (PkcsObjectIdentifiers.IdMgf1, parameters.MaskGenAlgorithm.Algorithm, $"{name}.MaskGenAlgorithm == MGF1");
+			Assert.That (parameters.HashAlgorithm.Algorithm, Is.EqualTo (hashAlgorithm), $"{name}.HashAlgorithm == {padding.OaepHashAlgorithm}");
+			Assert.That (parameters.MaskGenAlgorithm.Algorithm, Is.EqualTo (PkcsObjectIdentifiers.IdMgf1), $"{name}.MaskGenAlgorithm == MGF1");
 			var mgf1hash = (AlgorithmIdentifier) parameters.MaskGenAlgorithm.Parameters;
-			Assert.AreEqual (hashAlgorithm, mgf1hash.Algorithm, $"{name}.MaskGenHashAlgorithm == {padding.OaepHashAlgorithm}");
+			Assert.That (mgf1hash.Algorithm, Is.EqualTo (hashAlgorithm), $"{name}.MaskGenHashAlgorithm == {padding.OaepHashAlgorithm}");
 		}
 
 		[Test]
 		public void TestGetAlgorithmIdentifier ()
 		{
-			Assert.IsNull (RsaEncryptionPadding.Pkcs1.GetAlgorithmIdentifier (), "Pkcs1");
+			Assert.That (RsaEncryptionPadding.Pkcs1.GetAlgorithmIdentifier (), Is.Null, "Pkcs1");
 
 			AssertOaepAlgorithmIdentifier (RsaEncryptionPadding.OaepSha1, OiwObjectIdentifiers.IdSha1);
 			AssertOaepAlgorithmIdentifier (RsaEncryptionPadding.OaepSha256, NistObjectIdentifiers.IdSha256);

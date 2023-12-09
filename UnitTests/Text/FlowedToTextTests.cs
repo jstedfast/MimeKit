@@ -62,16 +62,16 @@ namespace UnitTests.Text {
 		{
 			var converter = new FlowedToText ();
 
-			Assert.IsFalse (converter.DeleteSpace, "DeleteSpace");
-			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
-			Assert.IsNull (converter.Footer, "Footer");
-			Assert.IsNull (converter.Header, "Header");
-			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
-			Assert.AreEqual (TextFormat.Flowed, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
-			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
-			Assert.AreEqual (TextFormat.Text, converter.OutputFormat, "OutputFormat");
-			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+			Assert.That (converter.DeleteSpace, Is.False, "DeleteSpace");
+			Assert.That (converter.DetectEncodingFromByteOrderMark, Is.False, "DetectEncodingFromByteOrderMark");
+			Assert.That (converter.Footer, Is.Null, "Footer");
+			Assert.That (converter.Header, Is.Null, "Header");
+			Assert.That (converter.InputEncoding, Is.EqualTo (Encoding.UTF8), "InputEncoding");
+			Assert.That (converter.InputFormat, Is.EqualTo (TextFormat.Flowed), "InputFormat");
+			Assert.That (converter.InputStreamBufferSize, Is.EqualTo (4096), "InputStreamBufferSize");
+			Assert.That (converter.OutputEncoding, Is.EqualTo (Encoding.UTF8), "OutputEncoding");
+			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Text), "OutputFormat");
+			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
 		}
 
 		[Test]
@@ -86,7 +86,7 @@ namespace UnitTests.Text {
 			var converter = new FlowedToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -112,7 +112,7 @@ namespace UnitTests.Text {
 			var converter = new FlowedToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -139,7 +139,7 @@ namespace UnitTests.Text {
 			var converter = new FlowedToText { Header = null, Footer = null };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 	}
 }

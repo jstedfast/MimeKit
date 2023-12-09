@@ -63,19 +63,19 @@ namespace UnitTests.Text {
 		{
 			var converter = new TextToHtml ();
 
-			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
-			Assert.IsNull (converter.Footer, "Footer");
-			Assert.AreEqual (HeaderFooterFormat.Text, converter.FooterFormat, "FooterFormat");
-			Assert.IsNull (converter.Header, "Header");
-			Assert.AreEqual (HeaderFooterFormat.Text, converter.HeaderFormat, "HeaderFormat");
-			Assert.IsNull (converter.HtmlTagCallback, "HtmlTagCallback");
-			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
-			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
-			Assert.AreEqual (TextFormat.Html, converter.OutputFormat, "OutputFormat");
-			Assert.IsFalse (converter.OutputHtmlFragment, "OutputHtmlFragment");
-			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+			Assert.That (converter.DetectEncodingFromByteOrderMark, Is.False, "DetectEncodingFromByteOrderMark");
+			Assert.That (converter.Footer, Is.Null, "Footer");
+			Assert.That (converter.FooterFormat, Is.EqualTo (HeaderFooterFormat.Text), "FooterFormat");
+			Assert.That (converter.Header, Is.Null, "Header");
+			Assert.That (converter.HeaderFormat, Is.EqualTo (HeaderFooterFormat.Text), "HeaderFormat");
+			Assert.That (converter.HtmlTagCallback, Is.Null, "HtmlTagCallback");
+			Assert.That (converter.InputEncoding, Is.EqualTo (Encoding.UTF8), "InputEncoding");
+			Assert.That (converter.InputFormat, Is.EqualTo (TextFormat.Text), "InputFormat");
+			Assert.That (converter.InputStreamBufferSize, Is.EqualTo (4096), "InputStreamBufferSize");
+			Assert.That (converter.OutputEncoding, Is.EqualTo (Encoding.UTF8), "OutputEncoding");
+			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Html), "OutputFormat");
+			Assert.That (converter.OutputHtmlFragment, Is.False, "OutputHtmlFragment");
+			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
 		}
 
 		[Test]
@@ -88,11 +88,11 @@ namespace UnitTests.Text {
 			string result;
 
 			result = converter.Convert (input);
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 
 			converter.OutputHtmlFragment = true;
 			result = converter.Convert (input);
-			Assert.AreEqual (expected2, result);
+			Assert.That (result, Is.EqualTo (expected2));
 		}
 
 		[Test]
@@ -110,7 +110,7 @@ namespace UnitTests.Text {
 			};
 
 			var result = converter.Convert (input);
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -126,7 +126,7 @@ namespace UnitTests.Text {
 			var converter = new TextToHtml ();
 			var result = converter.Convert (emoji);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -148,7 +148,7 @@ namespace UnitTests.Text {
 			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -170,7 +170,7 @@ namespace UnitTests.Text {
 			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -192,7 +192,7 @@ namespace UnitTests.Text {
 			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -207,7 +207,7 @@ namespace UnitTests.Text {
 			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -218,7 +218,7 @@ namespace UnitTests.Text {
 			var converter = new TextToHtml { OutputHtmlFragment = true };
 			var result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 		}
 	}
 }

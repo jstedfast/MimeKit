@@ -73,7 +73,7 @@ This is make-believe rtf data...";
 
 				Assert.IsInstanceOf<TextPart> (part, "Expected the application/rtf part to be parsed as TextPart.");
 				var text = (TextPart) part;
-				Assert.IsTrue (text.IsRichText, "IsRichText");
+				Assert.That (text.IsRichText, Is.True, "IsRichText");
 			}
 		}
 

@@ -52,7 +52,7 @@ namespace UnitTests.Text {
 			string actual;
 
 			actual = TextPreviewer.GetPreviewText (body);
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -110,7 +110,7 @@ namespace UnitTests.Text {
 				body.ContentType.Charset = "x-unknown";
 
 				preview = TextPreviewer.GetPreviewText (body);
-				Assert.AreEqual ("¤é¤ë¬P¨°", preview, "chinese text x-unknown -> UTF-8 -> iso-8859-1");
+				Assert.That (preview, Is.EqualTo ("¤é¤ë¬P¨°"), "chinese text x-unknown -> UTF-8 -> iso-8859-1");
 			}
 
 			using (var memory = new MemoryStream ()) {
@@ -126,7 +126,7 @@ namespace UnitTests.Text {
 				body.ContentType.Charset = "x-unknown";
 
 				preview = TextPreviewer.GetPreviewText (body);
-				Assert.AreEqual ("日月星辰", preview, "x-unknown -> UTF-8");
+				Assert.That (preview, Is.EqualTo ("日月星辰"), "x-unknown -> UTF-8");
 			}
 
 			using (var memory = new MemoryStream ()) {
@@ -142,7 +142,7 @@ namespace UnitTests.Text {
 				body.ContentType.Charset = "x-unknown";
 
 				preview = TextPreviewer.GetPreviewText (body);
-				Assert.AreEqual ("L'encyclopédie libre", preview, "french text x-unknown -> UTF-8 -> iso-8859-1");
+				Assert.That (preview, Is.EqualTo ("L'encyclopédie libre"), "french text x-unknown -> UTF-8 -> iso-8859-1");
 			}
 		}
 	}

@@ -38,28 +38,28 @@ namespace UnitTests.Cryptography {
 			var pkcs1 = RsaSignaturePadding.Pkcs1;
 			var pss = RsaSignaturePadding.Pss;
 
-			Assert.AreEqual (RsaSignaturePadding.Pkcs1, pkcs1, "Pkcs1 Equals Pkcs1");
-			Assert.AreEqual (RsaSignaturePadding.Pss, pss, "Pss Equals Pss");
+			Assert.That (pkcs1, Is.EqualTo (RsaSignaturePadding.Pkcs1), "Pkcs1 Equals Pkcs1");
+			Assert.That (pss, Is.EqualTo (RsaSignaturePadding.Pss), "Pss Equals Pss");
 
-			Assert.AreNotEqual (RsaSignaturePadding.Pkcs1, RsaSignaturePadding.Pss, "Pkcs1 !Equals Pss");
-			Assert.AreNotEqual (RsaSignaturePadding.Pss, RsaSignaturePadding.Pkcs1, "Pss !Equals Pkcs1");
+			Assert.That (RsaSignaturePadding.Pss, Is.Not.EqualTo (RsaSignaturePadding.Pkcs1), "Pkcs1 !Equals Pss");
+			Assert.That (RsaSignaturePadding.Pkcs1, Is.Not.EqualTo (RsaSignaturePadding.Pss), "Pss !Equals Pkcs1");
 
-			Assert.AreNotEqual (RsaSignaturePadding.Pkcs1, new object (), "Pkcs1 !Equals object");
-			Assert.AreNotEqual (RsaSignaturePadding.Pss, new object (), "Pss !Equals object");
+			Assert.That (new object (), Is.Not.EqualTo (RsaSignaturePadding.Pkcs1), "Pkcs1 !Equals object");
+			Assert.That (new object (), Is.Not.EqualTo (RsaSignaturePadding.Pss), "Pss !Equals object");
 
-			Assert.IsTrue (pkcs1 == RsaSignaturePadding.Pkcs1, "Pkcs1 == Pkcs1");
-			Assert.IsTrue (pss == RsaSignaturePadding.Pss, "Pss == Pss");
-			Assert.IsFalse (pkcs1 == pss, "Pkcs1 == Pss");
-			Assert.IsFalse (pss == pkcs1, "Pss == Pkcs1");
-			Assert.IsFalse (pkcs1 == null, "Pkcs1 == null");
-			Assert.IsFalse (null == pkcs1, "null == Pkcs1");
+			Assert.That (pkcs1 == RsaSignaturePadding.Pkcs1, Is.True, "Pkcs1 == Pkcs1");
+			Assert.That (pss == RsaSignaturePadding.Pss, Is.True, "Pss == Pss");
+			Assert.That (pkcs1 == pss, Is.False, "Pkcs1 == Pss");
+			Assert.That (pss == pkcs1, Is.False, "Pss == Pkcs1");
+			Assert.That (pkcs1 == null, Is.False, "Pkcs1 == null");
+			Assert.That (null == pkcs1, Is.False, "null == Pkcs1");
 
-			Assert.IsFalse (pkcs1 != RsaSignaturePadding.Pkcs1, "Pkcs1 != Pkcs1");
-			Assert.IsFalse (pss != RsaSignaturePadding.Pss, "Pss != Pss");
-			Assert.IsTrue (pkcs1 != pss, "Pkcs1 != Pss");
-			Assert.IsTrue (pss != pkcs1, "Pss != Pkcs1");
-			Assert.IsTrue (pkcs1 != null, "Pkcs1 != null");
-			Assert.IsTrue (null != pkcs1, "null != Pkcs1");
+			Assert.That (pkcs1 != RsaSignaturePadding.Pkcs1, Is.False, "Pkcs1 != Pkcs1");
+			Assert.That (pss != RsaSignaturePadding.Pss, Is.False, "Pss != Pss");
+			Assert.That (pkcs1 != pss, Is.True, "Pkcs1 != Pss");
+			Assert.That (pss != pkcs1, Is.True, "Pss != Pkcs1");
+			Assert.That (pkcs1 != null, Is.True, "Pkcs1 != null");
+			Assert.That (null != pkcs1, Is.True, "null != Pkcs1");
 		}
 
 		[Test]
@@ -84,8 +84,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestToString ()
 		{
-			Assert.AreEqual ("Pkcs1", RsaSignaturePadding.Pkcs1.ToString (), "Pkcs1");
-			Assert.AreEqual ("Pss", RsaSignaturePadding.Pss.ToString (), "Pss");
+			Assert.That (RsaSignaturePadding.Pkcs1.ToString (), Is.EqualTo ("Pkcs1"), "Pkcs1");
+			Assert.That (RsaSignaturePadding.Pss.ToString (), Is.EqualTo ("Pss"), "Pss");
 		}
 	}
 }

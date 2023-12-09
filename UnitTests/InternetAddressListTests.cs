@@ -67,17 +67,17 @@ namespace UnitTests {
 
 		static void AssertInternetAddressListsEqual (string text, InternetAddressList expected, InternetAddressList result)
 		{
-			Assert.AreEqual (expected.Count, result.Count, "Unexpected number of addresses: {0}", text);
+			Assert.That (result.Count, Is.EqualTo (expected.Count), $"Unexpected number of addresses: {text}");
 
 			for (int i = 0; i < expected.Count; i++) {
-				Assert.AreEqual (expected.GetType (), result.GetType (),  "Address #{0} differs in type: {1}", i, text);
+				Assert.That (result.GetType (), Is.EqualTo (expected.GetType ()), $"Address #{i} differs in type: {text}");
 
-				Assert.AreEqual (expected[i].ToString (), result[i].ToString (), "Display strings differ for {0}", text);
+				Assert.That (result[i].ToString (), Is.EqualTo (expected[i].ToString ()), $"Display strings differ for {text}");
 			}
 
 			var encoded = result.ToString (true).Replace ("\r\n", "\n");
 
-			Assert.AreEqual (text, encoded, "Encoded strings differ for {0}", text);
+			Assert.That (encoded, Is.EqualTo (text), $"Encoded strings differ for {text}");
 		}
 
 		static void AssertTryParse (string text, string encoded, InternetAddressList expected)
@@ -85,16 +85,16 @@ namespace UnitTests {
 			var buffer = Encoding.UTF8.GetBytes (text);
 			InternetAddressList result;
 
-			Assert.IsTrue (InternetAddressList.TryParse (text, out result), "TryParse(string): {0}", text);
+			Assert.That (InternetAddressList.TryParse (text, out result), Is.True, $"TryParse(string): {text}");
 			AssertInternetAddressListsEqual (encoded, expected, result);
 
-			Assert.IsTrue (InternetAddressList.TryParse (buffer, out result), "TryParse(byte[]): {0}", text);
+			Assert.That (InternetAddressList.TryParse (buffer, out result), Is.True, $"TryParse(byte[]): {text}");
 			AssertInternetAddressListsEqual (encoded, expected, result);
 
-			Assert.IsTrue (InternetAddressList.TryParse (buffer, 0, out result), "TryParse(byte[], int): {0}", text);
+			Assert.That (InternetAddressList.TryParse (buffer, 0, out result), Is.True, $"TryParse(byte[], int): {text}");
 			AssertInternetAddressListsEqual (encoded, expected, result);
 
-			Assert.IsTrue (InternetAddressList.TryParse (buffer, 0, buffer.Length, out result), "TryParse(byte[] int, int): {0}", text);
+			Assert.That (InternetAddressList.TryParse (buffer, 0, buffer.Length, out result), Is.True, $"TryParse(byte[] int, int): {text}");
 			AssertInternetAddressListsEqual (encoded, expected, result);
 		}
 
@@ -146,28 +146,28 @@ namespace UnitTests {
 
 			try {
 				success = InternetAddressList.TryParse (text, out result);
-				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				Assert.That (success, Is.False, $"InternetAddressList.TryParse() should fail to parse \"{text}\".");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 
 			try {
 				success = InternetAddressList.TryParse (buffer, out result);
-				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				Assert.That (success, Is.False, $"InternetAddressList.TryParse() should fail to parse \"{text}\".");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 
 			try {
 				success = InternetAddressList.TryParse (buffer, 0, out result);
-				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				Assert.That (success, Is.False, $"InternetAddressList.TryParse() should fail to parse \"{text}\".");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 
 			try {
 				success = InternetAddressList.TryParse (buffer, 0, buffer.Length, out result);
-				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
+				Assert.That (success, Is.False, $"InternetAddressList.TryParse() should fail to parse \"{text}\".");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
@@ -465,7 +465,7 @@ namespace UnitTests {
 
 			var actual = list.ToString (UnixFormatOptions, true);
 
-			Assert.AreEqual (expected, actual, "Encoding quoted mailbox did not match expected result: {0}", expected);
+			Assert.That (actual, Is.EqualTo (expected), $"Encoding quoted mailbox did not match expected result: {expected}");
 		}
 
 		[Test]
@@ -480,7 +480,7 @@ namespace UnitTests {
 			var expected = "Kristoffer =?iso-8859-1?q?Br=E5nemyr?= <ztion@swipenet.se>";
 			var actual = list.ToString (UnixFormatOptions, true);
 
-			Assert.AreEqual (expected, actual, "Encoding latin1 mailbox did not match expected result: {0}", expected);
+			Assert.That (actual, Is.EqualTo (expected), $"Encoding latin1 mailbox did not match expected result: {expected}");
 
 			mailbox = new MailboxAddress (latin1, "Tõivo Leedjärv", "leedjarv@interest.ee");
 			list = new InternetAddressList {
@@ -490,7 +490,7 @@ namespace UnitTests {
 			expected = "=?iso-8859-1?b?VIH1aXZvIExlZWRqgeRydg==?= <leedjarv@interest.ee>";
 			actual = list.ToString (UnixFormatOptions, true);
 
-			Assert.AreEqual (expected, actual, "Encoding latin1 mailbox did not match expected result: {0}", expected);
+			Assert.That (actual, Is.EqualTo (expected), $"Encoding latin1 mailbox did not match expected result: {expected}");
 		}
 
 		[Test]
@@ -509,9 +509,9 @@ namespace UnitTests {
 
 			var actual = list.ToString (options, true);
 
-			Assert.AreEqual (expected, actual, "Encoding really long mailbox did not match expected result: {0}", expected);
-			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse really long mailbox");
-			Assert.AreEqual (mailbox.Name, list[0].Name);
+			Assert.That (actual, Is.EqualTo (expected), $"Encoding really long mailbox did not match expected result: {expected}");
+			Assert.That (InternetAddressList.TryParse (actual, out list), Is.True, "Failed to parse really long mailbox");
+			Assert.That (list[0].Name, Is.EqualTo (mailbox.Name));
 		}
 
 		[Test]
@@ -525,9 +525,9 @@ namespace UnitTests {
 
 			var actual = list.ToString (UnixFormatOptions, true);
 
-			Assert.AreEqual (expected, actual, "Encoding arabic mailbox did not match expected result: {0}", expected);
-			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse arabic mailbox");
-			Assert.AreEqual (mailbox.Name, list[0].Name);
+			Assert.That (actual, Is.EqualTo (expected), $"Encoding arabic mailbox did not match expected result: {expected}");
+			Assert.That (InternetAddressList.TryParse (actual, out list), Is.True, "Failed to parse arabic mailbox");
+			Assert.That (list[0].Name, Is.EqualTo (mailbox.Name));
 		}
 
 		[Test]
@@ -541,9 +541,9 @@ namespace UnitTests {
 
 			var actual = list.ToString (UnixFormatOptions, true);
 
-			Assert.AreEqual (expected, actual, "Encoding japanese mailbox did not match expected result: {0}", expected);
-			Assert.IsTrue (InternetAddressList.TryParse (actual, out list), "Failed to parse japanese mailbox");
-			Assert.AreEqual (mailbox.Name, list[0].Name);
+			Assert.That (actual, Is.EqualTo (expected), $"Encoding japanese mailbox did not match expected result: {expected}");
+			Assert.That (InternetAddressList.TryParse (actual, out list), Is.True, "Failed to parse japanese mailbox");
+			Assert.That (list[0].Name, Is.EqualTo (mailbox.Name));
 		}
 
 		[Test]
@@ -561,10 +561,10 @@ namespace UnitTests {
 			options.NewLineFormat = NewLineFormat.Unix;
 
 			var display = list.ToString (options, false);
-			Assert.AreEqual (expectedDisplay, display, "Display value does not match the expected result: {0}", display);
+			Assert.That (display, Is.EqualTo (expectedDisplay), $"Display value does not match the expected result: {display}");
 
 			var encoded = list.ToString (options, true);
-			Assert.AreEqual (expectedEncoded, encoded, "Encoded value does not match the expected result: {0}", display);
+			Assert.That (encoded, Is.EqualTo (expectedEncoded), $"Encoded value does not match the expected result: {display}");
 		}
 
 		[Test]
@@ -583,7 +583,7 @@ namespace UnitTests {
 			var buffer = Rfc2047.EncodePhrase (options, Encoding.UTF8, name);
 			var result = Encoding.UTF8.GetString (buffer);
 
-			Assert.AreEqual (encodedNameLatin1, result);
+			Assert.That (result, Is.EqualTo (encodedNameLatin1));
 
 			var mailbox = new MailboxAddress (name, address);
 			var list = new InternetAddressList {
@@ -592,7 +592,7 @@ namespace UnitTests {
 
 			result = list.ToString (options, true);
 
-			Assert.AreEqual (encodedMailbox, result);
+			Assert.That (result, Is.EqualTo (encodedMailbox));
 
 			// Now disable smart encoding
 
@@ -601,7 +601,7 @@ namespace UnitTests {
 			buffer = Rfc2047.EncodePhrase (options, Encoding.UTF8, name);
 			result = Encoding.UTF8.GetString (buffer);
 
-			Assert.AreEqual (encodedNameUnicode, result);
+			Assert.That (result, Is.EqualTo (encodedNameUnicode));
 		}
 
 		[Test]
@@ -616,8 +616,8 @@ namespace UnitTests {
 			var encoded = list.ToString (UnixFormatOptions, true);
 
 			InternetAddressList parsed;
-			Assert.IsTrue (InternetAddressList.TryParse (encoded, out parsed), "Failed to parse address");
-			Assert.AreEqual (latin1.HeaderName, parsed[0].Encoding.HeaderName, "Parsed charset does not match");
+			Assert.That (InternetAddressList.TryParse (encoded, out parsed), Is.True, "Failed to parse address");
+			Assert.That (parsed[0].Encoding.HeaderName, Is.EqualTo (latin1.HeaderName), "Parsed charset does not match");
 		}
 
 		[Test]
@@ -635,7 +635,7 @@ namespace UnitTests {
 			InternetAddressList parsed;
 
 			try {
-				Assert.IsTrue (InternetAddressList.TryParse (encoded, out parsed), "Failed to parse address");
+				Assert.That (InternetAddressList.TryParse (encoded, out parsed), Is.True, "Failed to parse address");
 			} catch (Exception ex) {
 				Assert.Fail ($"Exception thrown parsing address with unsupported charset: {ex}");
 			}
@@ -647,8 +647,8 @@ namespace UnitTests {
 			const string text = "伊昭傑@郵件.商務, राम@मोहन.ईन्फो, юзер@екзампл.ком, θσερ@εχαμπλε.ψομ";
 			InternetAddressList list;
 
-			Assert.IsTrue (InternetAddressList.TryParse (text, out list), "Failed to parse international email addresses.");
-			Assert.AreEqual (4, list.Count, "Unexpected number of international email addresses.");
+			Assert.That (InternetAddressList.TryParse (text, out list), Is.True, "Failed to parse international email addresses.");
+			Assert.That (list.Count, Is.EqualTo (4), "Unexpected number of international email addresses.");
 
 			var addresses = text.Split (',');
 			for (int i = 0; i < addresses.Length; i++) {
@@ -656,7 +656,7 @@ namespace UnitTests {
 
 				addresses[i] = addresses[i].Trim ();
 
-				Assert.AreEqual (addresses[i], mailbox.Address, "International address #{0} did not match.", i);
+				Assert.That (mailbox.Address, Is.EqualTo (addresses[i]), $"International address #{i} did not match.");
 			}
 		}
 
@@ -668,42 +668,42 @@ namespace UnitTests {
 			var user2 = new MailboxAddress ("Name Two", "user2@address.com");
 			var list = new InternetAddressList ();
 
-			Assert.IsFalse (list.IsReadOnly, "IsReadOnly");
+			Assert.That (list.IsReadOnly, Is.False, "IsReadOnly");
 
 			list.Add (user1);
 			list.Add (user2);
 
-			Assert.AreEqual (2, list.Count, "Count");
-			Assert.IsTrue (list.Contains (user1), "Contains");
-			Assert.IsTrue (list.Contains (user2), "Contains");
-			Assert.IsFalse (list.Contains (new MailboxAddress ("Unknown", "unknown@address.com")), "Contains");
-			Assert.AreEqual (0, list.IndexOf (user1), "IndexOf");
-			Assert.AreEqual (1, list.IndexOf (user2), "IndexOf");
+			Assert.That (list.Count, Is.EqualTo (2), "Count");
+			Assert.That (list.Contains (user1), Is.True, "Contains");
+			Assert.That (list.Contains (user2), Is.True, "Contains");
+			Assert.That (list.Contains (new MailboxAddress ("Unknown", "unknown@address.com")), Is.False, "Contains");
+			Assert.That (list.IndexOf (user1), Is.EqualTo (0), "IndexOf");
+			Assert.That (list.IndexOf (user2), Is.EqualTo (1), "IndexOf");
 
 			list.Insert (0, user0);
-			Assert.AreEqual (3, list.Count, "Count");
-			Assert.IsTrue (list.Contains (user0), "Contains");
-			Assert.AreEqual (0, list.IndexOf (user0), "IndexOf");
-			Assert.AreEqual (user0.Name, list[0].Name, "Name");
+			Assert.That (list.Count, Is.EqualTo (3), "Count");
+			Assert.That (list.Contains (user0), Is.True, "Contains");
+			Assert.That (list.IndexOf (user0), Is.EqualTo (0), "IndexOf");
+			Assert.That (list[0].Name, Is.EqualTo (user0.Name), "Name");
 
 			list.RemoveAt (0);
-			Assert.AreEqual (2, list.Count, "Count");
-			Assert.IsFalse (list.Contains (user0), "Contains");
-			Assert.AreEqual (-1, list.IndexOf (user0), "IndexOf");
+			Assert.That (list.Count, Is.EqualTo (2), "Count");
+			Assert.That (list.Contains (user0), Is.False, "Contains");
+			Assert.That (list.IndexOf (user0), Is.EqualTo (-1), "IndexOf");
 
-			Assert.IsFalse (list.Remove (user0), "Remove");
+			Assert.That (list.Remove (user0), Is.False, "Remove");
 
-			Assert.IsTrue (list.Remove (user2), "Remove");
-			Assert.AreEqual (1, list.Count, "Count");
-			Assert.IsFalse (list.Contains (user2), "Contains");
-			Assert.AreEqual (-1, list.IndexOf (user0), "IndexOf");
+			Assert.That (list.Remove (user2), Is.True, "Remove");
+			Assert.That (list.Count, Is.EqualTo (1), "Count");
+			Assert.That (list.Contains (user2), Is.False, "Contains");
+			Assert.That (list.IndexOf (user0), Is.EqualTo (-1), "IndexOf");
 
 			list[0] = user0;
-			Assert.AreEqual (1, list.Count, "Count");
-			Assert.IsTrue (list.Contains (user0), "Contains");
-			Assert.IsFalse (list.Contains (user1), "Contains");
-			Assert.AreEqual (0, list.IndexOf (user0), "IndexOf");
-			Assert.AreEqual (-1, list.IndexOf (user1), "IndexOf");
+			Assert.That (list.Count, Is.EqualTo (1), "Count");
+			Assert.That (list.Contains (user0), Is.True, "Contains");
+			Assert.That (list.Contains (user1), Is.False, "Contains");
+			Assert.That (list.IndexOf (user0), Is.EqualTo (0), "IndexOf");
+			Assert.That (list.IndexOf (user1), Is.EqualTo (-1), "IndexOf");
 		}
 
 		[Test]
@@ -735,7 +735,7 @@ namespace UnitTests {
 			int i = 0;
 
 			foreach (var mailbox in list.Mailboxes) {
-				Assert.AreEqual (expected[i], mailbox, "Mailbox #{0}", i);
+				Assert.That (mailbox, Is.EqualTo (expected[i]), $"Mailbox #{i}");
 				i++;
 			}
 		}
@@ -765,12 +765,12 @@ namespace UnitTests {
 				new MailboxAddress ("Chandler", "chandler@friends.com")
 			};
 
-			Assert.IsFalse (list1.Equals (null), "Equals null");
-			Assert.IsFalse (list1.Equals (new InternetAddressList ()), "Equals empty list");
-			Assert.IsTrue (list1.Equals (list2), "The 2 lists should be equal.");
+			Assert.That (list1.Equals (null), Is.False, "Equals null");
+			Assert.That (list1.Equals (new InternetAddressList ()), Is.False, "Equals empty list");
+			Assert.That (list1.Equals (list2), Is.True, "The 2 lists should be equal.");
 
-			Assert.IsTrue (((object) list1).Equals ((object) list2), "Equals(object)");
-			Assert.AreEqual (list1.GetHashCode (), list2.GetHashCode (), "GetHashCode()");
+			Assert.That (((object) list1).Equals ((object) list2), Is.True, "Equals(object)");
+			Assert.That (list2.GetHashCode (), Is.EqualTo (list1.GetHashCode ()), "GetHashCode()");
 		}
 
 		[Test]
@@ -798,8 +798,8 @@ namespace UnitTests {
 				new MailboxAddress ("Joey", "joey@friends.com")
 			};
 
-			Assert.IsTrue (list1.CompareTo (list2) > 0, "CompareTo() should return < 0.");
-			Assert.IsTrue (list2.CompareTo (list1) < 0, "CompareTo() should return > 0.");
+			Assert.That (list1.CompareTo (list2) > 0, Is.True, "CompareTo() should return < 0.");
+			Assert.That (list2.CompareTo (list1) < 0, Is.True, "CompareTo() should return > 0.");
 
 			var mailbox = new MailboxAddress ("Joe", "joe@inter.net");
 			var group = new GroupAddress ("Joe", new InternetAddress[] {
@@ -807,22 +807,22 @@ namespace UnitTests {
 			});
 
 			// MailboxAddresses with the same name should always sort first
-			Assert.IsTrue (mailbox.CompareTo (group) < 0, "CompareTo() should return < 0.");
-			Assert.IsTrue (group.CompareTo (mailbox) > 0, "CompareTo() should return > 0.");
+			Assert.That (mailbox.CompareTo (group) < 0, Is.True, "CompareTo() should return < 0.");
+			Assert.That (group.CompareTo (mailbox) > 0, Is.True, "CompareTo() should return > 0.");
 
-			Assert.AreEqual (0, mailbox.CompareTo (group.Members[0]), "CompareTo() should return 0.");
+			Assert.That (mailbox.CompareTo (group.Members[0]), Is.EqualTo (0), "CompareTo() should return 0.");
 
 			var alice = new MailboxAddress (string.Empty, "alice@example.com");
 			var bob = new MailboxAddress (string.Empty, "bob@example.com");
 
-			Assert.IsTrue (alice.CompareTo (bob) < 0, "alice.CompareTo(bob) should return < 0.");
-			Assert.IsTrue (bob.CompareTo (alice) > 0, "bob.CompareTo(alice) should return > 0.");
+			Assert.That (alice.CompareTo (bob) < 0, Is.True, "alice.CompareTo(bob) should return < 0.");
+			Assert.That (bob.CompareTo (alice) > 0, Is.True, "bob.CompareTo(alice) should return > 0.");
 
 			var alexa = new MailboxAddress (string.Empty, "alexa@example.com");
 			var alex = new MailboxAddress (string.Empty, "alex@example.com");
 
-			Assert.IsTrue (alex.CompareTo (alexa) < 0, "alex.CompareTo(alexa) should return < 0.");
-			Assert.IsTrue (alexa.CompareTo (alex) > 0, "alexa.CompareTo(alex) should return > 0.");
+			Assert.That (alex.CompareTo (alexa) < 0, Is.True, "alex.CompareTo(alexa) should return < 0.");
+			Assert.That (alexa.CompareTo (alex) > 0, Is.True, "alexa.CompareTo(alex) should return > 0.");
 		}
 
 		#region Rfc7103
@@ -922,7 +922,7 @@ namespace UnitTests {
 		{
 			const string text = "name.@abc.com";
 
-			Assert.IsFalse (InternetAddressList.TryParse (text, out _));
+			Assert.That (InternetAddressList.TryParse (text, out _), Is.False);
 		}
 	}
 }

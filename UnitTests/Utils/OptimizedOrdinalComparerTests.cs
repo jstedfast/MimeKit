@@ -35,9 +35,9 @@ namespace UnitTests.Utils {
 		{
 			var comparer = new OptimizedOrdinalIgnoreCaseComparer ();
 
-			Assert.IsFalse (comparer.Equals ("abc", "a"));
-			Assert.IsFalse (comparer.Equals ("abc", "abd"));
-			Assert.IsTrue (comparer.Equals ("abc", "abc"));
+			Assert.That (comparer.Equals ("abc", "a"), Is.False);
+			Assert.That (comparer.Equals ("abc", "abd"), Is.False);
+			Assert.That (comparer.Equals ("abc", "abc"), Is.True);
 		}
 
 		[Test]

@@ -64,10 +64,10 @@ namespace UnitTests {
 
 				using (var dest = new MemoryStream ()) {
 					Assert.Throws<OperationCanceledException> (() => content.WriteTo (dest, source.Token));
-					Assert.AreEqual (0, dest.Length);
+					Assert.That (dest.Length, Is.EqualTo (0));
 
 					Assert.ThrowsAsync<TaskCanceledException> (async () => await content.WriteToAsync (dest, source.Token));
-					Assert.AreEqual (0, dest.Length);
+					Assert.That (dest.Length, Is.EqualTo (0));
 				}
 			}
 		}

@@ -62,15 +62,15 @@ namespace UnitTests.Text {
 		{
 			var converter = new TextToFlowed ();
 
-			Assert.IsFalse (converter.DetectEncodingFromByteOrderMark, "DetectEncodingFromByteOrderMark");
-			Assert.IsNull (converter.Footer, "Footer");
-			Assert.IsNull (converter.Header, "Header");
-			Assert.AreEqual (Encoding.UTF8, converter.InputEncoding, "InputEncoding");
-			Assert.AreEqual (TextFormat.Text, converter.InputFormat, "InputFormat");
-			Assert.AreEqual (4096, converter.InputStreamBufferSize, "InputStreamBufferSize");
-			Assert.AreEqual (Encoding.UTF8, converter.OutputEncoding, "OutputEncoding");
-			Assert.AreEqual (TextFormat.Flowed, converter.OutputFormat, "OutputFormat");
-			Assert.AreEqual (4096, converter.OutputStreamBufferSize, "OutputStreamBufferSize");
+			Assert.That (converter.DetectEncodingFromByteOrderMark, Is.False, "DetectEncodingFromByteOrderMark");
+			Assert.That (converter.Footer, Is.Null, "Footer");
+			Assert.That (converter.Header, Is.Null, "Header");
+			Assert.That (converter.InputEncoding, Is.EqualTo (Encoding.UTF8), "InputEncoding");
+			Assert.That (converter.InputFormat, Is.EqualTo (TextFormat.Text), "InputFormat");
+			Assert.That (converter.InputStreamBufferSize, Is.EqualTo (4096), "InputStreamBufferSize");
+			Assert.That (converter.OutputEncoding, Is.EqualTo (Encoding.UTF8), "OutputEncoding");
+			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Flowed), "OutputFormat");
+			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
 		}
 
 		[Test]
@@ -93,12 +93,12 @@ namespace UnitTests.Text {
 			TextConverter converter = new TextToFlowed { Header = null, Footer = null };
 			string result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 
 			converter = new FlowedToText { DeleteSpace = true };
 			result = converter.Convert (expected);
 
-			Assert.AreEqual (text, result);
+			Assert.That (result, Is.EqualTo (text));
 		}
 
 		[Test]
@@ -111,12 +111,12 @@ namespace UnitTests.Text {
 			TextConverter converter = new TextToFlowed ();
 			string result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 
 			converter = new FlowedToText ();
 			result = converter.Convert (expected);
 
-			Assert.AreEqual (text, result);
+			Assert.That (result, Is.EqualTo (text));
 		}
 
 		[Test]
@@ -129,12 +129,12 @@ namespace UnitTests.Text {
 			TextConverter converter = new TextToFlowed ();
 			string result = converter.Convert (text);
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 
 			converter = new FlowedToText ();
 			result = converter.Convert (expected);
 
-			Assert.AreEqual (text, result);
+			Assert.That (result, Is.EqualTo (text));
 		}
 
 		[Test]
@@ -182,12 +182,12 @@ glove upon that hand, That I might touch that cheek!
 			TextConverter converter = new TextToFlowed ();
 			string result = converter.Convert (text).Replace ("\r\n", "\n");
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 
 			converter = new FlowedToText () { DeleteSpace = true };
 			result = converter.Convert (expected).Replace ("\r\n", "\n");
 
-			Assert.AreEqual (text, result);
+			Assert.That (result, Is.EqualTo (text));
 		}
 
 		[Test]
@@ -245,12 +245,12 @@ Did that flow correctly?
 			TextConverter converter = new TextToFlowed ();
 			string result = converter.Convert (text).Replace ("\r\n", "\n");
 
-			Assert.AreEqual (expected, result);
+			Assert.That (result, Is.EqualTo (expected));
 
 			converter = new FlowedToText () { DeleteSpace = true };
 			result = converter.Convert (expected).Replace ("\r\n", "\n");
 
-			Assert.AreEqual (text, result);
+			Assert.That (result, Is.EqualTo (text));
 		}
 	}
 }

@@ -93,13 +93,13 @@ namespace UnitTests {
 		{
 			var multipart = new Multipart ();
 
-			Assert.IsNotNull (multipart.Boundary, "Boundary != null");
+			Assert.That (multipart.Boundary, Is.Not.Null, "Boundary != null");
 			Assert.IsNotEmpty (multipart.Boundary, "Boundary");
-			Assert.IsFalse (multipart.IsReadOnly, "IsReadOnly");
+			Assert.That (multipart.IsReadOnly, Is.False, "IsReadOnly");
 
 			multipart.Boundary = "__Next_Part_123";
 
-			Assert.AreEqual ("__Next_Part_123", multipart.Boundary);
+			Assert.That (multipart.Boundary, Is.EqualTo ("__Next_Part_123"));
 
 			var generic = new MimePart ("application", "octet-stream") { Content = new MimeContent (new MemoryStream ()), IsAttachment = true };
 			var plain = new TextPart ("plain") { Text = "This is some plain text." };
@@ -107,32 +107,32 @@ namespace UnitTests {
 			multipart.Add (generic);
 			multipart.Insert (0, plain);
 
-			Assert.AreEqual (2, multipart.Count, "Count");
+			Assert.That (multipart.Count, Is.EqualTo (2), "Count");
 
-			Assert.IsTrue (multipart.Contains (generic), "Contains");
-			Assert.AreEqual (0, multipart.IndexOf (plain), "IndexOf");
-			Assert.IsTrue (multipart.Remove (generic), "Remove");
-			Assert.IsFalse (multipart.Remove (generic), "Remove 2nd time");
+			Assert.That (multipart.Contains (generic), Is.True, "Contains");
+			Assert.That (multipart.IndexOf (plain), Is.EqualTo (0), "IndexOf");
+			Assert.That (multipart.Remove (generic), Is.True, "Remove");
+			Assert.That (multipart.Remove (generic), Is.False, "Remove 2nd time");
 
 			multipart.RemoveAt (0);
 
-			Assert.AreEqual (0, multipart.Count, "Count");
+			Assert.That (multipart.Count, Is.EqualTo (0), "Count");
 
 			multipart.Add (generic);
 			multipart.Add (plain);
 
-			Assert.AreEqual (generic, multipart[0]);
-			Assert.AreEqual (plain, multipart[1]);
+			Assert.That (multipart[0], Is.EqualTo (generic));
+			Assert.That (multipart[1], Is.EqualTo (plain));
 
 			multipart[0] = plain;
 			multipart[1] = generic;
 
-			Assert.AreEqual (plain, multipart[0]);
-			Assert.AreEqual (generic, multipart[1]);
+			Assert.That (multipart[0], Is.EqualTo (plain));
+			Assert.That (multipart[1], Is.EqualTo (generic));
 
 			multipart.Clear ();
 
-			Assert.AreEqual (0, multipart.Count, "Count");
+			Assert.That (multipart.Count, Is.EqualTo (0), "Count");
 
 			multipart.Add (plain);
 			multipart.Add (generic);
@@ -140,8 +140,8 @@ namespace UnitTests {
 			// Clear & dispose the MimeParts
 			multipart.Clear (true);
 
-			Assert.IsTrue (plain.IsDisposed, "Expected plain part to be disposed after Clear(true)");
-			Assert.IsTrue (generic.IsDisposed, "Expected generic part to be disposed after Clear(true)");
+			Assert.That (plain.IsDisposed, Is.True, "Expected plain part to be disposed after Clear(true)");
+			Assert.That (generic.IsDisposed, Is.True, "Expected generic part to be disposed after Clear(true)");
 		}
 
 		[Test]
@@ -167,11 +167,11 @@ namespace UnitTests {
 
 			multipart.Dispose ();
 
-			Assert.IsTrue (multipart.IsDisposed, "Expected multipart to be disposed after Dispose()");
-			Assert.IsTrue (plain.IsDisposed, "Expected plain part to be disposed after Dispose()");
-			Assert.IsTrue (generic.IsDisposed, "Expected generic part to be disposed after Dispose()");
-			Assert.IsTrue (rfc822.IsDisposed, "Expected rfc822 part to be disposed after Dispose()");
-			Assert.IsTrue (rfc822.Message.Body.IsDisposed, "Expected rfc822 message body to be disposed after Dispose()");
+			Assert.That (multipart.IsDisposed, Is.True, "Expected multipart to be disposed after Dispose()");
+			Assert.That (plain.IsDisposed, Is.True, "Expected plain part to be disposed after Dispose()");
+			Assert.That (generic.IsDisposed, Is.True, "Expected generic part to be disposed after Dispose()");
+			Assert.That (rfc822.IsDisposed, Is.True, "Expected rfc822 part to be disposed after Dispose()");
+			Assert.That (rfc822.Message.Body.IsDisposed, Is.True, "Expected rfc822 message body to be disposed after Dispose()");
 		}
 
 		[Test]
@@ -190,11 +190,11 @@ namespace UnitTests {
 
 			multipart.Preamble = multiline;
 
-			Assert.AreEqual (expected, multipart.Preamble);
+			Assert.That (multipart.Preamble, Is.EqualTo (expected));
 
 			multipart.Preamble = null;
 
-			Assert.IsNull (multipart.Preamble);
+			Assert.That (multipart.Preamble, Is.Null);
 		}
 
 		[Test]
@@ -213,11 +213,11 @@ namespace UnitTests {
 
 			multipart.Preamble = multiline;
 
-			Assert.AreEqual (expected, multipart.Preamble);
+			Assert.That (multipart.Preamble, Is.EqualTo (expected));
 
 			multipart.Preamble = null;
 
-			Assert.IsNull (multipart.Preamble);
+			Assert.That (multipart.Preamble, Is.Null);
 		}
 
 		[Test]
@@ -236,11 +236,11 @@ namespace UnitTests {
 
 			multipart.Epilogue = multiline;
 
-			Assert.AreEqual (expected, multipart.Epilogue);
+			Assert.That (multipart.Epilogue, Is.EqualTo (expected));
 
 			multipart.Epilogue = null;
 
-			Assert.IsNull (multipart.Epilogue);
+			Assert.That (multipart.Epilogue, Is.Null);
 		}
 
 		[Test]
@@ -259,11 +259,11 @@ namespace UnitTests {
 
 			multipart.Epilogue = multiline;
 
-			Assert.AreEqual (expected, multipart.Epilogue);
+			Assert.That (multipart.Epilogue, Is.EqualTo (expected));
 
 			multipart.Epilogue = null;
 
-			Assert.IsNull (multipart.Epilogue);
+			Assert.That (multipart.Epilogue, Is.Null);
 		}
 
 		[Test]
@@ -277,7 +277,7 @@ namespace UnitTests {
 
 			var actual = Multipart.FoldPreambleOrEpilogue (options, text, false);
 
-			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
+			Assert.That (actual, Is.EqualTo (expected), "Folded multipart preamble does not match.");
 		}
 
 		[Test]
@@ -291,7 +291,7 @@ namespace UnitTests {
 
 			var actual = Multipart.FoldPreambleOrEpilogue (options, text, true);
 
-			Assert.AreEqual (expected, actual, "Folded multipart preamble does not match.");
+			Assert.That (actual, Is.EqualTo (expected), "Folded multipart preamble does not match.");
 		}
 	}
 }

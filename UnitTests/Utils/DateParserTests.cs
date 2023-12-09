@@ -116,21 +116,21 @@ namespace UnitTests.Utils {
 				DateTimeOffset date;
 				string parsed;
 
-				Assert.IsTrue (DateUtils.TryParse (text, 0, text.Length, out date), "Failed to parse date: {0}", dates[i]);
+				Assert.That (DateUtils.TryParse (text, 0, text.Length, out date), Is.True, $"Failed to parse date: {dates[i]}");
 				parsed = DateUtils.FormatDate (date);
-				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
+				Assert.That (parsed, Is.EqualTo (expected[i]), $"Parsed date does not match: '{parsed}' vs '{expected[i]}'");
 
-				Assert.IsTrue (DateUtils.TryParse (text, 0, out date), "Failed to parse date: {0}", dates[i]);
+				Assert.That (DateUtils.TryParse (text, 0, out date), Is.True, $"Failed to parse date: {dates[i]}");
 				parsed = DateUtils.FormatDate (date);
-				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
+				Assert.That (parsed, Is.EqualTo (expected[i]), $"Parsed date does not match: '{parsed}' vs '{expected[i]}'");
 
-				Assert.IsTrue (DateUtils.TryParse (text, out date), "Failed to parse date: {0}", dates[i]);
+				Assert.That (DateUtils.TryParse (text, out date), Is.True, $"Failed to parse date: {dates[i]}");
 				parsed = DateUtils.FormatDate (date);
-				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
+				Assert.That (parsed, Is.EqualTo (expected[i]), $"Parsed date does not match: '{parsed}' vs '{expected[i]}'");
 
-				Assert.IsTrue (DateUtils.TryParse (dates[i], out date), "Failed to parse date: {0}", dates[i]);
+				Assert.That (DateUtils.TryParse (dates[i], out date), Is.True, $"Failed to parse date: {dates[i]}");
 				parsed = DateUtils.FormatDate (date);
-				Assert.AreEqual (expected[i], parsed, "Parsed date does not match: '{0}' vs '{1}'", parsed, expected[i]);
+				Assert.That (parsed, Is.EqualTo (expected[i]), $"Parsed date does not match: '{parsed}' vs '{expected[i]}'");
 			}
 		}
 
@@ -148,10 +148,10 @@ namespace UnitTests.Utils {
 			for (int i = 0; i < invalidDates.Length; i++) {
 				var text = Encoding.UTF8.GetBytes (invalidDates[i]);
 
-				Assert.IsFalse (DateUtils.TryParse (text, 0, text.Length, out _), "Should not have parsed '{0}'", invalidDates[i]);
-				Assert.IsFalse (DateUtils.TryParse (text, 0, out _), "Should not have parsed '{0}'", invalidDates[i]);
-				Assert.IsFalse (DateUtils.TryParse (text, out _), "Should not have parsed '{0}'", invalidDates[i]);
-				Assert.IsFalse (DateUtils.TryParse (invalidDates[i], out _), "Should not have parsed '{0}'", invalidDates[i]);
+				Assert.That (DateUtils.TryParse (text, 0, text.Length, out _), Is.False, $"Should not have parsed '{invalidDates[i]}'");
+				Assert.That (DateUtils.TryParse (text, 0, out _), Is.False, $"Should not have parsed '{invalidDates[i]}'");
+				Assert.That (DateUtils.TryParse (text, out _), Is.False, $"Should not have parsed '{invalidDates[i]}'");
+				Assert.That (DateUtils.TryParse (invalidDates[i], out _), Is.False, $"Should not have parsed '{invalidDates[i]}'");
 			}
 		}
 	}

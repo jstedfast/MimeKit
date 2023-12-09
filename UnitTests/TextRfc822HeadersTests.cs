@@ -76,8 +76,8 @@ namespace UnitTests {
 				var visitor = new TextRfc822HeadersVisitor ();
 				visitor.Visit (message);
 
-				Assert.IsNotNull (visitor.Rfc822Headers, "Rfc822Headers");
-				Assert.AreEqual ("id@localhost", visitor.Rfc822Headers.ContentId, "ContentId");
+				Assert.That (visitor.Rfc822Headers, Is.Not.Null, "Rfc822Headers");
+				Assert.That (visitor.Rfc822Headers.ContentId, Is.EqualTo ("id@localhost"), "ContentId");
 			}
 		}
 	}

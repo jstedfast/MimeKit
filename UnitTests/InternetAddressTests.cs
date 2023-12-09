@@ -37,17 +37,17 @@ namespace UnitTests {
 			var buffer = text.Length > 0 ? Encoding.UTF8.GetBytes (text) : new byte[1];
 			InternetAddress address;
 
-			Assert.AreEqual (result, InternetAddress.TryParse (text, out address), "InternetAddress.TryParse(string)");
-			Assert.AreEqual (result, InternetAddress.TryParse (buffer, out address), "InternetAddress.TryParse(byte[])");
-			Assert.AreEqual (result, InternetAddress.TryParse (buffer, 0, out address), "InternetAddress.TryParse(byte[], int)");
-			Assert.AreEqual (result, InternetAddress.TryParse (buffer, 0, buffer.Length, out address), "InternetAddress.TryParse(byte[], int, int)");
+			Assert.That (InternetAddress.TryParse (text, out address), Is.EqualTo (result), "InternetAddress.TryParse(string)");
+			Assert.That (InternetAddress.TryParse (buffer, out address), Is.EqualTo (result), "InternetAddress.TryParse(byte[])");
+			Assert.That (InternetAddress.TryParse (buffer, 0, out address), Is.EqualTo (result), "InternetAddress.TryParse(byte[], int)");
+			Assert.That (InternetAddress.TryParse (buffer, 0, buffer.Length, out address), Is.EqualTo (result), "InternetAddress.TryParse(byte[], int, int)");
 
 			try {
 				InternetAddress.Parse (text);
 				Assert.Fail ("InternetAddress.Parse(string) should fail.");
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "ParseException did not have the correct token index.");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "ParseException did not have the correct error index.");
 			} catch {
 				Assert.Fail ("InternetAddress.Parse(string) should throw ParseException.");
 			}
@@ -56,8 +56,8 @@ namespace UnitTests {
 				InternetAddress.Parse (buffer);
 				Assert.Fail ("InternetAddress.Parse(byte[]) should fail.");
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "ParseException did not have the correct token index.");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "ParseException did not have the correct error index.");
 			} catch {
 				Assert.Fail ("InternetAddress.Parse(new byte[]) should throw ParseException.");
 			}
@@ -66,8 +66,8 @@ namespace UnitTests {
 				InternetAddress.Parse (buffer, 0);
 				Assert.Fail ("InternetAddress.Parse(byte[], int) should fail.");
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "ParseException did not have the correct token index.");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "ParseException did not have the correct error index.");
 			} catch {
 				Assert.Fail ("InternetAddress.Parse(new byte[], int) should throw ParseException.");
 			}
@@ -76,8 +76,8 @@ namespace UnitTests {
 				InternetAddress.Parse (buffer, 0, buffer.Length);
 				Assert.Fail ("InternetAddress.Parse(byte[], int, int) should fail.");
 			} catch (ParseException ex) {
-				Assert.AreEqual (tokenIndex, ex.TokenIndex, "ParseException did not have the correct token index.");
-				Assert.AreEqual (errorIndex, ex.ErrorIndex, "ParseException did not have the correct error index.");
+				Assert.That (ex.TokenIndex, Is.EqualTo (tokenIndex), "ParseException did not have the correct token index.");
+				Assert.That (ex.ErrorIndex, Is.EqualTo (errorIndex), "ParseException did not have the correct error index.");
 			} catch {
 				Assert.Fail ("InternetAddress.Parse(new byte[], int, int) should throw ParseException.");
 			}
@@ -89,25 +89,25 @@ namespace UnitTests {
 			InternetAddress address;
 
 			try {
-				Assert.IsTrue (InternetAddress.TryParse (text, out address), "InternetAddress.TryParse(string) should succeed.");
+				Assert.That (InternetAddress.TryParse (text, out address), Is.True, "InternetAddress.TryParse(string) should succeed.");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddress.TryParse(string) should not throw an exception: {ex}");
 			}
 
 			try {
-				Assert.IsTrue (InternetAddress.TryParse (buffer, out address), "InternetAddress.TryParse(byte[]) should succeed.");
+				Assert.That (InternetAddress.TryParse (buffer, out address), Is.True, "InternetAddress.TryParse(byte[]) should succeed.");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddress.TryParse(byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
-				Assert.IsTrue (InternetAddress.TryParse (buffer, 0, out address), "InternetAddress.TryParse(byte[], int) should succeed.");
+				Assert.That (InternetAddress.TryParse (buffer, 0, out address), Is.True, "InternetAddress.TryParse(byte[], int) should succeed.");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddress.TryParse(byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
-				Assert.IsTrue (InternetAddress.TryParse (buffer, 0, buffer.Length, out address), "InternetAddress.TryParse(byte[], int, int) should succeed.");
+				Assert.That (InternetAddress.TryParse (buffer, 0, buffer.Length, out address), Is.True, "InternetAddress.TryParse(byte[], int, int) should succeed.");
 			} catch (Exception ex) {
 				Assert.Fail ($"InternetAddress.TryParse(byte[], int, int) should not throw an exception: {ex}");
 			}
@@ -336,8 +336,8 @@ namespace UnitTests {
 
 			var mailbox = MailboxAddress.Parse (text);
 
-			Assert.AreEqual ("Jeffrey Stedfast", mailbox.Name);
-			Assert.AreEqual ("jeff", mailbox.Address);
+			Assert.That (mailbox.Name, Is.EqualTo ("Jeffrey Stedfast"));
+			Assert.That (mailbox.Address, Is.EqualTo ("jeff"));
 		}
 
 		[Test]
@@ -374,7 +374,7 @@ namespace UnitTests {
 
 			// default options should parse this as a single mailbox address
 			addr = InternetAddress.Parse (text);
-			Assert.AreEqual ("Worthington, Warren", addr.Name);
+			Assert.That (addr.Name, Is.EqualTo ("Worthington, Warren"));
 
 			// this should fail when we allow mailbox addresses w/o a domain
 			var options = ParserOptions.Default.Clone ();
@@ -385,8 +385,8 @@ namespace UnitTests {
 				addr = InternetAddress.Parse (options, text);
 				Assert.Fail ($"Should not have parsed \"{text}\" with AllowUnquotedCommasInAddresses = false");
 			} catch (ParseException pex) {
-				Assert.AreEqual (0, pex.TokenIndex, "TokenIndex");
-				Assert.AreEqual (text.IndexOf (','), pex.ErrorIndex, "ErrorIndex");
+				Assert.That (pex.TokenIndex, Is.EqualTo (0), "TokenIndex");
+				Assert.That (pex.ErrorIndex, Is.EqualTo (text.IndexOf (',')), "ErrorIndex");
 			} catch (Exception ex) {
 				Assert.Fail ($"Should not have thrown {ex.GetType ().Name}");
 			}

@@ -46,26 +46,26 @@ namespace UnitTests {
 
 				var encoding = part.GetBestEncoding (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, encoding, "GetBestEncoding");
+				Assert.That (encoding, Is.EqualTo (ContentEncoding.Base64), "GetBestEncoding");
 
 				rfc822.Prepare (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #1");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #1");
 
 				// now make sure that calling Prepare() again doesn't change anything
 
 				rfc822.Prepare (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #2");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #2");
 
 				part.ContentTransferEncoding = ContentEncoding.Binary;
 				rfc822.Prepare (EncodingConstraint.None);
 
-				Assert.AreEqual (ContentEncoding.Binary, part.ContentTransferEncoding, "Prepare #3");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Binary), "Prepare #3");
 
 				rfc822.Prepare (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #4");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #4");
 			}
 		}
 	}

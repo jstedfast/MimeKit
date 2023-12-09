@@ -12,11 +12,11 @@ namespace UnitTests.Utils {
 		public void Ctor_Default_CanAppend ()
 		{
 			var vsb = default (ValueStringBuilder);
-			Assert.AreEqual (0, vsb.Length);
+			Assert.That (vsb.Length, Is.EqualTo (0));
 
 			vsb.Append ('a');
-			Assert.AreEqual (1, vsb.Length);
-			Assert.AreEqual ("a", vsb.ToString ());
+			Assert.That (vsb.Length, Is.EqualTo (1));
+			Assert.That (vsb.ToString (), Is.EqualTo ("a"));
 		}
 
 #if UNUSED_VALUESTRINGBUILDER_API
@@ -36,11 +36,11 @@ namespace UnitTests.Utils {
 		public void Ctor_InitialCapacity_CanAppend ()
 		{
 			var vsb = new ValueStringBuilder (1);
-			Assert.AreEqual (0, vsb.Length);
+			Assert.That (vsb.Length, Is.EqualTo (0));
 
 			vsb.Append ('a');
-			Assert.AreEqual (1, vsb.Length);
-			Assert.AreEqual ("a", vsb.ToString ());
+			Assert.That (vsb.Length, Is.EqualTo (1));
+			Assert.That (vsb.ToString (), Is.EqualTo ("a"));
 		}
 
 		[Test]
@@ -53,8 +53,8 @@ namespace UnitTests.Utils {
 				vsb.Append ((char) i);
 			}
 
-			Assert.AreEqual (sb.Length, vsb.Length);
-			Assert.AreEqual (sb.ToString (), vsb.ToString ());
+			Assert.That (vsb.Length, Is.EqualTo (sb.Length));
+			Assert.That (vsb.ToString (), Is.EqualTo (sb.ToString ()));
 		}
 
 		[Test]
@@ -68,8 +68,8 @@ namespace UnitTests.Utils {
 				vsb.Append (s);
 			}
 
-			Assert.AreEqual (sb.Length, vsb.Length);
-			Assert.AreEqual (sb.ToString (), vsb.ToString ());
+			Assert.That (vsb.Length, Is.EqualTo (sb.Length));
+			Assert.That (vsb.ToString (), Is.EqualTo (sb.ToString ()));
 		}
 
 		[Test]
@@ -88,8 +88,8 @@ namespace UnitTests.Utils {
 			vsb.Append ((string?) null);
 			vsb.Append ("b");
 
-			Assert.AreEqual (sb.Length, vsb.Length);
-			Assert.AreEqual (sb.ToString (), vsb.ToString ());
+			Assert.That (vsb.Length, Is.EqualTo (sb.Length));
+			Assert.That (vsb.ToString (), Is.EqualTo (sb.ToString ()));
 		}
 
 		[Test]
@@ -108,8 +108,8 @@ namespace UnitTests.Utils {
 			vsb.Insert (0, (string?) null);
 			vsb.Insert (0, "a");
 
-			Assert.AreEqual (sb.Length, vsb.Length);
-			Assert.AreEqual (sb.ToString (), vsb.ToString ());
+			Assert.That (vsb.Length, Is.EqualTo (sb.Length));
+			Assert.That (vsb.ToString (), Is.EqualTo (sb.ToString ()));
 		}
 
 		[Test]
@@ -120,7 +120,7 @@ namespace UnitTests.Utils {
 			vsb.Append ("s");
 			vsb.Insert (0, "Make sure that the ValueStringBuilder's capacity grow");
 
-			Assert.AreEqual ("Make sure that the ValueStringBuilder's capacity grows", vsb.ToString ());
+			Assert.That (vsb.ToString (), Is.EqualTo ("Make sure that the ValueStringBuilder's capacity grows"));
 		}
 
 #if UNUSED_VALUESTRINGBUILDER_API
@@ -319,9 +319,9 @@ namespace UnitTests.Utils {
 
 			vsb.Append (Text1);
 
-			Assert.AreEqual ('b', vsb[3]);
+			Assert.That (vsb[3], Is.EqualTo ('b'));
 			vsb[3] = 'c';
-			Assert.AreEqual ('c', vsb[3]);
+			Assert.That (vsb[3], Is.EqualTo ('c'));
 		}
 
 #if UNUSED_VALUESTRINGBUILDER_API

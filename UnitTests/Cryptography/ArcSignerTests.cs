@@ -75,14 +75,14 @@ namespace UnitTests.Cryptography {
 			}
 
 			signer = new DummyArcSigner (keys.Private, "example.com", "1433868189.example");
-			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #1");
+			Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #1");
 
 			signer = new DummyArcSigner (path, "example.com", "1433868189.example");
-			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #2");
+			Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #2");
 
 			using (var stream = File.OpenRead (path)) {
 				signer = new DummyArcSigner (stream, "example.com", "1433868189.example");
-				Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #3");
+				Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #3");
 			}
 		}
 
@@ -177,7 +177,7 @@ namespace UnitTests.Cryptography {
 			var expectedTags = DkimVerifierBase.ParseParameterTags (id, expected);
 			var actualTags = DkimVerifierBase.ParseParameterTags (id, actual);
 
-			Assert.AreEqual (expectedTags.Count, actualTags.Count, "{0} parameter counts do not match", id.ToHeaderName ());
+			Assert.That (actualTags.Count, Is.EqualTo (expectedTags.Count), $"{id.ToHeaderName ()} parameter counts do not match");
 			foreach (var tag in expectedTags) {
 				string value;
 
@@ -189,8 +189,8 @@ namespace UnitTests.Cryptography {
 					continue;
 				}
 
-				Assert.IsTrue (actualTags.TryGetValue (tag.Key, out value), tag.Key);
-				Assert.AreEqual (tag.Value, value, "{0} {1}= values do not match", id.ToHeaderName (), tag.Key);
+				Assert.That (actualTags.TryGetValue (tag.Key, out value), Is.True, tag.Key);
+				Assert.That (value, Is.EqualTo (tag.Value), $"{id.ToHeaderName ()} {tag.Key}= values do not match");
 			}
 		}
 
@@ -202,20 +202,20 @@ namespace UnitTests.Cryptography {
 			if (string.IsNullOrEmpty (seal)) {
 				index = message.Headers.IndexOf (HeaderId.ArcSeal);
 
-				Assert.AreNotEqual (0, index, "Message should not have been signed.");
+				Assert.That (index, Is.Not.EqualTo (0), "Message should not have been signed.");
 			} else {
 				index = message.Headers.IndexOf (HeaderId.ArcAuthenticationResults);
-				Assert.AreEqual (2, index, "IndexOf ARC-Authentication-Results header");
+				Assert.That (index, Is.EqualTo (2), "IndexOf ARC-Authentication-Results header");
 				header = message.Headers[index];
-				Assert.AreEqual (aar, header.Value, "ARC-Authentication-Results headers do not match");
+				Assert.That (header.Value, Is.EqualTo (aar), "ARC-Authentication-Results headers do not match");
 
 				index = message.Headers.IndexOf (HeaderId.ArcMessageSignature);
-				Assert.AreEqual (1, index, "IndexOf ARC-Message-Signature header");
+				Assert.That (index, Is.EqualTo (1), "IndexOf ARC-Message-Signature header");
 				header = message.Headers[index];
 				AssertHeadersEqual (description, HeaderId.ArcMessageSignature, ams, header.Value);
 
 				index = message.Headers.IndexOf (HeaderId.ArcSeal);
-				Assert.AreEqual (0, index, "IndexOf ARC-Seal header");
+				Assert.That (index, Is.EqualTo (0), "IndexOf ARC-Seal header");
 				header = message.Headers[index];
 				AssertHeadersEqual (description, HeaderId.ArcSeal, seal, header.Value);
 
@@ -228,14 +228,14 @@ namespace UnitTests.Cryptography {
 				if (!verifier.IsEnabled (algorithm)) {
 					result = verifier.Verify (message);
 
-					Assert.AreEqual (ArcSignatureValidationResult.Fail, result.Chain, "Disabled algorithm should fail");
+					Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Fail), "Disabled algorithm should fail");
 
 					verifier.Enable (algorithm);
 				}
 
 				result = verifier.Verify (message);
 
-				Assert.AreEqual (expected, result.Chain, "ArcSigner validation failed");
+				Assert.That (result.Chain, Is.EqualTo (expected), "ArcSigner validation failed");
 			}
 		}
 

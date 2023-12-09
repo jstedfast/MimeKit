@@ -50,51 +50,51 @@ namespace UnitTests {
 		[Test]
 		public void TestGetMimeTypeNoFileExtension ()
 		{
-			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename"));
+			Assert.That (MimeTypes.GetMimeType ("filename"), Is.EqualTo ("application/octet-stream"));
 		}
 
 		[Test]
 		public void TestGetMimeTypeFileNameDot ()
 		{
-			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename."));
+			Assert.That (MimeTypes.GetMimeType ("filename."), Is.EqualTo ("application/octet-stream"));
 		}
 
 		[Test]
 		public void TestGetMimeTypeFileExtensionTxt ()
 		{
-			Assert.AreEqual ("text/plain", MimeTypes.GetMimeType ("filename.txt"));
+			Assert.That (MimeTypes.GetMimeType ("filename.txt"), Is.EqualTo ("text/plain"));
 		}
 
 		[Test]
 		public void TestGetMimeTypeFileExtensionCsv ()
 		{
-			Assert.AreEqual ("text/csv", MimeTypes.GetMimeType ("filename.csv"));
+			Assert.That (MimeTypes.GetMimeType ("filename.csv"), Is.EqualTo ("text/csv"));
 		}
 
 		[Test]
 		public void TestTryGetExtensionTextPlain ()
 		{
-			Assert.IsTrue (MimeTypes.TryGetExtension ("text/plain", out var extension));
-			Assert.AreEqual (".txt", extension);
+			Assert.That (MimeTypes.TryGetExtension ("text/plain", out var extension), Is.True);
+			Assert.That (extension, Is.EqualTo (".txt"));
 		}
 
 		[Test]
 		public void TestTryGetExtensionUnknownMimeType ()
 		{
-			Assert.IsFalse (MimeTypes.TryGetExtension ("application/x-vnd.fake-mime-type", out _));
+			Assert.That (MimeTypes.TryGetExtension ("application/x-vnd.fake-mime-type", out _), Is.False);
 		}
 
 		[Test]
 		public void TestMimeTypeRegister ()
 		{
-			Assert.AreEqual ("application/octet-stream", MimeTypes.GetMimeType ("filename.bogus"));
+			Assert.That (MimeTypes.GetMimeType ("filename.bogus"), Is.EqualTo ("application/octet-stream"));
 			Assert.False (MimeTypes.TryGetExtension ("application/vnd.bogus", out _));
 
 			MimeTypes.Register ("application/vnd.bogus", ".bogus");
 
-			Assert.AreEqual ("application/vnd.bogus", MimeTypes.GetMimeType ("filename.bogus"));
-			Assert.True (MimeTypes.TryGetExtension ("application/vnd.bogus", out var extension));
-			Assert.AreEqual (".bogus", extension);
+			Assert.That (MimeTypes.GetMimeType ("filename.bogus"), Is.EqualTo ("application/vnd.bogus"));
+			Assert.That (MimeTypes.TryGetExtension ("application/vnd.bogus", out var extension), Is.True);
+			Assert.That (extension, Is.EqualTo (".bogus"));
 		}
 	}
 }

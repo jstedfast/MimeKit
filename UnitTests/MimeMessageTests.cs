@@ -149,19 +149,19 @@ namespace UnitTests {
 			message.Bcc.Add (new MailboxAddress ("Example Bcc Duplicate", "bcc@example.com"));
 
 			var recipients = message.GetRecipients (false);
-			Assert.AreEqual (6, recipients.Count, "Count");
-			Assert.AreEqual (message.To[0], recipients[0], "recipients[0]");
-			Assert.AreEqual (message.To[1], recipients[1], "recipients[1]");
-			Assert.AreEqual (message.Cc[0], recipients[2], "recipients[2]");
-			Assert.AreEqual (message.Cc[1], recipients[3], "recipients[3]");
-			Assert.AreEqual (message.Bcc[0], recipients[4], "recipients[4]");
-			Assert.AreEqual (message.Bcc[1], recipients[5], "recipients[5]");
+			Assert.That (recipients.Count, Is.EqualTo (6), "Count");
+			Assert.That (recipients[0], Is.EqualTo (message.To[0]), "recipients[0]");
+			Assert.That (recipients[1], Is.EqualTo (message.To[1]), "recipients[1]");
+			Assert.That (recipients[2], Is.EqualTo (message.Cc[0]), "recipients[2]");
+			Assert.That (recipients[3], Is.EqualTo (message.Cc[1]), "recipients[3]");
+			Assert.That (recipients[4], Is.EqualTo (message.Bcc[0]), "recipients[4]");
+			Assert.That (recipients[5], Is.EqualTo (message.Bcc[1]), "recipients[5]");
 
 			recipients = message.GetRecipients (true);
-			Assert.AreEqual (3, recipients.Count, "Count (uniqueOnly)");
-			Assert.AreEqual (message.To.Mailboxes.First (), recipients[0], "recipients[0] (uniqueOnly)");
-			Assert.AreEqual (message.Cc.Mailboxes.First (), recipients[1], "recipients[1] (uniqueOnly)");
-			Assert.AreEqual (message.Bcc.Mailboxes.First (), recipients[2], "recipients[2] (uniqueOnly)");
+			Assert.That (recipients.Count, Is.EqualTo (3), "Count (uniqueOnly)");
+			Assert.That (recipients[0], Is.EqualTo (message.To.Mailboxes.First ()), "recipients[0] (uniqueOnly)");
+			Assert.That (recipients[1], Is.EqualTo (message.Cc.Mailboxes.First ()), "recipients[1] (uniqueOnly)");
+			Assert.That (recipients[2], Is.EqualTo (message.Bcc.Mailboxes.First ()), "recipients[2] (uniqueOnly)");
 
 			// Now test the same thing after setting the Resent-* headers...
 			message.ResentSender = new MailboxAddress ("Example Resent-Sender", "resent-sender@example.com");
@@ -175,19 +175,19 @@ namespace UnitTests {
 			message.ResentBcc.Add (new MailboxAddress ("Example Resent-Bcc Duplicate", "resent-bcc@example.com"));
 
 			recipients = message.GetRecipients (false);
-			Assert.AreEqual (6, recipients.Count, "Resent Count");
-			Assert.AreEqual (message.ResentTo[0], recipients[0], "Resent recipients[0]");
-			Assert.AreEqual (message.ResentTo[1], recipients[1], "Resent recipients[1]");
-			Assert.AreEqual (message.ResentCc[0], recipients[2], "Resent recipients[2]");
-			Assert.AreEqual (message.ResentCc[1], recipients[3], "Resent recipients[3]");
-			Assert.AreEqual (message.ResentBcc[0], recipients[4], "Resent recipients[4]");
-			Assert.AreEqual (message.ResentBcc[1], recipients[5], "Resent recipients[5]");
+			Assert.That (recipients.Count, Is.EqualTo (6), "Resent Count");
+			Assert.That (recipients[0], Is.EqualTo (message.ResentTo[0]), "Resent recipients[0]");
+			Assert.That (recipients[1], Is.EqualTo (message.ResentTo[1]), "Resent recipients[1]");
+			Assert.That (recipients[2], Is.EqualTo (message.ResentCc[0]), "Resent recipients[2]");
+			Assert.That (recipients[3], Is.EqualTo (message.ResentCc[1]), "Resent recipients[3]");
+			Assert.That (recipients[4], Is.EqualTo (message.ResentBcc[0]), "Resent recipients[4]");
+			Assert.That (recipients[5], Is.EqualTo (message.ResentBcc[1]), "Resent recipients[5]");
 
 			recipients = message.GetRecipients (true);
-			Assert.AreEqual (3, recipients.Count, "Resent Count (uniqueOnly)");
-			Assert.AreEqual (message.ResentTo.Mailboxes.First (), recipients[0], "Resent recipients[0] (uniqueOnly)");
-			Assert.AreEqual (message.ResentCc.Mailboxes.First (), recipients[1], "Resent recipients[1] (uniqueOnly)");
-			Assert.AreEqual (message.ResentBcc.Mailboxes.First (), recipients[2], "Resent recipients[2] (uniqueOnly)");
+			Assert.That (recipients.Count, Is.EqualTo (3), "Resent Count (uniqueOnly)");
+			Assert.That (recipients[0], Is.EqualTo (message.ResentTo.Mailboxes.First ()), "Resent recipients[0] (uniqueOnly)");
+			Assert.That (recipients[1], Is.EqualTo (message.ResentCc.Mailboxes.First ()), "Resent recipients[1] (uniqueOnly)");
+			Assert.That (recipients[2], Is.EqualTo (message.ResentBcc.Mailboxes.First ()), "Resent recipients[2] (uniqueOnly)");
 		}
 
 		[Test]
@@ -202,7 +202,7 @@ namespace UnitTests {
 				Assert.Fail ($"Failed to set MessageId: {ex.Message}");
 			}
 
-			Assert.AreEqual (msgid, message.MessageId, "MessageId");
+			Assert.That (message.MessageId, Is.EqualTo (msgid), "MessageId");
 
 			try {
 				message.ResentMessageId = msgid;
@@ -210,7 +210,7 @@ namespace UnitTests {
 				Assert.Fail ($"Failed to set ResentMessageId: {ex.Message}");
 			}
 
-			Assert.AreEqual (msgid, message.ResentMessageId, "ResentMessageId");
+			Assert.That (message.ResentMessageId, Is.EqualTo (msgid), "ResentMessageId");
 
 			try {
 				message.InReplyTo = msgid;
@@ -218,7 +218,7 @@ namespace UnitTests {
 				Assert.Fail ($"Failed to set InReplyTo: {ex.Message}");
 			}
 
-			Assert.AreEqual (msgid, message.InReplyTo, "InReplyTo");
+			Assert.That (message.InReplyTo, Is.EqualTo (msgid), "InReplyTo");
 		}
 
 		[Test]
@@ -250,7 +250,7 @@ This is the message body.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (expected, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (expected), "Reserialized message is not identical to the original.");
 				}
 			}
 		}
@@ -344,7 +344,7 @@ Just for fun....  -- Nathaniel<nl>
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -355,7 +355,7 @@ Just for fun....  -- Nathaniel<nl>
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 
 				var index = rawMessageText.IndexOf ("\n\n", StringComparison.Ordinal);
@@ -369,7 +369,7 @@ Just for fun....  -- Nathaniel<nl>
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (headersOnly, result, "Reserialized headers are not identical to the original.");
+					Assert.That (result, Is.EqualTo (headersOnly), "Reserialized headers are not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -380,7 +380,7 @@ Just for fun....  -- Nathaniel<nl>
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (headersOnly, result, "Reserialized headers (async) are not identical to the original.");
+					Assert.That (result, Is.EqualTo (headersOnly), "Reserialized headers (async) are not identical to the original.");
 				}
 			}
 		}
@@ -428,7 +428,7 @@ Content-Description: this part contains a single blank line
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -439,7 +439,7 @@ Content-Description: this part contains a single blank line
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 			}
 		}
@@ -533,7 +533,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -544,7 +544,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 			}
 		}
@@ -588,7 +588,7 @@ This is the epilogue.".Replace ("\r\n", "\n");
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -599,7 +599,7 @@ This is the epilogue.".Replace ("\r\n", "\n");
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -611,7 +611,7 @@ This is the epilogue.".Replace ("\r\n", "\n");
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized message is not identical to the original (EnsureNewLine).");
+					Assert.That (result, Is.EqualTo (rawMessageText + "\n"), "Reserialized message is not identical to the original (EnsureNewLine).");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -623,7 +623,7 @@ This is the epilogue.".Replace ("\r\n", "\n");
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized (async) message is not identical to the original (EnsureNewLine).");
+					Assert.That (result, Is.EqualTo (rawMessageText + "\n"), "Reserialized (async) message is not identical to the original (EnsureNewLine).");
 				}
 			}
 		}
@@ -649,7 +649,7 @@ This is the preamble.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -660,7 +660,7 @@ This is the preamble.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -672,7 +672,7 @@ This is the preamble.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized message is not identical to the original (EnsureNewLine).");
+					Assert.That (result, Is.EqualTo (rawMessageText + "\n"), "Reserialized message is not identical to the original (EnsureNewLine).");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -684,7 +684,7 @@ This is the preamble.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText + "\n", result, "Reserialized (async) message is not identical to the original (EnsureNewLine).");
+					Assert.That (result, Is.EqualTo (rawMessageText + "\n"), "Reserialized (async) message is not identical to the original (EnsureNewLine).");
 				}
 			}
 		}
@@ -742,7 +742,7 @@ This is the epilogue.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -753,7 +753,7 @@ This is the epilogue.
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 			}
 		}
@@ -818,7 +818,7 @@ unsubscribe
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized message is not identical to the original.");
 				}
 
 				using (var serialized = new MemoryStream ()) {
@@ -830,7 +830,7 @@ unsubscribe
 
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
-					Assert.AreEqual (rawMessageText, result, "Reserialized (async) message is not identical to the original.");
+					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
 				}
 			}
 		}
@@ -867,61 +867,61 @@ unsubscribe
 
 			var message = (MimeMessage) mail;
 
-			Assert.AreEqual (mail.Sender.DisplayName, message.Sender.Name, "The sender names do not match.");
-			Assert.AreEqual (mail.Sender.Address, message.Sender.Address, "The sender addresses do not match.");
-			Assert.AreEqual (mail.From.DisplayName, message.From[0].Name, "The from names do not match.");
-			Assert.AreEqual (mail.From.Address, ((MailboxAddress) message.From[0]).Address, "The from addresses do not match.");
-			Assert.AreEqual (mail.ReplyToList[0].DisplayName, message.ReplyTo[0].Name, "The reply-to names do not match.");
-			Assert.AreEqual (mail.ReplyToList[0].Address, ((MailboxAddress) message.ReplyTo[0]).Address, "The reply-to addresses do not match.");
-			Assert.AreEqual (mail.To[0].DisplayName, message.To[0].Name, "The to names do not match.");
-			Assert.AreEqual (mail.To[0].Address, ((MailboxAddress) message.To[0]).Address, "The to addresses do not match.");
-			Assert.AreEqual (mail.CC[0].DisplayName, message.Cc[0].Name, "The cc names do not match.");
-			Assert.AreEqual (mail.CC[0].Address, ((MailboxAddress) message.Cc[0]).Address, "The cc addresses do not match.");
-			Assert.AreEqual (mail.Bcc[0].DisplayName, message.Bcc[0].Name, "The bcc names do not match.");
-			Assert.AreEqual (mail.Bcc[0].Address, ((MailboxAddress) message.Bcc[0]).Address, "The bcc addresses do not match.");
-			Assert.AreEqual (mail.Subject, message.Subject, "The message subjects do not match.");
-			Assert.AreEqual (MessagePriority.Urgent, message.Priority, "The message priority does not match.");
-			Assert.AreEqual (mail.Headers["X-MimeKit-Test"], message.Headers["X-MimeKit-Test"], "The X-MimeKit-Test headers do not match");
+			Assert.That (message.Sender.Name, Is.EqualTo (mail.Sender.DisplayName), "The sender names do not match.");
+			Assert.That (message.Sender.Address, Is.EqualTo (mail.Sender.Address), "The sender addresses do not match.");
+			Assert.That (message.From[0].Name, Is.EqualTo (mail.From.DisplayName), "The from names do not match.");
+			Assert.That (((MailboxAddress) message.From[0]).Address, Is.EqualTo (mail.From.Address), "The from addresses do not match.");
+			Assert.That (message.ReplyTo[0].Name, Is.EqualTo (mail.ReplyToList[0].DisplayName), "The reply-to names do not match.");
+			Assert.That (((MailboxAddress) message.ReplyTo[0]).Address, Is.EqualTo (mail.ReplyToList[0].Address), "The reply-to addresses do not match.");
+			Assert.That (message.To[0].Name, Is.EqualTo (mail.To[0].DisplayName), "The to names do not match.");
+			Assert.That (((MailboxAddress) message.To[0]).Address, Is.EqualTo (mail.To[0].Address), "The to addresses do not match.");
+			Assert.That (message.Cc[0].Name, Is.EqualTo (mail.CC[0].DisplayName), "The cc names do not match.");
+			Assert.That (((MailboxAddress) message.Cc[0]).Address, Is.EqualTo (mail.CC[0].Address), "The cc addresses do not match.");
+			Assert.That (message.Bcc[0].Name, Is.EqualTo (mail.Bcc[0].DisplayName), "The bcc names do not match.");
+			Assert.That (((MailboxAddress) message.Bcc[0]).Address, Is.EqualTo (mail.Bcc[0].Address), "The bcc addresses do not match.");
+			Assert.That (message.Subject, Is.EqualTo (mail.Subject), "The message subjects do not match.");
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent), "The message priority does not match.");
+			Assert.That (message.Headers["X-MimeKit-Test"], Is.EqualTo (mail.Headers["X-MimeKit-Test"]), "The X-MimeKit-Test headers do not match");
 			Assert.IsInstanceOf<Multipart> (message.Body, "The top-level MIME part should be a multipart/mixed.");
 
 			var mixed = (Multipart) message.Body;
 
-			Assert.AreEqual ("multipart/mixed", mixed.ContentType.MimeType, "The top-level MIME part should be a multipart/mixed.");
-			Assert.AreEqual (2, mixed.Count, "Expected 2 MIME parts within the multipart/mixed");
+			Assert.That (mixed.ContentType.MimeType, Is.EqualTo ("multipart/mixed"), "The top-level MIME part should be a multipart/mixed.");
+			Assert.That (mixed.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/mixed");
 			Assert.IsInstanceOf<MultipartAlternative> (mixed[0], "Expected the first part the multipart/mixed to be a multipart/alternative");
 			Assert.IsInstanceOf<MimePart> (mixed[1], "Expected the first part the multipart/mixed to be a MimePart");
 
 			var attachment = (MimePart) mixed[1];
-			Assert.AreEqual ("empty.jpeg", attachment.FileName, "Expected the attachment to have a filename");
+			Assert.That (attachment.FileName, Is.EqualTo ("empty.jpeg"), "Expected the attachment to have a filename");
 
 			var alternative = (MultipartAlternative) mixed[0];
 
-			Assert.AreEqual (2, alternative.Count, "Expected 2 MIME parts within the multipart/alternative.");
-			Assert.IsTrue (alternative[1] is MultipartRelated, "The second MIME part should be a multipart/related.");
+			Assert.That (alternative.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/alternative.");
+			Assert.That (alternative[1] is MultipartRelated, Is.True, "The second MIME part should be a multipart/related.");
 
 			var related = (MultipartRelated) alternative[1];
 
-			Assert.AreEqual (2, related.Count, "Expected 2 MIME parts within the multipart/related.");
-			Assert.AreEqual ("http://example.com/", related.ContentBase.ToString ());
-			Assert.IsTrue (related[0] is TextPart, "The first part of the multipart/related should be the html part");
-			Assert.IsNull (((TextPart) related[0]).ContentLocation);
-			Assert.IsNull (((TextPart) related[0]).ContentBase);
+			Assert.That (related.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/related.");
+			Assert.That (related.ContentBase.ToString (), Is.EqualTo ("http://example.com/"));
+			Assert.That (related[0] is TextPart, Is.True, "The first part of the multipart/related should be the html part");
+			Assert.That (((TextPart) related[0]).ContentLocation, Is.Null);
+			Assert.That (((TextPart) related[0]).ContentBase, Is.Null);
 
 			var jpeg = (MimePart) related[1];
-			Assert.AreEqual ("id@jpeg", jpeg.ContentId);
-			Assert.AreEqual ("image/jpeg", jpeg.ContentType.MimeType);
-			Assert.AreEqual ("link", jpeg.ContentLocation.OriginalString);
+			Assert.That (jpeg.ContentId, Is.EqualTo ("id@jpeg"));
+			Assert.That (jpeg.ContentType.MimeType, Is.EqualTo ("image/jpeg"));
+			Assert.That (jpeg.ContentLocation.OriginalString, Is.EqualTo ("link"));
 
 			// Test other priorities
 			mail.Priority = MailPriority.Low;
 			message = (MimeMessage) mail;
 
-			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority, "The message priority does not match.");
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.NonUrgent), "The message priority does not match.");
 
 			mail.Priority = MailPriority.Normal;
 			message = (MimeMessage) mail;
 
-			Assert.AreEqual (MessagePriority.Normal, message.Priority, "The message priority does not match.");
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal), "The message priority does not match.");
 		}
 
 		[Test]
@@ -950,35 +950,35 @@ unsubscribe
 				new TextPart { Text = "Hey! What's happenin'?" });
 			string value;
 
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 
 			// Note: setting to normal should not change anything
 			message.Importance = MessageImportance.Normal;
-			Assert.AreEqual (-1, message.Headers.IndexOf (HeaderId.Importance));
+			Assert.That (message.Headers.IndexOf (HeaderId.Importance), Is.EqualTo (-1));
 
 			message.Importance = MessageImportance.Low;
 			value = message.Headers[HeaderId.Importance];
-			Assert.AreEqual (MessageImportance.Low, message.Importance);
-			Assert.AreEqual ("low", value);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Low));
+			Assert.That (value, Is.EqualTo ("low"));
 
 			message.Importance = MessageImportance.High;
 			value = message.Headers[HeaderId.Importance];
-			Assert.AreEqual (MessageImportance.High, message.Importance);
-			Assert.AreEqual ("high", value);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.High));
+			Assert.That (value, Is.EqualTo ("high"));
 
 			message.Importance = MessageImportance.Normal;
 			value = message.Headers[HeaderId.Importance];
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
-			Assert.AreEqual ("normal", value);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
+			Assert.That (value, Is.EqualTo ("normal"));
 
 			message.Headers[HeaderId.Importance] = "high";
-			Assert.AreEqual (MessageImportance.High, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.High));
 
 			message.Headers[HeaderId.Importance] = "low";
-			Assert.AreEqual (MessageImportance.Low, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Low));
 
 			message.Headers.Remove (HeaderId.Importance);
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 		}
 
 		[Test]
@@ -990,35 +990,35 @@ unsubscribe
 				new TextPart { Text = "Hey! What's happenin'?" });
 			string value;
 
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 
 			// Note: setting to normal should not change anything
 			message.Priority = MessagePriority.Normal;
-			Assert.AreEqual (-1, message.Headers.IndexOf (HeaderId.Priority));
+			Assert.That (message.Headers.IndexOf (HeaderId.Priority), Is.EqualTo (-1));
 
 			message.Priority = MessagePriority.NonUrgent;
 			value = message.Headers[HeaderId.Priority];
-			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
-			Assert.AreEqual ("non-urgent", value);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.NonUrgent));
+			Assert.That (value, Is.EqualTo ("non-urgent"));
 
 			message.Priority = MessagePriority.Urgent;
 			value = message.Headers[HeaderId.Priority];
-			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
-			Assert.AreEqual ("urgent", value);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent));
+			Assert.That (value, Is.EqualTo ("urgent"));
 
 			message.Priority = MessagePriority.Normal;
 			value = message.Headers[HeaderId.Priority];
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
-			Assert.AreEqual ("normal", value);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
+			Assert.That (value, Is.EqualTo ("normal"));
 
 			message.Headers[HeaderId.Priority] = "non-urgent";
-			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.NonUrgent));
 
 			message.Headers[HeaderId.Priority] = "urgent";
-			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent));
 
 			message.Headers.Remove (HeaderId.Priority);
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 		}
 
 		[Test]
@@ -1030,57 +1030,57 @@ unsubscribe
 				new TextPart { Text = "Hey! What's happenin'?" });
 			string value;
 
-			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Normal));
 
 			// Note: setting to normal should not change anything
 			message.XPriority = XMessagePriority.Normal;
-			Assert.AreEqual (-1, message.Headers.IndexOf (HeaderId.XPriority));
+			Assert.That (message.Headers.IndexOf (HeaderId.XPriority), Is.EqualTo (-1));
 
 			message.XPriority = XMessagePriority.Lowest;
 			value = message.Headers[HeaderId.XPriority];
-			Assert.AreEqual (XMessagePriority.Lowest, message.XPriority);
-			Assert.AreEqual ("5 (Lowest)", value);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Lowest));
+			Assert.That (value, Is.EqualTo ("5 (Lowest)"));
 
 			message.XPriority = XMessagePriority.Low;
 			value = message.Headers[HeaderId.XPriority];
-			Assert.AreEqual (XMessagePriority.Low, message.XPriority);
-			Assert.AreEqual ("4 (Low)", value);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Low));
+			Assert.That (value, Is.EqualTo ("4 (Low)"));
 
 			message.XPriority = XMessagePriority.Normal;
 			value = message.Headers[HeaderId.XPriority];
-			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
-			Assert.AreEqual ("3 (Normal)", value);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Normal));
+			Assert.That (value, Is.EqualTo ("3 (Normal)"));
 
 			message.XPriority = XMessagePriority.High;
 			value = message.Headers[HeaderId.XPriority];
-			Assert.AreEqual (XMessagePriority.High, message.XPriority);
-			Assert.AreEqual ("2 (High)", value);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.High));
+			Assert.That (value, Is.EqualTo ("2 (High)"));
 
 			message.XPriority = XMessagePriority.Highest;
 			value = message.Headers[HeaderId.XPriority];
-			Assert.AreEqual (XMessagePriority.Highest, message.XPriority);
-			Assert.AreEqual ("1 (Highest)", value);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Highest));
+			Assert.That (value, Is.EqualTo ("1 (Highest)"));
 
 			message.Headers[HeaderId.XPriority] = "5";
-			Assert.AreEqual (XMessagePriority.Lowest, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Lowest));
 
 			message.Headers[HeaderId.XPriority] = "4";
-			Assert.AreEqual (XMessagePriority.Low, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Low));
 
 			message.Headers[HeaderId.XPriority] = "3";
-			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Normal));
 
 			message.Headers[HeaderId.XPriority] = "2";
-			Assert.AreEqual (XMessagePriority.High, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.High));
 
 			message.Headers[HeaderId.XPriority] = "1";
-			Assert.AreEqual (XMessagePriority.Highest, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Highest));
 
 			message.Headers.Remove (HeaderId.XPriority);
-			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Normal));
 
 			message.Headers.Add (HeaderId.XPriority, "garbage");
-			Assert.AreEqual (XMessagePriority.Normal, message.XPriority);
+			Assert.That (message.XPriority, Is.EqualTo (XMessagePriority.Normal));
 		}
 
 		[Test]
@@ -1106,14 +1106,14 @@ unsubscribe
 			message.ResentDate = new DateTimeOffset (2007, 6, 28, 12, 47, 52, new TimeSpan (-5, 0, 0));
 			message.ResentMessageId = value = MimeUtils.GenerateMessageId ();
 
-			Assert.AreEqual ("Resent Sender <resent-sender@example.com>", message.Headers[HeaderId.ResentSender]);
-			Assert.AreEqual ("Resent From <resent-from@example.com>", message.Headers[HeaderId.ResentFrom]);
-			Assert.AreEqual ("Resent Reply-To <resent-reply-to@example.com>", message.Headers[HeaderId.ResentReplyTo]);
-			Assert.AreEqual ("Resent To <resent-to@example.com>", message.Headers[HeaderId.ResentTo]);
-			Assert.AreEqual ("Resent Cc <resent-cc@example.com>", message.Headers[HeaderId.ResentCc]);
-			Assert.AreEqual ("Resent Bcc <resent-bcc@example.com>", message.Headers[HeaderId.ResentBcc]);
-			Assert.AreEqual ("Thu, 28 Jun 2007 12:47:52 -0500", message.Headers[HeaderId.ResentDate]);
-			Assert.AreEqual ("<" + value + ">", message.Headers[HeaderId.ResentMessageId]);
+			Assert.That (message.Headers[HeaderId.ResentSender], Is.EqualTo ("Resent Sender <resent-sender@example.com>"));
+			Assert.That (message.Headers[HeaderId.ResentFrom], Is.EqualTo ("Resent From <resent-from@example.com>"));
+			Assert.That (message.Headers[HeaderId.ResentReplyTo], Is.EqualTo ("Resent Reply-To <resent-reply-to@example.com>"));
+			Assert.That (message.Headers[HeaderId.ResentTo], Is.EqualTo ("Resent To <resent-to@example.com>"));
+			Assert.That (message.Headers[HeaderId.ResentCc], Is.EqualTo ("Resent Cc <resent-cc@example.com>"));
+			Assert.That (message.Headers[HeaderId.ResentBcc], Is.EqualTo ("Resent Bcc <resent-bcc@example.com>"));
+			Assert.That (message.Headers[HeaderId.ResentDate], Is.EqualTo ("Thu, 28 Jun 2007 12:47:52 -0500"));
+			Assert.That (message.Headers[HeaderId.ResentMessageId], Is.EqualTo ("<" + value + ">"));
 		}
 
 		[Test]
@@ -1149,50 +1149,50 @@ unsubscribe
 					message.Headers[id] = addressList1;
 
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (addressList1, value.ToString (), "Unexpected result when setting {0} to addressList1", property.Name);
+					Assert.That (value.ToString (), Is.EqualTo (addressList1), $"Unexpected result when setting {property.Name} to addressList1");
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, addressList2);
 
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (addressList2, value.ToString (), "Unexpected result when setting {0} to addressList2", property.Name);
+					Assert.That (value.ToString (), Is.EqualTo (addressList2), $"Unexpected result when setting {property.Name} to addressList2");
 					break;
 				case "MimeKit.MailboxAddress":
 					message.Headers[id] = mailbox1;
 
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (mailbox1, value.ToString (), "Unexpected result when setting {0} to mailbox1", property.Name);
+					Assert.That (value.ToString (), Is.EqualTo (mailbox1), $"Unexpected result when setting {property.Name} to mailbox1");
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, mailbox2);
 
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (mailbox2, value.ToString (), "Unexpected result when setting {0} to mailbox2", property.Name);
+					Assert.That (value.ToString (), Is.EqualTo (mailbox2), $"Unexpected result when setting {property.Name} to mailbox2");
 
 					setter.Invoke (message, new object[] { null });
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.IsNull (value, "Expected null value after setting {0} to null.", property.Name);
-					Assert.AreEqual (-1, message.Headers.IndexOf (id), "Expected {0} header to be removed after setting it to null.", property.Name);
+					Assert.That (value, Is.Null, $"Expected null value after setting {property.Name} to null.");
+					Assert.That (message.Headers.IndexOf (id), Is.EqualTo (-1), $"Expected {property.Name} header to be removed after setting it to null.");
 					break;
 				case "MimeKit.MessageIdList":
 					message.Headers[id] = references1;
 
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (references1, value.ToString (), "Unexpected result when setting {0} to references1", property.Name);
+					Assert.That (value.ToString (), Is.EqualTo (references1), $"Unexpected result when setting {property.Name} to references1");
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, references2);
 
 					value = getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (references2, value.ToString (), "Unexpected result when setting {0} to references2", property.Name);
+					Assert.That (value.ToString (), Is.EqualTo (references2), $"Unexpected result when setting {property.Name} to references2");
 					break;
 				case "System.DateTimeOffset":
 					message.Headers[id] = date1;
 
 					date = (DateTimeOffset) getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (date1, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date1", property.Name);
+					Assert.That (DateUtils.FormatDate (date), Is.EqualTo (date1), $"Unexpected result when setting {property.Name} to date1");
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, date2);
 
 					date = (DateTimeOffset) getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (date2, DateUtils.FormatDate (date), "Unexpected result when setting {0} to date2", property.Name);
+					Assert.That (DateUtils.FormatDate (date), Is.EqualTo (date2), $"Unexpected result when setting {property.Name} to date2");
 
 					setter.Invoke (message, new object[] { date });
 					break;
@@ -1200,12 +1200,12 @@ unsubscribe
 					message.Headers[id] = version1;
 
 					version = (Version) getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (version1, version.ToString (), "Unexpected result when setting {0} to version1", property.Name);
+					Assert.That (version.ToString (), Is.EqualTo (version1), $"Unexpected result when setting {property.Name} to version1");
 
 					message.Headers[message.Headers.IndexOf (id)] = new Header (id, version2);
 
 					version = (Version) getter.Invoke (message, Array.Empty<object> ());
-					Assert.AreEqual (version2, version.ToString (), "Unexpected result when setting {0} to version2", property.Name);
+					Assert.That (version.ToString (), Is.EqualTo (version2), $"Unexpected result when setting {property.Name} to version2");
 
 					setter.Invoke (message, new object[] { version });
 					break;
@@ -1217,36 +1217,36 @@ unsubscribe
 						message.Headers[id] = "<" + msgid1 + ">";
 
 						value = getter.Invoke (message, Array.Empty<object> ());
-						Assert.AreEqual (msgid1, value.ToString (), "Unexpected result when setting {0} to msgid1", property.Name);
+						Assert.That (value.ToString (), Is.EqualTo (msgid1), $"Unexpected result when setting {property.Name} to msgid1");
 
 						message.Headers[message.Headers.IndexOf (id)] = new Header (id, "<" + msgid2 + ">");
 
 						value = getter.Invoke (message, Array.Empty<object> ());
-						Assert.AreEqual (msgid2, value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
+						Assert.That (value.ToString (), Is.EqualTo (msgid2), $"Unexpected result when setting {property.Name} to msgid2");
 
 						setter.Invoke (message, new object[] { msgid1 });
 
 						setter.Invoke (message, new object[] { "<" + msgid1 + ">" });
 						value = getter.Invoke (message, Array.Empty<object> ());
-						Assert.AreEqual (msgid1, value.ToString (), "Unexpected result when setting {0} to msgid1 via the setter.", property.Name);
+						Assert.That (value.ToString (), Is.EqualTo (msgid1), $"Unexpected result when setting {property.Name} to msgid1 via the setter.");
 
 						if (id == HeaderId.InReplyTo) {
 							setter.Invoke (message, new object[] { null });
 							value = getter.Invoke (message, Array.Empty<object> ());
-							Assert.IsNull (value, "Expected null value after setting {0} to null.", property.Name);
-							Assert.AreEqual (-1, message.Headers.IndexOf (id), "Expected {0} header to be removed after setting it to null.", property.Name);
+							Assert.That (value, Is.Null, $"Expected null value after setting {property.Name} to null.");
+							Assert.That (message.Headers.IndexOf (id), Is.EqualTo (-1), $"Expected {property.Name} header to be removed after setting it to null.");
 						}
 						break;
 					case HeaderId.Subject:
 						message.Headers[id] = "Subject #1";
 
 						value = getter.Invoke (message, Array.Empty<object> ());
-						Assert.AreEqual ("Subject #1", value.ToString (), "Unexpected result when setting {0} to subject1", property.Name);
+						Assert.That (value.ToString (), Is.EqualTo ("Subject #1"), $"Unexpected result when setting {property.Name} to subject1");
 
 						message.Headers[message.Headers.IndexOf (id)] = new Header (id, "Subject #2");
 
 						value = getter.Invoke (message, Array.Empty<object> ());
-						Assert.AreEqual ("Subject #2", value.ToString (), "Unexpected result when setting {0} to msgid2", property.Name);
+						Assert.That (value.ToString (), Is.EqualTo ("Subject #2"), $"Unexpected result when setting {property.Name} to msgid2");
 						break;
 					}
 					break;
@@ -1260,25 +1260,25 @@ unsubscribe
 			var message = new MimeMessage ();
 
 			message.Headers.Add (HeaderId.Importance, "high");
-			Assert.AreEqual (MessageImportance.High, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.High));
 
 			message.Headers.Remove (HeaderId.Importance);
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 
 			message.Headers.Add (HeaderId.Importance, "low");
-			Assert.AreEqual (MessageImportance.Low, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Low));
 
 			message.Headers.Remove (HeaderId.Importance);
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 
 			message.Headers.Add (HeaderId.Importance, "normal");
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 
 			message.Headers.Remove (HeaderId.Importance);
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 
 			message.Headers.Add (HeaderId.Importance, "invalid-value");
-			Assert.AreEqual (MessageImportance.Normal, message.Importance);
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal));
 		}
 
 		[Test]
@@ -1287,25 +1287,25 @@ unsubscribe
 			var message = new MimeMessage ();
 
 			message.Headers.Add (HeaderId.Priority, "urgent");
-			Assert.AreEqual (MessagePriority.Urgent, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent));
 
 			message.Headers.Remove (HeaderId.Priority);
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 
 			message.Headers.Add (HeaderId.Priority, "non-urgent");
-			Assert.AreEqual (MessagePriority.NonUrgent, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.NonUrgent));
 
 			message.Headers.Remove (HeaderId.Priority);
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 
 			message.Headers.Add (HeaderId.Priority, "normal");
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 
 			message.Headers.Remove (HeaderId.Priority);
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 
 			message.Headers.Add (HeaderId.Priority, "invalid-value");
-			Assert.AreEqual (MessagePriority.Normal, message.Priority);
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal));
 		}
 
 		[Test]
@@ -1315,18 +1315,18 @@ unsubscribe
 			Header references;
 
 			message.Headers.Add (HeaderId.References, "<id1@localhost> <id2@localhost>");
-			Assert.AreEqual (2, message.References.Count, "The number of references does not match.");
-			Assert.AreEqual ("id1@localhost", message.References[0], "The first references does not match.");
-			Assert.AreEqual ("id2@localhost", message.References[1], "The second references does not match.");
+			Assert.That (message.References.Count, Is.EqualTo (2), "The number of references does not match.");
+			Assert.That (message.References[0], Is.EqualTo ("id1@localhost"), "The first references does not match.");
+			Assert.That (message.References[1], Is.EqualTo ("id2@localhost"), "The second references does not match.");
 
 			message.References.Add ("id3@localhost");
 
-			Assert.IsTrue (message.Headers.TryGetHeader ("References", out references), "Failed to get References header.");
-			Assert.AreEqual ("<id1@localhost> <id2@localhost> <id3@localhost>", references.Value, "The modified Reference header does not match.");
+			Assert.That (message.Headers.TryGetHeader ("References", out references), Is.True, "Failed to get References header.");
+			Assert.That (references.Value, Is.EqualTo ("<id1@localhost> <id2@localhost> <id3@localhost>"), "The modified Reference header does not match.");
 
 			message.References.Clear ();
 
-			Assert.IsFalse (message.Headers.TryGetHeader ("References", out _), "References header should have been removed.");
+			Assert.That (message.Headers.TryGetHeader ("References", out _), Is.False, "References header should have been removed.");
 		}
 
 		[Test]
@@ -1364,33 +1364,33 @@ unsubscribe
 
 			message.Headers.Clear ();
 
-			Assert.IsNull (message.Subject, "Subject has not been cleared.");
+			Assert.That (message.Subject, Is.Null, "Subject has not been cleared.");
 
-			Assert.IsNull (message.Sender, "Sender has not been cleared.");
-			Assert.AreEqual (0, message.ReplyTo.Count, "Reply-To has not been cleared.");
-			Assert.AreEqual (0, message.From.Count, "From has not been cleared.");
-			Assert.AreEqual (0, message.To.Count, "To has not been cleared.");
-			Assert.AreEqual (0, message.Cc.Count, "Cc has not been cleared.");
-			Assert.AreEqual (0, message.Bcc.Count, "Bcc has not been cleared.");
-			Assert.IsNull (message.MessageId, "Message-Id has not been cleared.");
-			Assert.AreEqual (DateTimeOffset.MinValue, message.Date, "Date has not been cleared.");
+			Assert.That (message.Sender, Is.Null, "Sender has not been cleared.");
+			Assert.That (message.ReplyTo.Count, Is.EqualTo (0), "Reply-To has not been cleared.");
+			Assert.That (message.From.Count, Is.EqualTo (0), "From has not been cleared.");
+			Assert.That (message.To.Count, Is.EqualTo (0), "To has not been cleared.");
+			Assert.That (message.Cc.Count, Is.EqualTo (0), "Cc has not been cleared.");
+			Assert.That (message.Bcc.Count, Is.EqualTo (0), "Bcc has not been cleared.");
+			Assert.That (message.MessageId, Is.Null, "Message-Id has not been cleared.");
+			Assert.That (message.Date, Is.EqualTo (DateTimeOffset.MinValue), "Date has not been cleared.");
 
-			Assert.IsNull (message.ResentSender, "Resent-Sender has not been cleared.");
-			Assert.AreEqual (0, message.ResentReplyTo.Count, "Resent-Reply-To has not been cleared.");
-			Assert.AreEqual (0, message.ResentFrom.Count, "Resent-From has not been cleared.");
-			Assert.AreEqual (0, message.ResentTo.Count, "Resent-To has not been cleared.");
-			Assert.AreEqual (0, message.ResentCc.Count, "Resent-Cc has not been cleared.");
-			Assert.AreEqual (0, message.ResentBcc.Count, "Resent-Bcc has not been cleared.");
-			Assert.IsNull (message.ResentMessageId, "Resent-Message-Id has not been cleared.");
-			Assert.AreEqual (DateTimeOffset.MinValue, message.ResentDate, "Resent-Date has not been cleared.");
+			Assert.That (message.ResentSender, Is.Null, "Resent-Sender has not been cleared.");
+			Assert.That (message.ResentReplyTo.Count, Is.EqualTo (0), "Resent-Reply-To has not been cleared.");
+			Assert.That (message.ResentFrom.Count, Is.EqualTo (0), "Resent-From has not been cleared.");
+			Assert.That (message.ResentTo.Count, Is.EqualTo (0), "Resent-To has not been cleared.");
+			Assert.That (message.ResentCc.Count, Is.EqualTo (0), "Resent-Cc has not been cleared.");
+			Assert.That (message.ResentBcc.Count, Is.EqualTo (0), "Resent-Bcc has not been cleared.");
+			Assert.That (message.ResentMessageId, Is.Null, "Resent-Message-Id has not been cleared.");
+			Assert.That (message.ResentDate, Is.EqualTo (DateTimeOffset.MinValue), "Resent-Date has not been cleared.");
 
-			Assert.AreEqual (MessageImportance.Normal, message.Importance, "Importance has not been cleared.");
-			Assert.AreEqual (MessagePriority.Normal, message.Priority, "Priority has not been cleared.");
+			Assert.That (message.Importance, Is.EqualTo (MessageImportance.Normal), "Importance has not been cleared.");
+			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal), "Priority has not been cleared.");
 
-			Assert.AreEqual (0, message.References.Count, "References has not been cleared.");
-			Assert.IsNull (message.InReplyTo, "In-Reply-To has not been cleared.");
+			Assert.That (message.References.Count, Is.EqualTo (0), "References has not been cleared.");
+			Assert.That (message.InReplyTo, Is.Null, "In-Reply-To has not been cleared.");
 
-			Assert.IsNull (message.MimeVersion, "MIME-Version has not been cleared.");
+			Assert.That (message.MimeVersion, Is.Null, "MIME-Version has not been cleared.");
 		}
 
 		[Test]
@@ -1401,40 +1401,40 @@ unsubscribe
 			MimeMessage message;
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt"));
-			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.1.txt.");
-			Assert.AreEqual (null, message.HtmlBody, "The HTML bodies do not match for body.1.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.1.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.1.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.2.txt"));
-			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.2.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.2.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.2.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.2.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.3.txt"));
-			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.3.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.3.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.3.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.3.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.4.txt"));
-			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.4.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.4.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.4.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.4.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.5.txt"));
-			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.5.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.5.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.5.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.5.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.6.txt"));
-			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.6.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.6.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.6.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.6.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.7.txt"));
-			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.7.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.7.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.7.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.7.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.8.txt"));
-			Assert.AreEqual (TextBody, message.TextBody, "The text bodies do not match for body.8.txt.");
-			Assert.AreEqual (null, message.HtmlBody, "The HTML bodies do not match for body.8.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.8.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.8.txt.");
 
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"));
-			Assert.AreEqual (null, message.TextBody, "The text bodies do not match for body.9.txt.");
-			Assert.AreEqual (HtmlBody, message.HtmlBody, "The HTML bodies do not match for body.9.txt.");
+			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.9.txt.");
+			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.9.txt.");
 		}
 
 		[Test]
@@ -1455,8 +1455,8 @@ This is the text attachment";
 				var parser = new MimeParser (source, MimeFormat.Default);
 				var message = parser.ParseMessage ();
 
-				Assert.IsNull (message.TextBody, "Message text should be blank, as no body defined");
-				Assert.AreEqual (1, message.Attachments.OfType<TextPart> ().Count (), "Message should contain one text attachment");
+				Assert.That (message.TextBody, Is.Null, "Message text should be blank, as no body defined");
+				Assert.That (message.Attachments.OfType<TextPart> ().Count (), Is.EqualTo (1), "Message should contain one text attachment");
 			}
 		}
 	}

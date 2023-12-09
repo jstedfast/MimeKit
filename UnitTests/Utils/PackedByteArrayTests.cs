@@ -72,12 +72,12 @@ namespace UnitTests.Utils {
 				packed.Add ((byte) ('A' + i));
 			}
 
-			Assert.AreEqual (index, packed.Count, "Count");
+			Assert.That (packed.Count, Is.EqualTo (index), "Count");
 
 			packed.CopyTo (buffer, 0);
 
 			for (int i = 0; i < index; i++)
-				Assert.AreEqual (expected[i], buffer[i], "buffer[{0}]", i);
+				Assert.That (buffer[i], Is.EqualTo (expected[i]), $"buffer[{i}]");
 		}
 	}
 }

@@ -121,95 +121,95 @@ namespace UnitTests {
 			string value;
 			int index;
 
-			Assert.IsFalse (list.IsReadOnly, "IsReadOnly");
-			Assert.AreEqual (0, list.Count);
+			Assert.That (list.IsReadOnly, Is.False, "IsReadOnly");
+			Assert.That (list.Count, Is.EqualTo (0));
 
 			list.Add (new Parameter ("abc", "0"));
 			list.Add (Encoding.UTF8, "def", "1");
 			list.Add ("ghi", "2");
 
-			Assert.AreEqual (3, list.Count, "Count");
-			Assert.IsFalse (list.Contains ("xyz"));
-			Assert.IsTrue (list.Contains (list[0]));
-			Assert.IsTrue (list.Contains ("aBc"));
-			Assert.IsTrue (list.Contains ("DEf"));
-			Assert.IsTrue (list.Contains ("gHI"));
-			Assert.AreEqual (-1, list.IndexOf ("xyz"));
-			Assert.AreEqual (0, list.IndexOf ("aBc"));
-			Assert.AreEqual (1, list.IndexOf ("dEF"));
-			Assert.AreEqual (2, list.IndexOf ("Ghi"));
-			Assert.AreEqual (-1, list.IndexOf (xyz));
-			Assert.AreEqual (0, list.IndexOf (list[0]));
-			Assert.AreEqual (1, list.IndexOf (list[1]));
-			Assert.AreEqual (2, list.IndexOf (list[2]));
-			Assert.AreEqual ("abc", list[0].Name);
-			Assert.AreEqual ("def", list[1].Name);
-			Assert.AreEqual ("ghi", list[2].Name);
-			Assert.AreEqual ("0", list["AbC"]);
-			Assert.AreEqual ("1", list["dEf"]);
-			Assert.AreEqual ("2", list["GHi"]);
+			Assert.That (list.Count, Is.EqualTo (3), "Count");
+			Assert.That (list.Contains ("xyz"), Is.False);
+			Assert.That (list.Contains (list[0]), Is.True);
+			Assert.That (list.Contains ("aBc"), Is.True);
+			Assert.That (list.Contains ("DEf"), Is.True);
+			Assert.That (list.Contains ("gHI"), Is.True);
+			Assert.That (list.IndexOf ("xyz"), Is.EqualTo (-1));
+			Assert.That (list.IndexOf ("aBc"), Is.EqualTo (0));
+			Assert.That (list.IndexOf ("dEF"), Is.EqualTo (1));
+			Assert.That (list.IndexOf ("Ghi"), Is.EqualTo (2));
+			Assert.That (list.IndexOf (xyz), Is.EqualTo (-1));
+			Assert.That (list.IndexOf (list[0]), Is.EqualTo (0));
+			Assert.That (list.IndexOf (list[1]), Is.EqualTo (1));
+			Assert.That (list.IndexOf (list[2]), Is.EqualTo (2));
+			Assert.That (list[0].Name, Is.EqualTo ("abc"));
+			Assert.That (list[1].Name, Is.EqualTo ("def"));
+			Assert.That (list[2].Name, Is.EqualTo ("ghi"));
+			Assert.That (list["AbC"], Is.EqualTo ("0"));
+			Assert.That (list["dEf"], Is.EqualTo ("1"));
+			Assert.That (list["GHi"], Is.EqualTo ("2"));
 
-			Assert.IsTrue (list.TryGetValue ("Abc", out parameter));
-			Assert.AreEqual ("abc", parameter.Name);
-			Assert.IsTrue (list.TryGetValue ("Abc", out value));
-			Assert.AreEqual ("0", value);
+			Assert.That (list.TryGetValue ("Abc", out parameter), Is.True);
+			Assert.That (parameter.Name, Is.EqualTo ("abc"));
+			Assert.That (list.TryGetValue ("Abc", out value), Is.True);
+			Assert.That (value, Is.EqualTo ("0"));
 
-			Assert.IsFalse (list.Remove (xyz), "Remove");
+			Assert.That (list.Remove (xyz), Is.False, "Remove");
 			list.Insert (0, xyz);
-			Assert.IsTrue (list.Remove (xyz), "Remove");
+			Assert.That (list.Remove (xyz), Is.True, "Remove");
 
-			Assert.IsFalse (list.Remove ("xyz"), "Remove");
+			Assert.That (list.Remove ("xyz"), Is.False, "Remove");
 			list.Insert (0, xyz);
-			Assert.IsTrue (list.Remove ("xyz"), "Remove");
+			Assert.That (list.Remove ("xyz"), Is.True, "Remove");
 
 			var array = new Parameter[list.Count];
 			list.CopyTo (array, 0);
-			Assert.AreEqual ("abc", array[0].Name);
-			Assert.AreEqual ("def", array[1].Name);
-			Assert.AreEqual ("ghi", array[2].Name);
+			Assert.That (array[0].Name, Is.EqualTo ("abc"));
+			Assert.That (array[1].Name, Is.EqualTo ("def"));
+			Assert.That (array[2].Name, Is.EqualTo ("ghi"));
 
 			index = 0;
 			foreach (var param in list) {
-				Assert.AreEqual (array[index], param);
+				Assert.That (param, Is.EqualTo (array[index]));
 				index++;
 			}
 
 			index = 0;
 			foreach (Parameter param in (IEnumerable) list) {
-				Assert.AreEqual (array[index], param);
+				Assert.That (param, Is.EqualTo (array[index]));
 				index++;
 			}
 
 			list.Clear ();
-			Assert.AreEqual (0, list.Count, "Clear");
+			Assert.That (list.Count, Is.EqualTo (0), "Clear");
 
 			list.Add ("xyz", "3");
 			list.Insert (0, array[2]);
 			list.Insert (0, array[1].Name, array[1].Value);
 			list.Insert (0, array[0]);
 
-			Assert.AreEqual (4, list.Count);
-			Assert.AreEqual ("abc", list[0].Name);
-			Assert.AreEqual ("def", list[1].Name);
-			Assert.AreEqual ("ghi", list[2].Name);
-			Assert.AreEqual ("xyz", list[3].Name);
-			Assert.AreEqual ("0", list["AbC"]);
-			Assert.AreEqual ("1", list["dEf"]);
-			Assert.AreEqual ("2", list["GHi"]);
-			Assert.AreEqual ("3", list["XYZ"]);
+			Assert.That (list.Count, Is.EqualTo (4));
+			Assert.That (list[0].Name, Is.EqualTo ("abc"));
+			Assert.That (list[1].Name, Is.EqualTo ("def"));
+			Assert.That (list[2].Name, Is.EqualTo ("ghi"));
+			Assert.That (list[3].Name, Is.EqualTo ("xyz"));
+			Assert.That (list["AbC"], Is.EqualTo ("0"));
+			Assert.That (list["dEf"], Is.EqualTo ("1"));
+			Assert.That (list["GHi"], Is.EqualTo ("2"));
+			Assert.That (list["XYZ"], Is.EqualTo ("3"));
 
 			list.RemoveAt (3);
-			Assert.AreEqual (3, list.Count);
+			Assert.That (list.Count, Is.EqualTo (3));
 
-			Assert.AreEqual ("; abc=\"0\"; def=\"1\"; ghi=\"2\"", list.ToString ());
+			Assert.That (list.ToString (), Is.EqualTo ("; abc=\"0\"; def=\"1\"; ghi=\"2\""));
 
 			list[0] = new Parameter ("abc", "replaced");
 
-			Assert.AreEqual ("; abc=\"replaced\"; def=\"1\"; ghi=\"2\"", list.ToString ());
+			Assert.That (list.ToString (), Is.EqualTo ("; abc=\"replaced\"; def=\"1\"; ghi=\"2\""));
 
 			list[0] = new Parameter ("xxx", "0");
 
-			Assert.AreEqual ("; xxx=\"0\"; def=\"1\"; ghi=\"2\"", list.ToString ());
+			Assert.That (list.ToString (), Is.EqualTo ("; xxx=\"0\"; def=\"1\"; ghi=\"2\""));
 		}
 	}
 }

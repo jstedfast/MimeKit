@@ -53,7 +53,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream ()) {
 				var parser = new ExperimentalMimeParser (stream);
 
-				Assert.AreEqual (0, parser.Position, "Position");
+				Assert.That (parser.Position, Is.EqualTo (0), "Position");
 
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (null));
 				Assert.Throws<ArgumentNullException> (() => new ExperimentalMimeParser (null, stream));
@@ -82,19 +82,19 @@ namespace UnitTests {
 					var headers = parser.ParseHeaders ();
 					string value;
 
-					Assert.AreEqual (3, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
 
 					value = headers["Header-1"];
 
-					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 1"), "Unexpected header value.");
 
 					value = headers["Header-2"];
 
-					Assert.AreEqual ("value 2", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 2"), "Unexpected header value.");
 
 					value = headers["Header-3"];
 
-					Assert.AreEqual ("value 3", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 3"), "Unexpected header value.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -113,19 +113,19 @@ namespace UnitTests {
 					var headers = await parser.ParseHeadersAsync ();
 					string value;
 
-					Assert.AreEqual (3, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
 
 					value = headers["Header-1"];
 
-					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 1"), "Unexpected header value.");
 
 					value = headers["Header-2"];
 
-					Assert.AreEqual ("value 2", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 2"), "Unexpected header value.");
 
 					value = headers["Header-3"];
 
-					Assert.AreEqual ("value 3", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 3"), "Unexpected header value.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -179,11 +179,11 @@ namespace UnitTests {
 				try {
 					var headers = parser.ParseHeaders ();
 
-					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
 					var value = headers["Header-1"];
 
-					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 1"), "Unexpected header value.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -201,11 +201,11 @@ namespace UnitTests {
 				try {
 					var headers = await parser.ParseHeadersAsync ();
 
-					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
 					var value = headers["Header-1"];
 
-					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 1"), "Unexpected header value.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -223,11 +223,11 @@ namespace UnitTests {
 				try {
 					var headers = parser.ParseHeaders ();
 
-					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
 					var value = headers["Header-1"];
 
-					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 1"), "Unexpected header value.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -245,11 +245,11 @@ namespace UnitTests {
 				try {
 					var headers = await parser.ParseHeadersAsync ();
 
-					Assert.AreEqual (1, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
 					var value = headers["Header-1"];
 
-					Assert.AreEqual ("value 1", value, "Unexpected header value.");
+					Assert.That (value, Is.EqualTo ("value 1"), "Unexpected header value.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -267,7 +267,7 @@ namespace UnitTests {
 				try {
 					var headers = parser.ParseHeaders ();
 
-					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -285,7 +285,7 @@ namespace UnitTests {
 				try {
 					var headers = await parser.ParseHeadersAsync ();
 
-					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
+					Assert.That (headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
@@ -381,10 +381,10 @@ namespace UnitTests {
 				MimeMessage message;
 
 				message = parser.ParseMessage ();
-				Assert.AreEqual (0, message.Headers.Count);
+				Assert.That (message.Headers.Count, Is.EqualTo (0));
 
 				message = parser.ParseMessage ();
-				Assert.AreEqual (3, message.Headers.Count);
+				Assert.That (message.Headers.Count, Is.EqualTo (3));
 			}
 		}
 
@@ -398,10 +398,10 @@ namespace UnitTests {
 				MimeMessage message;
 
 				message = await parser.ParseMessageAsync ();
-				Assert.AreEqual (0, message.Headers.Count);
+				Assert.That (message.Headers.Count, Is.EqualTo (0));
 
 				message = await parser.ParseMessageAsync ();
-				Assert.AreEqual (3, message.Headers.Count);
+				Assert.That (message.Headers.Count, Is.EqualTo (3));
 			}
 		}
 
@@ -414,7 +414,7 @@ namespace UnitTests {
 				try {
 					var message = MimeMessage.Load (memory);
 
-					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
+					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse message: {ex}");
 				}
@@ -430,7 +430,7 @@ namespace UnitTests {
 				try {
 					var message = await MimeMessage.LoadAsync (memory);
 
-					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
+					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse message: {ex}");
 				}
@@ -458,14 +458,14 @@ This is the message body.
 
 				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
-				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
-				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.That (part.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Expected application/octet-stream");
+				Assert.That (part.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 
 				var body = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -474,14 +474,14 @@ This is the message body.
 
 				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
-				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
-				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.That (part.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Expected application/octet-stream");
+				Assert.That (part.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 
 				var body = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -506,14 +506,14 @@ This is the message body.
 
 				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
-				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
-				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.That (part.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Expected application/octet-stream");
+				Assert.That (part.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 
 				var body = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -522,14 +522,14 @@ This is the message body.
 
 				Assert.IsInstanceOf<MimePart> (message.Body, "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
-				Assert.AreEqual ("application/octet-stream", part.ContentType.MimeType, "Expected application/octet-stream");
-				Assert.AreEqual ("utf-8", part.ContentType.Charset, "Expected to keep Content-Type parameters");
+				Assert.That (part.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Expected application/octet-stream");
+				Assert.That (part.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 
 				var body = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -557,14 +557,14 @@ This is the message body.
 				var header = message.Headers[message.Headers.Count - 1];
 
 				// FIXME: Should this really be "valid"?
-				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
-				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
-				Assert.AreEqual ("What header is this?", header.Value);
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Field, Is.EqualTo (string.Empty), "Field is expected to be empty");
+				Assert.That (header.Value, Is.EqualTo ("What header is this?"));
 
 				var body = (TextPart) message.Body;
-				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
-				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -575,14 +575,14 @@ This is the message body.
 				var header = message.Headers[message.Headers.Count - 1];
 
 				// FIXME: Should this really be "valid"?
-				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
-				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
-				Assert.AreEqual ("What header is this?", header.Value);
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Field, Is.EqualTo (string.Empty), "Field is expected to be empty");
+				Assert.That (header.Value, Is.EqualTo ("What header is this?"));
 
 				var body = (TextPart) message.Body;
-				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
-				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -610,14 +610,14 @@ This is the message body.
 				var header = message.Headers[message.Headers.Count - 1];
 
 				// FIXME: Should this really be "valid"?
-				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
-				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
-				Assert.AreEqual ("What header is this?", header.Value);
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Field, Is.EqualTo (string.Empty), "Field is expected to be empty");
+				Assert.That (header.Value, Is.EqualTo ("What header is this?"));
 
 				var body = (TextPart) message.Body;
-				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
-				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -628,14 +628,14 @@ This is the message body.
 				var header = message.Headers[message.Headers.Count - 1];
 
 				// FIXME: Should this really be "valid"?
-				Assert.IsFalse (header.IsInvalid, "IsInvalid is expected to be false");
-				Assert.AreEqual (string.Empty, header.Field, "Field is expected to be empty");
-				Assert.AreEqual ("What header is this?", header.Value);
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Field, Is.EqualTo (string.Empty), "Field is expected to be empty");
+				Assert.That (header.Value, Is.EqualTo ("What header is this?"));
 
 				var body = (TextPart) message.Body;
-				Assert.AreEqual ("text/plain", body.ContentType.MimeType, "Expected text/plain");
-				Assert.AreEqual ("utf-8", body.ContentType.Charset, "Expected to keep Content-Type parameters");
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -666,11 +666,11 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -679,11 +679,11 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -714,11 +714,11 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -727,11 +727,11 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -758,13 +758,13 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -773,13 +773,13 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 
@@ -806,13 +806,13 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -821,13 +821,13 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 
@@ -855,16 +855,16 @@ Content-Dis".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual (2, body.Headers.Count, "Expected 2 headers");
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.IsTrue (body.Headers[1].IsInvalid);
-				Assert.AreEqual ("Content-Dis", body.Headers[1].Field);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers.Count, Is.EqualTo (2), "Expected 2 headers");
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers[1].IsInvalid, Is.True);
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -873,16 +873,16 @@ Content-Dis".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual (2, body.Headers.Count, "Expected 2 headers");
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.IsTrue (body.Headers[1].IsInvalid);
-				Assert.AreEqual ("Content-Dis", body.Headers[1].Field);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers.Count, Is.EqualTo (2), "Expected 2 headers");
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers[1].IsInvalid, Is.True);
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 
@@ -910,16 +910,16 @@ Content-Dis".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual (2, body.Headers.Count, "Expected 2 headers");
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.IsTrue (body.Headers[1].IsInvalid);
-				Assert.AreEqual ("Content-Dis", body.Headers[1].Field);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers.Count, Is.EqualTo (2), "Expected 2 headers");
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers[1].IsInvalid, Is.True);
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -928,16 +928,16 @@ Content-Dis".Replace ("\r\n", "\n");
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual (2, body.Headers.Count, "Expected 2 headers");
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.IsTrue (body.Headers[1].IsInvalid);
-				Assert.AreEqual ("Content-Dis", body.Headers[1].Field);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers.Count, Is.EqualTo (2), "Expected 2 headers");
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers[1].IsInvalid, Is.True);
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 
@@ -966,13 +966,13 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -981,13 +981,13 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 
@@ -1016,13 +1016,13 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1031,13 +1031,13 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (string.Empty, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 
@@ -1070,17 +1070,17 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (2, body.Headers.Count);
-				Assert.IsTrue (body.Headers[1].IsInvalid, "IsInvalid");
-				Assert.AreEqual ("--not-the-boundary-muhahaha\n", body.Headers[1].Field);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha\n"));
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1089,17 +1089,17 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (2, body.Headers.Count);
-				Assert.IsTrue (body.Headers[1].IsInvalid, "IsInvalid");
-				Assert.AreEqual ("--not-the-boundary-muhahaha\r\n", body.Headers[1].Field);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha\r\n"));
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -1132,17 +1132,17 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (2, body.Headers.Count);
-				Assert.IsTrue (body.Headers[1].IsInvalid, "IsInvalid");
-				Assert.AreEqual ("--not-the-boundary-muhahaha\n", body.Headers[1].Field);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha\n"));
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1151,17 +1151,17 @@ This is the message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count, "Expected 1 child");
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual (2, body.Headers.Count);
-				Assert.IsTrue (body.Headers[1].IsInvalid, "IsInvalid");
-				Assert.AreEqual ("--not-the-boundary-muhahaha\r\n", body.Headers[1].Field);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha\r\n"));
 
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 			}
 		}
 
@@ -1199,20 +1199,20 @@ This is the second part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it."));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1221,20 +1221,20 @@ This is the second part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it."));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 			}
 		}
 
@@ -1272,20 +1272,20 @@ This is the second part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it."));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1294,20 +1294,20 @@ This is the second part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it.", body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine + Environment.NewLine + "------=_NextPart_000_003F_01CE98CE.6E826F90       oops, not it."));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the second part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 			}
 		}
 
@@ -1345,20 +1345,20 @@ This is technically the third part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is technically the third part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1367,20 +1367,20 @@ This is technically the third part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is technically the third part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 			}
 		}
 
@@ -1418,20 +1418,20 @@ This is technically the third part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is technically the third part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1440,20 +1440,20 @@ This is technically the third part.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the first part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
 				Assert.IsInstanceOf<TextPart> (multipart[1], "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is technically the third part." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 			}
 		}
 
@@ -1481,18 +1481,18 @@ This is the second part.
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				var multipart = (Multipart) parser.ParseEntity ();
 
-				Assert.IsNull (multipart.Boundary, "Boundary");
-				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
-				Assert.AreEqual (preamble, multipart.Preamble, "Preamble");
+				Assert.That (multipart.Boundary, Is.Null, "Boundary");
+				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
+				Assert.That (multipart.Preamble, Is.EqualTo (preamble), "Preamble");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				var multipart = (Multipart) parser.ParseEntity ();
 
-				Assert.IsNull (multipart.Boundary, "Boundary");
-				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
-				Assert.AreEqual (preamble.Replace ("\n", "\r\n"), multipart.Preamble, "Preamble");
+				Assert.That (multipart.Boundary, Is.Null, "Boundary");
+				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
+				Assert.That (multipart.Preamble, Is.EqualTo (preamble.Replace ("\n", "\r\n")), "Preamble");
 			}
 		}
 
@@ -1520,18 +1520,18 @@ This is the second part.
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				var multipart = (Multipart) await parser.ParseEntityAsync ();
 
-				Assert.IsNull (multipart.Boundary, "Boundary");
-				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
-				Assert.AreEqual (preamble, multipart.Preamble, "Preamble");
+				Assert.That (multipart.Boundary, Is.Null, "Boundary");
+				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
+				Assert.That (multipart.Preamble, Is.EqualTo (preamble), "Preamble");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				var multipart = (Multipart) await parser.ParseEntityAsync ();
 
-				Assert.IsNull (multipart.Boundary, "Boundary");
-				Assert.AreEqual (0, multipart.Count, "Expected 0 children");
-				Assert.AreEqual (preamble.Replace ("\n", "\r\n"), multipart.Preamble, "Preamble");
+				Assert.That (multipart.Boundary, Is.Null, "Boundary");
+				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
+				Assert.That (multipart.Preamble, Is.EqualTo (preamble.Replace ("\n", "\r\n")), "Preamble");
 			}
 		}
 
@@ -1565,17 +1565,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1584,17 +1584,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 		}
 
@@ -1628,17 +1628,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1647,17 +1647,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 		}
 
@@ -1693,17 +1693,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1712,17 +1712,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 		}
 
@@ -1758,17 +1758,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1777,17 +1777,17 @@ Content-Type: message/rfc822
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
-				Assert.IsNull (rfc822.Message, "Message");
+				Assert.That (rfc822.Message, Is.Null, "Message");
 			}
 		}
 
@@ -1835,13 +1835,13 @@ This is the embedded message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
@@ -1849,9 +1849,9 @@ This is the embedded message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the embedded message to be text/plain");
 				body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the embedded message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1863,13 +1863,13 @@ This is the embedded message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
@@ -1877,9 +1877,9 @@ This is the embedded message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the embedded message to be text/plain");
 				body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the embedded message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 			}
 		}
 
@@ -1927,13 +1927,13 @@ This is the embedded message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
@@ -1941,9 +1941,9 @@ This is the embedded message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the embedded message to be text/plain");
 				body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the embedded message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -1955,13 +1955,13 @@ This is the embedded message body.
 
 				Assert.IsInstanceOf<Multipart> (message.Body, "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.AreEqual (2, multipart.Count, "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
 				Assert.IsInstanceOf<TextPart> (multipart[0], "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
 				Assert.IsInstanceOf<MessagePart> (multipart[1], "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
@@ -1969,9 +1969,9 @@ This is the embedded message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the embedded message to be text/plain");
 				body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the embedded message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 			}
 		}
 
@@ -2050,16 +2050,16 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
 
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
-				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
-				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				Assert.NotNull (rfc822.Message, "MessagePart.Message");
-				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
-				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
-				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
-				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\n"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -2069,16 +2069,16 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
 
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
-				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
-				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				Assert.NotNull (rfc822.Message, "MessagePart.Message");
-				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
-				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\r\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
-				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
-				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\r\n"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
 			}
 		}
 
@@ -2157,16 +2157,16 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
 
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
-				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
-				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				Assert.NotNull (rfc822.Message, "MessagePart.Message");
-				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
-				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
-				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
-				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\n"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -2176,16 +2176,16 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.IsInstanceOf<MessagePart> (message.Body, "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
 
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentType.Name, "MessagePart.ContentType.Name");
-				Assert.AreEqual ("inline", rfc822.ContentDisposition.Disposition, "MessagePart.ContentDisposition.DIsposition");
-				Assert.AreEqual ("smime18-encrypted.msg", rfc822.ContentDisposition.FileName, "MessagePart.ContentDisposition.FileName");
-				//Assert.AreEqual (ContentEncoding.SevenBit, rfc822.ContentTransferEncoding, "MessagePart.ContentTransferEncoding");
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				Assert.NotNull (rfc822.Message, "MessagePart.Message");
-				Assert.NotNull (rfc822.Message.MboxMarker, "MessagePart.Message.MboxMarker");
-				Assert.AreEqual (">From - Fri Dec 13 15:01:21 1996\r\n", Encoding.ASCII.GetString (rfc822.Message.MboxMarker));
-				Assert.AreEqual (14, rfc822.Message.Headers.Count, "MessagePart.Message.Headers.Count");
-				Assert.AreEqual (3, rfc822.Message.Body.Headers.Count, "MessagePart.Message.Body.Headers.Count");
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\r\n"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
 			}
 		}
 
@@ -2214,9 +2214,9 @@ This is the rfc822 message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
 				var body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -2229,9 +2229,9 @@ This is the rfc822 message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
 				var body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 		}
 
@@ -2260,9 +2260,9 @@ This is the rfc822 message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
 				var body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -2275,9 +2275,9 @@ This is the rfc822 message body.
 				Assert.IsInstanceOf<TextPart> (rfc822.Message.Body, "Expected child of the message/rfc822 to be text/plain");
 				var body = (TextPart) rfc822.Message.Body;
 
-				Assert.AreEqual ("text/plain; charset=utf-8", body.Headers[HeaderId.ContentType]);
-				Assert.AreEqual ("utf-8", body.ContentType.Charset);
-				Assert.AreEqual ("This is the rfc822 message body." + Environment.NewLine, body.Text);
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 		}
 
@@ -2296,15 +2296,15 @@ This is some raw data.
 				var entity = parser.ParseEntity ();
 
 				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
-				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
-				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
+				Assert.That (entity.ContentType.Name, Is.EqualTo ("rawData.dat"), "Name");
 				var part = (MimePart) entity;
 
 				var plain = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -2312,15 +2312,15 @@ This is some raw data.
 				var entity = parser.ParseEntity ();
 
 				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
-				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
-				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
+				Assert.That (entity.ContentType.Name, Is.EqualTo ("rawData.dat"), "Name");
 				var part = (MimePart) entity;
 
 				var plain = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
 			}
 		}
 
@@ -2339,15 +2339,15 @@ This is some raw data.
 				var entity = await parser.ParseEntityAsync ();
 
 				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
-				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
-				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
+				Assert.That (entity.ContentType.Name, Is.EqualTo ("rawData.dat"), "Name");
 				var part = (MimePart) entity;
 
 				var plain = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
@@ -2355,15 +2355,15 @@ This is some raw data.
 				var entity = await parser.ParseEntityAsync ();
 
 				Assert.IsInstanceOf<MimePart> (entity, "Expected MimePart");
-				Assert.AreEqual ("application/octet-stream", entity.ContentType.MimeType, "MimeType");
-				Assert.AreEqual ("rawData.dat", entity.ContentType.Name, "Name");
+				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
+				Assert.That (entity.ContentType.Name, Is.EqualTo ("rawData.dat"), "Name");
 				var part = (MimePart) entity;
 
 				var plain = new TextPart ("plain") {
 					Content = part.Content
 				};
 
-				Assert.AreEqual ("This is some raw data." + Environment.NewLine, plain.Text);
+				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
 			}
 		}
 
@@ -2378,17 +2378,17 @@ This is some raw data.
 
 				Assert.IsInstanceOf<Multipart> (message.Body);
 				multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				entity = multipart[0];
 
 				Assert.IsInstanceOf<Multipart> (entity);
 				multipart = (Multipart) entity;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				entity = multipart[0];
 
 				Assert.IsInstanceOf<Multipart> (entity);
 				multipart = (Multipart) entity;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				entity = multipart[0];
 
 				Assert.IsInstanceOf<TextPart> (entity);
@@ -2397,7 +2397,7 @@ This is some raw data.
 					entity.WriteTo (UnixFormatOptions, memory);
 
 					var text = Encoding.ASCII.GetString (memory.ToArray ());
-					Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
+					Assert.That (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), Is.True, "Headers are not properly terminated.");
 				}
 			}
 		}
@@ -2420,17 +2420,17 @@ This is some raw data.
 
 				Assert.IsInstanceOf<Multipart> (message.Body);
 				multipart = (Multipart) message.Body;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				entity = multipart[0];
 
 				Assert.IsInstanceOf<Multipart> (entity);
 				multipart = (Multipart) entity;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				entity = multipart[0];
 
 				Assert.IsInstanceOf<Multipart> (entity);
 				multipart = (Multipart) entity;
-				Assert.AreEqual (1, multipart.Count);
+				Assert.That (multipart.Count, Is.EqualTo (1));
 				entity = multipart[0];
 
 				Assert.IsInstanceOf<TextPart> (entity);
@@ -2439,7 +2439,7 @@ This is some raw data.
 					await entity.WriteToAsync (UnixFormatOptions, memory);
 
 					var text = Encoding.ASCII.GetString (memory.ToArray ());
-					Assert.IsTrue (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), "Headers are not properly terminated.");
+					Assert.That (text.StartsWith ("Content-Type: text/plain\n\n", StringComparison.Ordinal), Is.True, "Headers are not properly terminated.");
 				}
 			}
 		}
@@ -2529,7 +2529,7 @@ This is some raw data.
 
 				DumpMimeTree (builder, message);
 
-				Assert.AreEqual (expected, builder.ToString (), "Unexpected MIME tree structure.");
+				Assert.That (builder.ToString (), Is.EqualTo (expected), "Unexpected MIME tree structure.");
 			}
 		}
 
@@ -2591,23 +2591,23 @@ This is some raw data.
 
 		static void AssertMimeOffsets (MimeOffsets expected, MimeOffsets actual, int message, string partSpecifier)
 		{
-			Assert.AreEqual (expected.MimeType, actual.MimeType, $"mime-type differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.MboxMarkerOffset, actual.MboxMarkerOffset, $"mbox marker begin offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.BeginOffset, actual.BeginOffset, $"begin offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.LineNumber, actual.LineNumber, $"begin line differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.HeadersEndOffset, actual.HeadersEndOffset, $"headers end offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.EndOffset, actual.EndOffset, $"end offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.Octets, actual.Octets, $"octets differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.Lines, actual.Lines, $"lines differs for message #{message}{partSpecifier}");
+			Assert.That (actual.MimeType, Is.EqualTo (expected.MimeType), $"mime-type differs for message #{message}{partSpecifier}");
+			Assert.That (actual.MboxMarkerOffset, Is.EqualTo (expected.MboxMarkerOffset), $"mbox marker begin offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.BeginOffset, Is.EqualTo (expected.BeginOffset), $"begin offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.LineNumber, Is.EqualTo (expected.LineNumber), $"begin line differs for message #{message}{partSpecifier}");
+			Assert.That (actual.HeadersEndOffset, Is.EqualTo (expected.HeadersEndOffset), $"headers end offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.EndOffset, Is.EqualTo (expected.EndOffset), $"end offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.Octets, Is.EqualTo (expected.Octets), $"octets differs for message #{message}{partSpecifier}");
+			Assert.That (actual.Lines, Is.EqualTo (expected.Lines), $"lines differs for message #{message}{partSpecifier}");
 
 			if (expected.Message != null) {
-				Assert.NotNull (actual.Message, $"message content is null for message #{message}{partSpecifier}");
+				Assert.That (actual.Message, Is.Not.Null, $"message content is null for message #{message}{partSpecifier}");
 				AssertMimeOffsets (expected.Message, actual.Message, message, partSpecifier + "/message");
 			} else if (expected.Body != null) {
-				Assert.NotNull (actual.Body, $"body content is null for message #{message}{partSpecifier}");
+				Assert.That (actual.Body, Is.Not.Null, $"body content is null for message #{message}{partSpecifier}");
 				AssertMimeOffsets (expected.Body, actual.Body, message, partSpecifier + "/0");
 			} else if (expected.Children != null) {
-				Assert.AreEqual (expected.Children.Count, actual.Children.Count, $"children count differs for message #{message}{partSpecifier}");
+				Assert.That (actual.Children.Count, Is.EqualTo (expected.Children.Count), $"children count differs for message #{message}{partSpecifier}");
 				for (int i = 0; i < expected.Children.Count; i++)
 					AssertMimeOffsets (expected.Children[i], actual.Children[i], message, partSpecifier + $".{i}");
 			}
@@ -2740,14 +2740,14 @@ This is some raw data.
 			var buffer = new byte[4096];
 			int nx, n;
 
-			Assert.AreEqual (summary, actual, "Summaries do not match for {0}.mbox", baseName);
+			Assert.That (actual, Is.EqualTo (summary), $"Summaries do not match for {baseName}.mbox");
 
 			using (var original = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
 				int lineNumber = 1, columnNumber = 1;
 
 				output.Position = 0;
 
-				//Assert.AreEqual (original.Length, output.Length, "The length of the mbox did not match.");
+				//Assert.That (output.Length, Is.EqualTo (original.Length), "The length of the mbox did not match.");
 
 				do {
 					nx = original.Read (expected, 0, expected.Length);
@@ -2770,7 +2770,7 @@ This is some raw data.
 						var strExpected = CharsetUtils.Latin1.GetString (expected, 0, nx);
 						var strActual = CharsetUtils.Latin1.GetString (buffer, 0, n);
 
-						Assert.AreEqual (strExpected, strActual, "The mbox differs at on line {0}, column {1}", lineNumber, columnNumber);
+						Assert.That (strActual, Is.EqualTo (strExpected), $"The mbox differs at on line {lineNumber}, column {columnNumber}");
 					}
 				} while (true);
 			}
@@ -2788,7 +2788,7 @@ This is some raw data.
 			using (var reader = new StreamReader (path)) {
 				var expectedOffsets = (List<MimeOffsets>) jsonSerializer.Deserialize (reader, typeof (List<MimeOffsets>));
 
-				Assert.AreEqual (expectedOffsets.Count, offsets.Count, "message count");
+				Assert.That (offsets.Count, Is.EqualTo (expectedOffsets.Count), "message count");
 
 				for (int i = 0; i < expectedOffsets.Count; i++)
 					AssertMimeOffsets (expectedOffsets[i], offsets[i], i, string.Empty);
@@ -2941,7 +2941,7 @@ This is some raw data.
 			if (iso2022jp != "佐藤豊")
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
-			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+			Assert.That (actual, Is.EqualTo (summary), "Summaries do not match for jwz.mbox");
 		}
 
 		[Test]
@@ -2980,7 +2980,7 @@ This is some raw data.
 			if (iso2022jp != "佐藤豊")
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
-			Assert.AreEqual (summary, actual, "Summaries do not match for jwz.mbox");
+			Assert.That (actual, Is.EqualTo (summary), "Summaries do not match for jwz.mbox");
 		}
 
 		[Test]
@@ -2992,8 +2992,8 @@ This is some raw data.
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
 				var message = MimeMessage.Load (stream);
 
-				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
-				Assert.AreEqual (body, message.TextBody.Replace ("\r\n", "\n"), "Message text does not match.");
+				Assert.That (message.Subject, Is.EqualTo (subject), "Subject values do not match");
+				Assert.That (message.TextBody.Replace ("\r\n", "\n"), Is.EqualTo (body), "Message text does not match.");
 			}
 		}
 
@@ -3006,8 +3006,8 @@ This is some raw data.
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
 				var message = await MimeMessage.LoadAsync (stream);
 
-				Assert.AreEqual (subject, message.Subject, "Subject values do not match");
-				Assert.AreEqual (body, message.TextBody.Replace ("\r\n", "\n"), "Message text does not match.");
+				Assert.That (message.Subject, Is.EqualTo (subject), "Subject values do not match");
+				Assert.That (message.TextBody.Replace ("\r\n", "\n"), Is.EqualTo (body), "Message text does not match.");
 			}
 		}
 
@@ -3025,16 +3025,16 @@ This is some raw data.
 					var marker = parser.MboxMarker;
 
 					if ((count % 2) == 0) {
-						Assert.AreEqual ("From -", marker.TrimEnd (), "Message #{0}", count);
+						Assert.That (marker.TrimEnd (), Is.EqualTo ("From -"), $"Message #{count}");
 					} else {
-						Assert.AreEqual ("From Russia with love", marker.TrimEnd (), "Message #{0}", count);
+						Assert.That (marker.TrimEnd (), Is.EqualTo ("From Russia with love"), $"Message #{count}");
 					}
 
 					count++;
 				}
 			}
 
-			Assert.AreEqual (4, count, "Expected to find 4 messages.");
+			Assert.That (count, Is.EqualTo (4), "Expected to find 4 messages.");
 		}
 
 		[Test]
@@ -3051,16 +3051,16 @@ This is some raw data.
 					var marker = parser.MboxMarker;
 
 					if ((count % 2) == 0) {
-						Assert.AreEqual ("From -", marker.TrimEnd (), "Message #{0}", count);
+						Assert.That (marker.TrimEnd (), Is.EqualTo ("From -"), $"Message #{count}");
 					} else {
-						Assert.AreEqual ("From Russia with love", marker.TrimEnd (), "Message #{0}", count);
+						Assert.That (marker.TrimEnd (), Is.EqualTo ("From Russia with love"), $"Message #{count}");
 					}
 
 					count++;
 				}
 			}
 
-			Assert.AreEqual (4, count, "Expected to find 4 messages.");
+			Assert.That (count, Is.EqualTo (4), "Expected to find 4 messages.");
 		}
 
 		[Test]
@@ -3072,9 +3072,9 @@ This is some raw data.
 				var message = MimeMessage.Load (stream);
 				var multipart = message.Body as Multipart;
 
-				Assert.AreEqual (epilogue, multipart.Epilogue.Replace ("\r\n", "\n"), "The epilogue does not match");
+				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
 
-				Assert.IsTrue (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n',
+				Assert.That (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n', Is.True,
 					"The RawEpilogue does not start with a new-line.");
 			}
 		}
@@ -3088,9 +3088,9 @@ This is some raw data.
 				var message = await MimeMessage.LoadAsync (stream);
 				var multipart = message.Body as Multipart;
 
-				Assert.AreEqual (epilogue, multipart.Epilogue.Replace ("\r\n", "\n"), "The epilogue does not match");
+				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
 
-				Assert.IsTrue (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n',
+				Assert.That (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n', Is.True,
 							   "The RawEpilogue does not start with a new-line.");
 			}
 		}
@@ -3102,9 +3102,9 @@ This is some raw data.
 				var message = MimeMessage.Load (stream);
 				var type = message.Body.ContentType;
 
-				Assert.AreEqual ("application", type.MediaType, "The media type is not the default.");
-				Assert.AreEqual ("octet-stream", type.MediaSubtype, "The media subtype is not the default.");
-				Assert.AreEqual ("document.xml.gz", type.Name, "The parameters do not seem to have been parsed.");
+				Assert.That (type.MediaType, Is.EqualTo ("application"), "The media type is not the default.");
+				Assert.That (type.MediaSubtype, Is.EqualTo ("octet-stream"), "The media subtype is not the default.");
+				Assert.That (type.Name, Is.EqualTo ("document.xml.gz"), "The parameters do not seem to have been parsed.");
 			}
 		}
 
@@ -3194,7 +3194,7 @@ This is a single line of text";
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3216,7 +3216,7 @@ This is a single line of text";
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3239,7 +3239,7 @@ This is a single line of text
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3262,7 +3262,7 @@ This is a single line of text
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3294,7 +3294,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3326,7 +3326,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3359,7 +3359,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3392,7 +3392,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -3407,7 +3407,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 
@@ -3422,7 +3422,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 
@@ -3437,7 +3437,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 
@@ -3452,7 +3452,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 	}

@@ -41,9 +41,9 @@ namespace UnitTests.Utils {
 			var array = builder.ToArray ();
 			builder.Dispose ();
 
-			Assert.AreEqual (32, array.Length);
+			Assert.That (array.Length, Is.EqualTo (32));
 			for (int i = 0; i < array.Length; i++)
-				Assert.AreEqual (i, (int) array[i]);
+				Assert.That ((int) array[i], Is.EqualTo (i));
 		}
 	}
 }

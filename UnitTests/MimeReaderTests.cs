@@ -139,23 +139,23 @@ namespace UnitTests {
 
 		static void AssertMimeOffsets (MimeOffsets expected, MimeOffsets actual, int message, string partSpecifier)
 		{
-			Assert.AreEqual (expected.MimeType, actual.MimeType, $"mime-type differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.MboxMarkerOffset, actual.MboxMarkerOffset, $"mbox marker begin offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.BeginOffset, actual.BeginOffset, $"begin offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.LineNumber, actual.LineNumber, $"begin line differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.HeadersEndOffset, actual.HeadersEndOffset, $"headers end offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.EndOffset, actual.EndOffset, $"end offset differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.Octets, actual.Octets, $"octets differs for message #{message}{partSpecifier}");
-			Assert.AreEqual (expected.Lines, actual.Lines, $"lines differs for message #{message}{partSpecifier}");
+			Assert.That (actual.MimeType, Is.EqualTo (expected.MimeType), $"mime-type differs for message #{message}{partSpecifier}");
+			Assert.That (actual.MboxMarkerOffset, Is.EqualTo (expected.MboxMarkerOffset), $"mbox marker begin offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.BeginOffset, Is.EqualTo (expected.BeginOffset), $"begin offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.LineNumber, Is.EqualTo (expected.LineNumber), $"begin line differs for message #{message}{partSpecifier}");
+			Assert.That (actual.HeadersEndOffset, Is.EqualTo (expected.HeadersEndOffset), $"headers end offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.EndOffset, Is.EqualTo (expected.EndOffset), $"end offset differs for message #{message}{partSpecifier}");
+			Assert.That (actual.Octets, Is.EqualTo (expected.Octets), $"octets differs for message #{message}{partSpecifier}");
+			Assert.That (actual.Lines, Is.EqualTo (expected.Lines), $"lines differs for message #{message}{partSpecifier}");
 
 			if (expected.Message != null) {
-				Assert.NotNull (actual.Message, $"message content is null for message #{message}{partSpecifier}");
+				Assert.That (actual.Message, Is.Not.Null, $"message content is null for message #{message}{partSpecifier}");
 				AssertMimeOffsets (expected.Message, actual.Message, message, partSpecifier + "/message");
 			} else if (expected.Body != null) {
-				Assert.NotNull (actual.Body, $"body content is null for message #{message}{partSpecifier}");
+				Assert.That (actual.Body, Is.Not.Null, $"body content is null for message #{message}{partSpecifier}");
 				AssertMimeOffsets (expected.Body, actual.Body, message, partSpecifier + "/0");
 			} else if (expected.Children != null) {
-				Assert.AreEqual (expected.Children.Count, actual.Children.Count, $"children count differs for message #{message}{partSpecifier}");
+				Assert.That (actual.Children.Count, Is.EqualTo (expected.Children.Count), $"children count differs for message #{message}{partSpecifier}");
 				for (int i = 0; i < expected.Children.Count; i++)
 					AssertMimeOffsets (expected.Children[i], actual.Children[i], message, partSpecifier + $".{i}");
 			}
@@ -193,7 +193,7 @@ namespace UnitTests {
 
 				if (stack.Count > 0) {
 					var parent = stack[stack.Count - 1];
-					Assert.AreEqual (MimeType.MessagePart, parent.Type);
+					Assert.That (parent.Type, Is.EqualTo (MimeType.MessagePart));
 					parent.Offsets.Message = offsets;
 				} else {
 					offsets.MboxMarkerOffset = mboxMarkerBeginOffset;
@@ -209,7 +209,7 @@ namespace UnitTests {
 			{
 				var current = stack[stack.Count - 1];
 
-				Assert.AreEqual (MimeType.Message, current.Type);
+				Assert.That (current.Type, Is.EqualTo (MimeType.Message));
 
 				current.Offsets.Octets = endOffset - headersEndOffset;
 				current.Offsets.HeadersEndOffset = headersEndOffset;
@@ -254,7 +254,7 @@ namespace UnitTests {
 			{
 				var current = stack[stack.Count - 1];
 
-				Assert.AreEqual (type, current.Type);
+				Assert.That (current.Type, Is.EqualTo (type));
 
 				current.Offsets.Octets = endOffset - headersEndOffset;
 				current.Offsets.HeadersEndOffset = headersEndOffset;
@@ -316,7 +316,7 @@ namespace UnitTests {
 			using (var reader = new StreamReader (path)) {
 				var expectedOffsets = (List<MimeOffsets>) jsonSerializer.Deserialize (reader, typeof (List<MimeOffsets>));
 
-				Assert.AreEqual (expectedOffsets.Count, offsets.Count, "message count");
+				Assert.That (offsets.Count, Is.EqualTo (expectedOffsets.Count), "message count");
 
 				for (int i = 0; i < expectedOffsets.Count; i++)
 					AssertMimeOffsets (expectedOffsets[i], offsets[i], i, string.Empty);
@@ -416,7 +416,7 @@ This is a single line of text";
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -439,7 +439,7 @@ This is a single line of text";
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -463,7 +463,7 @@ This is a single line of text
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -487,7 +487,7 @@ This is a single line of text
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -520,7 +520,7 @@ ABC
 
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -553,7 +553,7 @@ ABC
 
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -587,7 +587,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -621,7 +621,7 @@ ABC
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
-				Assert.AreEqual (1, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (1), "Line count");
 			}
 		}
 
@@ -637,7 +637,7 @@ ABC
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 
@@ -653,7 +653,7 @@ ABC
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 
@@ -669,7 +669,7 @@ ABC
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 
@@ -685,7 +685,7 @@ ABC
 
 				var lines = reader.Offsets[0].Body.Lines;
 
-				Assert.AreEqual (0, lines, "Line count");
+				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
 	}

@@ -118,8 +118,8 @@ namespace UnitTests {
 				Content = new MimeContent (new MemoryStream ())
 			};
 
-			Assert.AreEqual ("id@localhost.com", part.ContentId, "Content-Id");
-			Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Content-Transfer-Encoding");
+			Assert.That (part.ContentId, Is.EqualTo ("id@localhost.com"), "Content-Id");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Content-Transfer-Encoding");
 
 			using (var stream = new MemoryStream ()) {
 				var options = FormatOptions.Default.Clone ();
@@ -128,7 +128,7 @@ namespace UnitTests {
 				part.WriteTo (options, stream);
 
 				var serialized = Encoding.ASCII.GetString (stream.GetBuffer (), 0, (int) stream.Length);
-				Assert.AreEqual (expected, serialized, "Serialized");
+				Assert.That (serialized, Is.EqualTo (expected), "Serialized");
 			}
 		}
 
@@ -137,26 +137,26 @@ namespace UnitTests {
 		{
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentDisposition, "Initial ContentDisposition property should be null");
+			Assert.That (part.ContentDisposition, Is.Null, "Initial ContentDisposition property should be null");
 
 			part.ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to be set");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to exist");
+			Assert.That (part.ContentDisposition, Is.Not.Null, "Expected ContentDisposition property to be set");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDisposition), Is.True, "Expected header to exist");
 
 			part.ContentDisposition = null;
-			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition property to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to be removed");
+			Assert.That (part.ContentDisposition, Is.Null, "Expected ContentDisposition property to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDisposition), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentDisposition, "attachment");
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to be set again");
+			Assert.That (part.ContentDisposition, Is.Not.Null, "Expected ContentDisposition property to be set again");
 
 			part.Headers.Remove (HeaderId.ContentDisposition);
-			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition to be null again");
+			Assert.That (part.ContentDisposition, Is.Null, "Expected ContentDisposition to be null again");
 
 			part.ContentDisposition = new ContentDisposition ();
 			part.FileName = "fileName";
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition to be null again");
+			Assert.That (part.ContentDisposition, Is.Null, "Expected ContentDisposition to be null again");
 		}
 
 		[Test]
@@ -164,33 +164,33 @@ namespace UnitTests {
 		{
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentDisposition, "Initial ContentDisposition should be null");
+			Assert.That (part.ContentDisposition, Is.Null, "Initial ContentDisposition should be null");
 
 			part.IsAttachment = true;
 
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to be set");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to exist");
-			Assert.AreEqual (ContentDisposition.Attachment, part.ContentDisposition.Disposition, "Expected Content-Disposition value to be attachment");
+			Assert.That (part.ContentDisposition, Is.Not.Null, "Expected ContentDisposition property to be set");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDisposition), Is.True, "Expected header to exist");
+			Assert.That (part.ContentDisposition.Disposition, Is.EqualTo (ContentDisposition.Attachment), "Expected Content-Disposition value to be attachment");
 
 			part.IsAttachment = false;
 
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to still be set");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to still exist");
-			Assert.AreEqual (ContentDisposition.Inline, part.ContentDisposition.Disposition, "Expected Content-Disposition value to be inline");
+			Assert.That (part.ContentDisposition, Is.Not.Null, "Expected ContentDisposition property to still be set");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDisposition), Is.True, "Expected header to still exist");
+			Assert.That (part.ContentDisposition.Disposition, Is.EqualTo (ContentDisposition.Inline), "Expected Content-Disposition value to be inline");
 
 			part.IsAttachment = true;
 
-			Assert.IsNotNull (part.ContentDisposition, "Expected ContentDisposition property to still be set");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to still exist");
-			Assert.AreEqual (ContentDisposition.Attachment, part.ContentDisposition.Disposition, "Expected Content-Disposition value to be attachment again");
+			Assert.That (part.ContentDisposition, Is.Not.Null, "Expected ContentDisposition property to still be set");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDisposition), Is.True, "Expected header to still exist");
+			Assert.That (part.ContentDisposition.Disposition, Is.EqualTo (ContentDisposition.Attachment), "Expected Content-Disposition value to be attachment again");
 
 			part.ContentDisposition = null;
-			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition property to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDisposition), "Expected header to be removed");
+			Assert.That (part.ContentDisposition, Is.Null, "Expected ContentDisposition property to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDisposition), Is.False, "Expected header to be removed");
 
 			part.IsAttachment = false;
 
-			Assert.IsNull (part.ContentDisposition, "Expected ContentDisposition property to still be null");
+			Assert.That (part.ContentDisposition, Is.Null, "Expected ContentDisposition property to still be null");
 		}
 
 		[Test]
@@ -200,27 +200,27 @@ namespace UnitTests {
 			var uri = new Uri ("http://www.google.com");
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentBase, "Initial ContentBase should be null");
+			Assert.That (part.ContentBase, Is.Null, "Initial ContentBase should be null");
 
 			Assert.Throws<ArgumentException> (() => part.ContentBase = relative);
 
 			part.ContentBase = uri;
-			Assert.AreEqual (uri, part.ContentBase, "Expected ContentBase to be updated");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentBase), "Expected header to exist");
+			Assert.That (part.ContentBase, Is.EqualTo (uri), "Expected ContentBase to be updated");
+			Assert.That (part.Headers.Contains (HeaderId.ContentBase), Is.True, "Expected header to exist");
 
 			part.ContentBase = null;
-			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentBase), "Expected header to be removed");
+			Assert.That (part.ContentBase, Is.Null, "Expected ContentBase to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentBase), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentBase, uri.OriginalString);
-			Assert.AreEqual (uri, part.ContentBase, "Expected ContentBase to be set again");
+			Assert.That (part.ContentBase, Is.EqualTo (uri), "Expected ContentBase to be set again");
 
 			part.Headers.Remove (HeaderId.ContentBase);
-			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
+			Assert.That (part.ContentBase, Is.Null, "Expected ContentBase to be null again");
 
 			part.ContentBase = uri;
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentBase, "Expected ContentBase to be null again");
+			Assert.That (part.ContentBase, Is.Null, "Expected ContentBase to be null again");
 		}
 
 		[Test]
@@ -229,25 +229,25 @@ namespace UnitTests {
 			var part = new MimePart ();
 			var uri = new Uri ("http://www.google.com");
 
-			Assert.IsNull (part.ContentLocation, "Initial ContentLocation should be null");
+			Assert.That (part.ContentLocation, Is.Null, "Initial ContentLocation should be null");
 
 			part.ContentLocation = uri;
-			Assert.AreEqual (uri, part.ContentLocation, "Expected ContentLocation to be updated");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentLocation), "Expected header to exist");
+			Assert.That (part.ContentLocation, Is.EqualTo (uri), "Expected ContentLocation to be updated");
+			Assert.That (part.Headers.Contains (HeaderId.ContentLocation), Is.True, "Expected header to exist");
 
 			part.ContentLocation = null;
-			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentLocation), "Expected header to be removed");
+			Assert.That (part.ContentLocation, Is.Null, "Expected ContentLocation to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentLocation), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentLocation, uri.OriginalString);
-			Assert.AreEqual (uri, part.ContentLocation, "Expected ContentLocation to be set again");
+			Assert.That (part.ContentLocation, Is.EqualTo (uri), "Expected ContentLocation to be set again");
 
 			part.Headers.Remove (HeaderId.ContentLocation);
-			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
+			Assert.That (part.ContentLocation, Is.Null, "Expected ContentLocation to be null again");
 
 			part.ContentLocation = uri;
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentLocation, "Expected ContentLocation to be null again");
+			Assert.That (part.ContentLocation, Is.Null, "Expected ContentLocation to be null again");
 		}
 
 		[Test]
@@ -256,25 +256,25 @@ namespace UnitTests {
 			const string description = "This is a sample description.";
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentDescription, "Initial ContentDescription property should be null");
+			Assert.That (part.ContentDescription, Is.Null, "Initial ContentDescription property should be null");
 
 			part.ContentDescription = description;
-			Assert.IsNotNull (part.ContentDescription, "Expected ContentDescription property to be set");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDescription), "Expected header to exist");
+			Assert.That (part.ContentDescription, Is.Not.Null, "Expected ContentDescription property to be set");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDescription), Is.True, "Expected header to exist");
 
 			part.ContentDescription = null;
-			Assert.IsNull (part.ContentDescription, "Expected ContentDescription property to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDescription), "Expected header to be removed");
+			Assert.That (part.ContentDescription, Is.Null, "Expected ContentDescription property to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDescription), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentDescription, description);
-			Assert.IsNotNull (part.ContentDescription, "Expected ContentDescription property to be set again");
+			Assert.That (part.ContentDescription, Is.Not.Null, "Expected ContentDescription property to be set again");
 
 			part.Headers.Remove (HeaderId.ContentDescription);
-			Assert.IsNull (part.ContentDescription, "Expected ContentDescription to be null again");
+			Assert.That (part.ContentDescription, Is.Null, "Expected ContentDescription to be null again");
 
 			part.ContentDescription = description;
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentDescription, "Expected ContentDescription to be null again");
+			Assert.That (part.ContentDescription, Is.Null, "Expected ContentDescription to be null again");
 		}
 
 		[Test]
@@ -282,25 +282,25 @@ namespace UnitTests {
 		{
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentDuration, "Initial ContentDuration value should be null");
+			Assert.That (part.ContentDuration, Is.Null, "Initial ContentDuration value should be null");
 
 			part.ContentDuration = 500;
-			Assert.AreEqual (500, part.ContentDuration, "Expected ContentDuration to be updated");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentDuration), "Expected header to exist");
+			Assert.That (part.ContentDuration, Is.EqualTo (500), "Expected ContentDuration to be updated");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDuration), Is.True, "Expected header to exist");
 
 			part.ContentDuration = null;
-			Assert.IsNull (part.ContentDuration, "Expected ContentDuration to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentDuration), "Expected header to be removed");
+			Assert.That (part.ContentDuration, Is.Null, "Expected ContentDuration to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentDuration), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentDuration, "500");
-			Assert.AreEqual (500, part.ContentDuration, "Expected ContentDuration to be set again");
+			Assert.That (part.ContentDuration, Is.EqualTo (500), "Expected ContentDuration to be set again");
 
 			part.Headers.Remove (HeaderId.ContentDuration);
-			Assert.IsNull (part.ContentDuration, "Expected ContentDuration to be null again");
+			Assert.That (part.ContentDuration, Is.Null, "Expected ContentDuration to be null again");
 
 			part.ContentDuration = 500;
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentDuration, "Expected ContentDuration to be null again");
+			Assert.That (part.ContentDuration, Is.Null, "Expected ContentDuration to be null again");
 		}
 
 		[Test]
@@ -309,25 +309,25 @@ namespace UnitTests {
 			var id = MimeUtils.GenerateMessageId ();
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentId, "Initial ContentId value should be null");
+			Assert.That (part.ContentId, Is.Null, "Initial ContentId value should be null");
 
 			part.ContentId = id;
-			Assert.AreEqual (id, part.ContentId, "Expected ContentId to be updated");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentId), "Expected header to exist");
+			Assert.That (part.ContentId, Is.EqualTo (id), "Expected ContentId to be updated");
+			Assert.That (part.Headers.Contains (HeaderId.ContentId), Is.True, "Expected header to exist");
 
 			part.ContentId = null;
-			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentId), "Expected header to be removed");
+			Assert.That (part.ContentId, Is.Null, "Expected ContentId to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentId), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentId, string.Format ("<{0}>", id));
-			Assert.AreEqual (id, part.ContentId, "Expected ContentId to be set again");
+			Assert.That (part.ContentId, Is.EqualTo (id), "Expected ContentId to be set again");
 
 			part.Headers.Remove (HeaderId.ContentId);
-			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
+			Assert.That (part.ContentId, Is.Null, "Expected ContentId to be null again");
 
 			part.ContentId = id;
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentId, "Expected ContentId to be null again");
+			Assert.That (part.ContentId, Is.Null, "Expected ContentId to be null again");
 		}
 
 		[Test]
@@ -335,34 +335,34 @@ namespace UnitTests {
 		{
 			var part = new MimePart ();
 
-			Assert.IsNull (part.ContentMd5, "Initial ContentMd5 value should be null");
+			Assert.That (part.ContentMd5, Is.Null, "Initial ContentMd5 value should be null");
 
 			part.ContentMd5 = "XYZ";
-			Assert.AreEqual ("XYZ", part.ContentMd5, "Expected ContentMd5 to be updated");
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentMd5), "Expected header to exist");
+			Assert.That (part.ContentMd5, Is.EqualTo ("XYZ"), "Expected ContentMd5 to be updated");
+			Assert.That (part.Headers.Contains (HeaderId.ContentMd5), Is.True, "Expected header to exist");
 
 			part.ContentMd5 = null;
-			Assert.IsNull (part.ContentMd5, "Expected ContentMd5 to be null again");
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentMd5), "Expected header to be removed");
+			Assert.That (part.ContentMd5, Is.Null, "Expected ContentMd5 to be null again");
+			Assert.That (part.Headers.Contains (HeaderId.ContentMd5), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentMd5, "XYZ");
-			Assert.AreEqual ("XYZ", part.ContentMd5, "Expected ContentMd5 to be set again");
+			Assert.That (part.ContentMd5, Is.EqualTo ("XYZ"), "Expected ContentMd5 to be set again");
 
 			part.Headers.Remove (HeaderId.ContentMd5);
-			Assert.IsNull (part.ContentMd5, "Expected ContentMd5 to be null again");
+			Assert.That (part.ContentMd5, Is.Null, "Expected ContentMd5 to be null again");
 
 			part.ContentMd5 = "XYZ";
 			part.Headers.Clear ();
-			Assert.IsNull (part.ContentMd5, "Expected ContentMd5 to be null again");
+			Assert.That (part.ContentMd5, Is.Null, "Expected ContentMd5 to be null again");
 
 			Assert.Throws<InvalidOperationException> (() => part.ComputeContentMd5 ());
-			Assert.IsFalse (part.VerifyContentMd5 ());
+			Assert.That (part.VerifyContentMd5 (), Is.False);
 
 			part = new TextPart ("plain") { Text = "Hello, World.\n\nLet's check the MD5 sum of this text!\n" };
 
 			var md5sum = part.ComputeContentMd5 ();
 
-			Assert.AreEqual ("8criUiOQmpfifOuOmYFtEQ==", md5sum, "ComputeContentMd5 text/*");
+			Assert.That (md5sum, Is.EqualTo ("8criUiOQmpfifOuOmYFtEQ=="), "ComputeContentMd5 text/*");
 
 			// re-encode the base64'd md5sum using a hex encoding so we can easily compare to the output of `md5sum` command-line tools
 			var decoded = Convert.FromBase64String (md5sum);
@@ -371,11 +371,11 @@ namespace UnitTests {
 			for (int i = 0; i < decoded.Length; i++)
 				encoded.Append (decoded[i].ToString ("x2"));
 
-			Assert.AreEqual ("f1cae25223909a97e27ceb8e99816d11", encoded.ToString (), "md5sum text/*");
+			Assert.That (encoded.ToString (), Is.EqualTo ("f1cae25223909a97e27ceb8e99816d11"), "md5sum text/*");
 
 			part.ContentMd5 = md5sum;
 
-			Assert.IsTrue (part.VerifyContentMd5 (), "VerifyContentMd5");
+			Assert.That (part.VerifyContentMd5 (), Is.True, "VerifyContentMd5");
 		}
 
 		[Test]
@@ -383,27 +383,27 @@ namespace UnitTests {
 		{
 			var part = new MimePart ();
 
-			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding);
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default));
 
 			part.ContentTransferEncoding = ContentEncoding.EightBit;
-			Assert.AreEqual (ContentEncoding.EightBit, part.ContentTransferEncoding);
-			Assert.IsTrue (part.Headers.Contains (HeaderId.ContentTransferEncoding), "Expected header to exist");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.EightBit));
+			Assert.That (part.Headers.Contains (HeaderId.ContentTransferEncoding), Is.True, "Expected header to exist");
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => part.ContentTransferEncoding = (ContentEncoding) 500);
 
 			part.ContentTransferEncoding = ContentEncoding.Default;
-			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding);
-			Assert.IsFalse (part.Headers.Contains (HeaderId.ContentTransferEncoding), "Expected header to be removed");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default));
+			Assert.That (part.Headers.Contains (HeaderId.ContentTransferEncoding), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentTransferEncoding, "base64");
-			Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be set again");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Expected ContentTransferEncoding to be set again");
 
 			part.Headers.Remove (HeaderId.ContentTransferEncoding);
-			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected ContentTransferEncoding to be default again");
 
 			part.ContentTransferEncoding = ContentEncoding.UUEncode;
 			part.Headers.Clear ();
-			Assert.AreEqual (ContentEncoding.Default, part.ContentTransferEncoding, "Expected ContentTransferEncoding to be default again");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected ContentTransferEncoding to be default again");
 		}
 
 		[Test]
@@ -416,26 +416,26 @@ namespace UnitTests {
 
 				var encoding = part.GetBestEncoding (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, encoding, "GetBestEncoding");
+				Assert.That (encoding, Is.EqualTo (ContentEncoding.Base64), "GetBestEncoding");
 
 				part.Prepare (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #1");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #1");
 
 				// now make sure that calling Prepare() again doesn't change anything
 
 				part.Prepare (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #2");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #2");
 
 				part.ContentTransferEncoding = ContentEncoding.Binary;
 				part.Prepare (EncodingConstraint.None);
 
-				Assert.AreEqual (ContentEncoding.Binary, part.ContentTransferEncoding, "Prepare #3");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Binary), "Prepare #3");
 
 				part.Prepare (EncodingConstraint.SevenBit);
 
-				Assert.AreEqual (ContentEncoding.Base64, part.ContentTransferEncoding, "Prepare #4");
+				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #4");
 			}
 		}
 
@@ -475,9 +475,9 @@ namespace UnitTests {
 
 				var actual = output.ToArray ();
 
-				Assert.AreEqual (expected.Length, actual.Length);
+				Assert.That (actual.Length, Is.EqualTo (expected.Length));
 				for (int i = 0; i < expected.Length; i++)
-					Assert.AreEqual (expected[i], actual[i], "Image content differs at index {0}", i);
+					Assert.That (actual[i], Is.EqualTo (expected[i]), $"Image content differs at index {i}");
 			}
 		}
 
@@ -517,9 +517,9 @@ namespace UnitTests {
 
 				var actual = output.ToArray ();
 
-				Assert.AreEqual (expected.Length, actual.Length);
+				Assert.That (actual.Length, Is.EqualTo (expected.Length));
 				for (int i = 0; i < expected.Length; i++)
-					Assert.AreEqual (expected[i], actual[i], "Image content differs at index {0}", i);
+					Assert.That (actual[i], Is.EqualTo (expected[i]), $"Image content differs at index {i}");
 			}
 		}
 
@@ -550,7 +550,7 @@ namespace UnitTests {
 
 					var content = Encoding.UTF8.GetString (buffer, 0, n);
 
-					Assert.AreEqual (text, content);
+					Assert.That (content, Is.EqualTo (text));
 				}
 			}
 		}
@@ -582,7 +582,7 @@ namespace UnitTests {
 
 					var content = Encoding.UTF8.GetString (buffer, 0, n);
 
-					Assert.AreEqual (text, content);
+					Assert.That (content, Is.EqualTo (text));
 				}
 			}
 		}
@@ -600,7 +600,7 @@ namespace UnitTests {
 
 				var part = (TextPart) entity;
 
-				Assert.AreEqual (text, part.Text);
+				Assert.That (part.Text, Is.EqualTo (text));
 			}
 		}
 
@@ -617,7 +617,7 @@ namespace UnitTests {
 
 				var part = (TextPart) entity;
 
-				Assert.AreEqual (text, part.Text);
+				Assert.That (part.Text, Is.EqualTo (text));
 			}
 		}
 

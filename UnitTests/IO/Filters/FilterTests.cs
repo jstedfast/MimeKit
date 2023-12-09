@@ -76,7 +76,7 @@ namespace UnitTests.IO.Filters {
 
 					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
 
-					Assert.AreEqual (expected, actual, "From armoring failed when end boundary falls in the middle of From.");
+					Assert.That (actual, Is.EqualTo (expected), "From armoring failed when end boundary falls in the middle of From.");
 				}
 			}
 		}
@@ -107,7 +107,7 @@ namespace UnitTests.IO.Filters {
 
 					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
 
-					Assert.AreEqual (expected, actual, "From armoring failed when end boundary falls in the middle of From.");
+					Assert.That (actual, Is.EqualTo (expected), "From armoring failed when end boundary falls in the middle of From.");
 				}
 			}
 		}
@@ -130,7 +130,7 @@ namespace UnitTests.IO.Filters {
 					var buffer = Encoding.UTF8.GetBytes (ascii);
 					ContentEncoding encoding;
 
-					Assert.IsFalse (filtered.CanTimeout, "CanTimeout");
+					Assert.That (filtered.CanTimeout, Is.False, "CanTimeout");
 					Assert.Throws<InvalidOperationException> (() => { var x = filtered.ReadTimeout; });
 					Assert.Throws<InvalidOperationException> (() => { var x = filtered.WriteTimeout; });
 					Assert.Throws<InvalidOperationException> (() => filtered.ReadTimeout = 50);
@@ -146,21 +146,21 @@ namespace UnitTests.IO.Filters {
 
 					filtered.Add (filter);
 
-					Assert.IsTrue (filtered.Contains (filter), "Contains");
+					Assert.That (filtered.Contains (filter), Is.True, "Contains");
 
 					filtered.Write (buffer, 0, buffer.Length);
 					filtered.Flush ();
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "ASCII 7bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.SevenBit), "ASCII 7bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
-					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "ASCII 8bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.SevenBit), "ASCII 8bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.None);
-					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "ASCII no constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.SevenBit), "ASCII no constraint.");
 
-					Assert.IsTrue (filtered.Remove (filter), "Remove");
+					Assert.That (filtered.Remove (filter), Is.True, "Remove");
 				}
 			}
 
@@ -184,13 +184,13 @@ namespace UnitTests.IO.Filters {
 					filtered.Flush ();
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "From-line 7bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "From-line 7bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "From-line 8bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "From-line 8bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.None);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "From-line no constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "From-line no constraint.");
 				}
 			}
 
@@ -209,13 +209,13 @@ namespace UnitTests.IO.Filters {
 					filtered.Flush ();
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "French 7bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "French 7bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
-					Assert.AreEqual (ContentEncoding.EightBit, encoding, "French 8bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.EightBit), "French 8bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.None);
-					Assert.AreEqual (ContentEncoding.EightBit, encoding, "French no constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.EightBit), "French no constraint.");
 
 					filter.Reset ();
 
@@ -224,13 +224,13 @@ namespace UnitTests.IO.Filters {
 					filtered.Flush ();
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "French (long lines) 7bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "French (long lines) 7bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.EightBit);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "French (long lines) 8bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "French (long lines) 8bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.None);
-					Assert.AreEqual (ContentEncoding.QuotedPrintable, encoding, "French (long lines) no constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "French (long lines) no constraint.");
 				}
 			}
 
@@ -248,13 +248,13 @@ namespace UnitTests.IO.Filters {
 					filtered.Flush ();
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.SevenBit, 78);
-					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "78-character line; 7bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.SevenBit), "78-character line; 7bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.EightBit, 78);
-					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "78-character line; 8bit constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.SevenBit), "78-character line; 8bit constraint.");
 
 					encoding = filter.GetBestEncoding (EncodingConstraint.None, 78);
-					Assert.AreEqual (ContentEncoding.SevenBit, encoding, "78-character line; no constraint.");
+					Assert.That (encoding, Is.EqualTo (ContentEncoding.SevenBit), "78-character line; no constraint.");
 				}
 			}
 		}
@@ -266,13 +266,13 @@ namespace UnitTests.IO.Filters {
 			int outputIndex, outputLength;
 			var buffer = new byte[10];
 
-			Assert.AreEqual (buffer, filter.Filter (buffer, 1, buffer.Length - 2, out outputIndex, out outputLength));
-			Assert.AreEqual (1, outputIndex, "outputIndex");
-			Assert.AreEqual (buffer.Length - 2, outputLength, "outputLength");
+			Assert.That (filter.Filter (buffer, 1, buffer.Length - 2, out outputIndex, out outputLength), Is.EqualTo (buffer));
+			Assert.That (outputIndex, Is.EqualTo (1), "outputIndex");
+			Assert.That (outputLength, Is.EqualTo (buffer.Length - 2), "outputLength");
 
-			Assert.AreEqual (buffer, filter.Flush (buffer, 1, buffer.Length - 2, out outputIndex, out outputLength));
-			Assert.AreEqual (1, outputIndex, "outputIndex");
-			Assert.AreEqual (buffer.Length - 2, outputLength, "outputLength");
+			Assert.That (filter.Flush (buffer, 1, buffer.Length - 2, out outputIndex, out outputLength), Is.EqualTo (buffer));
+			Assert.That (outputIndex, Is.EqualTo (1), "outputIndex");
+			Assert.That (outputLength, Is.EqualTo (buffer.Length - 2), "outputLength");
 
 			filter.Reset ();
 		}
@@ -314,7 +314,7 @@ namespace UnitTests.IO.Filters {
 					// Note: this Flush() should do nothing but test a code-path
 					filtered.Flush ();
 
-					Assert.AreEqual (expected.Length, length, "iso-8859-15 length");
+					Assert.That (length, Is.EqualTo (expected.Length), "iso-8859-15 length");
 				}
 			}
 
@@ -335,7 +335,7 @@ namespace UnitTests.IO.Filters {
 					// Note: this Flush() should do nothing but test a code-path
 					filtered.Flush ();
 
-					Assert.AreEqual (expected.Length, length, "iso-8859-1 length");
+					Assert.That (length, Is.EqualTo (expected.Length), "iso-8859-1 length");
 				}
 			}
 		}
@@ -359,7 +359,7 @@ namespace UnitTests.IO.Filters {
 
 					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
 
-					Assert.AreEqual (expected, actual, "increment of {0} failed.", increment);
+					Assert.That (actual, Is.EqualTo (expected), $"increment of {increment} failed.");
 				}
 			}
 		}

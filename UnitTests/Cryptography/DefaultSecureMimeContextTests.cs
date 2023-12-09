@@ -131,7 +131,7 @@ namespace UnitTests.Cryptography {
 					foreach (var certificate in certificates) {
 						var record = database.Find (certificate, X509CertificateRecordFields.Id);
 
-						Assert.IsNotNull (record, "Find");
+						Assert.That (record, Is.Not.Null, "Find");
 
 						database.Remove (record);
 					}
@@ -156,10 +156,10 @@ namespace UnitTests.Cryptography {
 					ctx.Import (certificate);
 
 					// Check that the certificate exists in the context
-					Assert.IsTrue (ctx.CanSign (mailbox), "CanSign(MailboxAddress)");
-					Assert.IsTrue (ctx.CanEncrypt (mailbox), "CanEncrypt(MailboxAddress)");
-					Assert.IsTrue (ctx.CanSign (secure), "CanSign(SecureMailboxAddress)");
-					Assert.IsTrue (ctx.CanEncrypt (secure), "CanEncrypt(SecureMailboxAddress)");
+					Assert.That (ctx.CanSign (mailbox), Is.True, "CanSign(MailboxAddress)");
+					Assert.That (ctx.CanEncrypt (mailbox), Is.True, "CanEncrypt(MailboxAddress)");
+					Assert.That (ctx.CanSign (secure), Is.True, "CanSign(SecureMailboxAddress)");
+					Assert.That (ctx.CanEncrypt (secure), Is.True, "CanEncrypt(SecureMailboxAddress)");
 				}
 			} finally {
 				if (File.Exists ("smime.db"))
@@ -181,10 +181,10 @@ namespace UnitTests.Cryptography {
 					await ctx.ImportAsync (certificate);
 
 					// Check that the certificate exists in the context
-					Assert.IsTrue (await ctx.CanSignAsync (mailbox), "CanSign(MailboxAddress)");
-					Assert.IsTrue (await ctx.CanEncryptAsync (mailbox), "CanEncrypt(MailboxAddress)");
-					Assert.IsTrue (await ctx.CanSignAsync (secure), "CanSign(SecureMailboxAddress)");
-					Assert.IsTrue (await ctx.CanEncryptAsync (secure), "CanEncrypt(SecureMailboxAddress)");
+					Assert.That (await ctx.CanSignAsync (mailbox), Is.True, "CanSign(MailboxAddress)");
+					Assert.That (await ctx.CanEncryptAsync (mailbox), Is.True, "CanEncrypt(MailboxAddress)");
+					Assert.That (await ctx.CanSignAsync (secure), Is.True, "CanSign(SecureMailboxAddress)");
+					Assert.That (await ctx.CanEncryptAsync (secure), Is.True, "CanEncrypt(SecureMailboxAddress)");
 				}
 			} finally {
 				if (File.Exists ("smime.db"))

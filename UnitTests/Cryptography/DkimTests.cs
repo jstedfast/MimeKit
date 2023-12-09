@@ -116,14 +116,14 @@ namespace UnitTests.Cryptography {
 			DkimSigner signer;
 
 			signer = new DkimSigner (DkimKeys.Private, "example.com", "1433868189.example");
-			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #1");
+			Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #1");
 
 			signer = new DkimSigner (path, "example.com", "1433868189.example");
-			Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #2");
+			Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #2");
 
 			using (var stream = File.OpenRead (path)) {
 				signer = new DkimSigner (stream, "example.com", "1433868189.example");
-				Assert.AreEqual (DkimSignatureAlgorithm.RsaSha256, signer.SignatureAlgorithm, "SignatureAlgorithm #3");
+				Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #3");
 			}
 		}
 
@@ -132,9 +132,9 @@ namespace UnitTests.Cryptography {
 		{
 			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
 
-			Assert.AreEqual (1024, verifier.MinimumRsaKeyLength, "MinimumRsaKeyLength");
-			Assert.IsFalse (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "rsa-sha1");
-			Assert.IsTrue (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha256), "rsa-sha256");
+			Assert.That (verifier.MinimumRsaKeyLength, Is.EqualTo (1024), "MinimumRsaKeyLength");
+			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), Is.False, "rsa-sha1");
+			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha256), Is.True, "rsa-sha256");
 		}
 
 		[Test]
@@ -142,13 +142,13 @@ namespace UnitTests.Cryptography {
 		{
 			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
 
-			Assert.IsFalse (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "initial value");
+			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), Is.False, "initial value");
 
 			verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
-			Assert.IsTrue (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "rsa-sha1 enabled");
+			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), Is.True, "rsa-sha1 enabled");
 
 			verifier.Disable (DkimSignatureAlgorithm.RsaSha1);
-			Assert.IsFalse (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), "rsa-sha1 disabled");
+			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), Is.False, "rsa-sha1 disabled");
 		}
 
 		[Test]
@@ -157,10 +157,10 @@ namespace UnitTests.Cryptography {
 			var buffer = new byte[128];
 
 			using (var stream = new DkimHashStream (DkimSignatureAlgorithm.RsaSha1)) {
-				Assert.IsFalse (stream.CanRead);
-				Assert.IsTrue (stream.CanWrite);
-				Assert.IsFalse (stream.CanSeek);
-				Assert.IsFalse (stream.CanTimeout);
+				Assert.That (stream.CanRead, Is.False);
+				Assert.That (stream.CanWrite, Is.True);
+				Assert.That (stream.CanSeek, Is.False);
+				Assert.That (stream.CanTimeout, Is.False);
 
 				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
 
@@ -168,8 +168,8 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
 
-				Assert.AreEqual (0, stream.Position);
-				Assert.AreEqual (0, stream.Length);
+				Assert.That (stream.Position, Is.EqualTo (0));
+				Assert.That (stream.Length, Is.EqualTo (0));
 
 				Assert.Throws<NotSupportedException> (() => stream.Position = 64);
 
@@ -189,10 +189,10 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new DkimSignatureStream (null));
 
 			using (var stream = new DkimSignatureStream (signer.CreateSigningContext ())) {
-				Assert.IsFalse (stream.CanRead);
-				Assert.IsTrue (stream.CanWrite);
-				Assert.IsFalse (stream.CanSeek);
-				Assert.IsFalse (stream.CanTimeout);
+				Assert.That (stream.CanRead, Is.False);
+				Assert.That (stream.CanWrite, Is.True);
+				Assert.That (stream.CanSeek, Is.False);
+				Assert.That (stream.CanTimeout, Is.False);
 
 				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
 
@@ -200,8 +200,8 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
 				Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
 
-				Assert.AreEqual (0, stream.Position);
-				Assert.AreEqual (0, stream.Length);
+				Assert.That (stream.Position, Is.EqualTo (0));
+				Assert.That (stream.Length, Is.EqualTo (0));
 
 				Assert.Throws<NotSupportedException> (() => stream.Position = 64);
 
@@ -250,11 +250,11 @@ namespace UnitTests.Cryptography {
 					expiration =  long.Parse (param.Substring (3));
 				}
 			}
-			
-			Assert.NotNull (timestamp, "Timestamp should not be null.");
-			Assert.NotNull (expiration, "Signature expiration should not be null.");
+
+			Assert.That (timestamp, Is.Not.Null, "Timestamp should not be null.");
+			Assert.That (expiration, Is.Not.Null, "Signature expiration should not be null.");
 			var diff = expiration - timestamp;
-			Assert.AreEqual (TimeSpan.FromDays(1).TotalSeconds, diff, "Difference between timestamp and signature expiration should have expected value.");
+			Assert.That (diff, Is.EqualTo (TimeSpan.FromDays(1).TotalSeconds), "Difference between timestamp and signature expiration should have expected value.");
 		}
 
 		static void VerifyDkimBodyHash (MimeMessage message, DkimSignatureAlgorithm algorithm, string expectedHash)
@@ -272,7 +272,7 @@ namespace UnitTests.Cryptography {
 				}
 			}
 
-			Assert.AreEqual (expectedHash, hash, "The {0} hash does not match the expected value.", algorithm.ToString ().ToUpperInvariant ().Substring (3));
+			Assert.That (hash, Is.EqualTo (expectedHash), $"The {algorithm.ToString ().ToUpperInvariant ().Substring (3)} hash does not match the expected value.");
 		}
 
 		static void TestEmptyBody (DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm, string expectedHash)
@@ -298,13 +298,13 @@ namespace UnitTests.Cryptography {
 			var dkim = message.Headers[0];
 
 			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
-				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+				Assert.That (verifier.Verify (message, dkim), Is.False, "DKIM-Signature using rsa-sha1 should not verify.");
 
 				// now enable rsa-sha1 to verify again, this time it should pass...
 				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
 			}
 
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
+			Assert.That (verifier.Verify (message, dkim), Is.True, "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
@@ -486,13 +486,13 @@ namespace UnitTests.Cryptography {
 			VerifyDkimBodyHash (message, signatureAlgorithm, expectedHash);
 
 			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
-				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+				Assert.That (verifier.Verify (message, dkim), Is.False, "DKIM-Signature using rsa-sha1 should not verify.");
 
 				// now enable rsa-sha1 to verify again, this time it should pass...
 				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
 			}
 
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
+			Assert.That (verifier.Verify (message, dkim), Is.True, "Failed to verify DKIM-Signature.");
 		}
 
 		[Test]
@@ -527,7 +527,7 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
+			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -538,7 +538,7 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -549,7 +549,7 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
+			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -560,7 +560,7 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -571,7 +571,7 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify GMail signature.");
+			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -582,7 +582,7 @@ namespace UnitTests.Cryptography {
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
 
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify GMail signature.");
+			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
 
 		[Test]
@@ -606,7 +606,7 @@ namespace UnitTests.Cryptography {
 			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
 			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify ed25519-sha256");
+			Assert.That (verifier.Verify (message, dkim), Is.True, "Failed to verify ed25519-sha256");
 		}
 
 		[Test]
@@ -622,11 +622,11 @@ namespace UnitTests.Cryptography {
 
 			// the last DKIM-Signature uses rsa-sha256
 			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify rsa-sha256");
+			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify rsa-sha256");
 
 			// the first DKIM-Signature uses ed25519-sha256
 			index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (verifier.Verify (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify ed25519-sha256");
 		}
 
 		[Test]
@@ -642,11 +642,11 @@ namespace UnitTests.Cryptography {
 
 			// the last DKIM-Signature uses rsa-sha256
 			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify rsa-sha256");
+			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify rsa-sha256");
 
 			// the first DKIM-Signature uses ed25519-sha256
 			index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			Assert.IsTrue (await verifier.VerifyAsync (message, message.Headers[index]), "Failed to verify ed25519-sha256");
+			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify ed25519-sha256");
 		}
 
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
@@ -660,13 +660,13 @@ namespace UnitTests.Cryptography {
 			var dkim = message.Headers[0];
 
 			if (signatureAlgorithm == DkimSignatureAlgorithm.RsaSha1) {
-				Assert.IsFalse (verifier.Verify (message, dkim), "DKIM-Signature using rsa-sha1 should not verify.");
+				Assert.That (verifier.Verify (message, dkim), Is.False, "DKIM-Signature using rsa-sha1 should not verify.");
 
 				// now enable rsa-sha1 to verify again, this time it should pass...
 				verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
 			}
 
-			Assert.IsTrue (verifier.Verify (message, dkim), "Failed to verify DKIM-Signature.");
+			Assert.That (verifier.Verify (message, dkim), Is.True, "Failed to verify DKIM-Signature.");
 
 			message.Headers.RemoveAt (0);
 		}

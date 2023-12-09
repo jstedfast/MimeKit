@@ -40,10 +40,10 @@ namespace UnitTests.IO {
 			var buffer = new byte[1024];
 
 			using (var filtered = new FilteredStream (new CanReadWriteSeekStream (true, false, false, false))) {
-				Assert.IsTrue (filtered.CanRead);
-				Assert.IsFalse (filtered.CanWrite);
-				Assert.IsFalse (filtered.CanSeek);
-				Assert.IsFalse (filtered.CanTimeout);
+				Assert.That (filtered.CanRead, Is.True);
+				Assert.That (filtered.CanWrite, Is.False);
+				Assert.That (filtered.CanSeek, Is.False);
+				Assert.That (filtered.CanTimeout, Is.False);
 
 				Assert.Throws<NotImplementedException> (() => filtered.Read (buffer, 0, buffer.Length));
 				Assert.Throws<NotSupportedException> (() => filtered.Write (buffer, 0, buffer.Length));
@@ -51,10 +51,10 @@ namespace UnitTests.IO {
 			}
 
 			using (var filtered = new FilteredStream (new CanReadWriteSeekStream (false, true, false, false))) {
-				Assert.IsFalse (filtered.CanRead);
-				Assert.IsTrue (filtered.CanWrite);
-				Assert.IsFalse (filtered.CanSeek);
-				Assert.IsFalse (filtered.CanTimeout);
+				Assert.That (filtered.CanRead, Is.False);
+				Assert.That (filtered.CanWrite, Is.True);
+				Assert.That (filtered.CanSeek, Is.False);
+				Assert.That (filtered.CanTimeout, Is.False);
 
 				Assert.Throws<NotSupportedException> (() => filtered.Read (buffer, 0, buffer.Length));
 				Assert.Throws<NotImplementedException> (() => filtered.Write (buffer, 0, buffer.Length));
@@ -62,10 +62,10 @@ namespace UnitTests.IO {
 			}
 
 			using (var filtered = new FilteredStream (new CanReadWriteSeekStream (false, false, true, false))) {
-				Assert.IsFalse (filtered.CanRead);
-				Assert.IsFalse (filtered.CanWrite);
-				Assert.IsFalse (filtered.CanSeek);  // FilteredStream can never seek
-				Assert.IsFalse (filtered.CanTimeout);
+				Assert.That (filtered.CanRead, Is.False);
+				Assert.That (filtered.CanWrite, Is.False);
+				Assert.That (filtered.CanSeek, Is.False);  // FilteredStream can never seek
+				Assert.That (filtered.CanTimeout, Is.False);
 
 				Assert.Throws<NotSupportedException> (() => filtered.Read (buffer, 0, buffer.Length));
 				Assert.Throws<NotSupportedException> (() => filtered.Write (buffer, 0, buffer.Length));
@@ -77,14 +77,14 @@ namespace UnitTests.IO {
 		public void TestGetSetTimeouts ()
 		{
 			using (var filtered = new FilteredStream (new TimeoutStream ())) {
-				Assert.AreEqual (0, filtered.ReadTimeout);
-				Assert.AreEqual (0, filtered.WriteTimeout);
+				Assert.That (filtered.ReadTimeout, Is.EqualTo (0));
+				Assert.That (filtered.WriteTimeout, Is.EqualTo (0));
 
 				filtered.ReadTimeout = 10;
-				Assert.AreEqual (10, filtered.ReadTimeout);
+				Assert.That (filtered.ReadTimeout, Is.EqualTo (10));
 
 				filtered.WriteTimeout = 100;
-				Assert.AreEqual (100, filtered.WriteTimeout);
+				Assert.That (filtered.WriteTimeout, Is.EqualTo (100));
 			}
 		}
 
@@ -107,10 +107,10 @@ namespace UnitTests.IO {
 					var buf1 = decoded.GetBuffer ();
 					int n = (int) original.Length;
 
-					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
+					Assert.That (decoded.Length, Is.EqualTo (original.Length), "Decoded length is incorrect.");
 
 					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
 				}
 			}
 		}
@@ -134,10 +134,10 @@ namespace UnitTests.IO {
 					var buf1 = decoded.GetBuffer ();
 					int n = (int) original.Length;
 
-					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
+					Assert.That (decoded.Length, Is.EqualTo (original.Length), "Decoded length is incorrect.");
 
 					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
 				}
 			}
 		}
@@ -162,10 +162,10 @@ namespace UnitTests.IO {
 					var buf1 = decoded.GetBuffer ();
 					int n = (int) original.Length;
 
-					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
+					Assert.That (decoded.Length, Is.EqualTo (original.Length), "Decoded length is incorrect.");
 
 					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
 				}
 			}
 		}
@@ -190,10 +190,10 @@ namespace UnitTests.IO {
 					var buf1 = decoded.GetBuffer ();
 					int n = (int) original.Length;
 
-					Assert.AreEqual (original.Length, decoded.Length, "Decoded length is incorrect.");
+					Assert.That (decoded.Length, Is.EqualTo (original.Length), "Decoded length is incorrect.");
 
 					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
 				}
 			}
 		}

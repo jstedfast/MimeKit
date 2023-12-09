@@ -69,42 +69,42 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestParseCodePage ()
 		{
-			Assert.AreEqual (1201, CharsetUtils.ParseCodePage ("iso10646"));
-			Assert.AreEqual (1201, CharsetUtils.ParseCodePage ("iso-10646"));
-			Assert.AreEqual (1201, CharsetUtils.ParseCodePage ("iso10646-1"));
-			Assert.AreEqual (1201, CharsetUtils.ParseCodePage ("iso-10646-1"));
+			Assert.That (CharsetUtils.ParseCodePage ("iso10646"), Is.EqualTo (1201));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-10646"), Is.EqualTo (1201));
+			Assert.That (CharsetUtils.ParseCodePage ("iso10646-1"), Is.EqualTo (1201));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-10646-1"), Is.EqualTo (1201));
 
-			Assert.AreEqual (28591, CharsetUtils.ParseCodePage ("iso8859-1"));
-			Assert.AreEqual (28591, CharsetUtils.ParseCodePage ("iso8859_1"));
-			Assert.AreEqual (28591, CharsetUtils.ParseCodePage ("iso-8859-1"));
-			Assert.AreEqual (28591, CharsetUtils.ParseCodePage ("iso_8859_1"));
-			Assert.AreEqual (28591, CharsetUtils.ParseCodePage ("latin1"));
+			Assert.That (CharsetUtils.ParseCodePage ("iso8859-1"), Is.EqualTo (28591));
+			Assert.That (CharsetUtils.ParseCodePage ("iso8859_1"), Is.EqualTo (28591));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-8859-1"), Is.EqualTo (28591));
+			Assert.That (CharsetUtils.ParseCodePage ("iso_8859_1"), Is.EqualTo (28591));
+			Assert.That (CharsetUtils.ParseCodePage ("latin1"), Is.EqualTo (28591));
 
-			Assert.AreEqual (50220, CharsetUtils.ParseCodePage ("iso2022-jp"));
-			Assert.AreEqual (50220, CharsetUtils.ParseCodePage ("iso-2022-jp"));
-			Assert.AreEqual (50220, CharsetUtils.ParseCodePage ("iso_2022_jp"));
-			Assert.AreEqual (50225, CharsetUtils.ParseCodePage ("iso2022-kr"));
-			Assert.AreEqual (50225, CharsetUtils.ParseCodePage ("iso-2022-kr"));
-			Assert.AreEqual (50225, CharsetUtils.ParseCodePage ("iso_2022_kr"));
+			Assert.That (CharsetUtils.ParseCodePage ("iso2022-jp"), Is.EqualTo (50220));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-2022-jp"), Is.EqualTo (50220));
+			Assert.That (CharsetUtils.ParseCodePage ("iso_2022_jp"), Is.EqualTo (50220));
+			Assert.That (CharsetUtils.ParseCodePage ("iso2022-kr"), Is.EqualTo (50225));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-2022-kr"), Is.EqualTo (50225));
+			Assert.That (CharsetUtils.ParseCodePage ("iso_2022_kr"), Is.EqualTo (50225));
 
-			Assert.AreEqual (1252, CharsetUtils.ParseCodePage ("windows-cp1252"));
-			Assert.AreEqual (1252, CharsetUtils.ParseCodePage ("windows-1252"));
-			Assert.AreEqual (1252, CharsetUtils.ParseCodePage ("cp-1252"));
-			Assert.AreEqual (1252, CharsetUtils.ParseCodePage ("cp1252"));
+			Assert.That (CharsetUtils.ParseCodePage ("windows-cp1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("windows-1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("cp-1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("cp1252"), Is.EqualTo (1252));
 
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("cp"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("ibm"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("windows"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("windows-"));
+			Assert.That (CharsetUtils.ParseCodePage ("cp"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("ibm"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("windows"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("windows-"), Is.EqualTo (-1));
 
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-8859"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-BB59"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-8859-"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-8859-A"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-2022-US"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-4999-1"));
-			Assert.AreEqual (-1, CharsetUtils.ParseCodePage ("iso-abcd-1"));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-8859"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-BB59"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-8859-"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-8859-A"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-2022-US"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-4999-1"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("iso-abcd-1"), Is.EqualTo (-1));
 		}
 
 		[Test]
@@ -119,10 +119,10 @@ namespace UnitTests.Utils {
 			var input = gb2312.GetBytes (expected);
 
 			var actual = CharsetUtils.ConvertToUnicode (options, input, 0, input.Length);
-			Assert.AreEqual (expected, actual, "ConvertToUnicode(ParserOptions,byte[],int,int)");
+			Assert.That (actual, Is.EqualTo (expected), "ConvertToUnicode(ParserOptions,byte[],int,int)");
 
 			actual = CharsetUtils.ConvertToUnicode (gb2312, input, 0, input.Length);
-			Assert.AreEqual (expected, actual, "ConvertToUnicode(Encoding,byte[],int,int)");
+			Assert.That (actual, Is.EqualTo (expected), "ConvertToUnicode(Encoding,byte[],int,int)");
 		}
 
 		[Test]
@@ -130,14 +130,14 @@ namespace UnitTests.Utils {
 		{
 			Encoding encoding;
 
-			Assert.AreEqual ("iso-8859-1", CharsetUtils.GetMimeCharset ("latin1"));
-			Assert.AreEqual ("iso-8859-1", CharsetUtils.GetMimeCharset (CharsetUtils.Latin1));
-			Assert.AreEqual ("gibberish", CharsetUtils.GetMimeCharset ("gibberish"));
+			Assert.That (CharsetUtils.GetMimeCharset ("latin1"), Is.EqualTo ("iso-8859-1"));
+			Assert.That (CharsetUtils.GetMimeCharset (CharsetUtils.Latin1), Is.EqualTo ("iso-8859-1"));
+			Assert.That (CharsetUtils.GetMimeCharset ("gibberish"), Is.EqualTo ("gibberish"));
 
-			Assert.AreEqual ("shift_jis", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (932)));
-			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50220)));
-			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50221)));
-			Assert.AreEqual ("iso-2022-jp", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50222)));
+			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (932)), Is.EqualTo ("shift_jis"));
+			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50220)), Is.EqualTo ("iso-2022-jp"));
+			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50221)), Is.EqualTo ("iso-2022-jp"));
+			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (50222)), Is.EqualTo ("iso-2022-jp"));
 
 			try {
 				encoding = Encoding.GetEncoding (50225);
@@ -146,9 +146,9 @@ namespace UnitTests.Utils {
 			}
 
 			if (encoding != null)
-				Assert.AreEqual ("euc-kr", CharsetUtils.GetMimeCharset (encoding));
+				Assert.That (CharsetUtils.GetMimeCharset (encoding), Is.EqualTo ("euc-kr"));
 
-			Assert.AreEqual ("euc-kr", CharsetUtils.GetMimeCharset (Encoding.GetEncoding (949)));
+			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (949)), Is.EqualTo ("euc-kr"));
 		}
 	}
 }

@@ -217,30 +217,30 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentOutOfRangeException> (() => new ApplicationPkcs7Mime (SecureMimeType.Unknown, stream));
 
 				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.AuthEnvelopedData, stream);
-				Assert.AreEqual ("authenveloped-data", pkcs7.ContentType.Parameters["smime-type"]);
-				Assert.AreEqual (SecureMimeType.AuthEnvelopedData, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.ContentType.Parameters["smime-type"], Is.EqualTo ("authenveloped-data"));
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.AuthEnvelopedData));
 
 				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, stream);
-				Assert.AreEqual ("enveloped-data", pkcs7.ContentType.Parameters["smime-type"]);
-				Assert.AreEqual (SecureMimeType.EnvelopedData, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.ContentType.Parameters["smime-type"], Is.EqualTo ("enveloped-data"));
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData));
 
 				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.CompressedData, stream);
-				Assert.AreEqual ("compressed-data", pkcs7.ContentType.Parameters["smime-type"]);
-				Assert.AreEqual (SecureMimeType.CompressedData, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.ContentType.Parameters["smime-type"], Is.EqualTo ("compressed-data"));
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.CompressedData));
 
 				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.SignedData, stream);
-				Assert.AreEqual ("signed-data", pkcs7.ContentType.Parameters["smime-type"]);
-				Assert.AreEqual (SecureMimeType.SignedData, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.ContentType.Parameters["smime-type"], Is.EqualTo ("signed-data"));
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData));
 
 				pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, stream);
-				Assert.AreEqual ("certs-only", pkcs7.ContentType.Parameters["smime-type"]);
-				Assert.AreEqual (SecureMimeType.CertsOnly, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.ContentType.Parameters["smime-type"], Is.EqualTo ("certs-only"));
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.CertsOnly));
 
 				pkcs7.ContentType.Parameters["smime-type"] = "x-unknown-data";
-				Assert.AreEqual (SecureMimeType.Unknown, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.Unknown));
 
 				pkcs7.ContentType.Parameters.Remove ("smime-type");
-				Assert.AreEqual (SecureMimeType.Unknown, pkcs7.SecureMimeType);
+				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.Unknown));
 			}
 		}
 
@@ -409,13 +409,13 @@ namespace UnitTests.Cryptography {
 				decrypted = encrypted.Decrypt (ctx);
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted from Encrypt(mailboxes, entity)");
 				text = (TextPart) decrypted;
-				Assert.AreEqual (entity.Text, text.Text, "Decrypted text");
+				Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
 				encrypted = ApplicationPkcs7Mime.Encrypt (ctx, mailboxes, entity);
 				decrypted = encrypted.Decrypt (ctx);
 				Assert.IsInstanceOf<TextPart> (decrypted, "Encrypt(ctx, mailboxes, entity)");
 				text = (TextPart) decrypted;
-				Assert.AreEqual (entity.Text, text.Text, "Decrypted text");
+				Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 			}
 		}
 
@@ -438,13 +438,13 @@ namespace UnitTests.Cryptography {
 				decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted from EncryptAsync(mailboxes, entity)");
 				text = (TextPart) decrypted;
-				Assert.AreEqual (entity.Text, text.Text, "Decrypted text");
+				Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
 				encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
 				decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 				Assert.IsInstanceOf<TextPart> (decrypted, "EncryptAsync(ctx, mailboxes, entity)");
 				text = (TextPart) decrypted;
-				Assert.AreEqual (entity.Text, text.Text, "Decrypted text");
+				Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 			}
 		}
 
@@ -453,28 +453,28 @@ namespace UnitTests.Cryptography {
 			var signatures = signed.Verify (ctx, out var encapsulated);
 
 			Assert.IsInstanceOf<TextPart> (encapsulated, "TextPart");
-			Assert.AreEqual (entity.Text, ((TextPart) encapsulated).Text, "Text");
+			Assert.That (((TextPart) encapsulated).Text, Is.EqualTo (entity.Text), "Text");
 
-			Assert.AreEqual (1, signatures.Count, "Signature count");
+			Assert.That (signatures.Count, Is.EqualTo (1), "Signature count");
 
 			var signature = signatures[0];
 
-			Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
-			Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitCreationDate, signature.SignerCertificate.CreationDate, "CreationDate");
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitExpirationDate, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
-			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
-			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.PublicKeyAlgorithm);
+			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+			Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
+			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (SecureMimeTestsBase.MimeKitFingerprint));
+			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (SecureMimeTestsBase.MimeKitCreationDate), "CreationDate");
+			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (SecureMimeTestsBase.MimeKitExpirationDate), "ExpirationDate");
+			Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
+			Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
 
 			try {
 				bool valid = signature.Verify ();
 
-				Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 			} catch (DigitalSignatureVerifyException ex) {
 				if (ctx is WindowsSecureMimeContext) {
 					// AppVeyor gets an exception about the root certificate not being trusted
-					Assert.AreEqual (SecureMimeTestsBase.UntrustedRootCertificateMessage, ex.InnerException.Message);
+					Assert.That (ex.InnerException.Message, Is.EqualTo (SecureMimeTestsBase.UntrustedRootCertificateMessage));
 				} else {
 					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
@@ -483,9 +483,9 @@ namespace UnitTests.Cryptography {
 			var algorithms = GetEncryptionAlgorithms (signature);
 			int i = 0;
 
-			Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-			Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-			Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 		}
 
 		[Test]
@@ -553,35 +553,35 @@ namespace UnitTests.Cryptography {
 			Assert.IsInstanceOf<MultipartSigned> (decrypted, "MultipartSigned");
 
 			var signed = (MultipartSigned) decrypted;
-			Assert.AreEqual (2, signed.Count, "MultipartSigned count");
+			Assert.That (signed.Count, Is.EqualTo (2), "MultipartSigned count");
 
 			var encapsulated = signed[0];
 
 			var signatures = signed.Verify (ctx);
 
 			Assert.IsInstanceOf<TextPart> (encapsulated, "TextPart");
-			Assert.AreEqual (entity.Text, ((TextPart) encapsulated).Text, "Text");
+			Assert.That (((TextPart) encapsulated).Text, Is.EqualTo (entity.Text), "Text");
 
-			Assert.AreEqual (1, signatures.Count, "Signature count");
+			Assert.That (signatures.Count, Is.EqualTo (1), "Signature count");
 
 			var signature = signatures[0];
 
-			Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
-			Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitCreationDate, signature.SignerCertificate.CreationDate, "CreationDate");
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitExpirationDate, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
-			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
-			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.PublicKeyAlgorithm);
+			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+			Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
+			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (SecureMimeTestsBase.MimeKitFingerprint));
+			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (SecureMimeTestsBase.MimeKitCreationDate), "CreationDate");
+			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (SecureMimeTestsBase.MimeKitExpirationDate), "ExpirationDate");
+			Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
+			Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
 
 			try {
 				bool valid = signature.Verify ();
 
-				Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 			} catch (DigitalSignatureVerifyException ex) {
 				if (ctx is WindowsSecureMimeContext) {
 					// AppVeyor gets an exception about the root certificate not being trusted
-					Assert.AreEqual (SecureMimeTestsBase.UntrustedRootCertificateMessage, ex.InnerException.Message);
+					Assert.That (ex.InnerException.Message, Is.EqualTo (SecureMimeTestsBase.UntrustedRootCertificateMessage));
 				} else {
 					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
@@ -590,9 +590,9 @@ namespace UnitTests.Cryptography {
 			var algorithms = GetEncryptionAlgorithms (signature);
 			int i = 0;
 
-			Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-			Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-			Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 		}
 
 		async Task AssertSignAndEncryptResultsAsync (SecureMimeContext ctx, ApplicationPkcs7Mime encrypted, TextPart entity)
@@ -602,35 +602,35 @@ namespace UnitTests.Cryptography {
 			Assert.IsInstanceOf<MultipartSigned> (decrypted, "MultipartSigned");
 
 			var signed = (MultipartSigned) decrypted;
-			Assert.AreEqual (2, signed.Count, "MultipartSigned count");
+			Assert.That (signed.Count, Is.EqualTo (2), "MultipartSigned count");
 
 			var encapsulated = signed[0];
 
 			var signatures = await signed.VerifyAsync (ctx).ConfigureAwait (false);
 
 			Assert.IsInstanceOf<TextPart> (encapsulated, "TextPart");
-			Assert.AreEqual (entity.Text, ((TextPart) encapsulated).Text, "Text");
+			Assert.That (((TextPart) encapsulated).Text, Is.EqualTo (entity.Text), "Text");
 
-			Assert.AreEqual (1, signatures.Count, "Signature count");
+			Assert.That (signatures.Count, Is.EqualTo (1), "Signature count");
 
 			var signature = signatures[0];
 
-			Assert.AreEqual ("MimeKit UnitTests", signature.SignerCertificate.Name);
-			Assert.AreEqual ("mimekit@example.com", signature.SignerCertificate.Email);
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitFingerprint, signature.SignerCertificate.Fingerprint.ToLowerInvariant ());
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitCreationDate, signature.SignerCertificate.CreationDate, "CreationDate");
-			Assert.AreEqual (SecureMimeTestsBase.MimeKitExpirationDate, signature.SignerCertificate.ExpirationDate, "ExpirationDate");
-			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.SignerCertificate.PublicKeyAlgorithm);
-			Assert.AreEqual (PublicKeyAlgorithm.RsaGeneral, signature.PublicKeyAlgorithm);
+			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+			Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
+			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (SecureMimeTestsBase.MimeKitFingerprint));
+			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (SecureMimeTestsBase.MimeKitCreationDate), "CreationDate");
+			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (SecureMimeTestsBase.MimeKitExpirationDate), "ExpirationDate");
+			Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
+			Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
 
 			try {
 				bool valid = signature.Verify ();
 
-				Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
+				Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 			} catch (DigitalSignatureVerifyException ex) {
 				if (ctx is WindowsSecureMimeContext) {
 					// AppVeyor gets an exception about the root certificate not being trusted
-					Assert.AreEqual (SecureMimeTestsBase.UntrustedRootCertificateMessage, ex.InnerException.Message);
+					Assert.That (ex.InnerException.Message, Is.EqualTo (SecureMimeTestsBase.UntrustedRootCertificateMessage));
 				} else {
 					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
@@ -639,9 +639,9 @@ namespace UnitTests.Cryptography {
 			var algorithms = GetEncryptionAlgorithms (signature);
 			int i = 0;
 
-			Assert.AreEqual (EncryptionAlgorithm.Aes256, algorithms[i++], "Expected AES-256 capability");
-			Assert.AreEqual (EncryptionAlgorithm.Aes192, algorithms[i++], "Expected AES-192 capability");
-			Assert.AreEqual (EncryptionAlgorithm.Aes128, algorithms[i++], "Expected AES-128 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 		}
 
 		[Test]

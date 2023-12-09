@@ -46,7 +46,7 @@ namespace UnitTests.Cryptography {
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 
 			filter.Reset ();
 		}
@@ -65,7 +65,7 @@ namespace UnitTests.Cryptography {
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 
 			filter.Reset ();
 		}
@@ -84,7 +84,7 @@ namespace UnitTests.Cryptography {
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 
 			filter.Reset ();
 		}
@@ -103,7 +103,7 @@ namespace UnitTests.Cryptography {
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 			actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 
 			filter.Reset ();
 		}

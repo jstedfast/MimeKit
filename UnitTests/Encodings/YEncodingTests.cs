@@ -61,8 +61,8 @@ namespace UnitTests.Encodings {
 
 					decoded.Position = 0;
 
-					Assert.AreEqual (584, decoded.Length, "The decoded size does not match.");
-					Assert.AreEqual (0xded29f4f, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match.");
+					Assert.That (decoded.Length, Is.EqualTo (584), "The decoded size does not match.");
+					Assert.That (ydec.Checksum ^ 0xffffffff, Is.EqualTo (0xded29f4f), "The decoded checksum does not match.");
 
 					// now re-encode it
 					using (var encoded = new MemoryStream ()) {
@@ -81,7 +81,7 @@ namespace UnitTests.Encodings {
 
 						encoded.Write (yend, 0, yend.Length);
 
-						Assert.AreEqual (0xded29f4f, yenc.Checksum ^ 0xffffffff, "The encoded checksum does not match.");
+						Assert.That (yenc.Checksum ^ 0xffffffff, Is.EqualTo (0xded29f4f), "The encoded checksum does not match.");
 
 						using (var original = new MemoryStream ()) {
 							using (var filtered = new FilteredStream (original)) {
@@ -100,7 +100,7 @@ namespace UnitTests.Encodings {
 
 							var actual = latin1.GetString (buf, 0, (int) encoded.Length);
 
-							Assert.AreEqual (expected, actual, "Encoded value does not match original.");
+							Assert.That (actual, Is.EqualTo (expected), "Encoded value does not match original.");
 						}
 					}
 				}
@@ -122,8 +122,8 @@ namespace UnitTests.Encodings {
 						filtered.Flush ();
 					}
 
-					Assert.AreEqual (11250, decoded.Length, "The decoded size does not match (part 1).");
-					Assert.AreEqual (0xbfae5c0b, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match (part 1).");
+					Assert.That (decoded.Length, Is.EqualTo (11250), "The decoded size does not match (part 1).");
+					Assert.That (ydec.Checksum ^ 0xffffffff, Is.EqualTo (0xbfae5c0b), "The decoded checksum does not match (part 1).");
 				}
 
 				using (var file = File.OpenRead (Path.Combine (DataDir, "00000021.ntx"))) {
@@ -135,14 +135,14 @@ namespace UnitTests.Encodings {
 						filtered.Flush ();
 					}
 
-					Assert.AreEqual (19338, decoded.Length, "The decoded size does not match (part 2).");
-					Assert.AreEqual (0xaca76043, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match (part 2).");
+					Assert.That (decoded.Length, Is.EqualTo (19338), "The decoded size does not match (part 2).");
+					Assert.That (ydec.Checksum ^ 0xffffffff, Is.EqualTo (0xaca76043), "The decoded checksum does not match (part 2).");
 				}
 
 				var actual = decoded.GetBuffer ();
 
 				for (int i = 0; i < expected.Length; i++)
-					Assert.AreEqual (expected[i], actual[i], "different content at index {0}", i);
+					Assert.That (actual[i], Is.EqualTo (expected[i]), $"different content at index {i}");
 			}
 		}
 
@@ -159,8 +159,8 @@ namespace UnitTests.Encodings {
 						filtered.Flush ();
 					}
 
-					Assert.AreEqual (584, decoded.Length, "The decoded size does not match.");
-					Assert.AreEqual (0xded29f4f, ydec.Checksum ^ 0xffffffff, "The decoded checksum does not match.");
+					Assert.That (decoded.Length, Is.EqualTo (584), "The decoded size does not match.");
+					Assert.That (ydec.Checksum ^ 0xffffffff, Is.EqualTo (0xded29f4f), "The decoded checksum does not match.");
 				}
 			}
 		}
@@ -203,7 +203,7 @@ namespace UnitTests.Encodings {
 				int n = ydec.Decode (input, 0, input.Length, decoded);
 				var actual = Encoding.ASCII.GetString (decoded, 0, n);
 
-				Assert.AreEqual (expected, actual, YPartTransitionInputs[i]);
+				Assert.That (actual, Is.EqualTo (expected), YPartTransitionInputs[i]);
 
 				ydec.Reset ();
 			}

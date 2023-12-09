@@ -112,7 +112,7 @@ namespace UnitTests.Text {
 			const string markup = "special characters should not get encoded: &lt;&gt;";
 			const string style = "font: arial; color: red";
 
-			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Default));
 
 			// make sure we can't start by writing an attribute since we are in the wrong state
 			Assert.Throws<InvalidOperationException> (() => html.WriteAttribute (new HtmlAttribute (HtmlAttributeId.Action, "invalid state")));
@@ -121,74 +121,74 @@ namespace UnitTests.Text {
 
 			// write a tag
 			html.WriteStartTag (HtmlTagId.Html);
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			// *now* we should be able to write an attribute
 			html.WriteAttribute (new HtmlAttribute ("ltr", "true"));
 
 			// write en empty element tag, this should change the state to Default
 			html.WriteEmptyElementTag (HtmlTagId.Head);
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteStartTag ("body");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteStartTag (HtmlTagId.P);
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			// make sure that we can't write an attribute value yet
 			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeValue ("attrValue"));
 			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeValue ("attrValue".ToCharArray (), 0, 9));
 
 			html.WriteAttributeName (HtmlAttributeId.Class);
-			Assert.AreEqual (HtmlWriterState.Attribute, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Attribute));
 
 			html.WriteAttributeValue ("paragraph");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteAttributeName ("style");
-			Assert.AreEqual (HtmlWriterState.Attribute, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Attribute));
 
 			html.WriteAttributeValue (style.ToCharArray (), 0, style.Length);
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteAttribute (HtmlAttributeId.Align, "left");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteText (text);
-			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Default));
 
 			html.WriteText (format, 1, "apple");
-			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Default));
 
 			html.WriteEmptyElementTag ("br");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 			html.WriteEmptyElementTag ("br");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteEndTag ("p");
-			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Default));
 
 			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeName ("style"));
 			Assert.Throws<InvalidOperationException> (() => html.WriteAttributeName (HtmlAttributeId.Style));
 
 			html.WriteStartTag ("p");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteAttribute (HtmlAttributeId.Class, "paragraph".ToCharArray (), 0, "paragraph".Length);
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteAttribute ("style", style.ToCharArray (), 0, style.Length);
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteAttribute ("align", "left");
-			Assert.AreEqual (HtmlWriterState.Tag, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Tag));
 
 			html.WriteMarkupText (markup);
-			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Default));
 
 			html.WriteEndTag (HtmlTagId.P);
-			Assert.AreEqual (HtmlWriterState.Default, html.WriterState);
+			Assert.That (html.WriterState, Is.EqualTo (HtmlWriterState.Default));
 
 			html.WriteStartTag (HtmlTagId.P);
 			html.WriteEndTag (HtmlTagId.P);
@@ -225,7 +225,7 @@ namespace UnitTests.Text {
 				throw new NotImplementedException ();
 			}
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]

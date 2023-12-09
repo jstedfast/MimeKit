@@ -94,7 +94,7 @@ namespace UnitTests.Cryptography {
 					}
 				}
 
-				Assert.IsTrue (trustedAnchor, "Did not find the MimeKit UnitTests trusted anchor");
+				Assert.That (trustedAnchor, Is.True, "Did not find the MimeKit UnitTests trusted anchor");
 			}
 		}
 
@@ -110,7 +110,7 @@ namespace UnitTests.Cryptography {
 					}
 				}
 
-				Assert.IsTrue (found, "Did not find the expected certificate");
+				Assert.That (found, Is.True, "Did not find the expected certificate");
 			}
 		}
 

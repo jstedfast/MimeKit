@@ -63,12 +63,12 @@ namespace UnitTests {
 		{
 			var param = new Parameter ("name", "value");
 
-			Assert.AreEqual (Encoding.UTF8.HeaderName, param.Encoding.HeaderName);
-			Assert.AreEqual (ParameterEncodingMethod.Default, param.EncodingMethod);
-			Assert.IsFalse (param.AlwaysQuote);
-			Assert.AreEqual ("name", param.Name);
-			Assert.AreEqual ("value", param.Value);
-			Assert.AreEqual ("name=\"value\"", param.ToString ());
+			Assert.That (param.Encoding.HeaderName, Is.EqualTo (Encoding.UTF8.HeaderName));
+			Assert.That (param.EncodingMethod, Is.EqualTo (ParameterEncodingMethod.Default));
+			Assert.That (param.AlwaysQuote, Is.False);
+			Assert.That (param.Name, Is.EqualTo ("name"));
+			Assert.That (param.Value, Is.EqualTo ("value"));
+			Assert.That (param.ToString (), Is.EqualTo ("name=\"value\""));
 		}
 
 		[Test]
@@ -85,7 +85,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment; filename=tps-report.doc", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=tps-report.doc"));
 		}
 
 		[Test]
@@ -102,7 +102,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment; filename=\"tps-report.doc\"", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"tps-report.doc\""));
 		}
 
 		[Test]
@@ -119,7 +119,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment; filename=\"tps-report.doc\"", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"tps-report.doc\""));
 		}
 
 		[Test]
@@ -136,7 +136,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\"", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\""));
 		}
 
 		[Test]
@@ -152,8 +152,8 @@ namespace UnitTests {
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
-			
-			Assert.AreEqual ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\"", builder.ToString ());
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\""));
 		}
 
 		[Test]
@@ -170,7 +170,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc"));
 		}
 
 		[Test]
@@ -187,7 +187,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC.doc"));
 		}
 
 		[Test]
@@ -205,13 +205,14 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment; filename*=utf-8''tps%07-%08report.doc", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename*=utf-8''tps%07-%08report.doc"));
 		}
 
 #if false
 		[Test]
 		public void TestEncodeLongValueWithControlCharacters ()
 		{
+			const string expected = "Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%07%08ig-%08um%08le-%08ee-flew-over-the-kitty%27s-he%07d-;\r\n\tfilename*1*=%07nd-then-l%07nded-on-the-pretty-flower.doc";
 			var builder = new StringBuilder ("Content-Disposition: attachment");
 			var param = new Parameter ("filename", "\a\big-\bum\ble-\bee-flew-over-the-kitty's-he\ad-\and-then-l\anded-on-the-pretty-flower.doc");
 			var options = FormatOptions.Default.Clone ();
@@ -223,7 +224,7 @@ namespace UnitTests {
 
 			param.Encode (options, builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%07%08ig-%08um%08le-%08ee-flew-over-the-kitty%27s-he%07d-;\r\n\tfilename*1*=%07nd-then-l%07nded-on-the-pretty-flower.doc", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo (expected));
 		}
 #endif
 
@@ -242,7 +243,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment; filename=\"测试文本.doc\"", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"测试文本.doc\""));
 		}
 
 		[Test]
@@ -260,7 +261,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.AreEqual ("Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC%E6%B5%8B%E8%AF%95;\r\n\tfilename*1=\"文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc\"", builder.ToString ());
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC%E6%B5%8B%E8%AF%95;\r\n\tfilename*1=\"文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc\""));
 		}
 	}
 }

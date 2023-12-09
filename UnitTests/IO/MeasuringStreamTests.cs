@@ -38,10 +38,10 @@ namespace UnitTests.IO {
 			var buffer = new byte[1024];
 
 			using (var block = new MeasuringStream ()) {
-				Assert.IsFalse (block.CanRead);
-				Assert.IsTrue (block.CanWrite);
-				Assert.IsTrue (block.CanSeek);
-				Assert.IsFalse (block.CanTimeout);
+				Assert.That (block.CanRead, Is.False);
+				Assert.That (block.CanWrite, Is.True);
+				Assert.That (block.CanSeek, Is.True);
+				Assert.That (block.CanTimeout, Is.False);
 			}
 		}
 
@@ -68,7 +68,7 @@ namespace UnitTests.IO {
 				stream.Write (buffer, 0, buffer.Length);
 				stream.Flush ();
 
-				Assert.AreEqual (buffer.Length, stream.Length);
+				Assert.That (stream.Length, Is.EqualTo (buffer.Length));
 			}
 		}
 
@@ -83,7 +83,7 @@ namespace UnitTests.IO {
 				await stream.WriteAsync (buffer, 0, buffer.Length);
 				await stream.FlushAsync ();
 
-				Assert.AreEqual (buffer.Length, stream.Length);
+				Assert.That (stream.Length, Is.EqualTo (buffer.Length));
 			}
 		}
 
@@ -101,8 +101,8 @@ namespace UnitTests.IO {
 					long actual = stream.Position;
 					long expected = offset;
 
-					Assert.AreEqual (expected, actual, "SeekOrigin.Begin");
-					Assert.AreEqual (expected, stream.Position, "Position");
+					Assert.That (actual, Is.EqualTo (expected), "SeekOrigin.Begin");
+					Assert.That (stream.Position, Is.EqualTo (expected), "Position");
 
 					if (offset > 0) {
 						// seek backwards from current position
@@ -111,8 +111,8 @@ namespace UnitTests.IO {
 
 						actual = stream.Seek (offset, SeekOrigin.Current);
 
-						Assert.AreEqual (expected, actual, "SeekOrigin.Current (-)");
-						Assert.AreEqual (expected, stream.Position, "Position");
+						Assert.That (actual, Is.EqualTo (expected), "SeekOrigin.Current (-)");
+						Assert.That (stream.Position, Is.EqualTo (expected), "Position");
 					}
 
 					if (actual < stream.Length) {
@@ -122,8 +122,8 @@ namespace UnitTests.IO {
 
 						actual = stream.Seek (offset, SeekOrigin.Current);
 
-						Assert.AreEqual (expected, actual, "SeekOrigin.Current (+)");
-						Assert.AreEqual (expected, stream.Position, "Position");
+						Assert.That (actual, Is.EqualTo (expected), "SeekOrigin.Current (+)");
+						Assert.That (stream.Position, Is.EqualTo (expected), "Position");
 					}
 
 					// seek backwards from the end of the stream
@@ -132,8 +132,8 @@ namespace UnitTests.IO {
 
 					actual = stream.Seek (offset, SeekOrigin.End);
 
-					Assert.AreEqual (expected, actual, "SeekOrigin.End");
-					Assert.AreEqual (expected, stream.Position, "Position");
+					Assert.That (actual, Is.EqualTo (expected), "SeekOrigin.End");
+					Assert.That (stream.Position, Is.EqualTo (expected), "Position");
 				}
 
 				Assert.Throws<IOException> (() => stream.Seek (-1, SeekOrigin.Begin));
@@ -148,7 +148,7 @@ namespace UnitTests.IO {
 
 				stream.SetLength (1024);
 
-				Assert.AreEqual (1024, stream.Length);
+				Assert.That (stream.Length, Is.EqualTo (1024));
 			}
 		}
 	}

@@ -40,10 +40,10 @@ namespace UnitTests.Tnef {
 					var buffer = new byte[1024];
 
 					using (var tnef = new TnefReaderStream (reader, 0, 0)) {
-						Assert.IsTrue (tnef.CanRead);
-						Assert.IsFalse (tnef.CanWrite);
-						Assert.IsFalse (tnef.CanSeek);
-						Assert.IsFalse (tnef.CanTimeout);
+						Assert.That (tnef.CanRead, Is.True);
+						Assert.That (tnef.CanWrite, Is.False);
+						Assert.That (tnef.CanSeek, Is.False);
+						Assert.That (tnef.CanTimeout, Is.False);
 
 						Assert.Throws<ArgumentNullException> (() => tnef.Read (null, 0, buffer.Length));
 						Assert.Throws<ArgumentOutOfRangeException> (() => tnef.Read (buffer, -1, buffer.Length));

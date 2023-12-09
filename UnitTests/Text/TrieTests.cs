@@ -87,11 +87,11 @@ namespace UnitTests.Text {
 				int index = trie.Search (TestCases[i].ToCharArray (), out pattern);
 				string substr;
 
-				Assert.IsTrue (index != -1, "Search failed for {0}", TestCases[i]);
+				Assert.That (index != -1, Is.True, $"Search failed for {TestCases[i]}");
 
 				substr = TestCases[i].Substring (index);
 
-				Assert.IsTrue (substr.StartsWith (pattern, StringComparison.OrdinalIgnoreCase), "Search returned wrong index for {0}", TestCases[i]);
+				Assert.That (substr.StartsWith (pattern, StringComparison.OrdinalIgnoreCase), Is.True, $"Search returned wrong index for {TestCases[i]}");
 			}
 		}
 	}

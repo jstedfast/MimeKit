@@ -33,14 +33,14 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestToHtmlTagId ()
 		{
-			Assert.AreEqual (HtmlTagId.Unknown, "".ToHtmlTagId (), "string.Empty");
-			Assert.AreEqual (HtmlTagId.Comment, "!".ToHtmlTagId (), "!");
-			Assert.AreEqual (HtmlTagId.Comment, "!blah".ToHtmlTagId (), "!blah");
-			Assert.AreEqual (HtmlTagId.A, "a".ToHtmlTagId (), "a");
-			Assert.AreEqual (HtmlTagId.A, "A".ToHtmlTagId (), "A");
-			Assert.AreEqual (HtmlTagId.Font, "font".ToHtmlTagId (), "font");
-			Assert.AreEqual (HtmlTagId.Font, "FONT".ToHtmlTagId (), "FONT");
-			Assert.AreEqual (HtmlTagId.Font, "FoNt".ToHtmlTagId (), "FoNt");
+			Assert.That ("".ToHtmlTagId (), Is.EqualTo (HtmlTagId.Unknown), "string.Empty");
+			Assert.That ("!".ToHtmlTagId (), Is.EqualTo (HtmlTagId.Comment), "!");
+			Assert.That ("!blah".ToHtmlTagId (), Is.EqualTo (HtmlTagId.Comment), "!blah");
+			Assert.That ("a".ToHtmlTagId (), Is.EqualTo (HtmlTagId.A), "a");
+			Assert.That ("A".ToHtmlTagId (), Is.EqualTo (HtmlTagId.A), "A");
+			Assert.That ("font".ToHtmlTagId (), Is.EqualTo (HtmlTagId.Font), "font");
+			Assert.That ("FONT".ToHtmlTagId (), Is.EqualTo (HtmlTagId.Font), "FONT");
+			Assert.That ("FoNt".ToHtmlTagId (), Is.EqualTo (HtmlTagId.Font), "FoNt");
 
 			HtmlTagId parsed;
 			string name;
@@ -52,11 +52,11 @@ namespace UnitTests.Text {
 				name = value.ToHtmlTagName ().ToUpperInvariant ();
 				parsed = name.ToHtmlTagId ();
 
-				Assert.AreEqual (value, parsed, "Failed to parse the HtmlTagId value for {0}", value);
+				Assert.That (parsed, Is.EqualTo (value), $"Failed to parse the HtmlTagId value for {value}");
 			}
 
 			name = ((HtmlTagId) 1024).ToHtmlTagName ();
-			Assert.AreEqual ("1024", name, "ToHtmlTagName() for unknown value");
+			Assert.That (name, Is.EqualTo ("1024"), "ToHtmlTagName() for unknown value");
 		}
 
 		[Test]
@@ -67,10 +67,10 @@ namespace UnitTests.Text {
 			foreach (var element in formattingElements) {
 				var tag = element.ToHtmlTagId ();
 
-				Assert.IsTrue (tag.IsFormattingElement (), element);
+				Assert.That (tag.IsFormattingElement (), Is.True, element);
 			}
 
-			Assert.IsFalse ("body".ToHtmlTagId ().IsFormattingElement (), "body");
+			Assert.That ("body".ToHtmlTagId ().IsFormattingElement (), Is.False, "body");
 		}
 
 		[Test]
@@ -81,10 +81,10 @@ namespace UnitTests.Text {
 			foreach (var element in emptyElements) {
 				var tag = element.ToHtmlTagId ();
 
-				Assert.IsTrue (tag.IsEmptyElement (), element);
+				Assert.That (tag.IsEmptyElement (), Is.True, element);
 			}
 
-			Assert.IsFalse ("body".ToHtmlTagId ().IsEmptyElement (), "body");
+			Assert.That ("body".ToHtmlTagId ().IsEmptyElement (), Is.False, "body");
 		}
 	}
 }

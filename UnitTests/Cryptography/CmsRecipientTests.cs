@@ -44,8 +44,8 @@ namespace UnitTests.Cryptography {
 
 			var recipients = new CmsRecipientCollection ();
 
-			Assert.AreEqual (0, recipients.Count);
-			Assert.IsFalse (recipients.IsReadOnly);
+			Assert.That (recipients.Count, Is.EqualTo (0));
+			Assert.That (recipients.IsReadOnly, Is.False);
 			Assert.Throws<ArgumentNullException> (() => recipients.Add (null));
 			Assert.Throws<ArgumentNullException> (() => recipients.Contains (null));
 			Assert.Throws<ArgumentNullException> (() => recipients.CopyTo (null, 0));
@@ -56,11 +56,11 @@ namespace UnitTests.Cryptography {
 
 		static void AssertDefaultValues (CmsRecipient recipient, X509Certificate certificate)
 		{
-			Assert.AreEqual (certificate, recipient.Certificate, "Certificate");
-			Assert.AreEqual (1, recipient.EncryptionAlgorithms.Length, "EncryptionAlgorithms");
-			Assert.AreEqual (EncryptionAlgorithm.TripleDes, recipient.EncryptionAlgorithms[0], "EncryptionAlgorithm");
-			Assert.AreEqual (SubjectIdentifierType.IssuerAndSerialNumber, recipient.RecipientIdentifierType, "RecipientIdentifierType");
-			Assert.IsNull (recipient.RsaEncryptionPadding, "RsaEncryptionPadding");
+			Assert.That (recipient.Certificate, Is.EqualTo (certificate), "Certificate");
+			Assert.That (recipient.EncryptionAlgorithms.Length, Is.EqualTo (1), "EncryptionAlgorithms");
+			Assert.That (recipient.EncryptionAlgorithms[0], Is.EqualTo (EncryptionAlgorithm.TripleDes), "EncryptionAlgorithm");
+			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.IssuerAndSerialNumber), "RecipientIdentifierType");
+			Assert.That (recipient.RsaEncryptionPadding, Is.Null, "RsaEncryptionPadding");
 		}
 
 		[Test]
@@ -93,17 +93,17 @@ namespace UnitTests.Cryptography {
 			var recipient = new CmsRecipient (path, SubjectIdentifierType.SubjectKeyIdentifier);
 			var certificate = recipient.Certificate;
 
-			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
 
 			using (var stream = File.OpenRead (path))
 				recipient = new CmsRecipient (stream, SubjectIdentifierType.SubjectKeyIdentifier);
-			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
 
 			recipient = new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier);
-			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
 
 			recipient = new CmsRecipient (new X509Certificate2 (File.ReadAllBytes (path)), SubjectIdentifierType.SubjectKeyIdentifier);
-			Assert.AreEqual (SubjectIdentifierType.SubjectKeyIdentifier, recipient.RecipientIdentifierType);
+			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
 		}
 
 		[Test]
@@ -114,20 +114,20 @@ namespace UnitTests.Cryptography {
 			var recipient = new CmsRecipient (path);
 			var array = new CmsRecipient[1];
 
-			Assert.IsFalse (recipients.Contains (recipient), "Contains: False");
-			Assert.IsFalse (recipients.Remove (recipient), "Remove: False");
+			Assert.That (recipients.Contains (recipient), Is.False, "Contains: False");
+			Assert.That (recipients.Remove (recipient), Is.False, "Remove: False");
 
 			recipients.Add (recipient);
 
-			Assert.AreEqual (1, recipients.Count, "Count");
-			Assert.IsTrue (recipients.Contains (recipient), "Contains: True");
+			Assert.That (recipients.Count, Is.EqualTo (1), "Count");
+			Assert.That (recipients.Contains (recipient), Is.True, "Contains: True");
 
 			recipients.CopyTo (array, 0);
-			Assert.AreEqual (recipient, array[0], "CopyTo");
+			Assert.That (array[0], Is.EqualTo (recipient), "CopyTo");
 
-			Assert.IsTrue (recipients.Remove (recipient), "Remove: True");
+			Assert.That (recipients.Remove (recipient), Is.True, "Remove: True");
 
-			Assert.AreEqual (0, recipients.Count, "Count");
+			Assert.That (recipients.Count, Is.EqualTo (0), "Count");
 
 			recipients.Clear ();
 		}

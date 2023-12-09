@@ -70,15 +70,15 @@ namespace UnitTests {
 
 			DateUtils.TryParse (timestamp, out var date);
 
-			Assert.AreEqual (1, msg.From.Count, "Wrong count in From");
-			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msg.From[0].ToString(), "Wrong value in From[0]");
-			Assert.AreEqual (1, msg.To.Count, "Wrong count in To");
-			Assert.AreEqual ("jeff@xamarin.com", msg.To[0].ToString(), "Wrong value in To[0]");
-			Assert.AreEqual (2, msg.Cc.Count, 2, "Wrong count in Cc");
-			Assert.AreEqual ("fog@dndg.it", msg.Cc[0].ToString(), "Wrong value in Cc[0]");
-			Assert.AreEqual ("gg@dndg.it", msg.Cc[1].ToString(), "Wrong value in Cc[1]");
-			Assert.AreEqual ("Hello", msg.Subject, "Wrong value in Subject");
-			Assert.AreEqual (date, msg.Date, "Date");
+			Assert.That (msg.From.Count, Is.EqualTo (1), "Wrong count in From");
+			Assert.That (msg.From[0].ToString(), Is.EqualTo ("\"Federico Di Gregorio\" <fog@dndg.it>"), "Wrong value in From[0]");
+			Assert.That (msg.To.Count, Is.EqualTo (1), "Wrong count in To");
+			Assert.That (msg.To[0].ToString(), Is.EqualTo ("jeff@xamarin.com"), "Wrong value in To[0]");
+			Assert.That (msg.Cc.Count, Is.EqualTo (2).Within (2), "Wrong count in Cc");
+			Assert.That (msg.Cc[0].ToString(), Is.EqualTo ("fog@dndg.it"), "Wrong value in Cc[0]");
+			Assert.That (msg.Cc[1].ToString(), Is.EqualTo ("gg@dndg.it"), "Wrong value in Cc[1]");
+			Assert.That (msg.Subject, Is.EqualTo ("Hello"), "Wrong value in Subject");
+			Assert.That (msg.Date, Is.EqualTo (date), "Date");
 		}
 
 		[Test]
@@ -93,11 +93,11 @@ namespace UnitTests {
 				new TextPart ("plain", "Just a short message to say hello!")
 			)).ToList();
 
-			Assert.AreEqual (2, msgs.Count, "Message count is wrong");
-			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msgs[0].From[0].ToString(), "Wrong value in From[0], message 1");
-			Assert.AreEqual ("\"Federico Di Gregorio\" <fog@dndg.it>", msgs[1].From[0].ToString(), "Wrong value in From[0], message 2");
-			Assert.AreEqual ("jeff@xamarin.com", msgs[0].To[0].ToString(), "Wrong value in To[0], message 1");
-			Assert.AreEqual ("gg@dndg.it", msgs[1].To[0].ToString(), "Wrong value in To[0], message 2");
+			Assert.That (msgs.Count, Is.EqualTo (2), "Message count is wrong");
+			Assert.That (msgs[0].From[0].ToString(), Is.EqualTo ("\"Federico Di Gregorio\" <fog@dndg.it>"), "Wrong value in From[0], message 1");
+			Assert.That (msgs[1].From[0].ToString(), Is.EqualTo ("\"Federico Di Gregorio\" <fog@dndg.it>"), "Wrong value in From[0], message 2");
+			Assert.That (msgs[0].To[0].ToString(), Is.EqualTo ("jeff@xamarin.com"), "Wrong value in To[0], message 1");
+			Assert.That (msgs[1].To[0].ToString(), Is.EqualTo ("gg@dndg.it"), "Wrong value in To[0], message 2");
 		}
 
 		[Test]
@@ -108,12 +108,11 @@ namespace UnitTests {
 				new TextPart ("html", "<html><head></head><body><strong>Just a short message to say hello!</strong></body></html>")
 			);
 
-			Assert.AreEqual (2, msg.Count, "Parts count is wrong");
-			Assert.AreEqual ("plain", msg[0].ContentType.MediaSubtype, "Parts[0] has wrong media subtype");
-			Assert.AreEqual ("html", msg[1].ContentType.MediaSubtype, "Parts[1] has wrong media subtype");
-			Assert.AreEqual ("Just a short message to say hello!", ((TextPart)msg[0]).Text, "Parts[0] containes wrong text");
-			Assert.AreEqual ("<html><head></head><body><strong>Just a short message to say hello!</strong></body></html>", 
-				((TextPart)msg[1]).Text, "Parts[1] containes wrong text");
+			Assert.That (msg.Count, Is.EqualTo (2), "Parts count is wrong");
+			Assert.That (msg[0].ContentType.MediaSubtype, Is.EqualTo ("plain"), "Parts[0] has wrong media subtype");
+			Assert.That (msg[1].ContentType.MediaSubtype, Is.EqualTo ("html"), "Parts[1] has wrong media subtype");
+			Assert.That (((TextPart)msg[0]).Text, Is.EqualTo ("Just a short message to say hello!"), "Parts[0] containes wrong text");
+			Assert.That (((TextPart)msg[1]).Text, Is.EqualTo ("<html><head></head><body><strong>Just a short message to say hello!</strong></body></html>"), "Parts[1] containes wrong text");
 		}
 
 		[Test]
@@ -130,8 +129,8 @@ namespace UnitTests {
 				new MimeContent (new MemoryStream (data), ContentEncoding.Binary)
 			);
 
-			Assert.AreEqual (checksum, msg.ComputeContentMd5 (), "Content MD5 is wrong");
-			Assert.AreEqual (ContentEncoding.Binary, msg.Content.Encoding, "ContentEncoding is wrong");
+			Assert.That (msg.ComputeContentMd5 (), Is.EqualTo (checksum), "Content MD5 is wrong");
+			Assert.That (msg.Content.Encoding, Is.EqualTo (ContentEncoding.Binary), "ContentEncoding is wrong");
 		}
 
 		[Test]
@@ -148,8 +147,8 @@ namespace UnitTests {
 			msg.Content.DecodeTo (buffer);
 			buffer.Seek (0, SeekOrigin.Begin);
 
-			Assert.AreEqual (ContentEncoding.Default, msg.Content.Encoding, "ContentEncoding is wrong");
-			Assert.AreEqual (data, buffer.ToArray (), "ContentEncoding is wrong");
+			Assert.That (msg.Content.Encoding, Is.EqualTo (ContentEncoding.Default), "ContentEncoding is wrong");
+			Assert.That (buffer.ToArray (), Is.EqualTo (data), "ContentEncoding is wrong");
 		}
 	}
 }

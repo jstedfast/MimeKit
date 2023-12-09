@@ -32,7 +32,7 @@ namespace UnitTests {
 	{
 		static void AssertParseFailure (string text)
 		{
-			Assert.IsFalse (DomainList.TryParse (text, out _), "DomainList.TryParse(string)");
+			Assert.That (DomainList.TryParse (text, out _), Is.False, "DomainList.TryParse(string)");
 		}
 
 		static void AssertParse (string text, DomainList expected)
@@ -40,14 +40,14 @@ namespace UnitTests {
 			DomainList route;
 			int index = 0;
 
-			Assert.IsTrue (DomainList.TryParse (text, out route), "DomainList.TryParse(string)");
-			Assert.IsFalse (route.IsReadOnly, "IsReadOnly");
-			Assert.AreEqual (expected.Count, route.Count, "Count");
+			Assert.That (DomainList.TryParse (text, out route), Is.True, "DomainList.TryParse(string)");
+			Assert.That (route.IsReadOnly, Is.False, "IsReadOnly");
+			Assert.That (route.Count, Is.EqualTo (expected.Count), "Count");
 
 			foreach (var domain in expected) {
-				Assert.AreEqual (index, route.IndexOf (domain), "IndexOf");
-				Assert.IsTrue (route.Contains (domain), "Contains");
-				Assert.AreEqual (expected[index], route[index]);
+				Assert.That (route.IndexOf (domain), Is.EqualTo (index), "IndexOf");
+				Assert.That (route.Contains (domain), Is.True, "Contains");
+				Assert.That (route[index], Is.EqualTo (expected[index]));
 				index++;
 			}
 		}
@@ -75,51 +75,51 @@ namespace UnitTests {
 		{
 			var list = new DomainList ();
 
-			Assert.IsFalse (list.IsReadOnly);
-			Assert.AreEqual (0, list.Count, "Initial count");
+			Assert.That (list.IsReadOnly, Is.False);
+			Assert.That (list.Count, Is.EqualTo (0), "Initial count");
 
 			list.Add ("domain2");
 
-			Assert.AreEqual (1, list.Count);
-			Assert.AreEqual ("domain2", list[0]);
+			Assert.That (list.Count, Is.EqualTo (1));
+			Assert.That (list[0], Is.EqualTo ("domain2"));
 
 			list.Insert (0, "domain0");
 			list.Insert (1, "domain1");
 
-			Assert.AreEqual (3, list.Count);
-			Assert.AreEqual ("domain0", list[0]);
-			Assert.AreEqual ("domain1", list[1]);
-			Assert.AreEqual ("domain2", list[2]);
+			Assert.That (list.Count, Is.EqualTo (3));
+			Assert.That (list[0], Is.EqualTo ("domain0"));
+			Assert.That (list[1], Is.EqualTo ("domain1"));
+			Assert.That (list[2], Is.EqualTo ("domain2"));
 
-			Assert.IsTrue (list.Contains ("domain1"), "Contains");
-			Assert.AreEqual (1, list.IndexOf ("domain1"), "IndexOf");
+			Assert.That (list.Contains ("domain1"), Is.True, "Contains");
+			Assert.That (list.IndexOf ("domain1"), Is.EqualTo (1), "IndexOf");
 
 			var array = new string[list.Count];
 			list.CopyTo (array, 0);
 			list.Clear ();
 
-			Assert.AreEqual (0, list.Count);
+			Assert.That (list.Count, Is.EqualTo (0));
 
 			foreach (var domain in array)
 				list.Add (domain);
 
-			Assert.AreEqual (array.Length, list.Count);
+			Assert.That (list.Count, Is.EqualTo (array.Length));
 
-			Assert.IsFalse (list.Remove ("not-in-the-list"));
-			Assert.IsTrue (list.Remove ("domain2"));
-			Assert.AreEqual (2, list.Count);
-			Assert.AreEqual ("domain0", list[0]);
-			Assert.AreEqual ("domain1", list[1]);
+			Assert.That (list.Remove ("not-in-the-list"), Is.False);
+			Assert.That (list.Remove ("domain2"), Is.True);
+			Assert.That (list.Count, Is.EqualTo (2));
+			Assert.That (list[0], Is.EqualTo ("domain0"));
+			Assert.That (list[1], Is.EqualTo ("domain1"));
 
 			list.RemoveAt (0);
 
-			Assert.AreEqual (1, list.Count);
-			Assert.AreEqual ("domain1", list[0]);
+			Assert.That (list.Count, Is.EqualTo (1));
+			Assert.That (list[0], Is.EqualTo ("domain1"));
 
 			list[0] = "domain";
 
-			Assert.AreEqual (1, list.Count);
-			Assert.AreEqual ("domain", list[0]);
+			Assert.That (list.Count, Is.EqualTo (1));
+			Assert.That (list[0], Is.EqualTo ("domain"));
 		}
 
 		[Test]
@@ -175,7 +175,7 @@ namespace UnitTests {
 				"route2"
 			};
 
-			Assert.AreEqual ("@route1,@route2", route.ToString ());
+			Assert.That (route.ToString (), Is.EqualTo ("@route1,@route2"));
 		}
 	}
 }

@@ -42,12 +42,12 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestToHtmlAttributeId ()
 		{
-			Assert.AreEqual (HtmlAttributeId.Unknown, "".ToHtmlAttributeId (), "string.Empty");
-			Assert.AreEqual (HtmlAttributeId.Alt, "alt".ToHtmlAttributeId (), "alt");
-			Assert.AreEqual (HtmlAttributeId.Alt, "Alt".ToHtmlAttributeId (), "Alt");
-			Assert.AreEqual (HtmlAttributeId.Alt, "aLt".ToHtmlAttributeId (), "aLt");
-			Assert.AreEqual (HtmlAttributeId.Alt, "ALT".ToHtmlAttributeId (), "ALT");
-			Assert.AreEqual (HtmlAttributeId.Alt, "AlT".ToHtmlAttributeId (), "AlT");
+			Assert.That ("".ToHtmlAttributeId (), Is.EqualTo (HtmlAttributeId.Unknown), "string.Empty");
+			Assert.That ("alt".ToHtmlAttributeId (), Is.EqualTo (HtmlAttributeId.Alt), "alt");
+			Assert.That ("Alt".ToHtmlAttributeId (), Is.EqualTo (HtmlAttributeId.Alt), "Alt");
+			Assert.That ("aLt".ToHtmlAttributeId (), Is.EqualTo (HtmlAttributeId.Alt), "aLt");
+			Assert.That ("ALT".ToHtmlAttributeId (), Is.EqualTo (HtmlAttributeId.Alt), "ALT");
+			Assert.That ("AlT".ToHtmlAttributeId (), Is.EqualTo (HtmlAttributeId.Alt), "AlT");
 
 			HtmlAttributeId parsed;
 			string name;
@@ -59,11 +59,11 @@ namespace UnitTests.Text {
 				name = value.ToAttributeName ().ToUpperInvariant ();
 				parsed = name.ToHtmlAttributeId ();
 
-				Assert.AreEqual (value, parsed, "Failed to parse the HtmlAttributeId value for {0}", value);
+				Assert.That (parsed, Is.EqualTo (value), $"Failed to parse the HtmlAttributeId value for {value}");
 			}
 
 			name = ((HtmlAttributeId) 1024).ToAttributeName ();
-			Assert.AreEqual ("1024", name, "ToAttributeName() for unknown value");
+			Assert.That (name, Is.EqualTo ("1024"), "ToAttributeName() for unknown value");
 		}
 	}
 }

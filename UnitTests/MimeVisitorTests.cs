@@ -68,7 +68,7 @@ namespace UnitTests {
 
 					if (index != 6 && index != 13 && index != 31) {
 						// message 6, 13 and 31 contain some japanese text that is broken in Mono
-						Assert.AreEqual (expected, actual, "The bodies do not match for message {0}", index);
+						Assert.That (actual, Is.EqualTo (expected), $"The bodies do not match for message {index}");
 					}
 
 					visitor.Reset ();
@@ -277,52 +277,52 @@ namespace UnitTests {
 			var visitor = new MimeVisitorTester ();
 
 			visitor.Visit (message);
-			Assert.AreEqual (1, visitor.ApplicationPgpEncrypted);
-			Assert.AreEqual (1, visitor.ApplicationPgpSignature);
-			Assert.AreEqual (1, visitor.ApplicationPkcs7Mime);
-			Assert.AreEqual (1, visitor.ApplicationPkcs7Signature);
-			Assert.AreEqual (3, visitor.Message);
-			Assert.AreEqual (1, visitor.MessageDeliveryStatus);
-			Assert.AreEqual (1, visitor.MessageDispositionNotification);
-			Assert.AreEqual (3, visitor.MessagePart);
-			Assert.AreEqual (1, visitor.MessagePartial);
-			Assert.AreEqual (22, visitor.MimeEntity);
-			Assert.AreEqual (3, visitor.MimeMessage);
-			Assert.AreEqual (12, visitor.MimePart);
-			Assert.AreEqual (7, visitor.Multipart);
-			Assert.AreEqual (1, visitor.MultipartAlternative);
-			Assert.AreEqual (1, visitor.MultipartEncrypted);
-			Assert.AreEqual (1, visitor.MultipartRelated);
-			Assert.AreEqual (2, visitor.MultipartReport);
-			Assert.AreEqual (1, visitor.MultipartSigned);
-			Assert.AreEqual (2, visitor.TextPart);
-			Assert.AreEqual (1, visitor.TextRfc822Headers);
-			Assert.AreEqual (1, visitor.TnefPart);
+			Assert.That (visitor.ApplicationPgpEncrypted, Is.EqualTo (1));
+			Assert.That (visitor.ApplicationPgpSignature, Is.EqualTo (1));
+			Assert.That (visitor.ApplicationPkcs7Mime, Is.EqualTo (1));
+			Assert.That (visitor.ApplicationPkcs7Signature, Is.EqualTo (1));
+			Assert.That (visitor.Message, Is.EqualTo (3));
+			Assert.That (visitor.MessageDeliveryStatus, Is.EqualTo (1));
+			Assert.That (visitor.MessageDispositionNotification, Is.EqualTo (1));
+			Assert.That (visitor.MessagePart, Is.EqualTo (3));
+			Assert.That (visitor.MessagePartial, Is.EqualTo (1));
+			Assert.That (visitor.MimeEntity, Is.EqualTo (22));
+			Assert.That (visitor.MimeMessage, Is.EqualTo (3));
+			Assert.That (visitor.MimePart, Is.EqualTo (12));
+			Assert.That (visitor.Multipart, Is.EqualTo (7));
+			Assert.That (visitor.MultipartAlternative, Is.EqualTo (1));
+			Assert.That (visitor.MultipartEncrypted, Is.EqualTo (1));
+			Assert.That (visitor.MultipartRelated, Is.EqualTo (1));
+			Assert.That (visitor.MultipartReport, Is.EqualTo (2));
+			Assert.That (visitor.MultipartSigned, Is.EqualTo (1));
+			Assert.That (visitor.TextPart, Is.EqualTo (2));
+			Assert.That (visitor.TextRfc822Headers, Is.EqualTo (1));
+			Assert.That (visitor.TnefPart, Is.EqualTo (1));
 
 			visitor = new MimeVisitorTester ();
 
 			visitor.Visit (message.Body);
-			Assert.AreEqual (1, visitor.ApplicationPgpEncrypted);
-			Assert.AreEqual (1, visitor.ApplicationPgpSignature);
-			Assert.AreEqual (1, visitor.ApplicationPkcs7Mime);
-			Assert.AreEqual (1, visitor.ApplicationPkcs7Signature);
-			Assert.AreEqual (3, visitor.Message);
-			Assert.AreEqual (1, visitor.MessageDeliveryStatus);
-			Assert.AreEqual (1, visitor.MessageDispositionNotification);
-			Assert.AreEqual (3, visitor.MessagePart);
-			Assert.AreEqual (1, visitor.MessagePartial);
-			Assert.AreEqual (22, visitor.MimeEntity);
-			Assert.AreEqual (2, visitor.MimeMessage);
-			Assert.AreEqual (12, visitor.MimePart);
-			Assert.AreEqual (7, visitor.Multipart);
-			Assert.AreEqual (1, visitor.MultipartAlternative);
-			Assert.AreEqual (1, visitor.MultipartEncrypted);
-			Assert.AreEqual (1, visitor.MultipartRelated);
-			Assert.AreEqual (2, visitor.MultipartReport);
-			Assert.AreEqual (1, visitor.MultipartSigned);
-			Assert.AreEqual (2, visitor.TextPart);
-			Assert.AreEqual (1, visitor.TextRfc822Headers);
-			Assert.AreEqual (1, visitor.TnefPart);
+			Assert.That (visitor.ApplicationPgpEncrypted, Is.EqualTo (1));
+			Assert.That (visitor.ApplicationPgpSignature, Is.EqualTo (1));
+			Assert.That (visitor.ApplicationPkcs7Mime, Is.EqualTo (1));
+			Assert.That (visitor.ApplicationPkcs7Signature, Is.EqualTo (1));
+			Assert.That (visitor.Message, Is.EqualTo (3));
+			Assert.That (visitor.MessageDeliveryStatus, Is.EqualTo (1));
+			Assert.That (visitor.MessageDispositionNotification, Is.EqualTo (1));
+			Assert.That (visitor.MessagePart, Is.EqualTo (3));
+			Assert.That (visitor.MessagePartial, Is.EqualTo (1));
+			Assert.That (visitor.MimeEntity, Is.EqualTo (22));
+			Assert.That (visitor.MimeMessage, Is.EqualTo (2));
+			Assert.That (visitor.MimePart, Is.EqualTo (12));
+			Assert.That (visitor.Multipart, Is.EqualTo (7));
+			Assert.That (visitor.MultipartAlternative, Is.EqualTo (1));
+			Assert.That (visitor.MultipartEncrypted, Is.EqualTo (1));
+			Assert.That (visitor.MultipartRelated, Is.EqualTo (1));
+			Assert.That (visitor.MultipartReport, Is.EqualTo (2));
+			Assert.That (visitor.MultipartSigned, Is.EqualTo (1));
+			Assert.That (visitor.TextPart, Is.EqualTo (2));
+			Assert.That (visitor.TextRfc822Headers, Is.EqualTo (1));
+			Assert.That (visitor.TnefPart, Is.EqualTo (1));
 		}
 	}
 }

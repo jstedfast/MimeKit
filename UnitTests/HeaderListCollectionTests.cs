@@ -61,7 +61,7 @@ namespace UnitTests {
 
 			collection.CopyTo (array, 0);
 
-			Assert.AreEqual (collection[0], array[0], "CopyTo results");
+			Assert.That (array[0], Is.EqualTo (collection[0]), "CopyTo results");
 		}
 
 		[Test]
@@ -72,8 +72,8 @@ namespace UnitTests {
 			};
 			collection[0] = collection[0];
 
-			Assert.IsFalse (collection.Remove (new HeaderList ()), "Remove should fail");
-			Assert.IsTrue (collection.Remove (collection[0]), "Remove should work");
+			Assert.That (collection.Remove (new HeaderList ()), Is.False, "Remove should fail");
+			Assert.That (collection.Remove (collection[0]), Is.True, "Remove should work");
 		}
 
 		[Test]
@@ -91,13 +91,13 @@ namespace UnitTests {
 
 			int index = 0;
 			foreach (var list in collection) {
-				Assert.AreEqual ($"This is HeaderList #{index}", list[HeaderId.Subject]);
+				Assert.That (list[HeaderId.Subject], Is.EqualTo ($"This is HeaderList #{index}"));
 				index++;
 			}
 
 			index = 0;
 			foreach (HeaderList list in ((IEnumerable) collection)) {
-				Assert.AreEqual ($"This is HeaderList #{index}", list[HeaderId.Subject]);
+				Assert.That (list[HeaderId.Subject], Is.EqualTo ($"This is HeaderList #{index}"));
 				index++;
 			}
 		}

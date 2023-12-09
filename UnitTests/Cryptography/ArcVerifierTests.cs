@@ -59,8 +59,8 @@ namespace UnitTests.Cryptography {
 			var header = new Header (HeaderId.ArcMessageSignature, "i=1; a=rsa-sha256; ...");
 			var result = new ArcHeaderValidationResult (header, ArcSignatureValidationResult.Fail);
 
-			Assert.AreEqual (header, result.Header, "Header");
-			Assert.AreEqual (ArcSignatureValidationResult.Fail, result.Signature);
+			Assert.That (result.Header, Is.EqualTo (header), "Header");
+			Assert.That (result.Signature, Is.EqualTo (ArcSignatureValidationResult.Fail));
 		}
 
 		[Test]
@@ -74,14 +74,14 @@ namespace UnitTests.Cryptography {
 
 			var result = new ArcValidationResult (ArcSignatureValidationResult.Pass, ams, new[] { seal });
 
-			Assert.AreEqual (ArcSignatureValidationResult.Pass, result.Chain, "Chain");
-			Assert.IsNotNull (result.MessageSignature, "MessageSignature != null");
-			Assert.AreEqual (HeaderId.ArcMessageSignature, result.MessageSignature.Header.Id, "MessageSignature.Header.Id");
-			Assert.AreEqual (ArcSignatureValidationResult.Pass, result.MessageSignature.Signature, "MessageSignature.Signature");
-			Assert.IsNotNull (result.Seals, "Seals != null");
-			Assert.AreEqual (1, result.Seals.Length, "Seals.Length");
-			Assert.AreEqual (HeaderId.ArcSeal, result.Seals[0].Header.Id, "Seals[0].Header.Id");
-			Assert.AreEqual (ArcSignatureValidationResult.Pass, result.Seals[0].Signature, "Seals[0].Signature");
+			Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Pass), "Chain");
+			Assert.That (result.MessageSignature, Is.Not.Null, "MessageSignature != null");
+			Assert.That (result.MessageSignature.Header.Id, Is.EqualTo (HeaderId.ArcMessageSignature), "MessageSignature.Header.Id");
+			Assert.That (result.MessageSignature.Signature, Is.EqualTo (ArcSignatureValidationResult.Pass), "MessageSignature.Signature");
+			Assert.That (result.Seals, Is.Not.Null, "Seals != null");
+			Assert.That (result.Seals.Length, Is.EqualTo (1), "Seals.Length");
+			Assert.That (result.Seals[0].Header.Id, Is.EqualTo (HeaderId.ArcSeal), "Seals[0].Header.Id");
+			Assert.That (result.Seals[0].Signature, Is.EqualTo (ArcSignatureValidationResult.Pass), "Seals[0].Signature");
 		}
 
 		[Test]
@@ -140,8 +140,8 @@ This is a test message.
 				broken = new Header (HeaderId.ArcAuthenticationResults, "this should be unparsable...");
 				message.Headers[index] = broken;
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Broken AAR");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcAuthenticationResults, errors, "Errors");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Broken AAR");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcAuthenticationResults), "Errors");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -154,8 +154,8 @@ This is a test message.
 				// set an AAR that is missing the instance value
 				broken.Value = aar.Value.Replace ("i=1; ", "");
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "AAR missing i=1");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcAuthenticationResults, errors, "Errors missing i=1");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "AAR missing i=1");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcAuthenticationResults), "Errors missing i=1");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -168,8 +168,8 @@ This is a test message.
 				// set an AAR that has an invalid instance value
 				broken.Value = aar.Value.Replace ("i=1; ", "i=0; ");
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "AAR i=0");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcAuthenticationResults, errors, "Errors i=0");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "AAR i=0");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcAuthenticationResults), "Errors i=0");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -182,8 +182,8 @@ This is a test message.
 				// remove the AAR completely
 				message.Headers.RemoveAt (index);
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Missing AAR");
-				Assert.AreEqual (ArcValidationErrors.MissingArcAuthenticationResults, errors, "Errors removed AAR");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Missing AAR");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.MissingArcAuthenticationResults), "Errors removed AAR");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -251,8 +251,8 @@ This is a test message.
 				broken = new Header (HeaderId.ArcMessageSignature, "this should be unparsable...");
 				message.Headers[index] = broken;
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Broken AMS");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcMessageSignature, errors, "Errors");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Broken AMS");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcMessageSignature), "Errors");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -265,8 +265,8 @@ This is a test message.
 				// set an AMS that is missing the instance value
 				broken.Value = ams.Value.Replace ("i=1; ", "");
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "AMS missing i=1");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcMessageSignature, errors, "Errors missing i=1");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "AMS missing i=1");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcMessageSignature), "Errors missing i=1");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -279,8 +279,8 @@ This is a test message.
 				// set an AMS that has an invalid instance value
 				broken.Value = ams.Value.Replace ("i=1; ", "i=0; ");
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "AMS i=0");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcMessageSignature, errors, "Errors i=0");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "AMS i=0");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcMessageSignature), "Errors i=0");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -293,8 +293,8 @@ This is a test message.
 				// remove the AMS completely
 				message.Headers.RemoveAt (index);
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Missing AMS");
-				Assert.AreEqual (ArcValidationErrors.MissingArcMessageSignature, errors, "Errors removed AMS");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Missing AMS");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.MissingArcMessageSignature), "Errors removed AMS");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -362,8 +362,8 @@ This is a test message.
 				broken = new Header (HeaderId.ArcSeal, "this should be unparsable...");
 				message.Headers[index] = broken;
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Broken AS");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcSeal, errors, "Errors");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Broken AS");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcSeal), "Errors");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -376,8 +376,8 @@ This is a test message.
 				// set an AS that is missing the instance value
 				broken.Value = seal.Value.Replace ("i=1; ", "");
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "AS missing i=1");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcSeal, errors, "Errors missing i=1");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "AS missing i=1");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcSeal), "Errors missing i=1");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -390,8 +390,8 @@ This is a test message.
 				// set an AS that has an invalid instance value
 				broken.Value = seal.Value.Replace ("i=1; ", "i=0; ");
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "AS i=0");
-				Assert.AreEqual (ArcValidationErrors.InvalidArcSeal, errors, "Errors i=0");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "AS i=0");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.InvalidArcSeal), "Errors i=0");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -404,8 +404,8 @@ This is a test message.
 				// remove the AS completely
 				message.Headers.RemoveAt (index);
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Missing AS");
-				Assert.AreEqual (ArcValidationErrors.MissingArcSeal, errors, "Errors removed AS");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Missing AS");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.MissingArcSeal), "Errors removed AS");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -491,8 +491,8 @@ This is a test message.
 				index = message.Headers.LastIndexOf (HeaderId.ArcAuthenticationResults);
 				message.Headers.RemoveAt (index);
 
-				Assert.AreEqual (ArcSignatureValidationResult.Fail, ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), "Missing set");
-				Assert.AreEqual (ArcValidationErrors.MissingArcAuthenticationResults | ArcValidationErrors.MissingArcMessageSignature | ArcValidationErrors.MissingArcSeal, errors, "Errors");
+				Assert.That (ArcVerifier.GetArcHeaderSets (message, false, out sets, out count, out errors), Is.EqualTo (ArcSignatureValidationResult.Fail), "Missing set");
+				Assert.That (errors, Is.EqualTo (ArcValidationErrors.MissingArcAuthenticationResults | ArcValidationErrors.MissingArcMessageSignature | ArcValidationErrors.MissingArcSeal), "Errors");
 
 				try {
 					ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors);
@@ -507,7 +507,7 @@ This is a test message.
 		static void Validate (string description, string input, DkimPublicKeyLocator locator, ArcSignatureValidationResult expected, ArcValidationErrors expectedErrors = ArcValidationErrors.None)
 		{
 			if (string.IsNullOrEmpty (input)) {
-				Assert.AreEqual (expected, ArcSignatureValidationResult.None, description);
+				Assert.That (expected, Is.EqualTo (ArcSignatureValidationResult.None), description);
 				return;
 			}
 
@@ -520,13 +520,13 @@ This is a test message.
 
 				// Test Verify
 				result = verifier.Verify (message);
-				Assert.AreEqual (expected, result.Chain, description);
-				Assert.AreEqual (expectedErrors, result.ChainErrors, "chain errors");
+				Assert.That (result.Chain, Is.EqualTo (expected), description);
+				Assert.That (result.ChainErrors, Is.EqualTo (expectedErrors), "chain errors");
 
 				// Test VerifyAsync
 				result = verifier.VerifyAsync (message).GetAwaiter ().GetResult ();
-				Assert.AreEqual (expected, result.Chain, description);
-				Assert.AreEqual (expectedErrors, result.ChainErrors, "async chain errors");
+				Assert.That (result.Chain, Is.EqualTo (expected), description);
+				Assert.That (result.ChainErrors, Is.EqualTo (expectedErrors), "async chain errors");
 			}
 		}
 

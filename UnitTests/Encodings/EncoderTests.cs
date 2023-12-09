@@ -168,10 +168,10 @@ namespace UnitTests.Encodings {
 					var buf1 = encoded.GetBuffer ();
 					n = (int) original.Length;
 
-					Assert.AreEqual (original.Length, encoded.Length, "Encoded length is incorrect.");
+					Assert.That (encoded.Length, Is.EqualTo (original.Length), "Encoded length is incorrect.");
 
 					for (int i = 0; i < n; i++)
-						Assert.AreEqual (buf0[i], buf1[i], "The byte at offset {0} does not match.", i);
+						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
 				}
 			}
 		}
@@ -200,10 +200,10 @@ namespace UnitTests.Encodings {
 				var buf = decoded.GetBuffer ();
 				n = rawData.Length;
 
-				Assert.AreEqual (rawData.Length, decoded.Length, "Decoded length is incorrect.");
+				Assert.That (decoded.Length, Is.EqualTo (rawData.Length), "Decoded length is incorrect.");
 
 				for (int i = 0; i < n; i++)
-					Assert.AreEqual (rawData[i], buf[i], "The byte at offset {0} does not match.", i);
+					Assert.That (buf[i], Is.EqualTo (rawData[i]), $"The byte at offset {i} does not match.");
 			}
 		}
 
@@ -213,14 +213,14 @@ namespace UnitTests.Encodings {
 			var decoder = new Base64Decoder ();
 			var output = new byte[4096];
 
-			Assert.AreEqual (ContentEncoding.Base64, decoder.Encoding);
+			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Base64));
 
 			for (int i = 0; i < base64EncodedPatterns.Length; i++) {
 				decoder.Reset ();
 				var buf = Encoding.ASCII.GetBytes (base64EncodedPatterns[i]);
 				int n = decoder.Decode (buf, 0, buf.Length, output);
 				var actual = Encoding.ASCII.GetString (output, 0, n);
-				Assert.AreEqual (base64DecodedPatterns[i], actual, "Failed to decode base64EncodedPatterns[{0}]", i);
+				Assert.That (actual, Is.EqualTo (base64DecodedPatterns[i]), $"Failed to decode base64EncodedPatterns[{i}]");
 			}
 
 			for (int i = 0; i < base64EncodedLongPatterns.Length; i++) {
@@ -229,7 +229,7 @@ namespace UnitTests.Encodings {
 				int n = decoder.Decode (buf, 0, buf.Length, output);
 
 				for (int j = 0; j < n; j++)
-					Assert.AreEqual (output[j], (byte) (j + i), "Failed to decode base64EncodedLongPatterns[{0}]", i);
+					Assert.That ((byte) (j + i), Is.EqualTo (output[j]), $"Failed to decode base64EncodedLongPatterns[{i}]");
 			}
 
 			for (int i = 0; i < base64EncodedPatternsExtraPadding.Length; i++) {
@@ -237,7 +237,7 @@ namespace UnitTests.Encodings {
 				var buf = Encoding.ASCII.GetBytes (base64EncodedPatternsExtraPadding[i]);
 				int n = decoder.Decode (buf, 0, buf.Length, output);
 				var actual = Encoding.ASCII.GetString (output, 0, n);
-				Assert.AreEqual (base64DecodedPatterns[0], actual, "Failed to decode base64EncodedPatternsExtraPadding[{0}]", i);
+				Assert.That (actual, Is.EqualTo (base64DecodedPatterns[0]), $"Failed to decode base64EncodedPatternsExtraPadding[{i}]");
 			}
 		}
 
@@ -319,7 +319,7 @@ namespace UnitTests.Encodings {
 				buf = encoding.GetBytes (qpEncodedPatterns[i]);
 				n = decoder.Decode (buf, 0, buf.Length, output);
 				actual = encoding.GetString (output, 0, n);
-				Assert.AreEqual (qpDecodedPatterns[i], actual, "Failed to decode qpEncodedPatterns[{0}]", i);
+				Assert.That (actual, Is.EqualTo (qpDecodedPatterns[i]), $"Failed to decode qpEncodedPatterns[{i}]");
 			}
 		}
 
@@ -361,12 +361,12 @@ namespace UnitTests.Encodings {
 			byte[] buf;
 			int n;
 
-			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
 			buf = Encoding.ASCII.GetBytes (input);
 			n = encoder.Flush (buf, 0, buf.Length, output);
 			actual = Encoding.ASCII.GetString (output, 0, n);
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -380,12 +380,12 @@ namespace UnitTests.Encodings {
 			byte[] buf;
 			int n;
 
-			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
 			buf = Encoding.ASCII.GetBytes (input);
 			n = encoder.Flush (buf, 0, buf.Length, output);
 			actual = Encoding.ASCII.GetString (output, 0, n);
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -399,14 +399,14 @@ namespace UnitTests.Encodings {
 			var outputLength = encoder.Flush (input, 0, input.Length, output);
 			var encoded = Encoding.ASCII.GetString (output, 0, outputLength);
 
-			Assert.AreEqual (expected, encoded);
+			Assert.That (encoded, Is.EqualTo (expected));
 
 			var decoder = new QuotedPrintableDecoder ();
 			var buffer = new byte[decoder.EstimateOutputLength (outputLength)];
 			var decodedLength = decoder.Decode (output, 0, outputLength, buffer);
 			var decoded = Encoding.ASCII.GetString (buffer, 0, decodedLength);
 
-			Assert.AreEqual (text, decoded);
+			Assert.That (decoded, Is.EqualTo (text));
 		}
 
 		[Test]
@@ -421,17 +421,17 @@ namespace UnitTests.Encodings {
 			byte[] buf;
 			int n;
 
-			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
 			buf = Encoding.ASCII.GetBytes (input);
 			n = encoder.Flush (buf, 0, buf.Length, output);
 			actual = Encoding.ASCII.GetString (output, 0, n);
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 
 			buf = Encoding.ASCII.GetBytes (expected);
 			n = decoder.Decode (buf, 0, buf.Length, output);
 			actual = Encoding.ASCII.GetString (output, 0, n);
-			Assert.AreEqual (input, actual);
+			Assert.That (actual, Is.EqualTo (input));
 		}
 
 		[Test]
@@ -445,12 +445,12 @@ namespace UnitTests.Encodings {
 			byte[] buf;
 			int n;
 
-			Assert.AreEqual (ContentEncoding.QuotedPrintable, decoder.Encoding);
+			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
 			buf = Encoding.ASCII.GetBytes (input);
 			n = decoder.Decode (buf, 0, buf.Length, output);
 			actual = Encoding.ASCII.GetString (output, 0, n);
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -465,12 +465,12 @@ namespace UnitTests.Encodings {
 			byte[] buf;
 			int n;
 
-			Assert.AreEqual (ContentEncoding.QuotedPrintable, decoder.Encoding);
+			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
 			buf = Encoding.ASCII.GetBytes (input);
 			n = decoder.Decode (buf, 0, buf.Length, output);
 			actual = encoding.GetString (output, 0, n);
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -482,13 +482,13 @@ namespace UnitTests.Encodings {
 			var encoder = new QuotedPrintableEncoder (72);
 			var output = new byte[1024];
 
-			Assert.AreEqual (ContentEncoding.QuotedPrintable, encoder.Encoding);
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
 			var buf = encoding.GetBytes (input);
 			int n = encoder.Flush (buf, 0, buf.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -500,13 +500,13 @@ namespace UnitTests.Encodings {
 			var decoder = new HexDecoder ();
 			var output = new byte[1024];
 
-			Assert.AreEqual (ContentEncoding.Default, decoder.Encoding);
+			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
 
 			var buf = Encoding.ASCII.GetBytes (input);
 			int n = decoder.Decode (buf, 0, buf.Length, output);
 			var actual = encoding.GetString (output, 0, n);
 
-			Assert.AreEqual (expected, actual);
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -523,17 +523,17 @@ namespace UnitTests.Encodings {
 
 			int n = encoder.Encode (input, 0, input.Length, output);
 
-			Assert.AreEqual (input.Length, n);
+			Assert.That (n, Is.EqualTo (input.Length));
 
 			for (int i = 0; i < n; i++)
-				Assert.AreEqual (input[i], output[i]);
+				Assert.That (output[i], Is.EqualTo (input[i]));
 
 			n = encoder.Flush (input, 0, input.Length, output);
 
-			Assert.AreEqual (input.Length, n);
+			Assert.That (n, Is.EqualTo (input.Length));
 
 			for (int i = 0; i < n; i++)
-				Assert.AreEqual (input[i], output[i]);
+				Assert.That (output[i], Is.EqualTo (input[i]));
 
 			encoder.Clone ().Reset ();
 		}
@@ -552,10 +552,10 @@ namespace UnitTests.Encodings {
 
 			int n = decoder.Decode (input, 0, input.Length, output);
 
-			Assert.AreEqual (input.Length, n);
+			Assert.That (n, Is.EqualTo (input.Length));
 
 			for (int i = 0; i < n; i++)
-				Assert.AreEqual (input[i], output[i]);
+				Assert.That (output[i], Is.EqualTo (input[i]));
 
 			decoder.Clone ().Reset ();
 		}
@@ -568,7 +568,7 @@ namespace UnitTests.Encodings {
 
 			var encoder = (EncoderFilter) filter;
 
-			Assert.AreEqual (expected, encoder.Encoding, "Expected encoder's Encoding to be ContentEncoding.{0}", expected);
+			Assert.That (encoder.Encoding, Is.EqualTo (expected), $"Expected encoder's Encoding to be ContentEncoding.{expected}");
 		}
 
 		static void AssertIsEncoderFilter (string encoding, ContentEncoding expected)
@@ -579,7 +579,7 @@ namespace UnitTests.Encodings {
 
 			var encoder = (EncoderFilter) filter;
 
-			Assert.AreEqual (expected, encoder.Encoding, "Expected encoder's Encoding to be ContentEncoding.{0}", expected);
+			Assert.That (encoder.Encoding, Is.EqualTo (expected), $"Expected encoder's Encoding to be ContentEncoding.{expected}");
 		}
 
 		[Test]
@@ -619,7 +619,7 @@ namespace UnitTests.Encodings {
 
 			var decoder = (DecoderFilter) filter;
 
-			Assert.AreEqual (expected, decoder.Encoding, "Expected decoder's Encoding to be ContentEncoding.{0}", expected);
+			Assert.That (decoder.Encoding, Is.EqualTo (expected), $"Expected decoder's Encoding to be ContentEncoding.{expected}");
 		}
 
 		static void AssertIsDecoderFilter (string encoding, ContentEncoding expected)
@@ -630,7 +630,7 @@ namespace UnitTests.Encodings {
 
 			var decoder = (DecoderFilter) filter;
 
-			Assert.AreEqual (expected, decoder.Encoding, "Expected decoder's Encoding to be ContentEncoding.{0}", expected);
+			Assert.That (decoder.Encoding, Is.EqualTo (expected), $"Expected decoder's Encoding to be ContentEncoding.{expected}");
 		}
 
 		[Test]
@@ -736,9 +736,9 @@ namespace UnitTests.Encodings {
 					var crc0 = (Crc32) expected;
 					var crc1 = (Crc32) actual;
 
-					Assert.AreEqual (crc0.Checksum, crc1.Checksum, "The cloned {0}.{1} does not match.", encoder.GetType ().Name, field.Name);
+					Assert.That (crc1.Checksum, Is.EqualTo (crc0.Checksum), $"The cloned {encoder.GetType ().Name}.{field.Name} does not match.");
 				} else {
-					Assert.AreEqual (expected, actual, "The cloned {0}.{1} does not match.", encoder.GetType ().Name, field.Name);
+					Assert.That (actual, Is.EqualTo (expected), $"The cloned {encoder.GetType ().Name}.{field.Name} does not match.");
 				}
 			}
 		}
@@ -750,7 +750,7 @@ namespace UnitTests.Encodings {
 
 			var clone = encoder.Clone ();
 
-			Assert.AreEqual (encoder.Encoding, clone.Encoding);
+			Assert.That (clone.Encoding, Is.EqualTo (encoder.Encoding));
 
 			AssertState (encoder, clone);
 

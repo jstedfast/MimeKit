@@ -72,10 +72,10 @@ namespace UnitTests.Tnef {
 				Assert.Throws<TnefException> (() => new TnefReader (stream, 0, TnefComplianceMode.Strict));
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.StreamTruncated));
 
 					reader.ResetComplianceStatus ();
-					Assert.AreEqual (TnefComplianceStatus.Compliant, reader.ComplianceStatus);
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant));
 				}
 			}
 		}
@@ -90,7 +90,7 @@ namespace UnitTests.Tnef {
 				stream.WriteByte (0);
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.StreamTruncated));
 				}
 			}
 		}
@@ -107,7 +107,7 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, reader.ComplianceStatus);
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.InvalidTnefSignature));
 				}
 			}
 		}
@@ -128,7 +128,7 @@ namespace UnitTests.Tnef {
 					reader = new TnefReader (stream, 0, TnefComplianceMode.Strict);
 					Assert.Fail ("new TnefReader should have thrown TnefException");
 				} catch (TnefException ex) {
-					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, ex.Error, "Error");
+					Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.InvalidTnefSignature), "Error");
 				} catch (Exception ex) {
 					Assert.Fail ($"new TnefReader should have thrown TnefException, not {ex}");
 				}
@@ -150,9 +150,9 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
-					Assert.AreEqual (TnefAttributeTag.OemCodepage, reader.AttributeTag, "AttributeTag");
-					Assert.AreEqual (TnefComplianceStatus.InvalidMessageCodepage, reader.ComplianceStatus);
+					Assert.That (reader.ReadNextAttribute (), Is.True, "ReadNextAttribute");
+					Assert.That (reader.AttributeTag, Is.EqualTo (TnefAttributeTag.OemCodepage), "AttributeTag");
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.InvalidMessageCodepage));
 				}
 			}
 		}
@@ -176,7 +176,7 @@ namespace UnitTests.Tnef {
 						reader.ReadNextAttribute ();
 						Assert.Fail ("ReadNextAttribute should have thrown TnefException");
 					} catch (TnefException ex) {
-						Assert.AreEqual (TnefComplianceStatus.InvalidMessageCodepage, ex.Error, "Error");
+						Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.InvalidMessageCodepage), "Error");
 					} catch (Exception ex) {
 						Assert.Fail ($"ReadNextAttribute should have thrown TnefException, not {ex}");
 					}
@@ -199,11 +199,11 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
-					Assert.AreEqual (TnefAttributeTag.TnefVersion, reader.AttributeTag, "AttributeTag");
+					Assert.That (reader.ReadNextAttribute (), Is.True, "ReadNextAttribute");
+					Assert.That (reader.AttributeTag, Is.EqualTo (TnefAttributeTag.TnefVersion), "AttributeTag");
 					reader.TnefPropertyReader.ReadValueAsInt32 ();
-					Assert.AreEqual (1, reader.TnefVersion, "TnefVersion");
-					Assert.AreEqual (TnefComplianceStatus.InvalidTnefVersion, reader.ComplianceStatus);
+					Assert.That (reader.TnefVersion, Is.EqualTo (1), "TnefVersion");
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.InvalidTnefVersion));
 				}
 			}
 		}
@@ -227,7 +227,7 @@ namespace UnitTests.Tnef {
 						reader.ReadNextAttribute ();
 						Assert.Fail ("ReadNextAttribute should have thrown TnefException");
 					} catch (TnefException ex) {
-						Assert.AreEqual (TnefComplianceStatus.InvalidTnefVersion, ex.Error, "Error");
+						Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.InvalidTnefVersion), "Error");
 					} catch (Exception ex) {
 						Assert.Fail ($"ReadNextAttribute should have thrown TnefException, not {ex}");
 					}
@@ -253,9 +253,9 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.IsFalse (reader.ReadNextAttribute (), "ReadNextAttribute");
-					Assert.AreEqual (TnefAttributeTag.TnefVersion, reader.AttributeTag, "AttributeTag");
-					Assert.AreEqual (TnefComplianceStatus.InvalidAttributeLength, reader.ComplianceStatus);
+					Assert.That (reader.ReadNextAttribute (), Is.False, "ReadNextAttribute");
+					Assert.That (reader.AttributeTag, Is.EqualTo (TnefAttributeTag.TnefVersion), "AttributeTag");
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.InvalidAttributeLength));
 				}
 			}
 		}
@@ -282,7 +282,7 @@ namespace UnitTests.Tnef {
 						reader.ReadNextAttribute ();
 						Assert.Fail ("ReadNextAttribute should have thrown TnefException");
 					} catch (TnefException ex) {
-						Assert.AreEqual (TnefComplianceStatus.InvalidAttributeLength, ex.Error, "Error");
+						Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.InvalidAttributeLength), "Error");
 					} catch (Exception ex) {
 						Assert.Fail ($"ReadNextAttribute should have thrown TnefException, not {ex}");
 					}
@@ -324,8 +324,8 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
-					Assert.AreEqual (TnefAttributeTag.MessageId, reader.AttributeTag, "AttributeTag");
+					Assert.That (reader.ReadNextAttribute (), Is.True, "ReadNextAttribute");
+					Assert.That (reader.AttributeTag, Is.EqualTo (TnefAttributeTag.MessageId), "AttributeTag");
 
 					var buffer = new byte[28];
 					int nread, n = 0;
@@ -337,7 +337,7 @@ namespace UnitTests.Tnef {
 						n += nread;
 					} while (n < 28);
 
-					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.StreamTruncated));
 				}
 			}
 		}
@@ -356,8 +356,8 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
-					Assert.IsTrue (reader.ReadNextAttribute (), "ReadNextAttribute");
-					Assert.AreEqual (TnefAttributeTag.MessageId, reader.AttributeTag, "AttributeTag");
+					Assert.That (reader.ReadNextAttribute (), Is.True, "ReadNextAttribute");
+					Assert.That (reader.AttributeTag, Is.EqualTo (TnefAttributeTag.MessageId), "AttributeTag");
 
 					var buffer = new byte[28];
 					int n;
@@ -368,7 +368,7 @@ namespace UnitTests.Tnef {
 						reader.ReadAttributeRawValue (buffer, n, buffer.Length - n);
 						Assert.Fail ("ReadAttributeRawValue should have thrown TnefException");
 					} catch (TnefException ex) {
-						Assert.AreEqual (TnefComplianceStatus.StreamTruncated, ex.Error, "Error");
+						Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.StreamTruncated), "Error");
 					} catch (Exception ex) {
 						Assert.Fail ($"ReadAttributeRawValue should have thrown TnefException, not {ex}");
 					}
@@ -393,7 +393,7 @@ namespace UnitTests.Tnef {
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					var value = reader.ReadInt32 ();
 
-					Assert.AreEqual (1060, value);
+					Assert.That (value, Is.EqualTo (1060));
 				}
 			}
 		}
@@ -415,7 +415,7 @@ namespace UnitTests.Tnef {
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					var value = reader.ReadInt64 ();
 
-					Assert.AreEqual (1060, value);
+					Assert.That (value, Is.EqualTo (1060));
 				}
 			}
 		}
@@ -437,7 +437,7 @@ namespace UnitTests.Tnef {
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					var value = reader.ReadDouble ();
 
-					Assert.AreEqual (1024.1024, value);
+					Assert.That (value, Is.EqualTo (1024.1024));
 				}
 			}
 		}
@@ -459,7 +459,7 @@ namespace UnitTests.Tnef {
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
 					var value = reader.ReadSingle ();
 
-					Assert.AreEqual ((float) 1024.1024, value);
+					Assert.That (value, Is.EqualTo ((float) 1024.1024));
 				}
 			}
 		}
@@ -482,8 +482,8 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.IsFalse (reader.Seek (64), "Seek");
-					Assert.AreEqual (TnefComplianceStatus.StreamTruncated, reader.ComplianceStatus);
+					Assert.That (reader.Seek (64), Is.False, "Seek");
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.StreamTruncated));
 				}
 			}
 		}
@@ -510,7 +510,7 @@ namespace UnitTests.Tnef {
 						reader.Seek (64);
 						Assert.Fail ("Seek should have thrown TnefException");
 					} catch (TnefException ex) {
-						Assert.AreEqual (TnefComplianceStatus.StreamTruncated, ex.Error, "Error");
+						Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.StreamTruncated), "Error");
 					} catch (Exception ex) {
 						Assert.Fail ($"Seek should have thrown TnefException, not {ex}");
 					}

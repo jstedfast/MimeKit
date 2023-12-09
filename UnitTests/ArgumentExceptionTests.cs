@@ -48,19 +48,19 @@ namespace UnitTests {
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, -1, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, 0, -1, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("length"));
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, 1025, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Filter (input, 0, 1025, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("length"));
 
 			// Flush
 			Assert.Throws<ArgumentNullException> (() => filter.Flush (null, 0, 0, out outputIndex, out outputLength),
@@ -68,19 +68,19 @@ namespace UnitTests {
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, -1, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 0, -1, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was -1.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("length"));
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 1025, 0, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when startIndex was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("startIndex", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
 
 			ex = Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (input, 0, 1025, out outputIndex, out outputLength),
 				"{0}.Filter did not throw ArgumentOutOfRangeException when length was > 1024.", filter.GetType ().Name);
-			Assert.AreEqual ("length", ex.ParamName);
+			Assert.That (ex.ParamName, Is.EqualTo ("length"));
 
 			filter.Reset ();
 		}
@@ -154,7 +154,7 @@ namespace UnitTests {
 						"{0}.{1} did not throw an exception when options was null.", type.Name, method.Name);
 					Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
-					Assert.AreEqual ("options", ex.ParamName);
+					Assert.That (ex.ParamName, Is.EqualTo ("options"));
 
 					args[0] = options;
 				}
@@ -165,7 +165,7 @@ namespace UnitTests {
 					"{0}.{1} did not throw an exception when {2} was null.", type.Name, method.Name, parameters[bufferIndex].Name);
 				Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
 				ex = (ArgumentException) tie.InnerException;
-				Assert.AreEqual (parameters[bufferIndex].Name, ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo (parameters[bufferIndex].Name));
 				args[bufferIndex] = buf;
 
 				idx = bufferIndex + 1;
@@ -177,7 +177,7 @@ namespace UnitTests {
 						"{0}.{1} did not throw ArgumentOutOfRangeException when {2} was -1.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
-					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
 					args[idx] = length + 1;
 
@@ -185,7 +185,7 @@ namespace UnitTests {
 						"{0}.{1} did not throw an exception when {2} was > length.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
-					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
 					args[idx++] = 0;
 				}
@@ -198,7 +198,7 @@ namespace UnitTests {
 						"{0}.{1} did not throw an exception when {2} was -1.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
-					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
 					args[idx] = length + 1;
 
@@ -206,7 +206,7 @@ namespace UnitTests {
 						"{0}.{1} did not throw an exception when {2} was > length.", type.Name, method.Name, parameters[idx].Name);
 					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
 					ex = (ArgumentException) tie.InnerException;
-					Assert.AreEqual (parameters[idx].Name, ex.ParamName);
+					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
 					idx++;
 				}
@@ -249,43 +249,43 @@ namespace UnitTests {
 			if (stream.CanRead) {
 				ex = Assert.Throws<ArgumentNullException> (() => stream.Read (null, 0, 0),
 					"{0}.Read() does not throw an ArgumentNullException when buffer is null.", stream.GetType ().Name);
-				Assert.AreEqual ("buffer", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, -1, 0),
 					"{0}.Read() does not throw an ArgumentOutOfRangeException when offset is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, buffer.Length + 1, 0),
 					"{0}.Read() does not throw an ArgumentOutOfRangeException when offset > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, 0, -1),
 					"{0}.Read() does not throw an ArgumentOutOfRangeException when count is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Read (buffer, 0, buffer.Length + 1),
 					"{0}.Read() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 
 				ex = Assert.ThrowsAsync<ArgumentNullException> (async () => await stream.ReadAsync (null, 0, 0),
 					"{0}.ReadAsync() does not throw an ArgumentNullException when buffer is null.", stream.GetType ().Name);
-				Assert.AreEqual ("buffer", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.ReadAsync (buffer, -1, 0),
 					"{0}.ReadAsync() does not throw an ArgumentOutOfRangeException when offset is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.ReadAsync (buffer, buffer.Length + 1, 0),
 					"{0}.ReadAsync() does not throw an ArgumentOutOfRangeException when offset > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.ReadAsync (buffer, 0, -1),
 					"{0}.ReadAsync() does not throw an ArgumentOutOfRangeException when count is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.ReadAsync (buffer, 0, buffer.Length + 1),
 					"{0}.ReadAsync() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 			} else {
 				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length),
 					"{0}.Read() does not throw a NotSupportedException when CanRead is false.", stream.GetType ().Name);
@@ -297,43 +297,43 @@ namespace UnitTests {
 			if (stream.CanWrite) {
 				ex = Assert.Throws<ArgumentNullException> (() => stream.Write (null, 0, 0),
 					"{0}.Write() does not throw an ArgumentNullException when buffer is null.", stream.GetType ().Name);
-				Assert.AreEqual ("buffer", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0),
 					"{0}.Write() does not throw an ArgumentOutOfRangeException when offset is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, buffer.Length + 1, 0),
 					"{0}.Write() does not throw an ArgumentOutOfRangeException when offset > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1),
 					"{0}.Write() does not throw an ArgumentOutOfRangeException when count is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, buffer.Length + 1),
 					"{0}.Write() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 
 				ex = Assert.ThrowsAsync<ArgumentNullException> (async () => await stream.WriteAsync (null, 0, 0),
 					"{0}.WriteAsync() does not throw an ArgumentNullException when buffer is null.", stream.GetType ().Name);
-				Assert.AreEqual ("buffer", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.WriteAsync (buffer, -1, 0),
 					"{0}.WriteAsync() does not throw an ArgumentOutOfRangeException when offset is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.WriteAsync (buffer, buffer.Length + 1, 0),
 					"{0}.WriteAsync() does not throw an ArgumentOutOfRangeException when offset > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("offset", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("offset"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.WriteAsync (buffer, 0, -1),
 					"{0}.WriteAsync() does not throw an ArgumentOutOfRangeException when count is -1.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 
 				ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await stream.WriteAsync (buffer, 0, buffer.Length + 1),
 					"{0}.WriteAsync() does not throw an ArgumentOutOfRangeException when count > buffer length.", stream.GetType ().Name);
-				Assert.AreEqual ("count", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("count"));
 			} else {
 				Assert.Throws<NotSupportedException> (() => stream.Write (buffer, 0, buffer.Length),
 					"{0}.Write() does not throw a NotSupportedException when CanWrite is false.", stream.GetType ().Name);
@@ -345,7 +345,7 @@ namespace UnitTests {
 			if (stream.CanSeek) {
 				ex = Assert.Throws<ArgumentOutOfRangeException> (() => stream.Seek (0, (SeekOrigin) 255),
 					"{0}.Seek() does not throw an ArgumentOutOfRangeException when origin is invalid.", stream.GetType ().Name);
-				Assert.AreEqual ("origin", ex.ParamName);
+				Assert.That (ex.ParamName, Is.EqualTo ("origin"));
 			} else {
 				Assert.Throws<NotSupportedException> (() => stream.Seek (0, SeekOrigin.Begin),
 					"{0}.Seek() does not throw a NotSupportedException when CanSeek is false.", stream.GetType ().Name);

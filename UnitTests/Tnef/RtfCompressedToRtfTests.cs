@@ -42,10 +42,10 @@ namespace UnitTests.Tnef {
 
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 
-			Assert.AreEqual (16, outputIndex, "outputIndex");
-			Assert.AreEqual (0, outputLength, "outputLength");
-			Assert.IsFalse (filter.IsValidCrc32, "IsValidCrc32");
-			Assert.AreEqual ((RtfCompressionMode) 1145258561, filter.CompressionMode, "ComnpressionMode");
+			Assert.That (outputIndex, Is.EqualTo (16), "outputIndex");
+			Assert.That (outputLength, Is.EqualTo (0), "outputLength");
+			Assert.That (filter.IsValidCrc32, Is.False, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo ((RtfCompressionMode) 1145258561), "ComnpressionMode");
 		}
 
 		[Test]
@@ -58,10 +58,10 @@ namespace UnitTests.Tnef {
 
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 
-			Assert.AreEqual (0, outputIndex, "outputIndex");
-			Assert.AreEqual (0, outputLength, "outputLength");
-			Assert.IsFalse (filter.IsValidCrc32, "IsValidCrc32");
-			Assert.AreEqual (RtfCompressionMode.Compressed, filter.CompressionMode, "ComnpressionMode");
+			Assert.That (outputIndex, Is.EqualTo (0), "outputIndex");
+			Assert.That (outputLength, Is.EqualTo (0), "outputLength");
+			Assert.That (filter.IsValidCrc32, Is.False, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Compressed), "ComnpressionMode");
 		}
 
 		[Test]
@@ -75,14 +75,14 @@ namespace UnitTests.Tnef {
 
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 
-			Assert.AreEqual (0, outputIndex, "outputIndex");
-			Assert.AreEqual (43, outputLength, "outputLength");
-			Assert.IsTrue (filter.IsValidCrc32, "IsValidCrc32");
-			Assert.AreEqual (RtfCompressionMode.Compressed, filter.CompressionMode, "ComnpressionMode");
+			Assert.That (outputIndex, Is.EqualTo (0), "outputIndex");
+			Assert.That (outputLength, Is.EqualTo (43), "outputLength");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Compressed), "ComnpressionMode");
 
 			var text = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
-			Assert.AreEqual (expected, text);
+			Assert.That (text, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -106,13 +106,13 @@ namespace UnitTests.Tnef {
 				output = memory.ToArray ();
 			}
 
-			Assert.AreEqual (43, output.Length, "outputLength");
-			Assert.IsTrue (filter.IsValidCrc32, "IsValidCrc32");
-			Assert.AreEqual (RtfCompressionMode.Compressed, filter.CompressionMode, "ComnpressionMode");
+			Assert.That (output.Length, Is.EqualTo (43), "outputLength");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Compressed), "ComnpressionMode");
 
 			var text = Encoding.ASCII.GetString (output);
 
-			Assert.AreEqual (expected, text);
+			Assert.That (text, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -126,14 +126,14 @@ namespace UnitTests.Tnef {
 
 			output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
 
-			Assert.AreEqual (16, outputIndex, "outputIndex");
-			Assert.AreEqual (34, outputLength, "outputLength");
-			Assert.IsTrue (filter.IsValidCrc32, "IsValidCrc32");
-			Assert.AreEqual (RtfCompressionMode.Uncompressed, filter.CompressionMode, "ComnpressionMode");
+			Assert.That (outputIndex, Is.EqualTo (16), "outputIndex");
+			Assert.That (outputLength, Is.EqualTo (34), "outputLength");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Uncompressed), "ComnpressionMode");
 
 			var text = Encoding.ASCII.GetString (output, outputIndex, outputLength);
 
-			Assert.AreEqual (expected, text);
+			Assert.That (text, Is.EqualTo (expected));
 		}
 
 		[Test]
@@ -157,13 +157,13 @@ namespace UnitTests.Tnef {
 				output = memory.ToArray ();
 			}
 
-			Assert.AreEqual (34, output.Length, "outputLength");
-			Assert.IsTrue (filter.IsValidCrc32, "IsValidCrc32");
-			Assert.AreEqual (RtfCompressionMode.Uncompressed, filter.CompressionMode, "ComnpressionMode");
+			Assert.That (output.Length, Is.EqualTo (34), "outputLength");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Uncompressed), "ComnpressionMode");
 
 			var text = Encoding.ASCII.GetString (output);
 
-			Assert.AreEqual (expected, text);
+			Assert.That (text, Is.EqualTo (expected));
 		}
 	}
 }
