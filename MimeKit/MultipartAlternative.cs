@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// (in other words, the last entity will be in a format that, when rendered, will most closely match
 	/// what the sending client's WYSISYG editor produced).
 	/// </remarks>
-	public class MultipartAlternative : Multipart
+	public class MultipartAlternative : Multipart, IMultipartAlternative
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MultipartAlternative"/> class.

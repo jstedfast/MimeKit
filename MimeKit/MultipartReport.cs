@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// <example>
 	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 	/// </example>
-	public class MultipartReport : Multipart
+	public class MultipartReport : Multipart, IMultipartReport
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MultipartReport"/> class.

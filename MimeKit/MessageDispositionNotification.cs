@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// and has a MIME-type of message/disposition-notification.
 	/// <seealso cref="MimeKit.MultipartReport"/>
 	/// </remarks>
-	public class MessageDispositionNotification : MimePart
+	public class MessageDispositionNotification : MimePart, IMessageDispositionNotification
 	{
 		HeaderList fields;
 

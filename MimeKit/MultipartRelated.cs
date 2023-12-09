@@ -42,7 +42,7 @@ namespace MimeKit {
 	/// <example>
 	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 	/// </example>
-	public class MultipartRelated : Multipart
+	public class MultipartRelated : Multipart, IMultipartRelated
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MultipartRelated"/> class.

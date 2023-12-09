@@ -43,7 +43,7 @@ namespace MimeKit {
 	/// <example>
 	/// <code language="c#" source="Examples\MessageDeliveryStatusExamples.cs" region="ProcessDeliveryStatusNotification" />
 	/// </example>
-	public class MessageDeliveryStatus : MimePart
+	public class MessageDeliveryStatus : MimePart, IMessageDeliveryStatus
 	{
 		HeaderListCollection groups;
 

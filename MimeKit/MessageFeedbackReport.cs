@@ -36,7 +36,7 @@ namespace MimeKit {
 	/// A <c>message/feedback-report</c> MIME part is a machine readable feedback report.
 	/// <seealso cref="MimeKit.MultipartReport"/>
 	/// </remarks>
-	public class MessageFeedbackReport : MimePart
+	public class MessageFeedbackReport : MimePart, IMessageFeedbackReport
 	{
 		HeaderList fields;
 

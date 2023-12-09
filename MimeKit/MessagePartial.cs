@@ -43,7 +43,7 @@ namespace MimeKit {
 	/// limitations (for example, some SMTP servers limit have a maximum message
 	/// size that they will accept).</para>
 	/// </remarks>
-	public class MessagePartial : MimePart
+	public class MessagePartial : MimePart, IMessagePartial
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessagePartial"/> class.

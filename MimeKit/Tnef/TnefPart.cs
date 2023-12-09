@@ -43,7 +43,7 @@ namespace MimeKit.Tnef {
 	/// <para>TNEF (Transport Neutral Encapsulation Format) attachments are most often
 	/// sent by Microsoft Outlook clients.</para>
 	/// </remarks>
-	public class TnefPart : MimePart
+	public class TnefPart : MimePart, ITnefPart
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TnefPart"/> class.
