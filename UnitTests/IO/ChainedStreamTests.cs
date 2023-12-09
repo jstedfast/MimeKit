@@ -31,7 +31,7 @@ using MimeKit.IO;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class ChainedStreamTests
+	public class ChainedStreamTests : IDisposable
 	{
 		readonly List<int> lengths = new List<int> ();
 		readonly MemoryStream master, backing;
@@ -68,13 +68,12 @@ namespace UnitTests.IO {
 			}
 		}
 
-		//[TestFixtureTearDown]
-		//public void TearDown ()
-		//{
-		//	backing.Dispose ();
-		//	chained.Dispose ();
-		//	master.Dispose ();
-		//}
+		public void Dispose ()
+		{
+			backing.Dispose ();
+			chained.Dispose ();
+			master.Dispose ();
+		}
 
 		[Test]
 		public void TestCanReadWriteSeek ()
