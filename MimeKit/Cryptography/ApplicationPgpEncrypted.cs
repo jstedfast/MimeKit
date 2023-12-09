@@ -37,7 +37,7 @@ namespace MimeKit.Cryptography {
 	/// a <see cref="MultipartEncrypted"/> part and contains only a Version
 	/// header.
 	/// </remarks>
-	public class ApplicationPgpEncrypted : MimePart
+	public class ApplicationPgpEncrypted : MimePart, IApplicationPgpEncrypted
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="ApplicationPgpEncrypted"/>

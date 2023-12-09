@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 	/// <a href="Overload_MimeKit_Cryptography_MultipartSigned_Verify.htm">Verify</a>
 	/// methods on the parent multipart/signed part.</para>
 	/// </remarks>
-	public class ApplicationPkcs7Signature : MimePart
+	public class ApplicationPkcs7Signature : MimePart, IApplicationPkcs7Signature
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="ApplicationPkcs7Signature"/> class.

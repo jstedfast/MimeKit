@@ -40,7 +40,7 @@ namespace MimeKit.Cryptography {
 	/// An application/pkcs7-mime is an S/MIME part and may contain encrypted,
 	/// signed or compressed data (or any combination of the above).
 	/// </remarks>
-	public class ApplicationPkcs7Mime : MimePart
+	public class ApplicationPkcs7Mime : MimePart, IApplicationPkcs7Mime
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="ApplicationPkcs7Mime"/> class.

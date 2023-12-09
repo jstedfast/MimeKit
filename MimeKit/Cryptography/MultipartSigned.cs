@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 	/// is the detached signature data. Any other children are not defined and could
 	/// be anything.
 	/// </remarks>
-	public class MultipartSigned : Multipart
+	public class MultipartSigned : Multipart, IMultipartSigned
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MultipartSigned"/> class.

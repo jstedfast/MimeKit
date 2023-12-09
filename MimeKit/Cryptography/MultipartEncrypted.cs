@@ -41,7 +41,7 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// This mime-type is common when dealing with PGP/MIME but is not used for S/MIME.
 	/// </remarks>
-	public class MultipartEncrypted : Multipart
+	public class MultipartEncrypted : Multipart, IMultipartEncrypted
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MultipartEncrypted"/> class.
