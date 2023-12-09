@@ -124,14 +124,14 @@ namespace UnitTests.Cryptography {
 			try {
 				signer = new CmsSigner (path, password);
 			} catch (Exception ex) {
-				Assert.Fail (".ctor (string, string): {0}", ex.Message);
+				Assert.Fail ($".ctor (string, string): {ex.Message}");
 			}
 
 			try {
 				using (var stream = File.OpenRead (path))
 					signer = new CmsSigner (stream, password);
 			} catch (Exception ex) {
-				Assert.Fail (".ctor (Stream, string): {0}", ex.Message);
+				Assert.Fail ($".ctor (Stream, string): {ex.Message}");
 			}
 
 			LoadPkcs12 (path, password, out certificates, out key);
@@ -139,19 +139,19 @@ namespace UnitTests.Cryptography {
 			try {
 				signer = new CmsSigner (certificates, key);
 			} catch (Exception ex) {
-				Assert.Fail (".ctor (IEnumerable<X509Certificate>, AsymmetricKeyParameter): {0}", ex.Message);
+				Assert.Fail ($".ctor (IEnumerable<X509Certificate>, AsymmetricKeyParameter): {ex.Message}");
 			}
 
 			try {
 				signer = new CmsSigner (certificates[0], key);
 			} catch (Exception ex) {
-				Assert.Fail (".ctor (X509Certificate, AsymmetricKeyParameter): {0}", ex.Message);
+				Assert.Fail ($".ctor (X509Certificate, AsymmetricKeyParameter): {ex.Message}");
 			}
 
 			try {
 				signer = new CmsSigner (new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable));
 			} catch (Exception ex) {
-				Assert.Fail (".ctor (X509Certificate2): {0}", ex);
+				Assert.Fail ($".ctor (X509Certificate2): {ex}");
 			}
 		}
 

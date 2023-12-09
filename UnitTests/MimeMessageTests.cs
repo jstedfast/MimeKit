@@ -199,7 +199,7 @@ namespace UnitTests {
 			try {
 				message.MessageId = msgid;
 			} catch (Exception ex) {
-				Assert.Fail ("Failed to set MessageId: {0}", ex.Message);
+				Assert.Fail ($"Failed to set MessageId: {ex.Message}");
 			}
 
 			Assert.AreEqual (msgid, message.MessageId, "MessageId");
@@ -207,7 +207,7 @@ namespace UnitTests {
 			try {
 				message.ResentMessageId = msgid;
 			} catch (Exception ex) {
-				Assert.Fail ("Failed to set ResentMessageId: {0}", ex.Message);
+				Assert.Fail ($"Failed to set ResentMessageId: {ex.Message}");
 			}
 
 			Assert.AreEqual (msgid, message.ResentMessageId, "ResentMessageId");
@@ -215,7 +215,7 @@ namespace UnitTests {
 			try {
 				message.InReplyTo = msgid;
 			} catch (Exception ex) {
-				Assert.Fail ("Failed to set InReplyTo: {0}", ex.Message);
+				Assert.Fail ($"Failed to set InReplyTo: {ex.Message}");
 			}
 
 			Assert.AreEqual (msgid, message.InReplyTo, "InReplyTo");

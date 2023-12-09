@@ -106,28 +106,28 @@ namespace UnitTests {
 			try {
 				result = InternetAddressList.Parse (text);
 			} catch {
-				Assert.Fail ("Parse(string): {0}", text);
+				Assert.Fail ($"Parse(string): {text}");
 			}
 			AssertInternetAddressListsEqual (encoded, expected, result);
 
 			try {
 				result = InternetAddressList.Parse (buffer);
 			} catch {
-				Assert.Fail ("Parse(byte[]): {0}", text);
+				Assert.Fail ($"Parse(byte[]): {text}");
 			}
 			AssertInternetAddressListsEqual (encoded, expected, result);
 
 			try {
 				result = InternetAddressList.Parse (buffer, 0);
 			} catch {
-				Assert.Fail ("Parse(byte[], int): {0}", text);
+				Assert.Fail ($"Parse(byte[], int): {text}");
 			}
 			AssertInternetAddressListsEqual (encoded, expected, result);
 
 			try {
 				result = InternetAddressList.Parse (buffer, 0, buffer.Length);
 			} catch {
-				Assert.Fail ("Parse(byte[], int, int): {0}", text);
+				Assert.Fail ($"Parse(byte[], int, int): {text}");
 			}
 			AssertInternetAddressListsEqual (encoded, expected, result);
 		}
@@ -148,28 +148,28 @@ namespace UnitTests {
 				success = InternetAddressList.TryParse (text, out result);
 				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 
 			try {
 				success = InternetAddressList.TryParse (buffer, out result);
 				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 
 			try {
 				success = InternetAddressList.TryParse (buffer, 0, out result);
 				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 
 			try {
 				success = InternetAddressList.TryParse (buffer, 0, buffer.Length, out result);
 				Assert.IsFalse (success, "InternetAddressList.TryParse() should fail to parse \"{0}\".", text);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddressList.TryParse() should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddressList.TryParse() should not throw an exception: {ex}");
 			}
 		}
 
@@ -179,7 +179,7 @@ namespace UnitTests {
 
 			try {
 				InternetAddressList.Parse (text);
-				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+				Assert.Fail ($"InternetAddressList.Parse() should fail to parse \"{text}\".");
 			} catch (ParseException) {
 				// success
 			} catch {
@@ -188,7 +188,7 @@ namespace UnitTests {
 
 			try {
 				InternetAddressList.Parse (buffer);
-				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+				Assert.Fail ($"InternetAddressList.Parse() should fail to parse \"{text}\".");
 			} catch (ParseException) {
 				// success
 			} catch {
@@ -197,7 +197,7 @@ namespace UnitTests {
 
 			try {
 				InternetAddressList.Parse (buffer, 0);
-				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+				Assert.Fail ($"InternetAddressList.Parse() should fail to parse \"{text}\".");
 			} catch (ParseException) {
 				// success
 			} catch {
@@ -206,7 +206,7 @@ namespace UnitTests {
 
 			try {
 				InternetAddressList.Parse (buffer, 0, buffer.Length);
-				Assert.Fail ("InternetAddressList.Parse() should fail to parse \"{0}\".", text);
+				Assert.Fail ($"InternetAddressList.Parse() should fail to parse \"{text}\".");
 			} catch (ParseException) {
 				// success
 			} catch {
@@ -637,7 +637,7 @@ namespace UnitTests {
 			try {
 				Assert.IsTrue (InternetAddressList.TryParse (encoded, out parsed), "Failed to parse address");
 			} catch (Exception ex) {
-				Assert.Fail ("Exception thrown parsing address with unsupported charset: {0}", ex);
+				Assert.Fail ($"Exception thrown parsing address with unsupported charset: {ex}");
 			}
 		}
 

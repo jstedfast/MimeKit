@@ -91,49 +91,49 @@ namespace UnitTests {
 			try {
 				Assert.IsTrue (InternetAddress.TryParse (text, out address), "InternetAddress.TryParse(string) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.TryParse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.TryParse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (InternetAddress.TryParse (buffer, out address), "InternetAddress.TryParse(byte[]) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.TryParse(byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.TryParse(byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (InternetAddress.TryParse (buffer, 0, out address), "InternetAddress.TryParse(byte[], int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.TryParse(byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.TryParse(byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (InternetAddress.TryParse (buffer, 0, buffer.Length, out address), "InternetAddress.TryParse(byte[], int, int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.TryParse(byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.TryParse(byte[], int, int) should not throw an exception: {ex}");
 			}
 
 			try {
 				address = InternetAddress.Parse (text);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				address = InternetAddress.Parse (buffer);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				address = InternetAddress.Parse (buffer, 0);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				address = InternetAddress.Parse (buffer, 0, buffer.Length);
 			} catch (Exception ex) {
-				Assert.Fail ("InternetAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"InternetAddress.Parse(string) should not throw an exception: {ex}");
 			}
 		}
 
@@ -383,12 +383,12 @@ namespace UnitTests {
 
 			try {
 				addr = InternetAddress.Parse (options, text);
-				Assert.Fail ("Should not have parsed \"{0}\" with AllowUnquotedCommasInAddresses = false", text);
+				Assert.Fail ($"Should not have parsed \"{text}\" with AllowUnquotedCommasInAddresses = false");
 			} catch (ParseException pex) {
 				Assert.AreEqual (0, pex.TokenIndex, "TokenIndex");
 				Assert.AreEqual (text.IndexOf (','), pex.ErrorIndex, "ErrorIndex");
 			} catch (Exception ex) {
-				Assert.Fail ("Should not have thrown {0}", ex.GetType ().Name);
+				Assert.Fail ($"Should not have thrown {ex.GetType ().Name}");
 			}
 		}
 

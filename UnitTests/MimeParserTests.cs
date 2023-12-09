@@ -98,7 +98,7 @@ namespace UnitTests {
 
 					Assert.AreEqual ("value 3", value, "Unexpected header value.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -127,7 +127,7 @@ namespace UnitTests {
 
 					Assert.AreEqual ("value 3", value, "Unexpected header value.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -143,7 +143,7 @@ namespace UnitTests {
 					Assert.Fail ("Parsing headers should fail.");
 				} catch (FormatException) {
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -159,7 +159,7 @@ namespace UnitTests {
 					Assert.Fail ("Parsing headers should fail.");
 				} catch (FormatException) {
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -179,7 +179,7 @@ namespace UnitTests {
 
 					Assert.AreEqual ("value 1", value, "Unexpected header value.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -199,7 +199,7 @@ namespace UnitTests {
 
 					Assert.AreEqual ("value 1", value, "Unexpected header value.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -219,7 +219,7 @@ namespace UnitTests {
 
 					Assert.AreEqual ("value 1", value, "Unexpected header value.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -239,7 +239,7 @@ namespace UnitTests {
 
 					Assert.AreEqual ("value 1", value, "Unexpected header value.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -255,7 +255,7 @@ namespace UnitTests {
 
 					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -271,7 +271,7 @@ namespace UnitTests {
 
 					Assert.AreEqual (0, headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse headers: {0}", ex);
+					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
 		}
@@ -400,7 +400,7 @@ namespace UnitTests {
 
 					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse message: {0}", ex);
+					Assert.Fail ($"Failed to parse message: {ex}");
 				}
 			}
 		}
@@ -416,7 +416,7 @@ namespace UnitTests {
 
 					Assert.AreEqual (0, message.Headers.Count, "Unexpected header count.");
 				} catch (Exception ex) {
-					Assert.Fail ("Failed to parse message: {0}", ex);
+					Assert.Fail ($"Failed to parse message: {ex}");
 				}
 			}
 		}

@@ -90,49 +90,49 @@ namespace UnitTests {
 			try {
 				Assert.IsTrue (GroupAddress.TryParse (text, out group), "GroupAddress.TryParse(string) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.TryParse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.TryParse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (GroupAddress.TryParse (buffer, out group), "GroupAddress.TryParse(byte[]) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.TryParse(byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.TryParse(byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (GroupAddress.TryParse (buffer, 0, out group), "GroupAddress.TryParse(byte[], int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.TryParse(byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.TryParse(byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (GroupAddress.TryParse (buffer, 0, buffer.Length, out group), "GroupAddress.TryParse(byte[], int, int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.TryParse(byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.TryParse(byte[], int, int) should not throw an exception: {ex}");
 			}
 
 			try {
 				group = GroupAddress.Parse (text);
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				group = GroupAddress.Parse (buffer);
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				group = GroupAddress.Parse (buffer, 0);
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				group = GroupAddress.Parse (buffer, 0, buffer.Length);
 			} catch (Exception ex) {
-				Assert.Fail ("GroupAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"GroupAddress.Parse(string) should not throw an exception: {ex}");
 			}
 		}
 

@@ -177,7 +177,7 @@ namespace UnitTests.Tnef {
 						message.MessageId = prop.ReadValueAsString ();
 						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.MessageId);
 					} else {
-						Assert.Fail ("Unknown property type for Message-Id: {0}", prop.PropertyTag.ValueTnefType);
+						Assert.Fail ($"Unknown property type for Message-Id: {prop.PropertyTag.ValueTnefType}");
 					}
 					break;
 				case TnefPropertyId.Subject:
@@ -186,7 +186,7 @@ namespace UnitTests.Tnef {
 						message.Subject = prop.ReadValueAsString ();
 						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, message.Subject);
 					} else {
-						Assert.Fail ("Unknown property type for Subject: {0}", prop.PropertyTag.ValueTnefType);
+						Assert.Fail ($"Unknown property type for Subject: {prop.PropertyTag.ValueTnefType}");
 					}
 					break;
 				case TnefPropertyId.RtfCompressed:
@@ -217,7 +217,7 @@ namespace UnitTests.Tnef {
 
 						//Console.WriteLine ("Message Property: {0} = <compressed rtf data>", prop.PropertyTag.Id);
 					} else {
-						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
+						Assert.Fail ($"Unknown property type for {prop.PropertyTag.Id}: {prop.PropertyTag.ValueTnefType}");
 					}
 					break;
 				case TnefPropertyId.BodyHtml:
@@ -232,7 +232,7 @@ namespace UnitTests.Tnef {
 
 						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, html.Text);
 					} else {
-						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
+						Assert.Fail ($"Unknown property type for {prop.PropertyTag.Id}: {prop.PropertyTag.ValueTnefType}");
 					}
 					break;
 				case TnefPropertyId.Body:
@@ -247,7 +247,7 @@ namespace UnitTests.Tnef {
 
 						//Console.WriteLine ("Message Property: {0} = {1}", prop.PropertyTag.Id, plain.Text);
 					} else {
-						Assert.Fail ("Unknown property type for {0}: {1}", prop.PropertyTag.Id, prop.PropertyTag.ValueTnefType);
+						Assert.Fail ($"Unknown property type for {prop.PropertyTag.Id}: {prop.PropertyTag.ValueTnefType}");
 					}
 					break;
 				case TnefPropertyId.AlternateRecipientAllowed:
@@ -621,7 +621,7 @@ namespace UnitTests.Tnef {
 					break;
 
 				if (reader.AttributeLevel != TnefAttributeLevel.Message)
-					Assert.Fail ("Unknown attribute level: {0}", reader.AttributeLevel);
+					Assert.Fail ($"Unknown attribute level: {reader.AttributeLevel}");
 
 				var prop = reader.TnefPropertyReader;
 
@@ -715,7 +715,7 @@ namespace UnitTests.Tnef {
 				}
 
 				if (!found)
-					Assert.Fail ("Failed to locate attachment: {0}", name);
+					Assert.Fail ($"Failed to locate attachment: {name}");
 			}
 
 			// now use TnefPart to do the same thing
@@ -750,7 +750,7 @@ namespace UnitTests.Tnef {
 					}
 
 					if (!found)
-						Assert.Fail ("Failed to locate attachment in TnefPart: {0}", name);
+						Assert.Fail ($"Failed to locate attachment in TnefPart: {name}");
 				}
 
 				// Step 2: verify that the content of the extracted attachments matches up with the expected content

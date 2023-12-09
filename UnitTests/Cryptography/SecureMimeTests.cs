@@ -499,7 +499,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -550,7 +550,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -575,7 +575,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 
@@ -699,7 +699,7 @@ namespace UnitTests.Cryptography {
 							// AppVeyor gets an exception about the root certificate not being trusted
 							Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
+							Assert.Fail ($"Failed to verify signature: {ex}");
 						}
 					}
 				}
@@ -741,7 +741,7 @@ namespace UnitTests.Cryptography {
 							// AppVeyor gets an exception about the root certificate not being trusted
 							Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 						} else {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
+							Assert.Fail ($"Failed to verify signature: {ex}");
 						}
 					}
 				}
@@ -864,7 +864,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -913,7 +913,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -979,7 +979,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1045,7 +1045,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1104,7 +1104,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1163,7 +1163,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1239,7 +1239,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1315,7 +1315,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1373,7 +1373,7 @@ namespace UnitTests.Cryptography {
 						else
 							Assert.AreEqual (ExpiredCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1431,7 +1431,7 @@ namespace UnitTests.Cryptography {
 						else
 							Assert.AreEqual (ExpiredCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1640,16 +1640,16 @@ namespace UnitTests.Cryptography {
 							case EncryptionAlgorithm.Seed:
 								break;
 							default:
-								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
 								break;
 							}
 						} else {
 							if (algorithm != EncryptionAlgorithm.Twofish)
-								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
 						}
 						continue;
 					} catch (Exception ex) {
-						Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+						Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
 						continue;
 					} finally {
 						if (!enabled) {
@@ -1724,16 +1724,16 @@ namespace UnitTests.Cryptography {
 							case EncryptionAlgorithm.Seed:
 								break;
 							default:
-								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
 								break;
 							}
 						} else {
 							if (algorithm != EncryptionAlgorithm.Twofish)
-								Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
 						}
 						continue;
 					} catch (Exception ex) {
-						Assert.Fail ("{0} does not support {1}: {2}", ctx.GetType ().Name, algorithm, ex.Message);
+						Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
 						continue;
 					} finally {
 						if (!enabled) {
@@ -1866,7 +1866,7 @@ namespace UnitTests.Cryptography {
 					decrypted = encrypted.Decrypt (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
-					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
+					Assert.Fail ($"Failed to decrypt thunderbird message: {ex}");
 				}
 
 				// The decrypted part should be a multipart/mixed with a text/plain part and an image attachment,
@@ -1906,7 +1906,7 @@ namespace UnitTests.Cryptography {
 					decrypted = await encrypted.DecryptAsync (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
-					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
+					Assert.Fail ($"Failed to decrypt thunderbird message: {ex}");
 				}
 
 				// The decrypted part should be a multipart/mixed with a text/plain part and an image attachment,
@@ -1998,7 +1998,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -2083,7 +2083,7 @@ namespace UnitTests.Cryptography {
 						// AppVeyor gets an exception about the root certificate not being trusted
 						Assert.AreEqual (UntrustedRootCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -2116,7 +2116,7 @@ namespace UnitTests.Cryptography {
 					decrypted = encrypted.Decrypt (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
-					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
+					Assert.Fail ($"Failed to decrypt thunderbird message: {ex}");
 				}
 
 				// The decrypted part should be a multipart/signed
@@ -2166,7 +2166,7 @@ namespace UnitTests.Cryptography {
 						else
 							Assert.AreEqual (ExpiredCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -2199,7 +2199,7 @@ namespace UnitTests.Cryptography {
 					decrypted = await encrypted.DecryptAsync (ctx);
 				} catch (Exception ex) {
 					Console.WriteLine (ex);
-					Assert.Fail ("Failed to decrypt thunderbird message: {0}", ex);
+					Assert.Fail ($"Failed to decrypt thunderbird message: {ex}");
 				}
 
 				// The decrypted part should be a multipart/signed
@@ -2249,7 +2249,7 @@ namespace UnitTests.Cryptography {
 						else
 							Assert.AreEqual (ExpiredCertificateMessage, ex.InnerException.Message);
 					} else {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -2332,7 +2332,7 @@ namespace UnitTests.Cryptography {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -2359,7 +2359,7 @@ namespace UnitTests.Cryptography {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}

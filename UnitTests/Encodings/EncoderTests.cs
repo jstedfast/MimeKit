@@ -693,7 +693,7 @@ namespace UnitTests.Encodings {
 
 					crc.Update (buf, 0, buf.Length);
 				} else {
-					Assert.Fail ("Unknown field type: {0}.{1}", fsm.GetType ().Name, field.Name);
+					Assert.Fail ($"Unknown field type: {fsm.GetType ().Name}.{field.Name}");
 				}
 			}
 		}

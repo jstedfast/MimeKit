@@ -172,7 +172,7 @@ namespace UnitTests.Text {
 						actual.Append ('\n');
 						break;
 					default:
-						Assert.Fail ("Unhandled token type: {0}", token.Kind);
+						Assert.Fail ($"Unhandled token type: {token.Kind}");
 						break;
 					}
 				}

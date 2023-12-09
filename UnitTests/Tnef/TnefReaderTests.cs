@@ -130,7 +130,7 @@ namespace UnitTests.Tnef {
 				} catch (TnefException ex) {
 					Assert.AreEqual (TnefComplianceStatus.InvalidTnefSignature, ex.Error, "Error");
 				} catch (Exception ex) {
-					Assert.Fail ("new TnefReader should have thrown TnefException, not {0}", ex);
+					Assert.Fail ($"new TnefReader should have thrown TnefException, not {ex}");
 				}
 			}
 		}
@@ -178,7 +178,7 @@ namespace UnitTests.Tnef {
 					} catch (TnefException ex) {
 						Assert.AreEqual (TnefComplianceStatus.InvalidMessageCodepage, ex.Error, "Error");
 					} catch (Exception ex) {
-						Assert.Fail ("ReadNextAttribute should have thrown TnefException, not {0}", ex);
+						Assert.Fail ($"ReadNextAttribute should have thrown TnefException, not {ex}");
 					}
 				}
 			}
@@ -229,7 +229,7 @@ namespace UnitTests.Tnef {
 					} catch (TnefException ex) {
 						Assert.AreEqual (TnefComplianceStatus.InvalidTnefVersion, ex.Error, "Error");
 					} catch (Exception ex) {
-						Assert.Fail ("ReadNextAttribute should have thrown TnefException, not {0}", ex);
+						Assert.Fail ($"ReadNextAttribute should have thrown TnefException, not {ex}");
 					}
 				}
 			}
@@ -284,7 +284,7 @@ namespace UnitTests.Tnef {
 					} catch (TnefException ex) {
 						Assert.AreEqual (TnefComplianceStatus.InvalidAttributeLength, ex.Error, "Error");
 					} catch (Exception ex) {
-						Assert.Fail ("ReadNextAttribute should have thrown TnefException, not {0}", ex);
+						Assert.Fail ($"ReadNextAttribute should have thrown TnefException, not {ex}");
 					}
 				}
 			}
@@ -370,7 +370,7 @@ namespace UnitTests.Tnef {
 					} catch (TnefException ex) {
 						Assert.AreEqual (TnefComplianceStatus.StreamTruncated, ex.Error, "Error");
 					} catch (Exception ex) {
-						Assert.Fail ("ReadAttributeRawValue should have thrown TnefException, not {0}", ex);
+						Assert.Fail ($"ReadAttributeRawValue should have thrown TnefException, not {ex}");
 					}
 				}
 			}
@@ -512,7 +512,7 @@ namespace UnitTests.Tnef {
 					} catch (TnefException ex) {
 						Assert.AreEqual (TnefComplianceStatus.StreamTruncated, ex.Error, "Error");
 					} catch (Exception ex) {
-						Assert.Fail ("Seek should have thrown TnefException, not {0}", ex);
+						Assert.Fail ($"Seek should have thrown TnefException, not {ex}");
 					}
 				}
 			}

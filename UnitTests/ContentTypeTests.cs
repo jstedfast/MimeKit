@@ -206,97 +206,97 @@ namespace UnitTests {
 			try {
 				type = ContentType.Parse (text);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (options, text);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (buffer);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (options, buffer);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (buffer, 0);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (options, buffer, 0);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (buffer, 0, buffer.Length);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 
 			try {
 				type = ContentType.Parse (options, buffer, 0, buffer.Length);
 				if (tokenIndex != -1 && errorIndex != -1)
-					Assert.Fail ("Parsing \"{0}\" should have failed.", text);
+					Assert.Fail ($"Parsing \"{text}\" should have failed.");
 				AssertParseResults (type, expected);
 			} catch (ParseException ex) {
 				Assert.AreEqual (tokenIndex, ex.TokenIndex, "Unexpected token index");
 				Assert.AreEqual (errorIndex, ex.ErrorIndex, "Unexpected error index");
 			} catch (Exception e) {
-				Assert.Fail ("Unexpected exception: {0}", e);
+				Assert.Fail ($"Unexpected exception: {e}");
 			}
 		}
 

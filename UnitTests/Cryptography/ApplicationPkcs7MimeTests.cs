@@ -476,7 +476,7 @@ namespace UnitTests.Cryptography {
 					// AppVeyor gets an exception about the root certificate not being trusted
 					Assert.AreEqual (SecureMimeTestsBase.UntrustedRootCertificateMessage, ex.InnerException.Message);
 				} else {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 
@@ -583,7 +583,7 @@ namespace UnitTests.Cryptography {
 					// AppVeyor gets an exception about the root certificate not being trusted
 					Assert.AreEqual (SecureMimeTestsBase.UntrustedRootCertificateMessage, ex.InnerException.Message);
 				} else {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 
@@ -632,7 +632,7 @@ namespace UnitTests.Cryptography {
 					// AppVeyor gets an exception about the root certificate not being trusted
 					Assert.AreEqual (SecureMimeTestsBase.UntrustedRootCertificateMessage, ex.InnerException.Message);
 				} else {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 

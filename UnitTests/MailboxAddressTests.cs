@@ -200,49 +200,49 @@ namespace UnitTests {
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (text, out mailbox), "MailboxAddress.TryParse(string) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (buffer, out mailbox), "MailboxAddress.TryParse(byte[]) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(byte[], int, int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(byte[], int, int) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (text);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer, 0);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(string) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer, 0, buffer.Length);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(string) should not throw an exception: {ex}");
 			}
 		}
 
@@ -257,49 +257,49 @@ namespace UnitTests {
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (options, text, out mailbox), "MailboxAddress.TryParse(ParserOptions, string) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, string) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (options, buffer, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[]) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (options, buffer, 0, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[], int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[], int, int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, byte[], int, int) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (options, text);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (options, buffer);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (options, buffer, 0);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (options, buffer, 0, buffer.Length);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(ParserOptions, string) should not throw an exception: {ex}");
 			}
 		}
 
@@ -563,12 +563,12 @@ namespace UnitTests {
 
 			try {
 				mailbox = MailboxAddress.Parse (options, text);
-				Assert.Fail ("Should not have parsed \"{0}\" with AllowUnquotedCommasInAddresses = false", text);
+				Assert.Fail ($"Should not have parsed \"{text}\" with AllowUnquotedCommasInAddresses = false");
 			} catch (ParseException pex) {
 				Assert.AreEqual (0, pex.TokenIndex, "TokenIndex");
 				Assert.AreEqual (text.IndexOf (','), pex.ErrorIndex, "ErrorIndex");
 			} catch (Exception ex) {
-				Assert.Fail ("Should not have thrown {0}", ex.GetType ().Name);
+				Assert.Fail ($"Should not have thrown {ex.GetType ().Name}");
 			}
 		}
 
@@ -878,37 +878,37 @@ namespace UnitTests {
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (buffer, out mailbox), "MailboxAddress.TryParse(byte[]) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsTrue (MailboxAddress.TryParse (buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(byte[], int, int) should succeed.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(byte[], int, int) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer, 0);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				mailbox = MailboxAddress.Parse (buffer, 0, buffer.Length);
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.Parse(byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.Parse(byte[], int, int) should not throw an exception: {ex}");
 			}
 		}
 
@@ -927,19 +927,19 @@ namespace UnitTests {
 			try {
 				Assert.IsFalse (MailboxAddress.TryParse (options, buffer, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[]) should fail.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[]) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, byte[]) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsFalse (MailboxAddress.TryParse (options, buffer, 0, out mailbox), "MailboxAddress.TryParse(byte[], int) should fail.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, byte[], int) should not throw an exception: {ex}");
 			}
 
 			try {
 				Assert.IsFalse (MailboxAddress.TryParse (options, buffer, 0, buffer.Length, out mailbox), "MailboxAddress.TryParse(ParserOptions, byte[], int, int) should fail.");
 			} catch (Exception ex) {
-				Assert.Fail ("MailboxAddress.TryParse(ParserOptions, byte[], int, int) should not throw an exception: {0}", ex);
+				Assert.Fail ($"MailboxAddress.TryParse(ParserOptions, byte[], int, int) should not throw an exception: {ex}");
 			}
 
 			try {

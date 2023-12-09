@@ -257,7 +257,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -312,7 +312,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -407,7 +407,7 @@ namespace UnitTests.Cryptography {
 
 							Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 						} catch (DigitalSignatureVerifyException ex) {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
+							Assert.Fail ($"Failed to verify signature: {ex}");
 						}
 					}
 				}
@@ -455,7 +455,7 @@ namespace UnitTests.Cryptography {
 
 							Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 						} catch (DigitalSignatureVerifyException ex) {
-							Assert.Fail ("Failed to verify signature: {0}", ex);
+							Assert.Fail ($"Failed to verify signature: {ex}");
 						}
 					}
 				}
@@ -881,7 +881,7 @@ namespace UnitTests.Cryptography {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 
@@ -917,7 +917,7 @@ namespace UnitTests.Cryptography {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -965,7 +965,7 @@ namespace UnitTests.Cryptography {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 
@@ -1002,7 +1002,7 @@ namespace UnitTests.Cryptography {
 
 						Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ("Failed to verify signature: {0}", ex);
+						Assert.Fail ($"Failed to verify signature: {ex}");
 					}
 				}
 			}
@@ -1032,7 +1032,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1062,7 +1062,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1098,7 +1098,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1135,7 +1135,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1164,7 +1164,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1194,7 +1194,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1230,7 +1230,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1267,7 +1267,7 @@ namespace UnitTests.Cryptography {
 
 					Assert.IsTrue (valid, "Bad signature from {0}", signature.SignerCertificate.Email);
 				} catch (DigitalSignatureVerifyException ex) {
-					Assert.Fail ("Failed to verify signature: {0}", ex);
+					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
 			}
 		}
@@ -1296,7 +1296,7 @@ namespace UnitTests.Cryptography {
 				signatures = multipart.Verify ();
 			} catch (IOException ex) {
 				if (ex.Message == "unknown PGP public key algorithm encountered") {
-					Assert.Ignore ("Known issue: {0}", ex.Message);
+					Assert.Ignore ($"Known issue: {ex.Message}");
 					return;
 				}
 
@@ -1344,7 +1344,7 @@ namespace UnitTests.Cryptography {
 				signatures = await multipart.VerifyAsync ();
 			} catch (IOException ex) {
 				if (ex.Message == "unknown PGP public key algorithm encountered") {
-					Assert.Ignore ("Known issue: {0}", ex.Message);
+					Assert.Ignore ($"Known issue: {ex.Message}");
 					return;
 				}
 
