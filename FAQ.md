@@ -5,7 +5,7 @@
 ### General
 
 * [Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?](#completely-free)
-* [Why am I getting `NotSupportedException: No data is available for encoding ######. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.`?](#register-provider)
+* [Why do I get `NotSupportedException: No data is available for encoding ######. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.`?](#register-provider)
 
 ### Messages
 
@@ -34,7 +34,7 @@
 Yes. MimeKit and MailKit are both completely free and open source. They are both covered under the
 [MIT](https://opensource.org/licenses/MIT) license.
 
-### <a name="register-provider">Q: Why am I getting `NotSupportedException: No data is available for encoding ######. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.`?</a>
+### <a name="register-provider">Q: Why do I get `NotSupportedException: No data is available for encoding ######. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.`?</a>
 
 In .NET Core, Microsoft decided to split out the non-Unicode text encodings into a separate NuGet package called
 [System.Text.Encoding.CodePages](https://www.nuget.org/packages/System.Text.Encoding.CodePages).
