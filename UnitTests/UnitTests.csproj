@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>10</LangVersion>
     <AssemblyName>UnitTests</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
@@ -11,6 +11,7 @@
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     <NoWarn>1701;1702;CA1510;CA1806;CA1835;CA1844;CA1845;CA1850;CA1859;CA1861;IDE0016;IDE0017;IDE0018;IDE0056;IDE0057;IDE0059;IDE0060;IDE0063;IDE0066;IDE0090</NoWarn>
 
     <SQLiteRuntime>win-x64</SQLiteRuntime>
