@@ -924,5 +924,66 @@ namespace UnitTests {
 
 			Assert.That (InternetAddressList.TryParse (text, out _), Is.False);
 		}
+
+		[Test]
+		public void TestCastToMailAddressCollection ()
+		{
+			var list = new InternetAddressList {
+				new MailboxAddress ("Name Zero", "user0@address.com"),
+				new MailboxAddress ("Name One", "user1@address.com"),
+				new MailboxAddress ("Name Two", "user2@address.com")
+			};
+
+			var collection = (System.Net.Mail.MailAddressCollection) list;
+
+			Assert.That (collection.Count, Is.EqualTo (list.Count), "Count");
+			for (int i = 0; i < list.Count; i++) {
+				var mailbox = (MailboxAddress) list[i];
+
+				Assert.That (collection[i].DisplayName, Is.EqualTo (mailbox.Name), $"DisplayName[{i}]");
+				Assert.That (collection[i].Address, Is.EqualTo (mailbox.Address), $"Address[{i}]");
+			}
+
+			list = new InternetAddressList {
+				new GroupAddress ("Local recipients", new InternetAddress[] {
+					new MailboxAddress ("", "phil"),
+					new MailboxAddress ("", "joe"),
+					new MailboxAddress ("", "alex"),
+					new MailboxAddress ("", "bob"),
+				}),
+				new MailboxAddress ("Joey", "joey@friends.com"),
+				new MailboxAddress ("Chandler", "chandler@friends.com")
+			};
+
+			Assert.Throws<InvalidCastException> (() => collection = (System.Net.Mail.MailAddressCollection) list);
+
+			list = null;
+			collection = (System.Net.Mail.MailAddressCollection) list;
+			Assert.That (collection, Is.Null);
+		}
+
+		[Test]
+		public void TestCaseFromMailAddressCollection ()
+		{
+			var collection = new System.Net.Mail.MailAddressCollection {
+				new System.Net.Mail.MailAddress ("user0@address.com", "Name Zero"),
+				new System.Net.Mail.MailAddress ("user1@address.com", "Name One"),
+				new System.Net.Mail.MailAddress ("user2@address.com", "Name Two")
+			};
+
+			var list = (InternetAddressList) collection;
+
+			Assert.That (list.Count, Is.EqualTo (collection.Count), "Count");
+			for (int i = 0; i < list.Count; i++) {
+				var mailbox = (MailboxAddress) list[i];
+
+				Assert.That (mailbox.Name, Is.EqualTo (collection[i].DisplayName), $"Name[{i}]");
+				Assert.That (mailbox.Address, Is.EqualTo (collection[i].Address), $"Address[{i}]");
+			}
+
+			collection = null;
+			list = (InternetAddressList) collection;
+			Assert.That (list, Is.Null);
+		}
 	}
 }

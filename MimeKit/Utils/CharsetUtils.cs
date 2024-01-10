@@ -379,6 +379,15 @@ namespace MimeKit.Utils {
 			return Encoding.GetEncoding (codepage);
 		}
 
+		public static Encoding GetEncodingOrDefault (int codepage, Encoding defaultEncoding)
+		{
+			try {
+				return Encoding.GetEncoding (codepage);
+			} catch {
+				return defaultEncoding;
+			}
+		}
+
 		class InvalidByteCountFallback : DecoderFallback
 		{
 			class InvalidByteCountFallbackBuffer : DecoderFallbackBuffer

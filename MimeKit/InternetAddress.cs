@@ -429,14 +429,8 @@ namespace MimeKit {
 
 		internal static bool TryParseMailbox (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
 		{
+			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
 			DomainList route = null;
-			Encoding encoding;
-
-			try {
-				encoding = Encoding.GetEncoding (codepage);
-			} catch {
-				encoding = Encoding.UTF8;
-			}
 
 			address = null;
 
@@ -544,14 +538,8 @@ namespace MimeKit {
 
 		static bool TryParseGroup (AddressParserFlags flags, ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, int groupDepth, string name, int codepage, out InternetAddress address)
 		{
+			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
-			Encoding encoding;
-
-			try {
-				encoding = Encoding.GetEncoding (codepage);
-			} catch {
-				encoding = Encoding.UTF8;
-			}
 
 			// skip over the ':'
 			index++;
