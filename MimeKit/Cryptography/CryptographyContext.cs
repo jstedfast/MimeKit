@@ -40,7 +40,7 @@ namespace MimeKit.Cryptography {
 	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>,
 	/// <see cref="MultipartEncrypted"/> and <see cref="ApplicationPkcs7Mime"/>.
 	/// </remarks>
-	public abstract class CryptographyContext : IDisposable
+	public abstract class CryptographyContext : ICryptographyContext
 	{
 		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
 		static Func<SecureMimeContext> SecureMimeContextFactory;
@@ -78,12 +78,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Get or set whether <see cref="MimeEntity"/>s should be prepared before signing.
+		/// Get or set whether a <see cref="MimeEntity"/> should be prepared before signing.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether <see cref="MimeEntity"/>s should be prepared before signing.
+		/// Gets or sets whether a <see cref="MimeEntity"/> should be prepared before signing.
 		/// </remarks>
-		/// <value><c>true</c> if MimeEntities should be prepared before signing; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if a MimeEntity should be prepared before signing; otherwise, <c>false</c>.</value>
 		public bool PrepareBeforeSigning {
 			get; set;
 		}
@@ -802,7 +802,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="factory"/> is <c>null</c>.
 		/// </exception>
-		public static void Register (Func<SecureMimeContext> factory) 
+		public static void Register (Func<SecureMimeContext> factory)
 		{
 			if (factory == null)
 				throw new ArgumentNullException (nameof (factory));
@@ -825,7 +825,7 @@ namespace MimeKit.Cryptography {
 		public static void Register (Func<OpenPgpContext> factory)
 		{
 			if (factory == null)
-				throw new ArgumentNullException(nameof (factory));
+				throw new ArgumentNullException (nameof (factory));
 
 			lock (mutex) {
 				PgpContextFactory = factory;
