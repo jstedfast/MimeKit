@@ -33,7 +33,7 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents MIME entities with a Content-Type of text/rfc822-headers.
 	/// </remarks>
-	public class TextRfc822Headers : MessagePart
+	public class TextRfc822Headers : MessagePart, ITextRfc822Headers
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TextRfc822Headers"/> class.
