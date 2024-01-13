@@ -363,42 +363,6 @@ namespace MimeKit.Cryptography {
 			stream.Write (rawValue, 0, rawLength);
 		}
 
-		/// <summary>
-		/// Create the digest signing context.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new digest signing context that uses the specified algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The DKIM signature algorithm.</param>
-		/// <param name="key">The public key.</param>
-		/// <returns>The digest signer.</returns>
-		internal virtual ISigner CreateVerifyContext (DkimSignatureAlgorithm algorithm, AsymmetricKeyParameter key)
-		{
-#if ENABLE_NATIVE_DKIM
-			return new SystemSecuritySigner (algorithm, key.AsAsymmetricAlgorithm ());
-#else
-			ISigner signer;
-
-			switch (algorithm) {
-			case DkimSignatureAlgorithm.RsaSha1:
-				signer = new RsaDigestSigner (new Sha1Digest ());
-				break;
-			case DkimSignatureAlgorithm.RsaSha256:
-				signer = new RsaDigestSigner (new Sha256Digest ());
-				break;
-			case DkimSignatureAlgorithm.Ed25519Sha256:
-				signer = new Ed25519DigestSigner (new Sha256Digest ());
-				break;
-			default:
-				throw new NotSupportedException (string.Format ("{0} is not supported.", algorithm));
-			}
-
-			signer.Init (key.IsPrivate, key);
-
-			return signer;
-#endif
-		}
-
 		internal static void WriteHeaders (FormatOptions options, MimeMessage message, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, Stream stream)
 		{
 			var counts = new Dictionary<string, int> (StringComparer.Ordinal);
@@ -529,9 +493,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="canonicalizationAlgorithm">The algorithm used to canonicalize the headers.</param>
 		/// <param name="signature">The expected signature of the headers encoded in base64.</param>
 		/// <returns><see langword="true" /> if the calculated signature matches <paramref name="signature"/>; otherwise, <see langword="false" />.</returns>
-		protected bool VerifySignature (FormatOptions options, MimeMessage message, Header dkimSignature, DkimSignatureAlgorithm signatureAlgorithm, AsymmetricKeyParameter key, string[] headers, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, string signature)
+		protected bool VerifySignature (FormatOptions options, MimeMessage message, Header dkimSignature, DkimSignatureAlgorithm signatureAlgorithm, IDkimPublicKey key, string[] headers, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, string signature)
 		{
-			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {
+			using (var stream = new DkimSignatureStream (key.CreateVerifyContext (signatureAlgorithm))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 

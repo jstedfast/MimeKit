@@ -80,7 +80,9 @@ namespace UnitTests.Cryptography {
 
 		static DkimSigner CreateSigner (DkimSignatureAlgorithm algorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
 		{
-			return new DkimSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+			var privateKey = BouncyCastleDkimPrivateKey.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"));
+
+			return new DkimSigner (privateKey, "example.com", "1433868189.example") {
 				BodyCanonicalizationAlgorithm = bodyAlgorithm,
 				HeaderCanonicalizationAlgorithm = headerAlgorithm,
 				SignatureAlgorithm = algorithm,
@@ -92,8 +94,10 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDkimSignerCtors ()
 		{
+			var privateKey = new BouncyCastleDkimPrivateKey (DkimKeys.Private);
+
 			Assert.DoesNotThrow (() => {
-				var signer = new DkimSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"), "example.com", "1433868189.example") {
+				var signer = new DkimSigner (privateKey, "example.com", "1433868189.example") {
 					SignatureAlgorithm = DkimSignatureAlgorithm.RsaSha256,
 					AgentOrUserIdentifier = "@eng.example.com",
 					QueryMethod = "dns/txt"
@@ -183,12 +187,12 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDkimSignatureStream ()
 		{
-			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha1, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
+			var privateKey = new BouncyCastleDkimPrivateKey (DkimKeys.Private);
 			var buffer = new byte[128];
 
 			Assert.Throws<ArgumentNullException> (() => new DkimSignatureStream (null));
 
-			using (var stream = new DkimSignatureStream (signer.CreateSigningContext ())) {
+			using (var stream = new DkimSignatureStream (privateKey.CreateSigningContext (DkimSignatureAlgorithm.RsaSha1))) {
 				Assert.That (stream.CanRead, Is.False);
 				Assert.That (stream.CanWrite, Is.True);
 				Assert.That (stream.CanSeek, Is.False);

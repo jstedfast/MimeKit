@@ -27,8 +27,6 @@
 using System;
 using System.IO;
 
-using Org.BouncyCastle.Crypto;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A DKIM signature stream.
@@ -47,26 +45,26 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="DkimSignatureStream"/>.
 		/// </remarks>
-		/// <param name="signer">The digest signer.</param>
+		/// <param name="ctx">The signature context.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signer"/>is <see langword="null"/>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
-		public DkimSignatureStream (ISigner signer)
+		public DkimSignatureStream (IDkimSignatureContext ctx)
 		{
-			if (signer == null)
-				throw new ArgumentNullException (nameof (signer));
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
 
-			Signer = signer;
+			Context = ctx;
 		}
 
 		/// <summary>
-		/// Get the digest signer.
+		/// Get the digest signature context.
 		/// </summary>
 		/// <remarks>
-		/// Gets the digest signer.
+		/// Gets the digest signature context.
 		/// </remarks>
-		/// <value>The signer.</value>
-		public ISigner Signer {
+		/// <value>The signature context.</value>
+		public IDkimSignatureContext Context {
 			get; private set;
 		}
 
@@ -79,7 +77,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The signature.</returns>
 		public byte[] GenerateSignature ()
 		{
-			return Signer.GenerateSignature ();
+			return Context.GenerateSignature ();
 		}
 
 		/// <summary>
@@ -100,7 +98,7 @@ namespace MimeKit.Cryptography {
 
 			var rawSignature = Convert.FromBase64String (signature);
 
-			return Signer.VerifySignature (rawSignature);
+			return Context.VerifySignature (rawSignature);
 		}
 
 		void CheckDisposed ()
@@ -269,7 +267,7 @@ namespace MimeKit.Cryptography {
 
 			ValidateArguments (buffer, offset, count);
 
-			Signer.BlockUpdate (buffer, offset, count);
+			Context.Update (buffer, offset, count);
 
 			length += count;
 		}
@@ -345,13 +343,7 @@ namespace MimeKit.Cryptography {
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !disposed) {
-#if ENABLE_NATIVE_DKIM
-				var sss = Signer as SystemSecuritySigner;
-
-				if (sss != null)
-					sss.Dispose ();
-#endif
-
+				Context.Dispose ();
 				disposed = true;
 			}
 

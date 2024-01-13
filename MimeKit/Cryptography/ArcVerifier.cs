@@ -385,8 +385,8 @@ namespace MimeKit.Cryptography {
 		{
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
-			AsymmetricKeyParameter key;
 			string d, s, q, bh, b;
+			IDkimPublicKey key;
 			string[] headers;
 			int maxLength;
 
@@ -417,7 +417,7 @@ namespace MimeKit.Cryptography {
 		async Task<bool> VerifyArcSealAsync (FormatOptions options, ArcHeaderSet[] sets, int i, bool doAsync, CancellationToken cancellationToken)
 		{
 			DkimSignatureAlgorithm algorithm;
-			AsymmetricKeyParameter key;
+			IDkimPublicKey key;
 			string d, s, q, b;
 
 			ValidateArcSealParameters (sets[i].ArcSealParameters, out algorithm, out d, out s, out q, out b);
@@ -430,13 +430,13 @@ namespace MimeKit.Cryptography {
 			else
 				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
-			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
+			if (key.Algorithm == DkimPublicKeyAlgorithm.Rsa && key.KeySize < MinimumRsaKeyLength)
 				return false;
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
-			using (var stream = new DkimSignatureStream (CreateVerifyContext (algorithm, key))) {
+			using (var stream = new DkimSignatureStream (key.CreateVerifyContext (algorithm))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 

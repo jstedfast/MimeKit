@@ -89,13 +89,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		protected ArcSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		protected ArcSigner (IDkimPrivateKey key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
 		{
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
-
-			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			PrivateKey = key;
 		}
@@ -109,7 +106,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcSignerExample.cs" />
 		/// </example>
-		/// <param name="fileName">The file containing the private key.</param>
+		/// <param name="fileName">The file containing the private key in PEM format.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
@@ -157,7 +154,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.
 		/// </remarks>
-		/// <param name="stream">The stream containing the private key.</param>
+		/// <param name="stream">The stream containing the private key in PEM format.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
@@ -269,7 +266,7 @@ namespace MimeKit.Cryptography {
 			builder.Append ("; t=");
 			builder.AppendInvariant (t);
 
-			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
+			using (var stream = new DkimSignatureStream (PrivateKey.CreateSigningContext (SignatureAlgorithm))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -323,7 +320,7 @@ namespace MimeKit.Cryptography {
 			builder.Append ("; t=");
 			builder.AppendInvariant (t);
 
-			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
+			using (var stream = new DkimSignatureStream (PrivateKey.CreateSigningContext (SignatureAlgorithm))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
