@@ -114,8 +114,8 @@ namespace MimeKit.Cryptography {
 			var parameters = ParseParameterTags (dkimSignature.Id, dkimSignature.Value);
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
-			AsymmetricKeyParameter key;
 			string d, s, q, bh, b;
+			IDkimPublicKey key;
 			string[] headers;
 			int maxLength;
 
@@ -137,7 +137,7 @@ namespace MimeKit.Cryptography {
 			else
 				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
 
-			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
+			if (key.Algorithm == DkimPublicKeyAlgorithm.Rsa && key.KeySize < MinimumRsaKeyLength)
 				return false;
 
 			return VerifySignature (options, message, dkimSignature, signatureAlgorithm, key, headers, headerAlgorithm, b);

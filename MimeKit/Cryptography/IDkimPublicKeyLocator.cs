@@ -27,8 +27,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Org.BouncyCastle.Crypto;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An interface for a service which locates and retrieves DKIM public keys (probably via DNS).
@@ -68,7 +66,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="domain">The domain.</param>
 		/// <param name="selector">The selector.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default);
+		IDkimPublicKey LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously locate and retrieve the public key for the given domain and selector.
@@ -89,6 +87,6 @@ namespace MimeKit.Cryptography {
 		/// <param name="domain">The domain.</param>
 		/// <param name="selector">The selector.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default);
+		Task<IDkimPublicKey> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default);
 	}
 }

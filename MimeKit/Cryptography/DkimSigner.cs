@@ -95,13 +95,10 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		public DkimSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		public DkimSigner (IDkimPrivateKey key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
 		{
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
-
-			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			PrivateKey = key;
 		}
@@ -292,7 +289,7 @@ namespace MimeKit.Cryptography {
 				builder.AppendInvariant (x);
 			}
 
-			using (var stream = new DkimSignatureStream (CreateSigningContext ())) {
+			using (var stream = new DkimSignatureStream (PrivateKey.CreateSigningContext (SignatureAlgorithm))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
