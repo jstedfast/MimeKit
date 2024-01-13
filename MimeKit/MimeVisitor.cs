@@ -24,11 +24,8 @@
 // THE SOFTWARE.
 //
 
-#if ENABLE_CRYPTO
-using MimeKit.Cryptography;
-#endif
-
 using MimeKit.Tnef;
+using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
@@ -60,7 +57,7 @@ namespace MimeKit {
 		/// Dispatches the entity to one of the more specialized visit methods in this class.
 		/// </remarks>
 		/// <param name="entity">The MIME entity.</param>
-		public virtual void Visit (MimeEntity entity)
+		public virtual void Visit (IMimeEntity entity)
 		{
 			entity?.Accept (this);
 		}
@@ -72,12 +69,11 @@ namespace MimeKit {
 		/// Dispatches the message to one of the more specialized visit methods in this class.
 		/// </remarks>
 		/// <param name="message">The MIME message.</param>
-		public virtual void Visit (MimeMessage message)
+		public virtual void Visit (IMimeMessage message)
 		{
 			message?.Accept (this);
 		}
 
-#if ENABLE_CRYPTO
 		/// <summary>
 		/// Visit the application/pgp-encrypted MIME entity.
 		/// </summary>
@@ -86,7 +82,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <seealso cref="MimeKit.Cryptography.MultipartEncrypted"/>
 		/// <param name="entity">The application/pgp-encrypted MIME entity.</param>
-		protected internal virtual void VisitApplicationPgpEncrypted (ApplicationPgpEncrypted entity)
+		protected internal virtual void VisitApplicationPgpEncrypted (IApplicationPgpEncrypted entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -99,7 +95,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <seealso cref="MimeKit.Cryptography.MultipartSigned"/>
 		/// <param name="entity">The application/pgp-signature MIME entity.</param>
-		protected internal virtual void VisitApplicationPgpSignature (ApplicationPgpSignature entity)
+		protected internal virtual void VisitApplicationPgpSignature (IApplicationPgpSignature entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -111,7 +107,7 @@ namespace MimeKit {
 		/// Visits the application/pkcs7-mime MIME entity.
 		/// </remarks>
 		/// <param name="entity">The application/pkcs7-mime MIME entity.</param>
-		protected internal virtual void VisitApplicationPkcs7Mime (ApplicationPkcs7Mime entity)
+		protected internal virtual void VisitApplicationPkcs7Mime (IApplicationPkcs7Mime entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -124,11 +120,10 @@ namespace MimeKit {
 		/// </remarks>
 		/// <seealso cref="MimeKit.Cryptography.MultipartSigned"/>
 		/// <param name="entity">The application/pkcs7-signature MIME entity.</param>
-		protected internal virtual void VisitApplicationPkcs7Signature (ApplicationPkcs7Signature entity)
+		protected internal virtual void VisitApplicationPkcs7Signature (IApplicationPkcs7Signature entity)
 		{
 			VisitMimePart (entity);
 		}
-#endif
 
 		/// <summary>
 		/// Visit the message/disposition-notification MIME entity.
@@ -137,7 +132,7 @@ namespace MimeKit {
 		/// Visits the message/disposition-notification MIME entity.
 		/// </remarks>
 		/// <param name="entity">The message/disposition-notification MIME entity.</param>
-		protected internal virtual void VisitMessageDispositionNotification (MessageDispositionNotification entity)
+		protected internal virtual void VisitMessageDispositionNotification (IMessageDispositionNotification entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -149,7 +144,7 @@ namespace MimeKit {
 		/// Visits the message/delivery-status MIME entity.
 		/// </remarks>
 		/// <param name="entity">The message/delivery-status MIME entity.</param>
-		protected internal virtual void VisitMessageDeliveryStatus (MessageDeliveryStatus entity)
+		protected internal virtual void VisitMessageDeliveryStatus (IMessageDeliveryStatus entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -161,7 +156,7 @@ namespace MimeKit {
 		/// Visits the message/feedback-report MIME entity.
 		/// </remarks>
 		/// <param name="entity">The message/feedback-report MIME entity.</param>
-		protected internal virtual void VisitMessageFeedbackReport (MessageFeedbackReport entity)
+		protected internal virtual void VisitMessageFeedbackReport (IMessageFeedbackReport entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -173,7 +168,7 @@ namespace MimeKit {
 		/// Visits the message contained within a message/rfc822 or message/news MIME entity.
 		/// </remarks>
 		/// <param name="entity">The message/rfc822 or message/news MIME entity.</param>
-		protected virtual void VisitMessage (MessagePart entity)
+		protected virtual void VisitMessage (IMessagePart entity)
 		{
 			entity.Message?.Accept (this);
 		}
@@ -188,7 +183,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="entity">The message/rfc822 or message/news MIME entity.</param>
-		protected internal virtual void VisitMessagePart (MessagePart entity)
+		protected internal virtual void VisitMessagePart (IMessagePart entity)
 		{
 			VisitMimeEntity (entity);
 			VisitMessage (entity);
@@ -201,7 +196,7 @@ namespace MimeKit {
 		/// Visits the message/partial MIME entity.
 		/// </remarks>
 		/// <param name="entity">The message/partial MIME entity.</param>
-		protected internal virtual void VisitMessagePartial (MessagePartial entity)
+		protected internal virtual void VisitMessagePartial (IMessagePartial entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -213,7 +208,7 @@ namespace MimeKit {
 		/// Visits the abstract MIME entity.
 		/// </remarks>
 		/// <param name="entity">The MIME entity.</param>
-		protected internal virtual void VisitMimeEntity (MimeEntity entity)
+		protected internal virtual void VisitMimeEntity (IMimeEntity entity)
 		{
 		}
 
@@ -224,7 +219,7 @@ namespace MimeKit {
 		/// Visits the body of the message.
 		/// </remarks>
 		/// <param name="message">The message.</param>
-		protected virtual void VisitBody (MimeMessage message)
+		protected virtual void VisitBody (IMimeMessage message)
 		{
 			message.Body?.Accept (this);
 		}
@@ -236,7 +231,7 @@ namespace MimeKit {
 		/// Visits the MIME message.
 		/// </remarks>
 		/// <param name="message">The MIME message.</param>
-		protected internal virtual void VisitMimeMessage (MimeMessage message)
+		protected internal virtual void VisitMimeMessage (IMimeMessage message)
 		{
 			VisitBody (message);
 		}
@@ -251,7 +246,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="entity">The MIME part entity.</param>
-		protected internal virtual void VisitMimePart (MimePart entity)
+		protected internal virtual void VisitMimePart (IMimePart entity)
 		{
 			VisitMimeEntity (entity);
 		}
@@ -263,7 +258,7 @@ namespace MimeKit {
 		/// Visits the children of a <see cref="Multipart"/>.
 		/// </remarks>
 		/// <param name="multipart">Multipart.</param>
-		protected virtual void VisitChildren (Multipart multipart)
+		protected virtual void VisitChildren (IMultipart multipart)
 		{
 			for (int i = 0; i < multipart.Count; i++)
 				multipart[i].Accept (this);
@@ -276,7 +271,7 @@ namespace MimeKit {
 		/// Visits the abstract multipart MIME entity.
 		/// </remarks>
 		/// <param name="multipart">The multipart MIME entity.</param>
-		protected internal virtual void VisitMultipart (Multipart multipart)
+		protected internal virtual void VisitMultipart (IMultipart multipart)
 		{
 			VisitMimeEntity (multipart);
 			VisitChildren (multipart);
@@ -292,12 +287,11 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="alternative">The multipart/alternative MIME entity.</param>
-		protected internal virtual void VisitMultipartAlternative (MultipartAlternative alternative)
+		protected internal virtual void VisitMultipartAlternative (IMultipartAlternative alternative)
 		{
 			VisitMultipart (alternative);
 		}
 
-#if ENABLE_CRYPTO
 		/// <summary>
 		/// Visit the multipart/encrypted MIME entity.
 		/// </summary>
@@ -305,11 +299,10 @@ namespace MimeKit {
 		/// Visits the multipart/encrypted MIME entity.
 		/// </remarks>
 		/// <param name="encrypted">The multipart/encrypted MIME entity.</param>
-		protected internal virtual void VisitMultipartEncrypted (MultipartEncrypted encrypted)
+		protected internal virtual void VisitMultipartEncrypted (IMultipartEncrypted encrypted)
 		{
 			VisitMultipart (encrypted);
 		}
-#endif
 
 		/// <summary>
 		/// Visit the multipart/related MIME entity.
@@ -321,7 +314,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="related">The multipart/related MIME entity.</param>
-		protected internal virtual void VisitMultipartRelated (MultipartRelated related)
+		protected internal virtual void VisitMultipartRelated (IMultipartRelated related)
 		{
 			VisitMultipart (related);
 		}
@@ -336,12 +329,11 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="report">The multipart/report MIME entity.</param>
-		protected internal virtual void VisitMultipartReport (MultipartReport report)
+		protected internal virtual void VisitMultipartReport (IMultipartReport report)
 		{
 			VisitMultipart (report);
 		}
 
-#if ENABLE_CRYPTO
 		/// <summary>
 		/// Visit the multipart/signed MIME entity.
 		/// </summary>
@@ -349,11 +341,10 @@ namespace MimeKit {
 		/// Visits the multipart/signed MIME entity.
 		/// </remarks>
 		/// <param name="signed">The multipart/signed MIME entity.</param>
-		protected internal virtual void VisitMultipartSigned (MultipartSigned signed)
+		protected internal virtual void VisitMultipartSigned (IMultipartSigned signed)
 		{
 			VisitMultipart (signed);
 		}
-#endif
 
 		/// <summary>
 		/// Visit the text-based MIME part entity.
@@ -365,7 +356,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="entity">The text-based MIME part entity.</param>
-		protected internal virtual void VisitTextPart (TextPart entity)
+		protected internal virtual void VisitTextPart (ITextPart entity)
 		{
 			VisitMimePart (entity);
 		}
@@ -380,7 +371,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="entity">The text/rfc822-headers MIME entity.</param>
-		protected internal virtual void VisitTextRfc822Headers (TextRfc822Headers entity)
+		protected internal virtual void VisitTextRfc822Headers (ITextRfc822Headers entity)
 		{
 			VisitMessagePart (entity);
 		}
@@ -395,7 +386,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="entity">The Microsoft TNEF MIME part entity.</param>
-		protected internal virtual void VisitTnefPart (TnefPart entity)
+		protected internal virtual void VisitTnefPart (ITnefPart entity)
 		{
 			VisitMimePart (entity);
 		}

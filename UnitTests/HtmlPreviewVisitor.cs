@@ -33,7 +33,7 @@ namespace UnitTests {
 	/// </summary>
 	class HtmlPreviewVisitor : MimeVisitor
 	{
-		readonly List<MultipartRelated> stack = new List<MultipartRelated> ();
+		readonly List<IMultipartRelated> stack = new List<IMultipartRelated> ();
 		string body;
 
 		/// <summary>
@@ -59,14 +59,14 @@ namespace UnitTests {
 			get { return body ?? string.Empty; }
 		}
 
-		protected internal override void VisitMultipartAlternative (MultipartAlternative alternative)
+		protected internal override void VisitMultipartAlternative (IMultipartAlternative alternative)
 		{
 			// walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful
 			for (int i = alternative.Count - 1; i >= 0 && body == null; i--)
 				alternative[i].Accept (this);
 		}
 
-		protected internal override void VisitMultipartRelated (MultipartRelated related)
+		protected internal override void VisitMultipartRelated (IMultipartRelated related)
 		{
 			var root = related.Root;
 
@@ -170,7 +170,7 @@ namespace UnitTests {
 			}
 		}
 
-		protected internal override void VisitTextPart (TextPart entity)
+		protected internal override void VisitTextPart (ITextPart entity)
 		{
 			TextConverter converter;
 
@@ -200,7 +200,7 @@ namespace UnitTests {
 			base.VisitTextPart (entity);
 		}
 
-		protected internal override void VisitMessagePart (MessagePart entity)
+		protected internal override void VisitMessagePart (IMessagePart entity)
 		{
 			// don't descend into message/rfc822 parts
 		}
