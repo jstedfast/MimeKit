@@ -43,9 +43,9 @@ namespace UnitTests {
 
 		class TextRfc822HeadersVisitor : MimeVisitor
 		{
-			public TextRfc822Headers Rfc822Headers;
+			public ITextRfc822Headers Rfc822Headers;
 
-			protected internal override void VisitTextRfc822Headers (TextRfc822Headers entity)
+			protected internal override void VisitTextRfc822Headers (ITextRfc822Headers entity)
 			{
 				Rfc822Headers = entity;
 			}

@@ -102,133 +102,133 @@ namespace UnitTests {
 			public int TextRfc822Headers;
 			public int TnefPart;
 
-			protected internal override void VisitApplicationPgpEncrypted (ApplicationPgpEncrypted entity)
+			protected internal override void VisitApplicationPgpEncrypted (IApplicationPgpEncrypted entity)
 			{
 				ApplicationPgpEncrypted++;
 				base.VisitApplicationPgpEncrypted (entity);
 			}
 
-			protected internal override void VisitApplicationPgpSignature (ApplicationPgpSignature entity)
+			protected internal override void VisitApplicationPgpSignature (IApplicationPgpSignature entity)
 			{
 				ApplicationPgpSignature++;
 				base.VisitApplicationPgpSignature (entity);
 			}
 
-			protected internal override void VisitApplicationPkcs7Mime (ApplicationPkcs7Mime entity)
+			protected internal override void VisitApplicationPkcs7Mime (IApplicationPkcs7Mime entity)
 			{
 				ApplicationPkcs7Mime++;
 				base.VisitApplicationPkcs7Mime (entity);
 			}
 
-			protected internal override void VisitApplicationPkcs7Signature (ApplicationPkcs7Signature entity)
+			protected internal override void VisitApplicationPkcs7Signature (IApplicationPkcs7Signature entity)
 			{
 				ApplicationPkcs7Signature++;
 				base.VisitApplicationPkcs7Signature (entity);
 			}
 
-			protected override void VisitMessage (MessagePart entity)
+			protected override void VisitMessage (IMessagePart entity)
 			{
 				Message++;
 				base.VisitMessage (entity);
 			}
 
-			protected internal override void VisitMessageDeliveryStatus (MessageDeliveryStatus entity)
+			protected internal override void VisitMessageDeliveryStatus (IMessageDeliveryStatus entity)
 			{
 				MessageDeliveryStatus++;
 				base.VisitMessageDeliveryStatus (entity);
 			}
 
-			protected internal override void VisitMessageDispositionNotification (MessageDispositionNotification entity)
+			protected internal override void VisitMessageDispositionNotification (IMessageDispositionNotification entity)
 			{
 				MessageDispositionNotification++;
 				base.VisitMessageDispositionNotification (entity);
 			}
 
-			protected internal override void VisitMessageFeedbackReport (MessageFeedbackReport entity)
+			protected internal override void VisitMessageFeedbackReport (IMessageFeedbackReport entity)
 			{
 				MessageFeedbackReport++;
 				base.VisitMessageFeedbackReport (entity);
 			}
 
-			protected internal override void VisitMessagePart (MessagePart entity)
+			protected internal override void VisitMessagePart (IMessagePart entity)
 			{
 				MessagePart++;
 				base.VisitMessagePart (entity);
 			}
 
-			protected internal override void VisitMessagePartial (MessagePartial entity)
+			protected internal override void VisitMessagePartial (IMessagePartial entity)
 			{
 				MessagePartial++;
 				base.VisitMessagePartial (entity);
 			}
 
-			protected internal override void VisitMimeEntity (MimeEntity entity)
+			protected internal override void VisitMimeEntity (IMimeEntity entity)
 			{
 				MimeEntity++;
 				base.VisitMimeEntity (entity);
 			}
 
-			protected internal override void VisitMimeMessage (MimeMessage message)
+			protected internal override void VisitMimeMessage (IMimeMessage message)
 			{
 				MimeMessage++;
 				base.VisitMimeMessage (message);
 			}
 
-			protected internal override void VisitMimePart (MimePart entity)
+			protected internal override void VisitMimePart (IMimePart entity)
 			{
 				MimePart++;
 				base.VisitMimePart (entity);
 			}
 
-			protected internal override void VisitMultipart (Multipart multipart)
+			protected internal override void VisitMultipart (IMultipart multipart)
 			{
 				Multipart++;
 				base.VisitMultipart (multipart);
 			}
 
-			protected internal override void VisitMultipartAlternative (MultipartAlternative alternative)
+			protected internal override void VisitMultipartAlternative (IMultipartAlternative alternative)
 			{
 				MultipartAlternative++;
 				base.VisitMultipartAlternative (alternative);
 			}
 
-			protected internal override void VisitMultipartEncrypted (MultipartEncrypted encrypted)
+			protected internal override void VisitMultipartEncrypted (IMultipartEncrypted encrypted)
 			{
 				MultipartEncrypted++;
 				base.VisitMultipartEncrypted (encrypted);
 			}
 
-			protected internal override void VisitMultipartRelated (MultipartRelated related)
+			protected internal override void VisitMultipartRelated (IMultipartRelated related)
 			{
 				MultipartRelated++;
 				base.VisitMultipartRelated (related);
 			}
 
-			protected internal override void VisitMultipartReport (MultipartReport report)
+			protected internal override void VisitMultipartReport (IMultipartReport report)
 			{
 				MultipartReport++;
 				base.VisitMultipartReport (report);
 			}
 
-			protected internal override void VisitMultipartSigned (MultipartSigned signed)
+			protected internal override void VisitMultipartSigned (IMultipartSigned signed)
 			{
 				MultipartSigned++;
 				base.VisitMultipartSigned (signed);
 			}
 
-			protected internal override void VisitTextPart (TextPart entity)
+			protected internal override void VisitTextPart (ITextPart entity)
 			{
 				TextPart++;
 				base.VisitTextPart (entity);
 			}
 
-			protected internal override void VisitTextRfc822Headers (TextRfc822Headers entity)
+			protected internal override void VisitTextRfc822Headers (ITextRfc822Headers entity)
 			{
 				TextRfc822Headers++;
 				base.VisitTextRfc822Headers (entity);
 			}
 
-			protected internal override void VisitTnefPart (TnefPart entity)
+			protected internal override void VisitTnefPart (ITnefPart entity)
 			{
 				TnefPart++;
 				base.VisitTnefPart (entity);
