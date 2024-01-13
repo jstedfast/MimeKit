@@ -29,12 +29,9 @@ using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
 
-#if ENABLE_CRYPTO
-using MimeKit.Cryptography;
-#endif
-
 using MimeKit.Tnef;
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
@@ -399,6 +396,7 @@ namespace MimeKit {
 				if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
 					subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
 					return new ApplicationPkcs7Signature (args);
+#endif
 
 				// application/pgp-encrypted
 				if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
@@ -409,7 +407,6 @@ namespace MimeKit {
 				if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
 					subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
 					return new ApplicationPgpSignature (args);
-#endif
 
 				// application/ms-tnef
 				if (subtype.Equals ("ms-tnef", StringComparison.OrdinalIgnoreCase) ||
