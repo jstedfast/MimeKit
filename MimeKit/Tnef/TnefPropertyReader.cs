@@ -400,33 +400,11 @@ namespace MimeKit.Tnef {
 			return reader.ReadDouble ();
 		}
 
-		// Note: this method taken from Microsoft's Reference Source in DateTime.cs
-		static long DoubleDateToTicks (double value)
-		{
-			// The check done this way will take care of NaN
-			if (!(value < OADateMaxAsDouble) || !(value > OADateMinAsDouble))
-				throw new ArgumentException ("Invalid OLE Automation Date.", nameof (value));
-
-			long millis = (long) (value * MillisPerDay + (value >= 0 ? 0.5 : -0.5));
-
-			if (millis < 0)
-				millis -= (millis % MillisPerDay) * 2;
-
-			millis += DoubleDateOffset / TicksPerMillisecond;
-
-			if (millis < 0 || millis >= MaxMillis)
-				throw new ArgumentException ("Invalid OLE Automation Date.", nameof (value));
-
-			return millis * TicksPerMillisecond;
-		}
-
 		DateTime ReadAppTime ()
 		{
 			var appTime = ReadDouble ();
 
-			// Note: equivalent to DateTime.FromOADate(). Unfortunately, FromOADate() is
-			// not available in some PCL profiles.
-			return new DateTime (DoubleDateToTicks (appTime), DateTimeKind.Unspecified);
+			return DateTime.FromOADate (appTime);
 		}
 
 		DateTime ReadSysTime ()
