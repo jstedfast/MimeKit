@@ -55,7 +55,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
+		/// The provided <see cref="IOpenPgpContext"/> does not support the protocol parameter.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default);
+		MimeEntity Decrypt (IOpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decrypts the <see cref="IMultipartEncrypted"/> part.
@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
+		/// The provided <see cref="IOpenPgpContext"/> does not support the protocol parameter.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
@@ -107,7 +107,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		MimeEntity Decrypt (OpenPgpContext ctx, CancellationToken cancellationToken = default);
+		MimeEntity Decrypt (IOpenPgpContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decrypts the <see cref="IMultipartEncrypted"/> part.
@@ -125,7 +125,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A suitable <see cref="CryptographyContext"/> for
+		/// A suitable <see cref="ICryptographyContext"/> for
 		/// decrypting could not be found.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
@@ -158,7 +158,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A suitable <see cref="CryptographyContext"/> for
+		/// A suitable <see cref="ICryptographyContext"/> for
 		/// decrypting could not be found.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">

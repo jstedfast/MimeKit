@@ -65,7 +65,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		DigitalSignatureCollection Verify (CryptographyContext ctx, CancellationToken cancellationToken = default);
+		DigitalSignatureCollection Verify (ICryptographyContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verify the multipart/signed part.
@@ -94,7 +94,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		Task<DigitalSignatureCollection> VerifyAsync (CryptographyContext ctx, CancellationToken cancellationToken = default);
+		Task<DigitalSignatureCollection> VerifyAsync (ICryptographyContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verify the multipart/signed part.
