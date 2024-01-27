@@ -41,17 +41,5 @@ namespace UnitTests {
 
 			Assert.DoesNotThrow (() => format.MaxLineLength = 72);
 		}
-
-		[Test]
-		public void TestInvalidOperationExceptions ()
-		{
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.MaxLineLength = 998, "MaxLineLength");
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.EnsureNewLine = true, "EnsureNewLine");
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.International = true, "International");
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.NewLineFormat = NewLineFormat.Dos, "NewLineFormat");
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.AllowMixedHeaderCharsets = true, "AllowMixedHeaderCharsets");
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047, "ParameterEncodingMethod");
-			Assert.Throws<InvalidOperationException> (() => FormatOptions.Default.AlwaysQuoteParameterValues = true, "AlwaysQuoteParameterValues");
-		}
 	}
 }

@@ -106,15 +106,9 @@ namespace MimeKit {
 		/// <exception cref="ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is out of range. It must be between 60 and 998.
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <see cref="Default"/> cannot be changed.
-		/// </exception>
 		public int MaxLineLength {
 			get { return maxLineLength; }
 			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
 				if (value < MinimumLineLength || value > MaximumLineLength)
 					throw new ArgumentOutOfRangeException (nameof (value));
 
@@ -133,15 +127,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"> is not a valid <see cref="NewLineFormat"/>.</paramref>
 		/// </exception>
-		/// <exception cref="System.InvalidOperationException">
-		/// <see cref="Default"/> cannot be changed.
-		/// </exception>
 		public NewLineFormat NewLineFormat {
 			get { return newLineFormat; }
 			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
 				switch (newLineFormat) {
 				case NewLineFormat.Unix:
 				case NewLineFormat.Dos:
@@ -165,17 +153,9 @@ namespace MimeKit {
 		/// that writing the message back to a stream will always end with a new-line sequence.</para>
 		/// </remarks>
 		/// <value><c>true</c> in order to ensure that the message will end with a new-line sequence; otherwise, <c>false</c>.</value>
-		/// <exception cref="System.InvalidOperationException">
-		/// <see cref="Default"/> cannot be changed.
-		/// </exception>
 		public bool EnsureNewLine {
 			get { return ensureNewLine; }
-			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
-				ensureNewLine = value;
-			}
+			set { ensureNewLine = value; }
 		}
 
 		internal IMimeFilter CreateNewLineFilter (bool ensureNewLine = false)
@@ -229,17 +209,9 @@ namespace MimeKit {
 		/// (<a href="https://tools.ietf.org/html/rfc6855">rfc6855</a>).</para>
 		/// </remarks>
 		/// <value><c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
-		/// <exception cref="System.InvalidOperationException">
-		/// <see cref="Default"/> cannot be changed.
-		/// </exception>
 		public bool International {
 			get { return international; }
-			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
-				international = value;
-			}
+			set { international = value; }
 		}
 
 		/// <summary>
@@ -260,12 +232,7 @@ namespace MimeKit {
 		/// <value><c>true</c> if the formatter should be allowed to use us-ascii and/or iso-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
 		public bool AllowMixedHeaderCharsets {
 			get { return allowMixedHeaderCharsets; }
-			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
-				allowMixedHeaderCharsets = value;
-			}
+			set { allowMixedHeaderCharsets = value; }
 		}
 
 		/// <summary>
@@ -288,9 +255,6 @@ namespace MimeKit {
 		public ParameterEncodingMethod ParameterEncodingMethod {
 			get { return parameterEncodingMethod; }
 			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
 				switch (value) {
 				case ParameterEncodingMethod.Rfc2047:
 				case ParameterEncodingMethod.Rfc2231:
@@ -315,12 +279,7 @@ namespace MimeKit {
 		/// <value><c>true</c> if Content-Type and Content-Disposition parameters should always be quoted; otherwise, <c>false</c>.</value>
 		public bool AlwaysQuoteParameterValues {
 			get { return alwaysQuoteParameterValues; }
-			set {
-				if (this == Default)
-					throw new InvalidOperationException ("The default formatting options cannot be changed.");
-
-				alwaysQuoteParameterValues = value;
-			}
+			set { alwaysQuoteParameterValues = value; }
 		}
 
 		static FormatOptions ()
