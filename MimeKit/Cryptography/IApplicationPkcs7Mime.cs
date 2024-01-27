@@ -52,7 +52,7 @@ namespace MimeKit.Cryptography {
 		/// Decompress the compressed-data.
 		/// </summary>
 		/// <remarks>
-		/// Decompresses the compressed-data using the specified <see cref="SecureMimeContext"/>.
+		/// Decompresses the compressed-data using the specified <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
@@ -72,13 +72,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		MimeEntity Decompress (SecureMimeContext ctx, CancellationToken cancellationToken = default);
+		MimeEntity Decompress (ISecureMimeContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously decompress the compressed-data.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously decompresses the compressed-data using the specified <see cref="SecureMimeContext"/>.
+		/// Asynchronously decompresses the compressed-data using the specified <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
@@ -98,13 +98,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		Task<MimeEntity> DecompressAsync (SecureMimeContext ctx, CancellationToken cancellationToken = default);
+		Task<MimeEntity> DecompressAsync (ISecureMimeContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decompress the compressed-data.
 		/// </summary>
 		/// <remarks>
-		/// Decompresses the compressed-data using the default <see cref="SecureMimeContext"/>.
+		/// Decompresses the compressed-data using the default <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeEntity"/>.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// Asynchronously decompress the compressed-data.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously decompresses the compressed-data using the default <see cref="SecureMimeContext"/>.
+		/// Asynchronously decompresses the compressed-data using the default <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decompressed <see cref="MimeEntity"/>.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -148,7 +148,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt the enveloped-data.
 		/// </summary>
 		/// <remarks>
-		/// Decrypts the enveloped-data using the specified <see cref="SecureMimeContext"/>.
+		/// Decrypts the enveloped-data using the specified <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
@@ -168,13 +168,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		MimeEntity Decrypt (SecureMimeContext ctx, CancellationToken cancellationToken = default);
+		MimeEntity Decrypt (ISecureMimeContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously decrypt the enveloped-data.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously decrypts the enveloped-data using the specified <see cref="SecureMimeContext"/>.
+		/// Asynchronously decrypts the enveloped-data using the specified <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
@@ -194,13 +194,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		Task<MimeEntity> DecryptAsync (SecureMimeContext ctx, CancellationToken cancellationToken = default);
+		Task<MimeEntity> DecryptAsync (ISecureMimeContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decrypt the enveloped-data.
 		/// </summary>
 		/// <remarks>
-		/// Decrypts the enveloped-data using the default <see cref="SecureMimeContext"/>.
+		/// Decrypts the enveloped-data using the default <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -222,7 +222,7 @@ namespace MimeKit.Cryptography {
 		/// Asynchronously decrypt the enveloped-data.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously decrypts the enveloped-data using the default <see cref="SecureMimeContext"/>.
+		/// Asynchronously decrypts the enveloped-data using the default <see cref="ISecureMimeContext"/>.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -263,7 +263,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		void Import (SecureMimeContext ctx, CancellationToken cancellationToken = default);
+		void Import (ISecureMimeContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Asynchronously import the certificates contained in the application/pkcs7-mime content.
@@ -289,7 +289,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		Task ImportAsync (SecureMimeContext ctx, CancellationToken cancellationToken = default);
+		Task ImportAsync (ISecureMimeContext ctx, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verify the signed-data and return the unencapsulated <see cref="MimeEntity"/>.
@@ -319,13 +319,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		DigitalSignatureCollection Verify (SecureMimeContext ctx, out MimeEntity entity, CancellationToken cancellationToken = default);
+		DigitalSignatureCollection Verify (ISecureMimeContext ctx, out MimeEntity entity, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Verifies the signed-data and returns the unencapsulated <see cref="MimeEntity"/>.
 		/// </summary>
 		/// <remarks>
-		/// Verifies the signed-data using the default <see cref="SecureMimeContext"/> and returns the
+		/// Verifies the signed-data using the default <see cref="ISecureMimeContext"/> and returns the
 		/// unencapsulated <see cref="MimeEntity"/>.
 		/// </remarks>
 		/// <returns>The list of digital signatures.</returns>

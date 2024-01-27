@@ -52,7 +52,7 @@ namespace MimeKit.Cryptography {
 	/// directly, but rather via higher level APIs such as <see cref="MultipartSigned"/>
 	/// and <see cref="MultipartEncrypted"/>.</note>
 	/// </remarks>
-	public abstract class OpenPgpContext : CryptographyContext
+	public abstract class OpenPgpContext : CryptographyContext, IOpenPgpContext
 	{
 		static readonly string[] ProtocolSubtypes = { "pgp-signature", "pgp-encrypted", "pgp-keys", "x-pgp-signature", "x-pgp-encrypted", "x-pgp-keys" };
 		const string BeginPublicKeyBlock = "-----BEGIN PGP PUBLIC KEY BLOCK-----";

@@ -100,7 +100,7 @@ namespace MimeKit.Cryptography {
 			visitor.VisitMultipartEncrypted (this);
 		}
 
-		static MultipartEncrypted CreateMultipartEncrypted (OpenPgpContext ctx, MimeEntity part)
+		static MultipartEncrypted CreateMultipartEncrypted (IOpenPgpContext ctx, MimeEntity part)
 		{
 			var encrypted = new MultipartEncrypted ();
 
@@ -115,7 +115,7 @@ namespace MimeKit.Cryptography {
 			return encrypted;
 		}
 
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -201,7 +201,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted SignAndEncrypt (IOpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -257,12 +257,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, true, cancellationToken);
 		}
 
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -338,7 +338,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted SignAndEncrypt (IOpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -384,7 +384,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, true, cancellationToken);
 		}
@@ -422,7 +422,7 @@ namespace MimeKit.Cryptography {
 		/// The <paramref name="digestAlgo"/> was out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
@@ -450,7 +450,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, cancellationToken);
 		}
 
@@ -487,7 +487,7 @@ namespace MimeKit.Cryptography {
 		/// The <paramref name="digestAlgo"/> was out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
@@ -515,7 +515,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -541,7 +541,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// A default <see cref="IOpenPgpContext"/> has not been registered.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key for <paramref name="signer"/> could not be found.
@@ -569,7 +569,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity, cancellationToken);
 		}
 
@@ -595,7 +595,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// A default <see cref="IOpenPgpContext"/> has not been registered.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key for <paramref name="signer"/> could not be found.
@@ -623,11 +623,11 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -713,7 +713,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted SignAndEncrypt (IOpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -769,12 +769,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, true, cancellationToken);
 		}
 
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -857,7 +857,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted SignAndEncrypt (IOpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -910,7 +910,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> SignAndEncryptAsync (IOpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, true, cancellationToken);
 		}
@@ -948,7 +948,7 @@ namespace MimeKit.Cryptography {
 		/// The <paramref name="digestAlgo"/> was out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
@@ -976,7 +976,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, cancellationToken);
 		}
 
@@ -1013,7 +1013,7 @@ namespace MimeKit.Cryptography {
 		/// The <paramref name="digestAlgo"/> was out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// <para>-or-</para>
@@ -1041,7 +1041,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -1077,7 +1077,7 @@ namespace MimeKit.Cryptography {
 		/// The <paramref name="digestAlgo"/> was out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// </exception>
@@ -1103,7 +1103,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return SignAndEncrypt (ctx, signer, digestAlgo, recipients, entity, cancellationToken);
 		}
 
@@ -1139,7 +1139,7 @@ namespace MimeKit.Cryptography {
 		/// The <paramref name="digestAlgo"/> was out of range.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The <paramref name="digestAlgo"/> is not supported.</para>
 		/// </exception>
@@ -1165,11 +1165,11 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1239,7 +1239,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted Encrypt (IOpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1277,12 +1277,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, true, cancellationToken);
 		}
 
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1348,7 +1348,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted Encrypt (IOpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1382,7 +1382,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, true, cancellationToken);
 		}
@@ -1409,7 +1409,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
@@ -1427,7 +1427,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return Encrypt (ctx, algorithm, recipients, entity, cancellationToken);
 		}
 
@@ -1453,7 +1453,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
@@ -1471,7 +1471,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await EncryptAsync (ctx, algorithm, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -1493,7 +1493,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// A default <see cref="IOpenPgpContext"/> has not been registered.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1512,7 +1512,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return Encrypt (ctx, recipients, entity, cancellationToken);
 		}
 
@@ -1534,7 +1534,7 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="entity"/> is <c>null</c>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// A default <see cref="IOpenPgpContext"/> has not been registered.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1553,11 +1553,11 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await EncryptAsync (ctx, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1627,7 +1627,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted Encrypt (IOpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1665,12 +1665,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, algorithm, recipients, entity, true, cancellationToken);
 		}
 
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		static async Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1736,7 +1736,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static MultipartEncrypted Encrypt (IOpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -1770,7 +1770,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static Task<MultipartEncrypted> EncryptAsync (IOpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (ctx, recipients, entity, true, cancellationToken);
 		}
@@ -1797,7 +1797,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
@@ -1815,7 +1815,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return Encrypt (ctx, algorithm, recipients, entity, cancellationToken);
 		}
 
@@ -1841,7 +1841,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// <para>A default <see cref="OpenPgpContext"/> has not been registered.</para>
+		/// <para>A default <see cref="IOpenPgpContext"/> has not been registered.</para>
 		/// <para>-or-</para>
 		/// <para>The specified encryption algorithm is not supported.</para>
 		/// </exception>
@@ -1859,7 +1859,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await EncryptAsync (ctx, algorithm, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -1884,7 +1884,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// A default <see cref="IOpenPgpContext"/> has not been registered.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1900,7 +1900,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return Encrypt (ctx, recipients, entity, cancellationToken);
 		}
 
@@ -1925,7 +1925,7 @@ namespace MimeKit.Cryptography {
 		/// One or more of the recipient keys cannot be used for encrypting.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// A default <see cref="OpenPgpContext"/> has not been registered.
+		/// A default <see cref="IOpenPgpContext"/> has not been registered.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1941,7 +1941,7 @@ namespace MimeKit.Cryptography {
 			if (entity == null)
 				throw new ArgumentNullException (nameof (entity));
 
-			using (var ctx = (OpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
+			using (var ctx = (IOpenPgpContext) CryptographyContext.Create ("application/pgp-encrypted"))
 				return await EncryptAsync (ctx, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -1965,7 +1965,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
+		/// The provided <see cref="IOpenPgpContext"/> does not support the protocol parameter.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
@@ -1981,7 +1981,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
+		public MimeEntity Decrypt (IOpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -2038,7 +2038,7 @@ namespace MimeKit.Cryptography {
 		/// <para>The multipart is malformed in some way.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
-		/// The provided <see cref="OpenPgpContext"/> does not support the protocol parameter.
+		/// The provided <see cref="IOpenPgpContext"/> does not support the protocol parameter.
 		/// </exception>
 		/// <exception cref="PrivateKeyNotFoundException">
 		/// The private key could not be found to decrypt the encrypted data.
@@ -2054,7 +2054,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (OpenPgpContext ctx, CancellationToken cancellationToken = default)
+		public MimeEntity Decrypt (IOpenPgpContext ctx, CancellationToken cancellationToken = default)
 		{
 			return Decrypt (ctx, out _, cancellationToken);
 		}
