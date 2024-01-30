@@ -747,13 +747,13 @@ namespace MimeKit.Tnef {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
 					ReadInt32 ();
-					decoder = (Decoder) Encoding.Unicode.GetDecoder ();
+					decoder = Encoding.Unicode.GetDecoder ();
 					break;
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
 					ReadInt32 ();
-					decoder = (Decoder) GetMessageEncoding ().GetDecoder ();
+					decoder = GetMessageEncoding ().GetDecoder ();
 					break;
 				}
 			}

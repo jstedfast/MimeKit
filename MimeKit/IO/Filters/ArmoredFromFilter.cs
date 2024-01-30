@@ -41,7 +41,7 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class ArmoredFromFilter : MimeFilterBase
 	{
-		static readonly byte[] From = { (byte) 'F', (byte) 'r', (byte) 'o', (byte) 'm', (byte) ' ' };
+		static ReadOnlySpan<byte> From => "From "u8;
 
 		bool midline;
 

@@ -48,7 +48,7 @@ namespace MimeKit {
 
 	class Boundary
 	{
-		public static readonly byte[] MboxFrom = Encoding.ASCII.GetBytes ("From ");
+		public static readonly byte[] MboxFrom = "From "u8.ToArray();
 
 		public byte[] Marker { get; private set; }
 		public int FinalLength { get { return Marker.Length; } }

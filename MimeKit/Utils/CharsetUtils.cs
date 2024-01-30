@@ -489,7 +489,7 @@ namespace MimeKit.Utils {
 
 			for (int i = 0; i < codepages.Length; i++) {
 				encoding = Encoding.GetEncoding (codepages[i], new EncoderReplacementFallback ("?"), invalid);
-				decoder = (Decoder) encoding.GetDecoder ();
+				decoder = encoding.GetDecoder ();
 
 				count = decoder.GetCharCount (input, startIndex, length, true);
 				if (invalid.InvalidByteCount < min) {
@@ -505,7 +505,7 @@ namespace MimeKit.Utils {
 			}
 
 			encoding = GetEncoding (best, "?");
-			decoder = (Decoder) encoding.GetDecoder ();
+			decoder = encoding.GetDecoder ();
 
 			var output = new char[bestCharCount];
 

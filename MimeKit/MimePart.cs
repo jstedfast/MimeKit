@@ -719,7 +719,7 @@ namespace MimeKit {
 				}
 
 				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
-					var buffer = Encoding.ASCII.GetBytes ("end");
+					var buffer = "end"u8.ToArray ();
 
 					if (cancellable != null) {
 						cancellable.Write (buffer, 0, buffer.Length, cancellationToken);
@@ -803,7 +803,7 @@ namespace MimeKit {
 				}
 
 				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
-					var buffer = Encoding.ASCII.GetBytes ("end");
+					var buffer = "end"u8.ToArray();
 
 					await stream.WriteAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false);
 					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
