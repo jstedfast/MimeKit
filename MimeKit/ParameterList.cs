@@ -896,16 +896,16 @@ namespace MimeKit {
 				if (TryGetCharset (text, ref index, endIndex, out string charset)) {
 					try {
 						encoding = CharsetUtils.GetEncoding (charset, "?");
-						decoder = (Decoder) encoding.GetDecoder ();
+						decoder = encoding.GetDecoder ();
 					} catch (NotSupportedException) {
 						encoding = Encoding.GetEncoding (28591); // iso-8859-1
-						decoder = (Decoder) encoding.GetDecoder ();
+						decoder = encoding.GetDecoder ();
 					}
 				} else {
 					// When no charset is specified, it should be safe to assume US-ASCII...
 					// but we all know what assume means, right??
 					encoding = Encoding.GetEncoding (28591); // iso-8859-1
-					decoder = (Decoder) encoding.GetDecoder ();
+					decoder = encoding.GetDecoder ();
 				}
 			} else {
 				encoding = null;
