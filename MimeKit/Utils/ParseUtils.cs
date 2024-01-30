@@ -390,7 +390,7 @@ namespace MimeKit.Utils {
 			return TryParseDotAtom (text, ref index, endIndex, sentinels, throwOnError, "domain", out domain);
 		}
 
-		static ReadOnlySpan<byte> GreaterThanOrAt => new[] { (byte) '>', (byte) '@' };
+		static ReadOnlySpan<byte> GreaterThanOrAt => [(byte) '>', (byte) '@'];
 
 		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
 		{

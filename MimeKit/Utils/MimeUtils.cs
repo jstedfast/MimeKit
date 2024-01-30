@@ -41,7 +41,7 @@ namespace MimeKit.Utils {
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		static string DefaultHostName = null;
-		static readonly char[] UnquoteChars = new[] { '\r', '\n', '\t', '\\', '"' };
+		static readonly char[] UnquoteChars = ['\r', '\n', '\t', '\\', '"'];
 
 		/// <summary>
 		/// A string comparer that performs a case-insensitive ordinal string comparison.

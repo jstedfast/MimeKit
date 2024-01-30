@@ -51,7 +51,7 @@ namespace MimeKit {
 			Multipart
 		}
 
-		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
+		static ReadOnlySpan<byte> UTF8ByteOrderMark => [0xEF, 0xBB, 0xBF];
 
 		const int HeaderBufferGrowSize = 64;
 		const int ReadAheadSize = 128;
@@ -69,7 +69,7 @@ namespace MimeKit {
 		int headerIndex;
 		int headerCount;
 
-		readonly List<Boundary> bounds = new List<Boundary> ();
+		readonly List<Boundary> bounds = [];
 
 		ContentEncoding? currentEncoding;
 		ContentType currentContentType;

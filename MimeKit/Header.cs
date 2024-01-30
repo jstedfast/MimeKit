@@ -41,8 +41,8 @@ namespace MimeKit {
 	/// </remarks>
 	public class Header
 	{
-		internal static readonly byte[] Colon = { (byte) ':' };
-		static readonly char[] WhiteSpace = { ' ', '\t', '\r', '\n' };
+		internal static readonly byte[] Colon = [(byte) ':'];
+		static readonly char[] WhiteSpace = [' ', '\t', '\r', '\n'];
 		internal readonly ParserOptions Options;
 
 		// cached FormatOptions that change the way the header is formatted
@@ -607,8 +607,8 @@ namespace MimeKit {
 				index++;
 		}
 
-		static ReadOnlySpan<byte> ReceivedAddrSpecSentinels => new[] { (byte) '>', (byte) ';' };
-		static ReadOnlySpan<byte> ReceivedMessageIdSentinels => new[] { (byte) '>' };
+		static ReadOnlySpan<byte> ReceivedAddrSpecSentinels => [(byte) '>', (byte) ';'];
+		static ReadOnlySpan<byte> ReceivedMessageIdSentinels => [(byte) '>'];
 
 		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
 		{
@@ -652,14 +652,14 @@ namespace MimeKit {
 			}
 		}
 
-		static readonly ReceivedToken[] ReceivedTokens = {
+		static readonly ReceivedToken[] ReceivedTokens = [
 			new ReceivedToken ("from", ReceivedTokenSkipDomain),
 			new ReceivedToken ("by", ReceivedTokenSkipDomain),
 			new ReceivedToken ("via", ReceivedTokenSkipDomain),
 			new ReceivedToken ("with", ReceivedTokenSkipAtom),
 			new ReceivedToken ("id", ReceivedTokenSkipMessageId),
 			new ReceivedToken ("for", ReceivedTokenSkipAddress),
-		};
+		];
 
 		class ReceivedTokenValue
 		{
@@ -964,7 +964,7 @@ namespace MimeKit {
 
 		static bool IsWhiteSpace (char c)
 		{
-			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+			return c is ' ' or '\t' or '\r' or '\n';
 		}
 
 		readonly struct Word
@@ -1744,7 +1744,7 @@ namespace MimeKit {
 				}
 			} else {
 				// Note: The only way to get here is if we have an invalid header, in which case the entire 'header' is stored as the 'field'.
-				value = Array.Empty<byte> ();
+				value = [];
 			}
 
 			header = new Header (options, field, value, invalid);

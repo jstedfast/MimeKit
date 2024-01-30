@@ -53,7 +53,7 @@ namespace MimeKit {
 		int mboxMarkerLength;
 
 		// Current MimeMessage/MimeEntity Header state
-		readonly List<Header> headers = new List<Header> ();
+		readonly List<Header> headers = [];
 		byte[] preHeaderBuffer;
 		int preHeaderLength;
 

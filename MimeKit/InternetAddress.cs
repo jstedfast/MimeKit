@@ -373,7 +373,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => new[] { (byte) ',', (byte) '>', (byte) ';' };
+		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => [(byte)',', (byte) '>', (byte) ';'];
 
 		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, out string addrspec, out int at)
 		{
