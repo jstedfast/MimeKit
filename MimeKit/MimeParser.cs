@@ -48,7 +48,7 @@ namespace MimeKit {
 
 	class Boundary
 	{
-		public static readonly byte[] MboxFrom = Encoding.ASCII.GetBytes ("From ");
+		public static readonly byte[] MboxFrom = "From "u8.ToArray();
 
 		public byte[] Marker { get; private set; }
 		public int FinalLength { get { return Marker.Length; } }
@@ -106,7 +106,7 @@ namespace MimeKit {
 	/// </remarks>
 	public partial class MimeParser : IMimeParser, IEnumerable<MimeMessage>
 	{
-		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
+		static ReadOnlySpan<byte> UTF8ByteOrderMark => [0xEF, 0xBB, 0xBF];
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 4;
