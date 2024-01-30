@@ -38,7 +38,7 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class MboxFromFilter : MimeFilterBase
 	{
-		static readonly byte[] From = { (byte) 'F', (byte) 'r', (byte) 'o', (byte) 'm', (byte) ' ' };
+		static ReadOnlySpan<byte> From => [(byte) 'F', (byte) 'r', (byte) 'o', (byte) 'm', (byte) ' '];
 		bool midline;
 
 		/// <summary>
