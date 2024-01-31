@@ -33,11 +33,12 @@ namespace MimeKit.IO.Filters {
 	/// Quoted-Printable encoding.
 	/// </summary>
 	/// <remarks>
-	/// <para>From-armoring is a workaround to prevent receiving clients (or servers)
-	/// that uses the mbox file format for local storage from munging the line
-	/// by prepending a ">", as is typical with the mbox format.</para>
+	/// <para>From-armoring is a workaround to prevent receiving clients and/or servers
+	/// that use the mbox file format for local storage from munging every line of the
+	/// message content beginning with "From " by prepending a ">" to each of those lines,
+	/// as is typical with software using the mbox format.</para>
 	/// <para>This armoring technique ensures that the receiving client will still
-	/// be able to verify S/MIME signatures.</para>
+	/// be able to verify PGP/MIME and S/MIME signatures.</para>
 	/// </remarks>
 	public class ArmoredFromFilter : MimeFilterBase
 	{
