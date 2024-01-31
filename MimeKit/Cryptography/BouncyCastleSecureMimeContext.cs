@@ -1238,10 +1238,10 @@ namespace MimeKit.Cryptography {
 			{
 				string name;
 
-				if (PkcsObjectIdentifiers.IdRsaesOaep.Id.Equals (keyExchangeAlgorithm.Algorithm.Id, StringComparison.Ordinal)) {
+				if (keyExchangeAlgorithm.Algorithm.Id.Equals (PkcsObjectIdentifiers.IdRsaesOaep.Id, StringComparison.Ordinal)) {
 					var oaepParameters = RsaesOaepParameters.GetInstance (keyExchangeAlgorithm.Parameters);
 					name = "RSA//OAEPWITH" + DigestUtilities.GetAlgorithmName (oaepParameters.HashAlgorithm.Algorithm) + "ANDMGF1Padding";
-				} else if (PkcsObjectIdentifiers.RsaEncryption.Id.Equals (keyExchangeAlgorithm.Algorithm.Id, StringComparison.Ordinal)) {
+				} else if (keyExchangeAlgorithm.Algorithm.Id.Equals (PkcsObjectIdentifiers.RsaEncryption.Id, StringComparison.Ordinal)) {
 					name = "RSA//PKCS1Padding";
 				} else {
 					name = keyExchangeAlgorithm.Algorithm.Id;
