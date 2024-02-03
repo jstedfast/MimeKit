@@ -217,7 +217,7 @@ namespace MimeKit {
 			if (maxSize < 1)
 				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
-			var options = FormatOptions.CloneDefault ();
+			var options = FormatOptions.Default.Clone ();
 			foreach (HeaderId id in Enum.GetValues (typeof (HeaderId))) {
 				switch (id) {
 				case HeaderId.Subject:

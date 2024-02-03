@@ -764,7 +764,7 @@ namespace MimeKit.Cryptography {
 
 				using (var cleartext = new MemoryBlockStream ()) {
 					// Note: see rfc2015 or rfc3156, section 5.1
-					var options = FormatOptions.CloneDefault ();
+					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
 					options.VerifyingSignature = true;
 
@@ -834,7 +834,7 @@ namespace MimeKit.Cryptography {
 
 				using (var cleartext = new MemoryBlockStream ()) {
 					// Note: see rfc2015 or rfc3156, section 5.1
-					var options = FormatOptions.CloneDefault ();
+					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
 					options.VerifyingSignature = true;
 

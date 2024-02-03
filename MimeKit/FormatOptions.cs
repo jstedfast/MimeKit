@@ -331,19 +331,5 @@ namespace MimeKit {
 				international = international
 			};
 		}
-
-		/// <summary>
-		/// Get the default formatting options in a thread-safe way.
-		/// </summary>
-		/// <remarks>
-		/// Gets the default formatting options in a thread-safe way.
-		/// </remarks>
-		/// <returns>The default formatting options.</returns>
-		internal static FormatOptions CloneDefault ()
-		{
-			lock (Default) {
-				return Default.Clone ();
-			}
-		}
 	}
 }

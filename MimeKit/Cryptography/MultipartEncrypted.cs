@@ -130,7 +130,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				if (doAsync)
@@ -277,7 +277,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				if (doAsync)
@@ -642,7 +642,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				if (doAsync)
@@ -789,7 +789,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				if (doAsync)

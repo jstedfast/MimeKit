@@ -1807,7 +1807,7 @@ namespace MimeKit {
 			if (content is null)
 				throw new ArgumentNullException (nameof (content));
 
-			var format = FormatOptions.CloneDefault ();
+			var format = FormatOptions.Default.Clone ();
 			format.NewLineFormat = NewLineFormat.Dos;
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);
@@ -1860,7 +1860,7 @@ namespace MimeKit {
 			if (content is null)
 				throw new ArgumentNullException (nameof (content));
 
-			var format = FormatOptions.CloneDefault ();
+			var format = FormatOptions.Default.Clone ();
 			format.NewLineFormat = NewLineFormat.Dos;
 
 			var encoded = contentType.Encode (format, Encoding.UTF8);

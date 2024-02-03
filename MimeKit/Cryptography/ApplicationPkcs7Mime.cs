@@ -628,7 +628,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				if (doAsync)
@@ -805,7 +805,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory, cancellationToken);
@@ -854,7 +854,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
@@ -981,7 +981,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory, cancellationToken);
@@ -1036,7 +1036,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
@@ -1173,7 +1173,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory, cancellationToken);
@@ -1226,7 +1226,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
@@ -1363,7 +1363,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				entity.WriteTo (options, memory, cancellationToken);
@@ -1420,7 +1420,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.CloneDefault ();
+				var options = FormatOptions.Default.Clone ();
 				options.NewLineFormat = NewLineFormat.Dos;
 
 				await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
