@@ -45,15 +45,9 @@ namespace MimeKit {
 		static readonly char[] WhiteSpace = { ' ', '\t', '\r', '\n' };
 		internal readonly ParserOptions Options;
 
-		// cached FormatOptions that change the way the header is formatted
-		//bool allowMixedHeaderCharsets = FormatOptions.Default.AllowMixedHeaderCharsets;
-		//NewLineFormat newLineFormat = FormatOptions.Default.NewLineFormat;
-		//bool international = FormatOptions.Default.International;
-		//Encoding charset = CharsetUtils.UTF8;
-
 		readonly byte[] rawField;
+		int cachedHeaderFormatOptions;
 		bool explicitRawValue;
-		bool international;
 		string textValue;
 		byte[] rawValue;
 
@@ -308,8 +302,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new message or entity header with the specified raw values.</para>
-		/// <para>This constructor is used by the
-		/// <a href="Overload_MimeKit_Header_TryParse.htm">TryParse</a> methods.</para>
+		/// <para>This constructor is used by <see cref="MimeReader"/>.</para>
 		/// </remarks>
 		/// <param name="options">The parser options used.</param>
 		/// <param name="field">The raw header field.</param>
@@ -321,6 +314,7 @@ namespace MimeKit {
 #endif
 		internal protected Header (ParserOptions options, byte[] field, int fieldNameLength, byte[] value, bool invalid)
 		{
+			// FIXME: This .ctor should become internal-only. It is only used from MimeReader.CreateHeader().
 			Span<char> chars = fieldNameLength <= 32
 				? stackalloc char[32]
 				: new char[fieldNameLength];
@@ -354,6 +348,8 @@ namespace MimeKit {
 #endif
 		internal protected Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
 		{
+			// Note: This .ctor should become internal-only. It is only used by DkimVerifierBase and Header.TryParse().
+			// Possibly these locations should be updated to use the same .ctor as MimeReader?
 			Span<char> chars = field.Length <= 32
 				? stackalloc char[32]
 				: new char[field.Length];
@@ -388,6 +384,8 @@ namespace MimeKit {
 		/// <param name="value">The raw value of the header.</param>
 		internal protected Header (ParserOptions options, HeaderId id, string field, byte[] value)
 		{
+			// Note: This .ctor should probably become internal-only. It is only used by MimeMessage
+			// and MimeEntity when serializing new values for headers.
 			Options = options;
 			rawField = Encoding.ASCII.GetBytes (field);
 			rawValue = value;
@@ -405,8 +403,8 @@ namespace MimeKit {
 		public Header Clone ()
 		{
 			return new Header (Options, Id, Field, rawField, rawValue) {
+				cachedHeaderFormatOptions = cachedHeaderFormatOptions,
 				explicitRawValue = explicitRawValue,
-				international = international,
 				IsInvalid = IsInvalid,
 
 				// if the textValue has already been calculated, set it on the cloned header as well.
@@ -1382,10 +1380,10 @@ namespace MimeKit {
 			}
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		bool FormattingOptionsChanged (FormatOptions format)
 		{
-			// TODO: If/when we ever start caching other FormatOptions values, we'll need to update this logic.
-			return format.International != international;
+			return format.EncodeHeaderFormatOptions () != cachedHeaderFormatOptions;
 		}
 
 		internal byte[] GetRawValue (FormatOptions format)
@@ -1480,14 +1478,15 @@ namespace MimeKit {
 			textValue = Unfold (value.Trim ());
 
 			rawValue = FormatRawValue (format, encoding, textValue);
-			international = format.International;
 			explicitRawValue = false;
 
-			// TODO: cache the formatting options that change the way the header is formatted
-			//allowMixedHeaderCharsets = format.AllowMixedHeaderCharsets;
-			//newLineFormat = format.NewLineFormat;
-			//international = format.International;
-			//charset = encoding;
+			// Note: This caches the formatting options used to generate the rawValue so that
+			// GetRawValue(FormatOptions) can determine if it can return the cached value or
+			// if it needs to reformat the value to fit the new formatting options.
+			//
+			// TODO: Should EncodeHeaderFormatOptions() also encode the NewLineFormat?
+			//       And should we also cache the charset encoding used?
+			cachedHeaderFormatOptions = format.EncodeHeaderFormatOptions ();
 
 			OnChanged ();
 		}
@@ -1597,10 +1596,10 @@ namespace MimeKit {
 			if (value.Length == 0 || value[value.Length - 1] != (byte) '\n')
 				throw new ArgumentException ("The raw value MUST end with a new-line character.", nameof (value));
 
-			// Note: We set international = true even though we don't actually know if the value contains UTF-8 or not
-			// but it shouldn't matter because explicitRawValue will prevent reformatting the value anyway.
+			// Note: When explicitRawValue is set to true, GetRawValue(FormatOptions) will always return
+			// the cached rawValue so it doesn't matter what what the value of headerFormatOptions is.
+			cachedHeaderFormatOptions = 0;
 			explicitRawValue = true;
-			international = true;
 			rawValue = value;
 			textValue = null;
 
@@ -1693,6 +1692,7 @@ namespace MimeKit {
 			return c.IsBlank ();
 		}
 
+		// Note: This TryParse() method only needs to be marked internal because MimeParser uses it.
 		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, out Header header)
 		{
 			byte* inend = input + length;

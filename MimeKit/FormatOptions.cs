@@ -346,5 +346,20 @@ namespace MimeKit {
 				international = international
 			};
 		}
+
+		internal int EncodeHeaderFormatOptions ()
+		{
+			// Notes:
+			// 1. The lowest 10 bites are used to encode MaxLineLength
+			// 2. The 11th bit is used to encode International
+			// 3. The 12th bit is used to encode AllowMixedHeaderCharsets
+			// 4. The 13th bit is used to encode AlwaysQuoteParameterValues
+			// 5. The 14th and 15th bits are used to encode ParameterEncodingMethod
+			return (((int) parameterEncodingMethod) & 0x03) << 13 |
+				(alwaysQuoteParameterValues ? 1 : 0) << 12 |
+				(allowMixedHeaderCharsets ? 1 : 0) << 11 |
+				(international ? 1 : 0) << 10 |
+				(maxLineLength & 0x03FF);
+		}
 	}
 }
