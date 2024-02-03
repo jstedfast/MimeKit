@@ -53,6 +53,7 @@ namespace MimeKit {
 
 		readonly byte[] rawField;
 		bool explicitRawValue;
+		bool international;
 		string textValue;
 		byte[] rawValue;
 
@@ -294,6 +295,7 @@ namespace MimeKit {
 		/// <param name="value">The raw value of the header.</param>
 		protected Header (ParserOptions options, HeaderId id, string name, byte[] field, byte[] value)
 		{
+			// FIXME: This .ctor should become private and we should modify it to be exactly what the Clone() method needs.
 			Options = options;
 			rawField = field;
 			rawValue = value;
@@ -404,6 +406,7 @@ namespace MimeKit {
 		{
 			return new Header (Options, Id, Field, rawField, rawValue) {
 				explicitRawValue = explicitRawValue,
+				international = international,
 				IsInvalid = IsInvalid,
 
 				// if the textValue has already been calculated, set it on the cloned header as well.
@@ -1379,9 +1382,15 @@ namespace MimeKit {
 			}
 		}
 
+		bool FormattingOptionsChanged (FormatOptions format)
+		{
+			// TODO: If/when we ever start caching other FormatOptions values, we'll need to update this logic.
+			return format.International != international;
+		}
+
 		internal byte[] GetRawValue (FormatOptions format)
 		{
-			if (format.International && !explicitRawValue) {
+			if (!explicitRawValue && !format.VerifyingSignature && FormattingOptionsChanged (format)) {
 				switch (Id) {
 				case HeaderId.DispositionNotificationTo:
 				case HeaderId.ResentReplyTo:
@@ -1471,9 +1480,10 @@ namespace MimeKit {
 			textValue = Unfold (value.Trim ());
 
 			rawValue = FormatRawValue (format, encoding, textValue);
+			international = format.International;
 			explicitRawValue = false;
 
-			// cache the formatting options that change the way the header is formatted
+			// TODO: cache the formatting options that change the way the header is formatted
 			//allowMixedHeaderCharsets = format.AllowMixedHeaderCharsets;
 			//newLineFormat = format.NewLineFormat;
 			//international = format.International;
@@ -1587,7 +1597,10 @@ namespace MimeKit {
 			if (value.Length == 0 || value[value.Length - 1] != (byte) '\n')
 				throw new ArgumentException ("The raw value MUST end with a new-line character.", nameof (value));
 
+			// Note: We set international = true even though we don't actually know if the value contains UTF-8 or not
+			// but it shouldn't matter because explicitRawValue will prevent reformatting the value anyway.
 			explicitRawValue = true;
+			international = true;
 			rawValue = value;
 			textValue = null;
 

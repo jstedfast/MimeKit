@@ -86,6 +86,16 @@ namespace MimeKit {
 		int maxLineLength;
 
 		/// <summary>
+		/// The default formatting options for verifying signatures.
+		/// </summary>
+		/// <remarks>
+		/// If a custom <see cref="FormatOptions"/> is not passed to methods such as
+		/// <see cref="MimeKit.Cryptography.DkimVerifier.Verify(FormatOptions,MimeMessage,Header,System.Threading.CancellationToken)"/>,
+		/// the default options will be used.
+		/// </remarks>
+		internal static readonly FormatOptions VerifySignature;
+
+		/// <summary>
 		/// The default formatting options.
 		/// </summary>
 		/// <remarks>
@@ -284,6 +294,11 @@ namespace MimeKit {
 
 		static FormatOptions ()
 		{
+			VerifySignature = new FormatOptions {
+				NewLineFormat = NewLineFormat.Dos,
+				VerifyingSignature = true,
+				EnsureNewLine = false
+			};
 			Default = new FormatOptions ();
 		}
 

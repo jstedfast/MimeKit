@@ -396,9 +396,6 @@ namespace MimeKit.Cryptography {
 			if (!IsEnabled (signatureAlgorithm))
 				return false;
 
-			options = options.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
-
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
 			if (!VerifyBodyHash (options, message, signatureAlgorithm, bodyAlgorithm, maxLength, bh))
 				return false;
@@ -432,9 +429,6 @@ namespace MimeKit.Cryptography {
 
 			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
 				return false;
-
-			options = options.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
 
 			using (var stream = new DkimSignatureStream (CreateVerifyContext (algorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -673,6 +667,7 @@ namespace MimeKit.Cryptography {
 			int newest = count - 1;
 
 			result.Seals = new ArcHeaderValidationResult[count];
+			options = GetVerifyOptions (options);
 
 			// validate the most recent Arc-Message-Signature
 			try {
@@ -788,7 +783,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ArcValidationResult Verify (MimeMessage message, CancellationToken cancellationToken = default)
 		{
-			return Verify (FormatOptions.Default, message, cancellationToken);
+			return Verify (FormatOptions.VerifySignature, message, cancellationToken);
 		}
 
 		/// <summary>
@@ -811,7 +806,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Task<ArcValidationResult> VerifyAsync (MimeMessage message, CancellationToken cancellationToken = default)
 		{
-			return VerifyAsync (FormatOptions.Default, message, cancellationToken);
+			return VerifyAsync (FormatOptions.VerifySignature, message, cancellationToken);
 		}
 	}
 }
