@@ -767,6 +767,7 @@ namespace MimeKit.Cryptography {
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
 					options.VerifyingSignature = true;
+					options.ReformatHeaders = false;
 
 					this[0].WriteTo (options, cleartext, cancellationToken);
 					cleartext.Position = 0;
@@ -837,6 +838,7 @@ namespace MimeKit.Cryptography {
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
 					options.VerifyingSignature = true;
+					options.ReformatHeaders = false;
 
 					await this[0].WriteToAsync (options, cleartext, cancellationToken);
 					cleartext.Position = 0;

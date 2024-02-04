@@ -160,6 +160,7 @@ namespace MimeKit.Cryptography {
 			var options = format.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 			options.VerifyingSignature = true;
+			options.ReformatHeaders = false;
 			options.HiddenHeaders.Clear ();
 			options.EnsureNewLine = false;
 			return options;

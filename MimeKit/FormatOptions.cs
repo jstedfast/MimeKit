@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO.Filters;
 
@@ -76,14 +77,32 @@ namespace MimeKit {
 
 		const int DefaultMaxLineLength = 78;
 
-		ParameterEncodingMethod parameterEncodingMethod;
-		bool alwaysQuoteParameterValues;
-		bool allowMixedHeaderCharsets;
-		NewLineFormat newLineFormat;
-		bool verifyingSignature;
-		bool ensureNewLine;
-		bool international;
-		int maxLineLength;
+		const int VerifyingSignatureOffset = 23;
+		const int VerifyingSignatureMask = 0x01 << VerifyingSignatureOffset;
+		const int ReformatHeadersOffset = 22;
+		const int ReformatHeadersMask = 0x01 << ReformatHeadersOffset;
+		const int ReformatContentOffset = 21;
+		const int ReformatContentMask = 0x01 << ReformatContentOffset;
+		const int EnsureNewLineOffset = 20;
+		const int EnsureNewLineMask = 0x01 << EnsureNewLineOffset;
+		const int NewLineFormatOffset = 18;
+		const int NewLineFormatMask = 0x03 << NewLineFormatOffset;
+
+		// The following offsets/options are used for header formatting and so need to stay together.
+		const int ParameterEncodingMethodOffset = 13;
+		const int ParameterEncodingMethodMask = 0x03 << ParameterEncodingMethodOffset;
+		const int AlwaysQuoteParameterValuesOffset = 12;
+		const int AlwaysQuoteParameterValuesMask = 0x01 << AlwaysQuoteParameterValuesOffset;
+		const int AllowMixedHeaderCharsetsOffset = 11;
+		const int AllowMixedHeaderCharsetsMask = 0x01 << AllowMixedHeaderCharsetsOffset;
+		const int InternationalOffset = 10;
+		const int InternationalMask = 0x01 << InternationalOffset;
+		const int MaxLineLengthOffset = 0;
+		const int MaxLineLengthMask = 0x03FF;
+
+		const int EncodedHeaderOptionsMask = 0x07FF;
+
+		int encodedOptions;
 
 		/// <summary>
 		/// The default formatting options for verifying signatures.
@@ -105,6 +124,54 @@ namespace MimeKit {
 		/// </remarks>
 		public static readonly FormatOptions Default;
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static bool GetValue (int encodedOptions, int mask)
+		{
+			return (encodedOptions & mask) != 0;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void SetValue (ref int encodedOptions, int offset, bool value)
+		{
+			if (value)
+				encodedOptions |= 1 << offset;
+			else
+				encodedOptions &= ~(1 << offset);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static NewLineFormat GetNewLineFormat (int encodedOptions)
+		{
+			return (NewLineFormat) ((encodedOptions & NewLineFormatMask) >> NewLineFormatOffset);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void SetNewLineFormat (ref int encodedOptions, NewLineFormat value)
+		{
+			encodedOptions &= ~NewLineFormatMask;
+			encodedOptions |= ((int) value) << NewLineFormatOffset;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static ParameterEncodingMethod GetParameterEncodingMethod (int encodedOptions)
+		{
+			return (ParameterEncodingMethod) ((encodedOptions & ParameterEncodingMethodMask) >> ParameterEncodingMethodOffset);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void SetParameterEncodingMethod (ref int encodedOptions, ParameterEncodingMethod value)
+		{
+			encodedOptions &= ~ParameterEncodingMethodMask;
+			encodedOptions |= ((int) value) << ParameterEncodingMethodOffset;
+		}
+
+		/// <summary>
+		/// Get an encoded representation of the formatting options relevant to header formatting.
+		/// </summary>
+		internal int EncodedHeaderOptions {
+			get { return encodedOptions & EncodedHeaderOptionsMask; }
+		}
+
 		/// <summary>
 		/// Get or set the maximum line length used by the encoders. The encoders
 		/// use this value to determine where to place line breaks.
@@ -117,12 +184,13 @@ namespace MimeKit {
 		/// <paramref name="value"/> is out of range. It must be between 60 and 998.
 		/// </exception>
 		public int MaxLineLength {
-			get { return maxLineLength; }
+			get { return encodedOptions & MaxLineLengthMask; }
 			set {
 				if (value < MinimumLineLength || value > MaximumLineLength)
 					throw new ArgumentOutOfRangeException (nameof (value));
 
-				maxLineLength = value;
+				encodedOptions &= ~MaxLineLengthMask;
+				encodedOptions |= value & MaxLineLengthMask;
 			}
 		}
 
@@ -138,12 +206,12 @@ namespace MimeKit {
 		/// <paramref name="value"> is not a valid <see cref="NewLineFormat"/>.</paramref>
 		/// </exception>
 		public NewLineFormat NewLineFormat {
-			get { return newLineFormat; }
+			get { return GetNewLineFormat (encodedOptions); }
 			set {
-				switch (newLineFormat) {
+				switch (value) {
 				case NewLineFormat.Unix:
 				case NewLineFormat.Dos:
-					newLineFormat = value;
+					SetNewLineFormat (ref encodedOptions, value);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException (nameof (value));
@@ -164,8 +232,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> in order to ensure that the message will end with a new-line sequence; otherwise, <c>false</c>.</value>
 		public bool EnsureNewLine {
-			get { return ensureNewLine; }
-			set { ensureNewLine = value; }
+			get { return GetValue (encodedOptions, EnsureNewLineMask); }
+			set { SetValue (ref encodedOptions, EnsureNewLineOffset, value); }
 		}
 
 		internal IMimeFilter CreateNewLineFilter (bool ensureNewLine = false)
@@ -187,8 +255,8 @@ namespace MimeKit {
 		}
 
 		internal bool VerifyingSignature {
-			get { return verifyingSignature; }
-			set { verifyingSignature = value; }
+			get { return GetValue (encodedOptions, VerifyingSignatureMask); }
+			set { SetValue (ref encodedOptions, VerifyingSignatureOffset, value); }
 		}
 
 		/// <summary>
@@ -220,8 +288,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
 		public bool International {
-			get { return international; }
-			set { international = value; }
+			get { return GetValue (encodedOptions, InternationalMask); }
+			set { SetValue (ref encodedOptions, InternationalOffset, value); }
 		}
 
 		/// <summary>
@@ -241,8 +309,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if the formatter should be allowed to use us-ascii and/or iso-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
 		public bool AllowMixedHeaderCharsets {
-			get { return allowMixedHeaderCharsets; }
-			set { allowMixedHeaderCharsets = value; }
+			get { return GetValue (encodedOptions, AllowMixedHeaderCharsetsMask); }
+			set { SetValue (ref encodedOptions, AllowMixedHeaderCharsetsOffset, value); }
 		}
 
 		/// <summary>
@@ -263,12 +331,12 @@ namespace MimeKit {
 		/// <paramref name="value"/> is not a valid value.
 		/// </exception>
 		public ParameterEncodingMethod ParameterEncodingMethod {
-			get { return parameterEncodingMethod; }
+			get { return GetParameterEncodingMethod (encodedOptions); }
 			set {
 				switch (value) {
 				case ParameterEncodingMethod.Rfc2047:
 				case ParameterEncodingMethod.Rfc2231:
-					parameterEncodingMethod = value;
+					SetParameterEncodingMethod (ref encodedOptions, value);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException (nameof (value));
@@ -288,16 +356,31 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value><c>true</c> if Content-Type and Content-Disposition parameters should always be quoted; otherwise, <c>false</c>.</value>
 		public bool AlwaysQuoteParameterValues {
-			get { return alwaysQuoteParameterValues; }
-			set { alwaysQuoteParameterValues = value; }
+			get { return GetValue (encodedOptions, AlwaysQuoteParameterValuesMask); }
+			set { SetValue (ref encodedOptions, AlwaysQuoteParameterValuesOffset, value); }
+		}
+
+		/// <summary>
+		/// Get or set whether headers should be reformatted when writing back out to a stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether headers should be reformatted when writing back out to a stream.</para>
+		/// <para>If <see cref="ReformatHeaders"/> is set to <c>true</c>, then all headers (except those set using
+		/// <see cref="Header.SetRawValue(byte[])"/>) will be reformatted.</para>
+		/// <para>If <see cref="ReformatHeaders"/> is set to <c>false</c>, only headers that were not constructed by
+		/// parser will be (re)formatted.</para>
+		/// </remarks>
+		/// <value><c>true</c> if headers should always be reformatted; otherwise, <c>false</c>.</value>
+		public bool ReformatHeaders {
+			get { return GetValue (encodedOptions, ReformatHeadersMask); }
+			set { SetValue (ref encodedOptions, ReformatHeadersOffset, value); }
 		}
 
 		static FormatOptions ()
 		{
 			VerifySignature = new FormatOptions {
 				NewLineFormat = NewLineFormat.Dos,
-				VerifyingSignature = true,
-				EnsureNewLine = false
+				VerifyingSignature = true
 			};
 			Default = new FormatOptions ();
 		}
@@ -312,17 +395,13 @@ namespace MimeKit {
 		public FormatOptions ()
 		{
 			HiddenHeaders = new HashSet<HeaderId> ();
-			parameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
-			alwaysQuoteParameterValues = false;
-			maxLineLength = DefaultMaxLineLength;
-			allowMixedHeaderCharsets = false;
-			ensureNewLine = false;
-			international = false;
+			ParameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
+			MaxLineLength = DefaultMaxLineLength;
 
 			if (Environment.NewLine.Length == 1)
-				newLineFormat = NewLineFormat.Unix;
+				NewLineFormat = NewLineFormat.Unix;
 			else
-				newLineFormat = NewLineFormat.Dos;
+				NewLineFormat = NewLineFormat.Dos;
 		}
 
 		/// <summary>
@@ -335,31 +414,9 @@ namespace MimeKit {
 		public FormatOptions Clone ()
 		{
 			return new FormatOptions {
-				maxLineLength = maxLineLength,
-				newLineFormat = newLineFormat,
-				ensureNewLine = ensureNewLine,
 				HiddenHeaders = new HashSet<HeaderId> (HiddenHeaders),
-				allowMixedHeaderCharsets = allowMixedHeaderCharsets,
-				parameterEncodingMethod = parameterEncodingMethod,
-				alwaysQuoteParameterValues = alwaysQuoteParameterValues,
-				verifyingSignature = verifyingSignature,
-				international = international
+				encodedOptions = encodedOptions
 			};
-		}
-
-		internal int EncodeHeaderFormatOptions ()
-		{
-			// Notes:
-			// 1. The lowest 10 bites are used to encode MaxLineLength
-			// 2. The 11th bit is used to encode International
-			// 3. The 12th bit is used to encode AllowMixedHeaderCharsets
-			// 4. The 13th bit is used to encode AlwaysQuoteParameterValues
-			// 5. The 14th and 15th bits are used to encode ParameterEncodingMethod
-			return (((int) parameterEncodingMethod) & 0x03) << 13 |
-				(alwaysQuoteParameterValues ? 1 : 0) << 12 |
-				(allowMixedHeaderCharsets ? 1 : 0) << 11 |
-				(international ? 1 : 0) << 10 |
-				(maxLineLength & 0x03FF);
 		}
 	}
 }
