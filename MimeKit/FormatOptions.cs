@@ -142,7 +142,7 @@ namespace MimeKit {
 				if (this == Default)
 					throw new InvalidOperationException ("The default formatting options cannot be changed.");
 
-				switch (newLineFormat) {
+				switch (value) {
 				case NewLineFormat.Unix:
 				case NewLineFormat.Dos:
 					newLineFormat = value;
