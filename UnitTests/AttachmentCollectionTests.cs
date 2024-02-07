@@ -516,6 +516,54 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestAddEmailMessageFallback ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var attachments = new AttachmentCollection ();
+			MimeEntity attachment;
+
+			using (var stream = File.OpenRead (fileName))
+				attachment = attachments.Add ("message.eml", stream);
+
+			Assert.That (attachment.ContentType.MimeType, Is.EqualTo ("application/octet-stream"));
+			Assert.That (attachment.ContentType.Name, Is.EqualTo ("message.eml"));
+			Assert.That (attachment.ContentDisposition, Is.Not.Null);
+			Assert.That (attachment.ContentDisposition.Disposition, Is.EqualTo ("attachment"));
+			Assert.That (attachment.ContentDisposition.FileName, Is.EqualTo ("message.eml"));
+			Assert.That (attachments.Count, Is.EqualTo (1));
+
+			Assert.That (attachments.Contains (attachment), Is.True, "Contains");
+			Assert.That (attachments.IndexOf (attachment), Is.EqualTo (0), "IndexOf");
+			Assert.That (attachments.Remove (attachment), Is.True, "Remove");
+			Assert.That (attachments.Count, Is.EqualTo (0));
+			attachments.Clear (true);
+		}
+
+		[Test]
+		public async Task TestAddEmailMessageFallbackAsync ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var attachments = new AttachmentCollection ();
+			MimeEntity attachment;
+
+			using (var stream = File.OpenRead (fileName))
+				attachment = await attachments.AddAsync ("message.eml", stream);
+
+			Assert.That (attachment.ContentType.MimeType, Is.EqualTo ("application/octet-stream"));
+			Assert.That (attachment.ContentType.Name, Is.EqualTo ("message.eml"));
+			Assert.That (attachment.ContentDisposition, Is.Not.Null);
+			Assert.That (attachment.ContentDisposition.Disposition, Is.EqualTo ("attachment"));
+			Assert.That (attachment.ContentDisposition.FileName, Is.EqualTo ("message.eml"));
+			Assert.That (attachments.Count, Is.EqualTo (1));
+
+			Assert.That (attachments.Contains (attachment), Is.True, "Contains");
+			Assert.That (attachments.IndexOf (attachment), Is.EqualTo (0), "IndexOf");
+			Assert.That (attachments.Remove (attachment), Is.True, "Remove");
+			Assert.That (attachments.Count, Is.EqualTo (0));
+			attachments.Clear (true);
+		}
+
+		[Test]
 		public void TestAddInlineEmailMessage ()
 		{
 			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
