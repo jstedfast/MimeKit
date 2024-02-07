@@ -238,19 +238,33 @@ namespace MimeKit {
 			return index > 0 ? path.Substring (index + 1) : path;
 		}
 
-		MimeEntity CreateAttachment (ContentType contentType, string path, Stream stream, bool copyStream, CancellationToken cancellationToken)
+		MimeEntity CreateAttachment (ContentType contentType, bool autoDetected, string path, Stream stream, bool copyStream, CancellationToken cancellationToken)
 		{
 			var fileName = GetFileName (path);
-			MimeEntity attachment;
+			MimeEntity attachment = null;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
-				var message = MimeMessage.Load (stream, cancellationToken);
+				long position = stream.CanSeek ? stream.Position : 0;
 
-				if (!copyStream)
-					stream.Dispose ();
+				try {
+					var message = MimeMessage.Load (stream, cancellationToken);
 
-				attachment = new MessagePart { Message = message };
-			} else {
+					if (!copyStream)
+						stream.Dispose ();
+
+					attachment = new MessagePart { Message = message };
+				} catch (FormatException) {
+					if (autoDetected && stream.CanSeek) {
+						// If the contentType was auto-detected and the stream is seekable, fall back to attaching this content as a generic stream
+						contentType = new ContentType ("application", "octet-stream");
+						stream.Position = position;
+					} else {
+						throw;
+					}
+				}
+			}
+
+			if (attachment is null) {
 				MimePart part;
 
 				if (contentType.IsMimeType ("text", "*")) {
@@ -350,7 +364,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (contentType));
 
 			var stream = new MemoryStream (data, false);
-			var attachment = CreateAttachment (contentType, fileName, stream, false, CancellationToken.None);
+			var attachment = CreateAttachment (contentType, false, fileName, stream, false, CancellationToken.None);
 
 			attachments.Add (attachment);
 
@@ -401,7 +415,7 @@ namespace MimeKit {
 			if (contentType is null)
 				throw new ArgumentNullException (nameof (contentType));
 
-			var attachment = CreateAttachment (contentType, fileName, stream, true, cancellationToken);
+			var attachment = CreateAttachment (contentType, false, fileName, stream, true, cancellationToken);
 
 			attachments.Add (attachment);
 
@@ -489,7 +503,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (data));
 
 			var stream = new MemoryStream (data, false);
-			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, false, CancellationToken.None);
+			var attachment = CreateAttachment (GetMimeType (fileName), true, fileName, stream, false, CancellationToken.None);
 
 			attachments.Add (attachment);
 
@@ -532,7 +546,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, true, cancellationToken);
+			var attachment = CreateAttachment (GetMimeType (fileName), true, fileName, stream, true, cancellationToken);
 
 			attachments.Add (attachment);
 
@@ -626,7 +640,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (contentType));
 
 			using (var stream = File.OpenRead (fileName)) {
-				var attachment = CreateAttachment (contentType, fileName, stream, true, cancellationToken);
+				var attachment = CreateAttachment (contentType, false, fileName, stream, true, cancellationToken);
 
 				attachments.Add (attachment);
 
@@ -729,7 +743,7 @@ namespace MimeKit {
 				throw new ArgumentException ("The specified file path is empty.", nameof (fileName));
 
 			using (var stream = File.OpenRead (fileName)) {
-				var attachment = CreateAttachment (GetMimeType (fileName), fileName, stream, true, cancellationToken);
+				var attachment = CreateAttachment (GetMimeType (fileName), true, fileName, stream, true, cancellationToken);
 
 				attachments.Add (attachment);
 
