@@ -125,7 +125,8 @@ namespace MimeKit.Cryptography {
 			if (!IsEnabled (signatureAlgorithm))
 				return false;
 
-			options = GetVerifyOptions (options);
+			options = options.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
 
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
 			if (!VerifyBodyHash (options, message, signatureAlgorithm, bodyAlgorithm, maxLength, bh))
@@ -241,7 +242,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public bool Verify (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
-			return Verify (FormatOptions.VerifySignature, message, dkimSignature, cancellationToken);
+			return Verify (FormatOptions.Default, message, dkimSignature, cancellationToken);
 		}
 
 		/// <summary>
@@ -273,7 +274,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Task<bool> VerifyAsync (MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
-			return VerifyAsync (FormatOptions.VerifySignature, message, dkimSignature, cancellationToken);
+			return VerifyAsync (FormatOptions.Default, message, dkimSignature, cancellationToken);
 		}
 	}
 }

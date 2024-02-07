@@ -150,22 +150,6 @@ namespace MimeKit.Cryptography {
 			return (enabledSignatureAlgorithms & (1 << (int) algorithm)) != 0;
 		}
 
-		/// <summary>
-		/// Get the formatting options for use with verifying DKIM signatures.
-		/// </summary>
-		/// <param name="format">The user-requested formatting options.</param>
-		/// <returns>The formatting options.</returns>
-		internal static FormatOptions GetVerifyOptions (FormatOptions format)
-		{
-			var options = format.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
-			options.VerifyingSignature = true;
-			options.ReformatHeaders = false;
-			options.HiddenHeaders.Clear ();
-			options.EnsureNewLine = false;
-			return options;
-		}
-
 		static bool IsWhiteSpace (char c)
 		{
 			return c == ' ' || c == '\t';
