@@ -1225,11 +1225,11 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		class CmsRecipientInfoGenerator : RecipientInfoGenerator
+		class OaepAwareRecipientInfoGenerator : RecipientInfoGenerator
 		{
 			readonly CmsRecipient recipient;
 
-			public CmsRecipientInfoGenerator (CmsRecipient recipient)
+			public OaepAwareRecipientInfoGenerator (CmsRecipient recipient)
 			{
 				this.recipient = recipient;
 			}
@@ -1268,6 +1268,9 @@ namespace MimeKit.Cryptography {
 				var publicKeyInfo = certificate.SubjectPublicKeyInfo;
 				AlgorithmIdentifier keyEncryptionAlgorithm;
 
+				// If the recipient explicitly opts in to OAEP encryption (even if
+				// the underlying certificate is not tagged with an OAEP OID),
+				// choose OAEP instead.
 				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep) {
 					keyEncryptionAlgorithm = recipient.RsaEncryptionPadding.GetAlgorithmIdentifier ();
 				} else {
@@ -1300,7 +1303,44 @@ namespace MimeKit.Cryptography {
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					cms.AddRecipientInfoGenerator (new CmsRecipientInfoGenerator (recipient));
+					var cert = recipient.Certificate;
+					var pub = recipient.Certificate.GetPublicKey();
+					if (pub is RsaKeyParameters) {
+						// Bouncy Castle dispatches OAEP based off the certificate type.
+						// However, callers of MimeKit expect to use OAEP in S/MIME with
+						// certificates with PKCS#1v1.5 OIDs as these tend to be more broadly
+						// compatible across the ecosystem. Thus, buidl our own
+						// RecipientInfoGenerator and register that for this key.
+						cms.AddRecipientInfoGenerator (new OaepAwareRecipientInfoGenerator (recipient));
+					} else if (pub is ECKeyParameters) {
+						var ecPub = (ECKeyParameters) pub;
+						var kg = GeneratorUtilities.GetKeyPairGenerator ("ECDH");
+						kg.Init(new ECKeyGenerationParameters (ecPub.Parameters, RandomNumberGenerator));
+						var kp = kg.GenerateKeyPair ();
+
+						// TODO: better handle algorithm selection.
+						if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
+							var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+							cms.AddKeyAgreementRecipient (
+								CmsEnvelopedDataGenerator.ECDHSha1Kdf,
+								kp.Public,
+								kp.Private,
+								subjectKeyIdentifier.GetOctets (),
+								pub,
+								CmsEnvelopedGenerator.Aes128Wrap
+							);
+						} else {
+							cms.AddKeyAgreementRecipient (
+								CmsEnvelopedDataGenerator.ECDHSha1Kdf,
+								kp.Public,
+								kp.Private,
+								cert,
+								CmsEnvelopedGenerator.Aes128Wrap
+							);
+						}
+					} else {
+						throw new ArgumentException("Unknown type of recipient certificate: " + pub.GetType().Name);
+					}
 					count++;
 				}
 			}
