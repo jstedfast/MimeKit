@@ -1339,7 +1339,8 @@ namespace MimeKit.Cryptography {
 							);
 						}
 					} else {
-						throw new ArgumentException("Unknown type of recipient certificate: " + pub.GetType().Name);
+						var oid = cert.SubjectPublicKeyInfo.Algorithm.Algorithm.ToString();
+						throw new ArgumentException("Unknown type of recipient certificate: " + pub.GetType().Name + " (SubjectPublicKeyInfo OID = " + oid + ")");
 					}
 					count++;
 				}
