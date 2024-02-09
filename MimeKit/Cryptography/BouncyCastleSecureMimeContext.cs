@@ -283,7 +283,7 @@ namespace MimeKit.Cryptography {
 			return new DefaultSignedAttributeTableGenerator (signedAttributes.Add (attr.AttrType, attr.AttrValues[0]));
 		}
 
-		async Task<Stream> SignAsync (CmsSigner signer, Stream content, bool encapsulate, bool doAsync, CancellationToken cancellationToken)
+		CmsSignedDataStreamGenerator CreateSignedDataGenerator (CmsSigner signer)
 		{
 			var unsignedAttributes = new SimpleAttributeTableGenerator (signer.UnsignedAttributes);
 			var signedAttributes = AddSecureMimeCapabilities (signer.SignedAttributes);
@@ -312,13 +312,30 @@ namespace MimeKit.Cryptography {
 
 			signedData.AddCertificates (signer.CertificateChain);
 
+			return signedData;
+		}
+
+		Stream Sign (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
+		{
+			var signedData = CreateSignedDataGenerator (signer);
 			var memory = new MemoryBlockStream ();
 
 			using (var stream = signedData.Open (memory, encapsulate)) {
-				if (doAsync)
-					await content.CopyToAsync (stream, 4096, cancellationToken).ConfigureAwait (false);
-				else
-					content.CopyTo (stream, 4096);
+				content.CopyTo (stream, 4096);
+			}
+
+			memory.Position = 0;
+
+			return memory;
+		}
+
+		async Task<Stream> SignAsync (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
+		{
+			var signedData = CreateSignedDataGenerator (signer);
+			var memory = new MemoryBlockStream ();
+
+			using (var stream = signedData.Open (memory, encapsulate)) {
+				await content.CopyToAsync (stream, 4096, cancellationToken).ConfigureAwait (false);
 			}
 
 			memory.Position = 0;
@@ -356,7 +373,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var signature = SignAsync (signer, content, true, false, cancellationToken).GetAwaiter ().GetResult ();
+			var signature = Sign (signer, content, true, cancellationToken);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signature);
 		}
@@ -391,7 +408,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var signature = await SignAsync (signer, content, true, true, cancellationToken).ConfigureAwait (false);
+			var signature = await SignAsync (signer, content, true, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signature);
 		}
@@ -516,7 +533,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var signature = SignAsync (signer, content, false, false, cancellationToken).GetAwaiter ().GetResult ();
+			var signature = Sign (signer, content, false, cancellationToken);
 
 			return new ApplicationPkcs7Signature (signature);
 		}
@@ -551,7 +568,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var signature = await SignAsync (signer, content, false, true, cancellationToken).ConfigureAwait (false);
+			var signature = await SignAsync (signer, content, false, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Signature (signature);
 		}
@@ -1026,7 +1043,7 @@ namespace MimeKit.Cryptography {
 			var crls = parser.GetCrls ();
 			var store = parser.GetSignerInfos ();
 
-			foreach (SignerInformation signerInfo in store.GetSigners ()) {
+			foreach (var signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo, certificate);
 
@@ -1575,31 +1592,17 @@ namespace MimeKit.Cryptography {
 			return await EncryptAsync (GetCmsRecipients (recipients), content, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task<MimeEntity> DecryptAsync (Stream encryptedData, bool doAsync, CancellationToken cancellationToken)
+		CmsTypedStream GetDecryptedContent (CmsEnvelopedDataParser parser)
 		{
-			if (encryptedData == null)
-				throw new ArgumentNullException (nameof (encryptedData));
+			var recipients = parser.GetRecipientInfos ();
+			var algorithm = parser.EncryptionAlgorithmID;
+			AsymmetricKeyParameter key;
 
-			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
-				var recipients = parser.GetRecipientInfos ();
-				var algorithm = parser.EncryptionAlgorithmID;
-				AsymmetricKeyParameter key;
+			foreach (var recipient in recipients.GetRecipients ()) {
+				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
+					continue;
 
-				foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
-					if ((key = GetPrivateKey (recipient.RecipientID)) == null)
-						continue;
-
-					var content = recipient.GetContentStream (key);
-
-					try {
-						if (doAsync)
-							return await MimeEntity.LoadAsync (content.ContentStream, false, cancellationToken).ConfigureAwait (false);
-
-						return MimeEntity.Load (content.ContentStream, false, cancellationToken);
-					} finally {
-						content.ContentStream.Dispose ();
-					}
-				}
+				return recipient.GetContentStream (key);
 			}
 
 			throw new CmsException ("A suitable private key could not be found for decrypting.");
@@ -1625,7 +1628,18 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default)
 		{
-			return DecryptAsync (encryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
+				var decrypted = GetDecryptedContent (parser);
+
+				try {
+					return MimeEntity.Load (decrypted.ContentStream, false, cancellationToken);
+				} finally {
+					decrypted.ContentStream.Dispose ();
+				}
+			}
 		}
 
 		/// <summary>
@@ -1646,38 +1660,20 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default)
-		{
-			return DecryptAsync (encryptedData, true, cancellationToken);
-		}
-
-		async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
+		public override async Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
 
-			if (decryptedData == null)
-				throw new ArgumentNullException (nameof (decryptedData));
-
 			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
-				var recipients = parser.GetRecipientInfos ();
-				var algorithm = parser.EncryptionAlgorithmID;
-				AsymmetricKeyParameter key;
+				var decrypted = GetDecryptedContent (parser);
 
-				foreach (RecipientInformation recipient in recipients.GetRecipients ()) {
-					if ((key = GetPrivateKey (recipient.RecipientID)) == null)
-						continue;
-
-					var content = recipient.GetContentStream (key);
-					if (doAsync)
-						await content.ContentStream.CopyToAsync (decryptedData, 4096, cancellationToken).ConfigureAwait (false);
-					else
-						content.ContentStream.CopyTo (decryptedData, 4096);
-					return;
+				try {
+					return await MimeEntity.LoadAsync (decrypted.ContentStream, false, cancellationToken).ConfigureAwait (false);
+				} finally {
+					decrypted.ContentStream.Dispose ();
 				}
 			}
-
-			throw new CmsException ("A suitable private key could not be found for decrypting.");
 		}
 
 		/// <summary>
@@ -1702,7 +1698,21 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
-			DecryptToAsync (encryptedData, decryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (decryptedData == null)
+				throw new ArgumentNullException (nameof (decryptedData));
+
+			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
+				var decrypted = GetDecryptedContent (parser);
+
+				try {
+					decrypted.ContentStream.CopyTo (decryptedData, 4096);
+				} finally {
+					decrypted.ContentStream.Dispose ();
+				}
+			}
 		}
 
 		/// <summary>
@@ -1726,9 +1736,23 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
+		public override async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
-			return DecryptToAsync (encryptedData, decryptedData, true, cancellationToken);
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (decryptedData == null)
+				throw new ArgumentNullException (nameof (decryptedData));
+
+			using (var parser = new CmsEnvelopedDataParser (encryptedData)) {
+				var decrypted = GetDecryptedContent (parser);
+
+				try {
+					await decrypted.ContentStream.CopyToAsync (decryptedData, 4096, cancellationToken).ConfigureAwait (false);
+				} finally {
+					decrypted.ContentStream.Dispose ();
+				}
+			}
 		}
 
 		/// <summary>
