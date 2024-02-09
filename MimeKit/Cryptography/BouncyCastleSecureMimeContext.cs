@@ -49,6 +49,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Utilities.Date;
+using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities.Collections;
 
@@ -1225,11 +1226,14 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		class OaepAwareRecipientInfoGenerator : RecipientInfoGenerator
+		/// <summary>
+		/// An RSA-OAEP aware recipient info generator.
+		/// </summary>
+		class RsaOaepAwareRecipientInfoGenerator : RecipientInfoGenerator
 		{
 			readonly CmsRecipient recipient;
 
-			public OaepAwareRecipientInfoGenerator (CmsRecipient recipient)
+			public RsaOaepAwareRecipientInfoGenerator (CmsRecipient recipient)
 			{
 				this.recipient = recipient;
 			}
@@ -1268,13 +1272,11 @@ namespace MimeKit.Cryptography {
 				var publicKeyInfo = certificate.SubjectPublicKeyInfo;
 				AlgorithmIdentifier keyEncryptionAlgorithm;
 
-				// If the recipient explicitly opts in to OAEP encryption (even if
-				// the underlying certificate is not tagged with an OAEP OID),
-				// choose OAEP instead.
+				// Note: If the recipient explicitly opts in to OAEP encryption (even if the underlying certificate is not tagged with an OAEP OID), choose OAEP instead.
 				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep) {
 					keyEncryptionAlgorithm = recipient.RsaEncryptionPadding.GetAlgorithmIdentifier ();
 				} else {
-					keyEncryptionAlgorithm = publicKeyInfo.AlgorithmID;
+					keyEncryptionAlgorithm = publicKeyInfo.Algorithm;
 				}
 
 				var encryptedKeyBytes = GenerateWrappedKey (contentEncryptionKey, keyEncryptionAlgorithm, publicKey, random);
@@ -1295,6 +1297,36 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		void CmsEnvelopeAddEllipticCurve (CmsEnvelopedDataGenerator cms, CmsRecipient recipient, X509Certificate certificate, ECKeyParameters publicKey)
+		{
+			var keyGenerator = new ECKeyPairGenerator ();
+
+			keyGenerator.Init (new ECKeyGenerationParameters (publicKey.Parameters, RandomNumberGenerator));
+
+			var keyPair = keyGenerator.GenerateKeyPair ();
+
+			// TODO: better handle algorithm selection.
+			if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
+				var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+				cms.AddKeyAgreementRecipient (
+					CmsEnvelopedGenerator.ECDHSha1Kdf,
+					keyPair.Public,
+					keyPair.Private,
+					subjectKeyIdentifier.GetOctets (),
+					publicKey,
+					CmsEnvelopedGenerator.Aes128Wrap
+				);
+			} else {
+				cms.AddKeyAgreementRecipient (
+					CmsEnvelopedGenerator.ECDHSha1Kdf,
+					keyPair.Public,
+					keyPair.Private,
+					certificate,
+					CmsEnvelopedGenerator.Aes128Wrap
+				);
+			}
+		}
+
 		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
@@ -1303,45 +1335,23 @@ namespace MimeKit.Cryptography {
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					var cert = recipient.Certificate;
-					var pub = recipient.Certificate.GetPublicKey();
-					if (pub is RsaKeyParameters) {
-						// Bouncy Castle dispatches OAEP based off the certificate type.
-						// However, callers of MimeKit expect to use OAEP in S/MIME with
-						// certificates with PKCS#1v1.5 OIDs as these tend to be more broadly
-						// compatible across the ecosystem. Thus, buidl our own
-						// RecipientInfoGenerator and register that for this key.
-						cms.AddRecipientInfoGenerator (new OaepAwareRecipientInfoGenerator (recipient));
-					} else if (pub is ECKeyParameters) {
-						var ecPub = (ECKeyParameters) pub;
-						var kg = GeneratorUtilities.GetKeyPairGenerator ("ECDH");
-						kg.Init(new ECKeyGenerationParameters (ecPub.Parameters, RandomNumberGenerator));
-						var kp = kg.GenerateKeyPair ();
+					var certificate = recipient.Certificate;
+					var pub = certificate.GetPublicKey ();
 
-						// TODO: better handle algorithm selection.
-						if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-							var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
-							cms.AddKeyAgreementRecipient (
-								CmsEnvelopedDataGenerator.ECDHSha1Kdf,
-								kp.Public,
-								kp.Private,
-								subjectKeyIdentifier.GetOctets (),
-								pub,
-								CmsEnvelopedGenerator.Aes128Wrap
-							);
-						} else {
-							cms.AddKeyAgreementRecipient (
-								CmsEnvelopedDataGenerator.ECDHSha1Kdf,
-								kp.Public,
-								kp.Private,
-								cert,
-								CmsEnvelopedGenerator.Aes128Wrap
-							);
-						}
+					if (pub is RsaKeyParameters || pub is DsaKeyParameters) {
+						// Bouncy Castle dispatches OAEP based on the certificate type. However, MimeKit users
+						// expect to be able to specify the use of OAEP in S/MIME with certificates that have
+						// PKCS#1v1.5 OIDs as these tend to be more broadly compatible across the ecosystem.
+						// Thus, build our own RecipientInfoGenerator and register that for this key.
+						cms.AddRecipientInfoGenerator (new RsaOaepAwareRecipientInfoGenerator (recipient));
+					} else if (pub is ECKeyParameters ellipticCurve) {
+						CmsEnvelopeAddEllipticCurve (cms, recipient, certificate, ellipticCurve);
 					} else {
-						var oid = cert.SubjectPublicKeyInfo.Algorithm.Algorithm.ToString();
-						throw new ArgumentException("Unknown type of recipient certificate: " + pub.GetType().Name + " (SubjectPublicKeyInfo OID = " + oid + ")");
+						var oid = certificate.SubjectPublicKeyInfo.Algorithm.Algorithm.ToString ();
+
+						throw new ArgumentException ($"Unknown type of recipient certificate: {pub.GetType ().Name} (SubjectPublicKeyInfo OID = {oid})");
 					}
+
 					count++;
 				}
 			}
