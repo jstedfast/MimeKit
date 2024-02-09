@@ -37,7 +37,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			AsymmetricCipherKeyPair keyPair;
 
 			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
@@ -70,7 +71,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			AsymmetricCipherKeyPair keyPair;
 			X509CertificateRecord record;
 

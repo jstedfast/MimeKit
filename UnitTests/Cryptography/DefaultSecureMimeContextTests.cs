@@ -145,13 +145,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestImportX509Certificate2 ()
 		{
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var certificate = new X509Certificate2 (Path.Combine (dataDir, "smime.pfx"), "no.secret", X509KeyStorageFlags.Exportable);
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 
 			try {
 				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
-					var secure = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", certificate.Thumbprint);
-					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+					var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
+					var secure = new SecureMailboxAddress ("MimeKit UnitTests", rsa.EmailAddress, certificate.Thumbprint);
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
 
 					ctx.Import (certificate);
 
@@ -170,13 +170,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestImportX509Certificate2Async ()
 		{
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var certificate = new X509Certificate2 (Path.Combine (dataDir, "smime.pfx"), "no.secret", X509KeyStorageFlags.Exportable);
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 
 			try {
 				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
-					var secure = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", certificate.Thumbprint);
-					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+					var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
+					var secure = new SecureMailboxAddress ("MimeKit UnitTests", rsa.EmailAddress, certificate.Thumbprint);
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
 
 					await ctx.ImportAsync (certificate);
 

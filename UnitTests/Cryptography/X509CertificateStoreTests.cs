@@ -44,6 +44,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			var store = new X509CertificateStore ();
 
 			Assert.Throws<ArgumentNullException> (() => store.Add (null));
@@ -59,7 +60,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((byte[]) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => store.Import (Stream.Null, null));
-			Assert.Throws<ArgumentNullException> (() => store.Import (GetTestDataPath ("smime.pfx"), null));
+			Assert.Throws<ArgumentNullException> (() => store.Import (rsa.FileName, null));
 			Assert.Throws<ArgumentNullException> (() => store.Import (Array.Empty<byte> (), null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => store.Import ((string) null));
@@ -192,9 +193,10 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestImportExportPkcs12 ()
 		{
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			var store = new X509CertificateStore ();
 
-			store.Import (GetTestDataPath ("smime.pfx"), "no.secret");
+			store.Import (rsa.FileName, "no.secret");
 			var certificate = store.Certificates.FirstOrDefault ();
 			var count = store.Certificates.Count ();
 

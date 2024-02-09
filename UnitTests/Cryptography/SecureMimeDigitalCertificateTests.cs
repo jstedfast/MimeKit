@@ -39,7 +39,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var signer = new CmsSigner (rsa.FileName, "no.secret");
 
 			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalCertificate (null));
 			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalSignature (null, signer.Certificate));

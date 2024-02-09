@@ -46,11 +46,11 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var path = GetTestDataPath ("smime.pfx");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			var chain = new X509CertificateChain ();
 			CmsSigner signer;
 
-			using (var stream = File.OpenRead (path))
+			using (var stream = File.OpenRead (rsa.FileName))
 				signer = new CmsSigner (stream, "no.secret");
 
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateChain (null));
@@ -103,7 +103,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestBasicFunctionality ()
 		{
-			var certs = SecureMimeTestsBase.LoadPkcs12CertificateChain (GetTestDataPath ("smime.pfx"), "no.secret");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var certs = rsa.Chain;
 			var chain = new X509CertificateChain ();
 
 			Assert.That (chain.IsReadOnly, Is.False);

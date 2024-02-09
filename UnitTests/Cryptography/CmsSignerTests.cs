@@ -43,7 +43,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			var certificate = new X509Certificate2 (signer.Certificate.GetEncoded ());
 			var chain = new[] { DotNetUtilities.FromX509Certificate (certificate) };
 			AsymmetricCipherKeyPair keyPair;
@@ -115,53 +116,56 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestConstructors ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx");
-			List<X509Certificate> certificates;
-			AsymmetricKeyParameter key;
-			var password = "no.secret";
-			CmsSigner signer;
+			foreach (var certificate in SecureMimeTestsBase.SMimeCertificates) {
+				List<X509Certificate> certificates;
+				var path = certificate.FileName;
+				AsymmetricKeyParameter key;
+				var password = "no.secret";
+				CmsSigner signer;
 
-			try {
-				signer = new CmsSigner (path, password);
-			} catch (Exception ex) {
-				Assert.Fail ($".ctor (string, string): {ex.Message}");
-			}
+				try {
+					signer = new CmsSigner (path, password);
+				} catch (Exception ex) {
+					Assert.Fail ($".ctor (string, string): {ex.Message}");
+				}
 
-			try {
-				using (var stream = File.OpenRead (path))
-					signer = new CmsSigner (stream, password);
-			} catch (Exception ex) {
-				Assert.Fail ($".ctor (Stream, string): {ex.Message}");
-			}
+				try {
+					using (var stream = File.OpenRead (path))
+						signer = new CmsSigner (stream, password);
+				} catch (Exception ex) {
+					Assert.Fail ($".ctor (Stream, string): {ex.Message}");
+				}
 
-			LoadPkcs12 (path, password, out certificates, out key);
+				LoadPkcs12 (path, password, out certificates, out key);
 
-			try {
-				signer = new CmsSigner (certificates, key);
-			} catch (Exception ex) {
-				Assert.Fail ($".ctor (IEnumerable<X509Certificate>, AsymmetricKeyParameter): {ex.Message}");
-			}
+				try {
+					signer = new CmsSigner (certificates, key);
+				} catch (Exception ex) {
+					Assert.Fail ($".ctor (IEnumerable<X509Certificate>, AsymmetricKeyParameter): {ex.Message}");
+				}
 
-			try {
-				signer = new CmsSigner (certificates[0], key);
-			} catch (Exception ex) {
-				Assert.Fail ($".ctor (X509Certificate, AsymmetricKeyParameter): {ex.Message}");
-			}
+				try {
+					signer = new CmsSigner (certificates[0], key);
+				} catch (Exception ex) {
+					Assert.Fail ($".ctor (X509Certificate, AsymmetricKeyParameter): {ex.Message}");
+				}
 
-			try {
-				signer = new CmsSigner (new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable));
-			} catch (Exception ex) {
-				Assert.Fail ($".ctor (X509Certificate2): {ex}");
+				try {
+					signer = new CmsSigner (new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable));
+				} catch (Exception ex) {
+					Assert.Fail ($".ctor (X509Certificate2): {ex}");
+				}
 			}
 		}
 
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
+			var path = rsa.FileName;
 			CmsSigner signer;
 
 			signer = new CmsSigner (path, password);
@@ -191,10 +195,11 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSignerIdentifierType ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
+			var path = rsa.FileName;
 			CmsSigner signer;
 
 			signer = new CmsSigner (path, password, SubjectIdentifierType.SubjectKeyIdentifier);
@@ -224,8 +229,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestRsaSignaturePadding ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx");
-			var signer = new CmsSigner (path, "no.secret");
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var signer = new CmsSigner (rsa.FileName, "no.secret");
 
 			Assert.That (signer.RsaSignaturePadding, Is.Null, "Default RsaSignaturePadding");
 

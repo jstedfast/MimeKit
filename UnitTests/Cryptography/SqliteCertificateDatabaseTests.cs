@@ -43,23 +43,22 @@ namespace UnitTests.Cryptography {
 
 		public SqliteCertificateDatabaseTests ()
 		{
+			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var path = Path.Combine (dataDir, "smime.pfx");
 
 			if (File.Exists ("sqlite.db"))
 				File.Delete ("sqlite.db");
 
-			chain = SecureMimeTestsBase.LoadPkcs12CertificateChain (path, "no.secret");
+			chain = rsa.Chain;
 
 			using (var ctx = new DefaultSecureMimeContext ("sqlite.db", "no.secret")) {
 				foreach (var filename in StartComCertificates) {
-					path = Path.Combine (dataDir, filename);
+					var path = Path.Combine (dataDir, filename);
 					using (var stream = File.OpenRead (path))
 						ctx.Import (stream, true);
 				}
 
-				path = Path.Combine (dataDir, "smime.pfx");
-				ctx.Import (path, "no.secret");
+				ctx.Import (rsa.FileName, "no.secret");
 			}
 		}
 

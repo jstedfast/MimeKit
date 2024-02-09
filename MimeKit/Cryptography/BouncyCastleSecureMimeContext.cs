@@ -1327,8 +1327,8 @@ namespace MimeKit.Cryptography {
 				var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
 				cms.AddKeyAgreementRecipient (
 					CmsEnvelopedGenerator.ECDHSha1Kdf,
-					keyPair.Public,
 					keyPair.Private,
+					keyPair.Public,
 					subjectKeyIdentifier.GetOctets (),
 					publicKey,
 					CmsEnvelopedGenerator.Aes128Wrap
@@ -1336,8 +1336,8 @@ namespace MimeKit.Cryptography {
 			} else {
 				cms.AddKeyAgreementRecipient (
 					CmsEnvelopedGenerator.ECDHSha1Kdf,
-					keyPair.Public,
 					keyPair.Private,
+					keyPair.Public,
 					certificate,
 					CmsEnvelopedGenerator.Aes128Wrap
 				);
@@ -1355,7 +1355,7 @@ namespace MimeKit.Cryptography {
 					var certificate = recipient.Certificate;
 					var pub = certificate.GetPublicKey ();
 
-					if (pub is RsaKeyParameters || pub is DsaKeyParameters) {
+					if (pub is RsaKeyParameters) {
 						// Bouncy Castle dispatches OAEP based on the certificate type. However, MimeKit users
 						// expect to be able to specify the use of OAEP in S/MIME with certificates that have
 						// PKCS#1v1.5 OIDs as these tend to be more broadly compatible across the ecosystem.
@@ -1366,7 +1366,7 @@ namespace MimeKit.Cryptography {
 					} else {
 						var oid = certificate.SubjectPublicKeyInfo.Algorithm.Algorithm.ToString ();
 
-						throw new ArgumentException ($"Unknown type of recipient certificate: {pub.GetType ().Name} (SubjectPublicKeyInfo OID = {oid})");
+						throw new NotSupportedException ($"Unsupported type of recipient certificate: {pub.GetType ().Name} (SubjectPublicKeyInfo OID = {oid})");
 					}
 
 					count++;

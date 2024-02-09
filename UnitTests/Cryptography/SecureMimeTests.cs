@@ -37,6 +37,25 @@ using MimeKit.Cryptography;
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace UnitTests.Cryptography {
+	public class SMimeCertificate
+	{
+		public string FileName { get; private set; }
+		public X509Certificate Certificate { get { return Chain[0]; } }
+		public X509Certificate[] Chain { get; private set; }
+		public DateTime CreationDate { get { return Certificate.NotBefore; } }
+		public DateTime ExpirationDate { get { return Certificate.NotAfter; } }
+		public string EmailAddress { get { return Certificate.GetSubjectEmailAddress (); } }
+		public string Fingerprint { get; private set; }
+		public PublicKeyAlgorithm PublicKeyAlgorithm { get { return Certificate.GetPublicKeyAlgorithm (); } }
+
+		public SMimeCertificate (string fileName, X509Certificate[] chain)
+		{
+			FileName = fileName;
+			Chain = chain;
+			Fingerprint = chain[0].GetFingerprint ();
+		}
+	}
+
 	public abstract class SecureMimeTestsBase
 	{
 		//const string ExpiredCertificateMessage = "A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.\r\n";
@@ -51,16 +70,89 @@ namespace UnitTests.Cryptography {
 		public const string MimeKitFingerprint = "ba4403cd3d876ae8cd261575820330086cc3cbc8";
 		public const string ThunderbirdName = "fejj@gnome.org";
 
-		public static readonly DateTime MimeKitCreationDate = new DateTime (2019, 11, 05, 03, 00, 15);
-		public static readonly DateTime MimeKitExpirationDate = new DateTime (2029, 11, 02, 03, 00, 15);
-		readonly X509Certificate MimeKitCertificate;
-
 		public static readonly string[] StartComCertificates = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
+		public static readonly SMimeCertificate[] UnsupportedCertificates;
+		public static readonly SMimeCertificate[] SupportedCertificates;
+		public static readonly SMimeCertificate[] SMimeCertificates;
+
 		protected virtual bool IsEnabled { get { return true; } }
+
+		protected virtual bool Supports (PublicKeyAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case PublicKeyAlgorithm.RsaGeneral:
+			case PublicKeyAlgorithm.EllipticCurve:
+				return true;
+			default:
+				return false;
+			}
+		}
+
 		protected abstract SecureMimeContext CreateContext ();
+
+		static SecureMimeTestsBase ()
+		{
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+			var unsupported = new List<SMimeCertificate> ();
+			var supported = new List<SMimeCertificate> ();
+			var all = new List<SMimeCertificate> ();
+
+			foreach (var cfg in Directory.GetFiles (dataDir, "*.cfg", SearchOption.AllDirectories)) {
+				var name = Path.GetFileNameWithoutExtension (cfg);
+				var pfx = Path.ChangeExtension (cfg, ".pfx");
+				X509Certificate[] chain;
+
+				if (File.Exists (pfx)) {
+					chain = LoadPkcs12CertificateChain (pfx, "no.secret");
+					var certificate = chain[0];
+
+					if (certificate.NotAfter > DateTime.Now) {
+						if (name.Equals ("smime", StringComparison.OrdinalIgnoreCase)) {
+							var smime = new SMimeCertificate (pfx, chain);
+
+							switch (smime.PublicKeyAlgorithm) {
+							case PublicKeyAlgorithm.RsaGeneral:
+							case PublicKeyAlgorithm.EllipticCurve:
+								supported.Add (smime);
+								break;
+							default:
+								unsupported.Add (smime);
+								break;
+							}
+
+							all.Add (smime);
+						}
+						continue;
+					}
+				}
+
+				// The pfx file either doesn't exist or it has expired. Time to generate a new one.
+				chain = X509CertificateGenerator.Generate (cfg);
+
+				if (name.Equals ("smime", StringComparison.OrdinalIgnoreCase)) {
+					var smime = new SMimeCertificate (pfx, chain);
+
+					switch (smime.PublicKeyAlgorithm) {
+					case PublicKeyAlgorithm.RsaGeneral:
+					case PublicKeyAlgorithm.EllipticCurve:
+						supported.Add (smime);
+						break;
+					default:
+						unsupported.Add (smime);
+						break;
+					}
+
+					all.Add (smime);
+				}
+			}
+
+			UnsupportedCertificates = unsupported.ToArray ();
+			SupportedCertificates = supported.ToArray ();
+			SMimeCertificates = all.ToArray ();
+		}
 
 		protected SecureMimeTestsBase ()
 		{
@@ -69,17 +161,15 @@ namespace UnitTests.Cryptography {
 
 			using (var ctx = CreateContext ()) {
 				var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-				string path;
+				var windows = ctx as WindowsSecureMimeContext;
 
 				if (ctx is TemporarySecureMimeContext)
 					CryptographyContext.Register (CreateContext);
 				else
 					CryptographyContext.Register (ctx.GetType ());
 
-				var chain = LoadPkcs12CertificateChain (Path.Combine (dataDir, "smime.pfx"), "no.secret");
-				MimeKitCertificate = chain[0];
-
-				if (ctx is WindowsSecureMimeContext windows) {
+				// Import the StartCom certificates
+				if (windows is not null) {
 					var parser = new X509CertificateParser ();
 
 					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
@@ -91,16 +181,9 @@ namespace UnitTests.Cryptography {
 						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
 							windows.Import (StoreName.CertificateAuthority, certificate);
 					}
-
-					// import the root & intermediate certificates from the smime.pfx file
-					var store = StoreName.AuthRoot;
-					for (int i = chain.Length - 1; i > 0; i--) {
-						windows.Import (store, chain[i]);
-						store = StoreName.CertificateAuthority;
-					}
 				} else {
 					foreach (var filename in StartComCertificates) {
-						path = Path.Combine (dataDir, filename);
+						var path = Path.Combine (dataDir, filename);
 						using (var stream = File.OpenRead (path)) {
 							if (ctx is DefaultSecureMimeContext sqlite) {
 								sqlite.Import (stream, true);
@@ -111,22 +194,35 @@ namespace UnitTests.Cryptography {
 							}
 						}
 					}
-
-					// import the root & intermediate certificates from the smime.pfx file
-					for (int i = chain.Length - 1; i > 0; i--) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							sqlite.Import (chain[i], true);
-						} else {
-							ctx.Import (chain[i]);
-						}
-					}
 				}
 
-				path = Path.Combine (dataDir, "smime.pfx");
-				ctx.Import (path, "no.secret");
+				// Import the smime.pfx certificates
+				foreach (var mimekitCertificate in SupportedCertificates) {
+					var chain = mimekitCertificate.Chain;
 
-				// import a second time to cover the case where the certificate & private key already exist
-				Assert.DoesNotThrow (() => ctx.Import (path, "no.secret"));
+					// Import the root & intermediate certificates from the smime.pfx file
+					if (windows is not null) {
+						var store = StoreName.AuthRoot;
+						for (int i = chain.Length - 1; i > 0; i--) {
+							windows.Import (store, chain[i]);
+							store = StoreName.CertificateAuthority;
+						}
+					} else {
+						for (int i = chain.Length - 1; i > 0; i--) {
+							if (ctx is DefaultSecureMimeContext sqlite) {
+								sqlite.Import (chain[i], true);
+							} else {
+								ctx.Import (chain[i]);
+							}
+						}
+					}
+
+					// Import the pfx so that the SecureMimeContext has a copy of the private key as well.
+					ctx.Import (mimekitCertificate.FileName, "no.secret");
+
+					// Import a second time to cover the case where the certificate & private key already exist
+					Assert.DoesNotThrow (() => ctx.Import (mimekitCertificate.FileName, "no.secret"));
+				}
 			}
 		}
 
@@ -186,7 +282,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new TemporarySecureMimeContext ((SecureRandom) null));
 
 			using (var ctx = CreateContext ()) {
-				var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
+				var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret");
 				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
 				var recipients = new CmsRecipientCollection ();
 				DigitalSignatureCollection signatures;
@@ -287,20 +383,22 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestCanSignAndEncrypt ()
 		{
-			var valid = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
-
 			using (var ctx = CreateContext ()) {
-				Assert.That (ctx.CanSign (invalid), Is.False, $"{invalid} should not be able to sign.");
-				Assert.That (ctx.CanEncrypt (invalid), Is.False, $"{invalid} should not be able to encrypt.");
+				foreach (var certificate in SupportedCertificates) {
+					var valid = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
 
-				Assert.That (ctx.CanSign (valid), Is.True, $"{valid} should be able to sign.");
-				Assert.That (ctx.CanEncrypt (valid), Is.True, $"{valid} should be able to encrypt.");
+					Assert.That (ctx.CanSign (invalid), Is.False, $"{invalid} should not be able to sign.");
+					Assert.That (ctx.CanEncrypt (invalid), Is.False, $"{invalid} should not be able to encrypt.");
 
-				using (var content = new MemoryStream ()) {
-					Assert.Throws<CertificateNotFoundException> (() => ctx.Encrypt (new[] { invalid }, content));
-					Assert.Throws<CertificateNotFoundException> (() => ctx.Sign (invalid, DigestAlgorithm.Sha1, content));
-					Assert.Throws<CertificateNotFoundException> (() => ctx.EncapsulatedSign (invalid, DigestAlgorithm.Sha1, content));
+					Assert.That (ctx.CanSign (valid), Is.True, $"{valid} should be able to sign.");
+					Assert.That (ctx.CanEncrypt (valid), Is.True, $"{valid} should be able to encrypt.");
+
+					using (var content = new MemoryStream ()) {
+						Assert.Throws<CertificateNotFoundException> (() => ctx.Encrypt (new[] { invalid }, content));
+						Assert.Throws<CertificateNotFoundException> (() => ctx.Sign (invalid, DigestAlgorithm.Sha1, content));
+						Assert.Throws<CertificateNotFoundException> (() => ctx.EncapsulatedSign (invalid, DigestAlgorithm.Sha1, content));
+					}
 				}
 			}
 		}
@@ -308,20 +406,22 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestCanSignAndEncryptAsync ()
 		{
-			var valid = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
-
 			using (var ctx = CreateContext ()) {
-				Assert.That (await ctx.CanSignAsync (invalid), Is.False, $"{invalid} should not be able to sign.");
-				Assert.That (await ctx.CanEncryptAsync (invalid), Is.False, $"{invalid} should not be able to encrypt.");
+				foreach (var certificate in SupportedCertificates) {
+					var valid = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
 
-				Assert.That (await ctx.CanSignAsync (valid), Is.True, $"{valid} should be able to sign.");
-				Assert.That (await ctx.CanEncryptAsync (valid), Is.True, $"{valid} should be able to encrypt.");
+					Assert.That (await ctx.CanSignAsync (invalid), Is.False, $"{invalid} should not be able to sign.");
+					Assert.That (await ctx.CanEncryptAsync (invalid), Is.False, $"{invalid} should not be able to encrypt.");
 
-				using (var content = new MemoryStream ()) {
-					Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.EncryptAsync (new[] { invalid }, content));
-					Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.SignAsync (invalid, DigestAlgorithm.Sha1, content));
-					Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.EncapsulatedSignAsync (invalid, DigestAlgorithm.Sha1, content));
+					Assert.That (await ctx.CanSignAsync (valid), Is.True, $"{valid} should be able to sign.");
+					Assert.That (await ctx.CanEncryptAsync (valid), Is.True, $"{valid} should be able to encrypt.");
+
+					using (var content = new MemoryStream ()) {
+						Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.EncryptAsync (new[] { invalid }, content));
+						Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.SignAsync (invalid, DigestAlgorithm.Sha1, content));
+						Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.EncapsulatedSignAsync (invalid, DigestAlgorithm.Sha1, content));
+					}
 				}
 			}
 		}
@@ -466,101 +566,111 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeEncapsulatedSigning ()
 		{
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
-			var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
+			foreach (var certificate in SupportedCertificates) {
+				if (Environment.OSVersion.Platform == PlatformID.Win32NT && certificate.PublicKeyAlgorithm == PublicKeyAlgorithm.EllipticCurve)
+					continue;
 
-			Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+				var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
 
-			var signatures = signed.Verify (out var extracted);
+				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-			Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-			Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+				var signatures = signed.Verify (out var extracted);
 
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
-			var signature = signatures[0];
+				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-			Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
-			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (MimeKitCreationDate), "CreationDate");
-			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (MimeKitExpirationDate), "ExpirationDate");
-			Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
-			Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
+				var signature = signatures[0];
 
-			try {
-				bool valid = signature.Verify ();
+				Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
+				Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
+				Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
+				Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (certificate.PublicKeyAlgorithm));
+				Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (certificate.PublicKeyAlgorithm));
 
-				Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-			} catch (DigitalSignatureVerifyException ex) {
-				using (var ctx = CreateContext ()) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+				} catch (DigitalSignatureVerifyException ex) {
+					using (var ctx = CreateContext ()) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 			}
-
-			var algorithms = GetEncryptionAlgorithms (signature);
-			int i = 0;
-
-			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 		}
 
 		[Test]
 		public virtual async Task TestSecureMimeEncapsulatedSigningAsync ()
 		{
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
-			var signed = await ApplicationPkcs7Mime.SignAsync (self, DigestAlgorithm.Sha1, cleartext);
-			MimeEntity extracted;
+			foreach (var certificate in SupportedCertificates) {
+				if (Environment.OSVersion.Platform == PlatformID.Win32NT && certificate.PublicKeyAlgorithm == PublicKeyAlgorithm.EllipticCurve)
+					continue;
 
-			Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+				var signed = await ApplicationPkcs7Mime.SignAsync (self, DigestAlgorithm.Sha1, cleartext);
+				MimeEntity extracted;
 
-			var signatures = signed.Verify (out extracted);
+				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-			Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-			Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+				var signatures = signed.Verify (out extracted);
 
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
-			var signature = signatures[0];
+				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-			Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
-			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (MimeKitCreationDate), "CreationDate");
-			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (MimeKitExpirationDate), "ExpirationDate");
-			Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
-			Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (PublicKeyAlgorithm.RsaGeneral));
+				var signature = signatures[0];
 
-			try {
-				bool valid = signature.Verify ();
+				Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
+				Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
+				Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
+				Assert.That (signature.SignerCertificate.PublicKeyAlgorithm, Is.EqualTo (certificate.PublicKeyAlgorithm));
+				Assert.That (signature.PublicKeyAlgorithm, Is.EqualTo (certificate.PublicKeyAlgorithm));
 
-				Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-			} catch (DigitalSignatureVerifyException ex) {
-				using (var ctx = CreateContext ()) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+				try {
+					bool valid = signature.Verify ();
+
+					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+				} catch (DigitalSignatureVerifyException ex) {
+					using (var ctx = CreateContext ()) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
+
+				var algorithms = GetEncryptionAlgorithms (signature);
+				int i = 0;
+
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 			}
-
-			var algorithms = GetEncryptionAlgorithms (signature);
-			int i = 0;
-
-			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 		}
 
 		void AssertValidSignatures (SecureMimeContext ctx, DigitalSignatureCollection signatures)
@@ -609,31 +719,36 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeEncapsulatedSigningWithContext ()
 		{
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var ctx = CreateContext ()) {
-				var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
-				MimeEntity extracted;
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
+					MimeEntity extracted;
 
-				var signatures = signed.Verify (ctx, out extracted);
+					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
-
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				AssertValidSignatures (ctx, signatures);
-
-				using (var signedData = signed.Content.Open ()) {
-					using (var stream = ctx.Verify (signedData, out signatures))
-						extracted = MimeEntity.Load (stream);
+					var signatures = signed.Verify (ctx, out extracted);
 
 					Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
 					Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 					AssertValidSignatures (ctx, signatures);
+
+					using (var signedData = signed.Content.Open ()) {
+						using (var stream = ctx.Verify (signedData, out signatures))
+							extracted = MimeEntity.Load (stream);
+
+						Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+						Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+
+						Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+						AssertValidSignatures (ctx, signatures);
+					}
 				}
 			}
 		}
@@ -642,31 +757,36 @@ namespace UnitTests.Cryptography {
 		public virtual async Task TestSecureMimeEncapsulatedSigningWithContextAsync ()
 		{
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var ctx = CreateContext ()) {
-				var signed = await ApplicationPkcs7Mime.SignAsync (ctx, self, DigestAlgorithm.Sha1, cleartext);
-				MimeEntity extracted;
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, self, DigestAlgorithm.Sha1, cleartext);
+					MimeEntity extracted;
 
-				var signatures = signed.Verify (ctx, out extracted);
+					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
-
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				AssertValidSignatures (ctx, signatures);
-
-				using (var signedData = signed.Content.Open ()) {
-					using (var stream = ctx.Verify (signedData, out signatures))
-						extracted = await MimeEntity.LoadAsync (stream);
+					var signatures = signed.Verify (ctx, out extracted);
 
 					Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
 					Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 					AssertValidSignatures (ctx, signatures);
+
+					using (var signedData = signed.Content.Open ()) {
+						using (var stream = ctx.Verify (signedData, out signatures))
+							extracted = await MimeEntity.LoadAsync (stream);
+
+						Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+						Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+
+						Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+						AssertValidSignatures (ctx, signatures);
+					}
 				}
 			}
 		}
@@ -674,116 +794,131 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
-			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			var signed = ApplicationPkcs7Mime.Sign (signer, cleartext);
-			MimeEntity extracted;
+				var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
+				var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
-			Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+				var signed = ApplicationPkcs7Mime.Sign (signer, cleartext);
+				MimeEntity extracted;
 
-			var signatures = signed.Verify (out extracted);
+				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-			Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-			Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+				var signatures = signed.Verify (out extracted);
 
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-			foreach (var signature in signatures) {
-				try {
-					bool valid = signature.Verify ();
+				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					using (var ctx = CreateContext ()) {
-						if (ctx is WindowsSecureMimeContext) {
-							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-						} else {
-							Assert.Fail ($"Failed to verify signature: {ex}");
+				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						using (var ctx = CreateContext ()) {
+							if (ctx is WindowsSecureMimeContext) {
+								// AppVeyor gets an exception about the root certificate not being trusted
+								Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+							} else {
+								Assert.Fail ($"Failed to verify signature: {ex}");
+							}
 						}
 					}
+
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
+
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 				}
-
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
-
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 			}
 		}
 
 		[Test]
 		public virtual async Task TestSecureMimeEncapsulatedSigningWithCmsSignerAsync ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
-			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			var signed = await ApplicationPkcs7Mime.SignAsync (signer, cleartext);
-			MimeEntity extracted;
+				var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
+				var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
-			Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+				var signed = await ApplicationPkcs7Mime.SignAsync (signer, cleartext);
+				MimeEntity extracted;
 
-			var signatures = signed.Verify (out extracted);
+				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-			Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-			Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+				var signatures = signed.Verify (out extracted);
 
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-			foreach (var signature in signatures) {
-				try {
-					bool valid = signature.Verify ();
+				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					using (var ctx = CreateContext ()) {
-						if (ctx is WindowsSecureMimeContext) {
-							// AppVeyor gets an exception about the root certificate not being trusted
-							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-						} else {
-							Assert.Fail ($"Failed to verify signature: {ex}");
+				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+				foreach (var signature in signatures) {
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						using (var ctx = CreateContext ()) {
+							if (ctx is WindowsSecureMimeContext) {
+								// AppVeyor gets an exception about the root certificate not being trusted
+								Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+							} else {
+								Assert.Fail ($"Failed to verify signature: {ex}");
+							}
 						}
 					}
+
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
+
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 				}
-
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
-
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 			}
 		}
 
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigningWithContextAndCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {
-				var signed = ApplicationPkcs7Mime.Sign (ctx, signer, cleartext);
-				MimeEntity extracted;
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+					var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
+					var signed = ApplicationPkcs7Mime.Sign (ctx, signer, cleartext);
+					MimeEntity extracted;
 
-				var signatures = signed.Verify (ctx, out extracted);
+					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
-
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				AssertValidSignatures (ctx, signatures);
-
-				using (var signedData = signed.Content.Open ()) {
-					using (var stream = ctx.Verify (signedData, out signatures))
-						extracted = MimeEntity.Load (stream);
+					var signatures = signed.Verify (ctx, out extracted);
 
 					Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
 					Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 					AssertValidSignatures (ctx, signatures);
+
+					using (var signedData = signed.Content.Open ()) {
+						using (var stream = ctx.Verify (signedData, out signatures))
+							extracted = MimeEntity.Load (stream);
+
+						Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+						Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+
+						Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+						AssertValidSignatures (ctx, signatures);
+					}
 				}
 			}
 		}
@@ -791,32 +926,37 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeEncapsulatedSigningWithContextAndCmsSignerAsync ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {
-				var signed = await ApplicationPkcs7Mime.SignAsync (ctx, signer, cleartext);
-				MimeEntity extracted;
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
+					var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
+					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, signer, cleartext);
+					MimeEntity extracted;
 
-				var signatures = signed.Verify (ctx, out extracted);
+					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
-				Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
-				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
-
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				AssertValidSignatures (ctx, signatures);
-
-				using (var signedData = signed.Content.Open ()) {
-					using (var stream = ctx.Verify (signedData, out signatures))
-						extracted = await MimeEntity.LoadAsync (stream);
+					var signatures = signed.Verify (ctx, out extracted);
 
 					Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
 					Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
 
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 					AssertValidSignatures (ctx, signatures);
+
+					using (var signedData = signed.Content.Open ()) {
+						using (var stream = ctx.Verify (signedData, out signatures))
+							extracted = await MimeEntity.LoadAsync (stream);
+
+						Assert.IsInstanceOf<TextPart> (extracted, "Extracted part is not the expected type.");
+						Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
+
+						Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+						AssertValidSignatures (ctx, signatures);
+					}
 				}
 			}
 		}
@@ -824,47 +964,52 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			var multipart = MultipartSigned.Create (signer, body);
+				var signer = new CmsSigner (certificate.FileName, "no.secret");
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
-			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+				var multipart = MultipartSigned.Create (signer, body);
 
-			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
+				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
 
-			var signatures = multipart.Verify ();
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-			var signature = signatures[0];
+				var signatures = multipart.Verify ();
+				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-			using (var ctx = CreateContext ()) {
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+				var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+				using (var ctx = CreateContext ()) {
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -873,47 +1018,52 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeSigningWithCmsSignerAsync ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			var multipart = await MultipartSigned.CreateAsync (signer, body);
+				var signer = new CmsSigner (certificate.FileName, "no.secret");
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
-			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+				var multipart = await MultipartSigned.CreateAsync (signer, body);
 
-			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
+				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
 
-			var signatures = await multipart.VerifyAsync ();
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-			var signature = signatures[0];
+				var signatures = await multipart.VerifyAsync ();
+				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-			using (var ctx = CreateContext ()) {
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+				var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+				using (var ctx = CreateContext ()) {
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -922,64 +1072,69 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithContextAndCmsSigner ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {
-				var multipart = MultipartSigned.Create (ctx, signer, body);
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+					var signer = new CmsSigner (certificate.FileName, "no.secret");
+					var multipart = MultipartSigned.Create (ctx, signer, body);
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				var signatures = multipart.Verify (ctx);
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+					Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-				var signature = signatures[0];
+					var signatures = multipart.Verify (ctx);
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+					var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -988,64 +1143,69 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeSigningWithContextAndCmsSignerAsync ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret");
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 
 			using (var ctx = CreateContext ()) {
-				var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+					var signer = new CmsSigner (certificate.FileName, "no.secret");
+					var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				var signatures = await multipart.VerifyAsync (ctx);
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+					Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-				var signature = signatures[0];
+					var signatures = await multipart.VerifyAsync (ctx);
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+					var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -1054,7 +1214,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithRsaSsaPss ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret") {
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret") {
 				RsaSignaturePadding = RsaSignaturePadding.Pss
 			};
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1083,10 +1243,10 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (signer.Certificate.GetSubjectEmailAddress ()));
+				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (signer.Certificate.GetFingerprint ()));
 
 				var algorithms = GetEncryptionAlgorithms (signature);
 				int i = 0;
@@ -1113,7 +1273,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeSigningWithRsaSsaPssAsync ()
 		{
-			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "smime.pfx"), "no.secret") {
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret") {
 				RsaSignaturePadding = RsaSignaturePadding.Pss
 			};
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1142,10 +1302,10 @@ namespace UnitTests.Cryptography {
 
 				var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo ("mimekit@example.com"));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (signer.Certificate.GetSubjectEmailAddress ()));
+				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (signer.Certificate.GetFingerprint ()));
 
 				var algorithms = GetEncryptionAlgorithms (signature);
 				int i = 0;
@@ -1172,74 +1332,79 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeMessageSigning ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of signing with S/MIME" };
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			message.From.Add (self);
-			message.Body = body;
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+				var message = new MimeMessage { Subject = "Test of signing with S/MIME" };
 
-			using (var ctx = CreateContext ()) {
-				Assert.That (ctx.CanSign (self), Is.True);
+				message.From.Add (self);
+				message.Body = body;
 
-				message.Sign (ctx);
+				using (var ctx = CreateContext ()) {
+					Assert.That (ctx.CanSign (self), Is.True);
 
-				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
+					message.Sign (ctx);
 
-				var multipart = (MultipartSigned) message.Body;
+					Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+					var multipart = (MultipartSigned) message.Body;
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				var signatures = multipart.Verify (ctx);
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+					Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-				var signature = signatures[0];
+					var signatures = multipart.Verify (ctx);
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+					var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -1248,74 +1413,79 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeMessageSigningAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of signing with S/MIME" };
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			message.From.Add (self);
-			message.Body = body;
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+				var message = new MimeMessage { Subject = "Test of signing with S/MIME" };
 
-			using (var ctx = CreateContext ()) {
-				Assert.That (await ctx.CanSignAsync (self), Is.True);
+				message.From.Add (self);
+				message.Body = body;
 
-				await message.SignAsync (ctx);
+				using (var ctx = CreateContext ()) {
+					Assert.That (await ctx.CanSignAsync (self), Is.True);
 
-				Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
+					await message.SignAsync (ctx);
 
-				var multipart = (MultipartSigned) message.Body;
+					Assert.IsInstanceOf<MultipartSigned> (message.Body, "The message body should be a multipart/signed.");
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+					var multipart = (MultipartSigned) message.Body;
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				var signatures = await multipart.VerifyAsync (ctx);
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
+					Assert.IsInstanceOf<ApplicationPkcs7Signature> (multipart[1], "The second child is not a detached signature.");
 
-				var signature = signatures[0];
+					var signatures = await multipart.VerifyAsync (ctx);
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (MimeKitFingerprint));
+					var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -1348,7 +1518,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (ThunderbirdName));
 				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (sender.Address));
 				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (ThunderbirdFingerprint));
@@ -1368,7 +1538,7 @@ namespace UnitTests.Cryptography {
 					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
-						if (Path.DirectorySeparatorChar == '/')
+						if (Environment.OSVersion.Platform != PlatformID.Win32NT)
 							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
 						else
 							Assert.That (ex.InnerException.Message, Is.EqualTo (ExpiredCertificateMessage));
@@ -1406,7 +1576,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (ThunderbirdName));
 				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (sender.Address));
 				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (ThunderbirdFingerprint));
@@ -1426,7 +1596,7 @@ namespace UnitTests.Cryptography {
 					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
-						if (Path.DirectorySeparatorChar == '/')
+						if (Environment.OSVersion.Platform != PlatformID.Win32NT)
 							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
 						else
 							Assert.That (ex.InnerException.Message, Is.EqualTo (ExpiredCertificateMessage));
@@ -1440,55 +1610,88 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeMessageEncryption ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of encrypting with S/MIME" };
-
-			message.From.Add (self);
-			message.To.Add (self);
-			message.Body = body;
-
 			using (var ctx = CreateContext ()) {
-				Assert.That (ctx.CanEncrypt (self), Is.True);
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				message.Encrypt (ctx);
+					var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var message = new MimeMessage { Subject = "Test of encrypting with S/MIME" };
 
-				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+					message.From.Add (self);
+					message.To.Add (self);
+					message.Body = body;
+					Assert.That (ctx.CanEncrypt (self), Is.True);
 
-				var encrypted = (ApplicationPkcs7Mime) message.Body;
+					message.Encrypt (ctx);
 
-				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+					Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
 
-				var decrypted = encrypted.Decrypt (ctx);
+					var encrypted = (ApplicationPkcs7Mime) message.Body;
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+
+					var decrypted = encrypted.Decrypt (ctx);
+
+					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
 			}
 		}
 
 		[Test]
 		public virtual async Task TestSecureMimeMessageEncryptionAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of encrypting with S/MIME" };
-
-			message.From.Add (self);
-			message.To.Add (self);
-			message.Body = body;
-
 			using (var ctx = CreateContext ()) {
-				Assert.That (await ctx.CanEncryptAsync (self), Is.True);
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
 
-				await message.EncryptAsync (ctx);
+					var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var message = new MimeMessage { Subject = "Test of encrypting with S/MIME" };
 
-				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+					message.From.Add (self);
+					message.To.Add (self);
+					message.Body = body;
 
-				var encrypted = (ApplicationPkcs7Mime) message.Body;
+
+					Assert.That (await ctx.CanEncryptAsync (self), Is.True);
+
+					await message.EncryptAsync (ctx);
+
+					Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+
+					var encrypted = (ApplicationPkcs7Mime) message.Body;
+
+					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+
+					var decrypted = await encrypted.DecryptAsync (ctx);
+
+					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
+			}
+		}
+
+		[Test]
+		public virtual void TestSecureMimeEncryption ()
+		{
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
+
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+				var recipients = new CmsRecipientCollection {
+					new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier)
+				};
+
+				var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, body);
 
 				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
-				var decrypted = await encrypted.DecryptAsync (ctx);
+				var decrypted = encrypted.Decrypt ();
 
 				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1496,39 +1699,26 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public virtual void TestSecureMimeEncryption ()
-		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var recipients = new CmsRecipientCollection {
-				new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier)
-			};
-
-			var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, body);
-
-			Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-
-			var decrypted = encrypted.Decrypt ();
-
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
-		}
-
-		[Test]
 		public virtual async Task TestSecureMimeEncryptionAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-			var recipients = new CmsRecipientCollection {
-				new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier)
-			};
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, body);
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+				var recipients = new CmsRecipientCollection {
+					new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier)
+				};
 
-			Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, body);
 
-			var decrypted = await encrypted.DecryptAsync ();
+				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				var decrypted = await encrypted.DecryptAsync ();
+
+				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+			}
 		}
 
 		[Test]
@@ -1537,126 +1727,18 @@ namespace UnitTests.Cryptography {
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
 			using (var ctx = CreateContext ()) {
-				var recipients = new CmsRecipientCollection ();
-
-				if (ctx is WindowsSecureMimeContext)
-					recipients.Add (new CmsRecipient (MimeKitCertificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
-				else
-					recipients.Add (new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier));
-
-				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
-
-				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-
-				using (var stream = new MemoryStream ()) {
-					ctx.DecryptTo (encrypted.Content.Open (), stream);
-					stream.Position = 0;
-
-					var decrypted = MimeEntity.Load (stream);
-
-					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
-				}
-			}
-		}
-
-		[Test]
-		public virtual async Task TestSecureMimeEncryptionWithContextAsync ()
-		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-
-			using (var ctx = CreateContext ()) {
-				var recipients = new CmsRecipientCollection ();
-
-				if (ctx is WindowsSecureMimeContext)
-					recipients.Add (new CmsRecipient (MimeKitCertificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
-				else
-					recipients.Add (new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier));
-
-				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
-
-				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-
-				using (var stream = new MemoryStream ()) {
-					await ctx.DecryptToAsync (encrypted.Content.Open (), stream);
-					stream.Position = 0;
-
-					var decrypted = await MimeEntity.LoadAsync (stream);
-
-					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
-					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
-				}
-			}
-		}
-
-		[Test]
-		public virtual void TestSecureMimeEncryptionWithAlgorithm ()
-		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-
-			using (var ctx = CreateContext ()) {
-				var recipients = new CmsRecipientCollection ();
-
-				if (ctx is WindowsSecureMimeContext)
-					recipients.Add (new CmsRecipient (MimeKitCertificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
-				else
-					recipients.Add (new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier));
-
-				foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-					foreach (var recipient in recipients)
-						recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
-
-					var enabled = ctx.IsEnabled (algorithm);
-					ApplicationPkcs7Mime encrypted;
-
-					// Note: these are considered weaker than 3DES and so we need to disable 3DES to use them
-					switch (algorithm) {
-					case EncryptionAlgorithm.Idea:
-					case EncryptionAlgorithm.Des:
-					case EncryptionAlgorithm.RC2128:
-					case EncryptionAlgorithm.RC264:
-					case EncryptionAlgorithm.RC240:
-						ctx.Disable (EncryptionAlgorithm.TripleDes);
-						break;
-					}
-
-					if (!enabled) {
-						// make sure the algorithm is enabled
-						ctx.Enable (algorithm);
-					}
-
-					try {
-						encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
-					} catch (NotSupportedException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							switch (algorithm) {
-							case EncryptionAlgorithm.Camellia128:
-							case EncryptionAlgorithm.Camellia192:
-							case EncryptionAlgorithm.Camellia256:
-							case EncryptionAlgorithm.Blowfish:
-							case EncryptionAlgorithm.Twofish:
-							case EncryptionAlgorithm.Cast5:
-							case EncryptionAlgorithm.Idea:
-							case EncryptionAlgorithm.Seed:
-								break;
-							default:
-								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
-								break;
-							}
-						} else {
-							if (algorithm != EncryptionAlgorithm.Twofish)
-								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
-						}
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
 						continue;
-					} catch (Exception ex) {
-						Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
-						continue;
-					} finally {
-						if (!enabled) {
-							ctx.Enable (EncryptionAlgorithm.TripleDes);
-							ctx.Disable (algorithm);
-						}
-					}
+
+					var recipients = new CmsRecipientCollection ();
+
+					if (ctx is WindowsSecureMimeContext)
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+					else
+						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+					var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
 
 					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
@@ -1674,73 +1756,23 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public virtual async Task TestSecureMimeEncryptionWithAlgorithmAsync ()
+		public virtual async Task TestSecureMimeEncryptionWithContextAsync ()
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
 			using (var ctx = CreateContext ()) {
-				var recipients = new CmsRecipientCollection ();
-
-				if (ctx is WindowsSecureMimeContext)
-					recipients.Add (new CmsRecipient (MimeKitCertificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
-				else
-					recipients.Add (new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.SubjectKeyIdentifier));
-
-				foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
-					foreach (var recipient in recipients)
-						recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
-
-					var enabled = ctx.IsEnabled (algorithm);
-					ApplicationPkcs7Mime encrypted;
-
-					// Note: these are considered weaker than 3DES and so we need to disable 3DES to use them
-					switch (algorithm) {
-					case EncryptionAlgorithm.Idea:
-					case EncryptionAlgorithm.Des:
-					case EncryptionAlgorithm.RC2128:
-					case EncryptionAlgorithm.RC264:
-					case EncryptionAlgorithm.RC240:
-						ctx.Disable (EncryptionAlgorithm.TripleDes);
-						break;
-					}
-
-					if (!enabled) {
-						// make sure the algorithm is enabled
-						ctx.Enable (algorithm);
-					}
-
-					try {
-						encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
-					} catch (NotSupportedException ex) {
-						if (ctx is WindowsSecureMimeContext) {
-							switch (algorithm) {
-							case EncryptionAlgorithm.Camellia128:
-							case EncryptionAlgorithm.Camellia192:
-							case EncryptionAlgorithm.Camellia256:
-							case EncryptionAlgorithm.Blowfish:
-							case EncryptionAlgorithm.Twofish:
-							case EncryptionAlgorithm.Cast5:
-							case EncryptionAlgorithm.Idea:
-							case EncryptionAlgorithm.Seed:
-								break;
-							default:
-								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
-								break;
-							}
-						} else {
-							if (algorithm != EncryptionAlgorithm.Twofish)
-								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
-						}
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
 						continue;
-					} catch (Exception ex) {
-						Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm}: {ex.Message}");
-						continue;
-					} finally {
-						if (!enabled) {
-							ctx.Enable (EncryptionAlgorithm.TripleDes);
-							ctx.Disable (algorithm);
-						}
-					}
+
+					var recipients = new CmsRecipientCollection ();
+
+					if (ctx is WindowsSecureMimeContext)
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+					else
+						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+					var encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
 
 					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
@@ -1757,18 +1789,213 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		[Test]
+		public virtual void TestSecureMimeEncryptionWithAlgorithm ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+
+			using (var ctx = CreateContext ()) {
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
+
+					var recipients = new CmsRecipientCollection ();
+
+					if (ctx is WindowsSecureMimeContext)
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+					else
+						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+					foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
+						foreach (var recipient in recipients)
+							recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
+
+						var enabled = ctx.IsEnabled (algorithm);
+						ApplicationPkcs7Mime encrypted;
+
+						// Note: these are considered weaker than 3DES and so we need to disable 3DES to use them
+						switch (algorithm) {
+						case EncryptionAlgorithm.Idea:
+						case EncryptionAlgorithm.Des:
+						case EncryptionAlgorithm.RC2128:
+						case EncryptionAlgorithm.RC264:
+						case EncryptionAlgorithm.RC240:
+							ctx.Disable (EncryptionAlgorithm.TripleDes);
+							break;
+						}
+
+						if (!enabled) {
+							// make sure the algorithm is enabled
+							ctx.Enable (algorithm);
+						}
+
+						try {
+							encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+						} catch (NotSupportedException ex) {
+							if (ctx is WindowsSecureMimeContext) {
+								switch (algorithm) {
+								case EncryptionAlgorithm.Camellia128:
+								case EncryptionAlgorithm.Camellia192:
+								case EncryptionAlgorithm.Camellia256:
+								case EncryptionAlgorithm.Blowfish:
+								case EncryptionAlgorithm.Twofish:
+								case EncryptionAlgorithm.Cast5:
+								case EncryptionAlgorithm.Idea:
+								case EncryptionAlgorithm.Seed:
+									break;
+								default:
+									Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.Message}");
+									break;
+								}
+							} else {
+								if (algorithm != EncryptionAlgorithm.Twofish)
+									Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.Message}");
+							}
+							continue;
+						} catch (Exception ex) {
+							switch (certificate.PublicKeyAlgorithm) {
+							case PublicKeyAlgorithm.EllipticCurve:
+								if (algorithm == EncryptionAlgorithm.RC240)
+									break;
+								goto default;
+							default:
+								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.Message}");
+								break;
+							}
+							continue;
+						} finally {
+							if (!enabled) {
+								ctx.Enable (EncryptionAlgorithm.TripleDes);
+								ctx.Disable (algorithm);
+							}
+						}
+
+						Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+
+						using (var stream = new MemoryStream ()) {
+							ctx.DecryptTo (encrypted.Content.Open (), stream);
+							stream.Position = 0;
+
+							var decrypted = MimeEntity.Load (stream);
+
+							Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+							Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+						}
+					}
+				}
+			}
+		}
+
+		[Test]
+		public virtual async Task TestSecureMimeEncryptionWithAlgorithmAsync ()
+		{
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+
+			using (var ctx = CreateContext ()) {
+				foreach (var certificate in SupportedCertificates) {
+					if (!Supports (certificate.PublicKeyAlgorithm))
+						continue;
+
+					var recipients = new CmsRecipientCollection ();
+
+					if (ctx is WindowsSecureMimeContext)
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+					else
+						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+
+					foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
+						foreach (var recipient in recipients)
+							recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
+
+						var enabled = ctx.IsEnabled (algorithm);
+						ApplicationPkcs7Mime encrypted;
+
+						// Note: these are considered weaker than 3DES and so we need to disable 3DES to use them
+						switch (algorithm) {
+						case EncryptionAlgorithm.Idea:
+						case EncryptionAlgorithm.Des:
+						case EncryptionAlgorithm.RC2128:
+						case EncryptionAlgorithm.RC264:
+						case EncryptionAlgorithm.RC240:
+							ctx.Disable (EncryptionAlgorithm.TripleDes);
+							break;
+						}
+
+						if (!enabled) {
+							// make sure the algorithm is enabled
+							ctx.Enable (algorithm);
+						}
+
+						try {
+							encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+						} catch (NotSupportedException ex) {
+							if (ctx is WindowsSecureMimeContext) {
+								switch (algorithm) {
+								case EncryptionAlgorithm.Camellia128:
+								case EncryptionAlgorithm.Camellia192:
+								case EncryptionAlgorithm.Camellia256:
+								case EncryptionAlgorithm.Blowfish:
+								case EncryptionAlgorithm.Twofish:
+								case EncryptionAlgorithm.Cast5:
+								case EncryptionAlgorithm.Idea:
+								case EncryptionAlgorithm.Seed:
+									break;
+								default:
+									Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.Message}");
+									break;
+								}
+							} else {
+								if (algorithm != EncryptionAlgorithm.Twofish)
+									Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.Message}");
+							}
+							continue;
+						} catch (Exception ex) {
+							switch (certificate.PublicKeyAlgorithm) {
+							case PublicKeyAlgorithm.EllipticCurve:
+								if (algorithm == EncryptionAlgorithm.RC240)
+									break;
+								goto default;
+							default:
+								Assert.Fail ($"{ctx.GetType ().Name} does not support {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.Message}");
+								break;
+							}
+							continue;
+						} finally {
+							if (!enabled) {
+								ctx.Enable (EncryptionAlgorithm.TripleDes);
+								ctx.Disable (algorithm);
+							}
+						}
+
+						Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+
+						using (var stream = new MemoryStream ()) {
+							await ctx.DecryptToAsync (encrypted.Content.Open (), stream);
+							stream.Position = 0;
+
+							var decrypted = await MimeEntity.LoadAsync (stream);
+
+							Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+							Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+						}
+					}
+				}
+			}
+		}
+
 		[TestCase (DigestAlgorithm.Sha1)]
 		[TestCase (DigestAlgorithm.Sha256)]
 		[TestCase (DigestAlgorithm.Sha384)]
 		[TestCase (DigestAlgorithm.Sha512)]
 		public virtual void TestSecureMimeEncryptionWithRsaesOaep (DigestAlgorithm hashAlgorithm)
 		{
+			var rsa = SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
 			using (var ctx = CreateContext ()) {
 				var recipients = new CmsRecipientCollection ();
 
-				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber) {
+				var recipient = new CmsRecipient (rsa.Certificate, SubjectIdentifierType.IssuerAndSerialNumber) {
 					EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 },
 					RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm)
 				};
@@ -1804,12 +2031,13 @@ namespace UnitTests.Cryptography {
 		[TestCase (DigestAlgorithm.Sha512)]
 		public virtual async Task TestSecureMimeEncryptionWithRsaesOaepAsync (DigestAlgorithm hashAlgorithm)
 		{
+			var rsa = SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
 			using (var ctx = CreateContext ()) {
 				var recipients = new CmsRecipientCollection ();
 
-				var recipient = new CmsRecipient (MimeKitCertificate, SubjectIdentifierType.IssuerAndSerialNumber) {
+				var recipient = new CmsRecipient (rsa.Certificate, SubjectIdentifierType.IssuerAndSerialNumber) {
 					EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128 },
 					RsaEncryptionPadding = RsaEncryptionPadding.CreateOaep (hashAlgorithm)
 				};
@@ -1922,83 +2150,88 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSignAndEncrypt ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
-			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", MimeKitFingerprint);
-			var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
-			ApplicationPkcs7Mime encrypted;
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			message.From.Add (self);
-			message.To.Add (self);
-			message.Body = body;
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+				var self = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
+				var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
+				ApplicationPkcs7Mime encrypted;
 
-			using (var ctx = CreateContext ()) {
-				message.SignAndEncrypt (ctx);
+				message.From.Add (self);
+				message.To.Add (self);
+				message.Body = body;
 
-				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+				using (var ctx = CreateContext ()) {
+					message.SignAndEncrypt (ctx);
 
-				encrypted = (ApplicationPkcs7Mime) message.Body;
+					Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
 
-				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-			}
+					encrypted = (ApplicationPkcs7Mime) message.Body;
 
-			using (var ctx = CreateContext ()) {
-				var decrypted = encrypted.Decrypt (ctx);
+					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+				}
 
-				// The decrypted part should be a multipart/signed
-				Assert.IsInstanceOf<MultipartSigned> (decrypted, "Expected the decrypted part to be a multipart/signed.");
-				var signed = (MultipartSigned) decrypted;
+				using (var ctx = CreateContext ()) {
+					var decrypted = encrypted.Decrypt (ctx);
 
-				Assert.IsInstanceOf<TextPart> (signed[0], "Expected the first part of the multipart/signed to be a multipart.");
-				Assert.IsInstanceOf<ApplicationPkcs7Signature> (signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
+					// The decrypted part should be a multipart/signed
+					Assert.IsInstanceOf<MultipartSigned> (decrypted, "Expected the decrypted part to be a multipart/signed.");
+					var signed = (MultipartSigned) decrypted;
 
-				var extracted = (TextPart) signed[0];
-				Assert.That (extracted.Text, Is.EqualTo (body.Text), "The decrypted text part's text does not match the original.");
+					Assert.IsInstanceOf<TextPart> (signed[0], "Expected the first part of the multipart/signed to be a multipart.");
+					Assert.IsInstanceOf<ApplicationPkcs7Signature> (signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
 
-				var signatures = signed.Verify (ctx);
+					var extracted = (TextPart) signed[0];
+					Assert.That (extracted.Text, Is.EqualTo (body.Text), "The decrypted text part's text does not match the original.");
 
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					var signatures = signed.Verify (ctx);
 
-				var signature = signatures[0];
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (self.Fingerprint));
+					var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (self.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -2007,83 +2240,88 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeSignAndEncryptAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
-			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", MimeKitFingerprint);
-			var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
-			ApplicationPkcs7Mime encrypted;
+			foreach (var certificate in SupportedCertificates) {
+				if (!Supports (certificate.PublicKeyAlgorithm))
+					continue;
 
-			message.From.Add (self);
-			message.To.Add (self);
-			message.Body = body;
+				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+				var self = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
+				var message = new MimeMessage { Subject = "Test of signing and encrypting with S/MIME" };
+				ApplicationPkcs7Mime encrypted;
 
-			using (var ctx = CreateContext ()) {
-				await message.SignAndEncryptAsync (ctx);
+				message.From.Add (self);
+				message.To.Add (self);
+				message.Body = body;
 
-				Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
+				using (var ctx = CreateContext ()) {
+					await message.SignAndEncryptAsync (ctx);
 
-				encrypted = (ApplicationPkcs7Mime) message.Body;
+					Assert.IsInstanceOf<ApplicationPkcs7Mime> (message.Body, "The message body should be an application/pkcs7-mime part.");
 
-				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-			}
+					encrypted = (ApplicationPkcs7Mime) message.Body;
 
-			using (var ctx = CreateContext ()) {
-				var decrypted = await encrypted.DecryptAsync (ctx);
+					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
+				}
 
-				// The decrypted part should be a multipart/signed
-				Assert.IsInstanceOf<MultipartSigned> (decrypted, "Expected the decrypted part to be a multipart/signed.");
-				var signed = (MultipartSigned) decrypted;
+				using (var ctx = CreateContext ()) {
+					var decrypted = await encrypted.DecryptAsync (ctx);
 
-				Assert.IsInstanceOf<TextPart> (signed[0], "Expected the first part of the multipart/signed to be a multipart.");
-				Assert.IsInstanceOf<ApplicationPkcs7Signature> (signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
+					// The decrypted part should be a multipart/signed
+					Assert.IsInstanceOf<MultipartSigned> (decrypted, "Expected the decrypted part to be a multipart/signed.");
+					var signed = (MultipartSigned) decrypted;
 
-				var extracted = (TextPart) signed[0];
-				Assert.That (extracted.Text, Is.EqualTo (body.Text), "The decrypted text part's text does not match the original.");
+					Assert.IsInstanceOf<TextPart> (signed[0], "Expected the first part of the multipart/signed to be a multipart.");
+					Assert.IsInstanceOf<ApplicationPkcs7Signature> (signed[1], "Expected second part of the multipart/signed to be a pkcs7-signature.");
 
-				var signatures = await signed.VerifyAsync (ctx);
+					var extracted = (TextPart) signed[0];
+					Assert.That (extracted.Text, Is.EqualTo (body.Text), "The decrypted text part's text does not match the original.");
 
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					var signatures = await signed.VerifyAsync (ctx);
 
-				var signature = signatures[0];
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (self.Fingerprint));
+					var signature = signatures[0];
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (self.Fingerprint));
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-				if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-				//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				try {
-					bool valid = signature.Verify ();
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -2141,7 +2379,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (ThunderbirdName));
 				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (sender.Address));
 				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (ThunderbirdFingerprint));
@@ -2161,7 +2399,7 @@ namespace UnitTests.Cryptography {
 					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
-						if (Path.DirectorySeparatorChar == '/')
+						if (Environment.OSVersion.Platform != PlatformID.Win32NT)
 							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
 						else
 							Assert.That (ex.InnerException.Message, Is.EqualTo (ExpiredCertificateMessage));
@@ -2224,7 +2462,7 @@ namespace UnitTests.Cryptography {
 				var sender = message.From.Mailboxes.FirstOrDefault ();
 				var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Path.DirectorySeparatorChar == '\\')
+				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 					Assert.That (signature.SignerCertificate.Name, Is.EqualTo (ThunderbirdName));
 				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (sender.Address));
 				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (ThunderbirdFingerprint));
@@ -2244,7 +2482,7 @@ namespace UnitTests.Cryptography {
 					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
 				} catch (DigitalSignatureVerifyException ex) {
 					if (ctx is WindowsSecureMimeContext) {
-						if (Path.DirectorySeparatorChar == '/')
+						if (Environment.OSVersion.Platform != PlatformID.Win32NT)
 							Assert.IsInstanceOf<ArgumentException> (ex.InnerException);
 						else
 							Assert.That (ex.InnerException.Message, Is.EqualTo (ExpiredCertificateMessage));
@@ -2425,7 +2663,17 @@ namespace UnitTests.Cryptography {
 	{
 		protected override bool IsEnabled {
 			get {
-				return Path.DirectorySeparatorChar == '\\';
+				return Environment.OSVersion.Platform == PlatformID.Win32NT;
+			}
+		}
+
+		protected override bool Supports (PublicKeyAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case PublicKeyAlgorithm.RsaGeneral:
+				return true;
+			default:
+				return false;
 			}
 		}
 
@@ -2442,7 +2690,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestCanSignAndEncrypt ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestCanSignAndEncrypt ();
@@ -2451,7 +2699,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestCanSignAndEncryptAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestCanSignAndEncryptAsync ();
@@ -2460,7 +2708,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncapsulatedSigning ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncapsulatedSigning ();
@@ -2469,7 +2717,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncapsulatedSigningAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncapsulatedSigningAsync ();
@@ -2478,7 +2726,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncapsulatedSigningWithContext ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncapsulatedSigningWithContext ();
@@ -2487,7 +2735,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncapsulatedSigningWithContextAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncapsulatedSigningWithContextAsync ();
@@ -2496,7 +2744,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncapsulatedSigningWithCmsSigner ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncapsulatedSigningWithCmsSigner ();
@@ -2505,7 +2753,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncapsulatedSigningWithCmsSignerAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncapsulatedSigningWithCmsSignerAsync ();
@@ -2514,7 +2762,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncapsulatedSigningWithContextAndCmsSigner ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncapsulatedSigningWithContextAndCmsSigner ();
@@ -2523,7 +2771,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncapsulatedSigningWithContextAndCmsSignerAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncapsulatedSigningWithContextAndCmsSignerAsync ();
@@ -2532,7 +2780,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeSigningWithCmsSigner ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeSigningWithCmsSigner ();
@@ -2541,7 +2789,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeSigningWithCmsSignerAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeSigningWithCmsSignerAsync ();
@@ -2550,7 +2798,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeSigningWithContextAndCmsSigner ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeSigningWithContextAndCmsSigner ();
@@ -2559,7 +2807,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeSigningWithContextAndCmsSignerAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeSigningWithContextAndCmsSignerAsync ();
@@ -2568,7 +2816,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeSigningWithRsaSsaPss ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeSigningWithRsaSsaPss ();
@@ -2577,7 +2825,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeSigningWithRsaSsaPssAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeSigningWithRsaSsaPssAsync ();
@@ -2586,7 +2834,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeMessageSigning ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeMessageSigning ();
@@ -2595,7 +2843,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeMessageSigningAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeMessageSigningAsync ();
@@ -2604,7 +2852,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeVerifyThunderbird ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeVerifyThunderbird ();
@@ -2613,7 +2861,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeVerifyThunderbirdAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeVerifyThunderbirdAsync ();
@@ -2622,7 +2870,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeMessageEncryption ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeMessageEncryption ();
@@ -2631,7 +2879,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeMessageEncryptionAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeMessageEncryptionAsync ();
@@ -2640,7 +2888,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncryption ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncryption ();
@@ -2649,7 +2897,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncryptionAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncryptionAsync ();
@@ -2658,7 +2906,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncryptionWithContext ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncryptionWithContext ();
@@ -2667,7 +2915,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncryptionWithContextAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncryptionWithContextAsync ();
@@ -2676,7 +2924,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeEncryptionWithAlgorithm ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncryptionWithAlgorithm ();
@@ -2685,7 +2933,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeEncryptionWithAlgorithmAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncryptionWithAlgorithmAsync ();
@@ -2697,7 +2945,7 @@ namespace UnitTests.Cryptography {
 		[TestCase (DigestAlgorithm.Sha512)]
 		public override void TestSecureMimeEncryptionWithRsaesOaep (DigestAlgorithm hashAlgorithm)
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeEncryptionWithRsaesOaep (hashAlgorithm);
@@ -2709,7 +2957,7 @@ namespace UnitTests.Cryptography {
 		[TestCase (DigestAlgorithm.Sha512)]
 		public override Task TestSecureMimeEncryptionWithRsaesOaepAsync (DigestAlgorithm hashAlgorithm)
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeEncryptionWithRsaesOaepAsync (hashAlgorithm);
@@ -2718,7 +2966,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeSignAndEncrypt ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeSignAndEncrypt ();
@@ -2727,7 +2975,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeSignAndEncryptAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeSignAndEncryptAsync ();
@@ -2736,7 +2984,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override void TestSecureMimeImportExport ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return;
 
 			base.TestSecureMimeImportExport ();
@@ -2745,7 +2993,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public override Task TestSecureMimeImportExportAsync ()
 		{
-			if (Path.DirectorySeparatorChar != '\\')
+			if (!IsEnabled)
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeImportExportAsync ();
