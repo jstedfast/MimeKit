@@ -381,5 +381,89 @@ namespace UnitTests.IO.Filters {
 			filter.Reset ();
 			TestOpenPgpBlockFilter (filter, buffer, expected, 21);
 		}
+
+		static void TestUnix2DosFilter (string text, string expected, bool ensureNewLine)
+		{
+			var filter = new Unix2DosFilter (ensureNewLine);
+
+			TestArgumentExceptions (filter);
+
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					var buffer = Encoding.UTF8.GetBytes (text);
+
+					filtered.Add (filter);
+					filtered.Write (buffer, 0, buffer.Length);
+					filtered.Flush ();
+					filtered.Flush ();
+
+					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+
+					Assert.That (actual, Is.EqualTo (expected), $"unix2dos failed. EnsureNewLine = {ensureNewLine}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestUnix2DosFilterSimple ()
+		{
+			const string text = "This text is meant to test that the filter will convert unix line endings to dos.\nHere's a second line of text.\nAnd one more line for good measure, shall we?";
+			const string expected = "This text is meant to test that the filter will convert unix line endings to dos.\r\nHere's a second line of text.\r\nAnd one more line for good measure, shall we?";
+
+			TestUnix2DosFilter (text, expected, false);
+			TestUnix2DosFilter (text, expected + "\r\n", true);
+		}
+
+		[Test]
+		public void TestUnix2DosFilterMixedLineEndings ()
+		{
+			const string text = "This text is meant to test that the filter will convert unix line endings to dos.\nHere's a second line of text.\r\nAnd one more line for good measure, shall we?\r";
+			const string expected = "This text is meant to test that the filter will convert unix line endings to dos.\r\nHere's a second line of text.\r\nAnd one more line for good measure, shall we?\r";
+
+			TestUnix2DosFilter (text, expected, false);
+			TestUnix2DosFilter (text, expected + '\n', true);
+		}
+
+		static void TestDos2UnixFilter (string text, string expected, bool ensureNewLine)
+		{
+			var filter = new Dos2UnixFilter (ensureNewLine);
+
+			TestArgumentExceptions (filter);
+
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					var buffer = Encoding.UTF8.GetBytes (text);
+
+					filtered.Add (filter);
+					filtered.Write (buffer, 0, buffer.Length);
+					filtered.Flush ();
+					filtered.Flush ();
+
+					var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+
+					Assert.That (actual, Is.EqualTo (expected), $"dos2unix failed. EnsureNewLine = {ensureNewLine}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestDos2UnixFilterSimple ()
+		{
+			const string text = "This text is meant to test that the filter will convert dos line endings to unix.\r\nHere's a second line of text.\r\nAnd one more line for good measure, shall we?";
+			const string expected = "This text is meant to test that the filter will convert dos line endings to unix.\nHere's a second line of text.\nAnd one more line for good measure, shall we?";
+
+			TestDos2UnixFilter (text, expected, false);
+			TestDos2UnixFilter (text, expected + '\n', true);
+		}
+
+		[Test]
+		public void TestDos2UnixFilterMixedLineEndings ()
+		{
+			const string text = "This text is meant to test that the filter will convert dos line endings to unix.\nHere's a second line of text.\r\nAnd one more line for good measure, shall we?\n";
+			const string expected = "This text is meant to test that the filter will convert dos line endings to unix.\nHere's a second line of text.\nAnd one more line for good measure, shall we?\n";
+
+			TestDos2UnixFilter (text, expected, false);
+			TestDos2UnixFilter (text, expected, true);
+		}
 	}
 }

@@ -69,8 +69,10 @@ namespace MimeKit.IO.Filters {
 			}
 
 			if (flush && ensureNewLine && pc != (byte) '\n') {
-				output[outputIndex++] = (byte) '\r';
+				if (pc != (byte) '\r')
+					output[outputIndex++] = (byte) '\r';
 				output[outputIndex++] = (byte) '\n';
+				pc = (byte) '\n';
 			}
 
 			return outputIndex;
