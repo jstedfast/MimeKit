@@ -173,7 +173,7 @@ namespace CertificateGenerator
 
 				switch (privateKey.Algorithm.ToLowerInvariant ()) {
 				case "rsa": keyPairGenerator = new RsaKeyPairGenerator (); break;
-				case "ecdsa": keyPairGenerator = new ECKeyPairGenerator ("ECDSA"); break;
+				case "ecdh": case "ecdsa": keyPairGenerator = new ECKeyPairGenerator (privateKey.Algorithm.ToUpper ()); break;
 				default: Console.Error.WriteLine ("Unsupported PrivateKey algorithm: {0}", privateKey.Algorithm); return;
 				}
 				keyPairGenerator.Init (keyGenerationParameters);

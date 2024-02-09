@@ -20,11 +20,11 @@ if [ ! -e "smime.key" ]; then
     openssl genrsa -out smime.key 4096 > /dev/null
 fi
 
-if [ ! -e "BouncyCastle.Crypto.dll" ]; then
-    cp ../../bin/Debug/BouncyCastle.Crypto.dll .
+if [ ! -e "BouncyCastle.Cryptography.dll" ]; then
+    cp ../../bin/Debug/BouncyCastle.Cryptography.dll .
 fi
 
-mcs mkcert.cs -r:BouncyCastle.Crypto.dll
+mcs mkcert.cs -r:BouncyCastle.Cryptography.dll
 
 # Create the root (CA) certificate
 mono ./mkcert.exe certificate-authority.cfg > fingerprints.txt
