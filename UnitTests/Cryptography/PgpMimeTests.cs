@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -228,7 +228,7 @@ namespace UnitTests.Cryptography {
 				// ok, now we can sign
 				message.Sign (ctx);
 
-				Assert.IsInstanceOf<MultipartSigned> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartSigned> ());
 
 				var multipart = (MultipartSigned) message.Body;
 
@@ -237,8 +237,8 @@ namespace UnitTests.Cryptography {
 				var protocol = multipart.ContentType.Parameters["protocol"];
 				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+				Assert.That (multipart[1], Is.InstanceOf<ApplicationPgpSignature>(), "The second child is not a detached signature.");
 
 				var signatures = multipart.Verify (ctx);
 				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -283,7 +283,7 @@ namespace UnitTests.Cryptography {
 				// ok, now we can sign
 				message.Sign (ctx);
 
-				Assert.IsInstanceOf<MultipartSigned> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartSigned> ());
 
 				var multipart = (MultipartSigned) message.Body;
 
@@ -292,8 +292,8 @@ namespace UnitTests.Cryptography {
 				var protocol = multipart.ContentType.Parameters["protocol"];
 				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-				Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+				Assert.That (multipart[1], Is.InstanceOf<ApplicationPgpSignature> (), "The second child is not a detached signature.");
 
 				var signatures = await multipart.VerifyAsync (ctx);
 				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -396,8 +396,8 @@ namespace UnitTests.Cryptography {
 
 					Assert.That (algorithm, Is.EqualTo (digest), "The multipart/signed micalg does not match.");
 
-					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-					Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+					Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+					Assert.That (multipart[1], Is.InstanceOf<ApplicationPgpSignature> (), "The second child is not a detached signature.");
 
 					var signatures = multipart.Verify ();
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -444,8 +444,8 @@ namespace UnitTests.Cryptography {
 
 					Assert.That (algorithm, Is.EqualTo (digest), "The multipart/signed micalg does not match.");
 
-					Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-					Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+					Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+					Assert.That (multipart[1], Is.InstanceOf<ApplicationPgpSignature> (), "The second child is not a detached signature.");
 
 					var signatures = await multipart.VerifyAsync ();
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -483,7 +483,7 @@ namespace UnitTests.Cryptography {
 
 				message.Encrypt (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				var encrypted = (MultipartEncrypted) message.Body;
 
@@ -492,7 +492,7 @@ namespace UnitTests.Cryptography {
 
 				var decrypted = encrypted.Decrypt (ctx);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 				// now do the same thing, but encrypt to the Resent-To headers
@@ -508,7 +508,7 @@ namespace UnitTests.Cryptography {
 
 				message.Encrypt (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				encrypted = (MultipartEncrypted) message.Body;
 
@@ -517,7 +517,7 @@ namespace UnitTests.Cryptography {
 
 				decrypted = encrypted.Decrypt (ctx);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 			}
 		}
@@ -543,7 +543,7 @@ namespace UnitTests.Cryptography {
 
 				await message.EncryptAsync (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				var encrypted = (MultipartEncrypted) message.Body;
 
@@ -553,7 +553,7 @@ namespace UnitTests.Cryptography {
 				// TODO: implement DecryptAsync
 				var decrypted = encrypted.Decrypt (ctx);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 				// now do the same thing, but encrypt to the Resent-To headers
@@ -569,7 +569,7 @@ namespace UnitTests.Cryptography {
 
 				await message.EncryptAsync (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				encrypted = (MultipartEncrypted) message.Body;
 
@@ -579,7 +579,7 @@ namespace UnitTests.Cryptography {
 				// TODO: implement DecryptAsync
 				decrypted = encrypted.Decrypt (ctx);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 			}
 		}
@@ -646,18 +646,18 @@ namespace UnitTests.Cryptography {
 
 				var entity = MimeEntity.Load (stream);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (entity, "Encrypted part is not the expected type");
+				Assert.That (entity, Is.InstanceOf<MultipartEncrypted> (), "Encrypted part is not the expected type");
 
 				encrypted = (MultipartEncrypted) entity;
 
-				Assert.IsInstanceOf<ApplicationPgpEncrypted> (encrypted[0], "First child of multipart/encrypted is not the expected type");
-				Assert.IsInstanceOf<MimePart> (encrypted[1], "Second child of multipart/encrypted is not the expected type");
+				Assert.That (encrypted[0], Is.InstanceOf<ApplicationPgpEncrypted> (), "First child of multipart/encrypted is not the expected type");
+				Assert.That (encrypted[1], Is.InstanceOf<MimePart> (), "Second child of multipart/encrypted is not the expected type");
 				Assert.That (encrypted[1].ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Second child of multipart/encrypted is not the expected mime-type");
 			}
 
 			var decrypted = encrypted.Decrypt ();
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 		}
 
@@ -675,19 +675,19 @@ namespace UnitTests.Cryptography {
 
 				var entity = await MimeEntity.LoadAsync (stream);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (entity, "Encrypted part is not the expected type");
+				Assert.That (entity, Is.InstanceOf<MultipartEncrypted> (), "Encrypted part is not the expected type");
 
 				encrypted = (MultipartEncrypted) entity;
 
-				Assert.IsInstanceOf<ApplicationPgpEncrypted> (encrypted[0], "First child of multipart/encrypted is not the expected type");
-				Assert.IsInstanceOf<MimePart> (encrypted[1], "Second child of multipart/encrypted is not the expected type");
+				Assert.That (encrypted[0], Is.InstanceOf<ApplicationPgpEncrypted> (), "First child of multipart/encrypted is not the expected type");
+				Assert.That (encrypted[1], Is.InstanceOf<MimePart> (), "Second child of multipart/encrypted is not the expected type");
 				Assert.That (encrypted[1].ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Second child of multipart/encrypted is not the expected mime-type");
 			}
 
 			// TODO: implement DecryptAsync
 			var decrypted = encrypted.Decrypt ();
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 		}
 
@@ -709,7 +709,7 @@ namespace UnitTests.Cryptography {
 
 			var decrypted = encrypted.Decrypt ();
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 		}
 
@@ -732,7 +732,7 @@ namespace UnitTests.Cryptography {
 			// TODO: implement DecryptAsync
 			var decrypted = encrypted.Decrypt ();
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 		}
 
@@ -754,7 +754,7 @@ namespace UnitTests.Cryptography {
 
 					var decrypted = encrypted.Decrypt (ctx);
 
-					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 				}
 			}
@@ -779,7 +779,7 @@ namespace UnitTests.Cryptography {
 					// TODO: implement DecryptAsync
 					var decrypted = encrypted.Decrypt (ctx);
 
-					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 				}
 			}
@@ -807,7 +807,7 @@ namespace UnitTests.Cryptography {
 
 				var decrypted = encrypted.Decrypt ();
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 			}
 		}
@@ -835,7 +835,7 @@ namespace UnitTests.Cryptography {
 				// TODO: implement DecryptAsync
 				var decrypted = encrypted.Decrypt ();
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 			}
 		}
@@ -862,7 +862,7 @@ namespace UnitTests.Cryptography {
 
 				message.SignAndEncrypt (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				var encrypted = (MultipartEncrypted) message.Body;
 
@@ -871,7 +871,7 @@ namespace UnitTests.Cryptography {
 
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -898,7 +898,7 @@ namespace UnitTests.Cryptography {
 
 				message.SignAndEncrypt (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				encrypted = (MultipartEncrypted) message.Body;
 
@@ -907,7 +907,7 @@ namespace UnitTests.Cryptography {
 
 				decrypted = encrypted.Decrypt (ctx, out signatures);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -945,7 +945,7 @@ namespace UnitTests.Cryptography {
 
 				await message.SignAndEncryptAsync (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				var encrypted = (MultipartEncrypted) message.Body;
 
@@ -955,7 +955,7 @@ namespace UnitTests.Cryptography {
 				// TODO: implement DecryptAsync
 				var decrypted = encrypted.Decrypt (ctx, out signatures);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -982,7 +982,7 @@ namespace UnitTests.Cryptography {
 
 				await message.SignAndEncryptAsync (ctx);
 
-				Assert.IsInstanceOf<MultipartEncrypted> (message.Body);
+				Assert.That (message.Body, Is.InstanceOf<MultipartEncrypted> ());
 
 				encrypted = (MultipartEncrypted) message.Body;
 
@@ -992,7 +992,7 @@ namespace UnitTests.Cryptography {
 				// TODO: implement DecryptAsync
 				decrypted = encrypted.Decrypt (ctx, out signatures);
 
-				Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1022,7 +1022,7 @@ namespace UnitTests.Cryptography {
 
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1052,7 +1052,7 @@ namespace UnitTests.Cryptography {
 			// TODO: implement DecryptAsync
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1088,7 +1088,7 @@ namespace UnitTests.Cryptography {
 
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1125,7 +1125,7 @@ namespace UnitTests.Cryptography {
 			// TODO: implement DecryptAsync
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1154,7 +1154,7 @@ namespace UnitTests.Cryptography {
 
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1184,7 +1184,7 @@ namespace UnitTests.Cryptography {
 			// TODO: implement DecryptAsync
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1220,7 +1220,7 @@ namespace UnitTests.Cryptography {
 
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1257,7 +1257,7 @@ namespace UnitTests.Cryptography {
 			// TODO: implement DecryptAsync
 			var decrypted = encrypted.Decrypt (out signatures);
 
-			Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted part is not the expected type.");
+			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
@@ -1287,8 +1287,8 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (micalg, Is.EqualTo ("pgp-sha1"), "The multipart/signed micalg does not match.");
 
-			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+			Assert.That(multipart[0], Is.InstanceOf<TextPart>(), "The first child is not a text part.");
+			Assert.That(multipart[1], Is.InstanceOf<ApplicationPgpSignature>(), "The second child is not a detached signature.");
 
 			DigitalSignatureCollection signatures;
 
@@ -1335,8 +1335,8 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (micalg, Is.EqualTo ("pgp-sha1"), "The multipart/signed micalg does not match.");
 
-			Assert.IsInstanceOf<TextPart> (multipart[0], "The first child is not a text part.");
-			Assert.IsInstanceOf<ApplicationPgpSignature> (multipart[1], "The second child is not a detached signature.");
+			Assert.That(multipart[0], Is.InstanceOf<TextPart>(), "The first child is not a text part.");
+			Assert.That(multipart[1], Is.InstanceOf<ApplicationPgpSignature>(), "The second child is not a detached signature.");
 
 			DigitalSignatureCollection signatures;
 
@@ -1380,13 +1380,13 @@ namespace UnitTests.Cryptography {
 				var exported = ctx.Export (new [] { self });
 
 				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
+				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
 				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
 
 				exported = ctx.Export (keys);
 
 				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
+				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
 				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
 
 				using (var stream = new MemoryStream ()) {
@@ -1423,13 +1423,13 @@ namespace UnitTests.Cryptography {
 				var exported = await ctx.ExportAsync (new[] { self });
 
 				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
+				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
 				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
 
 				exported = await ctx.ExportAsync (keys);
 
 				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.IsInstanceOf<MimePart> (exported, "The exported MIME part should be a MimePart.");
+				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
 				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
 
 				using (var stream = new MemoryStream ()) {

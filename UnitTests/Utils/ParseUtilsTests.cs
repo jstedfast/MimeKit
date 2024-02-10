@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -65,7 +65,7 @@ namespace UnitTests.Utils {
 			var buffer = Encoding.ASCII.GetBytes ("\"This is missing the end quote.");
 			int index = 0;
 
-			Assert.False (ParseUtils.SkipQuoted (buffer, ref index, buffer.Length, false), "Skipping an unterminated qstring should have failed.");
+			Assert.That (ParseUtils.SkipQuoted (buffer, ref index, buffer.Length, false), Is.True, "Skipping an unterminated qstring should have failed.");
 			Assert.That (index, Is.EqualTo (buffer.Length), "The index should be at the end of the buffer.");
 
 			index = 0;

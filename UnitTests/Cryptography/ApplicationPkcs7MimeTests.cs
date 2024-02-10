@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -417,13 +417,13 @@ namespace UnitTests.Cryptography {
 
 					encrypted = ApplicationPkcs7Mime.Encrypt (mailboxes, entity);
 					decrypted = encrypted.Decrypt (ctx);
-					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted from Encrypt(mailboxes, entity)");
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from Encrypt(mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
 					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, mailboxes, entity);
 					decrypted = encrypted.Decrypt (ctx);
-					Assert.IsInstanceOf<TextPart> (decrypted, "Encrypt(ctx, mailboxes, entity)");
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Encrypt(ctx, mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 				}
@@ -447,13 +447,13 @@ namespace UnitTests.Cryptography {
 
 					encrypted = await ApplicationPkcs7Mime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
 					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
-					Assert.IsInstanceOf<TextPart> (decrypted, "Decrypted from EncryptAsync(mailboxes, entity)");
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from EncryptAsync(mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
 					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
 					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
-					Assert.IsInstanceOf<TextPart> (decrypted, "EncryptAsync(ctx, mailboxes, entity)");
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "EncryptAsync(ctx, mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 				}
@@ -464,7 +464,7 @@ namespace UnitTests.Cryptography {
 		{
 			var signatures = signed.Verify (ctx, out var encapsulated);
 
-			Assert.IsInstanceOf<TextPart> (encapsulated, "TextPart");
+			Assert.That (encapsulated, Is.InstanceOf<TextPart> (), "TextPart");
 			Assert.That (((TextPart) encapsulated).Text, Is.EqualTo (entity.Text), "Text");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Signature count");
@@ -568,7 +568,7 @@ namespace UnitTests.Cryptography {
 		{
 			var decrypted = encrypted.Decrypt (ctx);
 
-			Assert.IsInstanceOf<MultipartSigned> (decrypted, "MultipartSigned");
+			Assert.That (decrypted, Is.InstanceOf<MultipartSigned> (), "MultipartSigned");
 
 			var signed = (MultipartSigned) decrypted;
 			Assert.That (signed.Count, Is.EqualTo (2), "MultipartSigned count");
@@ -577,7 +577,7 @@ namespace UnitTests.Cryptography {
 
 			var signatures = signed.Verify (ctx);
 
-			Assert.IsInstanceOf<TextPart> (encapsulated, "TextPart");
+			Assert.That (encapsulated, Is.InstanceOf<TextPart> (), "TextPart");
 			Assert.That (((TextPart) encapsulated).Text, Is.EqualTo (entity.Text), "Text");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Signature count");
@@ -617,7 +617,7 @@ namespace UnitTests.Cryptography {
 		{
 			var decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 
-			Assert.IsInstanceOf<MultipartSigned> (decrypted, "MultipartSigned");
+			Assert.That (decrypted, Is.InstanceOf<MultipartSigned> (), "MultipartSigned");
 
 			var signed = (MultipartSigned) decrypted;
 			Assert.That (signed.Count, Is.EqualTo (2), "MultipartSigned count");
@@ -626,7 +626,7 @@ namespace UnitTests.Cryptography {
 
 			var signatures = await signed.VerifyAsync (ctx).ConfigureAwait (false);
 
-			Assert.IsInstanceOf<TextPart> (encapsulated, "TextPart");
+			Assert.That (encapsulated, Is.InstanceOf<TextPart> (), "TextPart");
 			Assert.That (((TextPart) encapsulated).Text, Is.EqualTo (entity.Text), "Text");
 
 			Assert.That (signatures.Count, Is.EqualTo (1), "Signature count");

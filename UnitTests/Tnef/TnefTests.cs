@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -940,7 +940,7 @@ namespace UnitTests.Tnef {
 
 			message = tnef.ConvertToMessage ();
 
-			Assert.IsInstanceOf (typeof (TextPart), message.Body);
+			Assert.That (message.Body, Is.InstanceOf<TextPart> ());
 
 			var text = (TextPart) message.Body;
 
@@ -961,21 +961,21 @@ namespace UnitTests.Tnef {
 
 			message = tnef.ConvertToMessage ();
 
-			Assert.IsEmpty (message.Subject, "Subject");
+			Assert.That (message.Subject, Is.Empty, "Subject");
 			Assert.That (message.Date, Is.EqualTo (DateTimeOffset.MinValue), "Date");
 			Assert.That (message.MessageId, Is.EqualTo ("DM5PR21MB0828DA2B8C88048BC03EFFA6CFA20@DM5PR21MB0828.namprd21.prod.outlook.com"), "Message-Id");
 
-			Assert.IsInstanceOf (typeof (Multipart), message.Body);
+			Assert.That (message.Body, Is.InstanceOf<Multipart> ());
 			var multipart = (Multipart) message.Body;
 
 			Assert.That (multipart.Count, Is.EqualTo (6));
 
-			Assert.IsInstanceOf (typeof (TextPart), multipart[0]);
-			Assert.IsInstanceOf (typeof (MimePart), multipart[1]);
-			Assert.IsInstanceOf (typeof (MimePart), multipart[2]);
-			Assert.IsInstanceOf (typeof (MimePart), multipart[3]);
-			Assert.IsInstanceOf (typeof (MimePart), multipart[4]);
-			Assert.IsInstanceOf (typeof (MimePart), multipart[5]);
+			Assert.That (multipart[0], Is.InstanceOf<TextPart> ());
+			Assert.That (multipart[1], Is.InstanceOf<MimePart> ());
+			Assert.That (multipart[2], Is.InstanceOf<MimePart> ());
+			Assert.That (multipart[3], Is.InstanceOf<MimePart> ());
+			Assert.That (multipart[4], Is.InstanceOf<MimePart> ());
+			Assert.That (multipart[5], Is.InstanceOf<MimePart> ());
 
 			var rtf = (TextPart) multipart[0];
 			Assert.That (rtf.ContentType.MimeType, Is.EqualTo ("text/rtf"), "MimeType");

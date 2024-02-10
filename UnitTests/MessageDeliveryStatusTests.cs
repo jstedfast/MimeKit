@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,11 +46,11 @@ namespace UnitTests {
 		{
 			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
 
-			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
 			var report = (MultipartReport) message.Body;
 
-			Assert.IsInstanceOf<MessageDeliveryStatus> (report[0], "Expected first part to be a message/delivery-status.");
+			Assert.That (report[0], Is.InstanceOf<MessageDeliveryStatus> (), "Expected first part to be a message/delivery-status.");
 
 			var delivery = (MessageDeliveryStatus) report[0];
 			var groups = delivery.StatusGroups;
@@ -72,11 +72,11 @@ namespace UnitTests {
 		{
 			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
 
-			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
 			var report = (MultipartReport) message.Body;
 
-			Assert.IsInstanceOf<MessageDeliveryStatus> (report[0], "Expected first part to be a message/delivery-status.");
+			Assert.That (report[0], Is.InstanceOf<MessageDeliveryStatus> (), "Expected first part to be a message/delivery-status.");
 
 			var delivery = (MessageDeliveryStatus) report[0];
 			var groups = delivery.StatusGroups;
@@ -98,11 +98,11 @@ namespace UnitTests {
 		{
 			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
 
-			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
 			var report = (MultipartReport) message.Body;
 
-			Assert.IsInstanceOf<MessageDeliveryStatus> (report[1], "Expected second part to be a message/delivery-status.");
+			Assert.That (report[1], Is.InstanceOf<MessageDeliveryStatus> (), "Expected second part to be a message/delivery-status.");
 
 			var delivery = (MessageDeliveryStatus) report[1];
 			Assert.That (delivery.ContentDescription, Is.EqualTo ("Delivery report"), "ContentDescription");
@@ -134,12 +134,12 @@ namespace UnitTests {
 		{
 			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
 
-			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
 			var report = (MultipartReport) message.Body;
 
-			Assert.IsInstanceOf<TextPart> (report[0], "Expected second part to be a text/plain.");
-			Assert.IsInstanceOf<MessageDeliveryStatus> (report[1], "Expected second part to be a message/delivery-status.");
+			Assert.That (report[0], Is.InstanceOf<TextPart> (), "Expected second part to be a text/plain.");
+			Assert.That (report[1], Is.InstanceOf<MessageDeliveryStatus> (), "Expected second part to be a message/delivery-status.");
 
 			var delivery = (MessageDeliveryStatus) report[1];
 			var groups = delivery.StatusGroups;

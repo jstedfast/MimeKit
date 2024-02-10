@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,7 @@ This is make-believe rtf data...";
 			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMimeData))) {
 				var part = MimeEntity.Load (stream);
 
-				Assert.IsInstanceOf<TextPart> (part, "Expected the application/rtf part to be parsed as TextPart.");
+				Assert.That (part, Is.InstanceOf<TextPart> (), "Expected the application/rtf part to be parsed as TextPart.");
 				var text = (TextPart) part;
 				Assert.That (text.IsRichText, Is.True, "IsRichText");
 			}
@@ -92,7 +92,7 @@ Content-type: text/plain
 			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMimeData))) {
 				var part = MimeEntity.Load (stream);
 
-				Assert.IsInstanceOf<TextRfc822Headers> (part, "Expected the message/global-headers part to be parsed as TextRfc822Headers.");
+				Assert.That (part, Is.InstanceOf<TextRfc822Headers> (), "Expected the message/global-headers part to be parsed as TextRfc822Headers.");
 			}
 		}
 
@@ -114,7 +114,7 @@ Content-type: text/plain
 
 				var html = MimeEntity.Load (options, stream);
 
-				Assert.IsInstanceOf<CustomTextHtmlPart> (html, "Expected the text/html part to use our custom type.");
+				Assert.That (html, Is.InstanceOf<CustomTextHtmlPart> (), "Expected the text/html part to use our custom type.");
 			}
 		}
 
@@ -136,7 +136,7 @@ Content-type: text/plain
 
 				var html = await MimeEntity.LoadAsync (options, stream);
 
-				Assert.IsInstanceOf<CustomTextHtmlPart> (html, "Expected the text/html part to use our custom type.");
+				Assert.That (html, Is.InstanceOf<CustomTextHtmlPart> (), "Expected the text/html part to use our custom type.");
 			}
 		}
 	}

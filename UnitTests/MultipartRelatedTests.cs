@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -89,7 +89,7 @@ namespace UnitTests {
 			Assert.That (related.Root, Is.EqualTo (root), "Root");
 			Assert.That (related[2], Is.EqualTo (root), "Root should be the 3rd item.");
 			Assert.That (root.ContentId, Is.Not.Null, "Root's Content-Id should not be null.");
-			Assert.IsNotEmpty (root.ContentId, "Root's Content-Id should not be empty.");
+			Assert.That (root.ContentId, Is.Not.Empty, "Root's Content-Id should not be empty.");
 
 			start = "<" + root.ContentId + ">";
 
@@ -141,7 +141,7 @@ namespace UnitTests {
 
 			var body = builder.ToMessageBody ();
 
-			Assert.IsInstanceOf<MultipartRelated> (body, "Expected a multipart/related.");
+			Assert.That (body, Is.InstanceOf<MultipartRelated> (), "Expected a multipart/related.");
 
 			var related = (MultipartRelated) body;
 
@@ -181,7 +181,7 @@ namespace UnitTests {
 
 			var body = builder.ToMessageBody ();
 
-			Assert.IsInstanceOf<MultipartRelated> (body, "Expected a multipart/related.");
+			Assert.That (body, Is.InstanceOf<MultipartRelated> (), "Expected a multipart/related.");
 
 			var related = (MultipartRelated) body;
 

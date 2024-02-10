@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -564,7 +564,7 @@ namespace UnitTests.Encodings {
 		{
 			var filter = EncoderFilter.Create (encoding);
 
-			Assert.IsInstanceOf<EncoderFilter> (filter, "Expected EncoderFilter for ContentEncoding.{0}", encoding);
+			Assert.That (filter, Is.InstanceOf<EncoderFilter> (), $"Expected EncoderFilter for ContentEncoding.{encoding}");
 
 			var encoder = (EncoderFilter) filter;
 
@@ -575,7 +575,7 @@ namespace UnitTests.Encodings {
 		{
 			var filter = EncoderFilter.Create (encoding);
 
-			Assert.IsInstanceOf<EncoderFilter> (filter, "Expected EncoderFilter for \"{0}\"", encoding);
+			Assert.That (filter, Is.InstanceOf<EncoderFilter> (), $"Expected EncoderFilter for \"{encoding}\"");
 
 			var encoder = (EncoderFilter) filter;
 
@@ -591,20 +591,20 @@ namespace UnitTests.Encodings {
 			AssertIsEncoderFilter (ContentEncoding.Base64, ContentEncoding.Base64);
 			AssertIsEncoderFilter ("base64", ContentEncoding.Base64);
 
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.Binary));
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("binary"));
+			Assert.That (EncoderFilter.Create (ContentEncoding.Binary), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (EncoderFilter.Create ("binary"), Is.InstanceOf<PassThroughFilter> ());
 
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.Default));
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("x-invalid"));
+			Assert.That (EncoderFilter.Create (ContentEncoding.Default), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (EncoderFilter.Create ("x-invalid"), Is.InstanceOf<PassThroughFilter> ());
 
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.EightBit));
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("8bit"));
+			Assert.That (EncoderFilter.Create (ContentEncoding.EightBit), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (EncoderFilter.Create ("8bit"), Is.InstanceOf<PassThroughFilter> ());
 
 			AssertIsEncoderFilter (ContentEncoding.QuotedPrintable, ContentEncoding.QuotedPrintable);
 			AssertIsEncoderFilter ("quoted-printable", ContentEncoding.QuotedPrintable);
 
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create (ContentEncoding.SevenBit));
-			Assert.IsInstanceOf<PassThroughFilter> (EncoderFilter.Create ("7bit"));
+			Assert.That (EncoderFilter.Create (ContentEncoding.SevenBit), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (EncoderFilter.Create ("7bit"), Is.InstanceOf<PassThroughFilter> ());
 
 			AssertIsEncoderFilter (ContentEncoding.UUEncode, ContentEncoding.UUEncode);
 			AssertIsEncoderFilter ("x-uuencode", ContentEncoding.UUEncode);
@@ -615,7 +615,7 @@ namespace UnitTests.Encodings {
 		{
 			var filter = DecoderFilter.Create (encoding);
 
-			Assert.IsInstanceOf<DecoderFilter> (filter, "Expected DecoderFilter for ContentEncoding.{0}", encoding);
+			Assert.That (filter, Is.InstanceOf <DecoderFilter> (), $"Expected DecoderFilter for ContentEncoding.{encoding}");
 
 			var decoder = (DecoderFilter) filter;
 
@@ -626,7 +626,7 @@ namespace UnitTests.Encodings {
 		{
 			var filter = DecoderFilter.Create (encoding);
 
-			Assert.IsInstanceOf<DecoderFilter> (filter, "Expected DecoderFilter for \"{0}\"", encoding);
+			Assert.That (filter, Is.InstanceOf<DecoderFilter> (), $"Expected DecoderFilter for \"{encoding}\"");
 
 			var decoder = (DecoderFilter) filter;
 
@@ -639,20 +639,20 @@ namespace UnitTests.Encodings {
 			AssertIsDecoderFilter (ContentEncoding.Base64, ContentEncoding.Base64);
 			AssertIsDecoderFilter ("base64", ContentEncoding.Base64);
 
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.Binary));
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("binary"));
+			Assert.That (DecoderFilter.Create (ContentEncoding.Binary), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (DecoderFilter.Create ("binary"), Is.InstanceOf<PassThroughFilter> ());
 
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.Default));
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("x-invalid"));
+			Assert.That (DecoderFilter.Create (ContentEncoding.Default), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (DecoderFilter.Create ("x-invalid"), Is.InstanceOf<PassThroughFilter> ());
 
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.EightBit));
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("8bit"));
+			Assert.That (DecoderFilter.Create (ContentEncoding.EightBit), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (DecoderFilter.Create ("8bit"), Is.InstanceOf<PassThroughFilter> ());
 
 			AssertIsDecoderFilter (ContentEncoding.QuotedPrintable, ContentEncoding.QuotedPrintable);
 			AssertIsDecoderFilter ("quoted-printable", ContentEncoding.QuotedPrintable);
 
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create (ContentEncoding.SevenBit));
-			Assert.IsInstanceOf<PassThroughFilter> (DecoderFilter.Create ("7bit"));
+			Assert.That (DecoderFilter.Create (ContentEncoding.SevenBit), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (DecoderFilter.Create ("7bit"), Is.InstanceOf<PassThroughFilter> ());
 
 			AssertIsDecoderFilter (ContentEncoding.UUEncode, ContentEncoding.UUEncode);
 			AssertIsDecoderFilter ("x-uuencode", ContentEncoding.UUEncode);

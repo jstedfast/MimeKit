@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,11 +45,11 @@ namespace UnitTests {
 		{
 			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "feedback-report.txt"));
 
-			Assert.IsInstanceOf<MultipartReport> (message.Body, "Expected top-level body part to be a multipart/report.");
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
 			var multipart = (MultipartReport) message.Body;
 
-			Assert.IsInstanceOf<MessageFeedbackReport> (multipart[1], "Expected second part to be a message/feedback-report.");
+			Assert.That (multipart[1], Is.InstanceOf<MessageFeedbackReport> (), "Expected second part to be a message/feedback-report.");
 			Assert.That (multipart.ReportType, Is.EqualTo ("feedback-report"));
 
 			var mfr = (MessageFeedbackReport) multipart[1];

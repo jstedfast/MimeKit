@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -882,14 +882,14 @@ unsubscribe
 			Assert.That (message.Subject, Is.EqualTo (mail.Subject), "The message subjects do not match.");
 			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent), "The message priority does not match.");
 			Assert.That (message.Headers["X-MimeKit-Test"], Is.EqualTo (mail.Headers["X-MimeKit-Test"]), "The X-MimeKit-Test headers do not match");
-			Assert.IsInstanceOf<Multipart> (message.Body, "The top-level MIME part should be a multipart/mixed.");
+			Assert.That (message.Body, Is.InstanceOf<Multipart> (), "The top-level MIME part should be a multipart/mixed.");
 
 			var mixed = (Multipart) message.Body;
 
 			Assert.That (mixed.ContentType.MimeType, Is.EqualTo ("multipart/mixed"), "The top-level MIME part should be a multipart/mixed.");
 			Assert.That (mixed.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/mixed");
-			Assert.IsInstanceOf<MultipartAlternative> (mixed[0], "Expected the first part the multipart/mixed to be a multipart/alternative");
-			Assert.IsInstanceOf<MimePart> (mixed[1], "Expected the first part the multipart/mixed to be a MimePart");
+			Assert.That (mixed[0], Is.InstanceOf<MultipartAlternative> (), "Expected the first part the multipart/mixed to be a multipart/alternative");
+			Assert.That (mixed[1], Is.InstanceOf<MimePart> (), "Expected the first part the multipart/mixed to be a MimePart");
 
 			var attachment = (MimePart) mixed[1];
 			Assert.That (attachment.FileName, Is.EqualTo ("empty.jpeg"), "Expected the attachment to have a filename");

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -72,7 +72,7 @@ namespace UnitTests.Cryptography {
 
 			var key = locator.LocatePublicKey ("dns/txt", "example.org", "no-k-param");
 
-			Assert.IsInstanceOf<RsaKeyParameters> (key);
+			Assert.That (key, Is.InstanceOf<RsaKeyParameters> ());
 		}
 	}
 }

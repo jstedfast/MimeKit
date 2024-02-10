@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -141,7 +141,7 @@ namespace UnitTests {
 
 				Assert.That (iter.Depth, Is.EqualTo (expectedDepths[i]), $"Depth #{i}");
 				Assert.That (parent, Is.EqualTo (expectedParents[i]), $"Parent #{i}");
-				Assert.IsInstanceOf (expectedTypes[i], current, "Type #{0}", i);
+				Assert.That (current, Is.InstanceOf (expectedTypes[i]), $"Type #{i}");
 				Assert.That (iter.PathSpecifier, Is.EqualTo (expectedPathSpecifiers[i]), $"PathSpecifier #{i}");
 				i++;
 			} while (iter.MoveNext ());
@@ -158,7 +158,7 @@ namespace UnitTests {
 
 				Assert.That (iter.Depth, Is.EqualTo (expectedDepths[i]), $"Reset Depth #{i}");
 				Assert.That (parent, Is.EqualTo (expectedParents[i]), $"Reset Parent #{i}");
-				Assert.IsInstanceOf (expectedTypes[i], current, "Reset Type #{0}", i);
+				Assert.That (current, Is.InstanceOf (expectedTypes[i]), $"Reset Type #{i}");
 				Assert.That (iter.PathSpecifier, Is.EqualTo (expectedPathSpecifiers[i]), $"Reset PathSpecifier #{i}");
 				i++;
 			} while (iter.MoveNext ());
@@ -181,7 +181,7 @@ namespace UnitTests {
 				Assert.That (iter.MoveTo (expectedPathSpecifiers[i]), Is.True, $"MoveTo {expectedPathSpecifiers[i]}");
 				Assert.That (iter.PathSpecifier, Is.EqualTo (expectedPathSpecifiers[i]), $"PathSpecifier {expectedPathSpecifiers[i]}");
 				Assert.That (iter.Parent, Is.EqualTo (expectedParents[i]), $"Parent {expectedPathSpecifiers[i]}");
-				Assert.IsInstanceOf (expectedTypes[i], iter.Current, "Type {0}", expectedPathSpecifiers[i]);
+				Assert.That (iter.Current, Is.InstanceOf (expectedTypes[i]), $"Type {expectedPathSpecifiers[i]}");
 				Assert.That (iter.Depth, Is.EqualTo (expectedDepths[i]), $"Depth {expectedPathSpecifiers[i]}");
 			}
 		}

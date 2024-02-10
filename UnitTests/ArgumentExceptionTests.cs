@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2023 .NET Foundation and Contributors
+// Copyright (c) 2013-2024 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -152,7 +152,7 @@ namespace UnitTests {
 				if (bufferIndex == 1) {
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
 						"{0}.{1} did not throw an exception when options was null.", type.Name, method.Name);
-					Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
+					Assert.That (tie.InnerException, Is.InstanceOf<ArgumentNullException> ());
 					ex = (ArgumentException) tie.InnerException;
 					Assert.That (ex.ParamName, Is.EqualTo ("options"));
 
@@ -163,7 +163,7 @@ namespace UnitTests {
 				args[bufferIndex] = null;
 				tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
 					"{0}.{1} did not throw an exception when {2} was null.", type.Name, method.Name, parameters[bufferIndex].Name);
-				Assert.IsInstanceOf<ArgumentNullException> (tie.InnerException);
+				Assert.That (tie.InnerException, Is.InstanceOf<ArgumentNullException> ());
 				ex = (ArgumentException) tie.InnerException;
 				Assert.That (ex.ParamName, Is.EqualTo (parameters[bufferIndex].Name));
 				args[bufferIndex] = buf;
@@ -175,7 +175,7 @@ namespace UnitTests {
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
 						"{0}.{1} did not throw ArgumentOutOfRangeException when {2} was -1.", type.Name, method.Name, parameters[idx].Name);
-					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					Assert.That (tie.InnerException, Is.InstanceOf<ArgumentOutOfRangeException> ());
 					ex = (ArgumentException) tie.InnerException;
 					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
@@ -183,7 +183,7 @@ namespace UnitTests {
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
 						"{0}.{1} did not throw an exception when {2} was > length.", type.Name, method.Name, parameters[idx].Name);
-					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					Assert.That(tie.InnerException, Is.InstanceOf<ArgumentOutOfRangeException>());
 					ex = (ArgumentException) tie.InnerException;
 					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
@@ -196,7 +196,7 @@ namespace UnitTests {
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
 						"{0}.{1} did not throw an exception when {2} was -1.", type.Name, method.Name, parameters[idx].Name);
-					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					Assert.That(tie.InnerException, Is.InstanceOf<ArgumentOutOfRangeException>());
 					ex = (ArgumentException) tie.InnerException;
 					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
@@ -204,7 +204,7 @@ namespace UnitTests {
 
 					tie = Assert.Throws<TargetInvocationException> (() => method.Invoke (null, args),
 						"{0}.{1} did not throw an exception when {2} was > length.", type.Name, method.Name, parameters[idx].Name);
-					Assert.IsInstanceOf<ArgumentOutOfRangeException> (tie.InnerException);
+					Assert.That(tie.InnerException, Is.InstanceOf<ArgumentOutOfRangeException>());
 					ex = (ArgumentException) tie.InnerException;
 					Assert.That (ex.ParamName, Is.EqualTo (parameters[idx].Name));
 
