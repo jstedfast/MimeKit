@@ -7,7 +7,7 @@
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
     <license type="expression">MIT</license>
-    <projectUrl>http://www.mimekit.net</projectUrl>
+    <projectUrl>https://www.mimekit.net</projectUrl>
     <repository type="git" url="https://github.com/jstedfast/MimeKit" />
     <icon>icons\mimekit-50.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
