@@ -39,33 +39,6 @@ namespace MimeKit.Tnef {
 	{
 		static readonly Encoding DefaultEncoding = Encoding.GetEncoding (1252);
 
-		// Note: these constants taken from Microsoft's Reference Source in DateTime.cs
-		const long TicksPerMillisecond = 10000;
-		const long TicksPerSecond = TicksPerMillisecond * 1000;
-		const long TicksPerMinute = TicksPerSecond * 60;
-		const long TicksPerHour = TicksPerMinute * 60;
-		const long TicksPerDay = TicksPerHour * 24;
-
-		const int MillisPerSecond = 1000;
-		const int MillisPerMinute = MillisPerSecond * 60;
-		const int MillisPerHour = MillisPerMinute * 60;
-		const int MillisPerDay = MillisPerHour * 24;
-
-		const int DaysPerYear = 365;
-		const int DaysPer4Years = DaysPerYear * 4 + 1;
-		const int DaysPer100Years = DaysPer4Years * 25 - 1;
-		const int DaysPer400Years = DaysPer100Years * 4 + 1;
-		const int DaysTo1899 = DaysPer400Years * 4 + DaysPer100Years * 3 - 367;
-
-		const int DaysTo10000 = DaysPer400Years * 25 - 366;
-
-		const long MaxMillis = (long) DaysTo10000 * MillisPerDay;
-
-		const long DoubleDateOffset = DaysTo1899 * TicksPerDay;
-		const long OADateMinAsTicks = (DaysPer100Years - DaysPerYear) * TicksPerDay;
-		const double OADateMinAsDouble = -657435.0;
-		const double OADateMaxAsDouble = 2958466.0;
-
 		TnefPropertyTag propertyTag;
 		readonly TnefReader reader;
 		TnefNameId propertyName;
@@ -511,9 +484,9 @@ namespace MimeKit.Tnef {
 			int hour = ReadInt16 ();
 			int minute = ReadInt16 ();
 			int second = ReadInt16 ();
-			#pragma warning disable 219
+			#pragma warning disable IDE0059
 			int dow = ReadInt16 ();
-			#pragma warning restore 219
+			#pragma warning restore IDE0059
 
 			try {
 				return new DateTime (year, month, day, hour, minute, second);
