@@ -1595,7 +1595,6 @@ namespace MimeKit.Cryptography {
 		CmsTypedStream GetDecryptedContent (CmsEnvelopedDataParser parser)
 		{
 			var recipients = parser.GetRecipientInfos ();
-			var algorithm = parser.EncryptionAlgorithmID;
 			AsymmetricKeyParameter key;
 
 			foreach (var recipient in recipients.GetRecipients ()) {

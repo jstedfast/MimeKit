@@ -324,7 +324,7 @@ namespace UnitTests.Cryptography {
 					throw new FormatException ("[Generator] failed to load `{options.Issuer}': {ex.Message}", ex);
 				}
 			} else {
-				chain = new X509Certificate[0];
+				chain = Array.Empty<X509Certificate> ();
 				issuerCertificate = null;
 				signingKey = key.Private;
 				issuer = subject;
