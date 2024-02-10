@@ -65,7 +65,7 @@ namespace UnitTests.Utils {
 			var buffer = Encoding.ASCII.GetBytes ("\"This is missing the end quote.");
 			int index = 0;
 
-			Assert.That (ParseUtils.SkipQuoted (buffer, ref index, buffer.Length, false), Is.True, "Skipping an unterminated qstring should have failed.");
+			Assert.That (ParseUtils.SkipQuoted (buffer, ref index, buffer.Length, false), Is.False, "Skipping an unterminated qstring should have failed.");
 			Assert.That (index, Is.EqualTo (buffer.Length), "The index should be at the end of the buffer.");
 
 			index = 0;
