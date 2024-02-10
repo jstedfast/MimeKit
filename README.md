@@ -114,7 +114,7 @@ THE SOFTWARE.
 
 The easiest way to install MimeKit is via [NuGet](https://www.nuget.org/packages/MimeKit/).
 
-In Visual Studio's [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console),
+In Visual Studio's [Package Manager Console](https://docs.nuget.org/docs/start-here/using-the-package-manager-console),
 enter the following command:
 
 ```powershell
@@ -179,7 +179,7 @@ Note: The **Release** build will generate the xml API documentation, but the **D
 One of the more common operations that MimeKit is meant for is parsing email messages from arbitrary streams.
 There are two ways of accomplishing this task.
 
-The first way is to use one of the [Load](http://www.mimekit.net/docs/html/Overload_MimeKit_MimeMessage_Load.htm) methods
+The first way is to use one of the [Load](https://www.mimekit.net/docs/html/Overload_MimeKit_MimeMessage_Load.htm) methods
 on `MimeMessage`:
 
 ```csharp
@@ -194,7 +194,7 @@ Or you can load a message from a file path:
 var message = MimeMessage.Load ("message.eml");
 ```
 
-The second way is to use the [MimeParser](http://www.mimekit.net/docs/html/T_MimeKit_MimeParser.htm) class. For the most
+The second way is to use the [MimeParser](https://www.mimekit.net/docs/html/T_MimeKit_MimeParser.htm) class. For the most
 part, using the `MimeParser` directly is not necessary unless you wish to parse a Unix mbox file stream. However, this is
 how you would do it:
 
@@ -876,7 +876,7 @@ DKIM signature headers.
 
 Once you've implemented a custom `IDkimPublicKeyLocator`, verifying signatures is fairly trivial. Most of the work
 needed will be in the `IDkimPublicKeyLocator` implementation. As an example of how to implement this interface,
-here is one possible implementation using the [Heijden.DNS](http://www.nuget.org/packages/Heijden.Dns/) library:
+here is one possible implementation using the [Heijden.DNS](https://www.nuget.org/packages/Heijden.Dns/) library:
 
 ```csharp
 using System;
@@ -1030,7 +1030,7 @@ ARC, you must first validate that the existing message is authentictic and produ
 an ARC-Authentication-Results header containing the methods that you used to
 authenticate the message as well as their results.
 
-The abstract [ArcSigner](http://www.mimekit.net/docs/html/T_MimeKit_Cryptography_ArcSigner.htm)
+The abstract [ArcSigner](https://www.mimekit.net/docs/html/T_MimeKit_Cryptography_ArcSigner.htm)
 class provided by MimeKit will need to be subclassed before it can be used. An example subclass
 that provides 2 different implementations for generating the ARC-Authentication-Results header
 can be seen below:
@@ -1211,7 +1211,7 @@ Console.WriteLine ("ARC results: {0}", results.Chain);
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. For instructions on how to
 do that, see the section titled **Getting the Source Code**.
 
-If you use [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) or [MonoDevelop](http://monodevelop.com),
+If you use [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) or [MonoDevelop](https://monodevelop.com),
 all of the solution files are configured with the coding style used by MimeKit. If you use Visual Studio on Windows or
 some other editor, please try to maintain the existing coding style as best as you can.
 
@@ -1238,7 +1238,7 @@ string. Please include the `Exception.StackTrace` as well. The `Message`, by its
 
 ## Documentation
 
-API documentation can be found at [http://www.mimekit.net/docs](http://www.mimekit.net/docs).
+API documentation can be found at [https://www.mimekit.net/docs](https://www.mimekit.net/docs).
 
 A copy of the XML-formatted API reference documentation is also included in the NuGet package.
 
@@ -1246,6 +1246,6 @@ A copy of the XML-formatted API reference documentation is also included in the 
 
 MimeKit is a [.NET Foundation](https://www.dotnetfoundation.org/projects) project.
 
-This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/) to clarify expected behavior in our community. For more information, see the [.NET Foundation Code of Conduct](http://www.dotnetfoundation.org/code-of-conduct).
+This project has adopted the code of conduct defined by the [Contributor Covenant](https://contributor-covenant.org/) to clarify expected behavior in our community. For more information, see the [.NET Foundation Code of Conduct](https://www.dotnetfoundation.org/code-of-conduct).
 
 General .NET OSS discussions: [.NET Foundation forums](https://forums.dotnetfoundation.org)
