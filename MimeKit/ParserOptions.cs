@@ -306,27 +306,31 @@ namespace MimeKit {
 		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel, int depth)
 		{
 			var args = new MimeEntityConstructorArgs (this, contentType, headers, toplevel);
-
-			if (depth >= MaxMimeDepth)
-				return new MimePart (args);
-
 			var subtype = contentType.MediaSubtype;
 			var type = contentType.MediaType;
 
 			if (mimeTypes.Count > 0) {
 				var mimeType = $"{type}/{subtype}";
 
-				if (mimeTypes.TryGetValue (mimeType, out var ctor))
-					return (MimeEntity) ctor.Invoke (new object[] { args });
+				if (mimeTypes.TryGetValue (mimeType, out var ctor)) {
+					// Instantiate the custom type if-and-only-if the current parser depth is < MaxMimeDepth -or- the custom type is a MimePart subclass.
+					if (depth < MaxMimeDepth || typeof (MimePart).IsAssignableFrom (ctor.DeclaringType))
+						return (MimeEntity) ctor.Invoke (new object[] { args });
+				}
 			}
 
 			if (type.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
 				// text/rfc822-headers
-				if (subtype.Equals ("rfc822-headers", StringComparison.OrdinalIgnoreCase) && !IsEncoded (headers))
+				if (depth < MaxMimeDepth && subtype.Equals ("rfc822-headers", StringComparison.OrdinalIgnoreCase) && !IsEncoded (headers))
 					return new TextRfc822Headers (args);
 
 				return new TextPart (args);
 			} else if (type.Equals ("multipart", StringComparison.OrdinalIgnoreCase)) {
+				if (depth >= MaxMimeDepth) {
+					// We don't want to recurse any further, so treat this as a leaf node.
+					return new MimePart (args);
+				}
+
 				// multipart/alternative
 				if (subtype.Equals ("alternative", StringComparison.OrdinalIgnoreCase))
 					return new MultipartAlternative (args);
@@ -375,13 +379,13 @@ namespace MimeKit {
 
 				// message/rfc822
 				if (EqualsAny (subtype, "rfc822", "global", "news", "external-body", "rfc2822")) {
-					if (!IsEncoded (headers))
+					if (depth < MaxMimeDepth && !IsEncoded (headers))
 						return new MessagePart (args);
 				} else if (subtype.Equals ("partial", StringComparison.OrdinalIgnoreCase)) {
 					if (!IsEncoded (headers))
 						return new MessagePartial (args);
 				} else if (subtype.Equals ("global-headers", StringComparison.OrdinalIgnoreCase)) {
-					if (!IsEncoded (headers))
+					if (depth < MaxMimeDepth && !IsEncoded (headers))
 						return new TextRfc822Headers (args);
 				}
 			} else if (type.Equals ("application", StringComparison.OrdinalIgnoreCase)) {
