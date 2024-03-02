@@ -1,5 +1,23 @@
 # Release Notes
 
+## MimeKit 4.4.0 (2024-03-02)
+
+* Added net8.0 target.
+* Improved folding logic for Disposition-Notification-Options header values.
+  (issue [#979](https://github.com/jstedfast/MimeKit/issues/979))
+* Added interfaces for MimeMessage, MimeEntity, MimePart, Multipart, etc.
+  (issue [#980](https://github.com/jstedfast/MimeKit/issues/980))
+* Fixed the FormatOptions.NewLineFormat setter logic.
+* Modified AttachmentCollection.Add() for message/rfc822 attachments to better
+  handle MimeParser exceptions.
+  (issue [#1001](https://github.com/jstedfast/MimeKit/issues/1001))
+* Bump BouncyCastle dependency to v2.3.0.
+* Added support for ECC S/MIME certificates.
+  (issue [#998](https://github.com/jstedfast/MimeKit/issues/998))
+* Improved Unix2Dos and Dos2Unix filters by fixing some corner cases exposed by new unit tests.
+* Fixed MaxMimeDepth logic to still use MimePart subclasses when reached.
+  (issue [#1006](https://github.com/jstedfast/MimeKit/issues/1006))
+
 ## MimeKit 4.3.0 (2023-11-11)
 
 * Added work-around for broken Message-ID header values of the form &lt;id@@domain&gt;.
