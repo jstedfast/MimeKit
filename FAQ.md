@@ -838,8 +838,8 @@ public static MimeMessage Reply (MimeMessage message, MailboxAddress from, bool 
     }
 
     // set the reply subject
-    if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
-        reply.Subject = "Re: " + message.Subject;
+    if (!message.Subject?.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
+        reply.Subject = "Re: " + (message.Subject ?? string.Empty);
     else
         reply.Subject = message.Subject;
 
@@ -964,8 +964,8 @@ public class ReplyVisitor : MimeVisitor
         }
 
         // set the reply subject
-        if (!message.Subject.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
-            reply.Subject = "Re: " + message.Subject;
+        if (!message.Subject?.StartsWith ("Re:", StringComparison.OrdinalIgnoreCase))
+            reply.Subject = "Re: " + (message.Subject ?? string.Empty);
         else
             reply.Subject = message.Subject;
 
@@ -1141,8 +1141,8 @@ public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IE
     message.To.AddRange (to);
 
     // set the forwarded subject
-    if (!original.Subject.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
-        message.Subject = "FW: " + original.Subject;
+    if (!original.Subject?.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
+        message.Subject = "FW: " + (original.Subject ?? string.Empty);
     else
         message.Subject = original.Subject;
 
@@ -1174,8 +1174,8 @@ public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IE
     message.To.AddRange (to);
 
     // set the forwarded subject
-    if (!original.Subject.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
-        message.Subject = "FW: " + original.Subject;
+    if (!original.Subject?.StartsWith ("FW:", StringComparison.OrdinalIgnoreCase))
+        message.Subject = "FW: " + (original.Subject ?? string.Empty);
     else
         message.Subject = original.Subject;
 
@@ -1183,7 +1183,7 @@ public static MimeMessage Forward (MimeMessage original, MailboxAddress from, IE
     using (var text = new StringWriter ()) {
         text.WriteLine ();
         text.WriteLine ("-------- Original Message --------");
-        text.WriteLine ("Subject: {0}", original.Subject);
+        text.WriteLine ("Subject: {0}", original.Subject ?? string.Empty);
         text.WriteLine ("Date: {0}", DateUtils.FormatDate (original.Date));
         text.WriteLine ("From: {0}", original.From);
         text.WriteLine ("To: {0}", original.To);
