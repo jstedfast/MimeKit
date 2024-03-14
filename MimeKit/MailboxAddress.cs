@@ -307,17 +307,12 @@ namespace MimeKit {
 		{
 			if (at != -1) {
 				var domainEncoded = ParseUtils.IsInternational (addrspec, at + 1);
-				var localEncoded = ParseUtils.IsInternational (addrspec, 0, at);
 
-				if (!localEncoded && !domainEncoded)
+				if (!domainEncoded)
 					return addrspec;
 
-				string local, domain;
-
-				if (localEncoded)
-					local = IdnMapping.Encode (addrspec, 0, at);
-				else
-					local = addrspec.Substring (0, at);
+				var local = addrspec.Substring (0, at);
+				string domain;
 
 				if (domainEncoded)
 					domain = IdnMapping.Encode (addrspec, at + 1);

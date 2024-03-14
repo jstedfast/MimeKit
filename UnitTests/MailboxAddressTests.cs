@@ -656,27 +656,23 @@ namespace UnitTests {
 
 			mailbox = new MailboxAddress ("Unit Test", "點看@domain.com");
 			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("點看@domain.com"), "IDN-decode #1");
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo (idn.GetAscii ("點看") + "@domain.com"), "IDN-encode #1");
-
-			mailbox = new MailboxAddress ("Unit Test", idn.GetAscii ("點看") + "@domain.com");
-			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("點看@domain.com"), "IDN-decode #2");
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo (idn.GetAscii ("點看") + "@domain.com"), "IDN-encode #2");
+			Assert.That (mailbox.GetAddress (true), Is.EqualTo ("點看@domain.com"), "IDN-encode #1");
 
 			mailbox = new MailboxAddress ("Unit Test", "user@名がドメイン.com");
+			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("user@名がドメイン.com"), "IDN-decode #2");
+			Assert.That (mailbox.GetAddress (true), Is.EqualTo ("user@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #2");
+
+			mailbox = new MailboxAddress ("Unit Test", "user@" + idn.GetAscii ("名がドメイン.com"));
 			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("user@名がドメイン.com"), "IDN-decode #3");
 			Assert.That (mailbox.GetAddress (true), Is.EqualTo ("user@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #3");
 
-			mailbox = new MailboxAddress ("Unit Test", "user@" + idn.GetAscii ("名がドメイン.com"));
-			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("user@名がドメイン.com"), "IDN-decode #4");
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo ("user@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #4");
-
 			mailbox = new MailboxAddress ("Unit Test", "點看@名がドメイン.com");
-			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("點看@名がドメイン.com"), "IDN-decode #5");
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo (idn.GetAscii ("點看") + "@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #5");
+			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("點看@名がドメイン.com"), "IDN-decode #4");
+			Assert.That (mailbox.GetAddress (true), Is.EqualTo ("點看@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #4");
 
-			mailbox = new MailboxAddress ("Unit Test", idn.GetAscii ("點看") + "@" + idn.GetAscii ("名がドメイン.com"));
-			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("點看@名がドメイン.com"), "IDN-decode #6");
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo (idn.GetAscii ("點看") + "@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #6");
+			mailbox = new MailboxAddress ("Unit Test", "點看@" + idn.GetAscii ("名がドメイン.com"));
+			Assert.That (mailbox.GetAddress (false), Is.EqualTo ("點看@名がドメイン.com"), "IDN-decode #5");
+			Assert.That (mailbox.GetAddress (true), Is.EqualTo ("點看@" + idn.GetAscii ("名がドメイン.com")), "IDN-encode #5");
 		}
 
 		[Test]
@@ -693,12 +689,6 @@ namespace UnitTests {
 			Assert.That (mailbox.IsInternational, Is.True, "IsInternational local-part");
 			encoded = mailbox.ToString (options, true);
 			Assert.That (encoded, Is.EqualTo ("Unit Test <點看@domain.com>"), "ToString local-part");
-
-			// Test IsInternational IDN-encoded local-parts
-			mailbox = new MailboxAddress ("Unit Test", idn.GetAscii ("點看") + "@domain.com");
-			Assert.That (mailbox.IsInternational, Is.True, "IsInternational IDN-encoded local-part");
-			encoded = mailbox.ToString (options, true);
-			Assert.That (encoded, Is.EqualTo ("Unit Test <點看@domain.com>"), "ToString IDN-encoded local-part");
 
 			// Test IsInternational domain
 			mailbox = new MailboxAddress ("Unit Test", "user@名がドメイン.com");
@@ -725,8 +715,6 @@ namespace UnitTests {
 		[Test]
 		public void TestIdnEncoding ()
 		{
-			const string userAscii = "xn--c1yn36f@domain.com";
-			const string userUnicode = "點看@domain.com";
 			const string domainAscii = "user@xn--v8jxj3d1dzdz08w.com";
 			const string domainUnicode = "user@名がドメイン.com";
 			MailboxAddress mailbox;
@@ -743,20 +731,6 @@ namespace UnitTests {
 
 			encoded = MailboxAddress.DecodeAddrspec (domainAscii);
 			Assert.That (encoded, Is.EqualTo (domainUnicode), "Domain (Decode)");
-
-			encoded = MailboxAddress.EncodeAddrspec (userUnicode);
-			Assert.That (encoded, Is.EqualTo (userAscii), "Local-part (Encode)");
-
-			encoded = MailboxAddress.DecodeAddrspec (userAscii);
-			Assert.That (encoded, Is.EqualTo (userUnicode), "Local-part (Decode)");
-
-			mailbox = new MailboxAddress (string.Empty, userAscii);
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo (userAscii), "Ascii Local-part GetAddress(true)");
-			Assert.That (mailbox.GetAddress (false), Is.EqualTo (userUnicode), "Ascii Local-part GetAddress(false)");
-
-			mailbox = new MailboxAddress (string.Empty, userUnicode);
-			Assert.That (mailbox.GetAddress (true), Is.EqualTo (userAscii), "Unicode Local-part GetAddress(true)");
-			Assert.That (mailbox.GetAddress (false), Is.EqualTo (userUnicode), "Unicode Local-part GetAddress(false)");
 
 			mailbox = new MailboxAddress (string.Empty, domainAscii);
 			Assert.That (mailbox.GetAddress (true), Is.EqualTo (domainAscii), "Ascii Domain GetAddress(true)");

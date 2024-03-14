@@ -367,9 +367,6 @@ namespace MimeKit {
 
 			localpart = token.ToString ();
 
-			if (ParseUtils.IsIdnEncoded (localpart))
-				localpart = MailboxAddress.IdnMapping.Decode (localpart);
-
 			return true;
 		}
 
