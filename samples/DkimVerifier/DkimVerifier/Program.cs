@@ -26,12 +26,14 @@
 
 using System;
 using System.IO;
+using System.Net;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-using Heijden.DNS;
+using DnsClient;
 
 using Org.BouncyCastle.Crypto;
 
@@ -42,18 +44,38 @@ namespace DkimVerifierExample
 {
 	class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
 	{
+		static readonly char[] ColonDelimeter = new char[] { ':' };
 		readonly Dictionary<string, AsymmetricKeyParameter> cache;
-		readonly Resolver resolver;
+		readonly LookupClient dnsClient;
 
 		public DkimPublicKeyLocator ()
 		{
 			cache = new Dictionary<string, AsymmetricKeyParameter> ();
 
-			resolver = new Resolver ("8.8.8.8") {
-				TransportType = TransportType.Udp,
+			var options = new LookupClientOptions (IPAddress.Parse ("8.8.8.8")) {
 				UseCache = true,
 				Retries = 3
 			};
+
+			dnsClient = new LookupClient (options);
+		}
+
+		AsymmetricKeyParameter GetPublicKey (string query, IDnsQueryResponse response)
+		{
+			var builder = new StringBuilder ();
+
+			// combine the TXT records into 1 string buffer
+			foreach (var record in response.Answers.TxtRecords ()) {
+				foreach (var text in record.Text)
+					builder.Append (text);
+			}
+
+			var txt = builder.ToString ();
+
+			var pubkey = GetPublicKey (txt);
+			cache.Add (query, pubkey);
+
+			return pubkey;
 		}
 
 		AsymmetricKeyParameter DnsLookup (string domain, string selector, CancellationToken cancellationToken)
@@ -65,26 +87,14 @@ namespace DkimVerifierExample
 				return pubkey;
 
 			// make a DNS query
-			var response = resolver.Query (query, QType.TXT);
-			var builder = new StringBuilder ();
-
-			// combine the TXT records into 1 string buffer
-			foreach (var record in response.RecordsTXT) {
-				foreach (var text in record.TXT)
-					builder.Append (text);
-			}
-
-			var txt = builder.ToString ();
-
-			pubkey = GetPublicKey (txt);
-			cache.Add (query, pubkey);
-
-			return pubkey;
+			var response = dnsClient.Query (query, QueryType.TXT, QueryClass.IN);
+			
+			return GetPublicKey (query, response);
 		}
 
 		public override AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var methodList = methods.Split (new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+			var methodList = methods.Split (ColonDelimeter, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < methodList.Length; i++) {
 				if (methodList[i] == "dns/txt")
 					return DnsLookup (domain, selector, cancellationToken);
@@ -93,9 +103,29 @@ namespace DkimVerifierExample
 			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
 		}
 
+		async Task<AsymmetricKeyParameter> DnsLookupAsync (string domain, string selector, CancellationToken cancellationToken)
+		{
+			var query = selector + "._domainkey." + domain;
+
+			// checked if we've already fetched this key
+			if (cache.TryGetValue (query, out var pubkey))
+				return pubkey;
+
+			// make a DNS query
+			var response = await dnsClient.QueryAsync (query, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait (false);
+
+			return GetPublicKey (query, response);
+		}
+
 		public override Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
 		{
-			throw new NotImplementedException ("Asynchronous DKIM public key lookup is not implemented in this sample.");
+			var methodList = methods.Split (ColonDelimeter, StringSplitOptions.RemoveEmptyEntries);
+			for (int i = 0; i < methodList.Length; i++) {
+				if (methodList[i] == "dns/txt")
+					return DnsLookupAsync (domain, selector, cancellationToken);
+			}
+
+			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
 		}
 	}
 

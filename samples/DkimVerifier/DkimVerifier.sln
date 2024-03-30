@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DkimVerifier", "DkimVerifier\DkimVerifier.csproj", "{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DkimVerifier", "DkimVerifier\DkimVerifier.csproj", "{0871D5C3-BDF0-4FFF-9E2A-F94D49F4A382}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
