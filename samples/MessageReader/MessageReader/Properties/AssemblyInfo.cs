@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("MessageReader")]
-[assembly: AssemblyCopyright ("Copyright © 2013-2023 .NET Foundation and Contributors")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2024 .NET Foundation and Contributors")]
 [assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
 
