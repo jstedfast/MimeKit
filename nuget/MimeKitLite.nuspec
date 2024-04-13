@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.4.0</version>
+    <version>4.5.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,13 +26,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added net8.0 target.
-* Improved folding logic for Disposition-Notification-Options header values. (issue #979)
-* Added interfaces for MimeMessage, MimeEntity, MimePart, Multipart, etc. (issue #980)
-* Fixed the FormatOptions.NewLineFormat setter logic.
-* Modified AttachmentCollection.Add() for message/rfc822 attachments to better handle MimeParser exceptions. (issue #1001)
-* Improved Unix2Dos and Dos2Unix filters by fixing some corner cases exposed by new unit tests.
-* Fixed MaxMimeDepth logic to still use MimePart subclasses when reached. (issue #1006)
+
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
@@ -67,7 +61,6 @@
       </group>
       <group targetFramework="net6.0" />
       <group targetFramework="net8.0" />
-      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
         <dependency id="System.Reflection.TypeExtensions" version="4.7.0" />

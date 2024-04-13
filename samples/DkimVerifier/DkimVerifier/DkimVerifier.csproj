@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
@@ -13,6 +13,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.7.0" />
-    <PackageReference Include="MimeKit" version="4.4.0" />
+    <PackageReference Include="MimeKit" version="4.5.0" />
   </ItemGroup>
 </Project>

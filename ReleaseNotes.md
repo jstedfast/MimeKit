@@ -1,5 +1,12 @@
 # Release Notes
 
+## MimeKit 4.5.0 (2024-04-13)
+
+* Fixed MailboxAddress to not use punycode to encode or decode the local-part of an addr-spec.
+  (issue [#1012](https://github.com/jstedfast/MimeKit/issues/1012))
+* Removed explicit refs to CompilerServices.Unsafe and Encoding.CodePages from net6.0/8.0.
+  (issue [#1013](https://github.com/jstedfast/MimeKit/issues/1013))
+
 ## MimeKit 4.4.0 (2024-03-02)
 
 * Added net8.0 target.

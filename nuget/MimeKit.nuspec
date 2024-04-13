@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.4.0</version>
+    <version>4.5.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,16 +26,9 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added net8.0 target.
-* Improved folding logic for Disposition-Notification-Options header values. (issue #979)
-* Added interfaces for MimeMessage, MimeEntity, MimePart, Multipart, etc. (issue #980)
-* Fixed the FormatOptions.NewLineFormat setter logic.
-* Modified AttachmentCollection.Add() for message/rfc822 attachments to better handle MimeParser exceptions. (issue #1001)
-* Bump BouncyCastle dependency to v2.3.0.
-* Added support for ECC S/MIME certificates. (issue #998)
-* Improved Unix2Dos and Dos2Unix filters by fixing some corner cases exposed by new unit tests.
-* Fixed MaxMimeDepth logic to still use MimePart subclasses when reached. (issue #1006)
-	</releaseNotes>
+* Fixed MailboxAddress to not use punycode to encode or decode the local-part of an addr-spec. (issue #1012)
+* Removed explicit refs to CompilerServices.Unsafe and Encoding.CodePages from net6.0/8.0. (issue #1013)
+    </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
     <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net462 net47 net48 net6.0 net8.0 netstandard netstandard2.0 netstandard2.1</tags>
