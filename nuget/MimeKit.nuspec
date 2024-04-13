@@ -80,15 +80,11 @@
         <dependency id="BouncyCastle.Cryptography" version="2.3.0" />
       </group>
       <group targetFramework="net6.0">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.3.0" />
       </group>
       <group targetFramework="net8.0">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.3.0" />
       </group>
       <group targetFramework="netstandard2.0">
