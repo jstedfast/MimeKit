@@ -661,7 +661,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			builder.Path = "/pks/lookup";
-			builder.Query = string.Format (CultureInfo.InvariantCulture, "op=get&search=0x{0:X}", keyId);
+			builder.Query = string.Format (CultureInfo.InvariantCulture, "op=get&search=0x{0:X16}", keyId);
 
 			using (var stream = new MemoryBlockStream ()) {
 				using (var filtered = new FilteredStream (stream)) {
