@@ -360,14 +360,15 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public void TestEncryptCmsRecipients ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public void TestEncryptCmsRecipients (SubjectIdentifierType recipientIdentifierType)
 		{
 			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 				var entity = new TextPart ("plain") { Text = "This is some text..." };
 				var signer = new CmsSigner (certificate.FileName, "no.secret");
 				var recipients = new CmsRecipientCollection {
-					new CmsRecipient (signer.Certificate)
+					new CmsRecipient (signer.Certificate, recipientIdentifierType)
 				};
 
 				var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, entity);
@@ -380,14 +381,15 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public async Task TestEncryptCmsRecipientsAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public async Task TestEncryptCmsRecipientsAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 				var entity = new TextPart ("plain") { Text = "This is some text..." };
 				var signer = new CmsSigner (certificate.FileName, "no.secret");
 				var recipients = new CmsRecipientCollection {
-					new CmsRecipient (signer.Certificate)
+					new CmsRecipient (signer.Certificate, recipientIdentifierType)
 				};
 
 				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, entity).ConfigureAwait (false);

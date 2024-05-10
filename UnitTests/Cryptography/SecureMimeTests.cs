@@ -1675,8 +1675,9 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public virtual void TestSecureMimeEncryption ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public virtual void TestSecureMimeEncryption (SubjectIdentifierType recipientIdentifierType)
 		{
 			foreach (var certificate in SupportedCertificates) {
 				if (!Supports (certificate.PublicKeyAlgorithm))
@@ -1684,7 +1685,7 @@ namespace UnitTests.Cryptography {
 
 				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 				var recipients = new CmsRecipientCollection {
-					new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier)
+					new CmsRecipient (certificate.Certificate, recipientIdentifierType)
 				};
 
 				var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, body);
@@ -1698,8 +1699,9 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public virtual async Task TestSecureMimeEncryptionAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public virtual async Task TestSecureMimeEncryptionAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			foreach (var certificate in SupportedCertificates) {
 				if (!Supports (certificate.PublicKeyAlgorithm))
@@ -1707,7 +1709,7 @@ namespace UnitTests.Cryptography {
 
 				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 				var recipients = new CmsRecipientCollection {
-					new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier)
+					new CmsRecipient (certificate.Certificate, recipientIdentifierType)
 				};
 
 				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, body);
@@ -1721,8 +1723,9 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public virtual void TestSecureMimeEncryptionWithContext ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public virtual void TestSecureMimeEncryptionWithContext (SubjectIdentifierType recipientIdentifierType)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
@@ -1734,9 +1737,9 @@ namespace UnitTests.Cryptography {
 					var recipients = new CmsRecipientCollection ();
 
 					if (ctx is WindowsSecureMimeContext)
-						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), recipientIdentifierType));
 					else
-						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
 					var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
 
@@ -1755,8 +1758,9 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public virtual async Task TestSecureMimeEncryptionWithContextAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public virtual async Task TestSecureMimeEncryptionWithContextAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
@@ -1768,9 +1772,9 @@ namespace UnitTests.Cryptography {
 					var recipients = new CmsRecipientCollection ();
 
 					if (ctx is WindowsSecureMimeContext)
-						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), recipientIdentifierType));
 					else
-						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
 					var encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
 
@@ -1789,8 +1793,9 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public virtual void TestSecureMimeEncryptionWithAlgorithm ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public virtual void TestSecureMimeEncryptionWithAlgorithm (SubjectIdentifierType recipientIdentifierType)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
@@ -1802,9 +1807,9 @@ namespace UnitTests.Cryptography {
 					var recipients = new CmsRecipientCollection ();
 
 					if (ctx is WindowsSecureMimeContext)
-						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), recipientIdentifierType));
 					else
-						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
 					foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
 						foreach (var recipient in recipients)
@@ -1886,8 +1891,9 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public virtual async Task TestSecureMimeEncryptionWithAlgorithmAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public virtual async Task TestSecureMimeEncryptionWithAlgorithmAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
@@ -1899,9 +1905,9 @@ namespace UnitTests.Cryptography {
 					var recipients = new CmsRecipientCollection ();
 
 					if (ctx is WindowsSecureMimeContext)
-						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), recipientIdentifierType));
 					else
-						recipients.Add (new CmsRecipient (certificate.Certificate, SubjectIdentifierType.SubjectKeyIdentifier));
+						recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
 					foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
 						foreach (var recipient in recipients)
@@ -2885,58 +2891,64 @@ namespace UnitTests.Cryptography {
 			return base.TestSecureMimeMessageEncryptionAsync ();
 		}
 
-		[Test]
-		public override void TestSecureMimeEncryption ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public override void TestSecureMimeEncryption (SubjectIdentifierType recipientIdentifierType)
 		{
 			if (!IsEnabled)
 				return;
 
-			base.TestSecureMimeEncryption ();
+			base.TestSecureMimeEncryption (recipientIdentifierType);
 		}
 
-		[Test]
-		public override Task TestSecureMimeEncryptionAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public override Task TestSecureMimeEncryptionAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			if (!IsEnabled)
 				return Task.CompletedTask;
 
-			return base.TestSecureMimeEncryptionAsync ();
+			return base.TestSecureMimeEncryptionAsync (recipientIdentifierType);
 		}
 
-		[Test]
-		public override void TestSecureMimeEncryptionWithContext ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public override void TestSecureMimeEncryptionWithContext (SubjectIdentifierType recipientIdentifierType)
 		{
 			if (!IsEnabled)
 				return;
 
-			base.TestSecureMimeEncryptionWithContext ();
+			base.TestSecureMimeEncryptionWithContext (recipientIdentifierType);
 		}
 
-		[Test]
-		public override Task TestSecureMimeEncryptionWithContextAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public override Task TestSecureMimeEncryptionWithContextAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			if (!IsEnabled)
 				return Task.CompletedTask;
 
-			return base.TestSecureMimeEncryptionWithContextAsync ();
+			return base.TestSecureMimeEncryptionWithContextAsync (recipientIdentifierType);
 		}
 
-		[Test]
-		public override void TestSecureMimeEncryptionWithAlgorithm ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public override void TestSecureMimeEncryptionWithAlgorithm (SubjectIdentifierType recipientIdentifierType)
 		{
 			if (!IsEnabled)
 				return;
 
-			base.TestSecureMimeEncryptionWithAlgorithm ();
+			base.TestSecureMimeEncryptionWithAlgorithm (recipientIdentifierType);
 		}
 
-		[Test]
-		public override Task TestSecureMimeEncryptionWithAlgorithmAsync ()
+		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
+		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
+		public override Task TestSecureMimeEncryptionWithAlgorithmAsync (SubjectIdentifierType recipientIdentifierType)
 		{
 			if (!IsEnabled)
 				return Task.CompletedTask;
 
-			return base.TestSecureMimeEncryptionWithAlgorithmAsync ();
+			return base.TestSecureMimeEncryptionWithAlgorithmAsync (recipientIdentifierType);
 		}
 
 		[TestCase (DigestAlgorithm.Sha1)]
