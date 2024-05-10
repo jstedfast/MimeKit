@@ -260,7 +260,7 @@ namespace MimeKit.Cryptography {
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPublicKeyParameters key)
 		{
 			var parameters = GetDSAParameters (key);
-			parameters.Y = key.Y.ToByteArrayUnsigned ();
+			parameters.Y = GetPaddedByteArray (key.Y, parameters.P.Length);
 
 			var dsa = new DSACryptoServiceProvider ();
 
