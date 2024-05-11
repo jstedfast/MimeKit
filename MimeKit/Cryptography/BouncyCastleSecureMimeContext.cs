@@ -48,7 +48,6 @@ using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.X509.Store;
-using Org.BouncyCastle.Utilities.Date;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities.Collections;
@@ -1297,14 +1296,12 @@ namespace MimeKit.Cryptography {
 				}
 
 				var encryptedKeyBytes = GenerateWrappedKey (contentEncryptionKey, keyEncryptionAlgorithm, publicKey, random);
-				RecipientIdentifier recipientIdentifier = null;
+				RecipientIdentifier recipientIdentifier;
 
 				if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-					var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+					var subjectKeyIdentifier = (Asn1OctetString) recipient.Certificate.GetExtensionParsedValue (X509Extensions.SubjectKeyIdentifier);
 					recipientIdentifier = new RecipientIdentifier (subjectKeyIdentifier);
-				}
-
-				if (recipientIdentifier == null) {
+				} else {
 					var issuerAndSerial = new IssuerAndSerialNumber (certificate.Issuer, certificate.SerialNumber.Value);
 					recipientIdentifier = new RecipientIdentifier (issuerAndSerial);
 				}
@@ -1324,7 +1321,7 @@ namespace MimeKit.Cryptography {
 
 			// TODO: better handle algorithm selection.
 			if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-				var subjectKeyIdentifier = recipient.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+				var subjectKeyIdentifier = (Asn1OctetString) recipient.Certificate.GetExtensionParsedValue (X509Extensions.SubjectKeyIdentifier);
 				cms.AddKeyAgreementRecipient (
 					CmsEnvelopedGenerator.ECDHSha1Kdf,
 					keyPair.Private,
