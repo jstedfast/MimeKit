@@ -1,5 +1,11 @@
 # Release Notes
 
+## MimeKit 4.6.0 (2024-05-17)
+
+* Fixed hex format specifier for PGP keyserver lookup. (issue [#1028](https://github.com/jstedfast/MimeKit/issues/1028))
+* Bumped the BouncyCastle.Cryptography dependency to v2.3.1 to fix some security issues.
+* Fixed a bug in conversion logic between BouncyCastle DSA key parameters and System.Security.Cryptography's DSA implementation.
+
 ## MimeKit 4.5.0 (2024-04-13)
 
 * Fixed MailboxAddress to not use punycode to encode or decode the local-part of an addr-spec.
