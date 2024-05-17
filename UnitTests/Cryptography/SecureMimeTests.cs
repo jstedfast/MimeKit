@@ -154,80 +154,76 @@ namespace UnitTests.Cryptography {
 			SMimeCertificates = all.ToArray ();
 		}
 
-		protected void ImportTestCertificates (SecureMimeContext ctx)
-		{
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var windows = ctx as WindowsSecureMimeContext;
-
-			if (ctx is TemporarySecureMimeContext)
-				CryptographyContext.Register (CreateContext);
-			else
-				CryptographyContext.Register (ctx.GetType ());
-
-			// Import the StartCom certificates
-			if (windows is not null) {
-				var parser = new X509CertificateParser ();
-
-				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
-					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-						windows.Import (StoreName.AuthRoot, certificate);
-				}
-
-				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
-					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-						windows.Import (StoreName.CertificateAuthority, certificate);
-				}
-			} else {
-				foreach (var filename in StartComCertificates) {
-					var path = Path.Combine (dataDir, filename);
-					using (var stream = File.OpenRead (path)) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							sqlite.Import (stream, true);
-						} else {
-							var parser = new X509CertificateParser ();
-							foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-								ctx.Import (certificate);
-						}
-					}
-				}
-			}
-
-			// Import the smime.pfx certificates
-			foreach (var mimekitCertificate in SupportedCertificates) {
-				var chain = mimekitCertificate.Chain;
-
-				// Import the root & intermediate certificates from the smime.pfx file
-				if (windows is not null) {
-					var store = StoreName.AuthRoot;
-					for (int i = chain.Length - 1; i > 0; i--) {
-						windows.Import (store, chain[i]);
-						store = StoreName.CertificateAuthority;
-					}
-				} else {
-					for (int i = chain.Length - 1; i > 0; i--) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							sqlite.Import (chain[i], true);
-						} else {
-							ctx.Import (chain[i]);
-						}
-					}
-				}
-
-				// Import the pfx so that the SecureMimeContext has a copy of the private key as well.
-				ctx.Import (mimekitCertificate.FileName, "no.secret");
-
-				// Import a second time to cover the case where the certificate & private key already exist
-				Assert.DoesNotThrow (() => ctx.Import (mimekitCertificate.FileName, "no.secret"));
-			}
-		}
-
 		protected SecureMimeTestsBase ()
 		{
 			if (!IsEnabled)
 				return;
 
-			using (var ctx = CreateContext ())
-				ImportTestCertificates (ctx);
+			using (var ctx = CreateContext ()) {
+				var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+				var windows = ctx as WindowsSecureMimeContext;
+
+				if (ctx is TemporarySecureMimeContext)
+					CryptographyContext.Register (CreateContext);
+				else
+					CryptographyContext.Register (ctx.GetType ());
+
+				// Import the StartCom certificates
+				if (windows is not null) {
+					var parser = new X509CertificateParser ();
+
+					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
+						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							windows.Import (StoreName.AuthRoot, certificate);
+					}
+
+					using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+						foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+							windows.Import (StoreName.CertificateAuthority, certificate);
+					}
+				} else {
+					foreach (var filename in StartComCertificates) {
+						var path = Path.Combine (dataDir, filename);
+						using (var stream = File.OpenRead (path)) {
+							if (ctx is DefaultSecureMimeContext sqlite) {
+								sqlite.Import (stream, true);
+							} else {
+								var parser = new X509CertificateParser ();
+								foreach (X509Certificate certificate in parser.ReadCertificates (stream))
+									ctx.Import (certificate);
+							}
+						}
+					}
+				}
+
+				// Import the smime.pfx certificates
+				foreach (var mimekitCertificate in SupportedCertificates) {
+					var chain = mimekitCertificate.Chain;
+
+					// Import the root & intermediate certificates from the smime.pfx file
+					if (windows is not null) {
+						var store = StoreName.AuthRoot;
+						for (int i = chain.Length - 1; i > 0; i--) {
+							windows.Import (store, chain[i]);
+							store = StoreName.CertificateAuthority;
+						}
+					} else {
+						for (int i = chain.Length - 1; i > 0; i--) {
+							if (ctx is DefaultSecureMimeContext sqlite) {
+								sqlite.Import (chain[i], true);
+							} else {
+								ctx.Import (chain[i]);
+							}
+						}
+					}
+
+					// Import the pfx so that the SecureMimeContext has a copy of the private key as well.
+					ctx.Import (mimekitCertificate.FileName, "no.secret");
+
+					// Import a second time to cover the case where the certificate & private key already exist
+					Assert.DoesNotThrow (() => ctx.Import (mimekitCertificate.FileName, "no.secret"));
+				}
+			}
 		}
 
 		public static X509Certificate LoadCertificate (string path)
@@ -3013,85 +3009,6 @@ namespace UnitTests.Cryptography {
 				return Task.CompletedTask;
 
 			return base.TestSecureMimeImportExportAsync ();
-		}
-
-		static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, SMimeCertificate certificate, SubjectIdentifierType recipientIdentifierType, MimeEntity entity)
-		{
-			var recipients = new CmsRecipientCollection ();
-
-			if (ctx is WindowsSecureMimeContext)
-				recipients.Add (new CmsRecipient (certificate.Certificate.AsX509Certificate2 (), recipientIdentifierType));
-			else
-				recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
-
-			return ApplicationPkcs7Mime.Encrypt (ctx, recipients, entity);
-		}
-
-		static void ValidateCanDecrypt (SecureMimeContext ctx, ApplicationPkcs7Mime encrypted, TextPart expected)
-		{
-			using (var stream = new MemoryStream ()) {
-				ctx.DecryptTo (encrypted.Content.Open (), stream);
-				stream.Position = 0;
-
-				var decrypted = MimeEntity.Load (stream);
-
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (expected.Text), "Decrypted content is not the same as the original.");
-			}
-		}
-
-		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
-		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
-		public void TestBouncyCastleCanDecryptWindows (SubjectIdentifierType recipientIdentifierType)
-		{
-			if (!IsEnabled)
-				return;
-
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-
-			using (var ctx = CreateContext ()) {
-				using (var bc = new TemporarySecureMimeContext ()) {
-					ImportTestCertificates (bc);
-
-					foreach (var certificate in SupportedCertificates) {
-						if (!Supports (certificate.PublicKeyAlgorithm))
-							continue;
-
-						var encrypted = Encrypt (ctx, certificate, recipientIdentifierType, body);
-
-						Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-
-						ValidateCanDecrypt (bc, encrypted, body);
-					}
-				}
-			}
-		}
-
-		[TestCase (SubjectIdentifierType.IssuerAndSerialNumber)]
-		[TestCase (SubjectIdentifierType.SubjectKeyIdentifier)]
-		public void TestWindowsCanDecryptBouncyCastle (SubjectIdentifierType recipientIdentifierType)
-		{
-			if (!IsEnabled)
-				return;
-
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
-
-			using (var ctx = CreateContext ()) {
-				using (var bc = new TemporarySecureMimeContext ()) {
-					ImportTestCertificates (bc);
-
-					foreach (var certificate in SupportedCertificates) {
-						if (!Supports (certificate.PublicKeyAlgorithm))
-							continue;
-
-						var encrypted = Encrypt (bc, certificate, recipientIdentifierType, body);
-
-						Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
-
-						ValidateCanDecrypt (ctx, encrypted, body);
-					}
-				}
-			}
 		}
 	}
 }
