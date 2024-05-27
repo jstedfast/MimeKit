@@ -89,12 +89,11 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			// FIXME: GetValueList() should be fixed to return IList<string>
 			var list = certificate.IssuerDN.GetValueList (identifier);
 			if (list.Count == 0)
 				return string.Empty;
 
-			return (string) list[0];
+			return list[0];
 		}
 
 		/// <summary>
@@ -114,12 +113,11 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			// FIXME: GetValueList() should be fixed to return IList<string>
 			var list = certificate.SubjectDN.GetValueList (identifier);
 			if (list.Count == 0)
 				return string.Empty;
 
-			return (string) list[0];
+			return list[0];
 		}
 
 		/// <summary>
