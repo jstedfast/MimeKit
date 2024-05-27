@@ -1283,8 +1283,7 @@ namespace MimeKit.Cryptography {
 
 			public RecipientInfo Generate (KeyParameter contentEncryptionKey, SecureRandom random)
 			{
-				var tbs = Asn1Object.FromByteArray (recipient.Certificate.GetTbsCertificate ());
-				var certificate = TbsCertificateStructure.GetInstance (tbs);
+				var certificate = recipient.Certificate.TbsCertificate;
 				var publicKey = recipient.Certificate.GetPublicKey ();
 				var publicKeyInfo = certificate.SubjectPublicKeyInfo;
 				AlgorithmIdentifier keyEncryptionAlgorithm;
