@@ -26,13 +26,13 @@
 
 using System;
 using System.Text;
+using System.Buffers;
 using System.Collections;
 using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
-using System.Buffers;
 
 namespace MimeKit {
 	/// <summary>

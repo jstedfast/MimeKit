@@ -517,7 +517,7 @@ namespace MimeKit {
 
 		void EncodeRfc2231 (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
-			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, encoding ?? headerEncoding);
+			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
 			int maxLength = options.MaxLineLength - (Name.Length + 6);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = (Encoder) bestEncoding.GetEncoder ();
@@ -653,7 +653,7 @@ namespace MimeKit {
 
 		void EncodeRfc2047 (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
-			var bestEncoding = options.International ? CharsetUtils.UTF8 : GetBestEncoding (Value, encoding ?? headerEncoding);
+			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = (Encoder) bestEncoding.GetEncoder ();
 			int index = 0;
