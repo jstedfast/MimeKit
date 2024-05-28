@@ -140,6 +140,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeRfc2047WithGB18030 ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("GB18030", "filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"=?gb18030?b?suLK1M7Esb4uZG9j?=\""));
+		}
+
+		[Test]
 		public void TestEncodeFormatOptionsRfc2047 ()
 		{
 			var builder = new ValueStringBuilder (256);
@@ -154,6 +171,23 @@ namespace UnitTests {
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
 			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\""));
+		}
+
+		[Test]
+		public void TestEncodeFormatOptionsRfc2047WithGB18030 ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("GB18030", "filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"=?gb18030?b?suLK1M7Esb4uZG9j?=\""));
 		}
 
 		[Test]
@@ -174,6 +208,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeRfc2231WithGB18030 ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("GB18030", "filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2231;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.doc"));
+		}
+
+		[Test]
 		public void TestEncodeFormatOptionsRfc2231 ()
 		{
 			var builder = new ValueStringBuilder (256);
@@ -191,6 +242,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeFormatOptionsRfc2231WithGB18030 ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("GB18030", "filename", "测试文本.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.ParameterEncodingMethod = ParameterEncodingMethod.Rfc2231;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.doc"));
+		}
+
+		[Test]
 		public void TestEncodeControlCharacters ()
 		{
 			var builder = new ValueStringBuilder (256);
@@ -205,7 +273,7 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename*=utf-8''tps%07-%08report.doc"));
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename*=iso-8859-1''tps%07-%08report.doc"));
 		}
 
 #if false
