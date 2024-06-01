@@ -825,6 +825,28 @@ namespace UnitTests {
 			Assert.That (alexa.CompareTo (alex) > 0, Is.True, "alexa.CompareTo(alex) should return > 0.");
 		}
 
+		// issue #1043
+		[TestCase (RfcComplianceMode.Strict, false)]
+		[TestCase (RfcComplianceMode.Loose, false)]
+		[TestCase (RfcComplianceMode.Looser, true)]
+		public void TestParseMailboxWithEscapedAtSymbol (RfcComplianceMode compliance, bool espected)
+		{
+			const string text = "First Last <webmaster\\@custom-domain.com@mail-host.com>";
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+
+			if (espected) {
+				Assert.That (InternetAddressList.TryParse (options, text, out var list), Is.True);
+				Assert.That (list.Count, Is.EqualTo (1));
+				Assert.That (list[0], Is.InstanceOf<MailboxAddress> ());
+				var mailbox = (MailboxAddress) list[0];
+				Assert.That (mailbox.Address, Is.EqualTo ("webmaster%40custom-domain.com@mail-host.com"));
+				Assert.That (mailbox.LocalPart, Is.EqualTo ("webmaster%40custom-domain.com"));
+				Assert.That (mailbox.Domain, Is.EqualTo ("mail-host.com"));
+			} else {
+				Assert.That (InternetAddressList.TryParse (options, text, out _), Is.False);
+			}
+		}
+
 		#region Rfc7103
 
 		// TODO: test both Strict and Loose RfcCompliance modes

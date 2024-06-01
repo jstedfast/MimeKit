@@ -312,19 +312,41 @@ namespace MimeKit {
 			localpart = null;
 
 			do {
-				if (!text[index].IsAtom () && text[index] != (byte) '"') {
+				bool escapedAt = false;
+				int start = index;
+
+				if (text[index] == (byte) '"') {
+					if (!ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError))
+						return false;
+				} else if (text[index].IsAtom ()) {
+					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
+						return false;
+
+					if (compliance == RfcComplianceMode.Looser) {
+						// Allow local-parts that include escaped '@' symbols.
+						// See https://github.com/jstedfast/MimeKit/issues/1043 for details.
+						while (index + 1 < endIndex && text[index] == (byte) '\\' && text[index + 1] == (byte) '@') {
+							// track that we've encountered an escaped @ symbol
+							escapedAt = true;
+
+							// skip over the '\\' and '@' characters
+							index += 2;
+
+							if (!ParseUtils.SkipAtom (text, ref index, endIndex))
+								break;
+						}
+					}
+				} else {
 					if (throwOnError)
 						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid local-part at offset {0}", startIndex), startIndex, index);
 
 					return false;
 				}
 
-				int start = index;
-				if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
-					return false;
+				string word;
 
 				try {
-					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+					word = CharsetUtils.UTF8.GetString (text, start, index - start);
 				} catch (DecoderFallbackException ex) {
 					if (compliance == RfcComplianceMode.Strict) {
 						if (throwOnError)
@@ -333,8 +355,13 @@ namespace MimeKit {
 						return false;
 					}
 
-					token.Append (CharsetUtils.Latin1.GetString (text, start, index - start));
+					word = CharsetUtils.Latin1.GetString (text, start, index - start);
 				}
+
+				if (escapedAt)
+					word = word.Replace ("\\@", "%40");
+
+				token.Append (word);
 
 				int cfws = index;
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
