@@ -267,13 +267,29 @@ namespace UnitTests {
 			var options = FormatOptions.Default.Clone ();
 			int lineLength = builder.Length;
 
-			options.International = true;
 			options.AlwaysQuoteParameterValues = false;
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
 			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename*=iso-8859-1''tps%07-%08report.doc"));
+		}
+
+		[Test]
+		public void TestEncodeLongParameterName ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "value");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA*0=val;\r\n\tAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA*1=ue"));
 		}
 
 #if false
@@ -329,7 +345,15 @@ namespace UnitTests {
 
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
-			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*0*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%9C%AC%E6%B5%8B%E8%AF%95;\r\n\tfilename*1=\"文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc\""));
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*0=\"测试文本测试文本测试文本测试文本测试文本测\";\r\n\tfilename*1=\"试文本测试文本测试文本测试文本测试文本测试\";\r\n\tfilename*2=\"文本测试文本测试文本测试文本测试文本测试文\";\r\n\tfilename*3=\"本.doc\""));
+
+			// verify that parsing this gets us back our original value
+			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
+
+			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
+			Assert.That (contentDisposition.Parameters["filename"], Is.EqualTo ("测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc"));
 		}
 	}
 }
