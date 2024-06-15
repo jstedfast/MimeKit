@@ -504,7 +504,7 @@ namespace MimeKit {
 					Array.Resize<byte> (ref encoded, n);
 
 				n = hex.Encode (bytes, 0, count, encoded);
-				if (n > 3 && n > maxLength) {
+				if (length > 1 && n > 3 && n > maxLength) {
 					int x = 0;
 
 					for (int i = n - 1; i >= 0 && i >= maxLength; i--) {
