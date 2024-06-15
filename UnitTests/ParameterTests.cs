@@ -140,6 +140,30 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeRfc2047WithSurrogatePairs ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "I ❤️‍🔥 emojis.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?SSDinaTvuI/igI3wn5Sl?=\r\n\t=?utf-8?q?_emojis=2Edoc?=\""));
+
+			// verify that parsing this gets us back our original value
+			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
+
+			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
+			Assert.That (contentDisposition.Parameters["filename"], Is.EqualTo ("I ❤️‍🔥 emojis.doc"));
+		}
+
+		[Test]
 		public void TestEncodeRfc2047WithGB18030 ()
 		{
 			var builder = new ValueStringBuilder (256);
