@@ -56,6 +56,24 @@ namespace UnitTests {
 			var parameter = new Parameter ("name", "value");
 			Assert.Throws<ArgumentNullException> (() => parameter.Value = null);
 			Assert.Throws<ArgumentOutOfRangeException> (() => parameter.EncodingMethod = (ParameterEncodingMethod) 512);
+
+			// Check default value
+			Assert.That (parameter.Encoding.CodePage, Is.EqualTo (Encoding.UTF8.CodePage));
+			parameter.Encoding = Encoding.UTF8;
+			Assert.That (parameter.Encoding, Is.EqualTo (Encoding.UTF8));
+			parameter.Encoding = Encoding.UTF8;
+			Assert.That (parameter.Encoding, Is.EqualTo (Encoding.UTF8));
+
+			// Check default value
+			Assert.That (parameter.AlwaysQuote, Is.False);
+
+			// Set it to true 2x so that we can check that it doesn't change
+			parameter.AlwaysQuote = true;
+			Assert.That (parameter.AlwaysQuote, Is.True);
+			parameter.AlwaysQuote = true;
+			Assert.That (parameter.AlwaysQuote, Is.True);
+			parameter.AlwaysQuote = false;
+			Assert.That (parameter.AlwaysQuote, Is.False);
 		}
 
 		[Test]
@@ -160,7 +178,31 @@ namespace UnitTests {
 			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
 			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
-			Assert.That (contentDisposition.Parameters["filename"], Is.EqualTo ("I ❤️‍🔥 emojis.doc"));
+			Assert.That (contentDisposition.Parameters[param.Name], Is.EqualTo (param.Value));
+		}
+
+		[Test]
+		public void TestEncodeRfc2047WithQuotes ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "Some \"测试文本\" characters.doc");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?U29tZSAi5rWL6K+V5paH?=\r\n\t=?utf-8?q?=E6=9C=AC=22_characters=2Edoc?=\""));
+
+			// verify that parsing this gets us back our original value
+			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
+
+			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
+			Assert.That (contentDisposition.Parameters[param.Name], Is.EqualTo (param.Value));
 		}
 
 		[Test]
@@ -320,7 +362,7 @@ namespace UnitTests {
 			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
 			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
-			Assert.That (contentDisposition.Parameters["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"], Is.EqualTo ("value"));
+			Assert.That (contentDisposition.Parameters[param.Name], Is.EqualTo (param.Value));
 		}
 
 		[Test]
@@ -344,7 +386,7 @@ namespace UnitTests {
 			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
 			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
-			Assert.That (contentDisposition.Parameters["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"], Is.EqualTo ("测试文本.doc"));
+			Assert.That (contentDisposition.Parameters[param.Name], Is.EqualTo (param.Value));
 		}
 
 #if false
@@ -408,7 +450,7 @@ namespace UnitTests {
 			var contentDisposition = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
 
 			Assert.That (contentDisposition.Parameters.Count, Is.EqualTo (1));
-			Assert.That (contentDisposition.Parameters["filename"], Is.EqualTo ("测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本测试文本.doc"));
+			Assert.That (contentDisposition.Parameters[param.Name], Is.EqualTo (param.Value));
 		}
 	}
 }
