@@ -832,8 +832,10 @@ namespace MimeKit {
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
 				WriteTo (options, stream, contentOnly, cancellationToken);
+				stream.Flush ();
+			}
 		}
 
 		/// <summary>
@@ -882,8 +884,10 @@ namespace MimeKit {
 			if (fileName is null)
 				throw new ArgumentNullException (nameof (fileName));
 
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write))
+			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
 				await WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
+				await stream.FlushAsync (cancellationToken).ConfigureAwait (false);
+			}
 		}
 
 		/// <summary>
@@ -924,16 +928,7 @@ namespace MimeKit {
 		/// </exception>
 		public void WriteTo (FormatOptions options, string fileName, CancellationToken cancellationToken = default)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (fileName is null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
-				WriteTo (options, stream, false, cancellationToken);
-				stream.Flush ();
-			}
+			WriteTo (options, fileName, false, cancellationToken);
 		}
 
 		/// <summary>
@@ -973,18 +968,9 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public async Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default)
+		public Task WriteToAsync (FormatOptions options, string fileName, CancellationToken cancellationToken = default)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (fileName is null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			using (var stream = File.Open (fileName, FileMode.Create, FileAccess.Write)) {
-				await WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
-				await stream.FlushAsync (cancellationToken).ConfigureAwait (false);
-			}
+			return WriteToAsync (options, fileName, false, cancellationToken);
 		}
 
 		/// <summary>
