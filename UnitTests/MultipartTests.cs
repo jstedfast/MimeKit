@@ -111,6 +111,13 @@ namespace UnitTests {
 
 			Assert.That (multipart.Contains (generic), Is.True, "Contains");
 			Assert.That (multipart.IndexOf (plain), Is.EqualTo (0), "IndexOf");
+
+			var copied = new MimeEntity[2];
+			multipart.CopyTo (copied, 0);
+			Assert.That (copied.Contains (generic), Is.True, "CopyTo Contains");
+			Assert.That (copied[0], Is.EqualTo (plain), "CopyTo [0]");
+			Assert.That (copied[1], Is.EqualTo (generic), "CopyTo [1]");
+
 			Assert.That (multipart.Remove (generic), Is.True, "Remove");
 			Assert.That (multipart.Remove (generic), Is.False, "Remove 2nd time");
 
@@ -292,6 +299,58 @@ namespace UnitTests {
 			var actual = Multipart.FoldPreambleOrEpilogue (options, text, true);
 
 			Assert.That (actual, Is.EqualTo (expected), "Folded multipart preamble does not match.");
+		}
+
+		[Test]
+		public void TestSettingPreambleHasExpectedSideEffects ()
+		{
+			const string preamble = "This is the preamble";
+			string expected = $"{preamble}{FormatOptions.Default.NewLine}";
+			var multipart = new Multipart ("mixed");
+
+			Assert.That (multipart.Preamble, Is.Null, "Preamble should be null by default");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should be true by default");
+
+			multipart.WriteEndBoundary = false;
+			multipart.Preamble = null;
+
+			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should still be false after setting Preamble to null");
+
+			multipart.Preamble = preamble;
+			Assert.That (multipart.Preamble, Is.EqualTo (expected), $"Preamble should now be set to '{preamble}' + newline");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should now be true after setting the Preamble");
+
+			multipart.WriteEndBoundary = false;
+			multipart.Preamble = expected;
+
+			Assert.That (multipart.Preamble, Is.EqualTo (expected), $"Preamble should not have changed");
+			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should not have changed");
+		}
+
+		[Test]
+		public void TestSettingEpilogueHasExpectedSideEffects ()
+		{
+			const string epilogue = "This is the epilogue";
+			string expected = $"{epilogue}{FormatOptions.Default.NewLine}";
+			var multipart = new Multipart ("mixed");
+
+			Assert.That (multipart.Epilogue, Is.Null, "Epilogue should be null by default");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should be true by default");
+
+			multipart.WriteEndBoundary = false;
+			multipart.Epilogue = null;
+
+			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should still be false after setting Epilogue to null");
+
+			multipart.Epilogue = epilogue;
+			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should now be set to '{epilogue}' + newline");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should now be true after setting the Epilogue");
+
+			multipart.WriteEndBoundary = false;
+			multipart.Epilogue = expected;
+
+			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should not have changed");
+			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should not have changed");
 		}
 	}
 }

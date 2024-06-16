@@ -491,6 +491,18 @@ namespace MimeKit {
 				children[i].Prepare (constraint, maxLineLength);
 		}
 
+		static FormatOptions GetMultipartSignedFormatOptions (FormatOptions options)
+		{
+			// don't reformat the headers or content of any children of a multipart/signed
+			if (options.International || options.HiddenHeaders.Count > 0) {
+				options = options.Clone ();
+				options.HiddenHeaders.Clear ();
+				options.International = false;
+			}
+
+			return options;
+		}
+
 		/// <summary>
 		/// Write the <see cref="Multipart"/> to the specified output stream.
 		/// </summary>
@@ -519,14 +531,8 @@ namespace MimeKit {
 		{
 			base.WriteTo (options, stream, contentOnly, cancellationToken);
 
-			if (ContentType.IsMimeType ("multipart", "signed")) {
-				// don't reformat the headers or content of any children of a multipart/signed
-				if (options.International || options.HiddenHeaders.Count > 0) {
-					options = options.Clone ();
-					options.HiddenHeaders.Clear ();
-					options.International = false;
-				}
-			}
+			if (ContentType.IsMimeType ("multipart", "signed"))
+				options = GetMultipartSignedFormatOptions (options);
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
 				WriteBytes (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken);
@@ -631,14 +637,8 @@ namespace MimeKit {
 		{
 			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
 
-			if (ContentType.IsMimeType ("multipart", "signed")) {
-				// don't hide or reformat the headers of any children of a multipart/signed
-				if (options.International || options.HiddenHeaders.Count > 0) {
-					options = options.Clone ();
-					options.HiddenHeaders.Clear ();
-					options.International = false;
-				}
-			}
+			if (ContentType.IsMimeType ("multipart", "signed"))
+				options = GetMultipartSignedFormatOptions (options);
 
 			if (RawPreamble != null && RawPreamble.Length > 0)
 				await WriteBytesAsync (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken).ConfigureAwait (false);
