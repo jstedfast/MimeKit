@@ -211,5 +211,44 @@ namespace UnitTests {
 
 			Assert.That (list.ToString (), Is.EqualTo ("; xxx=\"0\"; def=\"1\"; ghi=\"2\""));
 		}
+
+		[Test]
+		public void TestParseRfc2231ParemeterValueWithoutCharsetDeclaration ()
+		{
+			const string text = "name*0*=This%20is%20some%20encoded%20ascii%20text";
+			const string expected = "This is some encoded ascii text";
+			var options = ParserOptions.Default.Clone ();
+			var input = Encoding.ASCII.GetBytes (text);
+			var index = 0;
+
+			Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.True);
+			Assert.That (paramList["name"], Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestParseRfc2231ParemeterValueWithIncompleteCharsetDeclaration ()
+		{
+			const string text = "name*0*=us-ascii'This%20is%20some%20encoded%20ascii%20text";
+			const string expected = "us-ascii'This is some encoded ascii text";
+			var options = ParserOptions.Default.Clone ();
+			var input = Encoding.ASCII.GetBytes (text);
+			var index = 0;
+
+			Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.True);
+			Assert.That (paramList["name"], Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestParseRfc2231ParemeterValueWithUnsupportedCharset ()
+		{
+			const string text = "name*0*=x-unsupported-charset''This%20is%20some%20encoded%20ascii%20text";
+			const string expected = "This is some encoded ascii text";
+			var options = ParserOptions.Default.Clone ();
+			var input = Encoding.ASCII.GetBytes (text);
+			var index = 0;
+
+			Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.True);
+			Assert.That (paramList["name"], Is.EqualTo (expected));
+		}
 	}
 }
