@@ -157,6 +157,20 @@ namespace MimeKit {
 		{
 		}
 
+		static void ValidateFieldName (string field)
+		{
+			if (field is null)
+				throw new ArgumentNullException (nameof (field));
+
+			if (field.Length == 0)
+				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
+
+			for (int i = 0; i < field.Length; i++) {
+				if (field[i] >= 127 || !IsFieldText ((byte) field[i]))
+					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
+			}
+		}
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Header"/> class.
 		/// </summary>
@@ -184,16 +198,7 @@ namespace MimeKit {
 			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			if (field is null)
-				throw new ArgumentNullException (nameof (field));
-
-			if (field.Length == 0)
-				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
-
-			for (int i = 0; i < field.Length; i++) {
-				if (field[i] >= 127 || !IsFieldText ((byte) field[i]))
-					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
-			}
+			ValidateFieldName (field);
 
 			if (value is null)
 				throw new ArgumentNullException (nameof (value));
@@ -236,16 +241,7 @@ namespace MimeKit {
 			if (charset is null)
 				throw new ArgumentNullException (nameof (charset));
 
-			if (field is null)
-				throw new ArgumentNullException (nameof (field));
-
-			if (field.Length == 0)
-				throw new ArgumentException ("Header field names are not allowed to be empty.", nameof (field));
-
-			for (int i = 0; i < field.Length; i++) {
-				if (field[i] >= 127 || !IsFieldText ((byte) field[i]))
-					throw new ArgumentException ("Illegal characters in header field name.", nameof (field));
-			}
+			ValidateFieldName (field);
 
 			if (value is null)
 				throw new ArgumentNullException (nameof (value));
