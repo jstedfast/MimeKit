@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Collections;
+
 using MimeKit;
 
 namespace UnitTests {
@@ -37,6 +39,8 @@ namespace UnitTests {
 			var attachments = new AttachmentCollection ();
 			var items = new MimeEntity[10];
 			var data = new byte[1024];
+
+			Assert.That (attachments.IsReadOnly, Is.False, "IsReadOnly");
 
 			using (var stream = new MemoryStream ()) {
 				Assert.Throws<ArgumentException> (() => attachments.Add (string.Empty));
@@ -609,6 +613,45 @@ namespace UnitTests {
 			Assert.That (attachments.Remove (attachment), Is.True, "Remove");
 			Assert.That (attachments.Count, Is.EqualTo (0));
 			attachments.Clear (true);
+		}
+
+		[Test]
+		public void TestListMethods ()
+		{
+			var attachments = new AttachmentCollection ();
+			string fileName;
+
+			fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
+			var plain = (MimePart) attachments.Add (fileName);
+
+			fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var jpeg = (MimePart) attachments.Add (fileName);
+
+			var copied = new MimeEntity[2];
+			attachments.CopyTo (copied, 0);
+
+			Assert.That (copied[0], Is.EqualTo (plain));
+			Assert.That (copied[1], Is.EqualTo (jpeg));
+
+			attachments.RemoveAt (0);
+			Assert.That (attachments.Count, Is.EqualTo (1));
+			Assert.That (attachments[0], Is.EqualTo (jpeg));
+
+			attachments[0] = plain;
+			Assert.That (attachments.Count, Is.EqualTo (1));
+			Assert.That (attachments[0], Is.EqualTo (plain));
+
+			attachments.Insert (0, jpeg);
+			Assert.That (attachments.Count, Is.EqualTo (2));
+			Assert.That (attachments[0], Is.EqualTo (jpeg));
+			Assert.That (attachments[1], Is.EqualTo (plain));
+
+			int i = 0;
+			foreach (MimeEntity attachment in (IEnumerable) attachments)
+				copied[i++] = attachment;
+
+			Assert.That (copied[0], Is.EqualTo (jpeg));
+			Assert.That (copied[1], Is.EqualTo (plain));
 		}
 	}
 }
