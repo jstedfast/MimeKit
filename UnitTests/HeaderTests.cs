@@ -242,12 +242,27 @@ namespace UnitTests {
 			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.");
 			var raw = ByteArrayToString (header.RawValue);
 
-			Assert.That (raw[raw.Length - 1] == '\n', Is.True, "The RawValue does not end with a new line.");
+			Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
 
-			Assert.That (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, Is.True, "The RawValue is not folded properly.");
+			Assert.That (GetMaxLineLength (raw), Is.LessThanOrEqualTo (FormatOptions.Default.MaxLineLength), "The RawValue is not folded properly.");
 
 			var unfolded = Header.Unfold (raw);
 			Assert.That (unfolded, Is.EqualTo (header.Value), "Unfolded header does not match the original header value.");
+		}
+
+		[Test]
+		public void TestUnstructuredHeaderFoldingWithLongWhitespace ()
+		{
+			var spaces = new string (' ', 78);
+			var original = $"This is a header value with a really long sequence of {spaces} and such";
+			string folded, unfolded;
+
+			folded = Header.Fold (FormatOptions.Default, "Subject", original);
+			unfolded = Header.Unfold (folded);
+
+			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
+			Assert.That (GetMaxLineLength (folded), Is.LessThanOrEqualTo (FormatOptions.Default.MaxLineLength), "The RawValue is not folded properly.");
+			Assert.That (unfolded, Is.EqualTo (original), "Unfolded header does not match the original header value.");
 		}
 
 		[Test]
@@ -262,8 +277,8 @@ namespace UnitTests {
 			folded = Header.Fold (options, "Subject", original);
 			unfolded = Header.Unfold (folded);
 
-			Assert.That (folded[folded.Length - 1] == '\n', Is.True, "The folded header does not end with a new line.");
-			Assert.That (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, Is.True, "The raw header value is not folded properly. ");
+			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
+			Assert.That (GetMaxLineLength (folded), Is.LessThan (FormatOptions.Default.MaxLineLength), "The raw header value is not folded properly. ");
 			Assert.That (unfolded, Is.EqualTo (original), "Unfolded header does not match the original header value.");
 		}
 
@@ -279,8 +294,8 @@ namespace UnitTests {
 			folded = Header.Fold (options, "Subject", original);
 			unfolded = Header.Unfold (folded);
 
-			Assert.That (folded[folded.Length - 1] == '\n', Is.True, "The folded header does not end with a new line.");
-			Assert.That (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, Is.True, "The raw header value is not folded properly. ");
+			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
+			Assert.That (GetMaxLineLength (folded), Is.LessThan (FormatOptions.Default.MaxLineLength), "The raw header value is not folded properly. ");
 			Assert.That (unfolded, Is.EqualTo (original), "Unfolded header does not match the original header value.");
 		}
 
@@ -296,8 +311,8 @@ namespace UnitTests {
 			folded = Header.Fold (options, "Subject", original);
 			unfolded = Header.Unfold (folded).Replace (" ", "");
 
-			Assert.That (folded[folded.Length - 1] == '\n', Is.True, "The folded header does not end with a new line.");
-			Assert.That (GetMaxLineLength (folded) < FormatOptions.Default.MaxLineLength, Is.True, "The raw header value is not folded properly.");
+			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
+			Assert.That (GetMaxLineLength (folded), Is.LessThan (FormatOptions.Default.MaxLineLength), "The raw header value is not folded properly.");
 			Assert.That (unfolded, Is.EqualTo (original), "Unfolded header does not match the original header value.");
 		}
 
@@ -311,8 +326,8 @@ namespace UnitTests {
 			folded = Header.Fold (options, "Subject", original);
 			unfolded = Header.Unfold (folded).Replace (" _", "_");
 
-			Assert.That (folded[folded.Length - 1] == '\n', Is.True, "The folded header does not end with a new line.");
-			Assert.That (GetMaxLineLength (folded) <= FormatOptions.Default.MaxLineLength, Is.True, "The raw header value is not folded properly.");
+			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
+			Assert.That (GetMaxLineLength (folded), Is.LessThanOrEqualTo (FormatOptions.Default.MaxLineLength), "The raw header value is not folded properly.");
 			Assert.That (unfolded, Is.EqualTo (original), "Unfolded header does not match the original header value.");
 		}
 
