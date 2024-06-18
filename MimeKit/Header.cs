@@ -1665,12 +1665,6 @@ namespace MimeKit {
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static bool IsControl (byte c)
-		{
-			return c.IsCtrl ();
-		}
-
-		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsBlank (byte c)
 		{
 			return c.IsBlank ();

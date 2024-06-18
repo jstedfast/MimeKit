@@ -123,6 +123,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestToString ()
+		{
+			var header = new Header ("Subject", "This is a subject...");
+			var value = header.ToString ();
+
+			Assert.That (value, Is.EqualTo ("Subject: This is a subject..."));
+
+			header = new Header ("SuBjEcT", "This is a subject...");
+			value = header.ToString ();
+
+			Assert.That (value, Is.EqualTo ("SuBjEcT: This is a subject..."));
+		}
+
+		[Test]
+		public void TestUnfoldNullValue ()
+		{
+			Assert.That (Header.Unfold (null), Is.EqualTo (string.Empty));
+		}
+
+		[Test]
 		public void TestAddressHeaderFolding ()
 		{
 			var expected = " Jeffrey Stedfast <jeff@xamarin.com>, \"Jeffrey A. Stedfast\"" + FormatOptions.Default.NewLine +
@@ -229,6 +249,18 @@ namespace UnitTests {
 		{
 			var header = new Header ("UTF-8", "DKIM-Signature", "v=1; a=rsa-sha256; c=simple/simple; d=maillist.codeproject.com; s=mail; t=1435835767; bh=tiafHSAvEg4GPJlbkR6e7qr1oydTj+ZXs392TcHwwvs=; h=MIME-Version:From:To:Date:Subject:Content-Type:Content-Transfer-Encoding:Message-Id; b=Qtgo0bWwT0H18CxD2+ey8/382791TBNYtZ8VOLlXxxsbw5fab8uEo53o5tPun6kNx4khmJx/yWowvrCOAcMoqgNO7Hb7JB8NR7eNyOvtLKCG34AfDZyHNcTZHR/QnBpRKHssu5w2CQDUAjKnuGKRW95LCMMX3r924dErZOJnGhs=");
 			var expected = " v=1; a=rsa-sha256; c=simple/simple;\n\td=maillist.codeproject.com; s=mail; t=1435835767;\n\tbh=tiafHSAvEg4GPJlbkR6e7qr1oydTj+ZXs392TcHwwvs=;\n\th=MIME-Version:From:To:Date:Subject:Content-Type:Content-Transfer-Encoding:\n\tMessage-Id;\n\tb=Qtgo0bWwT0H18CxD2+ey8/382791TBNYtZ8VOLlXxxsbw5fab8uEo53o5tPun6kNx4khmJx/yWo\n\twvrCOAcMoqgNO7Hb7JB8NR7eNyOvtLKCG34AfDZyHNcTZHR/QnBpRKHssu5w2CQDUAjKnuGKRW95L\n\tCMMX3r924dErZOJnGhs=\n";
+			var raw = ByteArrayToString (header.RawValue);
+
+			expected = expected.Replace ("\n", Environment.NewLine);
+
+			Assert.That (raw, Is.EqualTo (expected), "The RawValue does not match the expected value.");
+		}
+
+		[Test]
+		public void TestDkimSignatureHeaderFoldingWithZ ()
+		{
+			var header = new Header ("UTF-8", "DKIM-Signature", "v=1; a=rsa-sha256; c=simple/simple; d=maillist.codeproject.com; s=mail; t=1435835767; bh=tiafHSAvEg4GPJlbkR6e7qr1oydTj+ZXs392TcHwwvs=; z=MIME-Version|From|To|Date|Subject|Content-Type|Content-Transfer-Encoding|Message-Id; b=Qtgo0bWwT0H18CxD2+ey8/382791TBNYtZ8VOLlXxxsbw5fab8uEo53o5tPun6kNx4khmJx/yWowvrCOAcMoqgNO7Hb7JB8NR7eNyOvtLKCG34AfDZyHNcTZHR/QnBpRKHssu5w2CQDUAjKnuGKRW95LCMMX3r924dErZOJnGhs=");
+			var expected = " v=1; a=rsa-sha256; c=simple/simple;\n\td=maillist.codeproject.com; s=mail; t=1435835767;\n\tbh=tiafHSAvEg4GPJlbkR6e7qr1oydTj+ZXs392TcHwwvs=;\n\tz=MIME-Version|From|To|Date|Subject|Content-Type|Content-Transfer-Encoding|\n\tMessage-Id;\n\tb=Qtgo0bWwT0H18CxD2+ey8/382791TBNYtZ8VOLlXxxsbw5fab8uEo53o5tPun6kNx4khmJx/yWo\n\twvrCOAcMoqgNO7Hb7JB8NR7eNyOvtLKCG34AfDZyHNcTZHR/QnBpRKHssu5w2CQDUAjKnuGKRW95L\n\tCMMX3r924dErZOJnGhs=\n";
 			var raw = ByteArrayToString (header.RawValue);
 
 			expected = expected.Replace ("\n", Environment.NewLine);
