@@ -25,7 +25,6 @@
 //
 
 using System.Text;
-
 using MimeKit;
 
 namespace UnitTests {
@@ -202,11 +201,16 @@ namespace UnitTests {
 		}
 
 		static readonly string[] ReceivedHeaderValues = {
-			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for nsb; Fri, 29 Nov 91 07:13:33 EST",
-			" from joyce.cs.su.oz.au by thumper.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA11898> for nsb@greenbush; Fri, 29 Nov 91 07:11:57 EST",
-			" from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41" + FormatOptions.Default.NewLine + "\tvia MS.5.6.greenbush.galaxy.sun4_41; Fri, 12 Jun 1992 13:29:05 -0400 (EDT)",
-			" from sqhilton.pc.cs.cmu.edu by po3.andrew.cmu.edu (5.54/3.15)" + FormatOptions.Default.NewLine + "\tid <AA21478> for beatty@cosmos.vlsi.cs.cmu.edu; Wed, 26 Aug 92 22:14:07 EDT",
-			" from [127.0.0.1] by [127.0.0.1] id <AA21478> with sendmail (v1.8)" + FormatOptions.Default.NewLine + "\tfor <beatty@cosmos.vlsi.cs.cmu.edu>; Wed, 26 Aug 92 22:14:07 EDT",
+			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for nsb; Fri, 29 Nov 91 07:13:33 EST" + FormatOptions.Default.NewLine,
+			" from joyce.cs.su.oz.au by thumper.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA11898> for nsb@greenbush; Fri, 29 Nov 91 07:11:57 EST" + FormatOptions.Default.NewLine,
+			" from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41" + FormatOptions.Default.NewLine + "\tvia MS.5.6.greenbush.galaxy.sun4_41; Fri, 12 Jun 1992 13:29:05 -0400 (EDT)" + FormatOptions.Default.NewLine,
+			" from sqhilton.pc.cs.cmu.edu by po3.andrew.cmu.edu (5.54/3.15)" + FormatOptions.Default.NewLine + "\tid <AA21478> for beatty@cosmos.vlsi.cs.cmu.edu; Wed, 26 Aug 92 22:14:07 EDT" + FormatOptions.Default.NewLine,
+			" from [127.0.0.1] by [127.0.0.1] id <AA21478> with sendmail (v1.8)" + FormatOptions.Default.NewLine + "\tfor <beatty@cosmos.vlsi.cs.cmu.edu>; Wed, 26 Aug 92 22:14:07 EDT" + FormatOptions.Default.NewLine,
+
+			// Incomplete comments
+			" from thumper.bellcore.com" + FormatOptions.Default.NewLine + "\tby greenbush.bellcore.com (this is an incomplete comment that is really really long in order to enforce folding..." + FormatOptions.Default.NewLine,
+			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid (this is an incomplete comment" + FormatOptions.Default.NewLine,
+			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for (this is an incomplete comment" + FormatOptions.Default.NewLine,
 		};
 
 		[Test]
@@ -219,9 +223,8 @@ namespace UnitTests {
 
 				var raw = ByteArrayToString (header.RawValue);
 
-				Assert.That (raw[raw.Length - 1] == '\n', Is.True, "The RawValue does not end with a new line.");
-
-				Assert.That (raw, Is.EqualTo (received + FormatOptions.Default.NewLine), "The folded Received header does not match the expected value.");
+				Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
+				Assert.That (raw, Is.EqualTo (received), $"The folded Received header does not match the expected value: {raw}");
 			}
 		}
 
