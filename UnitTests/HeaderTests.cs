@@ -930,5 +930,19 @@ namespace UnitTests {
 
 			Assert.That (result, Is.EqualTo (value));
 		}
+
+		[Test]
+		public void TestSetValueCharset ()
+		{
+			var expected = " =?gb18030?b?suLK1M7Esb4=?=" + FormatOptions.Default.NewLine;
+			var header = new Header ("Subject", "");
+
+			header.SetValue ("GB18030", "测试文本");
+
+			var raw = ByteArrayToString (header.RawValue);
+
+			Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
+			Assert.That (raw, Is.EqualTo (expected), $"The encoded header does not match the expected value: {raw}");
+		}
 	}
 }

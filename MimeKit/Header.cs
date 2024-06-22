@@ -1542,12 +1542,7 @@ namespace MimeKit {
 		/// </exception>
 		public void SetValue (string charset, string value)
 		{
-			if (charset is null)
-				throw new ArgumentNullException (nameof (charset));
-
-			var encoding = CharsetUtils.GetEncoding (charset);
-
-			SetValue (FormatOptions.Default, encoding, value);
+			SetValue (FormatOptions.Default, charset, value);
 		}
 
 		/// <summary>
