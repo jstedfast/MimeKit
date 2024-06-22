@@ -451,6 +451,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseInvalidHeader ()
+		{
+			Assert.That (Header.TryParse ("This is invalid", out _), Is.False, "TryParse");
+		}
+
+		[Test]
 		public void TestToHeaderId ()
 		{
 			HeaderId parsed;
