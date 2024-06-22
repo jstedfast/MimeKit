@@ -479,6 +479,8 @@ namespace UnitTests {
 			parsed = "X-MadeUp-Header".ToHeaderId ();
 
 			Assert.That (parsed, Is.EqualTo (HeaderId.Unknown), "Failed to parse the made-up header value");
+
+			Assert.That (((HeaderId) 1025).ToHeaderName (), Is.EqualTo ("Unknown"), "Unknown HeaderId");
 		}
 
 		[Test]

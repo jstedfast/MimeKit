@@ -1150,11 +1150,11 @@ namespace MimeKit {
 					}
 
 					// update the table for the header being set
-					if (table.TryGetValue (value.Field, out header)) {
-						int idx = headers.IndexOf (header);
+					if (table.TryGetValue (value.Field, out var oldValue)) {
+						int idx = headers.IndexOf (oldValue);
 
 						if (idx > index)
-							table[header.Field] = value;
+							table[oldValue.Field] = value;
 					} else {
 						table.Add (value.Field, value);
 					}

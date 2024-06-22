@@ -273,5 +273,42 @@ namespace UnitTests {
 			Assert.That (headers.IndexOf ("From"), Is.EqualTo (0), "From header not in the expected position.");
 			Assert.That (headers.IndexOf ("Cc"), Is.EqualTo (2), "Cc header not in the expected position.");
 		}
+
+		[Test]
+		public void TestSetHeaderAtIndex ()
+		{
+			var headers = new HeaderList {
+				new Header ("From", "Joe Schmoe <joe.schmoe@example.com>"),
+				new Header ("To", "Jane Doe <jane@example.com>"),
+				new Header ("Subject", "Hello, World!"),
+				new Header ("Date", "Wed, 17 Jul 2019 16:00:00 -0400")
+			};
+			int index = headers.IndexOf (HeaderId.Subject);
+			var subject = headers[index];
+			var changedActions = new List<HeaderListChangedAction> ();
+			int changedCount = 0;
+
+			Assert.That (subject.Id, Is.EqualTo (HeaderId.Subject));
+
+			// listen for CHanged events
+			headers.Changed += (sender, e) => {
+				changedActions.Add (e.Action);
+				changedCount++;
+			};
+
+			// setting the same header should not trigger a change eventheaders[index] = subject;
+			Assert.That (changedCount, Is.EqualTo (0), "Setting the same header at an index should not raise a Changed event");
+
+			// setting a header with the same field name/id
+			headers[index] = new Header (HeaderId.Subject, "This is a different subject!");
+			Assert.That (changedCount, Is.EqualTo (1), "Setting a different header at an index should raise a Changed event");
+			Assert.That (changedActions[0], Is.EqualTo (HeaderListChangedAction.Changed), "Setting a different header at an index should raise a Changed event");
+
+			// setting a header with a different field name/id
+			headers[index] = new Header (HeaderId.MessageId, "<msg-id@example.com>");
+			Assert.That (changedCount, Is.EqualTo (3), "Setting a different header at an index should raise a Changed event");
+			Assert.That (changedActions[1], Is.EqualTo (HeaderListChangedAction.Removed), "Expected a Removed action for the old header");
+			Assert.That (changedActions[2], Is.EqualTo (HeaderListChangedAction.Added), "Expected an Added action for the new header");
+		}
 	}
 }
