@@ -535,21 +535,19 @@ namespace MimeKit {
 			return GetValue (encoding);
 		}
 
-		static byte[] ReformatAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, byte[] rawValue)
+		internal static byte[] ReformatAddressHeader (ParserOptions options, FormatOptions format, string field, byte[] rawValue)
 		{
 			if (!InternetAddressList.TryParse (options, rawValue, 0, rawValue.Length, out var list))
 				return rawValue;
 
+			var encoding = format.International ? Encoding.UTF8 : Encoding.ASCII;
 			var encoded = new StringBuilder (" ");
 			int lineLength = field.Length + 2;
 
 			list.Encode (format, encoded, true, ref lineLength);
 			encoded.Append (format.NewLine);
 
-			if (format.International)
-				return Encoding.UTF8.GetBytes (encoded.ToString ());
-
-			return Encoding.ASCII.GetBytes (encoded.ToString ());
+			return encoding.GetBytes (encoded.ToString ());
 		}
 
 		static byte[] EncodeAddressHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
@@ -1392,7 +1390,7 @@ namespace MimeKit {
 				case HeaderId.Bcc:
 				case HeaderId.Cc:
 				case HeaderId.To:
-					return ReformatAddressHeader (Options, format, CharsetUtils.UTF8, Field, rawValue);
+					return ReformatAddressHeader (Options, format, Field, rawValue);
 				case HeaderId.Received:
 					// Note: Received headers should never be reformatted.
 					return rawValue;

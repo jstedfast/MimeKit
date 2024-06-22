@@ -25,6 +25,7 @@
 //
 
 using System.Text;
+
 using MimeKit;
 
 namespace UnitTests {
@@ -65,6 +66,15 @@ namespace UnitTests {
 		public void TestArgumentExceptions  ()
 		{
 			var header = new Header ("utf-8", HeaderId.Subject, "This is a subject...");
+
+			Assert.Throws<ArgumentException> (() => new Header ("Illegal:char", "value"));
+			Assert.Throws<ArgumentException> (() => new Header ("测试文本", "value"));
+
+			Assert.Throws<ArgumentException> (() => new Header ("UTF-8", "Illegal:char", "value"));
+			Assert.Throws<ArgumentException> (() => new Header ("UTF-8", "测试文本", "value"));
+
+			Assert.Throws<ArgumentException> (() => new Header (Encoding.UTF8, "Illegal:char", "value"));
+			Assert.Throws<ArgumentException> (() => new Header (Encoding.UTF8, "测试文本", "value"));
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => new Header (HeaderId.Unknown, "value"));
 			Assert.Throws<ArgumentNullException> (() => new Header (HeaderId.Subject, null));
@@ -150,7 +160,7 @@ namespace UnitTests {
 			var header = new Header ("To", "Jeffrey Stedfast <jeff@xamarin.com>, \"Jeffrey A. Stedfast\" <jeff@xamarin.com>, \"Dr. Gregory House, M.D.\" <house@princeton-plainsboro-hospital.com>");
 			var raw = ByteArrayToString (header.RawValue);
 
-			Assert.That (raw[raw.Length - 1] == '\n', Is.True, "The RawValue does not end with a new line.");
+			Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
 
 			Assert.That (GetMaxLineLength (raw) < FormatOptions.Default.MaxLineLength, Is.True, "The RawValue is not folded properly.");
 			Assert.That (raw, Is.EqualTo (expected), "The folded address header does not match the expected value.");
@@ -172,7 +182,7 @@ namespace UnitTests {
 
 				var raw = ByteArrayToString (header.RawValue);
 
-				Assert.That (raw[raw.Length - 1] == '\n', Is.True, "The RawValue does not end with a new line.");
+				Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
 
 				Assert.That (raw, Is.EqualTo (authResults + FormatOptions.Default.NewLine), "The folded ARC-Authentication-Results header does not match the expected value.");
 			}
@@ -185,7 +195,7 @@ namespace UnitTests {
 			var expected = " " + header.Value + FormatOptions.Default.NewLine;
 			var raw = ByteArrayToString (header.RawValue);
 
-			Assert.That (raw[raw.Length - 1] == '\n', Is.True, "The RawValue does not end with a new line.");
+			Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
 
 			Assert.That (raw, Is.EqualTo (expected), "The folded Message-Id header does not match the expected value.");
 		}
@@ -208,9 +218,15 @@ namespace UnitTests {
 			" from [127.0.0.1] by [127.0.0.1] id <AA21478> with sendmail (v1.8)" + FormatOptions.Default.NewLine + "\tfor <beatty@cosmos.vlsi.cs.cmu.edu>; Wed, 26 Aug 92 22:14:07 EDT" + FormatOptions.Default.NewLine,
 
 			// Incomplete comments
+			" from (incomplete comment" + FormatOptions.Default.NewLine,
+			" by (incomplete comment" + FormatOptions.Default.NewLine,
+			" via (incomplete comment" + FormatOptions.Default.NewLine,
+			" with (incomplete comment" + FormatOptions.Default.NewLine,
+			" id (incomplete comment" + FormatOptions.Default.NewLine,
+			" for (incomplete comment" + FormatOptions.Default.NewLine,
+
+			// Make sure long (incomplete) comments get folded properly
 			" from thumper.bellcore.com" + FormatOptions.Default.NewLine + "\tby greenbush.bellcore.com (this is an incomplete comment that is really really long in order to enforce folding..." + FormatOptions.Default.NewLine,
-			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid (this is an incomplete comment" + FormatOptions.Default.NewLine,
-			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for (this is an incomplete comment" + FormatOptions.Default.NewLine,
 		};
 
 		[Test]
@@ -242,7 +258,7 @@ namespace UnitTests {
 			var header = new Header ("References", expected.ToString ());
 			var raw = ByteArrayToString (header.RawValue);
 
-			Assert.That (raw[raw.Length - 1] == '\n', Is.True, "The RawValue does not end with a new line.");
+			Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
 
 			Assert.That (raw, Is.EqualTo (expected.ToString ()), "The folded References header does not match the expected value.");
 		}
@@ -413,7 +429,7 @@ namespace UnitTests {
 			Assert.That (Header.TryParse ("Content-Type: text/plain", out var header), Is.True, "TryParse");
 			Assert.That (header.Field, Is.EqualTo ("Content-Type"), "Field");
 			Assert.That (header.Value, Is.EqualTo ("text/plain"), "Value");
-			Assert.That (header.RawValue[header.RawValue.Length - 1] == (byte) '\n', Is.True, "RawValue should end with a new-line");
+			Assert.That (header.RawValue[header.RawValue.Length - 1], Is.EqualTo ((byte) '\n'), "RawValue should end with a new-line");
 		}
 
 		[Test]
@@ -577,6 +593,56 @@ namespace UnitTests {
 			options.International = true;
 
 			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderToInternational ()
+		{
+			var mailbox = new MailboxAddress ("點看@名がドメイン", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			TestReformatAddressHeader (options, mailbox);
+		}
+
+		[Test]
+		public void TestReformatAddressHeaderFromInternational ()
+		{
+			var mailbox = new MailboxAddress ("點看@名がドメイン", "example@example.com");
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			// encode the mailbox as international
+			var encoded = EncodeMailbox (options, "From: ", mailbox);
+			var rawValue = Encoding.UTF8.GetBytes (encoded);
+			var header = new Header (ParserOptions.Default, HeaderId.From, "From", rawValue);
+
+			// reformat it as non-international
+			options.International = false;
+			var result = Encoding.UTF8.GetString (Header.ReformatAddressHeader (ParserOptions.Default, options, "From", rawValue));
+			//var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+			var expected = EncodeMailbox (options, "From: ", mailbox);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestReformatInvalidAddressHeader ()
+		{
+			const string expected = "This is an invalid address header\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (expected);
+			var header = new Header (ParserOptions.Default, HeaderId.From, "From", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.That (result, Is.EqualTo (expected));
 		}
 
 		[Test]
