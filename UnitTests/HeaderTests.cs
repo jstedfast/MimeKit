@@ -453,7 +453,11 @@ namespace UnitTests {
 		[Test]
 		public void TestParseInvalidHeader ()
 		{
-			Assert.That (Header.TryParse ("This is invalid", out _), Is.False, "TryParse");
+			const string input = "This is invalid";
+			var raw = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (Header.TryParse (input, out _), Is.False, "TryParse(string)");
+			Assert.That (Header.TryParse (raw, 0, raw.Length, out _), Is.False, "TryParse(byte[])");
 		}
 
 		[Test]
