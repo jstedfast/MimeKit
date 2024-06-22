@@ -801,18 +801,10 @@ namespace MimeKit {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
-
-					if (token.Length + 1 > format.MaxLineLength) {
-						EncodeDkimLongValue (format, ref encoded, ref lineLength, token);
-					} else {
-						lineLength += token.Length;
-						encoded.Append (token);
-					}
-				} else {
-					lineLength += token.Length;
-					encoded.Append (token);
 				}
 
+				lineLength += token.Length;
+				encoded.Append (token);
 				i++;
 			}
 		}

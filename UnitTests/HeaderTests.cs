@@ -218,6 +218,7 @@ namespace UnitTests {
 			" from [127.0.0.1] by [127.0.0.1] id <AA21478> with sendmail (v1.8)" + FormatOptions.Default.NewLine + "\tfor <beatty@cosmos.vlsi.cs.cmu.edu>; Wed, 26 Aug 92 22:14:07 EDT" + FormatOptions.Default.NewLine,
 
 			// Incomplete comments
+			" (incomplete comment" + FormatOptions.Default.NewLine,
 			" from (incomplete comment" + FormatOptions.Default.NewLine,
 			" by (incomplete comment" + FormatOptions.Default.NewLine,
 			" via (incomplete comment" + FormatOptions.Default.NewLine,
