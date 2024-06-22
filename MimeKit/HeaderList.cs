@@ -1224,9 +1224,6 @@ namespace MimeKit {
 
 		internal bool TryGetHeader (string field, out Header header)
 		{
-			if (field is null)
-				throw new ArgumentNullException (nameof (field));
-
 			return table.TryGetValue (field, out header);
 		}
 

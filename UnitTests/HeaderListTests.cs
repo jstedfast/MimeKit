@@ -310,5 +310,61 @@ namespace UnitTests {
 			Assert.That (changedActions[1], Is.EqualTo (HeaderListChangedAction.Removed), "Expected a Removed action for the old header");
 			Assert.That (changedActions[2], Is.EqualTo (HeaderListChangedAction.Added), "Expected an Added action for the new header");
 		}
+
+		[Test]
+		public void TestLoad ()
+		{
+			var headers = new HeaderList {
+				new Header ("From", "Joe Schmoe <joe.schmoe@example.com>"),
+				new Header ("To", "Jane Doe <jane@example.com>"),
+				new Header ("Subject", "Hello, World!"),
+				new Header ("Date", "Wed, 17 Jul 2019 16:00:00 -0400")
+			};
+			var tmp = Path.GetTempFileName ();
+
+			try {
+				using (var stream = File.Create (tmp))
+					headers.WriteTo (stream);
+
+				var loaded = HeaderList.Load (tmp);
+
+				Assert.That (loaded.Count, Is.EqualTo (headers.Count), "Loaded headers count does not match original headers count");
+
+				for (int i = 0; i < headers.Count; i++) {
+					Assert.That (loaded[i].Id, Is.EqualTo (headers[i].Id), "Loaded header id does not match original header id");
+					Assert.That (loaded[i].Value, Is.EqualTo (headers[i].Value), "Loaded header value does not match original header value");
+				}
+			} finally {
+				File.Delete (tmp);
+			}
+		}
+
+		[Test]
+		public async Task TestLoadAsync ()
+		{
+			var headers = new HeaderList {
+				new Header ("From", "Joe Schmoe <joe.schmoe@example.com>"),
+				new Header ("To", "Jane Doe <jane@example.com>"),
+				new Header ("Subject", "Hello, World!"),
+				new Header ("Date", "Wed, 17 Jul 2019 16:00:00 -0400")
+			};
+			var tmp = Path.GetTempFileName ();
+
+			try {
+				using (var stream = File.Create (tmp))
+					await headers.WriteToAsync (stream);
+
+				var loaded = await HeaderList.LoadAsync (tmp);
+
+				Assert.That (loaded.Count, Is.EqualTo (headers.Count), "Loaded headers count does not match original headers count");
+
+				for (int i = 0; i < headers.Count; i++) {
+					Assert.That (loaded[i].Id, Is.EqualTo (headers[i].Id), "Loaded header id does not match original header id");
+					Assert.That (loaded[i].Value, Is.EqualTo (headers[i].Value), "Loaded header value does not match original header value");
+				}
+			} finally {
+				File.Delete (tmp);
+			}
+		}
 	}
 }
