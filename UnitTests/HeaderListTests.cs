@@ -25,6 +25,7 @@
 //
 
 using System.Text;
+using System.Collections;
 
 using MimeKit;
 
@@ -164,6 +165,24 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestGetEnumerator ()
+		{
+			var headers = new HeaderList {
+				new Header ("From", "Joe Schmoe <joe.schmoe@example.com>"),
+				new Header ("To", "Jane Doe <jane@example.com>"),
+				new Header ("Subject", "Hello, World!"),
+				new Header ("Date", "Wed, 17 Jul 2019 16:00:00 -0400")
+			};
+			var copied = new Header[headers.Count];
+			int i = 0;
+
+			headers.CopyTo (copied, 0);
+
+			foreach (Header header in (IEnumerable) headers)
+				Assert.That (header, Is.EqualTo (copied[i++]));
+		}
+
+		[Test]
 		public void TestRemovingHeaders ()
 		{
 			var headers = new HeaderList {
@@ -296,7 +315,8 @@ namespace UnitTests {
 				changedCount++;
 			};
 
-			// setting the same header should not trigger a change eventheaders[index] = subject;
+			// setting the same header should not trigger a change event
+			headers[index] = subject;
 			Assert.That (changedCount, Is.EqualTo (0), "Setting the same header at an index should not raise a Changed event");
 
 			// setting a header with the same field name/id
