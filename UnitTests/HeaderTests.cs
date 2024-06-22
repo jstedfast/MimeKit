@@ -289,6 +289,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestReformatDkimSignature ()
+		{
+			var expected = " v=1; a=rsa-sha256; c=simple/simple;\n\td=maillist.codeproject.com; s=mail; t=1435835767;\n\tbh=tiafHSAvEg4GPJlbkR6e7qr1oydTj+ZXs392TcHwwvs=;\n\th=MIME-Version:From:To:Date:Subject:Content-Type:Content-Transfer-Encoding:\n\tMessage-Id;\n\tb=Qtgo0bWwT0H18CxD2+ey8/382791TBNYtZ8VOLlXxxsbw5fab8uEo53o5tPun6kNx4khmJx/yWo\n\twvrCOAcMoqgNO7Hb7JB8NR7eNyOvtLKCG34AfDZyHNcTZHR/QnBpRKHssu5w2CQDUAjKnuGKRW95L\n\tCMMX3r924dErZOJnGhs=\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (expected);
+			var header = new Header (ParserOptions.Default, HeaderId.DkimSignature, "DKIM-Signature", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestUnstructuredHeaderFolding ()
 		{
 			var header = new Header ("Subject", "This is a subject value that should be long enough to force line wrapping to keep the line length under the 78 character limit.");
@@ -716,6 +733,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestReformatInvalidContentDisposition ()
+		{
+			const string contentDisposition = " @!^($@*$&( @*$&@*#@OE UF Jfdfadsf adfsd\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (contentDisposition);
+			var header = new Header (ParserOptions.Default, HeaderId.ContentDisposition, "Content-Disposition", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.That (result, Is.EqualTo (contentDisposition));
+		}
+
+		[Test]
 		public void TestReformatContentType ()
 		{
 			const string contentType = " text/plain; name*=gb18030''%B2%E2%CA%D4%CE%C4%B1%BE.txt\r\n";
@@ -731,6 +765,23 @@ namespace UnitTests {
 			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
 
 			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestReformatInvalidContentType ()
+		{
+			const string contentType = " @!^($@*$&( @*$&@*#@OE UF Jfdfadsf adfsd\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (contentType);
+			var header = new Header (ParserOptions.Default, HeaderId.ContentType, "Content-Type", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.That (result, Is.EqualTo (contentType));
 		}
 
 		[Test]
@@ -844,7 +895,7 @@ namespace UnitTests {
 		[Test]
 		public void TestEncodeDispositionNotificationOptions ()
 		{
-			const string value = "signed-receipt-protocol=optional,pkcs7-signature;signed-receipt-micalg=optional,sha1,sha128,sha256";
+			const string value = "    signed-receipt-protocol=optional,pkcs7-signature;signed-receipt-micalg=optional,sha1,sha128,sha256";
 			const string expected = " signed-receipt-protocol=optional,pkcs7-signature;\r\n\tsigned-receipt-micalg=optional,sha1,sha128,sha256\r\n";
 			var header = new Header (HeaderId.DispositionNotificationOptions, value);
 
@@ -855,6 +906,23 @@ namespace UnitTests {
 			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
 
 			Assert.That (result, Is.EqualTo (expected.ReplaceLineEndings ()));
+		}
+
+		[Test]
+		public void TestReformatDispositionNotificationOptions ()
+		{
+			const string value = " signed-receipt-protocol=optional,pkcs7-signature;signed-receipt-micalg=optional,sha1,sha128,sha256\r\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.International = true;
+
+			var rawValue = Encoding.UTF8.GetBytes (value);
+			var header = new Header (ParserOptions.Default, HeaderId.DispositionNotificationOptions, "Disposition-Notification-Options", rawValue);
+
+			// reformat it the way it would be reformatted by MimeMessage.WriteTo()
+			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
+
+			Assert.That (result, Is.EqualTo (value));
 		}
 	}
 }
