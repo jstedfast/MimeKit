@@ -301,7 +301,7 @@ namespace MimeKit {
 				if (string.IsNullOrWhiteSpace (value))
 					return null;
 
-				if (!long.TryParse (value, out var size))
+				if (!long.TryParse (value, NumberStyles.None, CultureInfo.InvariantCulture, out var size))
 					return null;
 
 				return size;
