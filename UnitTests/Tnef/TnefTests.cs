@@ -1046,6 +1046,9 @@ namespace UnitTests.Tnef {
 			Assert.That (tnef2, Is.EqualTo (tnef1), "Equal Name");
 
 			Assert.That (tnef1.Equals (new object ()), Is.False, "Equals (object)");
+
+			Assert.That (tnef1 == tnef2, Is.True, "==");
+			Assert.That (tnef1 != tnef2, Is.False, "!=");
 		}
 	}
 }
