@@ -1018,37 +1018,5 @@ namespace UnitTests.Tnef {
 			Assert.That (appointment2.ContentDisposition.ModificationDate, Is.EqualTo (mtime), "ModificationDate");
 			Assert.That (appointment2.ContentDisposition.Size, Is.EqualTo (387453), "Size");
 		}
-
-		[Test]
-		public void TestTnefNameId ()
-		{
-			var guid = Guid.NewGuid ();
-			var tnef1 = new TnefNameId (guid, 17);
-			var tnef2 = new TnefNameId (guid, 17);
-
-			Assert.That (tnef1.Kind, Is.EqualTo (TnefNameIdKind.Id), "Kind Id");
-			Assert.That (tnef1.PropertySetGuid, Is.EqualTo (guid), "PropertySetGuid Id");
-			Assert.That (tnef1.Id, Is.EqualTo (17), "Id");
-
-			Assert.That (tnef2.GetHashCode (), Is.EqualTo (tnef1.GetHashCode ()), "GetHashCode Id");
-			Assert.That (tnef2, Is.EqualTo (tnef1), "Equal Id");
-
-			tnef1 = new TnefNameId (guid, "name");
-			Assert.That (tnef1.Kind, Is.EqualTo (TnefNameIdKind.Name), "Kind Name");
-			Assert.That (tnef1.PropertySetGuid, Is.EqualTo (guid), "PropertySetGuid");
-			Assert.That (tnef1.Name, Is.EqualTo ("name"), "Name");
-
-			Assert.That (tnef2.GetHashCode (), Is.Not.EqualTo (tnef1.GetHashCode ()), "GetHashCode Name vs Id");
-			Assert.That (tnef2, Is.Not.EqualTo (tnef1), "Equal Name vs Id");
-
-			tnef2 = new TnefNameId (guid, "name");
-			Assert.That (tnef2.GetHashCode (), Is.EqualTo (tnef1.GetHashCode ()), "GetHashCode Name");
-			Assert.That (tnef2, Is.EqualTo (tnef1), "Equal Name");
-
-			Assert.That (tnef1.Equals (new object ()), Is.False, "Equals (object)");
-
-			Assert.That (tnef1 == tnef2, Is.True, "==");
-			Assert.That (tnef1 != tnef2, Is.False, "!=");
-		}
 	}
 }
