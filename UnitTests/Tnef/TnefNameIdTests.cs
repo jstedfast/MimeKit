@@ -69,7 +69,7 @@ namespace UnitTests.Tnef {
 
 			Assert.That (tnef2.GetHashCode (), Is.EqualTo (tnef1.GetHashCode ()), "GetHashCode");
 			Assert.That (tnef2, Is.EqualTo (tnef1), "Equals");
-			Assert.That ((object) tnef2, Is.EqualTo ((object) tnef1), "Equals (object)");
+			Assert.That (tnef2.Equals ((object) tnef1), "Equals (object)");
 
 			Assert.That (tnef1 == tnef2, Is.True, "==");
 			Assert.That (tnef1 != tnef2, Is.False, "!=");
@@ -84,7 +84,7 @@ namespace UnitTests.Tnef {
 
 			Assert.That (tnef2.GetHashCode (), Is.EqualTo (tnef1.GetHashCode ()), "GetHashCode");
 			Assert.That (tnef2, Is.EqualTo (tnef1), "Equals");
-			Assert.That ((object) tnef2, Is.EqualTo ((object) tnef1), "Equals (object)");
+			Assert.That (tnef2.Equals ((object) tnef1), "Equals (object)");
 
 			Assert.That (tnef1 == tnef2, Is.True, "==");
 			Assert.That (tnef1 != tnef2, Is.False, "!=");

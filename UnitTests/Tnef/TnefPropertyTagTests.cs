@@ -51,7 +51,7 @@ namespace UnitTests.Tnef {
 
 				Assert.That (tag.GetHashCode (), Is.EqualTo (propertyTag.GetHashCode ()), $"{field.Name}.GetHashCode #1");
 				Assert.That (tag, Is.EqualTo (propertyTag), $"{field.Name}.Equals #1");
-				Assert.That ((object) tag, Is.EqualTo ((object) propertyTag), $"{field.Name}.Equals(object) #1");
+				Assert.That (tag.Equals ((object) propertyTag), $"{field.Name}.Equals(object) #1");
 				Assert.That (tag == propertyTag, Is.True, $"{field.Name} == #1");
 				Assert.That (tag != propertyTag, Is.False, $"{field.Name} != #1");
 
@@ -65,7 +65,7 @@ namespace UnitTests.Tnef {
 
 				Assert.That (tag.GetHashCode (), Is.EqualTo (propertyTag.GetHashCode ()), $"{field.Name}.GetHashCode #2");
 				Assert.That (tag, Is.EqualTo (propertyTag), $"{field.Name}.Equals #2");
-				Assert.That ((object) tag, Is.EqualTo ((object) propertyTag), $"{field.Name}.Equals(object) #2");
+				Assert.That (tag.Equals ((object) propertyTag), $"{field.Name}.Equals(object) #2");
 				Assert.That (tag == propertyTag, Is.True, $"{field.Name} == #2");
 				Assert.That (tag != propertyTag, Is.False, $"{field.Name} != #2");
 
@@ -79,7 +79,7 @@ namespace UnitTests.Tnef {
 
 				Assert.That (tag.GetHashCode (), Is.EqualTo (propertyTag.GetHashCode ()), $"{field.Name}.GetHashCode #3");
 				Assert.That (tag, Is.EqualTo (propertyTag), $"{field.Name}.Equals #3");
-				Assert.That ((object) tag, Is.EqualTo ((object) propertyTag), $"{field.Name}.Equals(object) #3");
+				Assert.That (tag.Equals ((object) propertyTag), $"{field.Name}.Equals(object) #3");
 				Assert.That (tag == propertyTag, Is.True, $"{field.Name} == #3");
 				Assert.That (tag != propertyTag, Is.False, $"{field.Name} != #3");
 			}
