@@ -37,6 +37,7 @@ namespace UnitTests.Tnef {
 		{
 			foreach (var field in typeof (TnefPropertyTag).GetFields (BindingFlags.Public | BindingFlags.Static)) {
 				var propertyTag = (TnefPropertyTag) field.GetValue (null);
+				int tagId = (int) propertyTag;
 
 				Assert.That (propertyTag.IsTnefTypeValid, Is.True, $"{field.Name}.IsTnefTypeValid");
 
@@ -53,7 +54,7 @@ namespace UnitTests.Tnef {
 				Assert.That (tag == propertyTag, Is.True, $"{field.Name} == #1");
 				Assert.That (tag != propertyTag, Is.False, $"{field.Name} != #1");
 
-				tag = new TnefPropertyTag ((int) propertyTag);
+				tag = new TnefPropertyTag (tagId);
 
 				Assert.That (tag.Id, Is.EqualTo (propertyTag.Id), $"{field.Name}.Id #2");
 				Assert.That (tag.TnefType, Is.EqualTo (propertyTag.TnefType), $"{field.Name}.TnefType #2");
@@ -65,7 +66,40 @@ namespace UnitTests.Tnef {
 				Assert.That (tag, Is.EqualTo (propertyTag), $"{field.Name}.Equals #2");
 				Assert.That (tag == propertyTag, Is.True, $"{field.Name} == #2");
 				Assert.That (tag != propertyTag, Is.False, $"{field.Name} != #2");
+
+				tag = (TnefPropertyTag) tagId;
+
+				Assert.That (tag.Id, Is.EqualTo (propertyTag.Id), $"{field.Name}.Id #3");
+				Assert.That (tag.TnefType, Is.EqualTo (propertyTag.TnefType), $"{field.Name}.TnefType #3");
+				Assert.That (tag.IsNamed, Is.EqualTo (propertyTag.IsNamed), $"{field.Name}.IsNamed #3");
+				Assert.That (tag.IsMultiValued, Is.EqualTo (propertyTag.IsMultiValued), $"{field.Name}.IsMultiValued #3");
+				Assert.That (tag.ValueTnefType, Is.EqualTo (propertyTag.ValueTnefType), $"{field.Name}.ValueTnefType #3");
+
+				Assert.That (tag.GetHashCode (), Is.EqualTo (propertyTag.GetHashCode ()), $"{field.Name}.GetHashCode #3");
+				Assert.That (tag, Is.EqualTo (propertyTag), $"{field.Name}.Equals #3");
+				Assert.That (tag == propertyTag, Is.True, $"{field.Name} == #3");
+				Assert.That (tag != propertyTag, Is.False, $"{field.Name} != #3");
 			}
+		}
+
+		[Test]
+		public void TestToString ()
+		{
+			var value = TnefPropertyTag.NicknameA.ToString ();
+
+			Assert.That (value, Is.EqualTo ("Nickname (String8)"));
+
+			value = TnefPropertyTag.NicknameW.ToString ();
+
+			Assert.That (value, Is.EqualTo ("Nickname (Unicode)"));
+		}
+
+		[Test]
+		public void TestToUnicode ()
+		{
+			var unicode = TnefPropertyTag.NicknameA.ToUnicode ();
+
+			Assert.That (unicode, Is.EqualTo (TnefPropertyTag.NicknameW));
 		}
 	}
 }
