@@ -273,6 +273,7 @@ namespace MimeKit {
 			case ContentEncoding.SevenBit:
 			case ContentEncoding.EightBit:
 			case ContentEncoding.Binary:
+			case ContentEncoding.Default:
 				return false;
 			default:
 				return true;
@@ -285,7 +286,8 @@ namespace MimeKit {
 				if (headers[i].Id != HeaderId.ContentTransferEncoding)
 					continue;
 
-				MimeUtils.TryParse (headers[i].Value, out ContentEncoding encoding);
+				if (!MimeUtils.TryParse (headers[i].Value, out ContentEncoding encoding))
+					return false;
 
 				return IsEncoded (encoding);
 			}
