@@ -2266,6 +2266,210 @@ This is the rfc822 message body.
 		}
 
 		[Test]
+		public void TestMessageRfc822WithContentTransferEncoding ()
+		{
+			string text = @"Content-Type: message/rfc822
+Content-Transfer-Encoding: 
+
+From: mimekit@example.com
+To: mimekit@example.com
+Subject: embedded message
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This is the rfc822 message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.That (rfc822.Message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.That (rfc822.Message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822WithContentTransferEncodingAsync ()
+		{
+			string text = @"Content-Type: message/rfc822
+Content-Transfer-Encoding: 
+
+From: mimekit@example.com
+To: mimekit@example.com
+Subject: embedded message
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This is the rfc822 message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.That (rfc822.Message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
+				var rfc822 = (MessagePart) entity;
+
+				Assert.That (rfc822.Message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) rfc822.Message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+		}
+
+		[Test]
+		public void TestMessageRfc822WithContentTransferEncodingBase64 ()
+		{
+			string text = @"Content-Type: message/rfc822
+Content-Transfer-Encoding: base64
+
+RnJvbTogbWltZWtpdEBleGFtcGxlLmNvbQpUbzogbWltZWtpdEBleGFtcGxlLmNvbQpTdWJqZWN0
+OiBlbWJlZGRlZCBtZXNzYWdlCkRhdGU6IFR1ZSwgMTIgTm92IDIwMTMgMDk6MTI6NDIgLTA1MDAK
+TUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PXV0Zi04
+CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
+				var part = (MimePart) entity;
+				MimeMessage message;
+
+				using (var content = part.Content.Open ()) {
+					parser = new MimeParser (content, MimeFormat.Entity);
+					message = parser.ParseMessage ();
+				}
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = parser.ParseEntity ();
+
+				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
+				var part = (MimePart) entity;
+				MimeMessage message;
+
+				using (var content = part.Content.Open ()) {
+					parser = new MimeParser (content, MimeFormat.Entity);
+					message = parser.ParseMessage ();
+				}
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822WithContentTransferEncodingBase64Async ()
+		{
+			string text = @"Content-Type: message/rfc822
+Content-Transfer-Encoding: base64
+
+RnJvbTogbWltZWtpdEBleGFtcGxlLmNvbQpUbzogbWltZWtpdEBleGFtcGxlLmNvbQpTdWJqZWN0
+OiBlbWJlZGRlZCBtZXNzYWdlCkRhdGU6IFR1ZSwgMTIgTm92IDIwMTMgMDk6MTI6NDIgLTA1MDAK
+TUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PXV0Zi04
+CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
+				var part = (MimePart) entity;
+				MimeMessage message;
+
+				using (var content = part.Content.Open ()) {
+					parser = new MimeParser (content, MimeFormat.Entity);
+					message = await parser.ParseMessageAsync ();
+				}
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var entity = await parser.ParseEntityAsync ();
+
+				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
+				var part = (MimePart) entity;
+				MimeMessage message;
+
+				using (var content = part.Content.Open ()) {
+					parser = new MimeParser (content, MimeFormat.Entity);
+					message = await parser.ParseMessageAsync ();
+				}
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+				var body = (TextPart) message.Body;
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+			}
+		}
+
+		[Test]
 		public void TestMimePartBasic ()
 		{
 			string text = @"Content-Type: application/octet-stream; name=rawData.dat
