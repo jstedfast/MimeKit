@@ -178,7 +178,7 @@ namespace MimeKit {
 							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
 						} while (true);
-					} else if (input[inputIndex] == (byte) 'F') {
+					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
 						do {
 							unsafe {

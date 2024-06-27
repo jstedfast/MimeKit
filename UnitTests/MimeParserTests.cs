@@ -2555,6 +2555,80 @@ This is some raw data.
 			}
 		}
 
+		[Test]
+		public void TestGarbageBeforeMessageHeaders ()
+		{
+			string text = @">F!&^#%&^
+From: mimekit@example.com
+To: mimekit@example.com
+Subject: This message has garbage before the headers
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+			}
+		}
+
+		[Test]
+		public void TestGarbageBeforeEntityHeaders ()
+		{
+			string text = @">F!&^#%&^
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseEntity ());
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseEntity ());
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseEntityAsync ());
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseEntityAsync ());
+			}
+		}
+
 		static void AssertSimpleMbox (Stream stream)
 		{
 			var parser = new MimeParser (stream, MimeFormat.Mbox);
