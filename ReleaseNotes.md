@@ -1,5 +1,20 @@
 # Release Notes
 
+## MimeKit 4.7.0 (2024-06-29)
+
+* Bumped BouncyCastle.Cryptography from 2.3.1 to 2.4.0
+* Don't override the parameter encoding with UTF-8 if format.International is true.
+  (issue [#1041](https://github.com/jstedfast/MimeKit/issues/1041))
+* Fixed BouncyCastle S/MIME backend to properly encrypt/decrypt for SubjectKeyIdentifier.
+  (BouncyCastle issue [#532](https://github.com/bcgit/bc-csharp/issues/532))
+* Added support for addresses like "webmaster\@custom-host.com@mail-host.com".
+  (issue [#1043](https://github.com/jstedfast/MimeKit/issues/1043))
+* Improved Content-Type and Content-Disposition parameter serialization in a few cases.
+* Added tests for HeaderList.set_Item[int index] and fixed a bug that was exposed.
+* Fixed ContentDisposition.Size parsing to use InvariantCulture.
+* Fixed parser logic for determining if a message/rfc822 part is encoded.
+  (issue [#1049](https://github.com/jstedfast/MimeKit/issues/1049))
+
 ## MimeKit 4.6.0 (2024-05-17)
 
 * Fixed hex format specifier for PGP keyserver lookup. (issue [#1028](https://github.com/jstedfast/MimeKit/issues/1028))

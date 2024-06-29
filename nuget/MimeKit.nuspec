@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.6.0</version>
+    <version>4.7.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,9 +26,14 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed hex format specifier for PGP keyserver lookup. (issue [#1028](https://github.com/jstedfast/MimeKit/issues/1028))
-* Bumped the BouncyCastle.Cryptography dependency to v2.3.1 to fix some security issues.
-* Fixed a bug in conversion logic between BouncyCastle DSA key parameters and System.Security.Cryptography's DSA implementation.
+* Bumped BouncyCastle.Cryptography from 2.3.1 to 2.4.0
+* Don't override the parameter encoding with UTF-8 if format.International is true. (issue #1041)
+* Fixed BouncyCastle S/MIME backend to properly encrypt/decrypt for SubjectKeyIdentifier. (BouncyCastle issue #532)
+* Added support for addresses like "webmaster\@custom-host.com@mail-host.com". (issue #1043)
+* Improved Content-Type and Content-Disposition parameter serialization in a few cases.
+* Added tests for HeaderList.set_Item[int index] and fixed a bug that was exposed.
+* Fixed ContentDisposition.Size parsing to use InvariantCulture.
+* Fixed parser logic for determining if a message/rfc822 part is encoded. (issue #1049)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
@@ -59,27 +64,27 @@
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net47">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net48">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net6.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net8.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.0" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
@@ -88,7 +93,7 @@
         <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="netstandard2.1">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
@@ -96,7 +101,7 @@
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="System.Buffers" version="4.5.1" />
         <dependency id="System.Memory" version="4.5.5" />
-        <dependency id="BouncyCastle.Cryptography" version="2.3.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
     </dependencies>
   </metadata>
