@@ -1879,10 +1879,7 @@ namespace MimeKit {
 				}
 			}
 
-			if (contentType.IsMimeType ("text", "rfc822-headers"))
-				return true;
-
-			return false;
+			return contentType.IsMimeType ("text", "rfc822-headers");
 		}
 
 		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
