@@ -65,6 +65,7 @@
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('net6')) Or $(TargetFramework.StartsWith('net8')) ">
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.0" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 	
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
