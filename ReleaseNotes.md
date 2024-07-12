@@ -1,5 +1,9 @@
 # Release Notes
 
+## MimeKit 4.7.1 (2024-07-11)
+
+* Bumped System.Formats.Asn1 to v8.0.1 to fix a denial of service security issue.
+
 ## MimeKit 4.7.0 (2024-06-29)
 
 * Bumped BouncyCastle.Cryptography from 2.3.1 to 2.4.0
