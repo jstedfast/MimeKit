@@ -51,7 +51,7 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
-	[TypeConverter(typeof(InternetAddressListTypeConverter))]
+	[TypeConverter (typeof (InternetAddressListConverter))]
 	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>, IComparable<InternetAddressList>
 	{
 		readonly List<InternetAddress> list = new List<InternetAddress> ();

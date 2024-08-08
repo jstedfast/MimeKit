@@ -46,7 +46,7 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
-	[TypeConverter(typeof(InternetAddressTypeConverter))]
+	[TypeConverter (typeof (InternetAddressConverter))]
 	public abstract class InternetAddress : IComparable<InternetAddress>, IEquatable<InternetAddress>
 	{
 		const string AtomSpecials = "()<>@,;:\\\".[]";
