@@ -401,14 +401,14 @@ namespace MimeKit {
 
 		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => ",>;"u8;
 
-		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, out string addrspec, out int at)
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, FormatOptions options, bool throwOnError, out string addrspec, out int at)
 		{
 			int startIndex = index;
 
 			addrspec = null;
 			at = -1;
 
-			if (!TryParseLocalPart (text, ref index, endIndex, compliance, true, throwOnError, out var localpart))
+			if (!TryParseLocalPart (text, ref index, endIndex, options.AddressParserComplianceMode, true, throwOnError, out var localpart))
 				return false;
 
 			if (index >= endIndex || ParseUtils.IsSentinel (text[index], sentinels)) {
@@ -444,7 +444,7 @@ namespace MimeKit {
 			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, sentinels, throwOnError, out var domain))
 				return false;
 
-			if (ParseUtils.IsIdnEncoded (domain))
+			if (options.ConvertPunycodeToIdn && ParseUtils.IsIdnEncoded (domain))
 				domain = MailboxAddress.IdnMapping.Decode (domain);
 
 			addrspec = localpart + "@" + domain;
@@ -522,7 +522,7 @@ namespace MimeKit {
 			// in case the mailbox is within a group address.
 			//
 			// Example: <third@example.net, fourth@example.net>
-			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out string addrspec, out int at))
+			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options, throwOnError, out string addrspec, out int at))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -790,7 +790,7 @@ namespace MimeKit {
 				// rewind back to the beginning of the local-part
 				index = startIndex;
 
-				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out var addrspec, out int at))
+				if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options, throwOnError, out var addrspec, out int at))
 					return false;
 
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);

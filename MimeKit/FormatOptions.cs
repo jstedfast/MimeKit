@@ -83,6 +83,7 @@ namespace MimeKit {
 		bool verifyingSignature;
 		bool ensureNewLine;
 		bool international;
+		bool convertPunycodeToIdn;
 		int maxLineLength;
 
 		/// <summary>
@@ -243,6 +244,15 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get or set whether to convert punycode domains.
+		/// </summary>
+		/// <value><c>true</c> if punycoded domains should be converted to IDN; otherwise, <c>false</c>.</value>
+		public bool ConvertPunycodeToIdn {
+			get { return convertPunycodeToIdn; }
+			set { convertPunycodeToIdn = value; }
+		}
+
+		/// <summary>
 		/// Get or set whether the formatter should allow mixed charsets in the headers.
 		/// </summary>
 		/// <remarks>
@@ -344,6 +354,7 @@ namespace MimeKit {
 			allowMixedHeaderCharsets = false;
 			ensureNewLine = false;
 			international = false;
+			convertPunycodeToIdn = true;
 
 			if (Environment.NewLine.Length == 1)
 				newLineFormat = NewLineFormat.Unix;
@@ -369,7 +380,8 @@ namespace MimeKit {
 				parameterEncodingMethod = parameterEncodingMethod,
 				alwaysQuoteParameterValues = alwaysQuoteParameterValues,
 				verifyingSignature = verifyingSignature,
-				international = international
+				international = international,
+				convertPunycodeToIdn = convertPunycodeToIdn
 			};
 		}
 	}
