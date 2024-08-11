@@ -479,6 +479,17 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseIdnPunycodeAddress ()
+		{
+			const string encoded = "user@xn--v8jxj3d1dzdz08w.com";
+			MailboxAddress mailbox;
+			ParserOptions options = new () { convertPunycodeToIdn = false };
+
+			Assert.That (MailboxAddress.TryParse (options, encoded, out mailbox), Is.True);
+			Assert.That (mailbox.Address, Is.EqualTo (encoded));
+		}
+
+		[Test]
 		public void TestParseAddrspecNoAtDomain ()
 		{
 			const string text = "jeff";
