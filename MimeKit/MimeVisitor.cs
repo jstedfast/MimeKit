@@ -44,6 +44,16 @@ namespace MimeKit {
 	public abstract class MimeVisitor
 	{
 		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeVisitor"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeVisitor"/>.
+		/// </remarks>
+		protected MimeVisitor ()
+		{
+		}
+
+		/// <summary>
 		/// Dispatches the entity to one of the more specialized visit methods in this class.
 		/// </summary>
 		/// <remarks>

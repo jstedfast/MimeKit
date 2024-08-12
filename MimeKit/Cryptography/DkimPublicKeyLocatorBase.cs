@@ -51,6 +51,16 @@ namespace MimeKit.Cryptography {
 	public abstract class DkimPublicKeyLocatorBase : IDkimPublicKeyLocator
 	{
 		/// <summary>
+		/// Initialize a new instance of the <see cref="DkimPublicKeyLocatorBase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DkimPublicKeyLocatorBase"/>.
+		/// </remarks>
+		protected DkimPublicKeyLocatorBase ()
+		{
+		}
+
+		/// <summary>
 		/// Get the public key from a DNS TXT record.
 		/// </summary>
 		/// <remarks>
