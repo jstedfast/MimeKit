@@ -57,7 +57,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <param name="idnMapping">The <see cref="IdnMapping"/> to use for encoding and decoding international domain names.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="idnMapping"/> is <c>null</c>.
+		/// <paramref name="idnMapping"/> is <see langword="null"/>.
 		/// </exception>
 		public Punycode (IdnMapping idnMapping)
 		{

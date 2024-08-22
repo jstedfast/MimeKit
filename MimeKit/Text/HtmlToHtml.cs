@@ -238,9 +238,9 @@ namespace MimeKit.Text {
 		/// <param name="reader">The text reader.</param>
 		/// <param name="writer">The text writer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="reader"/> is <c>null</c>.</para>
+		/// <para><paramref name="reader"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="writer"/> is <c>null</c>.</para>
+		/// <para><paramref name="writer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public override void Convert (TextReader reader, TextWriter writer)
 		{

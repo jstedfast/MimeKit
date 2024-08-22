@@ -76,7 +76,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public Multipart (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -92,9 +92,9 @@ namespace MimeKit {
 		/// <param name="subtype">The multipart media sub-type.</param>
 		/// <param name="args">An array of initialization parameters: headers and MIME entities.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
+		/// <para><paramref name="subtype"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// <para><paramref name="args"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="args"/> contains one or more arguments of an unknown type.
@@ -125,7 +125,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="subtype">The multipart media sub-type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="subtype"/> is <c>null</c>.
+		/// <paramref name="subtype"/> is <see langword="null"/>.
 		/// </exception>
 		public Multipart (string subtype) : base ("multipart", subtype)
 		{
@@ -190,7 +190,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The boundary.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		public string Boundary {
 			get { return ContentType.Boundary; }
@@ -329,7 +329,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -514,9 +514,9 @@ namespace MimeKit {
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -620,9 +620,9 @@ namespace MimeKit {
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -722,7 +722,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="entity">The MIME entity to add.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -785,7 +785,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="entity">The entity to check for.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -810,7 +810,7 @@ namespace MimeKit {
 		/// <param name="array">The array to copy the child entities to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="array"/> is <c>null</c>.
+		/// <paramref name="array"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
@@ -833,7 +833,7 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
 		/// <param name="entity">The MIME entity to remove.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -866,7 +866,7 @@ namespace MimeKit {
 		/// <returns>The index of the specified entity if found; otherwise <c>-1</c>.</returns>
 		/// <param name="entity">The MIME entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -890,7 +890,7 @@ namespace MimeKit {
 		/// <param name="index">The index.</param>
 		/// <param name="entity">The MIME entity.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -943,7 +943,7 @@ namespace MimeKit {
 		/// <value>The entity at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.

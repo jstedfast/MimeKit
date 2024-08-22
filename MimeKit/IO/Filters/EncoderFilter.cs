@@ -68,7 +68,7 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <param name="encoder">A specific encoder for the filter to use.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encoder"/> is <c>null</c>.
+		/// <paramref name="encoder"/> is <see langword="null"/>.
 		/// </exception>
 		public EncoderFilter (IMimeEncoder encoder)
 		{
@@ -113,7 +113,7 @@ namespace MimeKit.IO.Filters {
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public static IMimeFilter Create (string name, int maxLineLength = 78)
 		{

@@ -71,7 +71,7 @@ namespace MimeKit.IO {
 		/// should remain open after the <see cref="ChainedStream"/> is disposed;
 		/// otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (Stream stream, bool leaveOpen = false)
 		{
@@ -253,7 +253,7 @@ namespace MimeKit.IO {
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
@@ -317,7 +317,7 @@ namespace MimeKit.IO {
 		/// <param name="count">The number of bytes to read.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
@@ -385,7 +385,7 @@ namespace MimeKit.IO {
 		/// <param name="offset">The offset of the first byte to write.</param>
 		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
@@ -451,7 +451,7 @@ namespace MimeKit.IO {
 		/// <param name="count">The number of bytes to write.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>

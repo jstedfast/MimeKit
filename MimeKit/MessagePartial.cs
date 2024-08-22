@@ -53,7 +53,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public MessagePartial (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -74,7 +74,7 @@ namespace MimeKit {
 		/// <param name="number">The (1-based) part number for this partial message part.</param>
 		/// <param name="total">The total number of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="id"/> is <c>null</c>.
+		/// <paramref name="id"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="number"/> is less than <c>1</c>.</para>
@@ -162,7 +162,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MessagePartial"/> has been disposed.
@@ -201,7 +201,7 @@ namespace MimeKit {
 		/// <param name="message">The message.</param>
 		/// <param name="maxSize">The maximum size for each message body.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxSize"/> is less than <c>1</c>.
@@ -394,11 +394,11 @@ namespace MimeKit {
 		/// <param name="message">The message that contains the first `message/partial` part.</param>
 		/// <param name="partials">The list of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/>is <c>null</c>.</para>
+		/// <para><paramref name="message"/>is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// <para><paramref name="partials"/>is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para>The last partial does not have a "total" parameter in the Content-Type header.</para>
@@ -474,9 +474,9 @@ namespace MimeKit {
 		/// <param name="message">The message that contains the first `message/partial` part.</param>
 		/// <param name="partials">The list of partial message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="message"/>is <c>null</c></para>.
+		/// <para><paramref name="message"/>is <see langword="null"/></para>.
 		/// <para>-or-</para>
-		/// <para><paramref name="partials"/>is <c>null</c>.</para>
+		/// <para><paramref name="partials"/>is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para>The last partial does not have a "total" parameter in the Content-Type header.</para>

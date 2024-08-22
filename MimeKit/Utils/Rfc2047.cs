@@ -776,9 +776,9 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -813,7 +813,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="phrase"/> is <c>null</c>.
+		/// <paramref name="phrase"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -834,9 +834,9 @@ namespace MimeKit.Utils {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="phrase">The phrase to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static string DecodePhrase (ParserOptions options, byte[] phrase)
 		{
@@ -858,7 +858,7 @@ namespace MimeKit.Utils {
 		/// <returns>The decoded phrase.</returns>
 		/// <param name="phrase">The phrase to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="phrase"/> is <c>null</c>.
+		/// <paramref name="phrase"/> is <see langword="null"/>.
 		/// </exception>
 		public static string DecodePhrase (byte[] phrase)
 		{
@@ -907,9 +907,9 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -944,7 +944,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index.</param>
 		/// <param name="count">The number of bytes to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -965,9 +965,9 @@ namespace MimeKit.Utils {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static string DecodeText (ParserOptions options, byte[] text)
 		{
@@ -989,7 +989,7 @@ namespace MimeKit.Utils {
 		/// <returns>The decoded text.</returns>
 		/// <param name="text">The text to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static string DecodeText (byte[] text)
 		{
@@ -1692,11 +1692,11 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the phrase to encode.</param>
 		/// <param name="count">The number of characters to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -1721,11 +1721,11 @@ namespace MimeKit.Utils {
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		internal static string EncodePhraseAsString (FormatOptions options, Encoding charset, string phrase)
 		{
@@ -1748,11 +1748,11 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the phrase to encode.</param>
 		/// <param name="count">The number of characters to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -1778,9 +1778,9 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the phrase to encode.</param>
 		/// <param name="count">The number of characters to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -1803,11 +1803,11 @@ namespace MimeKit.Utils {
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static byte[] EncodePhrase (FormatOptions options, Encoding charset, string phrase)
 		{
@@ -1827,9 +1827,9 @@ namespace MimeKit.Utils {
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="phrase">The phrase to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="phrase"/> is <c>null</c>.</para>
+		/// <para><paramref name="phrase"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static byte[] EncodePhrase (Encoding charset, string phrase)
 		{
@@ -1850,11 +1850,11 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the phrase to encode.</param>
 		/// <param name="count">The number of characters to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -1880,9 +1880,9 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the phrase to encode.</param>
 		/// <param name="count">The number of characters to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -1905,11 +1905,11 @@ namespace MimeKit.Utils {
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static byte[] EncodeText (FormatOptions options, Encoding charset, string text)
 		{
@@ -1929,9 +1929,9 @@ namespace MimeKit.Utils {
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static byte[] EncodeText (Encoding charset, string text)
 		{

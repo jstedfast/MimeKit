@@ -233,9 +233,9 @@ namespace MimeKit {
 		/// <see cref="MessagePart"/>, or one of their derivatives.
 		/// </remarks>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mimeType"/> is <c>null</c>.</para>
+		/// <para><paramref name="mimeType"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="type"/> is <c>null</c>.</para>
+		/// <para><paramref name="type"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="type"/> is not a subclass of <see cref="Multipart"/>,

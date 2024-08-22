@@ -97,9 +97,9 @@ namespace MimeKit.Text {
 		/// <param name="value">The attribute value to encode.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="quote"/> is not a valid quote character.
@@ -170,7 +170,7 @@ namespace MimeKit.Text {
 		/// <param name="value">The attribute value to encode.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="quote"/> is not a valid quote character.
@@ -198,9 +198,9 @@ namespace MimeKit.Text {
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -241,7 +241,7 @@ namespace MimeKit.Text {
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -279,9 +279,9 @@ namespace MimeKit.Text {
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -322,7 +322,7 @@ namespace MimeKit.Text {
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -358,9 +358,9 @@ namespace MimeKit.Text {
 		/// <param name="value">The attribute value to encode.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="quote"/> is not a valid quote character.
@@ -389,7 +389,7 @@ namespace MimeKit.Text {
 		/// <param name="value">The attribute value to encode.</param>
 		/// <param name="quote">The character to use for quoting the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="quote"/> is not a valid quote character.
@@ -433,9 +433,9 @@ namespace MimeKit.Text {
 		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
 		/// <param name="data">The character data to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static void HtmlEncode (TextWriter output, ReadOnlySpan<char> data)
 		{
@@ -495,7 +495,7 @@ namespace MimeKit.Text {
 		/// <returns>The encoded character data.</returns>
 		/// <param name="data">The character data to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		public static string HtmlEncode (ReadOnlySpan<char> data)
 		{
@@ -516,9 +516,9 @@ namespace MimeKit.Text {
 		/// <param name="startIndex">The starting index of the character data.</param>
 		/// <param name="count">The number of characters in the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -552,7 +552,7 @@ namespace MimeKit.Text {
 		/// <param name="startIndex">The starting index of the character data.</param>
 		/// <param name="count">The number of characters in the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -583,9 +583,9 @@ namespace MimeKit.Text {
 		/// <param name="startIndex">The starting index of the character data.</param>
 		/// <param name="count">The number of characters in the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -619,7 +619,7 @@ namespace MimeKit.Text {
 		/// <param name="startIndex">The starting index of the character data.</param>
 		/// <param name="count">The number of characters in the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -648,9 +648,9 @@ namespace MimeKit.Text {
 		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
 		/// <param name="data">The character data to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static void HtmlEncode (TextWriter output, string data)
 		{
@@ -672,7 +672,7 @@ namespace MimeKit.Text {
 		/// <returns>The encoded character data.</returns>
 		/// <param name="data">The character data to encode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		public static string HtmlEncode (string data)
 		{
@@ -693,9 +693,9 @@ namespace MimeKit.Text {
 		/// <param name="startIndex">The starting index of the character data.</param>
 		/// <param name="count">The number of characters in the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -741,9 +741,9 @@ namespace MimeKit.Text {
 		/// <param name="output">The <see cref="System.IO.TextWriter"/> to output the result.</param>
 		/// <param name="data">The character data to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="output"/> is <c>null</c>.</para>
+		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static void HtmlDecode (TextWriter output, string data)
 		{
@@ -767,7 +767,7 @@ namespace MimeKit.Text {
 		/// <param name="startIndex">The starting index of the character data.</param>
 		/// <param name="count">The number of characters in the data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="startIndex"/> and <paramref name="count"/> do not specify
@@ -799,7 +799,7 @@ namespace MimeKit.Text {
 		/// <returns>The decoded character data.</returns>
 		/// <param name="data">The character data to decode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		public static string HtmlDecode (string data)
 		{

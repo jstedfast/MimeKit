@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <c>null</c>.
+		/// <paramref name="info"/> is <see langword="null"/>.
 		/// </exception>
 		[Obsolete ("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
 		protected PrivateKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The mailbox that could not be resolved to a valid private key.</param>
 		/// <param name="message">A message explaining the error.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		public PrivateKeyNotFoundException (MailboxAddress mailbox, string message) : base (message)
 		{
@@ -90,7 +90,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
 		/// <param name="message">A message explaining the error.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyid"/> is <c>null</c>.
+		/// <paramref name="keyid"/> is <see langword="null"/>.
 		/// </exception>
 		public PrivateKeyNotFoundException (string keyid, string message) : base (message)
 		{
@@ -109,7 +109,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keyid">The key id that could not be resolved to a valid certificate.</param>
 		/// <param name="message">A message explaining the error.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyid"/> is <c>null</c>.
+		/// <paramref name="keyid"/> is <see langword="null"/>.
 		/// </exception>
 		public PrivateKeyNotFoundException (long keyid, string message) : base (message)
 		{
@@ -128,7 +128,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The streaming context.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <c>null</c>.
+		/// <paramref name="info"/> is <see langword="null"/>.
 		/// </exception>
 		[SecurityCritical]
 #if NET8_0_OR_GREATER

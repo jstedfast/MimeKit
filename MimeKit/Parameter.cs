@@ -54,9 +54,9 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> contains illegal characters.
@@ -91,11 +91,11 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> contains illegal characters.
@@ -134,11 +134,11 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> contains illegal characters.
@@ -269,7 +269,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The parameter value.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		public string Value {
 			get { return text; }

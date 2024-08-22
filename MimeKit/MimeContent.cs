@@ -59,7 +59,7 @@ namespace MimeKit {
 		/// <param name="stream">The content stream.</param>
 		/// <param name="encoding">The stream encoding.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="stream"/> does not support reading.</para>
@@ -172,7 +172,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeContent"/> has been disposed.
@@ -243,7 +243,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeContent"/> has been disposed.
@@ -302,7 +302,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeContent"/> has been disposed.
@@ -342,7 +342,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeContent"/> has been disposed.

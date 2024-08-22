@@ -43,7 +43,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="message">The message that was parsed.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <see langword="null"/>.
 		/// </exception>
 		public MimeMessageEndEventArgs (MimeMessage message) : base (message)
 		{
@@ -58,9 +58,9 @@ namespace MimeKit {
 		/// <param name="message">The message that was parsed.</param>
 		/// <param name="parent">The parent message part.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="parent"/> is <c>null</c>.</para>
+		/// <para><paramref name="parent"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public MimeMessageEndEventArgs (MimeMessage message, MessagePart parent) : base (message, parent)
 		{

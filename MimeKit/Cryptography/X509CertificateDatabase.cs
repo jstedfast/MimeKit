@@ -69,9 +69,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="connection">The database connection.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para><paramref name="connection"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected X509CertificateDatabase (DbConnection connection, string password) : this (connection, password, new SecureRandom ())
 		{
@@ -87,11 +87,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <param name="random">The secure pseudo-random number generator.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para><paramref name="connection"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// <para><paramref name="random"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected X509CertificateDatabase (DbConnection connection, string password, SecureRandom random)
 		{
@@ -627,11 +627,11 @@ namespace MimeKit.Cryptography {
 		/// Searches the database for the specified certificate, returning the matching
 		/// record with the desired fields populated.
 		/// </remarks>
-		/// <returns>The matching record if found; otherwise <c>null</c>.</returns>
+		/// <returns>The matching record if found; otherwise <see langword="null"/>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
@@ -660,7 +660,7 @@ namespace MimeKit.Cryptography {
 		/// matching certificates.
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
-		/// <param name="selector">The match selector or <c>null</c> to return all certificates.</param>
+		/// <param name="selector">The match selector or <see langword="null"/> to return all certificates.</param>
 		public IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate> selector)
 		{
 			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
@@ -687,7 +687,7 @@ namespace MimeKit.Cryptography {
 		/// private keys for each matching record.
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
-		/// <param name="selector">The match selector or <c>null</c> to return all private keys.</param>
+		/// <param name="selector">The match selector or <see langword="null"/> to return all private keys.</param>
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (ISelector<X509Certificate> selector)
 		{
 			using (var command = GetSelectCommand (connection, selector, false, true, PrivateKeyFields)) {
@@ -721,7 +721,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
@@ -750,7 +750,7 @@ namespace MimeKit.Cryptography {
 		/// of the matching records populated with the desired fields.
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
-		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
+		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
 		public IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
@@ -780,7 +780,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="record">The certificate record.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <c>null</c>.
+		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (X509CertificateRecord record)
 		{
@@ -799,7 +799,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="record">The certificate record.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <c>null</c>.
+		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
 		public void Remove (X509CertificateRecord record)
 		{
@@ -819,7 +819,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <c>null</c>.
+		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
 		public void Update (X509CertificateRecord record, X509CertificateRecordFields fields)
 		{
@@ -841,7 +841,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="issuer"/> is <c>null</c>.
+		/// <paramref name="issuer"/> is <see langword="null"/>.
 		/// </exception>
 		public IEnumerable<X509CrlRecord> Find (X509Name issuer, X509CrlRecordFields fields)
 		{
@@ -869,11 +869,11 @@ namespace MimeKit.Cryptography {
 		/// Searches the database for the specified CRL, returning the matching record with
 		/// the desired fields populated.
 		/// </remarks>
-		/// <returns>The matching record if found; otherwise <c>null</c>.</returns>
+		/// <returns>The matching record if found; otherwise <see langword="null"/>.</returns>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
+		/// <paramref name="crl"/> is <see langword="null"/>.
 		/// </exception>
 		public X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields)
 		{
@@ -902,7 +902,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <c>null</c>.
+		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (X509CrlRecord record)
 		{
@@ -921,7 +921,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <c>null</c>.
+		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
 		public void Remove (X509CrlRecord record)
 		{
@@ -940,7 +940,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="record">The CRL record.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <c>null</c>.
+		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
 		public void Update (X509CrlRecord record)
 		{

@@ -526,7 +526,7 @@ namespace MimeKit.Utils {
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -567,7 +567,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is not within the range of the byte array.
@@ -593,7 +593,7 @@ namespace MimeKit.Utils {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out DateTimeOffset date)
 		{
@@ -613,7 +613,7 @@ namespace MimeKit.Utils {
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (string text, out DateTimeOffset date)
 		{

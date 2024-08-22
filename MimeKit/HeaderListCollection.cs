@@ -83,7 +83,7 @@ namespace MimeKit {
 		/// <value>The group of headers at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -119,7 +119,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="group">The group of headers.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="group"/> is <c>null</c>.
+		/// <paramref name="group"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (HeaderList group)
 		{
@@ -156,7 +156,7 @@ namespace MimeKit {
 		/// otherwise, <value>false</value>.</returns>
 		/// <param name="group">The group of headers.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="group"/> is <c>null</c>.
+		/// <paramref name="group"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (HeaderList group)
 		{
@@ -176,7 +176,7 @@ namespace MimeKit {
 		/// <param name="array">The array to copy the headers to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="array"/> is <c>null</c>.
+		/// <paramref name="array"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
@@ -196,7 +196,7 @@ namespace MimeKit {
 		/// otherwise <c>false</c>.</returns>
 		/// <param name="group">The group of headers.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="group"/> is <c>null</c>.
+		/// <paramref name="group"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Remove (HeaderList group)
 		{

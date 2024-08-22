@@ -51,7 +51,7 @@ namespace MimeKit.Cryptography {
 		/// Searches the database for the specified certificate, returning the matching
 		/// record with the desired fields populated.
 		/// </remarks>
-		/// <returns>The matching record if found; otherwise <c>null</c>.</returns>
+		/// <returns>The matching record if found; otherwise <see langword="null"/>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The desired fields.</param>
 		X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields);
@@ -64,7 +64,7 @@ namespace MimeKit.Cryptography {
 		/// matching certificates.
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
-		/// <param name="selector">The match selector or <c>null</c> to return all certificates.</param>
+		/// <param name="selector">The match selector or <see langword="null"/> to return all certificates.</param>
 		IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate> selector);
 
 		/// <summary>
@@ -75,7 +75,7 @@ namespace MimeKit.Cryptography {
 		/// private keys for each matching record.
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
-		/// <param name="selector">The match selector or <c>null</c> to return all private keys.</param>
+		/// <param name="selector">The match selector or <see langword="null"/> to return all private keys.</param>
 		IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (ISelector<X509Certificate> selector);
 
 		/// <summary>
@@ -101,7 +101,7 @@ namespace MimeKit.Cryptography {
 		/// of the matching records populated with the desired fields.
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
-		/// <param name="selector">The match selector or <c>null</c> to match all certificates.</param>
+		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
 		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
 		IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields);
@@ -153,7 +153,7 @@ namespace MimeKit.Cryptography {
 		/// Searches the database for the specified CRL, returning the matching record with
 		/// the desired fields populated.
 		/// </remarks>
-		/// <returns>The matching record if found; otherwise <c>null</c>.</returns>
+		/// <returns>The matching record if found; otherwise <see langword="null"/>.</returns>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="fields">The desired fields.</param>
 		X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields);

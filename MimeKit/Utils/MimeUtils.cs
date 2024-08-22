@@ -81,7 +81,7 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		/// <param name="domain">A domain to use.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="domain"/> is <c>null</c>.
+		/// <paramref name="domain"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="domain"/> is invalid.
@@ -165,7 +165,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -207,7 +207,7 @@ namespace MimeKit.Utils {
 		/// <returns>The references.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (string text)
 		{
@@ -230,7 +230,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -257,7 +257,7 @@ namespace MimeKit.Utils {
 		/// <returns>The addr-spec portion of the msg-id token.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static string ParseMessageId (string text)
 		{
@@ -282,7 +282,7 @@ namespace MimeKit.Utils {
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <param name="version">The parsed version.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -337,7 +337,7 @@ namespace MimeKit.Utils {
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (string text, out Version version)
 		{
@@ -364,7 +364,7 @@ namespace MimeKit.Utils {
 		/// <param name="text">The text to parse.</param>
 		/// <param name="encoding">The parsed encoding.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (string text, out ContentEncoding encoding)
 		{
@@ -419,9 +419,9 @@ namespace MimeKit.Utils {
 		/// <param name="builder">The string builder.</param>
 		/// <param name="text">The text to quote.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="builder"/> is <c>null</c>.</para>
+		/// <para><paramref name="builder"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static StringBuilder AppendQuoted (StringBuilder builder, string text)
 		{
@@ -486,7 +486,7 @@ namespace MimeKit.Utils {
 		/// <returns>The quoted text.</returns>
 		/// <param name="text">The text to quote.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static string Quote (ReadOnlySpan<char> text)
 		{
@@ -507,7 +507,7 @@ namespace MimeKit.Utils {
 		/// <returns>The quoted text.</returns>
 		/// <param name="text">The text to quote.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static string Quote (string text)
 		{
@@ -527,7 +527,7 @@ namespace MimeKit.Utils {
 		/// <param name="text">The text to unquote.</param>
 		/// <param name="convertTabsToSpaces"><c>true</c> if tab characters should be converted to a space; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static string Unquote (string text, bool convertTabsToSpaces = false)
 		{

@@ -47,7 +47,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <returns>A message representing the TNEF data in MIME format.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="IMimePart.Content"/> property is <c>null</c>.
+		/// The <see cref="IMimePart.Content"/> property is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITnefPart"/> has been disposed.
@@ -62,7 +62,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <returns>The attachments.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="IMimePart.Content"/> property is <c>null</c>.
+		/// The <see cref="IMimePart.Content"/> property is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITnefPart"/> has been disposed.

@@ -48,7 +48,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public ApplicationPkcs7Signature (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -64,7 +64,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="stream">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="stream"/> does not support reading.</para>
@@ -97,7 +97,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ApplicationPkcs7Signature"/> has been disposed.

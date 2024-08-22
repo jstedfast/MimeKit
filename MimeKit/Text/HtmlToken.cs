@@ -68,7 +68,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public abstract void WriteTo (TextWriter output);
 
@@ -106,7 +106,7 @@ namespace MimeKit.Text {
 		/// <param name="comment">The comment text.</param>
 		/// <param name="bogus"><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="comment"/> is <c>null</c>.
+		/// <paramref name="comment"/> is <see langword="null"/>.
 		/// </exception>
 		public HtmlCommentToken (string comment, bool bogus = false) : base (HtmlTokenKind.Comment)
 		{
@@ -151,7 +151,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public override void WriteTo (TextWriter output)
 		{
@@ -192,7 +192,7 @@ namespace MimeKit.Text {
 		/// <paramref name="kind"/> is not a valid <see cref="HtmlTokenKind"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		protected HtmlDataToken (HtmlTokenKind kind, string data) : base (kind)
 		{
@@ -218,7 +218,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="data">The character data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		public HtmlDataToken (string data) : base (HtmlTokenKind.Data)
 		{
@@ -252,7 +252,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public override void WriteTo (TextWriter output)
 		{
@@ -284,7 +284,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="data">The character data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		public HtmlCDataToken (string data) : base (HtmlTokenKind.CData, data)
 		{
@@ -299,7 +299,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public override void WriteTo (TextWriter output)
 		{
@@ -328,7 +328,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="data">The script data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="data"/> is <c>null</c>.
+		/// <paramref name="data"/> is <see langword="null"/>.
 		/// </exception>
 		public HtmlScriptDataToken (string data) : base (HtmlTokenKind.ScriptData, data)
 		{
@@ -343,7 +343,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public override void WriteTo (TextWriter output)
 		{
@@ -374,9 +374,9 @@ namespace MimeKit.Text {
 		/// <param name="attributes">The attributes.</param>
 		/// <param name="isEmptyElement"><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="attributes"/> is <c>null</c>.</para>
+		/// <para><paramref name="attributes"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public HtmlTagToken (string name, IEnumerable<HtmlAttribute> attributes, bool isEmptyElement) : base (HtmlTokenKind.Tag)
 		{
@@ -400,7 +400,7 @@ namespace MimeKit.Text {
 		/// <param name="name">The name of the tag.</param>
 		/// <param name="isEndTag"><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public HtmlTagToken (string name, bool isEndTag) : base (HtmlTokenKind.Tag)
 		{
@@ -480,7 +480,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public override void WriteTo (TextWriter output)
 		{
@@ -580,7 +580,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the public keyword that was used.
 		/// </remarks>
-		/// <value>The public keyword or <c>null</c> if it wasn't used.</value>
+		/// <value>The public keyword or <see langword="null"/> if it wasn't used.</value>
 		public string PublicKeyword {
 			get; internal set;
 		}
@@ -611,7 +611,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets the system keyword that was used.
 		/// </remarks>
-		/// <value>The system keyword or <c>null</c> if it wasn't used.</value>
+		/// <value>The system keyword or <see langword="null"/> if it wasn't used.</value>
 		public string SystemKeyword {
 			get; internal set;
 		}
@@ -624,7 +624,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public override void WriteTo (TextWriter output)
 		{

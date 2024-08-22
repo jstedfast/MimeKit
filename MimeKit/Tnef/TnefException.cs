@@ -54,7 +54,7 @@ namespace MimeKit.Tnef {
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The stream context.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <c>null</c>.
+		/// <paramref name="info"/> is <see langword="null"/>.
 		/// </exception>
 		[Obsolete ("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
 		protected TnefException (SerializationInfo info, StreamingContext context) : base (info, context)
@@ -102,7 +102,7 @@ namespace MimeKit.Tnef {
 		/// <param name="info">The serialization info.</param>
 		/// <param name="context">The streaming context.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <c>null</c>.
+		/// <paramref name="info"/> is <see langword="null"/>.
 		/// </exception>
 		[SecurityCritical]
 #if NET8_0_OR_GREATER

@@ -151,7 +151,7 @@ namespace MimeKit.Utils
 		/// </remarks>
 		/// <param name="buffer">The buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The size of the <paramref name="buffer"/> does not match <see cref="BufferSize"/>.

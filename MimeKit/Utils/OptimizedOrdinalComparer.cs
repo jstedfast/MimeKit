@@ -73,7 +73,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <returns><c>true</c>if <paramref name="x"/> and <paramref name="y"/> refer to the same object,
 		/// or <paramref name="x"/> and <paramref name="y"/> are equal,
-		/// or <paramref name="x"/> and <paramref name="y"/> are <c>null</c>;
+		/// or <paramref name="x"/> and <paramref name="y"/> are <see langword="null"/>;
 		/// otherwise, <c>false</c>.</returns>
 		/// <param name="x">A string to compare to <paramref name="y"/>.</param>
 		/// <param name="y">A string to compare to <paramref name="x"/>.</param>
@@ -106,7 +106,7 @@ namespace MimeKit.Utils {
 		/// <returns>A 32-bit signed hash code calculated from the value of the <paramref name="obj"/> parameter.</returns>
 		/// <param name="obj">The string.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="obj"/> is <c>null</c>.
+		/// <paramref name="obj"/> is <see langword="null"/>.
 		/// </exception>
 		public int GetHashCode (string obj)
 		{

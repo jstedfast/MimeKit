@@ -57,7 +57,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public CmsRecipient (X509Certificate certificate, SubjectIdentifierType recipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
@@ -87,7 +87,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="stream">The stream containing the recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The specified file does not contain a certificate.
@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="fileName">The file containing the recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -186,7 +186,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The recipient's certificate.</param>
 		/// <param name="recipientIdentifierType">The recipient identifier type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public CmsRecipient (X509Certificate2 certificate, SubjectIdentifierType recipientIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{

@@ -55,7 +55,7 @@ namespace MimeKit.Cryptography {
 		/// </example>
 		/// <param name="publicKeyLocator">The public key locator.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="publicKeyLocator"/> is <c>null</c>.
+		/// <paramref name="publicKeyLocator"/> is <see langword="null"/>.
 		/// </exception>
 		public DkimVerifier (IDkimPublicKeyLocator publicKeyLocator) : base (publicKeyLocator)
 		{
@@ -158,11 +158,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="dkimSignature"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
@@ -193,11 +193,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="dkimSignature"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
@@ -227,9 +227,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="dkimSignature"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.
@@ -259,9 +259,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="dkimSignature"/> is <c>null</c>.</para>
+		/// <para><paramref name="dkimSignature"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="dkimSignature"/> is not a DKIM-Signature header.

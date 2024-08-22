@@ -61,9 +61,9 @@ namespace MimeKit.IO.Filters {
 		/// <param name="sourceEncodingName">Source encoding name.</param>
 		/// <param name="targetEncodingName">Target encoding name.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="sourceEncodingName"/> is <c>null</c>.</para>
+		/// <para><paramref name="sourceEncodingName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="targetEncodingName"/> is <c>null</c>.</para>
+		/// <para><paramref name="targetEncodingName"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <para>The <paramref name="sourceEncodingName"/> is not supported by the system.</para>
@@ -110,9 +110,9 @@ namespace MimeKit.IO.Filters {
 		/// <param name="sourceEncoding">Source encoding.</param>
 		/// <param name="targetEncoding">Target encoding.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="sourceEncoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="sourceEncoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="targetEncoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="targetEncoding"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public CharsetFilter (Encoding sourceEncoding, Encoding targetEncoding)
 		{

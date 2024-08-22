@@ -178,7 +178,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="htmlWriter">The HTML writer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="htmlWriter"/> is <c>null</c>.
+		/// <paramref name="htmlWriter"/> is <see langword="null"/>.
 		/// </exception>
 		public void WriteTag (HtmlWriter htmlWriter)
 		{
@@ -197,7 +197,7 @@ namespace MimeKit.Text {
 		/// <param name="htmlWriter">The HTML writer.</param>
 		/// <param name="writeAttributes"><c>true</c> if the <see cref="Attributes"/> should also be written; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="htmlWriter"/> is <c>null</c>.
+		/// <paramref name="htmlWriter"/> is <see langword="null"/>.
 		/// </exception>
 		public void WriteTag (HtmlWriter htmlWriter, bool writeAttributes)
 		{

@@ -142,7 +142,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
+		/// <paramref name="crl"/> is <see langword="null"/>.
 		/// </exception>
 		public X509CrlRecord (X509Crl crl)
 		{

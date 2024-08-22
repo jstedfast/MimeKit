@@ -100,7 +100,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The input encoding.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		public Encoding InputEncoding {
 			get { return inputEncoding; }
@@ -131,7 +131,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The output encoding.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		public Encoding OutputEncoding {
 			get { return outputEncoding; }
@@ -239,9 +239,9 @@ namespace MimeKit.Text {
 		/// <param name="source">The source stream.</param>
 		/// <param name="destination">The destination stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="source"/> is <c>null</c>.</para>
+		/// <para><paramref name="source"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="destination"/> is <c>null</c>.</para>
+		/// <para><paramref name="destination"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public virtual void Convert (Stream source, Stream destination)
 		{
@@ -269,9 +269,9 @@ namespace MimeKit.Text {
 		/// <param name="source">The source stream.</param>
 		/// <param name="writer">The text writer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="source"/> is <c>null</c>.</para>
+		/// <para><paramref name="source"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="writer"/> is <c>null</c>.</para>
+		/// <para><paramref name="writer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public virtual void Convert (Stream source, TextWriter writer)
 		{
@@ -296,9 +296,9 @@ namespace MimeKit.Text {
 		/// <param name="reader">The text reader.</param>
 		/// <param name="destination">The destination stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="reader"/> is <c>null</c>.</para>
+		/// <para><paramref name="reader"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="destination"/> is <c>null</c>.</para>
+		/// <para><paramref name="destination"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public virtual void Convert (TextReader reader, Stream destination)
 		{
@@ -325,9 +325,9 @@ namespace MimeKit.Text {
 		/// <param name="reader">The text reader.</param>
 		/// <param name="writer">The text writer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="reader"/> is <c>null</c>.</para>
+		/// <para><paramref name="reader"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="writer"/> is <c>null</c>.</para>
+		/// <para><paramref name="writer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public abstract void Convert (TextReader reader, TextWriter writer);
 
@@ -343,7 +343,7 @@ namespace MimeKit.Text {
 		/// <returns>The converted text.</returns>
 		/// <param name="text">The text to convert.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual string Convert (string text)
 		{

@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">An X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public WindowsSecureMimeDigitalCertificate (X509Certificate2 certificate)
 		{

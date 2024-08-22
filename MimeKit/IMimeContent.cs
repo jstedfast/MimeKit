@@ -96,7 +96,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -121,7 +121,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -143,7 +143,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -166,7 +166,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.

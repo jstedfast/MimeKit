@@ -173,7 +173,7 @@ namespace MimeKit {
 		/// <param name="format">The format of the stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public MimeParser (Stream stream, MimeFormat format, bool persistent = false) : this (ParserOptions.Default, stream, format, persistent)
 		{
@@ -195,7 +195,7 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public MimeParser (Stream stream, bool persistent = false) : this (ParserOptions.Default, stream, MimeFormat.Default, persistent)
 		{
@@ -218,9 +218,9 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public MimeParser (ParserOptions options, Stream stream, bool persistent = false) : this (options, stream, MimeFormat.Default, persistent)
 		{
@@ -244,9 +244,9 @@ namespace MimeKit {
 		/// <param name="format">The format of the stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public MimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
 		{
@@ -352,9 +352,9 @@ namespace MimeKit {
 		/// <param name="format">The format of the stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		[Obsolete ("Use SetStream(Stream, MimeFormat) or SetStream(Stream, MimeFormat, bool) instead.")]
 		public void SetStream (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
@@ -384,9 +384,9 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		[Obsolete ("Use SetStream(Stream, MimeFormat) or SetStream(Stream, MimeFormat, bool) instead.")]
 		public void SetStream (ParserOptions options, Stream stream, bool persistent = false)
@@ -411,7 +411,7 @@ namespace MimeKit {
 		/// <param name="format">The format of the stream.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public void SetStream (Stream stream, MimeFormat format, bool persistent)
 		{
@@ -462,7 +462,7 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
@@ -485,7 +485,7 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public void SetStream (Stream stream, bool persistent)
 		{

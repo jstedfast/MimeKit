@@ -124,7 +124,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="gnupgDir">The path to the GnuPG home directory.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="gnupgDir"/> is <c>null</c>.
+		/// <paramref name="gnupgDir"/> is <see langword="null"/>.
 		/// </exception>
 		protected GnuPGContext (string gnupgDir) : base ()
 		{
@@ -236,7 +236,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keyId">The public key identifier.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
+		/// <returns>The public keyring that contains the specified key or <see langword="null"/> if the keyring could not be found.</returns>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled.
 		/// </exception>
@@ -263,7 +263,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keyId">The public key identifier.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns>The public keyring that contains the specified key or <c>null</c> if the keyring could not be found.</returns>
+		/// <returns>The public keyring that contains the specified key or <see langword="null"/> if the keyring could not be found.</returns>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled.
 		/// </exception>
@@ -319,7 +319,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public keys.</returns>
 		/// <param name="mailbox">Mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual IEnumerable<PgpPublicKeyRing> EnumeratePublicKeyRings (MailboxAddress mailbox)
 		{
@@ -343,7 +343,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public keys.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual IEnumerable<PgpPublicKey> EnumeratePublicKeys (MailboxAddress mailbox)
 		{
@@ -396,7 +396,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The secret keys.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual IEnumerable<PgpSecretKeyRing> EnumerateSecretKeyRings (MailboxAddress mailbox)
 		{
@@ -420,7 +420,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public keys.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual IEnumerable<PgpSecretKey> EnumerateSecretKeys (MailboxAddress mailbox)
 		{
@@ -441,7 +441,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public encryption key.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="PublicKeyNotFoundException">
 		/// The public key for the specified <paramref name="mailbox"/> could not be found.
@@ -468,7 +468,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -524,7 +524,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -563,7 +563,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signer"/> is <c>null</c>.
+		/// <paramref name="signer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -597,7 +597,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -743,9 +743,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="algorithm">The symmetric key algorithm to use.</param>
 		/// <param name="random">The source of randomness to use when generating the key pair.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mailbox"/> is <c>null</c>.</para>
+		/// <para><paramref name="mailbox"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="expirationDate"/> is not a date in the future.
@@ -793,9 +793,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="digestAlgo">The digest algorithm.</param>
 		/// <param name="certification">The certification to give the signed key.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="secretKey"/> is <c>null</c>.</para>
+		/// <para><paramref name="secretKey"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="publicKey"/> is <c>null</c>.</para>
+		/// <para><paramref name="publicKey"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public void SignKey (PgpSecretKey secretKey, PgpPublicKey publicKey, DigestAlgorithm digestAlgo = DigestAlgorithm.Sha1, OpenPgpKeyCertification certification = OpenPgpKeyCertification.GenericCertification)
 		{
@@ -1050,7 +1050,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keyring">The public key-ring to import.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyring"/> is <c>null</c>.
+		/// <paramref name="keyring"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the public key-ring.
@@ -1076,7 +1076,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="bundle">The bundle of public keyrings to import.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="bundle"/> is <c>null</c>.
+		/// <paramref name="bundle"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the public key-ring.
@@ -1109,7 +1109,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keyring">The secret key-ring to import.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyring"/> is <c>null</c>.
+		/// <paramref name="keyring"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the secret key-ring.
@@ -1135,7 +1135,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="bundle">The bundle of secret keyrings to import.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="bundle"/> is <c>null</c>.
+		/// <paramref name="bundle"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the secret key-ring bundle.
@@ -1169,7 +1169,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes associated with the public keys to export.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
@@ -1201,7 +1201,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes associated with the public keys to export.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
@@ -1234,9 +1234,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
+		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
@@ -1279,9 +1279,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mailboxes"/> is <c>null</c>.</para>
+		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="mailboxes"/> was empty.
@@ -1320,7 +1320,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keyring">The pgp keyring.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyring"/> is <c>null</c>.
+		/// <paramref name="keyring"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual void Delete (PgpPublicKeyRing keyring)
 		{
@@ -1339,7 +1339,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keyring">The pgp keyring.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="keyring"/> is <c>null</c>.
+		/// <paramref name="keyring"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual void Delete (PgpSecretKeyRing keyring)
 		{

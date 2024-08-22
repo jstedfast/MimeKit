@@ -145,7 +145,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The Bouncy Castle AsymmetricKeyParameter.</returns>
 		/// <param name="key">The key.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
+		/// <paramref name="key"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="key"/> is an unsupported asymmetric algorithm.
@@ -182,7 +182,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The Bouncy Castle AsymmetricCipherKeyPair.</returns>
 		/// <param name="key">The key.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
+		/// <paramref name="key"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is a public key.
@@ -314,7 +314,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The AsymmetricAlgorithm.</returns>
 		/// <param name="key">The AsymmetricKeyParameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
+		/// <paramref name="key"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="key"/> is an unsupported asymmetric key parameter.
@@ -352,7 +352,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The AsymmetricAlgorithm.</returns>
 		/// <param name="key">The AsymmetricCipherKeyPair.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
+		/// <paramref name="key"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="key"/> is an unsupported asymmetric algorithm.

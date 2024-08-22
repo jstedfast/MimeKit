@@ -58,9 +58,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected DkimSignerBase (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
 		{

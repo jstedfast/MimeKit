@@ -159,7 +159,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <param name="header">The ARC header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="header"/> is <c>null</c>.
+		/// <paramref name="header"/> is <see langword="null"/>.
 		/// </exception>
 		internal ArcHeaderValidationResult (Header header)
 		{
@@ -178,7 +178,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="header">The ARC header.</param>
 		/// <param name="signature">The signature validation result.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="header"/> is <c>null</c>.
+		/// <paramref name="header"/> is <see langword="null"/>.
 		/// </exception>
 		public ArcHeaderValidationResult (Header header, ArcSignatureValidationResult signature) : this (header)
 		{
@@ -216,10 +216,10 @@ namespace MimeKit.Cryptography {
 	/// or <a href="Overload_MimeKit_Cryptography_ArcVerifier_VerifyAsync">ArcVerifier.VerifyAsync</a>.</para>
 	/// <para>If no ARC headers are found on the <see cref="MimeMessage"/>, then the <see cref="Chain"/> result will be
 	/// <see cref="ArcSignatureValidationResult.None"/> and both <see cref="MessageSignature"/> and <see cref="Seals"/>
-	/// will be <c>null</c>.</para>
+	/// will be <see langword="null"/>.</para>
 	/// <para>If ARC headers are found on the <see cref="MimeMessage"/> but could not be parsed, then the
 	/// <see cref="Chain"/> result will be <see cref="ArcSignatureValidationResult.Fail"/> and both
-	/// <see cref="MessageSignature"/> and <see cref="Seals"/> will be <c>null</c>.</para>
+	/// <see cref="MessageSignature"/> and <see cref="Seals"/> will be <see langword="null"/>.</para>
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
@@ -253,7 +253,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the validation results for the ARC-Message-Signature header.
 		/// </remarks>
-		/// <value>The validation results for the ARC-Message-Signature header or <c>null</c>
+		/// <value>The validation results for the ARC-Message-Signature header or <see langword="null"/>
 		/// if the ARC-Message-Signature header was not found.</value>
 		public ArcHeaderValidationResult MessageSignature {
 			get; internal set;
@@ -266,7 +266,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the validation results for each of the ARC-Seal headers in
 		/// their instance order.
 		/// </remarks>
-		/// <value>The array of validation results for the ARC-Seal headers or <c>null</c>
+		/// <value>The array of validation results for the ARC-Seal headers or <see langword="null"/>
 		/// if no ARC-Seal headers were found.</value>
 		public ArcHeaderValidationResult[] Seals {
 			get; internal set;
@@ -361,7 +361,7 @@ namespace MimeKit.Cryptography {
 		/// </example>
 		/// <param name="publicKeyLocator">The public key locator.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="publicKeyLocator"/> is <c>null</c>.
+		/// <paramref name="publicKeyLocator"/> is <see langword="null"/>.
 		/// </exception>
 		public ArcVerifier (IDkimPublicKeyLocator publicKeyLocator) : base (publicKeyLocator)
 		{
@@ -730,9 +730,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to verify.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -756,9 +756,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to verify.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -781,7 +781,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to verify.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -804,7 +804,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to verify.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.

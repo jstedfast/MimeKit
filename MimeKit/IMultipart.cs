@@ -61,7 +61,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The boundary.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		string Boundary {
 			get; set;

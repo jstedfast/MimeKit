@@ -259,9 +259,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="key">The private key.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="certificate"/> is <c>null</c>.</para>
+		/// <para><paramref name="certificate"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
@@ -285,7 +285,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public X509CertificateRecord (X509Certificate certificate) : this ()
 		{

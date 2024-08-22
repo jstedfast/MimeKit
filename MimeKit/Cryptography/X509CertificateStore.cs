@@ -79,7 +79,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the private key for the specified certificate, if it exists.
 		/// </remarks>
-		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
+		/// <returns>The private key on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		public AsymmetricKeyParameter GetPrivateKey (X509Certificate certificate)
 		{
@@ -97,7 +97,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (X509Certificate certificate)
 		{
@@ -116,7 +116,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificates">The certificates.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificates"/> is <c>null</c>.
+		/// <paramref name="certificates"/> is <see langword="null"/>.
 		/// </exception>
 		public void AddRange (IEnumerable<X509Certificate> certificates)
 		{
@@ -137,7 +137,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public void Remove (X509Certificate certificate)
 		{
@@ -156,7 +156,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="certificates">The certificates.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificates"/> is <c>null</c>.
+		/// <paramref name="certificates"/> is <see langword="null"/>.
 		/// </exception>
 		public void RemoveRange (IEnumerable<X509Certificate> certificates)
 		{
@@ -177,7 +177,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="stream">The stream to import.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the stream.
@@ -203,7 +203,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="fileName">The name of the file to import.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.FileNotFoundException">
 		/// The specified file could not be found.
@@ -228,7 +228,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="rawData">The raw certificate data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="rawData"/> is <c>null</c>.
+		/// <paramref name="rawData"/> is <see langword="null"/>.
 		/// </exception>
 		public void Import (byte[] rawData)
 		{
@@ -248,9 +248,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="stream">The stream to import.</param>
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the stream.
@@ -296,9 +296,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="fileName">The name of the file to import.</param>
 		/// <param name="password">The password to unlock the file.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -331,9 +331,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="rawData">The raw certificate data.</param>
 		/// <param name="password">The password to unlock the raw data.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="rawData"/> is <c>null</c>.</para>
+		/// <para><paramref name="rawData"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public void Import (byte[] rawData, string password)
 		{
@@ -352,7 +352,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while writing to the stream.
@@ -376,7 +376,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="fileName">The file path to write to.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -412,9 +412,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="password">The password to use to lock the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred while writing to the stream.
@@ -470,9 +470,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="fileName">The file path to write to.</param>
 		/// <param name="password">The password to use to lock the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or

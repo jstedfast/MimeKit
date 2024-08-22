@@ -43,7 +43,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="entity">The entity that was parsed.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		public MimeEntityEndEventArgs (MimeEntity entity) : base (entity)
 		{
@@ -58,9 +58,9 @@ namespace MimeKit {
 		/// <param name="entity">The entity that was parsed.</param>
 		/// <param name="parent">The parent multipart.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="parent"/> is <c>null</c>.</para>
+		/// <para><paramref name="parent"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public MimeEntityEndEventArgs (MimeEntity entity, Multipart parent) : base (entity, parent)
 		{

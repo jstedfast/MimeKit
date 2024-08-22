@@ -50,7 +50,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public ApplicationPkcs7Mime (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="type">The S/MIME type.</param>
 		/// <param name="stream">The content stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="type"/> is not a valid value.
@@ -165,7 +165,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ApplicationPkcs7Mime"/> has been disposed.
@@ -190,7 +190,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
@@ -232,7 +232,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
@@ -336,7 +336,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
@@ -378,7 +378,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
@@ -471,7 +471,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
@@ -513,7 +513,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
@@ -556,7 +556,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The unencapsulated entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".
@@ -656,9 +656,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -686,9 +686,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -715,7 +715,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -746,7 +746,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="entity"/> is <c>null</c>.
+		/// <paramref name="entity"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -778,11 +778,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -827,11 +827,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -875,9 +875,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -911,9 +911,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -948,11 +948,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -1003,11 +1003,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -1057,9 +1057,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -1099,9 +1099,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// Valid certificates could not be found for one or more of the <paramref name="recipients"/>.
@@ -1146,11 +1146,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1199,11 +1199,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1251,9 +1251,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1291,9 +1291,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1333,11 +1333,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1390,11 +1390,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1447,9 +1447,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1492,9 +1492,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1533,13 +1533,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1582,13 +1582,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1631,11 +1631,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1674,11 +1674,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1718,13 +1718,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1773,13 +1773,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1828,11 +1828,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -1877,11 +1877,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.

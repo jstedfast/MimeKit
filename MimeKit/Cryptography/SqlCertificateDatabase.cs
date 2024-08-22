@@ -66,9 +66,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="connection">The database connection.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para><paramref name="connection"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected SqlCertificateDatabase (DbConnection connection, string password) : this (connection, password, new SecureRandom ())
 		{
@@ -84,11 +84,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <param name="random">The secure pseuido-random number generator.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para><paramref name="connection"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="random"/> is <c>null</c>.</para>
+		/// <para><paramref name="random"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected SqlCertificateDatabase (DbConnection connection, string password, SecureRandom random) : base (connection, password, random)
 		{

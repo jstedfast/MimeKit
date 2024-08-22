@@ -56,7 +56,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The bouncy castle certificate.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static X509Certificate AsBouncyCastleCertificate (this X509Certificate2 certificate)
 		{
@@ -82,7 +82,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public key algorithm.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static PublicKeyAlgorithm GetPublicKeyAlgorithm (this X509Certificate2 certificate)
 		{
@@ -134,7 +134,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The encryption algorithms.</returns>
 		/// <param name="certificate">The X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static EncryptionAlgorithm[] GetEncryptionAlgorithms (this X509Certificate2 certificate)
 		{
@@ -164,7 +164,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The asymmetric key parameter.</returns>
 		/// <param name="certificate">The X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static AsymmetricKeyParameter GetPrivateKeyAsAsymmetricKeyParameter (this X509Certificate2 certificate)
 		{

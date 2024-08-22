@@ -57,7 +57,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public TextPart (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -79,9 +79,9 @@ namespace MimeKit {
 		/// <param name="subtype">The media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers, charset encoding and text.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
+		/// <para><paramref name="subtype"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// <para><paramref name="args"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="args"/> contains more than one <see cref="System.Text.Encoding"/>.</para>
@@ -147,7 +147,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="subtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="subtype"/> is <c>null</c>.
+		/// <paramref name="subtype"/> is <see langword="null"/>.
 		/// </exception>
 		public TextPart (string subtype) : base ("text", subtype)
 		{
@@ -383,7 +383,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
@@ -550,7 +550,7 @@ namespace MimeKit {
 		/// set to <see cref="TextEncodingConfidence.Tentative"/>.</para>
 		/// </remarks>
 		/// <returns><c>true</c> if an encoding was detected; otherwise, <c>false</c>.</returns>
-		/// <param name="encoding">The detected encoding; otherwise, <c>null</c>.</param>
+		/// <param name="encoding">The detected encoding; otherwise, <see langword="null"/>.</param>
 		/// <param name="confidence">The confidence in the detected encoding being correct.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
@@ -635,7 +635,7 @@ namespace MimeKit {
 		/// <returns>The decoded text.</returns>
 		/// <param name="encoding">The charset encoding to use.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encoding"/> is <c>null</c>.
+		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
@@ -676,7 +676,7 @@ namespace MimeKit {
 		/// <returns>The decoded text.</returns>
 		/// <param name="charset">The charset encoding to use.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="charset"/> is <c>null</c>.
+		/// <paramref name="charset"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="charset"/> is not supported.
@@ -703,9 +703,9 @@ namespace MimeKit {
 		/// <param name="encoding">The charset encoding.</param>
 		/// <param name="text">The text content.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
@@ -736,9 +736,9 @@ namespace MimeKit {
 		/// <param name="charset">The charset encoding.</param>
 		/// <param name="text">The text content.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// The <paramref name="charset"/> is not supported.

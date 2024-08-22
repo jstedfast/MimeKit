@@ -68,7 +68,7 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <param name="decoder">A specific decoder for the filter to use.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="decoder"/> is <c>null</c>.
+		/// <paramref name="decoder"/> is <see langword="null"/>.
 		/// </exception>
 		public DecoderFilter (IMimeDecoder decoder)
 		{
@@ -105,7 +105,7 @@ namespace MimeKit.IO.Filters {
 		/// <returns>A new decoder filter.</returns>
 		/// <param name="name">The name of the encoding to create a filter for.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public static IMimeFilter Create (string name)
 		{

@@ -49,7 +49,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public MultipartAlternative (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -63,7 +63,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">An array of initialization parameters: headers and MIME entities.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="args"/> contains one or more arguments of an unknown type.
@@ -93,7 +93,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the text of the text/plain alternative, if it exists.
 		/// </remarks>
-		/// <value>The text if a text/plain alternative exists; otherwise, <c>null</c>.</value>
+		/// <value>The text if a text/plain alternative exists; otherwise, <see langword="null"/>.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
@@ -107,7 +107,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the HTML-formatted text of the text/html alternative, if it exists.
 		/// </remarks>
-		/// <value>The HTML if a text/html alternative exists; otherwise, <c>null</c>.</value>
+		/// <value>The HTML if a text/html alternative exists; otherwise, <see langword="null"/>.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
@@ -128,7 +128,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
@@ -163,7 +163,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the text body in the specified format, if it exists.
 		/// </remarks>
-		/// <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.

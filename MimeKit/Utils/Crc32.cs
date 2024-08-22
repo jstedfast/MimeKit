@@ -131,7 +131,7 @@ namespace MimeKit.Utils {
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>

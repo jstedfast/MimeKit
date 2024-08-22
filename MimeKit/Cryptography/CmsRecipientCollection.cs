@@ -85,7 +85,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="recipient"/> is <c>null</c>.
+		/// <paramref name="recipient"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (CmsRecipient recipient)
 		{
@@ -116,7 +116,7 @@ namespace MimeKit.Cryptography {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="recipient"/> is <c>null</c>.
+		/// <paramref name="recipient"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (CmsRecipient recipient)
 		{
@@ -136,7 +136,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="array">The array.</param>
 		/// <param name="arrayIndex">The array index.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="array"/> is <c>null</c>.
+		/// <paramref name="array"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
@@ -161,7 +161,7 @@ namespace MimeKit.Cryptography {
 		/// <returns><value>true</value> if the recipient was removed; otherwise <value>false</value>.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="recipient"/> is <c>null</c>.
+		/// <paramref name="recipient"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Remove (CmsRecipient recipient)
 		{

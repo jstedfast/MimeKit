@@ -48,7 +48,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The multipart is malformed in some way.
@@ -77,7 +77,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The multipart is malformed in some way.

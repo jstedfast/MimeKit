@@ -71,7 +71,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public MimePart (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -88,11 +88,11 @@ namespace MimeKit {
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers and part content.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para><paramref name="mediaType"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// <para><paramref name="mediaSubtype"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// <para><paramref name="args"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="args"/> contains more than one <see cref="IMimeContent"/> or
@@ -145,9 +145,9 @@ namespace MimeKit {
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para><paramref name="mediaType"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// <para><paramref name="mediaSubtype"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public MimePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
@@ -162,7 +162,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="contentType"/> is <c>null</c>.
+		/// <paramref name="contentType"/> is <see langword="null"/>.
 		/// </exception>
 		public MimePart (ContentType contentType) : base (contentType)
 		{
@@ -177,7 +177,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="contentType">The content type.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="contentType"/> is <c>null</c>.
+		/// <paramref name="contentType"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="MimeKit.ParseException">
 		/// <paramref name="contentType"/> could not be parsed.
@@ -462,7 +462,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
@@ -563,7 +563,7 @@ namespace MimeKit {
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="Content"/> is <c>null</c>.
+		/// The <see cref="Content"/> is <see langword="null"/>.
 		/// </exception>
 		public string ComputeContentMd5 ()
 		{
@@ -670,9 +670,9 @@ namespace MimeKit {
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
@@ -762,9 +762,9 @@ namespace MimeKit {
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.

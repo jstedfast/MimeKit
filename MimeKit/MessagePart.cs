@@ -48,7 +48,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public MessagePart (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -63,9 +63,9 @@ namespace MimeKit {
 		/// <param name="subtype">The message subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers and message parts.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="subtype"/> is <c>null</c>.</para>
+		/// <para><paramref name="subtype"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// <para><paramref name="args"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="args"/> contains more than one <see cref="MimeMessage"/>.</para>
@@ -107,9 +107,9 @@ namespace MimeKit {
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="mediaType"/> is <c>null</c>.</para>
+		/// <para><paramref name="mediaType"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="mediaSubtype"/> is <c>null</c>.</para>
+		/// <para><paramref name="mediaSubtype"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected MessagePart (string mediaType, string mediaSubtype) : base (mediaType, mediaSubtype)
 		{
@@ -123,7 +123,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="subtype">The message subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="subtype"/> is <c>null</c>.
+		/// <paramref name="subtype"/> is <see langword="null"/>.
 		/// </exception>
 		public MessagePart (string subtype) : this ("message", subtype)
 		{
@@ -168,7 +168,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MessagePart"/> has been disposed.
@@ -220,9 +220,9 @@ namespace MimeKit {
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MessagePart"/> has been disposed.
@@ -268,9 +268,9 @@ namespace MimeKit {
 		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MessagePart"/> has been disposed.

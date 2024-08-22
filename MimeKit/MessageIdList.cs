@@ -81,7 +81,7 @@ namespace MimeKit {
 		/// <returns>The index of the requested Message-Id; otherwise <value>-1</value>.</returns>
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="messageId"/> is <c>null</c>.
+		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
 		public int IndexOf (string messageId)
 		{
@@ -108,7 +108,7 @@ namespace MimeKit {
 		/// <param name="index">The index to insert the Message-Id.</param>
 		/// <param name="messageId">The Message-Id to insert.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="messageId"/> is <c>null</c>.
+		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -147,7 +147,7 @@ namespace MimeKit {
 		/// <value>The Message-Id at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -178,7 +178,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="messageId"/> is <c>null</c>.
+		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (string messageId)
 		{
@@ -197,7 +197,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="items">The Message-Id items to add.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="items"/> is <c>null</c>.
+		/// <paramref name="items"/> is <see langword="null"/>.
 		/// </exception>
 		public void AddRange (IEnumerable<string> items)
 		{
@@ -232,7 +232,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="messageId"/> is <c>null</c>.
+		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (string messageId)
 		{
@@ -252,7 +252,7 @@ namespace MimeKit {
 		/// <param name="array">The array to copy the Message-Ids to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="array"/> is <c>null</c>.
+		/// <paramref name="array"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
@@ -272,7 +272,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="messageId"/> is <c>null</c>.
+		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Remove (string messageId)
 		{

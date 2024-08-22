@@ -111,7 +111,7 @@ namespace MimeKit {
 		/// <value>The attachment at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -354,11 +354,11 @@ namespace MimeKit {
 		/// <param name="data">The file data.</param>
 		/// <param name="contentType">The mime-type of the file.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -400,11 +400,11 @@ namespace MimeKit {
 		/// <param name="contentType">The mime-type of the file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -451,11 +451,11 @@ namespace MimeKit {
 		/// <param name="contentType">The mime-type of the file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -498,9 +498,9 @@ namespace MimeKit {
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="data">The file data to attach.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="data"/> is <c>null</c>.</para>
+		/// <para><paramref name="data"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -536,9 +536,9 @@ namespace MimeKit {
 		/// <param name="stream">The content stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -579,9 +579,9 @@ namespace MimeKit {
 		/// <param name="stream">The content stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -623,9 +623,9 @@ namespace MimeKit {
 		/// <param name="contentType">The mime-type of the file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -675,9 +675,9 @@ namespace MimeKit {
 		/// <param name="contentType">The mime-type of the file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="contentType"/> is <c>null</c>.</para>
+		/// <para><paramref name="contentType"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
@@ -727,7 +727,7 @@ namespace MimeKit {
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -775,7 +775,7 @@ namespace MimeKit {
 		/// <param name="fileName">The name of the file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -821,7 +821,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="attachment"/> is <c>null</c>.
+		/// <paramref name="attachment"/> is <see langword="null"/>.
 		/// </exception>
 		public void Add (MimeEntity attachment)
 		{
@@ -869,7 +869,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="attachment"/> is <c>null</c>.
+		/// <paramref name="attachment"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (MimeEntity attachment)
 		{
@@ -889,7 +889,7 @@ namespace MimeKit {
 		/// <param name="array">The array to copy the attachments to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="array"/> is <c>null</c>.
+		/// <paramref name="array"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="arrayIndex"/> is out of range.
@@ -914,7 +914,7 @@ namespace MimeKit {
 		/// <returns>The index of the requested attachment; otherwise <value>-1</value>.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="attachment"/> is <c>null</c>.
+		/// <paramref name="attachment"/> is <see langword="null"/>.
 		/// </exception>
 		public int IndexOf (MimeEntity attachment)
 		{
@@ -933,7 +933,7 @@ namespace MimeKit {
 		/// <param name="index">The index to insert the attachment.</param>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="attachment"/> is <c>null</c>.
+		/// <paramref name="attachment"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
@@ -958,7 +958,7 @@ namespace MimeKit {
 		/// <returns><value>true</value> if the attachment was removed; otherwise <value>false</value>.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="attachment"/> is <c>null</c>.
+		/// <paramref name="attachment"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Remove (MimeEntity attachment)
 		{

@@ -52,7 +52,7 @@ namespace MimeKit {
 		/// </example>
 		/// <value>The type of the report.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartReport"/> has been disposed.

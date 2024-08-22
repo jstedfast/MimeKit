@@ -122,7 +122,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signer"/> is <c>null</c>.
+		/// <paramref name="signer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -145,7 +145,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -169,7 +169,7 @@ namespace MimeKit.Cryptography {
 		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
 		/// the mailbox address.</para>
 		/// </remarks>
-		/// <returns>The certificate to use for the recipient; otherwise, or <c>null</c>.</returns>
+		/// <returns>The certificate to use for the recipient; otherwise, or <see langword="null"/>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		protected virtual X509Certificate2 GetRecipientCertificate (MailboxAddress mailbox)
 		{
@@ -245,7 +245,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A <see cref="CmsRecipientCollection"/>.</returns>
 		/// <param name="mailboxes">The recipient mailboxes.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
@@ -314,7 +314,7 @@ namespace MimeKit.Cryptography {
 		/// <see cref="SecureMailboxAddress.Fingerprint"/> property will be used instead of
 		/// the mailbox address.</para>
 		/// </remarks>
-		/// <returns>The certificate to use for the signer; otherwise, or <c>null</c>.</returns>
+		/// <returns>The certificate to use for the signer; otherwise, or <see langword="null"/>.</returns>
 		/// <param name="mailbox">The signer's mailbox address.</param>
 		protected virtual X509Certificate2 GetSignerCertificate (MailboxAddress mailbox)
 		{
@@ -517,9 +517,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -553,9 +553,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -590,9 +590,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="digestAlgo"/> is out of range.
@@ -636,9 +636,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="digestAlgo"/> is out of range.
@@ -681,9 +681,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -717,9 +717,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -754,9 +754,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="digestAlgo"/> is out of range.
@@ -800,9 +800,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="digestAlgo"/> is out of range.
@@ -845,7 +845,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="identifier">The algorithm identifier.</param>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="identifier"/> is <c>null</c>.
+		/// <paramref name="identifier"/> is <see langword="null"/>.
 		/// </exception>
 		internal protected static bool TryGetDigestAlgorithm (Oid identifier, out DigestAlgorithm algorithm)
 		{
@@ -890,9 +890,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="signatureData">The detached signature data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// <para><paramref name="signatureData"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -927,9 +927,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="signatureData">The detached signature data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signatureData"/> is <c>null</c>.</para>
+		/// <para><paramref name="signatureData"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -964,7 +964,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The extracted MIME entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signedData"/> is <c>null</c>.
+		/// <paramref name="signedData"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The extracted content could not be parsed as a MIME entity.
@@ -1008,7 +1008,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signatures">The digital signatures.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signedData"/> is <c>null</c>.
+		/// <paramref name="signedData"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1153,9 +1153,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1188,9 +1188,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1223,9 +1223,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
@@ -1265,9 +1265,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="content">The content.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="recipients"/> is <c>null</c>.</para>
+		/// <para><paramref name="recipients"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="content"/> is <c>null</c>.</para>
+		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
@@ -1341,7 +1341,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// <paramref name="encryptedData"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1364,7 +1364,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="encryptedData">The encrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="encryptedData"/> is <c>null</c>.
+		/// <paramref name="encryptedData"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1414,9 +1414,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="decryptedData">The decrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para><paramref name="encryptedData"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
+		/// <para><paramref name="decryptedData"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1440,9 +1440,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="decryptedData">The decrypted data.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encryptedData"/> is <c>null</c>.</para>
+		/// <para><paramref name="encryptedData"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="decryptedData"/> is <c>null</c>.</para>
+		/// <para><paramref name="decryptedData"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1465,7 +1465,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1493,7 +1493,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1513,7 +1513,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1536,7 +1536,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1568,7 +1568,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
+		/// <paramref name="crl"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1621,9 +1621,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="flags">The storage flags to use when importing the certificate and private key.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1660,9 +1660,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="flags">The storage flags to use when importing the certificate and private key.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1697,9 +1697,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1720,9 +1720,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -1743,7 +1743,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// No mailboxes were specified.
@@ -1800,7 +1800,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailboxes"/> is <c>null</c>.
+		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// No mailboxes were specified.

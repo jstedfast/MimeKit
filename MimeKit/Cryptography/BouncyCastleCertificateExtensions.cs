@@ -57,7 +57,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The X509Certificate2.</returns>
 		/// <param name="certificate">The BouncyCastle certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static X509Certificate2 AsX509Certificate2 (this X509Certificate certificate)
 		{
@@ -82,7 +82,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="identifier">The name identifier.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static string GetIssuerNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
@@ -106,7 +106,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="identifier">The name identifier.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static string GetSubjectNameInfo (this X509Certificate certificate, DerObjectIdentifier identifier)
 		{
@@ -129,7 +129,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The common name.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static string GetCommonName (this X509Certificate certificate)
 		{
@@ -145,7 +145,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The subject name.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static string GetSubjectName (this X509Certificate certificate)
 		{
@@ -163,7 +163,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The subject email address.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static string GetSubjectEmailAddress (this X509Certificate certificate)
 		{
@@ -209,7 +209,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The fingerprint.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static string GetFingerprint (this X509Certificate certificate)
 		{
@@ -236,7 +236,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public key algorithm.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static PublicKeyAlgorithm GetPublicKeyAlgorithm (this X509Certificate certificate)
 		{
@@ -295,7 +295,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The key usage flags.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static X509KeyUsageFlags GetKeyUsageFlags (this X509Certificate certificate)
 		{
@@ -338,7 +338,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The encryption algorithms.</returns>
 		/// <param name="certificate">The X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		public static EncryptionAlgorithm[] GetEncryptionAlgorithms (this X509Certificate certificate)
 		{

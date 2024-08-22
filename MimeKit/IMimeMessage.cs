@@ -275,7 +275,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The subject of the message.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		string Subject {
 			get; set;
@@ -343,7 +343,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The message identifier.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
@@ -363,7 +363,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The Resent-Message-Id.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
@@ -381,7 +381,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The MIME version.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		Version MimeVersion {
 			get; set;
@@ -409,7 +409,7 @@ namespace MimeKit {
 		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
 		/// search order) which is not an attachment.</para>
 		/// </remarks>
-		/// <value>The text body if it exists; otherwise, <c>null</c>.</value>
+		/// <value>The text body if it exists; otherwise, <see langword="null"/>.</value>
 		string TextBody {
 			get;
 		}
@@ -420,7 +420,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
 		/// </remarks>
-		/// <value>The html body if it exists; otherwise, <c>null</c>.</value>
+		/// <value>The html body if it exists; otherwise, <see langword="null"/>.</value>
 		string HtmlBody {
 			get;
 		}
@@ -431,7 +431,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the text body in the specified format, if it exists.
 		/// </remarks>
-		/// <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
 		string GetTextBody (TextFormat format);
 
@@ -473,7 +473,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		void Accept (MimeVisitor visitor);
 
@@ -503,9 +503,9 @@ namespace MimeKit {
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -527,9 +527,9 @@ namespace MimeKit {
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -549,9 +549,9 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -572,9 +572,9 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -594,7 +594,7 @@ namespace MimeKit {
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -615,7 +615,7 @@ namespace MimeKit {
 		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -634,7 +634,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -654,7 +654,7 @@ namespace MimeKit {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -674,9 +674,9 @@ namespace MimeKit {
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -710,9 +710,9 @@ namespace MimeKit {
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -744,7 +744,7 @@ namespace MimeKit {
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -777,7 +777,7 @@ namespace MimeKit {
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="fileName"/> is <c>null</c>.
+		/// <paramref name="fileName"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or

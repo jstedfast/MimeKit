@@ -102,7 +102,7 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public MimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : this (ParserOptions.Default, stream, format)
 		{
@@ -118,9 +118,9 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public MimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default)
 		{
@@ -186,7 +186,7 @@ namespace MimeKit {
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <c>null</c>.
+		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{

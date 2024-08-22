@@ -45,7 +45,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the text of the text/plain alternative, if it exists.
 		/// </remarks>
-		/// <value>The text if a text/plain alternative exists; otherwise, <c>null</c>.</value>
+		/// <value>The text if a text/plain alternative exists; otherwise, <see langword="null"/>.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartAlternative"/> has been disposed.
 		/// </exception>
@@ -59,7 +59,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the HTML-formatted text of the text/html alternative, if it exists.
 		/// </remarks>
-		/// <value>The HTML if a text/html alternative exists; otherwise, <c>null</c>.</value>
+		/// <value>The HTML if a text/html alternative exists; otherwise, <see langword="null"/>.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartAlternative"/> has been disposed.
 		/// </exception>
@@ -73,7 +73,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the text body in the specified format, if it exists.
 		/// </remarks>
-		/// <returns>The text body in the desired format if it exists; otherwise, <c>null</c>.</returns>
+		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartAlternative"/> has been disposed.

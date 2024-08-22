@@ -69,7 +69,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="txt">The DNS TXT record.</param>
 		/// <returns>The public key.</returns>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="txt"/> is <c>null</c>.
+		/// The <paramref name="txt"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// There was an error parsing the DNS TXT record.

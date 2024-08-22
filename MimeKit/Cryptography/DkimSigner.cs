@@ -63,9 +63,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
 		protected DkimSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
 		{
@@ -86,11 +86,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="key"/> is <c>null</c>.</para>
+		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
@@ -124,11 +124,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="fileName"/> is <c>null</c>.</para>
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
@@ -176,11 +176,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The selector subdividing the domain.</param>
 		/// <param name="algorithm">The signature algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="domain"/> is <c>null</c>.</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <c>null</c>.</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The file did not contain a private key.
@@ -341,11 +341,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// <para><paramref name="headers"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
@@ -401,9 +401,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The headers to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// <para><paramref name="headers"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
@@ -429,11 +429,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The list of header fields to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// <para><paramref name="headers"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>
@@ -486,9 +486,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="message">The message to sign.</param>
 		/// <param name="headers">The headers to sign.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="message"/> is <c>null</c>.</para>
+		/// <para><paramref name="message"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="headers"/> is <c>null</c>.</para>
+		/// <para><paramref name="headers"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="headers"/> does not contain the 'From' header.</para>

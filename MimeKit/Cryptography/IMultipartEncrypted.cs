@@ -47,7 +47,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signatures">A list of digital signatures if the data was both signed and encrypted.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>
@@ -83,7 +83,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The OpenPGP cryptography context to use for decrypting.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// <para>The <c>protocol</c> parameter was not specified.</para>

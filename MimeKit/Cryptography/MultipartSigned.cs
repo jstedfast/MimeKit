@@ -51,7 +51,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>This constructor is used by <see cref="MimeParser"/>.</remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="args"/> is <c>null</c>.
+		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
 		public MultipartSigned (MimeEntityConstructorArgs args) : base (args)
 		{
@@ -85,7 +85,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="visitor"/> is <c>null</c>.
+		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartSigned"/> has been disposed.
@@ -224,11 +224,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// The <paramref name="digestAlgo"/> was out of range.
@@ -271,11 +271,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// The <paramref name="digestAlgo"/> was out of range.
@@ -351,11 +351,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
@@ -395,11 +395,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
@@ -438,9 +438,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
@@ -482,9 +482,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="signer"/> cannot be used for signing.
@@ -559,11 +559,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -593,11 +593,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="ctx"/> is <c>null</c>.</para>
+		/// <para><paramref name="ctx"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// <paramref name="entity"/> has been disposed.
@@ -626,9 +626,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for signing could not be found.
@@ -661,9 +661,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The entity to sign.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="signer"/> is <c>null</c>.</para>
+		/// <para><paramref name="signer"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="entity"/> is <c>null</c>.</para>
+		/// <para><paramref name="entity"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// A cryptography context suitable for signing could not be found.
@@ -716,7 +716,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The multipart is malformed in some way.
@@ -786,7 +786,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The cryptography context to use for verifying the signature.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.FormatException">
 		/// The multipart is malformed in some way.

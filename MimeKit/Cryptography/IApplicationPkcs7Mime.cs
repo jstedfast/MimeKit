@@ -58,7 +58,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
@@ -84,7 +84,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decompressing.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "compressed-data".
@@ -154,7 +154,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
@@ -180,7 +180,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to use for decrypting.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "enveloped-data".
@@ -249,7 +249,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
@@ -275,7 +275,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ctx">The S/MIME context to import certificates into.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "certs-only".
@@ -302,7 +302,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="entity">The unencapsulated entity.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="ctx"/> is <c>null</c>.
+		/// <paramref name="ctx"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The "smime-type" parameter on the Content-Type header is not "signed-data".

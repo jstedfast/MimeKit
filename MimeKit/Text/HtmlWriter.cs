@@ -52,9 +52,9 @@ namespace MimeKit.Text {
 		/// <param name="stream">The output stream.</param>
 		/// <param name="encoding">The encoding to use for the output.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public HtmlWriter (Stream stream, Encoding encoding)
 		{
@@ -75,7 +75,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="output">The output text writer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="output"/> is <c>null</c>.
+		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
 		public HtmlWriter (TextWriter output)
 		{
@@ -207,7 +207,7 @@ namespace MimeKit.Text {
 		/// <paramref name="id"/> is not a valid HTML attribute identifier.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="index"/> is less than zero or greater than the length of
@@ -245,9 +245,9 @@ namespace MimeKit.Text {
 		/// <param name="index">The starting index of the attribute value.</param>
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="index"/> is less than zero or greater than the length of
@@ -289,7 +289,7 @@ namespace MimeKit.Text {
 		/// <paramref name="id"/> is not a valid HTML attribute identifier.
 		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attributes.
@@ -322,9 +322,9 @@ namespace MimeKit.Text {
 		/// <param name="name">The attribute name.</param>
 		/// <param name="value">The attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> is an invalid attribute name.
@@ -358,7 +358,7 @@ namespace MimeKit.Text {
 		/// </example>
 		/// <param name="attribute">The attribute.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="attribute"/> is <c>null</c>.
+		/// <paramref name="attribute"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attributes.
@@ -417,7 +417,7 @@ namespace MimeKit.Text {
 		/// </example>
 		/// <param name="name">The attribute name.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> is an invalid attribute name.
@@ -450,7 +450,7 @@ namespace MimeKit.Text {
 		/// <param name="index">The starting index of the attribute value.</param>
 		/// <param name="count">The number of characters in the attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="index"/> is less than zero or greater than the length of
@@ -484,7 +484,7 @@ namespace MimeKit.Text {
 		/// </example>
 		/// <param name="value">The attribute value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
 		/// The <see cref="HtmlWriter"/> is not in a state that allows writing attribute values.
@@ -546,7 +546,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="name">The name of the HTML tag.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> is not a valid HTML tag.
@@ -602,7 +602,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="name">The name of the HTML tag.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> is not a valid HTML tag.
@@ -630,7 +630,7 @@ namespace MimeKit.Text {
 		/// <param name="index">The index of the first character to write.</param>
 		/// <param name="count">The number of characters to write.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="index"/> is less than zero or greater than the length of
@@ -660,7 +660,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="value">The string containing HTML markup.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="HtmlWriter"/> has been disposed.
@@ -714,7 +714,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="name">The name of the HTML tag.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> is not a valid HTML tag.
@@ -743,7 +743,7 @@ namespace MimeKit.Text {
 		/// <param name="index">The index of the first character to write.</param>
 		/// <param name="count">The number of characters to write.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="index"/> is less than zero or greater than the length of
@@ -777,7 +777,7 @@ namespace MimeKit.Text {
 		/// </example>
 		/// <param name="value">The text.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="HtmlWriter"/> has been disposed.
@@ -804,9 +804,9 @@ namespace MimeKit.Text {
 		/// <param name="format">A composit format string.</param>
 		/// <param name="args">An object array that contains zero or more objects to format.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="format"/> is <c>null</c>.</para>
+		/// <para><paramref name="format"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="args"/> is <c>null</c>.</para>
+		/// <para><paramref name="args"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="HtmlWriter"/> has been disposed.
@@ -825,7 +825,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="token">The HTML token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="token"/> is <c>null</c>.
+		/// <paramref name="token"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="HtmlWriter"/> has been disposed.

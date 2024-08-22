@@ -49,7 +49,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="signer">The digest signer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signer"/>is <c>null</c>.
+		/// <paramref name="signer"/>is <see langword="null"/>.
 		/// </exception>
 		public DkimSignatureStream (ISigner signer)
 		{
@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 		/// <returns><c>true</c> if signature is valid; otherwise, <c>false</c>.</returns>
 		/// <param name="signature">The base64 encoded DKIM signature from the <c>b=</c> parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signature"/> is <c>null</c>.
+		/// <paramref name="signature"/> is <see langword="null"/>.
 		/// </exception>
 		public bool VerifySignature (string signature)
 		{
@@ -246,7 +246,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="offset">The offset of the first byte to write.</param>
 		/// <param name="count">The number of bytes to write.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>

@@ -76,7 +76,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="random">A secure pseudo-random number generator.</param>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="random"/> is <c>null</c>.
+		/// <paramref name="random"/> is <see langword="null"/>.
 		/// </exception>
 		public TemporarySecureMimeContext (SecureRandom random) : base (random)
 		{
@@ -92,7 +92,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signer"/> is <c>null</c>.
+		/// <paramref name="signer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -115,7 +115,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="mailbox"/> is <c>null</c>.
+		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -136,7 +136,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the first certificate that matches the specified selector.
 		/// </remarks>
-		/// <returns>The certificate on success; otherwise <c>null</c>.</returns>
+		/// <returns>The certificate on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
 		protected override X509Certificate GetCertificate (ISelector<X509Certificate> selector)
 		{
@@ -157,7 +157,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the private key for the first certificate that matches the specified selector.
 		/// </remarks>
-		/// <returns>The private key on success; otherwise <c>null</c>.</returns>
+		/// <returns>The private key on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
 		protected override AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector)
 		{
@@ -406,9 +406,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -456,9 +456,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="password">The password to unlock the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="stream"/> is <c>null</c>.</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// <para><paramref name="password"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -478,7 +478,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -510,7 +510,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="certificate"/> is <c>null</c>.
+		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.
@@ -535,7 +535,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="crl"/> is <c>null</c>.
+		/// <paramref name="crl"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled via the cancellation token.

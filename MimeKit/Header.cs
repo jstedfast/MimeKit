@@ -69,9 +69,9 @@ namespace MimeKit {
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -108,9 +108,9 @@ namespace MimeKit {
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -148,7 +148,7 @@ namespace MimeKit {
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -184,11 +184,11 @@ namespace MimeKit {
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para><paramref name="field"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="field"/> contains illegal characters.
@@ -224,11 +224,11 @@ namespace MimeKit {
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para><paramref name="field"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="field"/> contains illegal characters.
@@ -265,9 +265,9 @@ namespace MimeKit {
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The value of the header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="field"/> is <c>null</c>.</para>
+		/// <para><paramref name="field"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="field"/> contains illegal characters.
@@ -475,7 +475,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The header value.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		public string Value {
 			get {
@@ -1437,11 +1437,11 @@ namespace MimeKit {
 		/// <param name="encoding">A character encoding.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="format"/> is <c>null</c>.</para>
+		/// <para><paramref name="format"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public void SetValue (FormatOptions format, Encoding encoding, string value)
 		{
@@ -1479,9 +1479,9 @@ namespace MimeKit {
 		/// <param name="encoding">A character encoding.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public void SetValue (Encoding encoding, string value)
 		{
@@ -1500,11 +1500,11 @@ namespace MimeKit {
 		/// <param name="charset">A charset encoding.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="format"/> is <c>null</c>.</para>
+		/// <para><paramref name="format"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="charset"/> is not supported.
@@ -1533,9 +1533,9 @@ namespace MimeKit {
 		/// <param name="charset">A charset encoding.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.NotSupportedException">
 		/// <paramref name="charset"/> is not supported.
@@ -1555,7 +1555,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="value">The raw header value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> does not end with a new-line character.
@@ -1741,9 +1741,9 @@ namespace MimeKit {
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -1773,7 +1773,7 @@ namespace MimeKit {
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -1796,9 +1796,9 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
@@ -1827,7 +1827,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
@@ -1848,9 +1848,9 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out Header header)
 		{
@@ -1867,7 +1867,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out Header header)
 		{
@@ -1885,9 +1885,9 @@ namespace MimeKit {
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out Header header)
 		{
@@ -1912,7 +1912,7 @@ namespace MimeKit {
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (string text, out Header header)
 		{

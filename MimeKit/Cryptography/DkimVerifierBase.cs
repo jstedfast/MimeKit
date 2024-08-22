@@ -56,7 +56,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="publicKeyLocator">The public key locator.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="publicKeyLocator"/> is <c>null</c>.
+		/// <paramref name="publicKeyLocator"/> is <see langword="null"/>.
 		/// </exception>
 		protected DkimVerifierBase (IDkimPublicKeyLocator publicKeyLocator)
 		{

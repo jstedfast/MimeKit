@@ -95,11 +95,11 @@ namespace MimeKit {
 		/// <param name="route">The route of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para><paramref name="route"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -124,9 +124,9 @@ namespace MimeKit {
 		/// <param name="route">The route of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para><paramref name="route"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -146,9 +146,9 @@ namespace MimeKit {
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -172,7 +172,7 @@ namespace MimeKit {
 		/// <param name="name">The name of the mailbox.</param>
 		/// <param name="address">The address of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="address"/> is <c>null</c>.
+		/// <paramref name="address"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
@@ -213,7 +213,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The mailbox address.</value>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="value"/> is <c>null</c>.
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="value"/> is malformed.
@@ -334,7 +334,7 @@ namespace MimeKit {
 		/// <returns>The encoded addrspec token.</returns>
 		/// <param name="addrspec">The addrspec token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="addrspec"/> is <c>null</c>.
+		/// <paramref name="addrspec"/> is <see langword="null"/>.
 		/// </exception>
 		public static string EncodeAddrspec (string addrspec)
 		{
@@ -362,7 +362,7 @@ namespace MimeKit {
 		/// <returns>The decoded addrspec token.</returns>
 		/// <param name="addrspec">The addrspec token.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="addrspec"/> is <c>null</c>.
+		/// <paramref name="addrspec"/> is <see langword="null"/>.
 		/// </exception>
 		public static string DecodeAddrspec (string addrspec)
 		{
@@ -493,7 +493,7 @@ namespace MimeKit {
 		/// <param name="options">The formatting options.</param>
 		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="options"/> is <c>null</c>.
+		/// <paramref name="options"/> is <see langword="null"/>.
 		/// </exception>
 		public override string ToString (FormatOptions options, bool encode)
 		{
@@ -578,9 +578,9 @@ namespace MimeKit {
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -617,7 +617,7 @@ namespace MimeKit {
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -641,9 +641,9 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
@@ -678,7 +678,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
@@ -700,9 +700,9 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out MailboxAddress mailbox)
 		{
@@ -733,7 +733,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (byte[] buffer, out MailboxAddress mailbox)
 		{
@@ -752,7 +752,7 @@ namespace MimeKit {
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (ParserOptions options, string text, out MailboxAddress mailbox)
 		{
@@ -788,7 +788,7 @@ namespace MimeKit {
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public static bool TryParse (string text, out MailboxAddress mailbox)
 		{
@@ -808,9 +808,9 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -848,7 +848,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
@@ -874,9 +874,9 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/>is out of range.
@@ -912,7 +912,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
@@ -936,9 +936,9 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <c>null</c>.</para>
+		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="MimeKit.ParseException">
 		/// <paramref name="buffer"/> could not be parsed.
@@ -970,7 +970,7 @@ namespace MimeKit {
 		/// <returns>The parsed <see cref="MailboxAddress"/>.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="MimeKit.ParseException">
 		/// <paramref name="buffer"/> could not be parsed.
@@ -991,9 +991,9 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <c>null</c>.</para>
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <c>null</c>.</para>
+		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="MimeKit.ParseException">
 		/// <paramref name="text"/> could not be parsed.
@@ -1030,7 +1030,7 @@ namespace MimeKit {
 		/// <returns>The parsed <see cref="MailboxAddress"/>.</returns>
 		/// <param name="text">The text.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="MimeKit.ParseException">
 		/// <paramref name="text"/> could not be parsed.

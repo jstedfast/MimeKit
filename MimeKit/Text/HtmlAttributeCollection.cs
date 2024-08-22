@@ -105,7 +105,7 @@ namespace MimeKit.Text {
 		/// <param name="name">The name of the attribute.</param>
 		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (string name)
 		{
@@ -139,7 +139,7 @@ namespace MimeKit.Text {
 		/// <param name="name">The name of the attribute.</param>
 		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public int IndexOf (string name)
 		{
@@ -176,7 +176,7 @@ namespace MimeKit.Text {
 		/// Gets an attribute from the collection if it exists.
 		/// </remarks>
 		/// <param name="id">The id of the attribute.</param>
-		/// <param name="attribute">The attribute if found; otherwise, <c>null</c>.</param>
+		/// <param name="attribute">The attribute if found; otherwise, <see langword="null"/>.</param>
 		/// <returns><c>true</c> if the desired attribute is found; otherwise, <c>false</c>.</returns>
 		public bool TryGetValue (HtmlAttributeId id, out HtmlAttribute attribute)
 		{
@@ -199,10 +199,10 @@ namespace MimeKit.Text {
 		/// Gets an attribute from the collection if it exists.
 		/// </remarks>
 		/// <param name="name">The name of the attribute.</param>
-		/// <param name="attribute">The attribute if found; otherwise, <c>null</c>.</param>
+		/// <param name="attribute">The attribute if found; otherwise, <see langword="null"/>.</param>
 		/// <returns><c>true</c> if the desired attribute is found; otherwise, <c>false</c>.</returns>
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public bool TryGetValue (string name, out HtmlAttribute attribute)
 		{

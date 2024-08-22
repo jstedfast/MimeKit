@@ -53,7 +53,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="signerInfo">The information about the signer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signerInfo"/> is <c>null</c>.
+		/// <paramref name="signerInfo"/> is <see langword="null"/>.
 		/// </exception>
 		public WindowsSecureMimeDigitalSignature (SignerInfo signerInfo)
 		{

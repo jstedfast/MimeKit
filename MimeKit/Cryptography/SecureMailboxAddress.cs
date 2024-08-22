@@ -55,13 +55,13 @@ namespace MimeKit.Cryptography {
 		/// <param name="address">The address of the mailbox.</param>
 		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para><paramref name="route"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
+		/// <para><paramref name="fingerprint"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public SecureMailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address, string fingerprint) : base (encoding, name, route, address)
 		{
@@ -81,11 +81,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="address">The address of the mailbox.</param>
 		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="route"/> is <c>null</c>.</para>
+		/// <para><paramref name="route"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
+		/// <para><paramref name="fingerprint"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public SecureMailboxAddress (string name, IEnumerable<string> route, string address, string fingerprint) : base (name, route, address)
 		{
@@ -105,11 +105,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="address">The address of the mailbox.</param>
 		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
+		/// <para><paramref name="fingerprint"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public SecureMailboxAddress (Encoding encoding, string name, string address, string fingerprint) : base (encoding, name, address)
 		{
@@ -128,9 +128,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="address">The address of the mailbox.</param>
 		/// <param name="fingerprint">The fingerprint of the certificate belonging to the owner of the mailbox.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="address"/> is <c>null</c>.</para>
+		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="fingerprint"/> is <c>null</c>.</para>
+		/// <para><paramref name="fingerprint"/> is <see langword="null"/>.</para>
 		/// </exception>
 		public SecureMailboxAddress (string name, string address, string fingerprint) : base (name, address)
 		{

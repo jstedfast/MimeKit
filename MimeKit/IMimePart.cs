@@ -207,7 +207,7 @@ namespace MimeKit {
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="Content"/> is <c>null</c>.
+		/// The <see cref="Content"/> is <see langword="null"/>.
 		/// </exception>
 		string ComputeContentMd5 ();
 

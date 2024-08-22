@@ -71,7 +71,7 @@ namespace MimeKit.Text {
 		/// <param name="text">The original text.</param>
 		/// <returns>A string representing a shortened preview of the original text.</returns>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <c>null</c>.
+		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
 		public override string GetPreviewText (string text)
 		{
@@ -116,7 +116,7 @@ namespace MimeKit.Text {
 		/// <param name="reader">The original text stream.</param>
 		/// <returns>A string representing a shortened preview of the original text.</returns>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="reader"/> is <c>null</c>.
+		/// <paramref name="reader"/> is <see langword="null"/>.
 		/// </exception>
 		public override string GetPreviewText (TextReader reader)
 		{

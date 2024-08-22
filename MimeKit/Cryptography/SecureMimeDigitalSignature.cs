@@ -57,7 +57,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="signerInfo">The information about the signer.</param>
 		/// <param name="certificate">The signer's certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="signerInfo"/> is <c>null</c>.
+		/// <paramref name="signerInfo"/> is <see langword="null"/>.
 		/// </exception>
 		public SecureMimeDigitalSignature (SignerInformation signerInfo, X509Certificate certificate)
 		{
@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate chain.
 		/// </summary>
 		/// <remarks>
-		/// If building the certificate chain failed, this value will be <c>null</c> and
+		/// If building the certificate chain failed, this value will be <see langword="null"/> and
 		/// <see cref="ChainException"/> will be set.
 		/// </remarks>
 		/// <value>The certificate chain.</value>

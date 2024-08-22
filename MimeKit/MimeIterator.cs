@@ -72,7 +72,7 @@ namespace MimeKit {
 		/// </example>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <see langword="null"/>.
 		/// </exception>
 		public MimeIterator (MimeMessage message)
 		{
@@ -117,7 +117,7 @@ namespace MimeKit {
 		/// also throws a <see cref="System.InvalidOperationException"/> if the last call to
 		/// <see cref="MoveNext()"/> returned false, which indicates the end of the message.</para>
 		/// <para>If the current entity is the top-level entity of the message, then the parent
-		/// will be <c>null</c>; otherwise the parent will be either be a
+		/// will be <see langword="null"/>; otherwise the parent will be either be a
 		/// <see cref="MessagePart"/> or a <see cref="Multipart"/>.</para>
 		/// </remarks>
 		/// <example>
@@ -364,7 +364,7 @@ namespace MimeKit {
 		/// <returns><c>true</c> if advancing to the specified entity was successful; otherwise, <c>false</c>.</returns>
 		/// <param name="pathSpecifier">The path specifier.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="pathSpecifier"/> is <c>null</c>.
+		/// <paramref name="pathSpecifier"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="pathSpecifier"/> is empty.

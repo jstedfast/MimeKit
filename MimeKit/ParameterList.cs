@@ -67,9 +67,9 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="name"/> contains illegal characters.
@@ -89,11 +89,11 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="encoding"/> is <c>null</c>.</para>
+		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="name"/> contains illegal characters.
@@ -113,11 +113,11 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="charset"/> is <c>null</c>.</para>
+		/// <para><paramref name="charset"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="charset"/> cannot be empty.</para>
@@ -142,7 +142,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (string name)
 		{
@@ -161,7 +161,7 @@ namespace MimeKit {
 		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public int IndexOf (string name)
 		{
@@ -186,9 +186,9 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="name"/> contains illegal characters.
@@ -214,7 +214,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Remove (string name)
 		{
@@ -233,12 +233,12 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets the value of a parameter with the specified name.
 		/// </remarks>
-		/// <value>The value of the specified parameter if it exists; otherwise <c>null</c>.</value>
+		/// <value>The value of the specified parameter if it exists; otherwise <see langword="null"/>.</value>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="name"/> is <c>null</c>.</para>
+		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
-		/// <para><paramref name="value"/> is <c>null</c>.</para>
+		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="name"/> contains illegal characters.
@@ -281,7 +281,7 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public bool TryGetValue (string name, out Parameter param)
 		{
@@ -301,7 +301,7 @@ namespace MimeKit {
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="name"/> is <c>null</c>.
+		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
 		public bool TryGetValue (string name, out string value)
 		{
@@ -350,7 +350,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="param">The parameter to add.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="param"/> is <c>null</c>.
+		/// The <paramref name="param"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// A parameter with the same name as <paramref name="param"/>
@@ -398,7 +398,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="param"/> is <c>null</c>.
+		/// The <paramref name="param"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Contains (Parameter param)
 		{
@@ -432,7 +432,7 @@ namespace MimeKit {
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="param"/> is <c>null</c>.
+		/// The <paramref name="param"/> is <see langword="null"/>.
 		/// </exception>
 		public bool Remove (Parameter param)
 		{
@@ -463,7 +463,7 @@ namespace MimeKit {
 		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="param"/> is <c>null</c>.
+		/// The <paramref name="param"/> is <see langword="null"/>.
 		/// </exception>
 		public int IndexOf (Parameter param)
 		{
@@ -482,7 +482,7 @@ namespace MimeKit {
 		/// <param name="index">The index to insert the parameter.</param>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="param"/> is <c>null</c>.
+		/// The <paramref name="param"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// The <paramref name="index"/> is out of range.
@@ -542,7 +542,7 @@ namespace MimeKit {
 		/// <value>The parameter at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="value"/> is <c>null</c>.
+		/// The <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// The <paramref name="index"/> is out of range.

@@ -226,7 +226,7 @@ namespace MimeKit.Tnef {
 		/// <param name="defaultMessageCodepage">The default message codepage.</param>
 		/// <param name="complianceMode">The compliance mode.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="inputStream"/> is <c>null</c>.
+		/// <paramref name="inputStream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="defaultMessageCodepage"/> is not a valid codepage.
@@ -268,7 +268,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <param name="inputStream">The input stream.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="inputStream"/> is <c>null</c>.
+		/// <paramref name="inputStream"/> is <see langword="null"/>.
 		/// </exception>
 		public TnefReader (Stream inputStream) : this (inputStream, 0, TnefComplianceMode.Loose)
 		{
@@ -660,7 +660,7 @@ namespace MimeKit.Tnef {
 		/// <param name="offset">The offset into the buffer to start reading data.</param>
 		/// <param name="count">The number of bytes to read.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <c>null</c>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
