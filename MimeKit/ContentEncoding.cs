@@ -30,7 +30,7 @@ namespace MimeKit {
 	/// </summary>
 	/// <remarks>
 	/// Some older mail software is unable to properly deal with
-	/// data outside of the ASCII range, so it is sometimes
+	/// data outside the ASCII range, so it is sometimes
 	/// necessary to encode the content of MIME entities.
 	/// </remarks>
 	/// <seealso cref="MimeKit.MimePart.ContentTransferEncoding"/>
@@ -48,7 +48,7 @@ namespace MimeKit {
 
 		/// <summary>
 		/// The 8bit content transfer encoding. This encoding should be restricted to textual content
-		/// outside of the US-ASCII range but may not be supported by all transport services such as
+		/// outside the US-ASCII range but may not be supported by all transport services such as
 		/// older SMTP servers that do not support the 8BITMIME extension.
 		/// </summary>
 		EightBit,
@@ -68,7 +68,7 @@ namespace MimeKit {
 
 		/// <summary>
 		/// The quoted-printable content transfer encoding. This encoding is used for textual content that
-		/// is in a charset that has a minority of characters outside of the US-ASCII range (such as
+		/// is in a charset that has a minority of characters outside the US-ASCII range (such as
 		/// ISO-8859-1 and other single-byte charset encodings) and is supported by all message transport
 		/// services.
 		/// </summary>

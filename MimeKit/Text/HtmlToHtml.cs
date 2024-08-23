@@ -86,10 +86,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the converter should remove HTML comments from the output.
+		/// Get or set whether the converter should remove HTML comments from the output.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the converter should remove HTML comments from the output.
+		/// Gets or sets whether the converter should remove HTML comments from the output.
 		/// </remarks>
 		/// <value><c>true</c> if the converter should remove comments; otherwise, <c>false</c>.</value>
 		public bool FilterComments {
@@ -97,10 +97,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not executable scripts should be stripped from the output.
+		/// Get or set whether executable scripts should be stripped from the output.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not executable scripts should be stripped from the output.
+		/// Gets or sets whether executable scripts should be stripped from the output.
 		/// </remarks>
 		/// <value><c>true</c> if executable scripts should be filtered; otherwise, <c>false</c>.</value>
 		public bool FilterHtml {
@@ -147,11 +147,11 @@ namespace MimeKit.Text {
 
 #if false
 		/// <summary>
-		/// Get or set whether or not the converter should collapse white space,
+		/// Get or set whether the converter should collapse white space,
 		/// balance tags, and fix other problems in the source HTML.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the converter should collapse white space,
+		/// Gets or sets whether the converter should collapse white space,
 		/// balance tags, and fix other problems in the source HTML.
 		/// </remarks>
 		/// <value><c>true</c> if the output html should be normalized; otherwise, <c>false</c>.</value>
@@ -162,10 +162,10 @@ namespace MimeKit.Text {
 
 #if false
 		/// <summary>
-		/// Get or set whether or not the converter should only output an HTML fragment.
+		/// Get or set whether the converter should only output an HTML fragment.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the converter should only output an HTML fragment.
+		/// Gets or sets whether the converter should only output an HTML fragment.
 		/// </remarks>
 		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
 		public bool OutputHtmlFragment {

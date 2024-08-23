@@ -220,7 +220,7 @@ namespace MimeKit.Cryptography {
 		/// Clears the certificate chain.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the certificates from the chain.
+		/// Removes all the certificates from the chain.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -231,7 +231,7 @@ namespace MimeKit.Cryptography {
 		/// Checks if the chain contains the specified certificate.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the certificate chain contains the specified certificate.
+		/// Determines whether the certificate chain contains the specified certificate.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified certificate exists;
 		/// otherwise <value>false</value>.</returns>
@@ -248,10 +248,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Copies all of the certificates in the chain to the specified array.
+		/// Copies all the certificates in the chain to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the certificates within the chain into the array,
+		/// Copies all the certificates within the chain into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the certificates to.</param>

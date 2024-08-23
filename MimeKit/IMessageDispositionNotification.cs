@@ -29,7 +29,7 @@ namespace MimeKit {
 	/// An interface for a message disposition notification MIME part.
 	/// </summary>
 	/// <remarks>
-	/// A message disposition notification MIME part is a machine readable notification
+	/// A message disposition notification MIME part is a machine-readable notification
 	/// denoting the disposition of a message once it has been successfully delivered 
 	/// and has a MIME-type of message/disposition-notification.
 	/// <seealso cref="MimeKit.MultipartReport"/>

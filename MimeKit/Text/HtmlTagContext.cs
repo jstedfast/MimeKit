@@ -68,10 +68,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the end tag should be deleted.
+		/// Get or set whether the end tag should be deleted.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the end tag should be deleted.
+		/// Gets or sets whether the end tag should be deleted.
 		/// </remarks>
 		/// <value><c>true</c> if the end tag should be deleted; otherwise, <c>false</c>.</value>
 		public bool DeleteEndTag {
@@ -79,10 +79,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the tag should be deleted.
+		/// Get or set whether the tag should be deleted.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the tag should be deleted.
+		/// Gets or sets whether the tag should be deleted.
 		/// </remarks>
 		/// <value><c>true</c> if the tag should be deleted; otherwise, <c>false</c>.</value>
 		public bool DeleteTag {
@@ -90,10 +90,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the <see cref="HtmlTagCallback"/> should be invoked for the end tag.
+		/// Get or set whether the <see cref="HtmlTagCallback"/> should be invoked for the end tag.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the <see cref="HtmlTagCallback"/> should be invoked for the end tag.
+		/// Gets or sets whether the <see cref="HtmlTagCallback"/> should be invoked for the end tag.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
@@ -104,10 +104,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get whether or not the tag is an empty element.
+		/// Get whether the tag is an empty element.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not the tag is an empty element.
+		/// Gets whether the tag is an empty element.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
@@ -118,10 +118,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get whether or not the tag is an end tag.
+		/// Get whether the tag is an end tag.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not the tag is an end tag.
+		/// Gets whether the tag is an end tag.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
@@ -132,10 +132,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the inner content of the tag should be suppressed.
+		/// Get or set whether the inner content of the tag should be suppressed.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether or not the inner content of the tag should be suppressed.
+		/// Gets or sets whether the inner content of the tag should be suppressed.
 		/// </remarks>
 		/// <value><c>true</c> if the inner content should be suppressed; otherwise, <c>false</c>.</value>
 		public bool SuppressInnerContent {

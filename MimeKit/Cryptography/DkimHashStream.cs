@@ -116,7 +116,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports reading.
+		/// Checks whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="DkimHashStream"/> is not readable.
@@ -127,7 +127,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports writing.
+		/// Checks whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="DkimHashStream"/> is always writable.
@@ -138,7 +138,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks whether or not the stream supports seeking.
+		/// Checks whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="DkimHashStream"/> is not seekable.
@@ -149,12 +149,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks whether or not reading and writing to the stream can timeout.
+		/// Checks whether reading and writing to the stream can time out.
 		/// </summary>
 		/// <remarks>
 		/// Writing to a <see cref="DkimHashStream"/> cannot timeout.
 		/// </remarks>
-		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if reading and writing to the stream can time out; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}

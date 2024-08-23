@@ -292,10 +292,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Check whether or not a particular mailbox address can be used for signing.
+		/// Check whether a particular mailbox address can be used for signing.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
 		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
 		/// <param name="signer">The signer.</param>
@@ -322,10 +322,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// Check whether the cryptography context can encrypt to a particular recipient.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
 		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
@@ -666,7 +666,7 @@ namespace MimeKit.Cryptography {
 			var delta = crl.IsDelta ();
 
 			// scan over our list of CRLs by the same issuer to check if this CRL obsoletes any
-			// older CRLs or if there are any newer CRLs that obsolete that obsolete this one.
+			// older CRLs or if there are any newer CRLs that obsolete this one.
 			foreach (var record in dbase.Find (crl.IssuerDN, fields)) {
 				if (!record.IsDelta && record.ThisUpdate >= crl.ThisUpdate) {
 					// we have a complete CRL that obsoletes this CRL
@@ -688,7 +688,7 @@ namespace MimeKit.Cryptography {
 		/// Imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <remarks>
-		/// Imports all of the certificates and keys from the pkcs12-encoded stream.
+		/// Imports all the certificates and keys from the pkcs12-encoded stream.
 		/// </remarks>
 		/// <param name="stream">The raw certificate and key data.</param>
 		/// <param name="password">The password to unlock the data.</param>
@@ -758,7 +758,7 @@ namespace MimeKit.Cryptography {
 		/// Asynchronously imports certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports all of the certificates and keys from the pkcs12-encoded stream.
+		/// Asynchronously imports all the certificates and keys from the pkcs12-encoded stream.
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="stream">The raw certificate and key data.</param>

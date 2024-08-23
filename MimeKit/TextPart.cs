@@ -69,7 +69,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="TextPart"/> with the specified subtype.</para>
-		/// <note type="note"><para>Typically the <paramref name="subtype"/> should either be
+		/// <note type="note"><para>Typically, the <paramref name="subtype"/> should either be
 		/// <c>"plain"</c> for plain text content or <c>"html"</c> for HTML content.</para>
 		/// <para>For more options, check the MIME-type registry at
 		/// <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
@@ -138,7 +138,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="TextPart"/> with the specified subtype.</para>
-		/// <note type="note"><para>Typically the <paramref name="subtype"/> should either be
+		/// <note type="note"><para>Typically, the <paramref name="subtype"/> should either be
 		/// <c>"plain"</c> for plain text content or <c>"html"</c> for HTML content.</para>
 		/// <para>For more options, check the MIME-type registry at
 		/// <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
@@ -244,10 +244,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not this text part contains enriched text.
+		/// Get whether this text part contains enriched text.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/enriched</c> or its
+		/// Checks whether the text part's Content-Type is <c>text/enriched</c> or its
 		/// predecessor, <c>text/richtext</c> (not to be confused with <c>text/rtf</c>).
 		/// </remarks>
 		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
@@ -263,10 +263,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not this text part contains flowed text.
+		/// Get whether this text part contains flowed text.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/plain</c> and
+		/// Checks whether the text part's Content-Type is <c>text/plain</c> and
 		/// has a format parameter with a value of <c>flowed</c>.
 		/// </remarks>
 		/// <example>
@@ -288,10 +288,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not this text part contains HTML.
+		/// Get whether this text part contains HTML.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/html</c>.
+		/// Checks whether the text part's Content-Type is <c>text/html</c>.
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
@@ -309,10 +309,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not this text part contains plain text.
+		/// Get whether this text part contains plain text.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/plain</c>.
+		/// Checks whether the text part's Content-Type is <c>text/plain</c>.
 		/// </remarks>
 		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
 		/// <exception cref="System.ObjectDisposedException">
@@ -327,10 +327,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not this text part contains RTF.
+		/// Get whether this text part contains RTF.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the text part's Content-Type is <c>text/rtf</c>.
+		/// Checks whether the text part's Content-Type is <c>text/rtf</c>.
 		/// </remarks>
 		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
 		/// <exception cref="System.ObjectDisposedException">
@@ -399,10 +399,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Determine whether or not the text is in the specified format.
+		/// Determine whether the text is in the specified format.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the text is in the specified format.
+		/// Determines whether the text is in the specified format.
 		/// </remarks>
 		/// <returns><c>true</c> if the text is in the specified format; otherwise, <c>false</c>.</returns>
 		/// <param name="format">The text format.</param>

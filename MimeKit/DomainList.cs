@@ -196,7 +196,7 @@ namespace MimeKit {
 		/// Clear the domain list.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the domains in the list.
+		/// Removes all the domains in the list.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -208,7 +208,7 @@ namespace MimeKit {
 		/// Check if the <see cref="DomainList"/> contains the specified domain.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the domain list contains the specified domain.
+		/// Determines whether the domain list contains the specified domain.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified domain is contained;
 		/// otherwise <value>false</value>.</returns>
@@ -225,10 +225,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the domains in the <see cref="DomainList"/> to an array.
+		/// Copy all the domains in the <see cref="DomainList"/> to an array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the domains within the <see cref="DomainList"/> into the array,
+		/// Copies all the domains within the <see cref="DomainList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the domains to.</param>
@@ -396,7 +396,7 @@ namespace MimeKit {
 		/// <param name="buffer">The buffer to parse.</param>
 		/// <param name="index">The index to start parsing.</param>
 		/// <param name="endIndex">An index of the end of the input.</param>
-		/// <param name="throwOnError">A flag indicating whether or not an
+		/// <param name="throwOnError">A flag indicating whether an
 		/// exception should be thrown on error.</param>
 		/// <param name="route">The parsed DomainList.</param>
 		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, out DomainList route)

@@ -108,7 +108,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports reading.
+		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="ChainedStream"/> only supports reading if all of its
@@ -127,7 +127,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports writing.
+		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="ChainedStream"/> only supports writing if all of its
@@ -146,7 +146,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports seeking.
+		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="ChainedStream"/> only supports seeking if all of its
@@ -165,13 +165,13 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not I/O operations can timeout.
+		/// Check whether I/O operations can time out.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="ChainedStream"/> only supports timeouts if all of its
 		/// streams support them.
 		/// </remarks>
-		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if I/O operations can time out; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}
@@ -606,7 +606,7 @@ namespace MimeKit.IO {
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
-		/// If all of the child streams support writing, then the current child stream
+		/// If all the child streams support writing, then the current child stream
 		/// will be flushed.
 		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
@@ -632,7 +632,7 @@ namespace MimeKit.IO {
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
-		/// If all of the child streams support writing, then the current child stream
+		/// If all the child streams support writing, then the current child stream
 		/// will be flushed.
 		/// </remarks>
 		/// <returns>A task that represents the asynchronous flush operation.</returns>

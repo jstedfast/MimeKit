@@ -58,7 +58,7 @@ namespace MimeKit.Tnef {
 		/// Extract the embedded attachments from the TNEF data.
 		/// </summary>
 		/// <remarks>
-		/// Parses the TNEF data and extracts all of the embedded file attachments.
+		/// Parses the TNEF data and extracts all the embedded file attachments.
 		/// </remarks>
 		/// <returns>The attachments.</returns>
 		/// <exception cref="System.InvalidOperationException">

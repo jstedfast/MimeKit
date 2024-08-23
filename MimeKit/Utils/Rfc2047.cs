@@ -1682,7 +1682,7 @@ namespace MimeKit.Utils {
 		/// Encode comment text.
 		/// </summary>
 		/// <remarks>
-		/// Encodes the comment text and wraps the result in parenthesis according to the rules of rfc2047
+		/// Encodes the comment text and wraps the result within parenthesis according to the rules of rfc2047
 		/// using the specified charset encoding and formatting options.
 		/// </remarks>
 		/// <returns>The encoded text.</returns>

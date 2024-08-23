@@ -252,7 +252,7 @@ namespace MimeKit {
 		/// Check if the <see cref="MultipartRelated"/> contains a part matching the specified URI.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the multipart/related entity contains a part matching the specified URI.
+		/// Determines whether the multipart/related entity contains a part matching the specified URI.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified part exists; otherwise <value>false</value>.</returns>
 		/// <param name="uri">The URI of the MIME part.</param>
@@ -274,7 +274,7 @@ namespace MimeKit {
 		/// <para>Finds the index of the part matching the specified URI, if it exists.</para>
 		/// <para>If the URI scheme is <c>"cid"</c>, then matching is performed based on the Content-Id header
 		/// values, otherwise the Content-Location headers are used. If the provided URI is absolute and a child
-		/// part's Content-Location is relative, then then the child part's Content-Location URI will be combined
+		/// part's Content-Location is relative, then the child part's Content-Location URI will be combined
 		/// with the value of its Content-Base header, if available, otherwise it will be combined with the
 		/// multipart/related part's Content-Base header in order to produce an absolute URI that can be
 		/// compared with the provided absolute URI.</para>

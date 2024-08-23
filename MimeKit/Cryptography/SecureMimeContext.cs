@@ -150,7 +150,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Check whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// Check whether the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <remarks>
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed

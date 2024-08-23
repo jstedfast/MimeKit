@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// A message delivery status MIME part.
 	/// </summary>
 	/// <remarks>
-	/// <para>A message delivery status MIME part is a machine readable notification denoting the
+	/// <para>A message delivery status MIME part is a machine-readable notification denoting the
 	/// delivery status of a message and has a MIME-type of message/delivery-status.</para>
 	/// <para>For more information, see <a href="https://tools.ietf.org/html/rfc3464">rfc3464</a>.</para>
 	/// <seealso cref="MultipartReport"/>

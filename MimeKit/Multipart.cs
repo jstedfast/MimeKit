@@ -89,7 +89,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new <see cref="Multipart"/> with the specified subtype.
 		/// </remarks>
-		/// <param name="subtype">The multipart media sub-type.</param>
+		/// <param name="subtype">The multipart media subtype.</param>
 		/// <param name="args">An array of initialization parameters: headers and MIME entities.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="subtype"/> is <see langword="null"/>.</para>
@@ -123,7 +123,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new <see cref="Multipart"/> with the specified subtype.
 		/// </remarks>
-		/// <param name="subtype">The multipart media sub-type.</param>
+		/// <param name="subtype">The multipart media subtype.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="subtype"/> is <see langword="null"/>.
 		/// </exception>
@@ -371,7 +371,7 @@ namespace MimeKit {
 				}
 
 				// Look for the first non-attachment text part (realistically, the body text will
-				// precede any attachments, but I'm not sure we can rely on that assumption).
+				// precede any attachments, but I'm not sure that we can rely on that assumption).
 				if (this[i] is TextPart text && !text.IsAttachment) {
 					if (text.IsFormat (format)) {
 						body = text;
@@ -742,7 +742,7 @@ namespace MimeKit {
 		/// Clear a multipart.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the entities within the multipart.
+		/// Removes all the entities within the multipart.
 		/// </remarks>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
@@ -756,9 +756,9 @@ namespace MimeKit {
 		/// Clear a multipart.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the entities within the multipart, optionally disposing them in the process.
+		/// Removes all the entities within the multipart, optionally disposing them in the process.
 		/// </remarks>
-		/// <param name="dispose"><c>true</c> if all of the child entities of the multipart should be disposed; otherwise, <c>false</c>.</param>
+		/// <param name="dispose"><c>true</c> if all the child entities of the multipart should be disposed; otherwise, <c>false</c>.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
@@ -779,7 +779,7 @@ namespace MimeKit {
 		/// Check if the <see cref="Multipart"/> contains the specified entity.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the multipart contains the specified entity.
+		/// Determines whether the multipart contains the specified entity.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified entity exists;
 		/// otherwise <value>false</value>.</returns>
@@ -801,10 +801,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the entities in the <see cref="Multipart"/> to the specified array.
+		/// Copy all the entities in the <see cref="Multipart"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the entities within the <see cref="Multipart"/> into the array,
+		/// Copies all the entities within the <see cref="Multipart"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the child entities to.</param>

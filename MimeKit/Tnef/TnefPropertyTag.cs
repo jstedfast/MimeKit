@@ -5542,10 +5542,10 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Get a value indicating whether or not the property contains multiple values.
+		/// Get a value indicating whether the property contains multiple values.
 		/// </summary>
 		/// <remarks>
-		/// Gets a value indicating whether or not the property contains multiple values.
+		/// Gets a value indicating whether the property contains multiple values.
 		/// </remarks>
 		/// <value><c>true</c> if the property contains multiple values; otherwise, <c>false</c>.</value>
 		public bool IsMultiValued {
@@ -5553,10 +5553,10 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Get a value indicating whether or not the property has a special name.
+		/// Get a value indicating whether the property has a special name.
 		/// </summary>
 		/// <remarks>
-		/// Gets a value indicating whether or not the property has a special name.
+		/// Gets a value indicating whether the property has a special name.
 		/// </remarks>
 		/// <value><c>true</c> if the property has a special name; otherwise, <c>false</c>.</value>
 		public bool IsNamed {

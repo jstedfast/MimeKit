@@ -129,10 +129,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get whether or not the comment is a bogus comment.
+		/// Get whether the comment is a bogus comment.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not the comment is a bogus comment.
+		/// Gets whether the comment is a bogus comment.
 		/// </remarks>
 		/// <value><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</value>
 		public bool IsBogusComment {
@@ -269,7 +269,7 @@ namespace MimeKit.Text {
 	}
 
 	/// <summary>
-	/// An HTML token constisting of <c>[CDATA[</c>.
+	/// An HTML token consisting of <c>[CDATA[</c>.
 	/// </summary>
 	/// <remarks>
 	/// An HTML token consisting of <c>[CDATA[</c>.
@@ -440,10 +440,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get whether or not the tag is an empty element.
+		/// Get whether the tag is an empty element.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not the tag is an empty element.
+		/// Gets whether the tag is an empty element.
 		/// </remarks>
 		/// <value><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</value>
 		public bool IsEmptyElement {
@@ -451,10 +451,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get whether or not the tag is an end tag.
+		/// Get whether the tag is an end tag.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not the tag is an end tag.
+		/// Gets whether the tag is an end tag.
 		/// </remarks>
 		/// <value><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
 		public bool IsEndTag {
@@ -532,10 +532,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get whether or not quirks-mode should be forced.
+		/// Get whether quirks-mode should be forced.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not quirks-mode should be forced.
+		/// Gets whether quirks-mode should be forced.
 		/// </remarks>
 		/// <value><c>true</c> if quirks-mode should be forced; otherwise, <c>false</c>.</value>
 		public bool ForceQuirksMode {

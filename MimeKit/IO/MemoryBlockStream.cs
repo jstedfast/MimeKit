@@ -76,7 +76,7 @@ namespace MimeKit.IO {
 		/// Copy the memory stream into a byte array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the stream data into a newly allocated byte array.
+		/// Copies all the stream data into a newly allocated byte array.
 		/// </remarks>
 		/// <returns>The array.</returns>
 		public byte[] ToArray ()
@@ -108,7 +108,7 @@ namespace MimeKit.IO {
 		#region implemented abstract members of Stream
 
 		/// <summary>
-		/// Check whether or not the stream supports reading.
+		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> is always readable.
@@ -119,7 +119,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports writing.
+		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> is always writable.
@@ -130,7 +130,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports seeking.
+		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> is always seekable.
@@ -141,12 +141,12 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not reading and writing to the stream can timeout.
+		/// Check whether reading and writing to the stream can time out.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> does not support timing out.
 		/// </remarks>
-		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if reading and writing to the stream can time out; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}

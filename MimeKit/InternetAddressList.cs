@@ -88,7 +88,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Recursively get all of the mailboxes contained within the <see cref="InternetAddressList"/>.
+		/// Recursively get all the mailboxes contained within the <see cref="InternetAddressList"/>.
 		/// </summary>
 		/// <remarks>
 		/// This API is useful for collecting a flattened list of <see cref="MailboxAddress"/>
@@ -288,7 +288,7 @@ namespace MimeKit {
 		/// Clear the address list.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the addresses from the list.
+		/// Removes all the addresses from the list.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -306,7 +306,7 @@ namespace MimeKit {
 		/// Check if the <see cref="InternetAddressList"/> contains the specified address.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the address list contains the specified address.
+		/// Determines whether the address list contains the specified address.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified address exists;
 		/// otherwise <value>false</value>.</returns>
@@ -323,10 +323,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the addresses in the <see cref="InternetAddressList"/> to the specified array.
+		/// Copy all the addresses in the <see cref="InternetAddressList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the addresses within the <see cref="InternetAddressList"/> into the array,
+		/// Copies all the addresses within the <see cref="InternetAddressList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the addresses to.</param>
@@ -1085,7 +1085,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Casts a <see cref="System.Net.Mail.MailAddressCollection"/> to a <see cref="InternetAddressList"/>
-		/// in cases where you might want to make use of the the superior MimeKit APIs.
+		/// in cases where you might want to make use of the superior MimeKit APIs.
 		/// </remarks>
 		/// <returns>The equivalent <see cref="InternetAddressList"/>.</returns>
 		/// <param name="addresses">The mail address.</param>

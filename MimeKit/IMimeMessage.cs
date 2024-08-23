@@ -439,7 +439,7 @@ namespace MimeKit {
 		/// Get the body parts of the message.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects,
+		/// Traverses over the MIME tree, enumerating all the <see cref="MimeEntity"/> objects,
 		/// but does not traverse into the bodies of attached messages.
 		/// </remarks>
 		/// <example>
@@ -454,7 +454,7 @@ namespace MimeKit {
 		/// Get the attachments.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects that
+		/// Traverses over the MIME tree, enumerating all the <see cref="MimeEntity"/> objects that
 		/// have a Content-Disposition header set to <c>"attachment"</c>.
 		/// </remarks>
 		/// <example>

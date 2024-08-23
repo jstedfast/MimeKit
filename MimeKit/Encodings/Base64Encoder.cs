@@ -32,7 +32,7 @@ namespace MimeKit.Encodings {
 	/// </summary>
 	/// <remarks>
 	/// Base64 is an encoding often used in MIME to encode binary content such
-	/// as images and other types of multi-media to ensure that the data remains
+	/// as images and other types of multimedia to ensure that the data remains
 	/// intact when sent via 7bit transports such as SMTP.
 	/// </remarks>
 	public class Base64Encoder : IMimeEncoder
@@ -212,7 +212,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>
@@ -280,7 +280,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>

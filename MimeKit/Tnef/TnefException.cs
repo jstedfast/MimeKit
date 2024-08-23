@@ -36,8 +36,8 @@ namespace MimeKit.Tnef {
 	/// A TNEF exception.
 	/// </summary>
 	/// <remarks>
-	/// A <see cref="TnefException"/> occurs when when a TNEF stream is found to be
-	/// corrupted and cannot be read any futher.
+	/// A <see cref="TnefException"/> occurs when a TNEF stream is found to be
+	/// corrupted and cannot be read any further.
 	/// </remarks>
 #if SERIALIZABLE
 	[Serializable]

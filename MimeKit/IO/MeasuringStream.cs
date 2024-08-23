@@ -64,7 +64,7 @@ namespace MimeKit.IO {
 		#region implemented abstract members of Stream
 
 		/// <summary>
-		/// Check whether or not the stream supports reading.
+		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="MeasuringStream"/> is not readable.
@@ -75,7 +75,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports writing.
+		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="MeasuringStream"/> is always writable.
@@ -86,7 +86,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports seeking.
+		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="MeasuringStream"/> is always seekable.
@@ -97,12 +97,12 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not reading and writing to the stream can timeout.
+		/// Check whether reading and writing to the stream can time out.
 		/// </summary>
 		/// <remarks>
 		/// Writing to a <see cref="MeasuringStream"/> cannot timeout.
 		/// </remarks>
-		/// <value><c>true</c> if reading and writing to the stream can timeout; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if reading and writing to the stream can time out; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}

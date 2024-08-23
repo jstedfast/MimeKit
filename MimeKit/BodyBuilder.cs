@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using MimeKit.Utils;
-
 namespace MimeKit {
 	/// <summary>
 	/// A message body builder.

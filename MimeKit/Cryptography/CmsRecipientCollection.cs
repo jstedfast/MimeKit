@@ -99,7 +99,7 @@ namespace MimeKit.Cryptography {
 		/// Clears the recipient collection.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the recipients from the collection.
+		/// Removes all the recipients from the collection.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -110,7 +110,7 @@ namespace MimeKit.Cryptography {
 		/// Checks if the collection contains the specified recipient.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the collection contains the specified recipient.
+		/// Determines whether the collection contains the specified recipient.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified recipient exists;
 		/// otherwise <value>false</value>.</returns>
@@ -127,10 +127,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Copies all of the recipients in the <see cref="CmsRecipientCollection"/> to the specified array.
+		/// Copies all the recipients in the <see cref="CmsRecipientCollection"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the recipients within the <see cref="CmsRecipientCollection"/> into the array,
+		/// Copies all the recipients within the <see cref="CmsRecipientCollection"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array.</param>

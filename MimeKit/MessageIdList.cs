@@ -214,7 +214,7 @@ namespace MimeKit {
 		/// Clear the Message-Id list.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the Message-Ids in the list.
+		/// Removes all the Message-Ids in the list.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -226,7 +226,7 @@ namespace MimeKit {
 		/// Check if the <see cref="MessageIdList"/> contains the specified Message-Id.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the list contains the specified Message-Id.
+		/// Determines whether the list contains the specified Message-Id.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified Message-Id is contained;
 		/// otherwise <value>false</value>.</returns>
@@ -243,10 +243,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the Message-Ids in the <see cref="MessageIdList"/> to the specified array.
+		/// Copy all the Message-Ids in the <see cref="MessageIdList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the Message-Ids within the <see cref="MessageIdList"/> into the array,
+		/// Copies all the Message-Ids within the <see cref="MessageIdList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the Message-Ids to.</param>

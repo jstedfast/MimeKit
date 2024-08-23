@@ -161,10 +161,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the tokenizer should decode character references.
+		/// Get or set whether the tokenizer should decode character references.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether or not the tokenizer should decode character references.</para>
+		/// <para>Gets or sets whether the tokenizer should decode character references.</para>
 		/// <note type="warning">Character references in attribute values will still be decoded
 		/// even if this value is set to <c>false</c>.</note>
 		/// </remarks>
@@ -185,10 +185,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether or not the tokenizer should ignore truncated tags.
+		/// Get or set whether the tokenizer should ignore truncated tags.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether or not the tokenizer should ignore truncated tags.</para>
+		/// <para>Gets or sets whether the tokenizer should ignore truncated tags.</para>
 		/// <para>If <c>false</c> and the stream abruptly ends in the middle of an HTML tag, it will be
 		/// treated as an <see cref="HtmlDataToken"/> instead.</para>
 		/// </remarks>

@@ -913,10 +913,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Determines whether or not the HTML tag is an empty element.
+		/// Determines whether the HTML tag is an empty element.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the HTML tag is an empty element.
+		/// Determines whether the HTML tag is an empty element.
 		/// </remarks>
 		/// <returns><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</returns>
 		/// <param name="id">Identifier.</param>
@@ -946,10 +946,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Determines whether or not the HTML tag is a formatting element.
+		/// Determines whether the HTML tag is a formatting element.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the HTML tag is a formatting element.
+		/// Determines whether the HTML tag is a formatting element.
 		/// </remarks>
 		/// <returns><c>true</c> if the HTML tag is a formatting element; otherwise, <c>false</c>.</returns>
 		/// <param name="id">The HTML tag identifier.</param>

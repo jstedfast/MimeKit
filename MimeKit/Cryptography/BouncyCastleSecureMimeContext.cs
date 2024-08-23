@@ -111,10 +111,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Get or set whether or not certificate revocation lists should be downloaded when verifying signatures.
+		/// Get or set whether certificate revocation lists should be downloaded when verifying signatures.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether or not certificate revocation lists should be downloaded when verifying
+		/// <para>Gets or sets whether certificate revocation lists should be downloaded when verifying
 		/// signatures.</para>
 		/// <para>If enabled, the <see cref="BouncyCastleSecureMimeContext"/> will attempt to automatically download
 		/// Certificate Revocation Lists (CRLs) from the internet based on the CRL Distribution Point extension on
@@ -1033,7 +1033,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The digital signatures.</returns>
 		/// <param name="parser">The CMS signed data parser.</param>
-		/// <param name="doAsync">Whether or not the operation should be done asynchronously.</param>
+		/// <param name="doAsync">Whether the operation should be done asynchronously.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, bool doAsync, CancellationToken cancellationToken)
 		{

@@ -123,7 +123,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Decodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// decoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>
@@ -184,7 +184,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Decodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// decoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>

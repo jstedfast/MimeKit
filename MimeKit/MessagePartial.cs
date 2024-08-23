@@ -345,7 +345,7 @@ namespace MimeKit {
 				}
 			}
 
-			// RFC2046: All of the header fields from the initial enclosing message, except
+			// RFC2046: All the header fields from the initial enclosing message, except
 			// those that start with "Content-" and the specific header fields "Subject",
 			// "Message-ID", "Encrypted", and "MIME-Version", must be copied, in order,
 			// to the new message.
@@ -386,7 +386,7 @@ namespace MimeKit {
 		/// Join the specified message/partial parts into the complete message.
 		/// </summary>
 		/// <remarks>
-		/// Combines all of the message/partial fragments into its original,
+		/// Combines all the message/partial fragments into its original,
 		/// complete, message.
 		/// </remarks>
 		/// <returns>The re-combined message.</returns>
@@ -441,7 +441,7 @@ namespace MimeKit {
 			string id = parts[0].Id;
 
 			using (var chained = new ChainedStream ()) {
-				// chain all of the partial content streams...
+				// chain all the partial content streams...
 				for (int i = 0; i < parts.Count; i++) {
 					int number = parts[i].Number.Value;
 
@@ -456,8 +456,7 @@ namespace MimeKit {
 				var parser = new MimeParser (options, chained);
 				var joined = parser.ParseMessage ();
 
-				if (message != null)
-					CombineHeaders (message, joined);
+				CombineHeaders (message, joined);
 
 				return joined;
 			}
@@ -467,7 +466,7 @@ namespace MimeKit {
 		/// Join the specified message/partial parts into the complete message.
 		/// </summary>
 		/// <remarks>
-		/// Combines all of the message/partial fragments into its original,
+		/// Combines all the message/partial fragments into its original,
 		/// complete, message.
 		/// </remarks>
 		/// <returns>The re-combined message.</returns>

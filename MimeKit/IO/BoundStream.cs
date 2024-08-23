@@ -122,11 +122,11 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the underlying stream will remain open after
+		/// Check whether the underlying stream will remain open after
 		/// the <see cref="BoundStream"/> is disposed.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the underlying stream will remain open after
+		/// Checks whether the underlying stream will remain open after
 		/// the <see cref="BoundStream"/> is disposed.
 		/// </remarks>
 		/// <value><c>true</c> if the underlying stream should remain open after the
@@ -162,7 +162,7 @@ namespace MimeKit.IO {
 		#region Stream implementation
 
 		/// <summary>
-		/// Check whether or not the stream supports reading.
+		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="BoundStream"/> will only support reading if the
@@ -174,7 +174,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports writing.
+		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="BoundStream"/> will only support writing if the
@@ -186,7 +186,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports seeking.
+		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="BoundStream"/> will only support seeking if the
@@ -198,13 +198,13 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not I/O operations can timeout.
+		/// Check whether I/O operations can time out.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="BoundStream"/> will only support timing out if the
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
-		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if I/O operations can time out; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return BaseStream.CanTimeout; }
 		}

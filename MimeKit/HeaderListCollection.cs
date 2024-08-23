@@ -64,7 +64,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether or not the header list collection is read only.
+		/// Gets whether the header list collection is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="HeaderListCollection"/> is never read-only.
@@ -135,7 +135,7 @@ namespace MimeKit {
 		/// Clears the header list collection.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the groups from the collection.
+		/// Removes all the groups from the collection.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -150,7 +150,7 @@ namespace MimeKit {
 		/// Checks if the collection contains the specified group of headers.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the collection contains the specified group of headers.
+		/// Determines whether the collection contains the specified group of headers.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified group of headers is contained;
 		/// otherwise, <value>false</value>.</returns>
@@ -167,10 +167,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all of the header groups in the <see cref="HeaderListCollection"/> to the specified array.
+		/// Copies all the header groups in the <see cref="HeaderListCollection"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the header groups within the <see cref="HeaderListCollection"/> into the array,
+		/// Copies all the header groups within the <see cref="HeaderListCollection"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the headers to.</param>

@@ -723,7 +723,7 @@ namespace UnitTests.Tnef {
 				var tnef = new TnefPart { Content = new MimeContent (content) };
 				var attachments = tnef.ExtractAttachments ().ToList ();
 
-				// Step 1: make sure we've extracted the body and all of the attachments
+				// Step 1: make sure we've extracted the body and all the attachments
 				foreach (var name in names) {
 					bool found = false;
 

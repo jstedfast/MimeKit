@@ -32,7 +32,7 @@ namespace MimeKit.Encodings {
 	/// </summary>
 	/// <remarks>
 	/// <para>The UUEncoding is an encoding that predates MIME and was used to encode
-	/// binary content such as images and other types of multi-media to ensure
+	/// binary content such as images and other types of multimedia to ensure
 	/// that the data remained intact when sent via 7bit transports such as SMTP.</para>
 	/// <para>These days, the UUEncoding has largely been deprecated in favour of
 	/// the base64 encoding, however, some older mail clients still use it.</para>
@@ -231,7 +231,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>
@@ -325,7 +325,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>

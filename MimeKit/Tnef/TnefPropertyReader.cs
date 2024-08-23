@@ -94,10 +94,10 @@ namespace MimeKit.Tnef {
 #endif
 
 		/// <summary>
-		/// Get a value indicating whether or not the current property has multiple values.
+		/// Get a value indicating whether the current property has multiple values.
 		/// </summary>
 		/// <remarks>
-		/// Gets a value indicating whether or not the current property has multiple values.
+		/// Gets a value indicating whether the current property has multiple values.
 		/// </remarks>
 		/// <value><c>true</c> if the current property has multiple values; otherwise, <c>false</c>.</value>
 		public bool IsMultiValuedProperty {
@@ -105,10 +105,10 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Get a value indicating whether or not the current property is a named property.
+		/// Get a value indicating whether the current property is a named property.
 		/// </summary>
 		/// <remarks>
-		/// Gets a value indicating whether or not the current property is a named property.
+		/// Gets a value indicating whether the current property is a named property.
 		/// </remarks>
 		/// <value><c>true</c> if the current property is a named property; otherwise, <c>false</c>.</value>
 		public bool IsNamedProperty {

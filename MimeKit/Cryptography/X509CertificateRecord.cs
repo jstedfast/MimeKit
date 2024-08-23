@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// The id is typically the ROWID of the certificate in the database and is not
-		/// generally useful outside of the internals of the database implementation.
+		/// generally useful outside the internals of the database implementation.
 		/// </remarks>
 		/// <value>The identifier.</value>
 		public int Id { get; internal set; }
@@ -109,16 +109,16 @@ namespace MimeKit.Cryptography {
 		/// Gets or sets a value indicating whether the certificate is trusted.
 		/// </summary>
 		/// <remarks>
-		/// Indiciates whether or not the certificate is trusted.
+		/// Indicates whether the certificate is trusted.
 		/// </remarks>
 		/// <value><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</value>
 		public bool IsTrusted { get; set; }
 
 		/// <summary>
-		/// Gets whether or not the certificate is an anchor.
+		/// Gets whether the certificate is an anchor.
 		/// </summary>
 		/// <remarks>
-		/// Gets whether or not the certificate is an anchor.
+		/// Gets whether the certificate is an anchor.
 		/// </remarks>
 		/// <value><c>true</c> if the certificate is an anchor; otherwise, <c>false</c>.</value>
 		public bool IsAnchor { get { return Certificate.IsSelfSigned (); } }
@@ -133,19 +133,19 @@ namespace MimeKit.Cryptography {
 		public X509KeyUsageFlags KeyUsage { get { return Certificate.GetKeyUsageFlags (); } }
 
 		/// <summary>
-		/// Gets the starting date and time where the certificate is valid.
+		/// Gets the starting date and time for which the certificate is valid.
 		/// </summary>
 		/// <remarks>
-		/// Gets the starting date and time where the certificate is valid.
+		/// Gets the starting date and time for which the certificate is valid.
 		/// </remarks>
 		/// <value>The date and time in coordinated universal time (UTC).</value>
 		public DateTime NotBefore { get { return Certificate.NotBefore.ToUniversalTime (); } }
 
 		/// <summary>
-		/// Gets the end date and time where the certificate is valid.
+		/// Gets the end date and time for which the certificate is valid.
 		/// </summary>
 		/// <remarks>
-		/// Gets the end date and time where the certificate is valid.
+		/// Gets the end date and time for which the certificate is valid.
 		/// </remarks>
 		/// <value>The date and time in coordinated universal time (UTC).</value>
 		public DateTime NotAfter { get { return Certificate.NotAfter.ToUniversalTime (); } }

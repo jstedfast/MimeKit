@@ -848,7 +848,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all attachments from the collection, optionally disposing them in the process.
 		/// </remarks>
-		/// <param name="dispose"><c>true</c> if all of the attachments should be disposed; otherwise, <c>false</c>.</param>
+		/// <param name="dispose"><c>true</c> if all the attachments should be disposed; otherwise, <c>false</c>.</param>
 		public void Clear (bool dispose)
 		{
 			if (dispose) {
@@ -863,7 +863,7 @@ namespace MimeKit {
 		/// Check if the collection contains the specified attachment.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the collection contains the specified attachment.
+		/// Determines whether the collection contains the specified attachment.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified attachment exists;
 		/// otherwise <value>false</value>.</returns>
@@ -880,10 +880,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the attachments in the collection to an array.
+		/// Copy all the attachments in the collection to an array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the attachments within the <see cref="AttachmentCollection"/> into the array,
+		/// Copies all the attachments within the <see cref="AttachmentCollection"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the attachments to.</param>

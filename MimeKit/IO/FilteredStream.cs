@@ -113,7 +113,7 @@ namespace MimeKit.IO {
 		/// Check if the filtered stream contains the specified filter.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the filtered stream contains the specified filter.
+		/// Determines whether the filtered stream contains the specified filter.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified filter exists;
 		/// otherwise <value>false</value>.</returns>
@@ -169,7 +169,7 @@ namespace MimeKit.IO {
 		#region Stream implementation
 
 		/// <summary>
-		/// Check whether or not the stream supports reading.
+		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="FilteredStream"/> will only support reading if the
@@ -181,7 +181,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports writing.
+		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="FilteredStream"/> will only support writing if the
@@ -193,7 +193,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports seeking.
+		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// Seeking is not supported by the <see cref="FilteredStream"/>.
@@ -204,13 +204,13 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Check whether or not I/O operations can timeout.
+		/// Check whether I/O operations can time out.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="FilteredStream"/> will only support timing out if the
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
-		/// <value><c>true</c> if I/O operations can timeout; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if I/O operations can time out; otherwise, <c>false</c>.</value>
 		public override bool CanTimeout {
 			get { return Source.CanTimeout; }
 		}

@@ -53,7 +53,7 @@ namespace MimeKit.Encodings {
 	/// </summary>
 	/// <remarks>
 	/// The Q-Encoding is an encoding often used in MIME to encode textual content outside
-	/// of the ASCII range within an rfc2047 encoded-word token in order to ensure that
+	/// the ASCII range within an rfc2047 encoded-word token in order to ensure that
 	/// the text remains intact when sent via 7bit transports such as SMTP.
 	/// </remarks>
 	public class QEncoder : IMimeEncoder
@@ -159,7 +159,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>
@@ -210,7 +210,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>

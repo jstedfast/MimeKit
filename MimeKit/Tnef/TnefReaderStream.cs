@@ -63,7 +63,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports reading.
+		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
 		/// The <see cref="TnefReaderStream"/> is always readable.
@@ -74,7 +74,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports writing.
+		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
 		/// Writing to a <see cref="TnefReaderStream"/> is not supported.
@@ -85,7 +85,7 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Check whether or not the stream supports seeking.
+		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
 		/// Seeking within a <see cref="TnefReaderStream"/> is not supported.

@@ -277,7 +277,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not the address is an international address.
+		/// Get whether the address is an international address.
 		/// </summary>
 		/// <remarks>
 		/// <para>International addresses are addresses that contain international
@@ -312,12 +312,7 @@ namespace MimeKit {
 					return addrspec;
 
 				var local = addrspec.Substring (0, at);
-				string domain;
-
-				if (domainEncoded)
-					domain = IdnMapping.Encode (addrspec, at + 1);
-				else
-					domain = addrspec.Substring (at + 1);
+				var domain = IdnMapping.Encode (addrspec, at + 1);
 
 				return local + "@" + domain;
 			}
@@ -1062,7 +1057,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Casts a <see cref="System.Net.Mail.MailAddress"/> to a <see cref="MailboxAddress"/>
-		/// in cases where you might want to make use of the the superior MimeKit APIs.
+		/// in cases where you might want to make use of the superior MimeKit APIs.
 		/// </remarks>
 		/// <returns>The equivalent <see cref="MailboxAddress"/>.</returns>
 		/// <param name="address">The mail address.</param>

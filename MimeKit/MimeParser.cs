@@ -1843,7 +1843,7 @@ namespace MimeKit {
 			var type = GetContentType (null);
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
-			// we want the entity to consume all of the headers.
+			// we want the entity to consume all the headers.
 			var entity = options.CreateEntity (type, headers, false, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
@@ -2031,8 +2031,6 @@ namespace MimeKit {
 		{
 			while (!IsEndOfStream)
 				yield return ParseMessage ();
-
-			yield break;
 		}
 
 		#endregion

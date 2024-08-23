@@ -97,7 +97,7 @@ namespace MimeKit {
 		/// that was applied to the content in order to allow it to pass through
 		/// mail transport mechanisms (such as SMTP) which may have limitations
 		/// in the byte ranges that it accepts. For example, many SMTP servers
-		/// do not accept data outside of the 7-bit ASCII range and so sending
+		/// do not accept data outside the 7-bit ASCII range and so sending
 		/// binary attachments or even non-English text is not possible without
 		/// applying an encoding such as base64 or quoted-printable.
 		/// </remarks>

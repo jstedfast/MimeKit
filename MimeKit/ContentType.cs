@@ -273,7 +273,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Check if the this instance of <see cref="ContentType"/> matches
+		/// Check if this instance of <see cref="ContentType"/> matches
 		/// the specified MIME media type and subtype.
 		/// </summary>
 		/// <remarks>

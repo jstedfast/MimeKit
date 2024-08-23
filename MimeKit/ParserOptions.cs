@@ -363,7 +363,7 @@ namespace MimeKit {
 				// it is necessary for us to treat those as opaque blobs instead, and thus the parser should
 				// parse them as normal MimeParts instead of MessageParts.
 				//
-				// Technically message/disposition-notification is only allowed to have use the 7bit encoding
+				// Technically message/disposition-notification is only allowed to use the 7bit encoding
 				// as well, but since MessageDispositionNotification is a MImePart subclass rather than a
 				// MessagePart subclass, it means that the content won't be parsed until later and so we can
 				// actually handle that w/o any problems.

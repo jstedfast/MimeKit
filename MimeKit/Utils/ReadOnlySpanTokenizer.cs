@@ -79,7 +79,7 @@ namespace MimeKit.Utils {
 				// implicit, which makes the signature compatible, and because extension methods are matched in such a
 				// way that methods "closest" to where they're used are preferred. Since this type shares the same root
 				// namespace, this makes that extension a better match, so that it overrides the MemoryExtensions one.
-				// This is not a problem for consumers of this package, as their code would be outside of the
+				// This is not a problem for consumers of this package, as their code would be outside the
 				// CommunityToolkit.HighPerformance namespace, so both extensions would be "equally distant", so that
 				// when they're both in scope it will be possible to choose which one to use by adding an explicit "in".
 				int index = System.MemoryExtensions.IndexOf (this.span.Slice (newEnd), this.separator);

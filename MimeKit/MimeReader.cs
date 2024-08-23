@@ -1450,7 +1450,7 @@ namespace MimeKit {
 #endif
 
 				if (inptr == inend) {
-					// We've reached the end of the input buffer and we are currently in the middle of a line.
+					// We've reached the end of the input buffer, and we are currently in the middle of a line.
 					midline = true;
 					break;
 				}

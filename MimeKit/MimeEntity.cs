@@ -442,7 +442,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
-		/// then this property returns <c>true</c>. Otherwise it is assumed that the
+		/// then this property returns <c>true</c>. Otherwise, it is assumed that the
 		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
 		/// </remarks>
 		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>

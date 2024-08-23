@@ -136,7 +136,7 @@ namespace MimeKit {
 		/// Check if the <see cref="ParameterList"/> contains a parameter with the specified name.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the parameter list contains a parameter with the specified name.
+		/// Determines whether the parameter list contains a parameter with the specified name.
 		/// </remarks>
 		/// <returns><value>true</value> if the requested parameter exists;
 		/// otherwise <value>false</value>.</returns>
@@ -375,7 +375,7 @@ namespace MimeKit {
 		/// Clear the parameter list.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the parameters from the list.
+		/// Removes all the parameters from the list.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -392,7 +392,7 @@ namespace MimeKit {
 		/// Check if the <see cref="ParameterList"/> contains the specified parameter.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the parameter list contains the specified parameter.
+		/// Determines whether the parameter list contains the specified parameter.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified parameter is contained;
 		/// otherwise <value>false</value>.</returns>
@@ -409,10 +409,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the parameters in the list to an array.
+		/// Copy all the parameters in the list to an array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the parameters within the <see cref="ParameterList"/> into the array,
+		/// Copies all the parameters within the <see cref="ParameterList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the parameters to.</param>

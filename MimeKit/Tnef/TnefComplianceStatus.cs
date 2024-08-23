@@ -56,7 +56,7 @@ namespace MimeKit.Tnef {
 		InvalidAttributeChecksum = 1 << 2,
 
 		/// <summary>
-		/// The TNEF stream has one more more attributes with an invalid length.
+		/// The TNEF stream has one or more attributes with an invalid length.
 		/// </summary>
 		InvalidAttributeLength   = 1 << 3,
 

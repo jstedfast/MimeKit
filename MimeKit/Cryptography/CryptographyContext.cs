@@ -289,7 +289,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Check whether or not the specified protocol is supported by the <see cref="CryptographyContext"/>.
+		/// Check whether the specified protocol is supported by the <see cref="CryptographyContext"/>.
 		/// </summary>
 		/// <remarks>
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
@@ -331,10 +331,10 @@ namespace MimeKit.Cryptography {
 		public abstract DigestAlgorithm GetDigestAlgorithm (string micalg);
 
 		/// <summary>
-		/// Check whether or not a particular mailbox address can be used for signing.
+		/// Check whether a particular mailbox address can be used for signing.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
 		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
 		/// <param name="signer">The signer.</param>
@@ -348,10 +348,10 @@ namespace MimeKit.Cryptography {
 		public abstract bool CanSign (MailboxAddress signer, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Asynchronously check whether or not a particular mailbox address can be used for signing.
+		/// Asynchronously check whether a particular mailbox address can be used for signing.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not as particular mailbocx address can be used for signing.
+		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
 		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
 		/// <param name="signer">The signer.</param>
@@ -368,10 +368,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Check whether or not the cryptography context can encrypt to a particular recipient.
+		/// Check whether the cryptography context can encrypt to a particular recipient.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
 		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
@@ -385,10 +385,10 @@ namespace MimeKit.Cryptography {
 		public abstract bool CanEncrypt (MailboxAddress mailbox, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Asynchronously check whether or not the cryptography context can encrypt to a particular recipient.
+		/// Asynchronously check whether the cryptography context can encrypt to a particular recipient.
 		/// </summary>
 		/// <remarks>
-		/// Checks whether or not the cryptography context can be used to encrypt to a particular recipient.
+		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
 		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>

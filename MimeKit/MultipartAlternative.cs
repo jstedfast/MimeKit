@@ -192,7 +192,7 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
-			// Walk the multipart/alternative children backwards from greatest level of faithfulness to the least faithful.
+			// Walk the multipart/alternative children backwards from the greatest level of faithfulness to the least faithful.
 			for (int i = Count - 1; i >= 0; i--) {
 				// Descend into child multiparts.
 				if (this[i] is Multipart multipart && multipart.TryGetValue (format, out body))

@@ -747,7 +747,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// Searches the database for certificate records matching the selector, returning all
-		/// of the matching records populated with the desired fields.
+		/// the matching records populated with the desired fields.
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>

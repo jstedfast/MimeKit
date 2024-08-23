@@ -336,7 +336,7 @@ namespace MimeKit.Cryptography {
 		/// Get or set whether unknown PGP keys should automtically be retrieved.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether or not the <see cref="OpenPgpContext"/> should automatically
+		/// <para>Gets or sets whether the <see cref="OpenPgpContext"/> should automatically
 		/// fetch keys as needed from the keyserver when verifying signatures.</para>
 		/// <note type="note">Requires a valid <see cref="KeyServer"/> to be set.</note>
 		/// </remarks>
@@ -383,7 +383,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Check whether or not the specified protocol is supported.
+		/// Check whether the specified protocol is supported.
 		/// </summary>
 		/// <remarks>
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
@@ -636,7 +636,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Retrieves the public keyring, using the preferred key server, automatically importing it afterwards.
+		/// Retrieves the public keyring, using the preferred key server, automatically importing it afterward.
 		/// </summary>
 		/// <param name="keyId">The identifier of the key to be retrieved.</param>
 		/// <param name="doAsync"><c>true</c> if this operation should be done asynchronously; otherwise, <c>false</c>.</param>

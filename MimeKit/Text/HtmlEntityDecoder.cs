@@ -194,7 +194,7 @@ namespace MimeKit.Text {
 			case 0x96: return "\u2013"; // EN DASH (–)
 			case 0x97: return "\u2014"; // EM DASH (—)
 			case 0x98: return "\u02DC"; // SMALL TILDE (˜)
-			case 0x99: return "\u2122"; // TRADE MARK SIGN (™)
+			case 0x99: return "\u2122"; // TRADEMARK SIGN (™)
 			case 0x9A: return "\u0161"; // LATIN SMALL LETTER S WITH CARON (š)
 			case 0x9B: return "\u203A"; // SINGLE RIGHT-POINTING ANGLE QUOTATION MARK (›)
 			case 0x9C: return "\u0153"; // LATIN SMALL LIGATURE OE (œ)

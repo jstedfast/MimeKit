@@ -33,7 +33,7 @@ namespace MimeKit {
 	/// A message feedback report MIME part.
 	/// </summary>
 	/// <remarks>
-	/// A <c>message/feedback-report</c> MIME part is a machine readable feedback report.
+	/// A <c>message/feedback-report</c> MIME part is a machine-readable feedback report.
 	/// <seealso cref="MimeKit.MultipartReport"/>
 	/// </remarks>
 	public class MessageFeedbackReport : MimePart, IMessageFeedbackReport

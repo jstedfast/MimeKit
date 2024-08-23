@@ -1088,7 +1088,7 @@ namespace MimeKit {
 		/// Get the body parts of the message.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects,
+		/// Traverses over the MIME tree, enumerating all the <see cref="MimeEntity"/> objects,
 		/// but does not traverse into the bodies of attached messages.
 		/// </remarks>
 		/// <example>
@@ -1103,7 +1103,7 @@ namespace MimeKit {
 		/// Get the attachments.
 		/// </summary>
 		/// <remarks>
-		/// Traverses over the MIME tree, enumerating all of the <see cref="MimeEntity"/> objects that
+		/// Traverses over the MIME tree, enumerating all the <see cref="MimeEntity"/> objects that
 		/// have a Content-Disposition header set to <c>"attachment"</c>.
 		/// </remarks>
 		/// <example>
@@ -1913,14 +1913,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Encrypt the message to the sender and all of the recipients
+		/// Encrypt the message to the sender and all the recipients
 		/// using the specified cryptography context.
 		/// </summary>
 		/// <remarks>
 		/// If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be encrypted to all of the addresses specified in the Resent headers
+		/// will be encrypted to all the addresses specified in the Resent headers
 		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// otherwise the message will be encrypted to all the addresses specified in
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
@@ -1967,14 +1967,14 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously encrypt the message to the sender and all of the recipients
+		/// Asynchronously encrypt the message to the sender and all the recipients
 		/// using the specified cryptography context.
 		/// </summary>
 		/// <remarks>
 		/// If either of the Resent-Sender or Resent-From headers are set, then the message
-		/// will be encrypted to all of the addresses specified in the Resent headers
+		/// will be encrypted to all the addresses specified in the Resent headers
 		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// otherwise the message will be encrypted to all the addresses specified in
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
@@ -2022,7 +2022,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sign and encrypt the message to the sender and all of the recipients using
+		/// Sign and encrypt the message to the sender and all the recipients using
 		/// the specified cryptography context and the specified digest algorithm.
 		/// </summary>
 		/// <remarks>
@@ -2031,9 +2031,9 @@ namespace MimeKit {
 		/// address as the signer address, otherwise the Sender or From address will be
 		/// used instead.</para>
 		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
-		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// message will be encrypted to all the addresses specified in the Resent headers
 		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// otherwise the message will be encrypted to all the addresses specified in
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
@@ -2091,7 +2091,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously sign and encrypt the message to the sender and all of the recipients using
+		/// Asynchronously sign and encrypt the message to the sender and all the recipients using
 		/// the specified cryptography context and the specified digest algorithm.
 		/// </summary>
 		/// <remarks>
@@ -2100,9 +2100,9 @@ namespace MimeKit {
 		/// address as the signer address, otherwise the Sender or From address will be
 		/// used instead.</para>
 		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
-		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// message will be encrypted to all the addresses specified in the Resent headers
 		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// otherwise the message will be encrypted to all the addresses specified in
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
@@ -2161,7 +2161,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Sign and encrypt the message to the sender and all of the recipients using
+		/// Sign and encrypt the message to the sender and all the recipients using
 		/// the specified cryptography context and the SHA-1 digest algorithm.
 		/// </summary>
 		/// <remarks>
@@ -2170,9 +2170,9 @@ namespace MimeKit {
 		/// address as the signer address, otherwise the Sender or From address will be
 		/// used instead.</para>
 		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
-		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// message will be encrypted to all the addresses specified in the Resent headers
 		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// otherwise the message will be encrypted to all the addresses specified in
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
 		/// </remarks>
 		/// <param name="ctx">The cryptography context.</param>
@@ -2208,7 +2208,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Asynchronously sign and encrypt the message to the sender and all of the recipients using
+		/// Asynchronously sign and encrypt the message to the sender and all the recipients using
 		/// the specified cryptography context and the SHA-1 digest algorithm.
 		/// </summary>
 		/// <remarks>
@@ -2217,9 +2217,9 @@ namespace MimeKit {
 		/// address as the signer address, otherwise the Sender or From address will be
 		/// used instead.</para>
 		/// <para>Likewise, if either of the Resent-Sender or Resent-From headers are set, then the
-		/// message will be encrypted to all of the addresses specified in the Resent headers
+		/// message will be encrypted to all the addresses specified in the Resent headers
 		/// (Resent-Sender, Resent-From, Resent-To, Resent-Cc, and Resent-Bcc),
-		/// otherwise the message will be encrypted to all of the addresses specified in
+		/// otherwise the message will be encrypted to all the addresses specified in
 		/// the standard address headers (Sender, From, To, Cc, and Bcc).</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
@@ -2260,7 +2260,7 @@ namespace MimeKit {
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 
-			// write all of the prepended message headers first
+			// write all the prepended message headers first
 			while (mesgIndex < Headers.Count) {
 				var mesgHeader = Headers[mesgIndex];
 				if (mesgHeader.Offset.HasValue)
@@ -3216,8 +3216,7 @@ namespace MimeKit {
 			if (message.Attachments.Count > 0) {
 				var mixed = new Multipart ("mixed");
 
-				if (body != null)
-					mixed.Add (body);
+				mixed.Add (body);
 
 				foreach (var attachment in message.Attachments)
 					mixed.Add (GetMimePart (attachment));

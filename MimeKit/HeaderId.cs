@@ -34,7 +34,7 @@ namespace MimeKit {
 	/// An enumeration of common header fields.
 	/// </summary>
 	/// <remarks>
-	/// Comparing enum  values is not only faster, but less error prone than
+	/// Comparing enum  values is not only faster, but less error-prone than
 	/// comparing strings.
 	/// </remarks>
 	public enum HeaderId {

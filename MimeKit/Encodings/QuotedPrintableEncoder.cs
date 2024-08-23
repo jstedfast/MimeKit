@@ -34,7 +34,7 @@ namespace MimeKit.Encodings {
 	/// </summary>
 	/// <remarks>
 	/// Quoted-Printable is an encoding often used in MIME to encode textual content
-	/// outside of the ASCII range in order to ensure that the text remains intact
+	/// outside the ASCII range in order to ensure that the text remains intact
 	/// when sent via 7bit transports such as SMTP.
 	/// </remarks>
 	public class QuotedPrintableEncoder : IMimeEncoder
@@ -150,7 +150,7 @@ namespace MimeKit.Encodings {
 					if (saved != -1) {
 						byte b = (byte) saved;
 
-						// spaces and tabs must be encoded if they the last character on the line
+						// spaces and tabs must be encoded if they are the last character on the line
 						if (b.IsBlank () || !b.IsQpSafe ()) {
 							*outptr++ = (byte) '=';
 							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
@@ -167,7 +167,7 @@ namespace MimeKit.Encodings {
 					if (saved != -1 && saved != (byte) '\r') {
 						byte b = (byte) saved;
 
-						// spaces and tabs must be encoded if they the last character on the line
+						// spaces and tabs must be encoded if they are the last character on the line
 						if (b.IsBlank () || !b.IsQpSafe ()) {
 							*outptr++ = (byte) '=';
 							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
@@ -213,7 +213,7 @@ namespace MimeKit.Encodings {
 		/// </summary>
 		/// <remarks>
 		/// <para>Encodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>
@@ -257,7 +257,7 @@ namespace MimeKit.Encodings {
 			if (saved != -1) {
 				byte c = (byte) saved;
 
-				// spaces and tabs must be encoded if they the last character on the line
+				// spaces and tabs must be encoded if they are the last character on the line
 				if (c.IsBlank () || !c.IsQpSafe ()) {
 					*outptr++ = (byte) '=';
 					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
@@ -281,8 +281,8 @@ namespace MimeKit.Encodings {
 		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
 		/// <remarks>
-		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all of the
+		/// <para>Encodes the specified input into the output buffer, flushing any internal state as well.</para>
+		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>
 		/// </remarks>

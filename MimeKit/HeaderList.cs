@@ -158,7 +158,7 @@ namespace MimeKit {
 		/// Check if the <see cref="HeaderList"/> contains a header with the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the header list contains the specified header.
+		/// Determines whether the header list contains the specified header.
 		/// </remarks>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
@@ -178,7 +178,7 @@ namespace MimeKit {
 		/// Check if the <see cref="HeaderList"/> contains a header with the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the header list contains the specified header.
+		/// Determines whether the header list contains the specified header.
 		/// </remarks>
 		/// <returns><value>true</value> if the requested header exists;
 		/// otherwise <value>false</value>.</returns>
@@ -437,10 +437,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove all of the headers matching the specified field name.
+		/// Remove all the headers matching the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the headers matching the specified field name.
+		/// Removes all the headers matching the specified field name.
 		/// </remarks>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -466,10 +466,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove all of the headers matching the specified field name.
+		/// Remove all the headers matching the specified field name.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the headers matching the specified field name.
+		/// Removes all the headers matching the specified field name.
 		/// </remarks>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -663,7 +663,7 @@ namespace MimeKit {
 		/// Write the <see cref="HeaderList"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes all of the headers to the output stream.
+		/// Writes all the headers to the output stream.
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -716,7 +716,7 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="HeaderList"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes all of the headers to the output stream.
+		/// Writes all the headers to the output stream.
 		/// </remarks>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		/// <param name="options">The formatting options.</param>
@@ -765,7 +765,7 @@ namespace MimeKit {
 		/// Write the <see cref="HeaderList"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes all of the headers to the output stream.
+		/// Writes all the headers to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -787,7 +787,7 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="HeaderList"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// Writes all of the headers to the output stream.
+		/// Writes all the headers to the output stream.
 		/// </remarks>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		/// <param name="stream">The output stream.</param>
@@ -820,7 +820,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get whether or not the header list is read only.
+		/// Get whether the header list is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="HeaderList"/> is never read-only.
@@ -858,7 +858,7 @@ namespace MimeKit {
 		/// Clear the header list.
 		/// </summary>
 		/// <remarks>
-		/// Removes all of the headers from the list.
+		/// Removes all the headers from the list.
 		/// </remarks>
 		public void Clear ()
 		{
@@ -875,7 +875,7 @@ namespace MimeKit {
 		/// Check if the <see cref="HeaderList"/> contains the specified header.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether or not the header list contains the specified header.
+		/// Determines whether the header list contains the specified header.
 		/// </remarks>
 		/// <returns><value>true</value> if the specified header is contained;
 		/// otherwise, <value>false</value>.</returns>
@@ -892,10 +892,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all of the headers in the <see cref="HeaderList"/> to the specified array.
+		/// Copy all the headers in the <see cref="HeaderList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all of the headers within the <see cref="HeaderList"/> into the array,
+		/// Copies all the headers within the <see cref="HeaderList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the headers to.</param>
