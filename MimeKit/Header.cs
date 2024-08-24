@@ -24,9 +24,20 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
+#if !NET5_0_OR_GREATER
+// MemberNotNull attribute is not available below net5.0
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+#endif
+
+
 using System;
 using System.Text;
 using System.Collections.Generic;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Runtime.CompilerServices;
 
 using MimeKit.Utils;
@@ -53,7 +64,7 @@ namespace MimeKit {
 
 		readonly byte[] rawField;
 		bool explicitRawValue;
-		string textValue;
+		string? textValue;
 		byte[] rawValue;
 
 		/// <summary>
@@ -678,7 +689,7 @@ namespace MimeKit {
 			int count = 0;
 
 			while (index < rawValue.Length) {
-				ReceivedTokenValue token = null;
+				ReceivedTokenValue? token = null;
 				int startIndex = index;
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false) || index >= rawValue.Length) {
@@ -1443,6 +1454,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
+#if NET5_0_OR_GREATER
+		[MemberNotNull(nameof(rawValue))]
+#endif
 		public void SetValue (FormatOptions format, Encoding encoding, string value)
 		{
 			if (format is null)
@@ -1483,6 +1497,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
+#if NET5_0_OR_GREATER
+		[MemberNotNull (nameof (rawValue))]
+#endif
 		public void SetValue (Encoding encoding, string value)
 		{
 			SetValue (FormatOptions.Default, encoding, value);
@@ -1575,7 +1592,7 @@ namespace MimeKit {
 			OnChanged ();
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
 		void OnChanged ()
 		{
@@ -1655,7 +1672,11 @@ namespace MimeKit {
 			return c.IsBlank ();
 		}
 
-		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, [NotNullWhen(true)] out Header? header)
+#else
+		internal static unsafe bool TryParse (ParserOptions options, byte* input, int length, bool strict, out Header? header)
+#endif
 		{
 			byte* inend = input + length;
 			byte* start = input;
@@ -1749,7 +1770,11 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out Header? header)
+#else
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header? header)
+#endif
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
@@ -1779,7 +1804,11 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out Header? header)
+#else
+		public static bool TryParse (byte[] buffer, int startIndex, int length, out Header? header)
+#endif
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
 		}
@@ -1803,7 +1832,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out Header? header)
+#else
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header? header)
+#endif
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
@@ -1832,7 +1865,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out Header? header)
+#else
+		public static bool TryParse (byte[] buffer, int startIndex, out Header? header)
+#endif
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out header);
 		}
@@ -1852,7 +1889,11 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out Header? header)
+#else
+		public static bool TryParse (ParserOptions options, byte[] buffer, out Header? header)
+#endif
 		{
 			return TryParse (options, buffer, 0, out header);
 		}
@@ -1869,7 +1910,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out Header? header)
+#else
+		public static bool TryParse (byte[] buffer, out Header? header)
+#endif
 		{
 			return TryParse (ParserOptions.Default, buffer, out header);
 		}
@@ -1889,7 +1934,11 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (ParserOptions options, string text, [NotNullWhen(true)] out Header? header)
+#else
+		public static bool TryParse (ParserOptions options, string text, out Header? header)
+#endif
 		{
 			ParseUtils.ValidateArguments (options, text);
 
@@ -1914,7 +1963,11 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, out Header header)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+		public static bool TryParse (string text, [NotNullWhen(true)] out Header? header)
+#else
+		public static bool TryParse (string text, out Header? header)
+#endif
 		{
 			return TryParse (ParserOptions.Default, text, out header);
 		}
