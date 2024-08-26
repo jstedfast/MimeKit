@@ -25,52 +25,55 @@
 //
 
 using System.ComponentModel;
-using System.Linq;
-
-using NUnit.Framework;
 
 using MimeKit;
 
-namespace UnitTests;
-
-[TestFixture]
-public class InternetAddressListTypeConverterTests
+namespace UnitTests
 {
-	[Test]
-	public void TestCanConvert ()
+	[TestFixture]
+	public class InternetAddressListTypeConverterTests
 	{
-		var converter = TypeDescriptor.GetConverter (typeof(InternetAddressList));
-		Assert.True (converter.CanConvertFrom (typeof(string)));
-		Assert.True (converter.CanConvertTo (typeof(string)));
-	}
+		[Test]
+		public void TestCanConvert ()
+		{
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.That (converter.CanConvertFrom (typeof (string)), Is.True);
+			Assert.That (converter.CanConvertTo (typeof (string)), Is.True);
+		}
 
-	[Test]
-	public void TestIsValid ()
-	{
-		var converter = TypeDescriptor.GetConverter (typeof(InternetAddressList));
-		Assert.True (converter.IsValid ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>"));
-	}
+		[Test]
+		public void TestIsValid ()
+		{
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.That (converter.IsValid ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>"), Is.True);
+		}
 
-	[Test]
-	public void TestConvertFromValid ()
-	{
-		var converter = TypeDescriptor.GetConverter (typeof(InternetAddressList));
-		var result = converter.ConvertFrom ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>");
-		Assert.IsInstanceOf<InternetAddressList> (result);
-		Assert.AreEqual (new[] { "Skye", "Leo Fitz", "Melinda May" }, ((InternetAddressList)result).Select (e => e.Name));
-	}
+		[Test]
+		public void TestConvertFromValid ()
+		{
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			var result = converter.ConvertFrom ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>");
+			Assert.That (result, Is.InstanceOf (typeof (InternetAddressList)));
 
-	[Test]
-	public void TestIsNotValid ()
-	{
-		var converter = TypeDescriptor.GetConverter (typeof(InternetAddressList));
-		Assert.False (converter.IsValid (""));
-	}
+			var list = (InternetAddressList) result;
+			Assert.That (list.Count, Is.EqualTo (3));
+			Assert.That (list[0].Name, Is.EqualTo ("Skye"));
+			Assert.That (list[1].Name, Is.EqualTo ("Leo Fitz"));
+			Assert.That (list[2].Name, Is.EqualTo ("Melinda May"));
+		}
 
-	[Test]
-	public void TestConvertFromNotValid ()
-	{
-		var converter = TypeDescriptor.GetConverter (typeof(InternetAddressList));
-		Assert.Throws<ParseException> (() => converter.ConvertFrom (""));
+		[Test]
+		public void TestIsNotValid ()
+		{
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.That (converter.IsValid (""), Is.False);
+		}
+
+		[Test]
+		public void TestConvertFromNotValid ()
+		{
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.Throws<ParseException> (() => converter.ConvertFrom (""));
+		}
 	}
 }
