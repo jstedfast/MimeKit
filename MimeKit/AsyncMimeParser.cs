@@ -363,7 +363,7 @@ namespace MimeKit {
 		async Task MultipartScanPreambleAsync (Multipart multipart, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				long offset = GetOffset (inputIndex);
+				//long offset = GetOffset (inputIndex);
 
 				//OnMultipartPreambleBegin (multipart, offset);
 				await ScanContentAsync (memory, false, cancellationToken).ConfigureAwait (false);
@@ -375,7 +375,7 @@ namespace MimeKit {
 		async Task MultipartScanEpilogueAsync (Multipart multipart, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				long offset = GetOffset (inputIndex);
+				//long offset = GetOffset (inputIndex);
 
 				//OnMultipartEpilogueBegin (multipart, offset);
 				var result = await ScanContentAsync (memory, true, cancellationToken).ConfigureAwait (false);

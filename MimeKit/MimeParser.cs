@@ -1551,7 +1551,7 @@ namespace MimeKit {
 		unsafe void MultipartScanPreamble (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				long offset = GetOffset (inputIndex);
+				//long offset = GetOffset (inputIndex);
 
 				//OnMultipartPreambleBegin (multipart, offset);
 				ScanContent (inbuf, memory, false, cancellationToken);
@@ -1563,7 +1563,7 @@ namespace MimeKit {
 		unsafe void MultipartScanEpilogue (Multipart multipart, byte* inbuf, CancellationToken cancellationToken)
 		{
 			using (var memory = new MemoryStream ()) {
-				long offset = GetOffset (inputIndex);
+				//long offset = GetOffset (inputIndex);
 
 				//OnMultipartEpilogueBegin (multipart, offset);
 				var result = ScanContent (inbuf, memory, true, cancellationToken);

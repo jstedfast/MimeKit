@@ -143,7 +143,7 @@ namespace MimeKit.Utils {
 
 		public static void Append (this StringBuilder sb, StringBuilder value)
 		{
-			sb.Append (value.ToString ());
+			sb.Append (value);
 		}
 #endif
 

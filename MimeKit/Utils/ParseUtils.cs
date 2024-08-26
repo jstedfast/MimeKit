@@ -139,7 +139,6 @@ namespace MimeKit.Utils {
 						depth++;
 					else if (text[index] == (byte) ')')
 						depth--;
-					escaped = false;
 				} else {
 					escaped = false;
 				}
@@ -165,7 +164,6 @@ namespace MimeKit.Utils {
 						depth++;
 					else if (text[index] == ')')
 						depth--;
-					escaped = false;
 				} else {
 					escaped = false;
 				}
