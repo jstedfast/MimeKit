@@ -26,8 +26,6 @@
 
 using System.ComponentModel;
 
-using NUnit.Framework;
-
 using MimeKit;
 
 namespace UnitTests {
@@ -37,39 +35,41 @@ namespace UnitTests {
 		[Test]
 		public void TestCanConvert ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof(InternetAddress));
-			Assert.True (converter.CanConvertFrom (typeof(string)));
-			Assert.True (converter.CanConvertTo (typeof(string)));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
+			Assert.That (converter.CanConvertFrom(typeof (string)), Is.True);
+			Assert.That (converter.CanConvertTo (typeof (string)), Is.True);
 		}
 
 		[Test]
 		public void TestIsValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof(InternetAddress));
-			Assert.True (converter.IsValid ("Jeffrey Stedfast <jestedfa@microsoft.com>"));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
+			Assert.That (converter.IsValid ("Jeffrey Stedfast <jestedfa@microsoft.com>"), Is.True);
 		}
 
 		[Test]
 		public void TestConvertFromValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof(InternetAddress));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
 			var result = converter.ConvertFrom ("Jeffrey Stedfast <jestedfa@microsoft.com>");
-			Assert.IsInstanceOf<MailboxAddress> (result);
-			Assert.AreEqual ("Jeffrey Stedfast", ((MailboxAddress)result).Name);
-			Assert.AreEqual ("jestedfa@microsoft.com", ((MailboxAddress)result).Address);
+			Assert.That (result, Is.InstanceOf (typeof (MailboxAddress)));
+
+			var mailbox = (MailboxAddress) result;
+			Assert.That (mailbox.Name, Is.EqualTo ("Jeffrey Stedfast"));
+			Assert.That (mailbox.Address, Is.EqualTo ("jestedfa@microsoft.com"));
 		}
 
 		[Test]
 		public void TestIsNotValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof(InternetAddress));
-			Assert.False (converter.IsValid (""));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
+			Assert.That (converter.IsValid (""), Is.False);
 		}
 
 		[Test]
 		public void TestConvertFromNotValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof(InternetAddress));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
 			Assert.Throws<ParseException> (() => converter.ConvertFrom (""));
 		}
 	}
