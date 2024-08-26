@@ -95,6 +95,8 @@
     <Compile Remove="Cryptography\LdapUri.cs" />
     <Compile Remove="Utils\OptimizedOrdinalComparer.cs" />
     <Compile Include="Utils\OptimizedOrdinalComparer.cs" Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' " />
+    <Compile Remove="NullableAttributes.cs" />
+    <Compile Include="NullableAttributes.cs" Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
 
 </Project>
