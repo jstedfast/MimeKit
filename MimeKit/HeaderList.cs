@@ -27,15 +27,13 @@
 #nullable enable
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
-#endif
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Collections;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -1222,20 +1220,12 @@ namespace MimeKit {
 			Changed?.Invoke (this, new HeaderListChangedEventArgs (header, action));
 		}
 
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
-		internal bool TryGetHeader (HeaderId id, [NotNullWhen(true)] out Header? header)
-#else
-		internal bool TryGetHeader (HeaderId id, out Header? header)
-#endif
+		internal bool TryGetHeader (HeaderId id, [NotNullWhen (true)] out Header? header)
 		{
 			return table.TryGetValue (id.ToHeaderName (), out header);
 		}
 
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
 		internal bool TryGetHeader (string field, [NotNullWhen (true)] out Header? header)
-#else
-		internal bool TryGetHeader (string field, out Header? header)
-#endif
 		{
 			return table.TryGetValue (field, out header);
 		}
