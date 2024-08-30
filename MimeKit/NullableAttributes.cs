@@ -25,6 +25,7 @@
 //
 
 namespace System.Diagnostics.CodeAnalysis {
+#if NETFRAMEWORK || NETSTANDARD2_0
 	[AttributeUsage (AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
 	sealed class AllowNullAttribute : Attribute
 	{
@@ -65,8 +66,32 @@ namespace System.Diagnostics.CodeAnalysis {
 		public bool ReturnValue { get; }
 	}
 
+	[AttributeUsage (AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
+	sealed class NotNullAttribute : Attribute
+	{
+		public NotNullAttribute () { }
+	}
+
+	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
+	sealed class NotNullIfNotNullAttribute : Attribute
+	{
+		public NotNullIfNotNullAttribute (string parameterName) => ParameterName = parameterName;
+
+		public string ParameterName { get; }
+	}
+
+	[AttributeUsage (AttributeTargets.Parameter, Inherited = false)]
+	sealed class NotNullWhenAttribute : Attribute
+	{
+		public NotNullWhenAttribute (bool returnValue) => ReturnValue = returnValue;
+
+		public bool ReturnValue { get; }
+	}
+#endif
+
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETSTANDARD2_1
 	[AttributeUsage (AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
-	sealed class MemberNotNullAttribute : Attribute
+	public sealed class MemberNotNullAttribute : Attribute
 	{
 		public MemberNotNullAttribute (string member) => Members = new string[] { member };
 
@@ -94,26 +119,5 @@ namespace System.Diagnostics.CodeAnalysis {
 
 		public bool ReturnValue { get; }
 	}
-
-	[AttributeUsage (AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
-	sealed class NotNullAttribute : Attribute
-	{
-		public NotNullAttribute () { }
-	}
-
-	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
-	sealed class NotNullIfNotNullAttribute : Attribute
-	{
-		public NotNullIfNotNullAttribute (string parameterName) => ParameterName = parameterName;
-
-		public string ParameterName { get; }
-	}
-
-	[AttributeUsage (AttributeTargets.Parameter, Inherited = false)]
-	sealed class NotNullWhenAttribute : Attribute
-	{
-		public NotNullWhenAttribute (bool returnValue) => ReturnValue = returnValue;
-
-		public bool ReturnValue { get; }
-	}
+#endif
 }
