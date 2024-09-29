@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.7.1</version>
+    <version>4.8.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,8 +26,8 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added explicit dependency on System.Formats.Asn1 8.0.1 to fix a denial of service security issue (CVE-2024-38095).
-	</releaseNotes>
+* Added TypeConverters for InternetAddress and InternetAddressList.
+    </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
     <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net462 net47 net48 net6.0 net8.0 netstandard netstandard2.0 netstandard2.1</tags>

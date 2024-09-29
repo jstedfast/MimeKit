@@ -1,5 +1,9 @@
 # Release Notes
 
+## MimeKit 4.8.0 (2024-09-29)
+
+* Added TypeConverters for InternetAddress and InternetAddressList.
+
 ## MimeKit 4.7.1 (2024-07-11)
 
 * Bumped System.Formats.Asn1 to v8.0.1 to fix a denial of service security issue.
