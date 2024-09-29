@@ -461,10 +461,15 @@ namespace MimeKit {
 		/// Get or set the address in the Sender header.
 		/// </summary>
 		/// <remarks>
-		/// The sender may differ from the addresses in <see cref="From"/> if
-		/// the message was sent by someone on behalf of someone else.
+		/// <para>The "Sender" field specifies the mailbox of the agent responsible for
+		/// the actual transmission of the message. For example, if a secretary were to send a
+		/// message for another person, the mailbox of the secretary would appear in the
+		/// "Sender" field and the mailbox of the actual author would appear in the "From"
+		/// field. If the originator of the message can be indicated by a single mailbox and
+		/// the author and transmitter are identical, the "Sender" field SHOULD NOT be used.
+		/// Otherwise, both fields SHOULD appear.</para>
 		/// </remarks>
-		/// <value>The address in the Sender header.</value>
+		/// <value>The address in the Sender header, if available.</value>
 		public MailboxAddress Sender {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.Sender) == 0) {
