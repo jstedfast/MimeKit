@@ -121,11 +121,18 @@ namespace MimeKit {
 		/// <summary>
 		/// The Auto-Submitted header field.
 		/// </summary>
+		/// <remarks>
+		/// The header as defined in <see href="https://www.rfc-editor.org/rfc/rfc3834">RFC3834</see>
+		/// </remarks>
 		AutoSubmitted,
 
 		/// <summary>
 		/// The Autosubmitted header field.
 		/// </summary>
+		/// <remarks>
+		/// <b>Important:</b> This is more a legacy header as defined in <see href="https://datatracker.ietf.org/doc/html/rfc2156"/>RFC2156</see>. <br>
+		/// Usually, you likely want to use <see cref="AutoSubmitted"/> instead.
+		/// </remarks>
 		Autosubmitted,
 
 		/// <summary>
