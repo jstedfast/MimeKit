@@ -122,7 +122,7 @@ namespace MimeKit {
 		/// The Auto-Submitted header field.
 		/// </summary>
 		/// <remarks>
-		/// The header as defined in <see href="https://www.rfc-editor.org/rfc/rfc3834">RFC3834</see>
+		/// The header as defined in <see href="https://www.rfc-editor.org/rfc/rfc3834">RFC3834</see>.
 		/// </remarks>
 		AutoSubmitted,
 
