@@ -1245,5 +1245,3 @@ A copy of the XML-formatted API reference documentation is also included in the 
 MimeKit is a [.NET Foundation](https://www.dotnetfoundation.org/projects) project.
 
 This project has adopted the code of conduct defined by the [Contributor Covenant](https://contributor-covenant.org/) to clarify expected behavior in our community. For more information, see the [.NET Foundation Code of Conduct](https://www.dotnetfoundation.org/code-of-conduct).
-
-General .NET OSS discussions: [.NET Foundation forums](https://forums.dotnetfoundation.org)
