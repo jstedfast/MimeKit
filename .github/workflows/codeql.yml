@@ -41,11 +41,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-    - name: Run NuGet restore
-      shell: pwsh
-      run: |
-          nuget restore MimeKit.sln
-
     - name: Run .NET restore
       shell: pwsh
       run: |
