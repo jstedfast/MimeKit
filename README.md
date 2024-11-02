@@ -1,9 +1,12 @@
 # MimeKit
 
-|    Package    |Latest Release|Latest Build|
-|:--------------|:------------:|:----------:|
-|**MimeKit**    |[![NuGet Badge MimeKit](https://buildstats.info/nuget/MimeKit)](https://www.nuget.org/packages/MimeKit)|[![MyGet Badge MimeKit](https://buildstats.info/myget/mimekit/MimeKit)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit)|
-|**MimeKitLite**|[![NuGet Badge MimeKitLite](https://buildstats.info/nuget/MimeKitLite)](https://www.nuget.org/packages/MimeKitLite)||
+|  Package  |Latest Release|Latest Build|
+|:----------|:------------:|:----------:|
+|**MimeKit**|[![MimeKit NuGet](https://img.shields.io/nuget/v/MimeKit.svg?style=flat-square)](https://www.nuget.org/packages/MimeKit)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.svg?style=flat-square)|[![MimeKit MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.svg?style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit)|
+|**MimeKitLite**|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)||
+|**MailKit**|[![MailKit NuGet](https://img.shields.io/nuget/v/MailKit.svg?style=flat-square)](https://www.nuget.org/packages/MailKit)![MailKit NuGet Downloads](https://img.shields.io/nuget/dt/MailKit.svg?style=flat-square)|[![MailKit MyGet](https://img.shields.io/myget/mimekit/v/MailKit.svg?style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MailKit)|
+|**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)||
+
 
 |   Platform   |Build Status|Code Coverage|Static Analysis|
 |:-------------|:----------:|:-----------:|:-------------:|
