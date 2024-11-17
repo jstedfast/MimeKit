@@ -24,9 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-
 using MimeKit.Utils;
 
 namespace MimeKit.Text {
@@ -689,17 +686,6 @@ namespace MimeKit.Text {
 			"width",
 			"xmlns",
 		};
-		static readonly Dictionary<string, HtmlAttributeId> IdMapping;
-
-		static HtmlAttributeIdExtensions ()
-		{
-			var values = (HtmlAttributeId[]) Enum.GetValues (typeof (HtmlAttributeId));
-
-			IdMapping = new Dictionary<string, HtmlAttributeId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
-
-			for (int i = 1; i < values.Length; i++)
-				IdMapping.Add (values[i].ToAttributeName (), values[i]);
-		}
 
 		/// <summary>
 		/// Converts the enum value into the equivalent attribute name.
@@ -729,10 +715,9 @@ namespace MimeKit.Text {
 		/// <param name="name">The attribute name.</param>
 		internal static HtmlAttributeId ToHtmlAttributeId (this string name)
 		{
-			if (!IdMapping.TryGetValue (name, out HtmlAttributeId value))
-				return HtmlAttributeId.Unknown;
+			int index = MimeUtils.BinarySearch (AttributeNames, name);
 
-			return value;
+			return (HtmlAttributeId) (index + 1);
 		}
 	}
 }

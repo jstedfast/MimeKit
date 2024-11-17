@@ -24,9 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -99,6 +96,14 @@ namespace MimeKit {
 		AuthenticationResults,
 
 		/// <summary>
+		/// The Auto-Submitted header field.
+		/// </summary>
+		/// <remarks>
+		/// The header as defined in <a href="https://www.rfc-editor.org/rfc/rfc3834">RFC3834</a>.
+		/// </remarks>
+		AutoSubmitted,
+
+		/// <summary>
 		/// The Autocrypt header field.
 		/// </summary>
 		Autocrypt,
@@ -117,14 +122,6 @@ namespace MimeKit {
 		/// The Autoforwarded header field.
 		/// </summary>
 		Autoforwarded,
-
-		/// <summary>
-		/// The Auto-Submitted header field.
-		/// </summary>
-		/// <remarks>
-		/// The header as defined in <a href="https://www.rfc-editor.org/rfc/rfc3834">RFC3834</a>.
-		/// </remarks>
-		AutoSubmitted,
 
 		/// <summary>
 		/// The Autosubmitted header field.
@@ -358,6 +355,11 @@ namespace MimeKit {
 		Importance,
 
 		/// <summary>
+		/// The In-Reply-To header field.
+		/// </summary>
+		InReplyTo,
+
+		/// <summary>
 		/// The Injection-Date header field.
 		/// </summary>
 		InjectionDate,
@@ -366,11 +368,6 @@ namespace MimeKit {
 		/// The Injection-Info header field.
 		/// </summary>
 		InjectionInfo,
-
-		/// <summary>
-		/// The In-Reply-To header field.
-		/// </summary>
-		InReplyTo,
 
 		/// <summary>
 		/// The Keywords header field.
@@ -643,6 +640,26 @@ namespace MimeKit {
 		UserAgent,
 
 		/// <summary>
+		/// The X-Mailer header field.
+		/// </summary>
+		XMailer,
+
+		/// <summary>
+		/// The X-MSMail-Priority header field.
+		/// </summary>
+		XMSMailPriority,
+
+		/// <summary>
+		/// The X-Priority header field.
+		/// </summary>
+		XPriority,
+
+		/// <summary>
+		/// The X-Status header field.
+		/// </summary>
+		XStatus,
+
+		/// <summary>
 		/// The X400-Content-Identifier header field.
 		/// </summary>
 		X400ContentIdentifier,
@@ -683,26 +700,6 @@ namespace MimeKit {
 		X400Trace,
 
 		/// <summary>
-		/// The X-Mailer header field.
-		/// </summary>
-		XMailer,
-
-		/// <summary>
-		/// The X-MSMail-Priority header field.
-		/// </summary>
-		XMSMailPriority,
-
-		/// <summary>
-		/// The X-Priority header field.
-		/// </summary>
-		XPriority,
-
-		/// <summary>
-		/// The X-Status header field.
-		/// </summary>
-		XStatus,
-
-		/// <summary>
 		/// An unknown header field.
 		/// </summary>
 		Unknown = -1
@@ -729,11 +726,11 @@ namespace MimeKit {
 			"Archived-At",
 			"Article",
 			"Authentication-Results",
+			"Auto-Submitted",
 			"Autocrypt",
 			"Autocrypt-Gossip",
 			"Autocrypt-Setup-Message",
 			"Autoforwarded",
-			"Auto-Submitted",
 			"Autosubmitted",
 			"Base",
 			"Bcc",
@@ -779,9 +776,9 @@ namespace MimeKit {
 			"From",
 			"Generate-Delivery-Report",
 			"Importance",
+			"In-Reply-To",
 			"Injection-Date",
 			"Injection-Info",
-			"In-Reply-To",
 			"Keywords",
 			"Language",
 			"Latest-Delivery-Time",
@@ -836,6 +833,10 @@ namespace MimeKit {
 			"TLS-Required",
 			"To",
 			"User-Agent",
+			"X-Mailer",
+			"X-MSMail-Priority",
+			"X-Priority",
+			"X-Status",
 			"X400-Content-Identifier",
 			"X400-Content-Return",
 			"X400-Content-Type",
@@ -844,22 +845,7 @@ namespace MimeKit {
 			"X400-Received",
 			"X400-Recipients",
 			"X400-Trace",
-			"X-Mailer",
-			"X-MSMail-Priority",
-			"X-Priority",
-			"X-Status",
 		};
-		static readonly Dictionary<string, HeaderId> IdMapping;
-
-		static HeaderIdExtensions ()
-		{
-			var values = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
-
-			IdMapping = new Dictionary<string, HeaderId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
-
-			for (int i = 0; i < values.Length - 1; i++)
-				IdMapping.Add (HeaderNames[i], values[i]);
-		}
 
 		/// <summary>
 		/// Converts the enum value into the equivalent header field name.
@@ -881,10 +867,9 @@ namespace MimeKit {
 
 		internal static HeaderId ToHeaderId (this string name)
 		{
-			if (!IdMapping.TryGetValue (name, out var value))
-				return HeaderId.Unknown;
+			int index = MimeUtils.BinarySearch (HeaderNames, name);
 
-			return value;
+			return index >= 0 ? (HeaderId) index : HeaderId.Unknown;
 		}
 	}
 }

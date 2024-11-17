@@ -24,9 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
-
 using MimeKit.Utils;
 
 namespace MimeKit.Text {
@@ -44,6 +41,11 @@ namespace MimeKit.Text {
 		/// An unknown HTML tag identifier.
 		/// </summary>
 		Unknown,
+
+		/// <summary>
+		/// The HTML comment tag.
+		/// </summary>
+		Comment,
 
 		/// <summary>
 		/// The HTML &lt;a&gt; tag.
@@ -189,11 +191,6 @@ namespace MimeKit.Text {
 		/// The HTML &lt;command&gt; tag.
 		/// </summary>
 		Command,
-
-		/// <summary>
-		/// The HTML comment tag.
-		/// </summary>
-		Comment,
 
 		/// <summary>
 		/// The HTML &lt;datalist&gt; tag.
@@ -725,6 +722,7 @@ namespace MimeKit.Text {
 	public static class HtmlTagIdExtensions
 	{
 		static readonly string[] TagNames = new string[] {
+			"!",
 			"a",
 			"abbr",
 			"acronym",
@@ -754,7 +752,6 @@ namespace MimeKit.Text {
 			"col",
 			"colgroup",
 			"command",
-			"!",
 			"datalist",
 			"dd",
 			"del",
@@ -860,17 +857,6 @@ namespace MimeKit.Text {
 			"xml",
 			"xmp",
 		};
-		static readonly Dictionary<string, HtmlTagId> IdMapping;
-
-		static HtmlTagIdExtensions ()
-		{
-			var values = (HtmlTagId[]) Enum.GetValues (typeof (HtmlTagId));
-
-			IdMapping = new Dictionary<string, HtmlTagId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
-
-			for (int i = 1; i < values.Length; i++)
-				IdMapping.Add (values[i].ToHtmlTagName (), values[i]);
-		}
 
 		/// <summary>
 		/// Converts the enum value into the equivalent tag name.
@@ -906,10 +892,9 @@ namespace MimeKit.Text {
 			if (name[0] == '!')
 				return HtmlTagId.Comment;
 
-			if (!IdMapping.TryGetValue (name, out HtmlTagId value))
-				return HtmlTagId.Unknown;
+			int index = MimeUtils.BinarySearch (TagNames, name);
 
-			return value;
+			return (HtmlTagId) (index + 1);
 		}
 
 		/// <summary>

@@ -614,5 +614,27 @@ namespace MimeKit.Utils {
 
 			return builder.ToArray ();
 		}
+
+		internal static int BinarySearch (string[] names, string name)
+		{
+			int max = names.Length - 1;
+			int min = 0;
+
+			while (min <= max) {
+				int i = min + ((max - min) / 2);
+
+				int cmp = string.Compare (names[i], name, StringComparison.OrdinalIgnoreCase);
+
+				if (cmp == 0)
+					return i;
+
+				if (cmp < 0)
+					min = i + 1;
+				else
+					max = i - 1;
+			}
+
+			return -1;
+		}
 	}
 }
