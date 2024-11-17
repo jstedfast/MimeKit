@@ -853,7 +853,11 @@ namespace MimeKit {
 
 		static HeaderIdExtensions ()
 		{
+#if NET8_0_OR_GREATER
+			var values = Enum.GetValues<HeaderId> ();
+#else
 			var values = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
+#endif
 
 			IdMapping = new Dictionary<string, HeaderId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 

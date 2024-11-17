@@ -693,7 +693,11 @@ namespace MimeKit.Text {
 
 		static HtmlAttributeIdExtensions ()
 		{
+#if NET8_0_OR_GREATER
+			var values = Enum.GetValues<HtmlAttributeId> ();
+#else
 			var values = (HtmlAttributeId[]) Enum.GetValues (typeof (HtmlAttributeId));
+#endif
 
 			IdMapping = new Dictionary<string, HtmlAttributeId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 

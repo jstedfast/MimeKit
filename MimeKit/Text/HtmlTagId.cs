@@ -864,7 +864,11 @@ namespace MimeKit.Text {
 
 		static HtmlTagIdExtensions ()
 		{
+#if NET8_0_OR_GREATER
+			var values = Enum.GetValues<HtmlTagId> ();
+#else
 			var values = (HtmlTagId[]) Enum.GetValues (typeof (HtmlTagId));
+#endif
 
 			IdMapping = new Dictionary<string, HtmlTagId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 

@@ -35,6 +35,7 @@ using MimeKit.Cryptography;
 
 using MimeKit.Tnef;
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -244,7 +245,11 @@ namespace MimeKit {
 		/// <para><paramref name="type"/> does not have a constructor that takes
 		/// only a <see cref="MimeEntityConstructorArgs"/> argument.</para>
 		/// </exception>
-		public void RegisterMimeType (string mimeType, Type type)
+		public void RegisterMimeType (string mimeType,
+#if NET8_0_OR_GREATER
+			[DynamicallyAccessedMembers (DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+			Type type)
 		{
 			if (mimeType is null)
 				throw new ArgumentNullException (nameof (mimeType));

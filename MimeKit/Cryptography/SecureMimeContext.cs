@@ -55,7 +55,11 @@ namespace MimeKit.Cryptography {
 	{
 		static readonly string[] ProtocolSubtypes = { "pkcs7-signature", "pkcs7-mime", "pkcs7-keys", "x-pkcs7-signature", "x-pkcs7-mime", "x-pkcs7-keys" };
 		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
+#if NET8_0_OR_GREATER
+		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues<EncryptionAlgorithm> ().Length;
+#else
 		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
+#endif
 		internal static readonly DerObjectIdentifier Blowfish = new DerObjectIdentifier ("1.3.6.1.4.1.3029.1.2");
 		internal static readonly DerObjectIdentifier Twofish = new DerObjectIdentifier ("1.3.6.1.4.1.25258.3.3");
 

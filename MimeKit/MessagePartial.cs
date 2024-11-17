@@ -218,7 +218,14 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
 			var options = FormatOptions.Default.Clone ();
-			foreach (HeaderId id in Enum.GetValues (typeof (HeaderId))) {
+
+#if NET8_0_OR_GREATER
+			var ids = Enum.GetValues<HeaderId> ();
+#else
+			var ids = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
+#endif
+
+			foreach (var id in ids) {
 				switch (id) {
 				case HeaderId.Subject:
 				case HeaderId.MessageId:
