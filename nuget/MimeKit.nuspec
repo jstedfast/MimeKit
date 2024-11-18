@@ -55,19 +55,19 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net47">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net48">
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
@@ -87,7 +87,7 @@
         <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
@@ -96,7 +96,7 @@
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
         <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
+        <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.5.5" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
