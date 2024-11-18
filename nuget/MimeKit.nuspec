@@ -30,7 +30,7 @@
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net462 net47 net48 net6.0 net8.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef net462 net47 net48 net8.0 netstandard netstandard2.0 netstandard2.1</tags>
     <readme>docs\README.md</readme>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
@@ -69,11 +69,6 @@
         <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.1.0" />
         <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.5.5" />
-        <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
-      </group>
-      <group targetFramework="net6.0">
-        <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
-        <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net8.0">
@@ -125,10 +120,6 @@
     <file src="..\MimeKit\bin\Release\net48\MimeKit.pdb" target="lib\net48\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.xml" target="lib\net48\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.dll.config" target="lib\net48\MimeKit.dll.config" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.dll" target="lib\net6.0\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.pdb" target="lib\net6.0\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.xml" target="lib\net6.0\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKit.dll.config" target="lib\net6.0\MimeKit.dll.config" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll" target="lib\net8.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.pdb" target="lib\net8.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.xml" target="lib\net8.0\MimeKit.xml" />
