@@ -189,7 +189,7 @@ namespace MimeKit.Text {
 			Encoding encoding;
 
 			try {
-				encoding = CharsetUtils.GetEncoding (charset);
+				encoding = CharsetUtils.GetEncoding (charset, string.Empty);
 			} catch (NotSupportedException) {
 				encoding = CharsetUtils.UTF8;
 			}
