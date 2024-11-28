@@ -54,7 +54,7 @@ namespace MimeKit {
 	[TypeConverter (typeof (InternetAddressListConverter))]
 	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>, IComparable<InternetAddressList>
 	{
-		readonly List<InternetAddress> list = new List<InternetAddress> ();
+		readonly List<InternetAddress> list;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="InternetAddressList"/> class.
@@ -71,6 +71,11 @@ namespace MimeKit {
 			if (addresses is null)
 				throw new ArgumentNullException (nameof (addresses));
 
+			if (addresses is IList<InternetAddress> lst)
+				list = new List<InternetAddress> (lst.Count);
+			else
+				list = new List<InternetAddress> ();
+
 			foreach (var address in addresses) {
 				address.Changed += AddressChanged;
 				list.Add (address);
@@ -85,6 +90,17 @@ namespace MimeKit {
 		/// </remarks>
 		public InternetAddressList ()
 		{
+			list = new List<InternetAddress> ();
+		}
+
+		// Note: This .ctor gets used by the Parse and TryParse methods and is meant to reduce duplicating an
+		// existing List<InternetAddress> for no reason.
+		InternetAddressList (List<InternetAddress> addresses)
+		{
+			list = addresses;
+
+			foreach (var address in addresses)
+				address.Changed += AddressChanged;
 		}
 
 		/// <summary>
