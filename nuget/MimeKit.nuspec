@@ -54,19 +54,16 @@
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.1.0" />
         <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.6.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net47">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.1.0" />
         <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.6.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="net48">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.1.0" />
         <dependency id="System.Buffers" version="4.6.0" />
         <dependency id="System.Memory" version="4.6.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
@@ -77,7 +74,6 @@
         <dependency id="BouncyCastle.Cryptography" version="2.4.0" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.1.0" />
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
         <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
@@ -108,15 +104,12 @@
     <file src="..\MimeKit\bin\Release\net462\MimeKit.dll" target="lib\net462\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net462\MimeKit.pdb" target="lib\net462\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net462\MimeKit.xml" target="lib\net462\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.dll.config" target="lib\net462\MimeKit.dll.config" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.pdb" target="lib\net47\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.dll.config" target="lib\net47\MimeKit.dll.config" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.dll" target="lib\net48\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.pdb" target="lib\net48\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKit.xml" target="lib\net48\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.dll.config" target="lib\net48\MimeKit.dll.config" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll" target="lib\net8.0\MimeKit.dll" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.pdb" target="lib\net8.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.xml" target="lib\net8.0\MimeKit.xml" />
