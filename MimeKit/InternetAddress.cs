@@ -615,6 +615,8 @@ namespace MimeKit {
 			int words = 0;
 
 			while (index < endIndex) {
+				bool quoted = text[index] == (byte) '"';
+
 				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
 						break;
@@ -659,7 +661,7 @@ namespace MimeKit {
 				words++;
 
 				// Note: some clients don't quote commas in the name
-				if (index < endIndex && text[index] == ',' && words > minWordCount) {
+				if (index < endIndex && text[index] == ',' && !quoted && words > minWordCount) {
 					index++;
 
 					length = index - startIndex;
