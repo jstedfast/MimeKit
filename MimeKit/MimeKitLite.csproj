@@ -52,9 +52,9 @@
     <DefineConstants>$(DefineConstants);SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
-  <!--<PropertyGroup>
+  <PropertyGroup>
     <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
-  </PropertyGroup>-->
+  </PropertyGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
