@@ -56,7 +56,7 @@ namespace MimeKit.Cryptography {
 		static readonly string[] ProtocolSubtypes = { "pkcs7-signature", "pkcs7-mime", "pkcs7-keys", "x-pkcs7-signature", "x-pkcs7-mime", "x-pkcs7-keys" };
 		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
 #if NET8_0_OR_GREATER
-		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues<EncryptionAlgorithm> ().Length;
+		internal static readonly int EncryptionAlgorithmCount = Enum.GetValuesAsUnderlyingType<EncryptionAlgorithm> ().Length;
 #else
 		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
 #endif

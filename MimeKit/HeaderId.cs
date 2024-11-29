@@ -854,15 +854,18 @@ namespace MimeKit {
 		static HeaderIdExtensions ()
 		{
 #if NET8_0_OR_GREATER
-			var values = Enum.GetValues<HeaderId> ();
+			var values = Enum.GetValuesAsUnderlyingType<HeaderId> ();
 #else
-			var values = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
+			var values = Enum.GetValues (typeof (HeaderId));
 #endif
 
 			IdMapping = new Dictionary<string, HeaderId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
-			for (int i = 0; i < values.Length - 1; i++)
-				IdMapping.Add (HeaderNames[i], values[i]);
+			for (int i = 0; i < values.Length - 1; i++) {
+				var value = (HeaderId) values.GetValue (i);
+
+				IdMapping.Add (HeaderNames[i], value);
+			}
 		}
 
 		/// <summary>

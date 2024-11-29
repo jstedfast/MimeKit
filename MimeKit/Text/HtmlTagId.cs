@@ -875,7 +875,7 @@ namespace MimeKit.Text {
 			for (int i = 1; i < values.Length; i++) {
 				var value = (HtmlTagId) values.GetValue (i);
 
-				IdMapping.Add (value.ToHtmlTagName (), value);
+				IdMapping.Add (TagNames[i - 1], value);
 			}
 		}
 

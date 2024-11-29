@@ -30,6 +30,7 @@ using System.Threading;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -768,7 +769,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="type"/> does not have a parameterless constructor.</para>
 		/// </exception>
-		public static void Register (Type type)
+		public static void Register (
+#if NET8_0_OR_GREATER
+			[DynamicallyAccessedMembers (DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+#endif
+			Type type)
 		{
 			if (type == null)
 				throw new ArgumentNullException (nameof (type));

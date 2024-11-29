@@ -220,12 +220,14 @@ namespace MimeKit {
 			var options = FormatOptions.Default.Clone ();
 
 #if NET8_0_OR_GREATER
-			var ids = Enum.GetValues<HeaderId> ();
+			var ids = Enum.GetValuesAsUnderlyingType<HeaderId> ();
 #else
-			var ids = (HeaderId[]) Enum.GetValues (typeof (HeaderId));
+			var ids = Enum.GetValues (typeof (HeaderId));
 #endif
 
-			foreach (var id in ids) {
+			for (int i = 0; i < ids.Length; i++) {
+				var id = (HeaderId) ids.GetValue (i);
+
 				switch (id) {
 				case HeaderId.Subject:
 				case HeaderId.MessageId:

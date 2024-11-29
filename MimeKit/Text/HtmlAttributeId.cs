@@ -704,7 +704,7 @@ namespace MimeKit.Text {
 			for (int i = 1; i < values.Length; i++) {
 				var value = (HtmlAttributeId) values.GetValue (i);
 
-				IdMapping.Add (value.ToAttributeName (), value);
+				IdMapping.Add (AttributeNames[i - 1], value);
 			}
 		}
 
