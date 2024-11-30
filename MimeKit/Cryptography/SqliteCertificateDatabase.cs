@@ -30,6 +30,7 @@ using System.Data;
 using System.Text;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Security;
 
@@ -49,6 +50,9 @@ namespace MimeKit.Cryptography {
 	/// and private keys.</para>
 	/// <para>This particular database uses SQLite to store the data.</para>
 	/// </remarks>
+#if NET8_0_OR_GREATER
+	[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 	public class SqliteCertificateDatabase : SqlCertificateDatabase
 	{
 #if !__MOBILE__
@@ -62,6 +66,9 @@ namespace MimeKit.Cryptography {
 			public PropertyInfo DateTimeFormatProperty { get; private set; }
 			public PropertyInfo DataSourceProperty { get; private set; }
 
+#if NET8_0_OR_GREATER
+			[RequiresUnreferencedCode ("Uses Reflection to load SQLite classes dynamically from the specified assembly.")]
+#endif
 			public static SQLiteAssembly Load (string assemblyName)
 			{
 				try {

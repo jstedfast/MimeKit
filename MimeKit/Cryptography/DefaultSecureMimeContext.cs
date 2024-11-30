@@ -30,6 +30,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Pkcs;
@@ -95,6 +96,9 @@ namespace MimeKit.Cryptography {
 			DefaultDatabasePath = Path.Combine (path, "smime.db");
 		}
 
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		static void CheckIsAvailable ()
 		{
 			if (!SqliteCertificateDatabase.IsAvailable)
@@ -128,6 +132,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string fileName, string password) : this (fileName, password, new SecureRandom ())
 		{
 		}
@@ -162,6 +169,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string fileName, string password, SecureRandom random) : base (random)
 		{
 			if (fileName == null)
@@ -205,6 +215,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the database at the default location.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string password) : this (DefaultDatabasePath, password)
 		{
 		}
@@ -232,6 +245,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the database at the default location.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string password, SecureRandom random) : this (DefaultDatabasePath, password, random)
 		{
 		}
@@ -252,6 +268,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the database at the default location.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext () : this (DefaultDatabasePath, "no.secret")
 		{
 		}
