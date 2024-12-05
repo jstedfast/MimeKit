@@ -107,15 +107,61 @@ namespace MimeKit.Cryptography {
 		DecipherOnly     = 1 << 15
 	}
 
-	enum X509KeyUsageBits {
+	/// <summary>
+	/// X.509 key usage bits.
+	/// </summary>
+	/// <remarks>
+	/// <para>The X.509 Key Usage Bits can be used to determine what operations
+	/// a certificate can be used for which is similar to <see cref="X509KeyUsageFlags"/> but
+	/// the usage of this is enum represents a position in a bit array.</para> 
+	/// </remarks>
+	public enum X509KeyUsageBits
+	{
+		/// <summary>
+		/// The key may be used for digitally signing data.
+		/// </summary>
 		DigitalSignature,
+
+		/// <summary>
+		/// The key may be used to verify digital signatures used to
+		/// provide a non-repudiation service.
+		/// </summary>
 		NonRepudiation,
+
+		/// <summary>
+		/// The key is meant to be used for key encipherment.
+		/// </summary>
 		KeyEncipherment,
+
+		/// <summary>
+		/// The key may be used for data encipherment.
+		/// </summary>
 		DataEncipherment,
+
+		/// <summary>
+		/// The key is meant to be used for key agreement.
+		/// </summary>
 		KeyAgreement,
+
+		/// <summary>
+		/// The key may be used for verifying signatures on certificates.
+		/// </summary>
 		KeyCertSign,
+
+		/// <summary>
+		/// The key may be used for verifying signatures on
+		/// certificate revocation lists (CRLs).
+		/// </summary>
 		CrlSign,
+
+		/// <summary>
+		/// The key may only be used for enciphering data during key agreement.
+		/// </summary>
 		EncipherOnly,
+
+		/// <summary>
+		/// The key may only be used for deciphering data during key agreement.
+		/// </summary>
 		DecipherOnly,
 	}
 }
