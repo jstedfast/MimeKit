@@ -197,6 +197,10 @@ namespace MimeKit.Cryptography {
 
 				if (name.TagNo == GeneralName.Rfc822Name)
 					return ((IAsn1String) name.Name).GetString ();
+			}
+
+			foreach (Asn1Encodable encodable in seq) {
+				var name = GeneralName.GetInstance (encodable);
 
 				if (name.TagNo == GeneralName.DnsName)
 					return ((IAsn1String) name.Name).GetString ();
