@@ -199,11 +199,13 @@ namespace MimeKit.Cryptography {
 					return ((IAsn1String) name.Name).GetString ();
 			}
 
-			foreach (Asn1Encodable encodable in seq) {
-				var name = GeneralName.GetInstance (encodable);
+			if (Environment.GetEnvironmentVariable ("INCLUDE_DNS_NAME") != null) {
+				foreach (Asn1Encodable encodable in seq) {
+					var name = GeneralName.GetInstance (encodable);
 
-				if (name.TagNo == GeneralName.DnsName)
-					return ((IAsn1String) name.Name).GetString ();
+					if (name.TagNo == GeneralName.DnsName)
+						return ((IAsn1String) name.Name).GetString ();
+				}
 			}
 
 			return null;
