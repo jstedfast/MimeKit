@@ -167,8 +167,13 @@ namespace MimeKit.Cryptography {
 		/// The email address component of the certificate's Subject identifier is
 		/// sometimes used as a way of looking up certificates for a particular
 		/// user if a fingerprint is not available.
+		/// If an email address cannot be found the SubjectAlternativeName of type DNS
+		/// representing the host name will be returned.  This is referred to as a
+		/// domain-bound certificate.  This association is found in practice by standards
+		/// like the <a href="https://directtrust.app.box.com/s/p1dpmt9tkoa9ay7h3bmcwwo5jj0yrhw7">
+		/// Applicability Statement for Secure Health Transport Version</a>
 		/// </remarks>
-		/// <returns>The subject email address.</returns>
+		/// <returns>The subject email address or hostname.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -191,6 +196,9 @@ namespace MimeKit.Cryptography {
 				var name = GeneralName.GetInstance (encodable);
 
 				if (name.TagNo == GeneralName.Rfc822Name)
+					return ((IAsn1String) name.Name).GetString ();
+
+				if (name.TagNo == GeneralName.DnsName)
 					return ((IAsn1String) name.Name).GetString ();
 			}
 
