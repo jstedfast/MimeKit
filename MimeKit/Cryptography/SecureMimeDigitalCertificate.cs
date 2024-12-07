@@ -130,7 +130,18 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The email address.</value>
 		public string Email {
-			get { return Certificate.GetSubjectEmailAddress (); }
+			get { return Certificate.GetSubjectEmailAddress (true); }
+		}
+
+		/// <summary>
+		/// Gets the DNS name of the owner of the certificate.
+		/// </summary>
+		/// <remarks>
+		/// Gets the DNS name of the owner of the certificate.
+		/// </remarks>
+		/// <value>The DNS name.</value>
+		public string DnsName {
+			get { return Certificate.GetSubjectDnsName (true); }
 		}
 
 		/// <summary>

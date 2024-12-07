@@ -139,6 +139,7 @@ namespace MimeKit.Cryptography {
 			table.Columns.Add (new DataColumn ("SUBJECTNAME", typeof (string)) { AllowDBNull = false });
 			table.Columns.Add (new DataColumn ("SUBJECTKEYIDENTIFIER", typeof (string)) { AllowDBNull = true });
 			table.Columns.Add (new DataColumn ("SUBJECTEMAIL", typeof (string)) { AllowDBNull = true });
+			table.Columns.Add (new DataColumn ("SUBJECTDNSNAME", typeof (string)) { AllowDBNull = true });
 			table.Columns.Add (new DataColumn ("FINGERPRINT", typeof (string)) { AllowDBNull = false });
 			table.Columns.Add (new DataColumn ("ALGORITHMS", typeof (string)) { AllowDBNull = true });
 			table.Columns.Add (new DataColumn ("ALGORITHMSUPDATED", typeof (long)) { AllowDBNull = false });
@@ -254,18 +255,25 @@ namespace MimeKit.Cryptography {
 			CreateTable (connection, table);
 
 			var currentColumns = GetTableColumns (connection, table.TableName);
+			bool hasSubjectDnsNameColumn = false;
 			bool hasAnchorColumn = false;
 
+			// Figure out which columns are missing...
 			for (int i = 0; i < currentColumns.Count; i++) {
-				if (currentColumns[i].ColumnName.Equals ("ANCHOR", StringComparison.Ordinal)) {
+				if (currentColumns[i].ColumnName.Equals ("SUBJECTDNSNAME", StringComparison.Ordinal))
+					hasSubjectDnsNameColumn = true;
+				else if (currentColumns[i].ColumnName.Equals ("ANCHOR", StringComparison.Ordinal))
 					hasAnchorColumn = true;
-					break;
-				}
 			}
 
-			// Note: The ANCHOR, SUBJECTNAME and SUBJECTKEYIDENTIFIER columns were all added in the same version,
-			// so if the ANCHOR column is missing, they all are.
+			// Certificates Table Version History:
+			//
+			// * Version 1: Initial version.
+			// * Version 2: Added the ANCHOR, SUBJECTNAME, and SUBJECTKEYIDENTIFIER columns.
+			// * Version 3: Added the SUBJECTDNSNAME column and started canonicalizing the SUBJECTEMAIL and SUBJECTDNSNAME columns with the IDN-encoded values. (MimeKit v4.9.0)
+
 			if (!hasAnchorColumn) {
+				// Upgrade from Version 1.
 				using (var transaction = connection.BeginTransaction ()) {
 					try {
 						var column = table.Columns[table.Columns.IndexOf ("ANCHOR")];
@@ -277,14 +285,20 @@ namespace MimeKit.Cryptography {
 						column = table.Columns[table.Columns.IndexOf ("SUBJECTKEYIDENTIFIER")];
 						AddTableColumn (connection, table, column);
 
+						// Note: The SubjectEmail column exists, but the SubjectDnsName column was added later, so make sure to add that.
+						column = table.Columns[table.Columns.IndexOf ("SUBJECTDNSNAME")];
+						AddTableColumn (connection, table, column);
+
 						foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
-							var statement = "UPDATE CERTIFICATES SET ANCHOR = @ANCHOR, SUBJECTNAME = @SUBJECTNAME, SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER WHERE ID = @ID";
+							var statement = "UPDATE CERTIFICATES SET ANCHOR = @ANCHOR, SUBJECTNAME = @SUBJECTNAME, SUBJECTKEYIDENTIFIER = @SUBJECTKEYIDENTIFIER, SUBJECTEMAIL = @SUBJECTEMAIL, SUBJECTDNSNAME = @SUBJECTDNSNAME WHERE ID = @ID";
 
 							using (var command = connection.CreateCommand ()) {
 								command.AddParameterWithValue ("@ID", record.Id);
 								command.AddParameterWithValue ("@ANCHOR", record.IsAnchor);
 								command.AddParameterWithValue ("@SUBJECTNAME", record.SubjectName);
 								command.AddParameterWithValue ("@SUBJECTKEYIDENTIFIER", record.SubjectKeyIdentifier?.AsHex ());
+								command.AddParameterWithValue ("@SUBJECTEMAIL", record.SubjectEmail);
+								command.AddParameterWithValue ("@SUBJECTDNSNAME", record.SubjectDnsName);
 								command.CommandType = CommandType.Text;
 								command.CommandText = statement;
 
@@ -305,6 +319,36 @@ namespace MimeKit.Cryptography {
 				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "ISSUERNAME", "SERIALNUMBER" });
 				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "FINGERPRINT" });
 				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "SUBJECTEMAIL" });
+			} else if (!hasSubjectDnsNameColumn) {
+				// Upgrade from Version 2.
+				using (var transaction = connection.BeginTransaction ()) {
+					try {
+						var column = table.Columns[table.Columns.IndexOf ("SUBJECTDNSNAME")];
+						AddTableColumn (connection, table, column);
+
+						foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
+							var statement = "UPDATE CERTIFICATES SET SUBJECTEMAIL = @SUBJECTEMAIL, SUBJECTDNSNAME = @SUBJECTDNSNAME WHERE ID = @ID";
+
+							using (var command = connection.CreateCommand ()) {
+								command.AddParameterWithValue ("@ID", record.Id);
+								command.AddParameterWithValue ("@SUBJECTEMAIL", record.SubjectEmail);
+								command.AddParameterWithValue ("@SUBJECTDNSNAME", record.SubjectDnsName);
+								command.CommandType = CommandType.Text;
+								command.CommandText = statement;
+
+								command.ExecuteNonQuery ();
+							}
+						}
+
+						transaction.Commit ();
+					} catch {
+						transaction.Rollback ();
+						throw;
+					}
+				}
+
+				// Remove some old indexes
+				RemoveIndex (connection, table.TableName, new[] { "BASICCONSTRAINTS", "SUBJECTEMAIL", "NOTBEFORE", "NOTAFTER" });
 			}
 
 			// Note: Use "EXPLAIN QUERY PLAN SELECT ... FROM CERTIFICATES WHERE ..." to verify that any indexes we create get used as expected.
@@ -316,7 +360,7 @@ namespace MimeKit.Cryptography {
 			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "FINGERPRINT", "NOTBEFORE", "NOTAFTER" });
 
 			// Index for searching for a certificate based on a MailboxAddress
-			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL", "NOTBEFORE", "NOTAFTER" });
+			CreateIndex (connection, table.TableName, new [] { "BASICCONSTRAINTS", "SUBJECTEMAIL", "SUBJECTDNSNAME", "NOTBEFORE", "NOTAFTER" });
 
 			// Index for gathering a list of Trusted Anchors
 			CreateIndex (connection, table.TableName, new [] { "TRUSTED", "ANCHOR", "KEYUSAGE" });
@@ -412,8 +456,13 @@ namespace MimeKit.Cryptography {
 					query = query.Append ("AND FINGERPRINT = @FINGERPRINT ");
 				}
 			} else {
-				command.AddParameterWithValue ("@SUBJECTEMAIL", mailbox.Address.ToLowerInvariant ());
-				query = query.Append ("AND SUBJECTEMAIL = @SUBJECTEMAIL ");
+				var domain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+				var address = mailbox.GetAddress (true);
+
+				command.AddParameterWithValue ("@SUBJECTEMAIL", address.ToLowerInvariant ());
+				command.AddParameterWithValue ("@SUBJECTDNSNAME", domain.ToLowerInvariant ());
+
+				query = query.Append ("AND (SUBJECTEMAIL = @SUBJECTEMAIL OR SUBJECTDNSNAME = @SUBJECTDNSNAME) ");
 			}
 
 			query = query.Append ("AND NOTBEFORE < @NOW AND NOTAFTER > @NOW");

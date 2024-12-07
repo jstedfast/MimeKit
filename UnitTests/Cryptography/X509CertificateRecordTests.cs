@@ -64,7 +64,8 @@ namespace UnitTests.Cryptography {
 			Assert.That (record.IssuerName, Is.EqualTo (certificate.IssuerDN.ToString ()), "IssuerName");
 			Assert.That (record.SerialNumber, Is.EqualTo (certificate.SerialNumber.ToString ()), "SerialNumber");
 			Assert.That (record.SubjectName, Is.EqualTo (certificate.SubjectDN.ToString ()), "SubjectName");
-			Assert.That (record.SubjectEmail, Is.EqualTo (certificate.GetSubjectEmailAddress ()), "SubjectEmail");
+			Assert.That (record.SubjectEmail, Is.EqualTo (certificate.GetSubjectEmailAddress (true)), "SubjectEmail");
+			Assert.That (record.SubjectDnsName, Is.EqualTo (certificate.GetSubjectDnsName (true)), "SubjectDnsName");
 			Assert.That (record.Fingerprint, Is.EqualTo (certificate.GetFingerprint ()), "Fingerprint");
 		}
 

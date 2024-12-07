@@ -540,7 +540,8 @@ namespace MimeKit.Cryptography {
 			case "SERIALNUMBER": return record.SerialNumber;
 			case "SUBJECTNAME": return record.SubjectName;
 			case "SUBJECTKEYIDENTIFIER": return record.SubjectKeyIdentifier?.AsHex ();
-			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;
+			case "SUBJECTEMAIL": return record.SubjectEmail;
+			case "SUBJECTDNSNAME": return record.SubjectDnsName;
 			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
 			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
 			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;

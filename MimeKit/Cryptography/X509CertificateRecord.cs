@@ -202,7 +202,16 @@ namespace MimeKit.Cryptography {
 		/// Gets the subject email address.
 		/// </remarks>
 		/// <value>The subject email address.</value>
-		public string SubjectEmail { get { return Certificate.GetSubjectEmailAddress (); } }
+		public string SubjectEmail { get { return Certificate.GetSubjectEmailAddress (true).ToLowerInvariant (); } }
+
+		/// <summary>
+		/// Gets the subject DNS name.
+		/// </summary>
+		/// <remarks>
+		/// Gets the subject DNS name.
+		/// </remarks>
+		/// <value>The subject DNS name.</value>
+		public string SubjectDnsName { get { return Certificate.GetSubjectDnsName (true).ToLowerInvariant (); } }
 
 		/// <summary>
 		/// Gets the fingerprint of the certificate.
