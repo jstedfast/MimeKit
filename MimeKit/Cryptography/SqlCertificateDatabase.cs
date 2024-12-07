@@ -268,9 +268,9 @@ namespace MimeKit.Cryptography {
 
 			// Certificates Table Version History:
 			//
-			// * Version 1: Initial version.
-			// * Version 2: Added the ANCHOR, SUBJECTNAME, and SUBJECTKEYIDENTIFIER columns.
-			// * Version 3: Added the SUBJECTDNSNAME column and started canonicalizing the SUBJECTEMAIL and SUBJECTDNSNAME columns with the IDN-encoded values. (MimeKit v4.9.0)
+			// * Version 0: Initial version.
+			// * Version 1: v2.5.0 added the ANCHOR, SUBJECTNAME, and SUBJECTKEYIDENTIFIER columns.
+			// * Version 2: v4.9.0 added the SUBJECTDNSNAME column and started canonicalizing the SUBJECTEMAIL and SUBJECTDNSNAME columns with the IDN-encoded values.
 
 			if (!hasAnchorColumn) {
 				// Upgrade from Version 1.

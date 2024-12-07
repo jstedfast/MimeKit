@@ -71,10 +71,37 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestAutoUpgrade ()
+		public void TestAutoUpgradeVersion0 ()
 		{
 			var path = Path.Combine (dataDir, "smimev0.db");
 			const string tmp = "smimev0-tmp.db";
+
+			if (File.Exists (tmp))
+				File.Delete (tmp);
+
+			File.Copy (path, tmp);
+
+			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
+				var root = chain[chain.Length - 1];
+
+				// Verify that we can select the Root Certificate
+				bool trustedAnchor = false;
+				foreach (var record in dbase.Find (null, true, X509CertificateRecordFields.Certificate)) {
+					if (record.Certificate.Equals (root)) {
+						trustedAnchor = true;
+						break;
+					}
+				}
+
+				Assert.That (trustedAnchor, Is.True, "Did not find the MimeKit UnitTests trusted anchor");
+			}
+		}
+
+		[Test]
+		public void TestAutoUpgradeVersion1 ()
+		{
+			var path = Path.Combine (dataDir, "smimev1.db");
+			const string tmp = "smimev1-tmp.db";
 
 			if (File.Exists (tmp))
 				File.Delete (tmp);
