@@ -43,7 +43,7 @@ namespace UnitTests.Cryptography {
 
 		public SqliteCertificateDatabaseTests ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 
 			if (File.Exists ("sqlite.db"))

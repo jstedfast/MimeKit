@@ -37,7 +37,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			AsymmetricCipherKeyPair keyPair;
 
@@ -78,7 +78,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			AsymmetricCipherKeyPair keyPair;
 			X509CertificateRecord record;

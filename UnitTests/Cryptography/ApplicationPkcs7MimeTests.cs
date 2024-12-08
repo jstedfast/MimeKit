@@ -49,7 +49,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var entity = new TextPart ("plain") { Text = "This is some text..." };
 			var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
@@ -406,6 +406,9 @@ namespace UnitTests.Cryptography {
 		public void TestEncryptMailboxes ()
 		{
 			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+				if (string.IsNullOrEmpty (certificate.EmailAddress))
+					continue;
+
 				var entity = new TextPart ("plain") { Text = "This is some text..." };
 				var mailbox = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
 				var mailboxes = new[] { mailbox };
@@ -436,6 +439,9 @@ namespace UnitTests.Cryptography {
 		public async Task TestEncryptMailboxesAsync ()
 		{
 			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+				if (string.IsNullOrEmpty (certificate.EmailAddress))
+					continue;
+
 				var entity = new TextPart ("plain") { Text = "This is some text..." };
 				var mailbox = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
 				var mailboxes = new[] { mailbox };
@@ -541,6 +547,9 @@ namespace UnitTests.Cryptography {
 				ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
@@ -557,6 +566,9 @@ namespace UnitTests.Cryptography {
 				await ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
@@ -709,6 +721,9 @@ namespace UnitTests.Cryptography {
 				ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
@@ -726,6 +741,9 @@ namespace UnitTests.Cryptography {
 				await ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };

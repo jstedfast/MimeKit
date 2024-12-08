@@ -238,6 +238,9 @@ namespace MimeKit.Cryptography {
 			if (idnEncode) {
 				for (int i = 0; i < domains.Length; i++)
 					domains[i] = MailboxAddress.IdnMapping.Encode (domains[i]);
+			} else {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Decode (domains[i]);
 			}
 
 			return domains;

@@ -46,7 +46,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var chain = new X509CertificateChain ();
 			CmsSigner signer;
 
@@ -103,7 +103,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestBasicFunctionality ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var certs = rsa.Chain;
 			var chain = new X509CertificateChain ();
 
