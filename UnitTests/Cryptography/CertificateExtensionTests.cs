@@ -119,6 +119,12 @@ namespace UnitTests.Cryptography {
 				Assert.That (dnsNames.Length, Is.EqualTo (expectedDnsNames.Length), "SubjectDnsNames.Length");
 				for (int i = 0; i < dnsNames.Length; i++)
 					Assert.That (dnsNames[i], Is.EqualTo (expectedDnsNames[i]), $"SubjectDnsNames[{i}]");
+
+				dnsNames = certificate2.GetSubjectDnsNames ();
+
+				Assert.That (dnsNames.Length, Is.EqualTo (expectedDnsNames.Length), "SubjectDnsNames.Length #2");
+				for (int i = 0; i < dnsNames.Length; i++)
+					Assert.That (dnsNames[i], Is.EqualTo (expectedDnsNames[i]), $"SubjectDnsNames[{i}] #2");
 			}
 		}
 	}

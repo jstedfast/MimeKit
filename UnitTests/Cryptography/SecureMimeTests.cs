@@ -78,6 +78,7 @@ namespace UnitTests.Cryptography {
 		public static readonly SMimeCertificate[] UnsupportedCertificates;
 		public static readonly SMimeCertificate[] SupportedCertificates;
 		public static readonly SMimeCertificate[] SMimeCertificates;
+		public static readonly SMimeCertificate DomainCertificate;
 		public static readonly SMimeCertificate RsaCertificate;
 
 		protected virtual bool IsEnabled { get { return true; } }
@@ -125,8 +126,12 @@ namespace UnitTests.Cryptography {
 								break;
 							}
 
-							if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral && !string.IsNullOrEmpty (smime.EmailAddress))
-								RsaCertificate = smime;
+							if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
+								if (!string.IsNullOrEmpty (smime.EmailAddress))
+									RsaCertificate = smime;
+								else if (smime.DnsNames.Length > 0)
+									DomainCertificate = smime;
+							}
 
 							all.Add (smime);
 						}
@@ -150,8 +155,12 @@ namespace UnitTests.Cryptography {
 						break;
 					}
 
-					if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral && !string.IsNullOrEmpty (smime.EmailAddress))
-						RsaCertificate = smime;
+					if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
+						if (!string.IsNullOrEmpty (smime.EmailAddress))
+							RsaCertificate = smime;
+						else if (smime.DnsNames.Length > 0)
+							DomainCertificate = smime;
+					}
 
 					all.Add (smime);
 				}
@@ -427,6 +436,56 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var valid = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
+
+					Assert.That (await ctx.CanSignAsync (invalid), Is.False, $"{invalid} should not be able to sign.");
+					Assert.That (await ctx.CanEncryptAsync (invalid), Is.False, $"{invalid} should not be able to encrypt.");
+
+					Assert.That (await ctx.CanSignAsync (valid), Is.True, $"{valid} should be able to sign.");
+					Assert.That (await ctx.CanEncryptAsync (valid), Is.True, $"{valid} should be able to encrypt.");
+
+					using (var content = new MemoryStream ()) {
+						Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.EncryptAsync (new[] { invalid }, content));
+						Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.SignAsync (invalid, DigestAlgorithm.Sha1, content));
+						Assert.ThrowsAsync<CertificateNotFoundException> (() => ctx.EncapsulatedSignAsync (invalid, DigestAlgorithm.Sha1, content));
+					}
+				}
+			}
+		}
+
+		[Test]
+		public virtual void TestCanSignAndEncryptDnsNames ()
+		{
+			var certificate = DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				foreach (var domain in certificate.DnsNames) {
+					var valid = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
+					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
+
+					Assert.That (ctx.CanSign (invalid), Is.False, $"{invalid} should not be able to sign.");
+					Assert.That (ctx.CanEncrypt (invalid), Is.False, $"{invalid} should not be able to encrypt.");
+
+					Assert.That (ctx.CanSign (valid), Is.True, $"{valid} should be able to sign.");
+					Assert.That (ctx.CanEncrypt (valid), Is.True, $"{valid} should be able to encrypt.");
+
+					using (var content = new MemoryStream ()) {
+						Assert.Throws<CertificateNotFoundException> (() => ctx.Encrypt (new[] { invalid }, content));
+						Assert.Throws<CertificateNotFoundException> (() => ctx.Sign (invalid, DigestAlgorithm.Sha1, content));
+						Assert.Throws<CertificateNotFoundException> (() => ctx.EncapsulatedSign (invalid, DigestAlgorithm.Sha1, content));
+					}
+				}
+			}
+		}
+
+		[Test]
+		public virtual async Task TestCanSignAndEncryptDnsNamesAsync ()
+		{
+			var certificate = DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				foreach (var domain in certificate.DnsNames) {
+					var valid = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
 					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
 
 					Assert.That (await ctx.CanSignAsync (invalid), Is.False, $"{invalid} should not be able to sign.");
@@ -2733,6 +2792,24 @@ namespace UnitTests.Cryptography {
 				return Task.CompletedTask;
 
 			return base.TestCanSignAndEncryptAsync ();
+		}
+
+		[Test]
+		public override void TestCanSignAndEncryptDnsNames ()
+		{
+			if (!IsEnabled)
+				return;
+
+			base.TestCanSignAndEncryptDnsNames ();
+		}
+
+		[Test]
+		public override Task TestCanSignAndEncryptDnsNamesAsync ()
+		{
+			if (!IsEnabled)
+				return Task.CompletedTask;
+
+			return base.TestCanSignAndEncryptDnsNamesAsync ();
 		}
 
 		[Test]

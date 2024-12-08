@@ -37,6 +37,7 @@ using Org.BouncyCastle.Asn1.X509;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+using X509Extension = System.Security.Cryptography.X509Certificates.X509Extension;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -99,6 +100,73 @@ namespace MimeKit.Cryptography {
 			case "DH": return PublicKeyAlgorithm.DiffieHellman;
 			default: return PublicKeyAlgorithm.None;
 			}
+		}
+
+		static string[] GetSubjectAlternativeNames (X509Certificate2 certificate, int tagNo)
+		{
+			X509Extension alt = null;
+
+			foreach (var extension in certificate.Extensions) {
+				if (extension.Oid.Value == X509Extensions.SubjectAlternativeName.Id) {
+					alt = extension;
+					break;
+				}
+			}
+
+			if (alt == null)
+				return Array.Empty<string> ();
+
+			using (var memory = new MemoryStream (alt.RawData, false)) {
+				var seq = Asn1Sequence.GetInstance (Asn1Object.FromByteArray (alt.RawData));
+				var names = new string[seq.Count];
+				int count = 0;
+
+				foreach (Asn1Encodable encodable in seq) {
+					var name = GeneralName.GetInstance (encodable);
+					if (name.TagNo == tagNo)
+						names[count++] = ((IAsn1String) name.Name).GetString ();
+				}
+
+				if (count == 0)
+					return Array.Empty<string> ();
+
+				if (count < names.Length)
+					Array.Resize (ref names, count);
+
+				return names;
+			}
+		}
+
+		/// <summary>
+		/// Get the subject domain names of the certificate.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the subject DNS names of the certificate.</para>
+		/// <para>Some S/MIME certificates are domain-bound instead of being bound to a
+		/// particular email address.</para>
+		/// </remarks>
+		/// <returns>The subject DNS names.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="idnEncode">If set to <c>true</c>, international domain names will be IDN encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <see langword="null"/>.
+		/// </exception>
+		public static string[] GetSubjectDnsNames (this X509Certificate2 certificate, bool idnEncode = false)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			var domains = GetSubjectAlternativeNames (certificate, GeneralName.DnsName);
+
+			if (idnEncode) {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Encode (domains[i]);
+			} else {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Decode (domains[i]);
+			}
+
+			return domains;
 		}
 
 		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
