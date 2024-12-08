@@ -39,7 +39,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 
 			Assert.Throws<ArgumentNullException> (() => new SecureMimeDigitalCertificate (null));

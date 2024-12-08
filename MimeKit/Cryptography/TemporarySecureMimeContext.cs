@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -259,7 +260,10 @@ namespace MimeKit.Cryptography {
 
 		X509Certificate GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
+			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
+			X509Certificate domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -276,16 +280,27 @@ namespace MimeKit.Cryptography {
 					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
 						continue;
 				} else {
-					var address = certificate.GetSubjectEmailAddress ();
+					var emailAddress = certificate.GetSubjectEmailAddress (true);
 
-					if (!address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+					if (!emailAddress.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
+						// Fall back to matching the domain...
+						if (domainCertificate == null) {
+							var domains = certificate.GetSubjectDnsNames (true);
+
+							if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
+								// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
+								domainCertificate = certificate;
+							}
+						}
+
 						continue;
+					}
 				}
 
 				return certificate;
 			}
 
-			return null;
+			return domainCertificate;
 		}
 
 		/// <summary>
@@ -320,7 +335,11 @@ namespace MimeKit.Cryptography {
 
 		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter key)
 		{
+			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
+			X509Certificate domainCertificate = null;
+			AsymmetricKeyParameter domainKey = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -340,18 +359,30 @@ namespace MimeKit.Cryptography {
 					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
 						continue;
 				} else {
-					var address = certificate.GetSubjectEmailAddress ();
+					var address = certificate.GetSubjectEmailAddress (true);
 
-					if (!address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+					if (!address.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
+						// Fall back to matching the domain...
+						if (domainCertificate == null) {
+							var domains = certificate.GetSubjectDnsNames (true);
+
+							if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
+								// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
+								domainCertificate = certificate;
+								domainKey = key;
+							}
+						}
+
 						continue;
+					}
 				}
 
 				return certificate;
 			}
 
-			key = null;
+			key = domainKey;
 
-			return null;
+			return domainCertificate;
 		}
 
 		/// <summary>

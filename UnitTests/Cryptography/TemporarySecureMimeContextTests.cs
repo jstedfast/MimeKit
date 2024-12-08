@@ -36,7 +36,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestImportX509Certificate2 ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
 
 			using (var ctx = new TemporarySecureMimeContext ()) {
@@ -56,7 +56,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestImportX509Certificate2Async ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
 
 			using (var ctx = new TemporarySecureMimeContext ()) {

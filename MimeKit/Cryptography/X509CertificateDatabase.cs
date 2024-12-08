@@ -61,6 +61,254 @@ namespace MimeKit.Cryptography {
 		char[] password;
 
 		/// <summary>
+		/// The name of the database table containing the certificates.
+		/// </summary>
+		/// <remarks>
+		/// The name of the database table containing the certificates.
+		/// </remarks>
+		protected const string CertificatesTableName = "CERTIFICATES";
+
+		/// <summary>
+		/// The name of the database table containing the CRLs.
+		/// </summary>
+		/// <remarks>
+		/// The name of the database table containing the CRLs.
+		/// </remarks>
+		protected const string CrlsTableName = "CRLS";
+
+		/// <summary>
+		/// The column names for the certificates table.
+		/// </summary>
+		/// <remarks>
+		/// The column names for the certificates table.
+		/// </remarks>
+		protected class CertificateColumnNames
+		{
+			/// <summary>
+			/// The auto-increment primary key identifier.
+			/// </summary>
+			/// <remarks>
+			/// The auto-increment primary key identifier.
+			/// </remarks>
+			public const string Id = "ID";
+
+			/// <summary>
+			/// A column specifying whether the certificate is trusted or not.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying whether the certificate is trusted or not.</para>
+			/// <para>This data-type for this column should be <see langword="bool"/>.</para>
+			/// </remarks>
+			public const string Trusted = "TRUSTED";
+
+			/// <summary>
+			/// A column specifying whether the certificate is an anchor.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying whether the certificate is an anchor.</para>
+			/// <para>This data-type for this column should be <see langword="bool"/>.</para>
+			/// </remarks>
+			public const string Anchor = "ANCHOR";
+
+			/// <summary>
+			/// A column specifying the basic constraints of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the basic constraints of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="int"/>.</para>
+			/// </remarks>
+			public const string BasicConstraints = "BASICCONSTRAINTS";
+
+			/// <summary>
+			/// A column specifying the key usage of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the key usage of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="int"/>.</para>
+			/// </remarks>
+			public const string KeyUsage = "KEYUSAGE";
+
+			/// <summary>
+			/// A column specifying the date and time when the certificate first becomes valid.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the date and time when the certificate first becomes valid.</para>
+			/// <para>This data-type for this column should be <see langword="long"/>.</para>
+			/// </remarks>
+			public const string NotBefore = "NOTBEFORE";
+
+			/// <summary>
+			/// A column specifying the date and time after which the certificate becomes invalid.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the date and time after which the certificate becomes invalid.</para>
+			/// <para>This data-type for this column should be <see langword="long"/>.</para>
+			/// </remarks>
+			public const string NotAfter = "NOTAFTER";
+
+			/// <summary>
+			/// A column specifying the issuer name of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the issuer name of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string IssuerName = "ISSUERNAME";
+
+			/// <summary>
+			/// A column specifying the serial number of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the serial number of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string SerialNumber = "SERIALNUMBER";
+
+			/// <summary>
+			/// A column specifying the subject name of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the subject name of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string SubjectName = "SUBJECTNAME";
+
+			/// <summary>
+			/// A column specifying the subject key identifier of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the subject key identifier of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string SubjectKeyIdentifier = "SUBJECTKEYIDENTIFIER";
+
+			/// <summary>
+			/// A column specifying the subject email address of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the subject email address of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string SubjectEmail = "SUBJECTEMAIL";
+
+			/// <summary>
+			/// A column specifying the subject DNS names of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the subject DNS names of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string SubjectDnsNames = "SUBJECTDNSNAMES";
+
+			/// <summary>
+			/// A column specifying the fingerprint of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the fingerprint of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string Fingerprint = "FINGERPRINT";
+
+			/// <summary>
+			/// A column specifying the encryption algorithms supported by the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the encryption algorithms supported by the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string Algorithms = "ALGORITHMS";
+
+			/// <summary>
+			/// A column specifying the date and time of the last update to the <see cref="Algorithms"/> column.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the date and time of the last update to the <see cref="Algorithms"/> column.</para>
+			/// <para>This data-type for this column should be <see langword="long"/>.</para>
+			/// </remarks>
+			public const string AlgorithmsUpdated = "ALGORITHMSUPDATED";
+
+			/// <summary>
+			/// A column containing the raw certificate data.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column containing the raw certificate data.</para>
+			/// <para>This data-type for this column should be <see langword="byte[]"/>.</para>
+			/// </remarks>
+			public const string Certificate = "CERTIFICATE";
+
+			/// <summary>
+			/// A column containing the raw private key data.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column containing the raw private key data.</para>
+			/// <para>This data-type for this column should be <see langword="byte[]"/>.</para>
+			/// </remarks>
+			public const string PrivateKey = "PRIVATEKEY";
+		}
+
+		/// <summary>
+		/// The column names for the CRLs table.
+		/// </summary>
+		/// <remarks>
+		/// The column names for the CRLs table.
+		/// </remarks>
+		protected class CrlColumnNames
+		{
+			/// <summary>
+			/// The auto-increment primary key identifier.
+			/// </summary>
+			/// <remarks>
+			/// The auto-increment primary key identifier.
+			/// </remarks>
+			public const string Id = "ID";
+
+			/// <summary>
+			/// A column specifying whether the CRL data is a delta update.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying whether the CRL data is a delta update.</para>
+			/// <para>This data-type for this column should be <see langword="bool"/>.</para>
+			/// </remarks>
+			public const string Delta = "DELTA";
+
+			/// <summary>
+			/// A column specifying the issuer name of the certificate.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the issuer name of the certificate.</para>
+			/// <para>This data-type for this column should be <see langword="string"/>.</para>
+			/// </remarks>
+			public const string IssuerName = "ISSUERNAME";
+
+			/// <summary>
+			/// A column specifying the date and time of the last update.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the date and time of the last update.</para>
+			/// <para>This data-type for this column should be <see langword="long"/>.</para>
+			/// </remarks>
+			public const string ThisUpdate = "THISUPDATE";
+
+			/// <summary>
+			/// A column specifying the date and time of the next update.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column specifying the date and time of the next update.</para>
+			/// <para>This data-type for this column should be <see langword="long"/>.</para>
+			/// </remarks>
+			public const string NextUpdate = "NEXTUPDATE";
+
+			/// <summary>
+			/// A column containing the raw CRL data.
+			/// </summary>
+			/// <remarks>
+			/// <para>A column containing the raw CRL data.</para>
+			/// <para>This data-type for this column should be <see langword="byte[]"/>.</para>
+			/// </remarks>
+			public const string Crl = "CRL";
+		}
+
+		/// <summary>
 		/// Initialize a new instance of the <see cref="X509CertificateDatabase"/> class.
 		/// </summary>
 		/// <remarks>
@@ -170,6 +418,26 @@ namespace MimeKit.Cryptography {
 		/// <value>The size of the salt.</value>
 		protected int SaltSize {
 			get; set;
+		}
+
+		internal static string EncodeDnsNames (string[] dnsNames)
+		{
+			if (dnsNames.Length == 0)
+				return string.Empty;
+
+			int size = 1;
+
+			for (int i = 0; i < dnsNames.Length; i++)
+				size += dnsNames[i].Length + 1;
+
+			var encoded = new ValueStringBuilder (size);
+			encoded.Append ('|');
+			for (int i = 0; i < dnsNames.Length; i++) {
+				encoded.Append (dnsNames[i]);
+				encoded.Append ('|');
+			}
+
+			return encoded.ToString ();
 		}
 
 		static int ReadBinaryBlob (DbDataReader reader, int column, ref byte[] buffer)
@@ -311,22 +579,22 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < reader.FieldCount; i++) {
 				switch (reader.GetName (i).ToUpperInvariant ()) {
-				case "CERTIFICATE":
+				case CertificateColumnNames.Certificate:
 					record.Certificate = DecodeCertificate (reader, parser, i, ref buffer);
 					break;
-				case "PRIVATEKEY":
+				case CertificateColumnNames.PrivateKey:
 					record.PrivateKey = DecodePrivateKey (reader, i, ref buffer);
 					break;
-				case "ALGORITHMS":
+				case CertificateColumnNames.Algorithms:
 					record.Algorithms = DecodeEncryptionAlgorithms (reader, i);
 					break;
-				case "ALGORITHMSUPDATED":
+				case CertificateColumnNames.AlgorithmsUpdated:
 					record.AlgorithmsUpdated = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
-				case "TRUSTED":
+				case CertificateColumnNames.Trusted:
 					record.IsTrusted = reader.GetBoolean (i);
 					break;
-				case "ID":
+				case CertificateColumnNames.Id:
 					record.Id = reader.GetInt32 (i);
 					break;
 				}
@@ -341,19 +609,19 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < reader.FieldCount; i++) {
 				switch (reader.GetName (i).ToUpperInvariant ()) {
-				case "CRL":
+				case CrlColumnNames.Crl:
 					record.Crl = DecodeX509Crl (reader, parser, i, ref buffer);
 					break;
-				case "THISUPDATE":
+				case CrlColumnNames.ThisUpdate:
 					record.ThisUpdate = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
-				case "NEXTUPDATE":
+				case CrlColumnNames.NextUpdate:
 					record.NextUpdate = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
-				case "DELTA":
+				case CrlColumnNames.Delta:
 					record.IsDelta = reader.GetBoolean (i);
 					break;
-				case "ID":
+				case CrlColumnNames.Id:
 					record.Id = reader.GetInt32 (i);
 					break;
 				}
@@ -375,17 +643,17 @@ namespace MimeKit.Cryptography {
 			var columns = new List<string> ();
 
 			if ((fields & X509CertificateRecordFields.Id) != 0)
-				columns.Add ("ID");
+				columns.Add (CertificateColumnNames.Id);
 			if ((fields & X509CertificateRecordFields.Trusted) != 0)
-				columns.Add ("TRUSTED");
+				columns.Add (CertificateColumnNames.Trusted);
 			if ((fields & X509CertificateRecordFields.Algorithms) != 0)
-				columns.Add ("ALGORITHMS");
+				columns.Add (CertificateColumnNames.Algorithms);
 			if ((fields & X509CertificateRecordFields.AlgorithmsUpdated) != 0)
-				columns.Add ("ALGORITHMSUPDATED");
+				columns.Add (CertificateColumnNames.AlgorithmsUpdated);
 			if ((fields & X509CertificateRecordFields.Certificate) != 0)
-				columns.Add ("CERTIFICATE");
+				columns.Add (CertificateColumnNames.Certificate);
 			if ((fields & X509CertificateRecordFields.PrivateKey) != 0)
-				columns.Add ("PRIVATEKEY");
+				columns.Add (CertificateColumnNames.PrivateKey);
 
 			return columns.ToArray ();
 		}
@@ -443,17 +711,17 @@ namespace MimeKit.Cryptography {
 			var columns = new List<string> ();
 
 			if ((fields & X509CrlRecordFields.Id) != 0)
-				columns.Add ("ID");
+				columns.Add (CrlColumnNames.Id);
 			if ((fields & X509CrlRecordFields.IsDelta) != 0)
-				columns.Add ("DELTA");
+				columns.Add (CrlColumnNames.Delta);
 			if ((fields & X509CrlRecordFields.IssuerName) != 0)
-				columns.Add ("ISSUERNAME");
+				columns.Add (CrlColumnNames.IssuerName);
 			if ((fields & X509CrlRecordFields.ThisUpdate) != 0)
-				columns.Add ("THISUPDATE");
+				columns.Add (CrlColumnNames.ThisUpdate);
 			if ((fields & X509CrlRecordFields.NextUpdate) != 0)
-				columns.Add ("NEXTUPDATE");
+				columns.Add (CrlColumnNames.NextUpdate);
 			if ((fields & X509CrlRecordFields.Crl) != 0)
-				columns.Add ("CRL");
+				columns.Add (CrlColumnNames.Crl);
 
 			return columns.ToArray ();
 		}
@@ -529,23 +797,24 @@ namespace MimeKit.Cryptography {
 		protected object GetValue (X509CertificateRecord record, string columnName)
 		{
 			switch (columnName) {
-			//case "ID": return record.Id;
-			case "BASICCONSTRAINTS": return record.BasicConstraints;
-			case "TRUSTED": return record.IsTrusted;
-			case "ANCHOR": return record.IsAnchor;
-			case "KEYUSAGE": return (int) record.KeyUsage;
-			case "NOTBEFORE": return record.NotBefore.ToUniversalTime ();
-			case "NOTAFTER": return record.NotAfter.ToUniversalTime ();
-			case "ISSUERNAME": return record.IssuerName;
-			case "SERIALNUMBER": return record.SerialNumber;
-			case "SUBJECTNAME": return record.SubjectName;
-			case "SUBJECTKEYIDENTIFIER": return record.SubjectKeyIdentifier?.AsHex ();
-			case "SUBJECTEMAIL": return record.SubjectEmail != null ? record.SubjectEmail.ToLowerInvariant () : string.Empty;
-			case "FINGERPRINT": return record.Fingerprint.ToLowerInvariant ();
-			case "ALGORITHMS": return EncodeEncryptionAlgorithms (record.Algorithms);
-			case "ALGORITHMSUPDATED": return record.AlgorithmsUpdated;
-			case "CERTIFICATE": return record.Certificate.GetEncoded ();
-			case "PRIVATEKEY": return EncodePrivateKey (record.PrivateKey);
+			//case CertificateColumnNames.Id: return record.Id;
+			case CertificateColumnNames.BasicConstraints: return record.BasicConstraints;
+			case CertificateColumnNames.Trusted: return record.IsTrusted;
+			case CertificateColumnNames.Anchor: return record.IsAnchor;
+			case CertificateColumnNames.KeyUsage: return (int) record.KeyUsage;
+			case CertificateColumnNames.NotBefore: return record.NotBefore.ToUniversalTime ();
+			case CertificateColumnNames.NotAfter: return record.NotAfter.ToUniversalTime ();
+			case CertificateColumnNames.IssuerName: return record.IssuerName;
+			case CertificateColumnNames.SerialNumber: return record.SerialNumber;
+			case CertificateColumnNames.SubjectName: return record.SubjectName;
+			case CertificateColumnNames.SubjectKeyIdentifier: return record.SubjectKeyIdentifier?.AsHex ();
+			case CertificateColumnNames.SubjectEmail: return record.SubjectEmail;
+			case CertificateColumnNames.SubjectDnsNames: return EncodeDnsNames (record.SubjectDnsNames);
+			case CertificateColumnNames.Fingerprint: return record.Fingerprint.ToLowerInvariant ();
+			case CertificateColumnNames.Algorithms: return EncodeEncryptionAlgorithms (record.Algorithms);
+			case CertificateColumnNames.AlgorithmsUpdated: return record.AlgorithmsUpdated;
+			case CertificateColumnNames.Certificate: return record.Certificate.GetEncoded ();
+			case CertificateColumnNames.PrivateKey: return EncodePrivateKey (record.PrivateKey);
 			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), nameof (columnName));
 			}
 		}
@@ -565,12 +834,12 @@ namespace MimeKit.Cryptography {
 		protected static object GetValue (X509CrlRecord record, string columnName)
 		{
 			switch (columnName) {
-			//case "ID": return record.Id;
-			case "DELTA": return record.IsDelta;
-			case "ISSUERNAME": return record.IssuerName;
-			case "THISUPDATE": return record.ThisUpdate;
-			case "NEXTUPDATE": return record.NextUpdate;
-			case "CRL": return record.Crl.GetEncoded ();
+			//case CrlColumnNames.Id: return record.Id;
+			case CrlColumnNames.Delta: return record.IsDelta;
+			case CrlColumnNames.IssuerName: return record.IssuerName;
+			case CrlColumnNames.ThisUpdate: return record.ThisUpdate;
+			case CrlColumnNames.NextUpdate: return record.NextUpdate;
+			case CrlColumnNames.Crl: return record.Crl.GetEncoded ();
 			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), nameof (columnName));
 			}
 		}

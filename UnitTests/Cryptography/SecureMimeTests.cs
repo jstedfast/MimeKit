@@ -45,6 +45,7 @@ namespace UnitTests.Cryptography {
 		public DateTime CreationDate { get { return Certificate.NotBefore; } }
 		public DateTime ExpirationDate { get { return Certificate.NotAfter; } }
 		public string EmailAddress { get { return Certificate.GetSubjectEmailAddress (); } }
+		public string[] DnsNames { get { return Certificate.GetSubjectDnsNames (); } }
 		public string Fingerprint { get; private set; }
 		public PublicKeyAlgorithm PublicKeyAlgorithm { get { return Certificate.GetPublicKeyAlgorithm (); } }
 
@@ -77,6 +78,7 @@ namespace UnitTests.Cryptography {
 		public static readonly SMimeCertificate[] UnsupportedCertificates;
 		public static readonly SMimeCertificate[] SupportedCertificates;
 		public static readonly SMimeCertificate[] SMimeCertificates;
+		public static readonly SMimeCertificate RsaCertificate;
 
 		protected virtual bool IsEnabled { get { return true; } }
 
@@ -123,6 +125,9 @@ namespace UnitTests.Cryptography {
 								break;
 							}
 
+							if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral && !string.IsNullOrEmpty (smime.EmailAddress))
+								RsaCertificate = smime;
+
 							all.Add (smime);
 						}
 						continue;
@@ -144,6 +149,9 @@ namespace UnitTests.Cryptography {
 						unsupported.Add (smime);
 						break;
 					}
+
+					if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral && !string.IsNullOrEmpty (smime.EmailAddress))
+						RsaCertificate = smime;
 
 					all.Add (smime);
 				}
@@ -389,6 +397,9 @@ namespace UnitTests.Cryptography {
 		{
 			using (var ctx = CreateContext ()) {
 				foreach (var certificate in SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var valid = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
 					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
 
@@ -412,6 +423,9 @@ namespace UnitTests.Cryptography {
 		{
 			using (var ctx = CreateContext ()) {
 				foreach (var certificate in SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var valid = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
 					var invalid = new MailboxAddress ("Joe Nobody", "joe@nobody.com");
 
@@ -575,6 +589,9 @@ namespace UnitTests.Cryptography {
 				if (Environment.OSVersion.Platform == PlatformID.Win32NT && certificate.PublicKeyAlgorithm == PublicKeyAlgorithm.EllipticCurve)
 					continue;
 
+				if (string.IsNullOrEmpty (certificate.EmailAddress))
+					continue;
+
 				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
 				var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
 
@@ -628,6 +645,9 @@ namespace UnitTests.Cryptography {
 
 			foreach (var certificate in SupportedCertificates) {
 				if (Environment.OSVersion.Platform == PlatformID.Win32NT && certificate.PublicKeyAlgorithm == PublicKeyAlgorithm.EllipticCurve)
+					continue;
+
+				if (string.IsNullOrEmpty (certificate.EmailAddress))
 					continue;
 
 				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
@@ -726,7 +746,7 @@ namespace UnitTests.Cryptography {
 
 			using (var ctx = CreateContext ()) {
 				foreach (var certificate in SupportedCertificates) {
-					if (!Supports (certificate.PublicKeyAlgorithm))
+					if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 						continue;
 
 					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
@@ -764,7 +784,7 @@ namespace UnitTests.Cryptography {
 
 			using (var ctx = CreateContext ()) {
 				foreach (var certificate in SupportedCertificates) {
-					if (!Supports (certificate.PublicKeyAlgorithm))
+					if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 						continue;
 
 					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
@@ -1337,7 +1357,7 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeMessageSigning ()
 		{
 			foreach (var certificate in SupportedCertificates) {
-				if (!Supports (certificate.PublicKeyAlgorithm))
+				if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 					continue;
 
 				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1418,7 +1438,7 @@ namespace UnitTests.Cryptography {
 		public virtual async Task TestSecureMimeMessageSigningAsync ()
 		{
 			foreach (var certificate in SupportedCertificates) {
-				if (!Supports (certificate.PublicKeyAlgorithm))
+				if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 					continue;
 
 				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1616,7 +1636,7 @@ namespace UnitTests.Cryptography {
 		{
 			using (var ctx = CreateContext ()) {
 				foreach (var certificate in SupportedCertificates) {
-					if (!Supports (certificate.PublicKeyAlgorithm))
+					if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 						continue;
 
 					var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
@@ -1649,7 +1669,7 @@ namespace UnitTests.Cryptography {
 		{
 			using (var ctx = CreateContext ()) {
 				foreach (var certificate in SupportedCertificates) {
-					if (!Supports (certificate.PublicKeyAlgorithm))
+					if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 						continue;
 
 					var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
@@ -1999,7 +2019,7 @@ namespace UnitTests.Cryptography {
 		[TestCase (DigestAlgorithm.Sha512)]
 		public virtual void TestSecureMimeEncryptionWithRsaesOaep (DigestAlgorithm hashAlgorithm)
 		{
-			var rsa = SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = RsaCertificate;
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
 			using (var ctx = CreateContext ()) {
@@ -2041,7 +2061,7 @@ namespace UnitTests.Cryptography {
 		[TestCase (DigestAlgorithm.Sha512)]
 		public virtual async Task TestSecureMimeEncryptionWithRsaesOaepAsync (DigestAlgorithm hashAlgorithm)
 		{
-			var rsa = SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = RsaCertificate;
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 
 			using (var ctx = CreateContext ()) {
@@ -2161,7 +2181,7 @@ namespace UnitTests.Cryptography {
 		public virtual void TestSecureMimeSignAndEncrypt ()
 		{
 			foreach (var certificate in SupportedCertificates) {
-				if (!Supports (certificate.PublicKeyAlgorithm))
+				if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 					continue;
 
 				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
@@ -2251,7 +2271,7 @@ namespace UnitTests.Cryptography {
 		public virtual async Task TestSecureMimeSignAndEncryptAsync ()
 		{
 			foreach (var certificate in SupportedCertificates) {
-				if (!Supports (certificate.PublicKeyAlgorithm))
+				if (!Supports (certificate.PublicKeyAlgorithm) || string.IsNullOrEmpty (certificate.EmailAddress))
 					continue;
 
 				var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };

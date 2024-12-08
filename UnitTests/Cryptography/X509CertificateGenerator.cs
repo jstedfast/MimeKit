@@ -43,10 +43,13 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Extension;
 using Org.BouncyCastle.Asn1.X9;
 
+using MimeKit;
+
 namespace UnitTests.Cryptography {
 	class X509CertificateGenerator
 	{
 		static readonly Dictionary<string, DerObjectIdentifier> X509NameOidMapping;
+		static readonly Dictionary<string, int> X509SubjectAlternativeTagMapping;
 		static readonly char[] EqualSign = new char[] { '=' };
 
 		static X509CertificateGenerator ()
@@ -93,6 +96,11 @@ namespace UnitTests.Cryptography {
 				{ "UnstructuredAddress", X509Name.UnstructuredAddress },
 				{ "UnstructuredName", X509Name.UnstructuredName },
 				{ "UniqueIdentifier", X509Name.UniqueIdentifier },
+			};
+
+			X509SubjectAlternativeTagMapping = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase) {
+				{ "Rfc822Name", GeneralName.Rfc822Name },
+				{ "DnsName", GeneralName.DnsName },
 			};
 		}
 
@@ -208,6 +216,8 @@ namespace UnitTests.Cryptography {
 
 			internal IList<string> Values { get; }
 
+			internal List<GeneralName> SubjectAlternativeNames { get; private set; }
+
 			public void Add (DerObjectIdentifier oid, string value)
 			{
 				if (oid == X509Name.CN || oid == X509Name.E)
@@ -223,6 +233,25 @@ namespace UnitTests.Cryptography {
 					throw new ArgumentException ($"Unknown property: {property}", nameof (property));
 
 				Add (oid, value);
+			}
+
+			public void AddSubjectAlternativeName (string property, string value)
+			{
+				if (!X509SubjectAlternativeTagMapping.TryGetValue (property, out int tagNo))
+					throw new ArgumentException ($"Unknown property: {property}", nameof (property));
+
+				SubjectAlternativeNames ??= new List<GeneralName> ();
+				switch (tagNo) {
+				case GeneralName.Rfc822Name:
+					SubjectAlternativeNames.Add (new GeneralName (tagNo, MailboxAddress.EncodeAddrspec (value)));
+					break;
+				case GeneralName.DnsName:
+					SubjectAlternativeNames.Add (new GeneralName (tagNo, MailboxAddress.IdnMapping.Encode (value)));
+					break;
+				default:
+					SubjectAlternativeNames.Add (new GeneralName (tagNo, value));
+					break;
+				}
 			}
 		}
 
@@ -375,6 +404,11 @@ namespace UnitTests.Cryptography {
 
 			generator.AddExtension (X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure (key.Public));
 
+			if (certificateOptions.SubjectAlternativeNames != null) {
+				var altNames = new GeneralNames (certificateOptions.SubjectAlternativeNames.ToArray ());
+				generator.AddExtension (X509Extensions.SubjectAlternativeName, false, altNames);
+			}
+
 			if (issuerCertificate != null)
 				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure (issuerCertificate));
 
@@ -511,6 +545,13 @@ namespace UnitTests.Cryptography {
 							certificate.Add (property, value);
 						} catch (ArgumentException) {
 							throw new FormatException ($"Unknown [Subject] property: {property}");
+						}
+						break;
+					case "subjectalternativenames":
+						try {
+							certificate.AddSubjectAlternativeName (property, value);
+						} catch (ArgumentException) {
+							throw new FormatException ($"Unknown [SubjectAlternativeNames] property: {property}");
 						}
 						break;
 					case "generator":
