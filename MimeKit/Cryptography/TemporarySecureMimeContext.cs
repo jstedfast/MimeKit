@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -284,9 +285,9 @@ namespace MimeKit.Cryptography {
 					if (!emailAddress.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
 						// Fall back to matching the domain...
 						if (domainCertificate == null) {
-							var domain = certificate.GetSubjectDnsName (true);
+							var domains = certificate.GetSubjectDnsNames (true);
 
-							if (domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase)) {
+							if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
 								// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
 								domainCertificate = certificate;
 							}
@@ -363,9 +364,9 @@ namespace MimeKit.Cryptography {
 					if (!address.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
 						// Fall back to matching the domain...
 						if (domainCertificate == null) {
-							var domain = certificate.GetSubjectDnsName (true);
+							var domains = certificate.GetSubjectDnsNames (true);
 
-							if (domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase)) {
+							if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
 								// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
 								domainCertificate = certificate;
 								domainKey = key;

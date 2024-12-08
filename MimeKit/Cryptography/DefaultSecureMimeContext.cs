@@ -513,7 +513,7 @@ namespace MimeKit.Cryptography {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
-				if (string.IsNullOrEmpty (record.SubjectDnsName)) {
+				if (record.SubjectDnsNames.Length > 0) {
 					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
 					domain ??= record;
 					continue;
@@ -564,7 +564,7 @@ namespace MimeKit.Cryptography {
 				if (record.Certificate == null || record.PrivateKey == null)
 					continue;
 
-				if (string.IsNullOrEmpty (record.SubjectDnsName)) {
+				if (record.SubjectDnsNames.Length > 0) {
 					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
 					domain ??= record;
 					continue;

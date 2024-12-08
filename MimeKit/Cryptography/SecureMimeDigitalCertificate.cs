@@ -134,14 +134,14 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the DNS name of the owner of the certificate.
+		/// Gets the DNS names of the owner of the certificate.
 		/// </summary>
 		/// <remarks>
-		/// Gets the DNS name of the owner of the certificate.
+		/// Gets the DNS names of the owner of the certificate.
 		/// </remarks>
 		/// <value>The DNS name.</value>
-		public string DnsName {
-			get { return Certificate.GetSubjectDnsName (true); }
+		public string[] DnsNames {
+			get { return Certificate.GetSubjectDnsNames (true); }
 		}
 
 		/// <summary>
