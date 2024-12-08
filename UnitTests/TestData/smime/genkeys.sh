@@ -28,3 +28,7 @@ fi
 if [ ! -e "ec/smime.key" ]; then
     openssl ecparam -name secp384r1 -genkey -noout -out ec/smime.key > /dev/null
 fi
+
+if [ ! -e "rsa/smime-domain-bound.key" ]; then
+    openssl genrsa -out rsa/smime-domain-bound.key 4096 > /dev/null
+fi

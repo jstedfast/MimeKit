@@ -20,22 +20,23 @@ prompt			= no
 distinguished_name	= req_distinguished_name
 x509_extensions	= v3_ca	# The extensions to add to the self signed cert
 string_mask = utf8only
+countryName_min			= 2
+countryName_max			= 2
+commonName_max			= 64
+emailAddress_max		= 64
 
 # req_extensions = v3_req # The extensions to add to a certificate request
 
 [ req_distinguished_name ]
 # Take CN, ON, and EMAIL from the environment so they can come from a script.
 countryName			= US
-countryName_min			= 2
-countryName_max			= 2
 stateOrProvinceName		= Massachusetts
 localityName			= Boston
 organizationName		= $ENV::ON
 organizationalUnitName		= IT
 commonName			= $ENV::CN
-commonName_max			= 64
 emailAddress			= $ENV::EMAIL
-emailAddress_max		= 64
+
 
 [ req_attributes ]
 challengePassword		= no.secret
@@ -79,3 +80,11 @@ basicConstraints = critical,CA:true
 keyUsage = critical, cRLSign, keyCertSign
 #keyUsage = critical, keyCertSign, nonRepudiation, digitalSignature, keyEncipherment, dataEncipherment
 
+[provider_sect]
+legacy = legacy_sect
+
+[default_sect]
+activate = 1
+
+[legacy_sect]
+activate = 1
