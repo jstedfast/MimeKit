@@ -47,14 +47,17 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetCommonName (null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetSubjectName (null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetSubjectEmailAddress (null));
+			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetSubjectDnsNames (null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetFingerprint (null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetKeyUsageFlags ((X509Certificate) null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetEncryptionAlgorithms (null));
 			Assert.Throws<ArgumentNullException> (() => BouncyCastleCertificateExtensions.GetPublicKeyAlgorithm (null));
 
+			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetPrivateKeyAsAsymmetricKeyParameter (null));
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.AsBouncyCastleCertificate (null));
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetEncryptionAlgorithms (null));
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetPublicKeyAlgorithm (null));
+			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetSubjectDnsNames (null));
 		}
 
 		static X509KeyUsageFlags GetX509Certificate2KeyUsageFlags (X509Certificate2 certificate)

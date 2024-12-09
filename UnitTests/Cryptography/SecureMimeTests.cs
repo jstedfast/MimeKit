@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Pkcs;
@@ -639,6 +640,33 @@ namespace UnitTests.Cryptography {
 			return ((SecureMimeDigitalSignature) signature).EncryptionAlgorithms;
 		}
 
+		static string EncodeDnsNames (string[] dnsNames)
+		{
+			if (dnsNames == null || dnsNames.Length == 0)
+				return string.Empty;
+
+			var builder = new StringBuilder ();
+
+			foreach (var name in dnsNames) {
+				if (builder.Length > 0)
+					builder.Append (", ");
+				builder.Append (name);
+			}
+
+			return builder.ToString ();
+		}
+
+		static string GetDnsNames (IDigitalCertificate certificate)
+		{
+			if (certificate is SecureMimeDigitalCertificate smime)
+				return EncodeDnsNames (smime.DnsNames);
+
+			if (certificate is WindowsSecureMimeDigitalCertificate windows)
+				return EncodeDnsNames (windows.DnsNames);
+
+			return string.Empty;
+		}
+
 		[Test]
 		public virtual void TestSecureMimeEncapsulatedSigning ()
 		{
@@ -667,6 +695,7 @@ namespace UnitTests.Cryptography {
 
 				Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+				Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 				Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
 				Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
@@ -726,6 +755,7 @@ namespace UnitTests.Cryptography {
 
 				Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+				Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 				Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
 				Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
@@ -1073,6 +1103,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -1127,6 +1158,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -1181,6 +1213,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -1252,6 +1285,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -1451,6 +1485,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -1532,6 +1567,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -2284,6 +2320,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (self.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);
@@ -2374,6 +2411,7 @@ namespace UnitTests.Cryptography {
 					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
 						Assert.That (signature.SignerCertificate.Name, Is.EqualTo (self.Name));
 					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (self.Address));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (self.Fingerprint));
 
 					var algorithms = GetEncryptionAlgorithms (signature);

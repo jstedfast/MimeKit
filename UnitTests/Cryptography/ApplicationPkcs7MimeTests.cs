@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.X509;
@@ -532,6 +533,33 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		static string EncodeDnsNames (string[] dnsNames)
+		{
+			if (dnsNames == null || dnsNames.Length == 0)
+				return string.Empty;
+
+			var builder = new StringBuilder ();
+
+			foreach (var name in dnsNames) {
+				if (builder.Length > 0)
+					builder.Append (", ");
+				builder.Append (name);
+			}
+
+			return builder.ToString ();
+		}
+
+		static string GetDnsNames (IDigitalCertificate certificate)
+		{
+			if (certificate is SecureMimeDigitalCertificate smime)
+				return EncodeDnsNames (smime.DnsNames);
+
+			if (certificate is WindowsSecureMimeDigitalCertificate windows)
+				return EncodeDnsNames (windows.DnsNames);
+
+			return string.Empty;
+		}
+
 		void AssertSignResults (SMimeCertificate certificate, SecureMimeContext ctx, ApplicationPkcs7Mime signed, TextPart entity)
 		{
 			var signatures = signed.Verify (ctx, out var encapsulated);
@@ -545,6 +573,7 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 			Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+			Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
 			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
@@ -700,6 +729,7 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 			Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+			Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
 			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
@@ -749,6 +779,7 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
 			Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+			Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
 			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 			Assert.That (signature.SignerCertificate.CreationDate, Is.EqualTo (certificate.CreationDate), "CreationDate");
 			Assert.That (signature.SignerCertificate.ExpirationDate, Is.EqualTo (certificate.ExpirationDate), "ExpirationDate");
