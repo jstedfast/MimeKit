@@ -480,6 +480,16 @@ namespace MimeKit.Cryptography {
 			return nextUpdate;
 		}
 
+		static CmsRecipient CreateCmsRecipient (X509CertificateRecord record)
+		{
+			var recipient = new CmsRecipient (record.Certificate);
+
+			if (record.Algorithms != null)
+				recipient.EncryptionAlgorithms = record.Algorithms;
+
+			return recipient;
+		}
+
 		/// <summary>
 		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
@@ -497,19 +507,34 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
+			X509CertificateRecord domain = null;
+
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
-				var recipient = new CmsRecipient (record.Certificate);
+				if (record.SubjectDnsNames.Length > 0) {
+					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
+					domain ??= record;
+					continue;
+				}
 
-				if (record.Algorithms != null)
-					recipient.EncryptionAlgorithms = record.Algorithms;
-
-				return recipient;
+				return CreateCmsRecipient (record);
 			}
 
+			if (domain != null)
+				return CreateCmsRecipient (domain);
+
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
+		CmsSigner CreateCmsSigner (X509CertificateRecord record, DigestAlgorithm digestAlgo)
+		{
+			var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey) {
+				DigestAlgorithm = digestAlgo
+			};
+
+			return signer;
 		}
 
 		/// <summary>
@@ -530,25 +555,26 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			AsymmetricKeyParameter privateKey = null;
-			X509Certificate certificate = null;
+			X509CertificateRecord domain = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
-				certificate = record.Certificate;
-				privateKey = record.PrivateKey;
-				break;
+				if (record.Certificate == null || record.PrivateKey == null)
+					continue;
+
+				if (record.SubjectDnsNames.Length > 0) {
+					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
+					domain ??= record;
+					continue;
+				}
+
+				return CreateCmsSigner (record, digestAlgo);
 			}
 
-			if (certificate != null && privateKey != null) {
-				var signer = new CmsSigner (BuildCertificateChain (certificate), privateKey) {
-					DigestAlgorithm = digestAlgo
-				};
-
-				return signer;
-			}
+			if (domain != null)
+				return CreateCmsSigner (domain, digestAlgo);
 
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}

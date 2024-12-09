@@ -91,5 +91,41 @@ namespace UnitTests.Cryptography {
 				}
 			}
 		}
+
+		[Test]
+		public void TestGetSubjectDnsNames ()
+		{
+			var certificate = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.DnsNames.Length > 0);
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "dnsnames", "smime.pfx");
+			var parser = new X509CertificateParser ();
+
+			using (var stream = File.OpenRead (path)) {
+				var certificate2 = certificate.Certificate.AsX509Certificate2 ();
+				var certificate1 = certificate2.AsBouncyCastleCertificate ();
+
+				Assert.That (certificate1.GetFingerprint ().ToUpperInvariant (), Is.EqualTo (certificate2.Thumbprint), "Fingerprint");
+				Assert.That (certificate1.GetIssuerNameInfo (X509Name.EmailAddress), Is.EqualTo (certificate2.GetNameInfo (X509NameType.EmailName, true)), "Issuer Email");
+				Assert.That (certificate1.GetSubjectEmailAddress (), Is.EqualTo (certificate2.GetNameInfo (X509NameType.EmailName, false)), "Subject Email");
+				Assert.That (certificate1.GetCommonName (), Is.EqualTo (certificate2.GetNameInfo (X509NameType.SimpleName, false)), "Common Name");
+
+				var usage2 = GetX509Certificate2KeyUsageFlags (certificate2);
+				var usage1 = certificate1.GetKeyUsageFlags ();
+
+				Assert.That (usage1, Is.EqualTo (usage2), "KeyUsageFlags");
+
+				var dnsNames = certificate1.GetSubjectDnsNames ();
+				var expectedDnsNames = certificate.DnsNames;
+
+				Assert.That (dnsNames.Length, Is.EqualTo (expectedDnsNames.Length), "SubjectDnsNames.Length");
+				for (int i = 0; i < dnsNames.Length; i++)
+					Assert.That (dnsNames[i], Is.EqualTo (expectedDnsNames[i]), $"SubjectDnsNames[{i}]");
+
+				dnsNames = certificate2.GetSubjectDnsNames ();
+
+				Assert.That (dnsNames.Length, Is.EqualTo (expectedDnsNames.Length), "SubjectDnsNames.Length #2");
+				for (int i = 0; i < dnsNames.Length; i++)
+					Assert.That (dnsNames[i], Is.EqualTo (expectedDnsNames[i]), $"SubjectDnsNames[{i}] #2");
+			}
+		}
 	}
 }

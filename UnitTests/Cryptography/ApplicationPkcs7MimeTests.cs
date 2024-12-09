@@ -49,7 +49,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var entity = new TextPart ("plain") { Text = "This is some text..." };
 			var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
@@ -406,6 +406,9 @@ namespace UnitTests.Cryptography {
 		public void TestEncryptMailboxes ()
 		{
 			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+				if (string.IsNullOrEmpty (certificate.EmailAddress))
+					continue;
+
 				var entity = new TextPart ("plain") { Text = "This is some text..." };
 				var mailbox = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
 				var mailboxes = new[] { mailbox };
@@ -436,8 +439,75 @@ namespace UnitTests.Cryptography {
 		public async Task TestEncryptMailboxesAsync ()
 		{
 			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+				if (string.IsNullOrEmpty (certificate.EmailAddress))
+					continue;
+
 				var entity = new TextPart ("plain") { Text = "This is some text..." };
 				var mailbox = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
+				var mailboxes = new[] { mailbox };
+
+				using (var ctx = CreateContext ()) {
+					ApplicationPkcs7Mime encrypted;
+					MimeEntity decrypted;
+					TextPart text;
+
+					await ctx.ImportAsync (certificate.FileName, "no.secret").ConfigureAwait (false);
+
+					encrypted = await ApplicationPkcs7Mime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
+					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from EncryptAsync(mailboxes, entity)");
+					text = (TextPart) decrypted;
+					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
+
+					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
+					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "EncryptAsync(ctx, mailboxes, entity)");
+					text = (TextPart) decrypted;
+					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
+				}
+			}
+		}
+
+		[Test]
+		public void TestEncryptDnsNames ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			foreach (var domain in certificate.DnsNames) {
+				var entity = new TextPart ("plain") { Text = "This is some text..." };
+				var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
+				var mailboxes = new[] { mailbox };
+
+				using (var ctx = CreateContext ()) {
+					ApplicationPkcs7Mime encrypted;
+					MimeEntity decrypted;
+					TextPart text;
+
+					ctx.Import (certificate.FileName, "no.secret");
+
+					encrypted = ApplicationPkcs7Mime.Encrypt (mailboxes, entity);
+					decrypted = encrypted.Decrypt (ctx);
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from Encrypt(mailboxes, entity)");
+					text = (TextPart) decrypted;
+					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
+
+					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, mailboxes, entity);
+					decrypted = encrypted.Decrypt (ctx);
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Encrypt(ctx, mailboxes, entity)");
+					text = (TextPart) decrypted;
+					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestEncryptDnsNamesAsync ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			foreach (var domain in certificate.DnsNames) {
+				var entity = new TextPart ("plain") { Text = "This is some text..." };
+				var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
 				var mailboxes = new[] { mailbox };
 
 				using (var ctx = CreateContext ()) {
@@ -541,6 +611,9 @@ namespace UnitTests.Cryptography {
 				ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
@@ -557,7 +630,46 @@ namespace UnitTests.Cryptography {
 				await ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
+					var entity = new TextPart ("plain") { Text = "This is some text..." };
+
+					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity).ConfigureAwait (false);
+					AssertSignResults (certificate, ctx, signed, entity);
+				}
+			}
+		}
+
+		[Test]
+		public void TestSignDnsNames ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				ImportAll (ctx);
+
+				foreach (var domain in certificate.DnsNames) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
+					var entity = new TextPart ("plain") { Text = "This is some text..." };
+
+					var signed = ApplicationPkcs7Mime.Sign (ctx, mailbox, DigestAlgorithm.Sha224, entity);
+					AssertSignResults (certificate, ctx, signed, entity);
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestSignDnsNamesAsync ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				await ImportAllAsync (ctx).ConfigureAwait (false);
+
+				foreach (var domain in certificate.DnsNames) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
 					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity).ConfigureAwait (false);
@@ -709,6 +821,9 @@ namespace UnitTests.Cryptography {
 				ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
@@ -726,7 +841,48 @@ namespace UnitTests.Cryptography {
 				await ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+					if (string.IsNullOrEmpty (certificate.EmailAddress))
+						continue;
+
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
+					var entity = new TextPart ("plain") { Text = "This is some text..." };
+					var recipients = new MailboxAddress[] { mailbox };
+
+					var encrypted = await ApplicationPkcs7Mime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha224, recipients, entity).ConfigureAwait (false);
+					await AssertSignAndEncryptResultsAsync (certificate, ctx, encrypted, entity).ConfigureAwait (false);
+				}
+			}
+		}
+
+		[Test]
+		public void TestSignAndEncryptDnsNames ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				ImportAll (ctx);
+
+				foreach (var domain in certificate.DnsNames) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
+					var entity = new TextPart ("plain") { Text = "This is some text..." };
+					var recipients = new MailboxAddress[] { mailbox };
+
+					var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha224, recipients, entity);
+					AssertSignAndEncryptResults (certificate, ctx, encrypted, entity);
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestSignAndEncryptDnsNamesAsync ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				await ImportAllAsync (ctx).ConfigureAwait (false);
+
+				foreach (var domain in certificate.DnsNames) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
 

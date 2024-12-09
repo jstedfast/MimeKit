@@ -160,8 +160,34 @@ namespace MimeKit.Cryptography {
 			return certificate.GetSubjectNameInfo (X509Name.Name);
 		}
 
+		static string[] GetSubjectAlternativeNames (X509Certificate certificate, int tagNo)
+		{
+			var alt = certificate.GetExtensionValue (X509Extensions.SubjectAlternativeName);
+
+			if (alt == null)
+				return Array.Empty<string> ();
+
+			var seq = Asn1Sequence.GetInstance (Asn1Object.FromByteArray (alt.GetOctets ()));
+			var names = new string[seq.Count];
+			int count = 0;
+
+			foreach (Asn1Encodable encodable in seq) {
+				var name = GeneralName.GetInstance (encodable);
+				if (name.TagNo == tagNo)
+					names[count++] = ((IAsn1String) name.Name).GetString ();
+			}
+
+			if (count == 0)
+				return Array.Empty<string> ();
+
+			if (count < names.Length)
+				Array.Resize (ref names, count);
+
+			return names;
+		}
+
 		/// <summary>
-		/// Gets the subject email address of the certificate.
+		/// Get the subject email address of the certificate.
 		/// </summary>
 		/// <remarks>
 		/// The email address component of the certificate's Subject identifier is
@@ -170,31 +196,54 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The subject email address.</returns>
 		/// <param name="certificate">The certificate.</param>
+		/// <param name="idnEncode">If set to <c>true</c>, international edomain names will be IDN encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
-		public static string GetSubjectEmailAddress (this X509Certificate certificate)
+		public static string GetSubjectEmailAddress (this X509Certificate certificate, bool idnEncode = false)
 		{
 			var address = certificate.GetSubjectNameInfo (X509Name.EmailAddress);
 
-			if (!string.IsNullOrEmpty (address))
-				return address;
+			if (string.IsNullOrEmpty (address)) {
+				var addresses = GetSubjectAlternativeNames (certificate, GeneralName.Rfc822Name);
 
-			var alt = certificate.GetExtensionValue (X509Extensions.SubjectAlternativeName);
-
-			if (alt == null)
-				return string.Empty;
-
-			var seq = Asn1Sequence.GetInstance (Asn1Object.FromByteArray (alt.GetOctets ()));
-
-			foreach (Asn1Encodable encodable in seq) {
-				var name = GeneralName.GetInstance (encodable);
-
-				if (name.TagNo == GeneralName.Rfc822Name)
-					return ((IAsn1String) name.Name).GetString ();
+				if (addresses.Length > 0)
+					address = addresses[0];
 			}
 
-			return null;
+			if (idnEncode && !string.IsNullOrEmpty (address))
+				address = MailboxAddress.EncodeAddrspec (address);
+
+			return address;
+		}
+
+		/// <summary>
+		/// Get the subject domain names of the certificate.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the subject DNS names of the certificate.</para>
+		/// <para>Some S/MIME certificates are domain-bound instead of being bound to a
+		/// particular email address.</para>
+		/// </remarks>
+		/// <returns>The subject DNS names.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="idnEncode">If set to <c>true</c>, international domain names will be IDN encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <see langword="null"/>.
+		/// </exception>
+		public static string[] GetSubjectDnsNames (this X509Certificate certificate, bool idnEncode = false)
+		{
+			var domains = GetSubjectAlternativeNames (certificate, GeneralName.DnsName);
+
+			if (idnEncode) {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Encode (domains[i]);
+			} else {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Decode (domains[i]);
+			}
+
+			return domains;
 		}
 
 		internal static string AsHex (this byte[] blob)

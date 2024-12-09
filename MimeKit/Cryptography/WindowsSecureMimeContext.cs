@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -174,7 +175,10 @@ namespace MimeKit.Cryptography {
 		protected virtual X509Certificate2 GetRecipientCertificate (MailboxAddress mailbox)
 		{
 			var storeNames = new [] { StoreName.AddressBook, StoreName.My, StoreName.TrustedPeople };
+			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
+			X509Certificate2 domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var storeName in storeNames) {
@@ -197,8 +201,22 @@ namespace MimeKit.Cryptography {
 						} else {
 							var address = certificate.GetNameInfo (X509NameType.EmailName, false);
 
-							if (!address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
+							if (!string.IsNullOrEmpty (address))
+								address = MailboxAddress.EncodeAddrspec (address);
+
+							if (!address.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
+								// Fall back to matching the domain...
+								if (domainCertificate == null) {
+									var domains = certificate.GetSubjectDnsNames (true);
+
+									if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
+										// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
+										domainCertificate = certificate;
+									}
+								}
+
 								continue;
+							}
 						}
 
 						return certificate;
@@ -208,7 +226,7 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			return null;
+			return domainCertificate;
 		}
 
 		/// <summary>
@@ -318,8 +336,11 @@ namespace MimeKit.Cryptography {
 		/// <param name="mailbox">The signer's mailbox address.</param>
 		protected virtual X509Certificate2 GetSignerCertificate (MailboxAddress mailbox)
 		{
+			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+			var mailboxAddress = mailbox.GetAddress (true);
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var secure = mailbox as SecureMailboxAddress;
+			X509Certificate2 domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			store.Open (OpenFlags.ReadOnly);
@@ -342,8 +363,22 @@ namespace MimeKit.Cryptography {
 					} else {
 						var address = certificate.GetNameInfo (X509NameType.EmailName, false);
 
-						if (!address.Equals (mailbox.Address, StringComparison.InvariantCultureIgnoreCase))
+						if (!string.IsNullOrEmpty (address))
+							address = MailboxAddress.EncodeAddrspec (address);
+
+						if (!address.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
+							// Fall back to matching the domain...
+							if (domainCertificate == null) {
+								var domains = certificate.GetSubjectDnsNames (true);
+
+								if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
+									// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
+									domainCertificate = certificate;
+								}
+							}
+
 							continue;
+						}
 					}
 
 					return certificate;
@@ -352,7 +387,7 @@ namespace MimeKit.Cryptography {
 				store.Close ();
 			}
 
-			return null;
+			return domainCertificate;
 		}
 
 		AsnEncodedData GetSecureMimeCapabilities ()

@@ -44,7 +44,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var store = new X509CertificateStore ();
 
 			Assert.Throws<ArgumentNullException> (() => store.Add (null));
@@ -193,7 +193,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestImportExportPkcs12 ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var store = new X509CertificateStore ();
 
 			store.Import (rsa.FileName, "no.secret");
