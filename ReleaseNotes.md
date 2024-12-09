@@ -1,5 +1,27 @@
 # Release Notes
 
+## MimeKit 4.9.0 (2024-12-09)
+
+* Started adding some DynamicallyAccessedMembers attributes for AOT compatibility.
+* Refactored some code for AOT Compatibility (MimeKitLite is now 100% AOT Compatible but MimeKit still has
+  issues related to SQLite database loading for the S/MIME certificate database).
+  (MailKit issue [#10844](https://github.com/jstedfast/MailKit/issues/1844))
+* Fixed TextPreviewer to use an encoding with an empty string fallback to prevent '?' characters from
+  being appended to the generated preview string if the byte sequence was truncated.
+* Improved performance of InternetAddressList.Parse()/TryParse().
+* Improved InternetAddressList parser performance for malformed addresses that only contain
+  display-name strings separated by commas.
+  (issue [#1106](https://github.com/jstedfast/MimeKit/issues/1106))
+* Exposed BouncyCastleCertificateExtensions.IsSelfSigned(), GetKeyUsageFlags() and IsDelta() as new public APIs.
+* Exposed X509KeyUsageBits enum as public.
+* Added support for domain-bound S/MIME certificates. (issue [#1113](https://github.com/jstedfast/MimeKit/issues/1113))
+* Dropped support for net6.0 in the nuget packages (Microsoft support ended Nov 12, 2024).
+* Removed explicit dependency on System.Runtime.CompilerServices.Unsafe.
+* Bumped System.Security.Cryptography.Pkcs dependency to v8.0.1.
+* Bumped BouncyCastle.Cryptography dependency to v2.5.0.
+* Bumped System.Buffers dependency to v4.6.0.
+* Bumped System.Memory dependency to v4.6.0.
+
 ## MimeKit 4.8.0 (2024-09-29)
 
 * Added TypeConverters for InternetAddress and InternetAddressList.
