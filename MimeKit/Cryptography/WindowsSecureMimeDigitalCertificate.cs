@@ -140,7 +140,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The DNS name.</value>
 		public string[] DnsNames {
-			get { return Certificate.GetSubjectDnsNames (true); }
+			get { return Certificate.GetSubjectDnsNames (false); }
 		}
 
 		/// <summary>

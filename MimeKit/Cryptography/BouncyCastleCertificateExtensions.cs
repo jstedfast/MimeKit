@@ -202,6 +202,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static string GetSubjectEmailAddress (this X509Certificate certificate, bool idnEncode = false)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
 			var address = certificate.GetSubjectNameInfo (X509Name.EmailAddress);
 
 			if (string.IsNullOrEmpty (address)) {
@@ -233,6 +236,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static string[] GetSubjectDnsNames (this X509Certificate certificate, bool idnEncode = false)
 		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
 			var domains = GetSubjectAlternativeNames (certificate, GeneralName.DnsName);
 
 			if (idnEncode) {
