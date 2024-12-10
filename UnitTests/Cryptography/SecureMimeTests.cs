@@ -81,6 +81,7 @@ namespace UnitTests.Cryptography {
 		public static readonly SMimeCertificate[] SMimeCertificates;
 		public static readonly SMimeCertificate DomainCertificate;
 		public static readonly SMimeCertificate RsaCertificate;
+		public static readonly X509Crl[] RevocationLists;
 
 		protected virtual bool IsEnabled { get { return true; } }
 
@@ -103,6 +104,7 @@ namespace UnitTests.Cryptography {
 			var unsupported = new List<SMimeCertificate> ();
 			var supported = new List<SMimeCertificate> ();
 			var all = new List<SMimeCertificate> ();
+			var crls = new List<X509Crl> ();
 
 			foreach (var cfg in Directory.GetFiles (dataDir, "*.cfg", SearchOption.AllDirectories)) {
 				var name = Path.GetFileNameWithoutExtension (cfg);
@@ -136,6 +138,7 @@ namespace UnitTests.Cryptography {
 
 							all.Add (smime);
 						}
+
 						continue;
 					}
 				}
@@ -167,9 +170,20 @@ namespace UnitTests.Cryptography {
 				}
 			}
 
+			foreach (var cfg in Directory.GetFiles (dataDir, "*.cfg", SearchOption.AllDirectories)) {
+				var crlFile = Path.ChangeExtension (cfg, ".crl");
+				if (File.Exists (crlFile)) {
+					var crlData = File.ReadAllBytes (crlFile);
+					var crlParser = new X509CrlParser ();
+					var crl = crlParser.ReadCrl (crlData);
+					crls.Add (crl);
+				}
+			}
+
 			UnsupportedCertificates = unsupported.ToArray ();
 			SupportedCertificates = supported.ToArray ();
 			SMimeCertificates = all.ToArray ();
+			RevocationLists = crls.ToArray ();
 		}
 
 		protected void ImportTestCertificates (SecureMimeContext ctx)
@@ -236,6 +250,11 @@ namespace UnitTests.Cryptography {
 
 				// Import a second time to cover the case where the certificate & private key already exist
 				Assert.DoesNotThrow (() => ctx.Import (mimekitCertificate.FileName, "no.secret"));
+
+				foreach (var revocation in RevocationLists) {
+					ctx.Import (revocation);
+					Assert.DoesNotThrow (() => ctx.Import (revocation));
+				}
 			}
 		}
 

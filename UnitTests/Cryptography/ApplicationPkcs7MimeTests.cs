@@ -35,10 +35,163 @@ using MimeKit;
 using MimeKit.Cryptography;
 
 using BCX509Certificate = Org.BouncyCastle.X509.X509Certificate;
+using Org.BouncyCastle.Pkix;
 
 namespace UnitTests.Cryptography {
+	public class ApplicationPkcs7MimeTestsUtils
+	{
+		internal static void ImportAll (SecureMimeContext ctx, bool includeCrls = true)
+		{
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+			var windows = ctx as WindowsSecureMimeContext;
+
+			// Import the StartCom certificates
+			if (windows is not null) {
+				var parser = new X509CertificateParser ();
+
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
+						windows.Import (StoreName.AuthRoot, certificate);
+				}
+
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
+						windows.Import (StoreName.CertificateAuthority, certificate);
+				}
+			} else {
+				foreach (var filename in SecureMimeTestsBase.StartComCertificates) {
+					var path = Path.Combine (dataDir, filename);
+					using (var stream = File.OpenRead (path)) {
+						if (ctx is DefaultSecureMimeContext sqlite) {
+							sqlite.Import (stream, true);
+						} else {
+							var parser = new X509CertificateParser ();
+							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
+								ctx.Import (certificate);
+						}
+					}
+				}
+			}
+
+			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+				var chain = certificate.Chain;
+
+				// Import the root & intermediate certificates from the smime.pfx file
+				if (windows is not null) {
+					var store = StoreName.AuthRoot;
+					for (int i = chain.Length - 1; i > 0; i--) {
+						windows.Import (store, chain[i]);
+						store = StoreName.CertificateAuthority;
+					}
+				} else {
+					for (int i = chain.Length - 1; i > 0; i--) {
+						if (ctx is DefaultSecureMimeContext sqlite) {
+							sqlite.Import (chain[i], true);
+						} else {
+							ctx.Import (chain[i]);
+						}
+					}
+				}
+
+				// Import the pfx file directly in order to get the private key
+				ctx.Import (certificate.FileName, "no.secret");
+			}
+
+			if(includeCrls){
+				foreach (var revocation in SecureMimeTestsBase.RevocationLists) {
+				
+					// Import the root & intermediate certificates from the smime.pfx file
+					if (windows is not null) {
+						windows.Import (revocation);
+					} else {
+						if (ctx is DefaultSecureMimeContext sqlite) {
+							sqlite.Import (revocation);
+						} else {
+							ctx.Import (revocation);
+						}
+					}
+				}
+			}
+		}
+
+		internal static async Task ImportAllAsync (SecureMimeContext ctx, bool includeCrls = true)
+		{
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+			var windows = ctx as WindowsSecureMimeContext;
+
+			// Import the StartCom certificates
+			if (windows is not null) {
+				var parser = new X509CertificateParser ();
+
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
+						windows.Import (StoreName.AuthRoot, certificate);
+				}
+
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
+						windows.Import (StoreName.CertificateAuthority, certificate);
+				}
+			} else {
+				foreach (var filename in SecureMimeTestsBase.StartComCertificates) {
+					var path = Path.Combine (dataDir, filename);
+					using (var stream = File.OpenRead (path)) {
+						if (ctx is DefaultSecureMimeContext sqlite) {
+							await sqlite.ImportAsync (stream, true).ConfigureAwait (false);
+						} else {
+							var parser = new X509CertificateParser ();
+							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
+								await ctx.ImportAsync (certificate).ConfigureAwait (false);
+						}
+					}
+				}
+			}
+
+			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
+				var chain = certificate.Chain;
+
+				// Import the root & intermediate certificates from the smime.pfx file
+				if (windows is not null) {
+					var store = StoreName.AuthRoot;
+					for (int i = chain.Length - 1; i > 0; i--) {
+						windows.Import (store, chain[i]);
+						store = StoreName.CertificateAuthority;
+					}
+				} else {
+					for (int i = chain.Length - 1; i > 0; i--) {
+						if (ctx is DefaultSecureMimeContext sqlite) {
+							await sqlite.ImportAsync (chain[i], true).ConfigureAwait (false);
+						} else {
+							await ctx.ImportAsync (chain[i]).ConfigureAwait (false);
+						}
+					}
+				}
+
+				// Import the pfx file directly in order to get the private key
+				await ctx.ImportAsync (certificate.FileName, "no.secret").ConfigureAwait (false);
+			}
+
+			if (includeCrls) {
+				foreach (var revocation in SecureMimeTestsBase.RevocationLists) {
+
+					// Import the root & intermediate certificates from the smime.pfx file
+					if (windows is not null) {
+						windows.Import (revocation);
+					} else {
+						if (ctx is DefaultSecureMimeContext sqlite) {
+							sqlite.Import (revocation);
+						} else {
+							ctx.Import (revocation);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	
 	[TestFixture]
-	public abstract class ApplicationPkcs7MimeTestsBase
+	public abstract class ApplicationPkcs7MimeTestsBase 
 	{
 		protected abstract SecureMimeContext CreateContext ();
 
@@ -242,122 +395,6 @@ namespace UnitTests.Cryptography {
 
 				pkcs7.ContentType.Parameters.Remove ("smime-type");
 				Assert.That (pkcs7.SecureMimeType, Is.EqualTo (SecureMimeType.Unknown));
-			}
-		}
-
-		static void ImportAll (SecureMimeContext ctx)
-		{
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var windows = ctx as WindowsSecureMimeContext;
-
-			// Import the StartCom certificates
-			if (windows is not null) {
-				var parser = new X509CertificateParser ();
-
-				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
-					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-						windows.Import (StoreName.AuthRoot, certificate);
-				}
-
-				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
-					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-						windows.Import (StoreName.CertificateAuthority, certificate);
-				}
-			} else {
-				foreach (var filename in SecureMimeTestsBase.StartComCertificates) {
-					var path = Path.Combine (dataDir, filename);
-					using (var stream = File.OpenRead (path)) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							sqlite.Import (stream, true);
-						} else {
-							var parser = new X509CertificateParser ();
-							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-								ctx.Import (certificate);
-						}
-					}
-				}
-			}
-
-			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
-				var chain = certificate.Chain;
-
-				// Import the root & intermediate certificates from the smime.pfx file
-				if (windows is not null) {
-					var store = StoreName.AuthRoot;
-					for (int i = chain.Length - 1; i > 0; i--) {
-						windows.Import (store, chain[i]);
-						store = StoreName.CertificateAuthority;
-					}
-				} else {
-					for (int i = chain.Length - 1; i > 0; i--) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							sqlite.Import (chain[i], true);
-						} else {
-							ctx.Import (chain[i]);
-						}
-					}
-				}
-
-				// Import the pfx file directly in order to get the private key
-				ctx.Import (certificate.FileName, "no.secret");
-			}
-		}
-
-		static async Task ImportAllAsync (SecureMimeContext ctx)
-		{
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
-			var windows = ctx as WindowsSecureMimeContext;
-
-			// Import the StartCom certificates
-			if (windows is not null) {
-				var parser = new X509CertificateParser ();
-
-				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
-					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-						windows.Import (StoreName.AuthRoot, certificate);
-				}
-
-				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
-					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-						windows.Import (StoreName.CertificateAuthority, certificate);
-				}
-			} else {
-				foreach (var filename in SecureMimeTestsBase.StartComCertificates) {
-					var path = Path.Combine (dataDir, filename);
-					using (var stream = File.OpenRead (path)) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							await sqlite.ImportAsync (stream, true).ConfigureAwait (false);
-						} else {
-							var parser = new X509CertificateParser ();
-							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-								await ctx.ImportAsync (certificate).ConfigureAwait (false);
-						}
-					}
-				}
-			}
-
-			foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
-				var chain = certificate.Chain;
-
-				// Import the root & intermediate certificates from the smime.pfx file
-				if (windows is not null) {
-					var store = StoreName.AuthRoot;
-					for (int i = chain.Length - 1; i > 0; i--) {
-						windows.Import (store, chain[i]);
-						store = StoreName.CertificateAuthority;
-					}
-				} else {
-					for (int i = chain.Length - 1; i > 0; i--) {
-						if (ctx is DefaultSecureMimeContext sqlite) {
-							await sqlite.ImportAsync (chain[i], true).ConfigureAwait (false);
-						} else {
-							await ctx.ImportAsync (chain[i]).ConfigureAwait (false);
-						}
-					}
-				}
-
-				// Import the pfx file directly in order to get the private key
-				await ctx.ImportAsync (certificate.FileName, "no.secret").ConfigureAwait (false);
 			}
 		}
 
@@ -605,7 +642,7 @@ namespace UnitTests.Cryptography {
 		public void TestSignCmsSigner ()
 		{
 			using (var ctx = CreateContext ()) {
-				ImportAll (ctx);
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
@@ -621,7 +658,7 @@ namespace UnitTests.Cryptography {
 		public async Task TestSignCmsSignerAsync ()
 		{
 			using (var ctx = CreateContext ()) {
-				await ImportAllAsync (ctx).ConfigureAwait (false);
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
@@ -637,7 +674,7 @@ namespace UnitTests.Cryptography {
 		public void TestSignMailbox ()
 		{
 			using (var ctx = CreateContext ()) {
-				ImportAll (ctx);
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					if (string.IsNullOrEmpty (certificate.EmailAddress))
@@ -656,7 +693,7 @@ namespace UnitTests.Cryptography {
 		public async Task TestSignMailboxAsync ()
 		{
 			using (var ctx = CreateContext ()) {
-				await ImportAllAsync (ctx).ConfigureAwait (false);
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					if (string.IsNullOrEmpty (certificate.EmailAddress))
@@ -677,7 +714,7 @@ namespace UnitTests.Cryptography {
 			var certificate = SecureMimeTestsBase.DomainCertificate;
 
 			using (var ctx = CreateContext ()) {
-				ImportAll (ctx);
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx);
 
 				foreach (var domain in certificate.DnsNames) {
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
@@ -695,7 +732,8 @@ namespace UnitTests.Cryptography {
 			var certificate = SecureMimeTestsBase.DomainCertificate;
 
 			using (var ctx = CreateContext ()) {
-				await ImportAllAsync (ctx).ConfigureAwait (false);
+				
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var domain in certificate.DnsNames) {
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
@@ -707,6 +745,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		
 		void AssertSignAndEncryptResults (SMimeCertificate certificate, SecureMimeContext ctx, ApplicationPkcs7Mime encrypted, TextPart entity)
 		{
 			var decrypted = encrypted.Decrypt (ctx);
@@ -811,7 +850,7 @@ namespace UnitTests.Cryptography {
 		public void TestSignAndEncryptCms ()
 		{
 			using (var ctx = CreateContext ()) {
-				ImportAll (ctx);
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
@@ -830,7 +869,7 @@ namespace UnitTests.Cryptography {
 		public async Task TestSignAndEncryptCmsAsync ()
 		{
 			using (var ctx = CreateContext ()) {
-				await ImportAllAsync (ctx).ConfigureAwait (false);
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
@@ -849,7 +888,7 @@ namespace UnitTests.Cryptography {
 		public void TestSignAndEncryptMailboxes ()
 		{
 			using (var ctx = CreateContext ()) {
-				ImportAll (ctx);
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					if (string.IsNullOrEmpty (certificate.EmailAddress))
@@ -869,7 +908,7 @@ namespace UnitTests.Cryptography {
 		public async Task TestSignAndEncryptMailboxesAsync ()
 		{
 			using (var ctx = CreateContext ()) {
-				await ImportAllAsync (ctx).ConfigureAwait (false);
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var certificate in SecureMimeTestsBase.SupportedCertificates) {
 					if (string.IsNullOrEmpty (certificate.EmailAddress))
@@ -891,7 +930,7 @@ namespace UnitTests.Cryptography {
 			var certificate = SecureMimeTestsBase.DomainCertificate;
 
 			using (var ctx = CreateContext ()) {
-				ImportAll (ctx);
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx);
 
 				foreach (var domain in certificate.DnsNames) {
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
@@ -910,7 +949,7 @@ namespace UnitTests.Cryptography {
 			var certificate = SecureMimeTestsBase.DomainCertificate;
 
 			using (var ctx = CreateContext ()) {
-				await ImportAllAsync (ctx).ConfigureAwait (false);
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx).ConfigureAwait (false);
 
 				foreach (var domain in certificate.DnsNames) {
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
@@ -925,9 +964,55 @@ namespace UnitTests.Cryptography {
 	}
 
 	[TestFixture]
+	public abstract class ApplicationPkcs7MimeMissingCrlsTestBase
+	{
+		protected abstract SecureMimeContext CreateContext ();
+
+		[Test]
+		public void TestSignDnsNamesMissingCrl ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+				ApplicationPkcs7MimeTestsUtils.ImportAll (ctx, false);
+				foreach (var domain in certificate.DnsNames) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
+					var entity = new TextPart ("plain") { Text = "This is some text..." };
+
+					Assert.Throws<PkixCertPathBuilderException> (() =>
+						ApplicationPkcs7Mime.Sign (ctx, mailbox, DigestAlgorithm.Sha224, entity));
+
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestSignDnsNamesMissingCrlAsync ()
+		{
+			var certificate = SecureMimeTestsBase.DomainCertificate;
+
+			using (var ctx = CreateContext ()) {
+
+				await ApplicationPkcs7MimeTestsUtils.ImportAllAsync (ctx, false).ConfigureAwait (false);
+
+				foreach (var domain in certificate.DnsNames) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
+					var entity = new TextPart ("plain") { Text = "This is some text..." };
+
+					Assert.ThrowsAsync<PkixCertPathBuilderException> (() =>
+						ApplicationPkcs7Mime.SignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity));
+
+				}
+			}
+		}
+	}
+
+
+
+	[TestFixture]
 	public class ApplicationPkcs7MimeTests : ApplicationPkcs7MimeTestsBase
 	{
-		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = false };
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = true };
 
 		public ApplicationPkcs7MimeTests ()
 		{
@@ -947,7 +1032,7 @@ namespace UnitTests.Cryptography {
 		{
 			public MySecureMimeContext () : base ("pkcs7.db", "no.secret")
 			{
-				CheckCertificateRevocation = false;
+				CheckCertificateRevocation = true;
 			}
 		}
 
@@ -962,6 +1047,50 @@ namespace UnitTests.Cryptography {
 		}
 
 		static ApplicationPkcs7MimeSqliteTests ()
+		{
+			if (File.Exists ("pkcs7.db"))
+				File.Delete ("pkcs7.db");
+		}
+	}
+
+	[TestFixture]
+	public class ApplicationPkcs7MimeMissingCrlsTests : ApplicationPkcs7MimeMissingCrlsTestBase
+	{
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = true };
+
+		public ApplicationPkcs7MimeMissingCrlsTests ()
+		{
+			CryptographyContext.Register (CreateContext);
+		}
+
+		protected override SecureMimeContext CreateContext ()
+		{
+			return ctx;
+		}
+	}
+
+	[TestFixture]
+	public class ApplicationPkcs7MimeSqliteMissingCrlsTests : ApplicationPkcs7MimeMissingCrlsTestBase
+	{
+		class MySecureMimeContext : DefaultSecureMimeContext
+		{
+			public MySecureMimeContext () : base ("pkcs7.db", "no.secret")
+			{
+				CheckCertificateRevocation = true;
+			}
+		}
+
+		public ApplicationPkcs7MimeSqliteMissingCrlsTests ()
+		{
+			CryptographyContext.Register (typeof (MySecureMimeContext));
+		}
+
+		protected override SecureMimeContext CreateContext ()
+		{
+			return new MySecureMimeContext ();
+		}
+
+		static ApplicationPkcs7MimeSqliteMissingCrlsTests ()
 		{
 			if (File.Exists ("pkcs7.db"))
 				File.Delete ("pkcs7.db");

@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System.Security.Cryptography;
 using System.Text;
 
 using Org.BouncyCastle.Asn1;
@@ -280,7 +281,21 @@ namespace UnitTests.Cryptography {
 			public string SignatureAlgorithm { get; set; }
 		}
 
-		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey, CertificateOptions certificateOptions)
+		public sealed class CrlGeneratorOptions
+		{
+			public CrlGeneratorOptions ()
+			{
+				IssuerPassword = string.Empty;
+			}
+			// could be an array
+			public string Url { get; set; }
+			public int DaysValid { get; set; }
+			public string IssuerPassword { get; set; }
+			public string Issuer { get; set; }
+			public string Output { get; set; }
+		}
+
+		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey, CertificateOptions certificateOptions, CrlGeneratorOptions crlOptions)
 		{
 			// Sanity Checks
 			if (!string.IsNullOrEmpty (privateKey.FileName) && !File.Exists (privateKey.FileName))
@@ -471,6 +486,27 @@ namespace UnitTests.Cryptography {
 			using (var stream = File.Create (options.Output))
 				pkcs12.Save (stream, options.Password.ToCharArray (), random);
 
+
+			var crlGenerator = new X509V2CrlGenerator ();
+			var intermediateNow = DateTime.UtcNow;
+			crlGenerator.SetIssuerDN (certificate.IssuerDN);
+			crlGenerator.SetThisUpdate (intermediateNow);
+			crlGenerator.SetNextUpdate (intermediateNow.AddDays (crlOptions.DaysValid));
+			// crlIntermediateGen.AddCrlEntry (BigInteger.One, intermediateNow, CrlReason.PrivilegeWithdrawn);
+
+			crlGenerator.AddExtension (X509Extensions.AuthorityKeyIdentifier,
+				false,
+				new AuthorityKeyIdentifierStructure (chain.Any() ? chain[0].GetPublicKey () : certificate.GetPublicKey()));
+
+			// could open old crl and increment.  Might not care for uni tests
+			var nextCrlNum = new CrlNumber (BigInteger.One);
+			crlGenerator.AddExtension (X509Extensions.CrlNumber, false, nextCrlNum);
+
+			// maybe add crlOptions.SignatureAlgorithm ???
+			var crl = crlGenerator.Generate (new Asn1SignatureFactory ("SHA256WithRSA", signingKey, random));
+			var crlBytes = crl.GetEncoded ();
+			File.WriteAllBytes (crlOptions.Output, crlBytes);
+
 			return certificates;
 		}
 
@@ -491,6 +527,7 @@ namespace UnitTests.Cryptography {
 			var certificate = new CertificateOptions ();
 			var privateKey = new PrivateKeyOptions ();
 			var options = new GeneratorOptions ();
+			var crlOptions = new CrlGeneratorOptions();
 			string section = null;
 
 			// Default the output filename to the same as the input filename, but with a .pfx extension.
@@ -591,13 +628,39 @@ namespace UnitTests.Cryptography {
 							throw new FormatException ($"Unknown [Generator] property: {property}");
 						}
 						break;
+					case "crlgenerator":
+						switch (property.ToLowerInvariant ()) {
+						case "daysvalid":
+							if (int.TryParse (value, out int days)) {
+								crlOptions.DaysValid = days;
+							} else {
+								throw new FormatException ($"Invalid [Generator] DaysValid: {value}");
+							}
+
+							break;
+						case "issuer":
+							if (!string.IsNullOrEmpty (value) && value != "this")
+								crlOptions.Issuer = GetFileName (baseDirectory, value);
+							else
+								crlOptions.Issuer = value;
+							break;
+						case "issuerpassword":
+							crlOptions.IssuerPassword = value;
+							break;
+						case "output":
+							crlOptions.Output = GetFileName (baseDirectory, value);
+							break;
+						default:
+							throw new FormatException ($"Unknown section: {section}");
+						}
+						break;
 					default:
 						throw new FormatException ($"Unknown section: {section}");
 					}
 				}
 			}
 
-			return Generate (options, privateKey, certificate);
+			return Generate (options, privateKey, certificate, crlOptions);
 		}
 	}
 }
