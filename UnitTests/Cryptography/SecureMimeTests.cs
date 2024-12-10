@@ -2734,7 +2734,7 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class SecureMimeTests : SecureMimeTestsBase
 	{
-		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = true };
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = false };
 
 		protected override SecureMimeContext CreateContext ()
 		{
@@ -2749,7 +2749,7 @@ namespace UnitTests.Cryptography {
 		{
 			public MySecureMimeContext () : base ("smime.db", "no.secret")
 			{
-				CheckCertificateRevocation = true;
+				CheckCertificateRevocation = false;
 			}
 		}
 

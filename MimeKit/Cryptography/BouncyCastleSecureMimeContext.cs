@@ -694,11 +694,12 @@ namespace MimeKit.Cryptography {
 
 			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = false,
+				IsRevocationEnabled = CheckCertificateRevocation,
 				Date = DateTime.UtcNow
 			};
 			parameters.AddStoreCert (intermediates);
 			parameters.AddStoreCert (GetIntermediateCertificates ());
+			parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -725,7 +726,7 @@ namespace MimeKit.Cryptography {
 
 			var parameters = new PkixBuilderParameters (anchors, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = false
+				IsRevocationEnabled = CheckCertificateRevocation
 			};
 			parameters.AddStoreCert (intermediates);
 			parameters.AddStoreCrl (crls);
