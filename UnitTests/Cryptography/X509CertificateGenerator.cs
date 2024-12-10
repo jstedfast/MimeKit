@@ -280,7 +280,25 @@ namespace UnitTests.Cryptography {
 			public string SignatureAlgorithm { get; set; }
 		}
 
-		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey, CertificateOptions certificateOptions)
+		public sealed class RevocationOptions
+		{
+			public RevocationOptions ()
+			{
+				IssuerPassword = string.Empty;
+			}
+
+			// could be an array
+			public string Url { get; set; }
+
+			public int DaysValid { get; set; }
+
+			public string IssuerPassword { get; set; }
+
+			public string Issuer { get; set; }
+		}
+
+
+		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey, CertificateOptions certificateOptions, RevocationOptions revocationOptions)
 		{
 			// Sanity Checks
 			if (!string.IsNullOrEmpty (privateKey.FileName) && !File.Exists (privateKey.FileName))
@@ -451,6 +469,15 @@ namespace UnitTests.Cryptography {
 				generator.AddExtension (X509Extensions.KeyUsage, critical, new KeyUsage (keyUsage));
 			}
 
+			if(revocationOptions.Url != null) {
+				var crlDistPoint = new CrlDistPoint (new[] {
+				new DistributionPoint(
+					new DistributionPointName(DistributionPointName.FullName, new GeneralNames(new GeneralName(GeneralName.UniformResourceIdentifier, revocationOptions.Url))),
+					null,
+					null)});
+				generator.AddExtension (X509Extensions.CrlDistributionPoints.Id, false, crlDistPoint);
+			}
+
 			var certificate = generator.Generate (signatureFactory);
 			var keyEntry = new AsymmetricKeyEntry (key.Private);
 
@@ -491,6 +518,7 @@ namespace UnitTests.Cryptography {
 			var certificate = new CertificateOptions ();
 			var privateKey = new PrivateKeyOptions ();
 			var options = new GeneratorOptions ();
+			var revocation = new RevocationOptions ();
 			string section = null;
 
 			// Default the output filename to the same as the input filename, but with a .pfx extension.
@@ -591,13 +619,38 @@ namespace UnitTests.Cryptography {
 							throw new FormatException ($"Unknown [Generator] property: {property}");
 						}
 						break;
+					case "revocation":
+						switch (property.ToLowerInvariant()) {
+							case "url":
+								revocation.Url = value;
+								break;
+							case "daysvalid":
+								if (int.TryParse (value, out int days)) {
+									revocation.DaysValid = days;
+								} else {
+									throw new FormatException ($"Invalid [Revocation] DaysValid: {value}");
+								}
+								break;
+							case "issuer":
+								if (!string.IsNullOrEmpty (value) && value != "this")
+									revocation.Issuer = GetFileName (baseDirectory, value);
+								else
+									revocation.Issuer = value;
+								break;
+						case "issuerpassword":
+								revocation.IssuerPassword = value;
+								break;
+						default:
+								throw new FormatException ($"Unknown [Revocation] property: {property}");
+						}
+						break;
 					default:
 						throw new FormatException ($"Unknown section: {section}");
 					}
 				}
 			}
 
-			return Generate (options, privateKey, certificate);
+			return Generate (options, privateKey, certificate, revocation);
 		}
 	}
 }
