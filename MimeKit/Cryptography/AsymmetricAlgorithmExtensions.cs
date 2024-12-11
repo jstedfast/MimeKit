@@ -1,4 +1,4 @@
-﻿//
+//
 // AsymmetricAlgorithmExtensions.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -57,6 +57,7 @@ namespace MimeKit.Cryptography {
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (DSACryptoServiceProvider dsa)
 		{
 			GetAsymmetricKeyParameters (dsa, dsa.PublicOnly, out var pub, out var key);
+
 			return dsa.PublicOnly ? pub : key;
 		}
 
@@ -248,12 +249,9 @@ namespace MimeKit.Cryptography {
 
 			if (pub != null) {
 				parameters.Y = GetPaddedByteArray (pub.Y, parameters.P.Length);
-			
-			}
-			else
-			{
+			} else {
 				// If pub is null, derive Y from the private key parameters
-				parameters.Y = key.Parameters.G.ModPow(key.X, key.Parameters.P).ToByteArrayUnsigned ();
+				parameters.Y = key.Parameters.G.ModPow (key.X, key.Parameters.P).ToByteArrayUnsigned ();
 			}
 
 			var dsa = new DSACryptoServiceProvider ();
