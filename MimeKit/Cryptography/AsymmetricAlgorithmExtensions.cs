@@ -247,8 +247,12 @@ namespace MimeKit.Cryptography {
 			var parameters = GetDSAParameters (key);
 			parameters.X = GetPaddedByteArray (key.X, parameters.Q.Length);
 
-			if (pub != null)
+			if (pub != null) {
 				parameters.Y = GetPaddedByteArray (pub.Y, parameters.P.Length);
+			} else {
+				// If pub is null, derive Y from the private key parameters
+				parameters.Y = key.Parameters.G.ModPow (key.X, key.Parameters.P).ToByteArrayUnsigned ();
+			}
 
 			var dsa = new DSACryptoServiceProvider ();
 
