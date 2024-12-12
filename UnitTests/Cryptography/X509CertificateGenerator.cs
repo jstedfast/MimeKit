@@ -46,7 +46,8 @@ using Org.BouncyCastle.Asn1.X9;
 
 using MimeKit;
 
-namespace UnitTests.Cryptography {
+namespace UnitTests.Cryptography
+{
 	class X509CertificateGenerator
 	{
 		static readonly Dictionary<string, DerObjectIdentifier> X509NameOidMapping;
@@ -100,8 +101,7 @@ namespace UnitTests.Cryptography {
 			};
 
 			X509SubjectAlternativeTagMapping = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase) {
-				{ "Rfc822Name", GeneralName.Rfc822Name },
-				{ "DnsName", GeneralName.DnsName },
+				{ "Rfc822Name", GeneralName.Rfc822Name }, { "DnsName", GeneralName.DnsName },
 			};
 		}
 
@@ -138,7 +138,8 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password, out AsymmetricKeyParameter key)
+		static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password,
+			out AsymmetricKeyParameter key)
 		{
 			using (var stream = File.OpenRead (fileName)) {
 				var pkcs12 = new Pkcs12StoreBuilder ().Build ();
@@ -170,7 +171,7 @@ namespace UnitTests.Cryptography {
 		static string GetFingerprint (X509Certificate certificate)
 		{
 			if (certificate == null)
-				throw new ArgumentNullException (nameof (certificate));
+				throw new ArgumentNullException (nameof(certificate));
 
 			var encoded = certificate.GetEncoded ();
 			var fingerprint = new StringBuilder ();
@@ -287,6 +288,7 @@ namespace UnitTests.Cryptography {
 			{
 				IssuerPassword = string.Empty;
 			}
+
 			// could be an array
 			public string Url { get; set; }
 			public int DaysValid { get; set; }
@@ -313,7 +315,8 @@ namespace UnitTests.Cryptography {
 		}
 
 
-		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey, CertificateOptions certificateOptions, CrlGeneratorOptions crlOptions, RevocationOptions revocationOptions)
+		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey,
+			CertificateOptions certificateOptions, CrlGeneratorOptions crlOptions, RevocationOptions revocationOptions)
 
 		{
 			// Sanity Checks
@@ -355,7 +358,8 @@ namespace UnitTests.Cryptography {
 					keyPairGenerator.Init (rsaKeyGenParameters);
 					break;
 				case "ec":
-					var eccDomainParameters = new ECDomainParameters (ECNamedCurveTable.GetByName (privateKey.CurveName));
+					var eccDomainParameters =
+						new ECDomainParameters (ECNamedCurveTable.GetByName (privateKey.CurveName));
 					var eccKeyGenParameters = new ECKeyGenerationParameters (eccDomainParameters, random);
 					keyPairGenerator = new ECKeyPairGenerator ();
 					keyPairGenerator.Init (eccKeyGenParameters);
@@ -369,7 +373,8 @@ namespace UnitTests.Cryptography {
 				try {
 					key = LoadAsymmetricCipherKeyPair (privateKey.FileName);
 				} catch (Exception ex) {
-					throw new FormatException ($"[PrivateKey] Failed to load `{privateKey.FileName}': {ex.Message}", ex);
+					throw new FormatException ($"[PrivateKey] Failed to load `{privateKey.FileName}': {ex.Message}",
+						ex);
 				}
 			}
 
@@ -415,12 +420,14 @@ namespace UnitTests.Cryptography {
 			BigInteger serialNumber;
 
 			if (serialNumberIndex == -1) {
-				serialNumber = BigIntegers.CreateRandomInRange (BigInteger.One, BigInteger.ValueOf (long.MaxValue), random);
+				serialNumber =
+					BigIntegers.CreateRandomInRange (BigInteger.One, BigInteger.ValueOf (long.MaxValue), random);
 			} else {
 				try {
 					serialNumber = new BigInteger (certificateOptions.Values[serialNumberIndex]);
 				} catch {
-					throw new FormatException ($"Invalid [Subject] SerialNumber: {certificateOptions.Values[serialNumberIndex]}");
+					throw new FormatException (
+						$"Invalid [Subject] SerialNumber: {certificateOptions.Values[serialNumberIndex]}");
 				}
 			}
 
@@ -436,7 +443,8 @@ namespace UnitTests.Cryptography {
 			generator.SetSubjectDN (subject);
 			generator.SetIssuerDN (issuer);
 
-			generator.AddExtension (X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure (key.Public));
+			generator.AddExtension (X509Extensions.SubjectKeyIdentifier, false,
+				new SubjectKeyIdentifierStructure (key.Public));
 
 			if (certificateOptions.SubjectAlternativeNames != null) {
 				var altNames = new GeneralNames (certificateOptions.SubjectAlternativeNames.ToArray ());
@@ -444,10 +452,12 @@ namespace UnitTests.Cryptography {
 			}
 
 			if (issuerCertificate != null)
-				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure (issuerCertificate));
+				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false,
+					new AuthorityKeyIdentifierStructure (issuerCertificate));
 
 			if (!string.IsNullOrEmpty (options.BasicConstraints)) {
-				var basicConstraints = options.BasicConstraints.Split (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+				var basicConstraints =
+					options.BasicConstraints.Split (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 				bool critical = false;
 				bool ca = false;
 
@@ -485,12 +495,15 @@ namespace UnitTests.Cryptography {
 				generator.AddExtension (X509Extensions.KeyUsage, critical, new KeyUsage (keyUsage));
 			}
 
-			if(revocationOptions.Url != null) {
+			if (revocationOptions.Url != null) {
 				var crlDistPoint = new CrlDistPoint (new[] {
-				new DistributionPoint(
-					new DistributionPointName(DistributionPointName.FullName, new GeneralNames(new GeneralName(GeneralName.UniformResourceIdentifier, revocationOptions.Url))),
-					null,
-					null)});
+					new DistributionPoint (
+						new DistributionPointName (DistributionPointName.FullName,
+							new GeneralNames (new GeneralName (GeneralName.UniformResourceIdentifier,
+								revocationOptions.Url))),
+						null,
+						null)
+				});
 				generator.AddExtension (X509Extensions.CrlDistributionPoints.Id, false, crlDistPoint);
 			}
 
@@ -514,27 +527,35 @@ namespace UnitTests.Cryptography {
 			using (var stream = File.Create (options.Output))
 				pkcs12.Save (stream, options.Password.ToCharArray (), random);
 
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
 
-			var crlGenerator = new X509V2CrlGenerator ();
-			var intermediateNow = DateTime.UtcNow;
-			crlGenerator.SetIssuerDN (certificate.IssuerDN);
-			crlGenerator.SetThisUpdate (intermediateNow);
-			crlGenerator.SetNextUpdate (intermediateNow.AddDays (crlOptions.DaysValid));
-			// crlIntermediateGen.AddCrlEntry (BigInteger.One, intermediateNow, CrlReason.PrivilegeWithdrawn);
+			}
 
-			crlGenerator.AddExtension (X509Extensions.AuthorityKeyIdentifier,
-				false,
-				new AuthorityKeyIdentifierStructure (chain.Any() ? chain[0].GetPublicKey () : certificate.GetPublicKey()));
 
-			// could open old crl and increment.  Might not care for uni tests
-			var nextCrlNum = new CrlNumber (BigInteger.One);
-			crlGenerator.AddExtension (X509Extensions.CrlNumber, false, nextCrlNum);
+			if (!string.IsNullOrEmpty (crlOptions.Output)) {
+				var crlGenerator = new X509V2CrlGenerator ();
+				var intermediateNow = DateTime.UtcNow;
+				crlGenerator.SetIssuerDN (certificate.IssuerDN);
+				crlGenerator.SetThisUpdate (intermediateNow);
+				crlGenerator.SetNextUpdate (intermediateNow.AddDays (crlOptions.DaysValid));
+				// crlIntermediateGen.AddCrlEntry (BigInteger.One, intermediateNow, CrlReason.PrivilegeWithdrawn);
 
-			// maybe add crlOptions.SignatureAlgorithm ???
-			var crl = crlGenerator.Generate (new Asn1SignatureFactory ("SHA256WithRSA", signingKey, random));
-			var crlBytes = crl.GetEncoded ();
-			File.WriteAllBytes (crlOptions.Output, crlBytes);
+				crlGenerator.AddExtension (X509Extensions.AuthorityKeyIdentifier,
+					false,
+					new AuthorityKeyIdentifierStructure (chain.Any ()
+						? chain[0].GetPublicKey ()
+						: certificate.GetPublicKey ()));
 
+				// could open old crl and increment.  Might not care for uni tests
+				var nextCrlNum = new CrlNumber (BigInteger.One);
+				crlGenerator.AddExtension (X509Extensions.CrlNumber, false, nextCrlNum);
+
+				// maybe add crlOptions.SignatureAlgorithm ???
+				var crl = crlGenerator.Generate (new Asn1SignatureFactory ("SHA256WithRSA", signingKey, random));
+				var crlBytes = crl.GetEncoded ();
+				File.WriteAllBytes (crlOptions.Output, crlBytes);
+			}
+			
 			return certificates;
 		}
 
@@ -555,7 +576,7 @@ namespace UnitTests.Cryptography {
 			var certificate = new CertificateOptions ();
 			var privateKey = new PrivateKeyOptions ();
 			var options = new GeneratorOptions ();
-			var crlOptions = new CrlGeneratorOptions();
+			var crlOptions = new CrlGeneratorOptions ();
 			var revocation = new RevocationOptions ();
 
 			string section = null;
@@ -596,6 +617,7 @@ namespace UnitTests.Cryptography {
 							} else {
 								throw new FormatException ($"Invalid [PrivateKey] BitLength: {value}");
 							}
+
 							break;
 						case "curvename":
 							privateKey.CurveName = value;
@@ -606,6 +628,7 @@ namespace UnitTests.Cryptography {
 						default:
 							throw new FormatException ($"Unknown [PrivateKey] property: {property}");
 						}
+
 						break;
 					case "subject":
 						try {
@@ -613,6 +636,7 @@ namespace UnitTests.Cryptography {
 						} catch (ArgumentException) {
 							throw new FormatException ($"Unknown [Subject] property: {property}");
 						}
+
 						break;
 					case "subjectalternativenames":
 						try {
@@ -620,6 +644,7 @@ namespace UnitTests.Cryptography {
 						} catch (ArgumentException) {
 							throw new FormatException ($"Unknown [SubjectAlternativeNames] property: {property}");
 						}
+
 						break;
 					case "generator":
 						switch (property.ToLowerInvariant ()) {
@@ -632,6 +657,7 @@ namespace UnitTests.Cryptography {
 							} else {
 								throw new FormatException ($"Invalid [Generator] DaysValid: {value}");
 							}
+
 							break;
 						case "issuer":
 							if (!string.IsNullOrEmpty (value) && value != "this")
@@ -657,6 +683,7 @@ namespace UnitTests.Cryptography {
 						default:
 							throw new FormatException ($"Unknown [Generator] property: {property}");
 						}
+
 						break;
 					case "crlgenerator":
 						switch (property.ToLowerInvariant ()) {
@@ -682,30 +709,35 @@ namespace UnitTests.Cryptography {
 							break;
 						default:
 							throw new FormatException ($"Unknown section: {section}");
-					case "revocation":
-						switch (property.ToLowerInvariant()) {
-							case "url":
-								revocation.Url = value;
-								break;
-							case "daysvalid":
-								if (int.TryParse (value, out int days)) {
-									revocation.DaysValid = days;
-								} else {
-									throw new FormatException ($"Invalid [Revocation] DaysValid: {value}");
-								}
-								break;
-							case "issuer":
-								if (!string.IsNullOrEmpty (value) && value != "this")
-									revocation.Issuer = GetFileName (baseDirectory, value);
-								else
-									revocation.Issuer = value;
-								break;
-						case "issuerpassword":
-								revocation.IssuerPassword = value;
-								break;
-						default:
-								throw new FormatException ($"Unknown [Revocation] property: {property}");
 						}
+
+						break;
+					case "revocation":
+						switch (property.ToLowerInvariant ()) {
+						case "url":
+							revocation.Url = value;
+							break;
+						case "daysvalid":
+							if (int.TryParse (value, out int days)) {
+								revocation.DaysValid = days;
+							} else {
+								throw new FormatException ($"Invalid [Revocation] DaysValid: {value}");
+							}
+
+							break;
+						case "issuer":
+							if (!string.IsNullOrEmpty (value) && value != "this")
+								revocation.Issuer = GetFileName (baseDirectory, value);
+							else
+								revocation.Issuer = value;
+							break;
+						case "issuerpassword":
+							revocation.IssuerPassword = value;
+							break;
+						default:
+							throw new FormatException ($"Unknown [Revocation] property: {property}");
+						}
+
 						break;
 					default:
 						throw new FormatException ($"Unknown section: {section}");
@@ -717,3 +749,4 @@ namespace UnitTests.Cryptography {
 		}
 	}
 }
+
