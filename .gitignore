@@ -27,3 +27,5 @@ secring.gpg
 smime.db
 smimev0-tmp.db
 sqlite.db
+*.pfx
+*.crl
