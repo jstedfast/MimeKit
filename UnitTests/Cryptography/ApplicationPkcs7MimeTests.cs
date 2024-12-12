@@ -1012,7 +1012,7 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class ApplicationPkcs7MimeTests : ApplicationPkcs7MimeTestsBase
 	{
-		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = false };
+		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = true };
 
 		public ApplicationPkcs7MimeTests ()
 		{
@@ -1032,7 +1032,7 @@ namespace UnitTests.Cryptography {
 		{
 			public MySecureMimeContext () : base ("pkcs7.db", "no.secret")
 			{
-				CheckCertificateRevocation = false;
+				CheckCertificateRevocation = true;
 			}
 		}
 
