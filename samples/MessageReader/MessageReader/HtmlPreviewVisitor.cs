@@ -41,6 +41,8 @@ namespace MessageReader
 	{
 		readonly List<MultipartRelated> stack = new List<MultipartRelated> ();
 		readonly List<MimeEntity> attachments = new List<MimeEntity> ();
+		readonly List<MimeEntity> calenderAttachments = new List<MimeEntity>();
+
 		string body;
 
 		/// <summary>
@@ -55,6 +57,14 @@ namespace MessageReader
 		/// </summary>
 		public IList<MimeEntity> Attachments {
 			get { return attachments; }
+		}
+
+		/// <summary>
+		/// The list of text/calender entries that were in the MimeMessage.
+		/// </summary>
+		public IList<MimeEntity> CalenderAttachments
+		{
+			get { return calenderAttachments; }
 		}
 
 		/// <summary>
@@ -209,6 +219,13 @@ namespace MessageReader
 			if (body != null) {
 				// since we've already found the body, treat this as an attachment
 				attachments.Add (entity);
+				return;
+			}
+
+			// we want to treat text/calendar as an attachment, not as a regular text part.
+			if (entity.ContentType.IsMimeType ("text", "calendar"))
+			{
+				calenderAttachments.Add (entity);
 				return;
 			}
 

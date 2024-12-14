@@ -252,6 +252,10 @@ For example, you may wish to treat all body parts having a `name` or `filename` 
 var attachments = message.BodyParts.OfType<MimePart> ().Where (part => !string.IsNullOrEmpty (part.FileName));
 ```
 
+Some message contain calendaring and scheduling information. The `Content-Type` is `text/calender`, see [Wikipedia iCalender](https://en.wikipedia.org/wiki/ICalendar) or [IETF RFC5545](https://datatracker.ietf.org/doc/html/rfc5545).
+To get the list of body parts matching this criteria, you can use the
+[MimeMessage.CalenderAttachments](https://www.mimekit.net/docs/html/P_MimeKit_MimeMessage_CalenderAttachments.htm) property. One may provide this as `*.ics` file.
+
 A more sophisticated approach is to treat body parts not referenced by the main textual body part of the
 message as attachments. In other words, treat any body part not used for rendering the message as an
 attachment. For an example on how to do this, consider the following code snippets:
@@ -264,6 +268,8 @@ class HtmlPreviewVisitor : MimeVisitor
 {
     List<MultipartRelated> stack = new List<MultipartRelated> ();
     List<MimeEntity> attachments = new List<MimeEntity> ();
+    List<MimeEntity> calenderAttachments = new List<MimeEntity>();
+
     readonly string tempDir;
     string body;
 
@@ -281,6 +287,14 @@ class HtmlPreviewVisitor : MimeVisitor
     /// </summary>
     public IList<MimeEntity> Attachments {
         get { return attachments; }
+    }
+
+    /// <summary>
+    /// The list of text/calender entries that were in the MimeMessage.
+    /// </summary>
+    public IList<MimeEntity> CalenderAttachments
+    {
+        get { return calenderAttachments; }
     }
 
     /// <summary>
@@ -464,6 +478,14 @@ class HtmlPreviewVisitor : MimeVisitor
             attachments.Add (entity);
             return;
         }
+
+        // we want to treat text/calendar as an attachment, not as a regular text part.
+        if (entity.ContentType.IsMimeType("text", "calendar"))
+        {
+            calenderAttachments.Add (entity);
+            return;
+        }
+
 
         if (entity.IsHtml) {
             converter = new HtmlToHtml {
