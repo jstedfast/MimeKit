@@ -1,4 +1,4 @@
-﻿//
+//
 // HtmlPreviewVisitor.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -42,6 +42,8 @@ namespace MessageReader.iOS {
 	{
 		readonly List<MultipartRelated> stack = new List<MultipartRelated> ();
 		readonly List<MimeEntity> attachments = new List<MimeEntity> ();
+		readonly List<MimeEntity> calenderAttachments = new List<MimeEntity> ();
+
 		readonly UIWebView webView;
 		bool renderedBody;
 
@@ -58,6 +60,13 @@ namespace MessageReader.iOS {
 		/// </summary>
 		public IList<MimeEntity> Attachments {
 			get { return attachments; }
+		}
+
+		/// <summary>
+		/// The list of text/calender entries that were in the MimeMessage.
+		/// </summary>
+		public IList<MimeEntity> CalenderAttachments {
+			get { return calenderAttachments; }
 		}
 
 		protected override void VisitMultipartAlternative (MultipartAlternative alternative)
@@ -126,6 +135,12 @@ namespace MessageReader.iOS {
 		protected override void VisitTextPart (TextPart entity)
 		{
 			TextConverter converter;
+
+			// treat text/calendar parts as attachments rather than message bodies
+			if (entity.ContentType.IsMimeType ("text", "calendar")) {
+				calenderAttachments.Add (entity);
+				return;
+			}
 
 			if (renderedBody) {
 				// since we've already found the body, treat this as an attachment
