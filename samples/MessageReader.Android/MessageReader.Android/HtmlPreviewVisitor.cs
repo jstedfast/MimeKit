@@ -42,7 +42,7 @@ namespace MessageReader.Android
 	{
 		readonly List<MultipartRelated> stack = new List<MultipartRelated> ();
 		readonly List<MimeEntity> attachments = new List<MimeEntity> ();
-		readonly List<MimeEntity> calenderAttachments = new List<MimeEntity>();
+		readonly List<MimeEntity> calenderAttachments = new List<MimeEntity> ();
 
 		readonly WebView webView;
 		bool renderedBody;
@@ -65,8 +65,7 @@ namespace MessageReader.Android
 		/// <summary>
 		/// The list of text/calender entries that were in the MimeMessage.
 		/// </summary>
-		public IList<MimeEntity> CalenderAttachments
-		{
+		public IList<MimeEntity> CalenderAttachments {
 			get { return calenderAttachments; }
 		}
 
@@ -137,16 +136,15 @@ namespace MessageReader.Android
 		{
 			TextConverter converter;
 
-			if (renderedBody) {
-				// since we've already found the body, treat this as an attachment
-				attachments.Add (entity);
+			// treat text/calendar parts as attachments rather than message bodies
+			if (entity.ContentType.IsMimeType ("text", "calendar")) {
+				calenderAttachments.Add (entity);
 				return;
 			}
 
-			// we want to treat text/calendar as an attachment, not as a regular text part.
-			if (entity.ContentType.IsMimeType ("text", "calendar"))
-			{
-				calenderAttachments.Add (entity);
+			if (renderedBody) {
+				// since we've already found the body, treat this as an attachment
+				attachments.Add (entity);
 				return;
 			}
 
