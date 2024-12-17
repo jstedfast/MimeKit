@@ -25,9 +25,18 @@
 //
 
 using System.Text;
+using System.Globalization;
 
 using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Nist;
+using Org.BouncyCastle.Asn1.Ntt;
+using Org.BouncyCastle.Asn1.Misc;
+using Org.BouncyCastle.Asn1.Oiw;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.Kisa;
+using Org.BouncyCastle.Asn1.Smime;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Generators;
@@ -41,13 +50,13 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Extension;
-using Org.BouncyCastle.Asn1.X9;
 
 using MimeKit;
 
 namespace UnitTests.Cryptography {
 	class X509CertificateGenerator
 	{
+		static readonly Dictionary<string, DerObjectIdentifier> SMimeCapabilityMapping;
 		static readonly Dictionary<string, DerObjectIdentifier> X509NameOidMapping;
 		static readonly Dictionary<string, int> X509SubjectAlternativeTagMapping;
 		static readonly char[] EqualSign = new char[] { '=' };
@@ -101,6 +110,21 @@ namespace UnitTests.Cryptography {
 			X509SubjectAlternativeTagMapping = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase) {
 				{ "Rfc822Name", GeneralName.Rfc822Name },
 				{ "DnsName", GeneralName.DnsName },
+			};
+
+			SMimeCapabilityMapping = new Dictionary<string, DerObjectIdentifier> (StringComparer.OrdinalIgnoreCase) {
+				{ "AES128", NistObjectIdentifiers.IdAes128Cbc },
+				{ "AES192", NistObjectIdentifiers.IdAes192Cbc },
+				{ "AES256", NistObjectIdentifiers.IdAes256Cbc },
+				{ "CAMELLIA128", NttObjectIdentifiers.IdCamellia128Cbc },
+				{ "CAMELLIA192", NttObjectIdentifiers.IdCamellia192Cbc },
+				{ "CAMELLIA256", NttObjectIdentifiers.IdCamellia256Cbc },
+				{ "CAST5", MiscObjectIdentifiers.cast5CBC },
+				{ "DES", OiwObjectIdentifiers.DesCbc },
+				{ "3DES", PkcsObjectIdentifiers.DesEde3Cbc },
+				{ "IDEA", MiscObjectIdentifiers.as_sys_sec_alg_ideaCBC },
+				{ "RC2", PkcsObjectIdentifiers.RC2Cbc },
+				{ "SEED", KisaObjectIdentifiers.IdSeedCbc }
 			};
 		}
 
@@ -218,6 +242,8 @@ namespace UnitTests.Cryptography {
 
 			internal List<GeneralName> SubjectAlternativeNames { get; private set; }
 
+			internal SmimeCapabilityVector SMimeCapabilities { get; private set; }
+
 			public void Add (DerObjectIdentifier oid, string value)
 			{
 				if (oid == X509Name.CN || oid == X509Name.E)
@@ -251,6 +277,26 @@ namespace UnitTests.Cryptography {
 				default:
 					SubjectAlternativeNames.Add (new GeneralName (tagNo, value));
 					break;
+				}
+			}
+
+			public void AddSMimeCapability (string capability)
+			{
+				var components = capability.Split (new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+				DerObjectIdentifier oid;
+
+				if (SMimeCapabilityMapping.TryGetValue (components[0], out oid) || DerObjectIdentifier.TryFromID (components[0], out oid)) {
+					SMimeCapabilities ??= new SmimeCapabilityVector ();
+
+					if (components.Length > 1) {
+						int value = int.Parse (components[1], NumberStyles.None, CultureInfo.InvariantCulture);
+
+						SMimeCapabilities.AddCapability (oid, value);
+					} else {
+						SMimeCapabilities.AddCapability (oid);
+					}
+				} else {
+					throw new ArgumentException ($"Unknown S/MIME capability: {capability}", nameof (capability));
 				}
 			}
 		}
@@ -409,6 +455,11 @@ namespace UnitTests.Cryptography {
 				generator.AddExtension (X509Extensions.SubjectAlternativeName, false, altNames);
 			}
 
+			if (certificateOptions.SMimeCapabilities != null) {
+				var capabilities = certificateOptions.SMimeCapabilities.ToAsn1EncodableVector ();
+				generator.AddExtension (SmimeAttributes.SmimeCapabilities, false, new DerSequence (capabilities));
+			}
+
 			if (issuerCertificate != null)
 				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure (issuerCertificate));
 
@@ -552,6 +603,13 @@ namespace UnitTests.Cryptography {
 							certificate.AddSubjectAlternativeName (property, value);
 						} catch (ArgumentException) {
 							throw new FormatException ($"Unknown [SubjectAlternativeNames] property: {property}");
+						}
+						break;
+					case "smimecapabilities":
+						try {
+							certificate.AddSMimeCapability (value);
+						} catch (ArgumentException) {
+							throw new FormatException ($"Unknown [SMimeCapabilities] value: {value}");
 						}
 						break;
 					case "generator":

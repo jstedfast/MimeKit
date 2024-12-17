@@ -423,8 +423,12 @@ namespace MimeKit.Cryptography {
 
 			var capabilities = certificate.GetExtensionValue (SmimeAttributes.SmimeCapabilities);
 
-			if (capabilities != null)
-				return DecodeEncryptionAlgorithms (capabilities.GetOctets ());
+			if (capabilities != null) {
+				var algorithms = DecodeEncryptionAlgorithms (capabilities.GetOctets ());
+
+				if (algorithms != null)
+					return algorithms;
+			}
 
 			return new EncryptionAlgorithm[] { EncryptionAlgorithm.TripleDes };
 		}
