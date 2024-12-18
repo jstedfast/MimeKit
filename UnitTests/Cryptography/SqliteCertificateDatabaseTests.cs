@@ -82,12 +82,12 @@ namespace UnitTests.Cryptography {
 			File.Copy (path, tmp);
 
 			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
-				var root = chain[chain.Length - 1];
-
 				// Verify that we can select the Root Certificate
 				bool trustedAnchor = false;
 				foreach (var record in dbase.Find (null, true, X509CertificateRecordFields.Certificate)) {
-					if (record.Certificate.Equals (root)) {
+					var fingerprint = record.Certificate.GetFingerprint ();
+
+					if (fingerprint == "943471ff1ca3fb2dd843f515df261756cad58673") {
 						trustedAnchor = true;
 						break;
 					}
@@ -109,12 +109,12 @@ namespace UnitTests.Cryptography {
 			File.Copy (path, tmp);
 
 			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
-				var root = chain[chain.Length - 1];
-
 				// Verify that we can select the Root Certificate
 				bool trustedAnchor = false;
 				foreach (var record in dbase.Find (null, true, X509CertificateRecordFields.Certificate)) {
-					if (record.Certificate.Equals (root)) {
+					var fingerprint = record.Certificate.GetFingerprint ();
+
+					if (fingerprint == "943471ff1ca3fb2dd843f515df261756cad58673") {
 						trustedAnchor = true;
 						break;
 					}
