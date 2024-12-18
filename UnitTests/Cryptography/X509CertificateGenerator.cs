@@ -240,6 +240,8 @@ namespace UnitTests.Cryptography {
 
 			internal IList<string> Values { get; }
 
+			internal string RevocationUrl { get; set; }
+
 			internal List<GeneralName> SubjectAlternativeNames { get; private set; }
 
 			internal SmimeCapabilityVector SMimeCapabilities { get; private set; }
@@ -326,11 +328,11 @@ namespace UnitTests.Cryptography {
 			public string SignatureAlgorithm { get; set; }
 		}
 
-		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKey, CertificateOptions certificateOptions)
+		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKeyOptions, CertificateOptions certificateOptions, out AsymmetricKeyParameter privateKey)
 		{
 			// Sanity Checks
-			if (!string.IsNullOrEmpty (privateKey.FileName) && !File.Exists (privateKey.FileName))
-				throw new FormatException ($"[PrivateKey] FileName `{privateKey.FileName}' does not exist!");
+			if (!string.IsNullOrEmpty (privateKeyOptions.FileName) && !File.Exists (privateKeyOptions.FileName))
+				throw new FormatException ($"[PrivateKey] FileName `{privateKeyOptions.FileName}' does not exist!");
 
 			if (certificateOptions.Oids.Count == 0)
 				throw new FormatException ("No [Subject] specified.");
@@ -349,39 +351,39 @@ namespace UnitTests.Cryptography {
 			var random = new SecureRandom (randomGenerator);
 			AsymmetricCipherKeyPair key;
 
-			if (string.IsNullOrEmpty (privateKey.FileName)) {
+			if (string.IsNullOrEmpty (privateKeyOptions.FileName)) {
 				IAsymmetricCipherKeyPairGenerator keyPairGenerator;
 
-				switch (privateKey.Algorithm.ToLowerInvariant ()) {
+				switch (privateKeyOptions.Algorithm.ToLowerInvariant ()) {
 				case "dsa":
 					var dsaParameterGenerator = new DsaParametersGenerator ();
-					dsaParameterGenerator.Init (privateKey.BitLength, 80, random);
+					dsaParameterGenerator.Init (privateKeyOptions.BitLength, 80, random);
 					var dsaParameters = dsaParameterGenerator.GenerateParameters ();
 					var dsaKeyGenParameters = new DsaKeyGenerationParameters (random, dsaParameters);
 					keyPairGenerator = new DsaKeyPairGenerator ();
 					keyPairGenerator.Init (dsaKeyGenParameters);
 					break;
 				case "rsa":
-					var rsaKeyGenParameters = new KeyGenerationParameters (random, privateKey.BitLength);
+					var rsaKeyGenParameters = new KeyGenerationParameters (random, privateKeyOptions.BitLength);
 					keyPairGenerator = new RsaKeyPairGenerator ();
 					keyPairGenerator.Init (rsaKeyGenParameters);
 					break;
 				case "ec":
-					var eccDomainParameters = new ECDomainParameters (ECNamedCurveTable.GetByName (privateKey.CurveName));
+					var eccDomainParameters = new ECDomainParameters (ECNamedCurveTable.GetByName (privateKeyOptions.CurveName));
 					var eccKeyGenParameters = new ECKeyGenerationParameters (eccDomainParameters, random);
 					keyPairGenerator = new ECKeyPairGenerator ();
 					keyPairGenerator.Init (eccKeyGenParameters);
 					break;
 				default:
-					throw new ArgumentException ($"Unsupported PrivateKey algorithm: {privateKey.Algorithm}");
+					throw new ArgumentException ($"Unsupported PrivateKey algorithm: {privateKeyOptions.Algorithm}");
 				}
 
 				key = keyPairGenerator.GenerateKeyPair ();
 			} else {
 				try {
-					key = LoadAsymmetricCipherKeyPair (privateKey.FileName);
+					key = LoadAsymmetricCipherKeyPair (privateKeyOptions.FileName);
 				} catch (Exception ex) {
-					throw new FormatException ($"[PrivateKey] Failed to load `{privateKey.FileName}': {ex.Message}", ex);
+					throw new FormatException ($"[PrivateKey] Failed to load `{privateKeyOptions.FileName}': {ex.Message}", ex);
 				}
 			}
 
@@ -460,6 +462,15 @@ namespace UnitTests.Cryptography {
 				generator.AddExtension (SmimeAttributes.SmimeCapabilities, false, new DerSequence (capabilities));
 			}
 
+			if (certificateOptions.RevocationUrl != null) {
+				var fullName = new GeneralNames (new GeneralName (GeneralName.UniformResourceIdentifier, certificateOptions.RevocationUrl));
+				var crlDistPoint = new CrlDistPoint (new [] {
+					new DistributionPoint (new DistributionPointName (DistributionPointName.FullName, fullName), null, null)
+				});
+
+				generator.AddExtension (X509Extensions.CrlDistributionPoints, false, crlDistPoint);
+			}
+
 			if (issuerCertificate != null)
 				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure (issuerCertificate));
 
@@ -502,8 +513,10 @@ namespace UnitTests.Cryptography {
 				generator.AddExtension (X509Extensions.KeyUsage, critical, new KeyUsage (keyUsage));
 			}
 
+			privateKey = key.Private;
+
 			var certificate = generator.Generate (signatureFactory);
-			var keyEntry = new AsymmetricKeyEntry (key.Private);
+			var keyEntry = new AsymmetricKeyEntry (privateKey);
 
 			var chainEntries = new X509CertificateEntry[chain.Length + 1];
 			var certificates = new X509Certificate[chain.Length + 1];
@@ -536,11 +549,11 @@ namespace UnitTests.Cryptography {
 			return Path.Combine (baseDirectory, value);
 		}
 
-		public static X509Certificate[] Generate (string cfg)
+		public static X509Certificate[] Generate (string cfg, out AsymmetricKeyParameter privateKey)
 		{
 			var baseDirectory = Path.GetDirectoryName (cfg);
 			var certificate = new CertificateOptions ();
-			var privateKey = new PrivateKeyOptions ();
+			var privateKeyOptions = new PrivateKeyOptions ();
 			var options = new GeneratorOptions ();
 			string section = null;
 
@@ -572,23 +585,32 @@ namespace UnitTests.Cryptography {
 					case "privatekey":
 						switch (property.ToLowerInvariant ()) {
 						case "algorithm":
-							privateKey.Algorithm = value;
+							privateKeyOptions.Algorithm = value;
 							break;
 						case "bitlength":
 							if (int.TryParse (value, out int bitLength)) {
-								privateKey.BitLength = bitLength;
+								privateKeyOptions.BitLength = bitLength;
 							} else {
 								throw new FormatException ($"Invalid [PrivateKey] BitLength: {value}");
 							}
 							break;
 						case "curvename":
-							privateKey.CurveName = value;
+							privateKeyOptions.CurveName = value;
 							break;
 						case "filename":
-							privateKey.FileName = GetFileName (baseDirectory, value);
+							privateKeyOptions.FileName = GetFileName (baseDirectory, value);
 							break;
 						default:
 							throw new FormatException ($"Unknown [PrivateKey] property: {property}");
+						}
+						break;
+					case "revocation":
+						switch (property.ToLowerInvariant ()) {
+						case "distributionpoint":
+							certificate.RevocationUrl = value;
+							break;
+						default:
+							throw new FormatException ($"Unknown [Revocation] property: {property}");
 						}
 						break;
 					case "subject":
@@ -655,7 +677,7 @@ namespace UnitTests.Cryptography {
 				}
 			}
 
-			return Generate (options, privateKey, certificate);
+			return Generate (options, privateKeyOptions, certificate, out privateKey);
 		}
 	}
 }

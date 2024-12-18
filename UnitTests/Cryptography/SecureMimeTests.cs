@@ -24,13 +24,19 @@
 // THE SOFTWARE.
 //
 
+using System.Net;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto.Prng;
+
+using Moq;
+using Moq.Protected;
 
 using MimeKit;
 using MimeKit.Cryptography;
@@ -79,10 +85,29 @@ namespace UnitTests.Cryptography {
 		public static readonly SMimeCertificate[] UnsupportedCertificates;
 		public static readonly SMimeCertificate[] SupportedCertificates;
 		public static readonly SMimeCertificate[] SMimeCertificates;
+		public static readonly SMimeCertificate RevokedCertificate;
 		public static readonly SMimeCertificate DomainCertificate;
 		public static readonly SMimeCertificate RsaCertificate;
 
+		public static readonly X509Certificate RootCertificate;
+		public static readonly AsymmetricKeyParameter RootKey;
+
+		public static readonly X509Certificate IntermediateCertificate1;
+		public static readonly AsymmetricKeyParameter IntermediateKey1;
+
+		public static readonly X509Certificate IntermediateCertificate2;
+		public static readonly AsymmetricKeyParameter IntermediateKey2;
+
+		public static readonly X509Crl[] ObsoleteCrls;
+		public static readonly X509Crl[] CurrentCrls;
+		public static readonly Uri[] CrlRequestUris;
+
+		public static readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
+		public static readonly HttpClient MockHttpClient;
+
 		protected virtual bool IsEnabled { get { return true; } }
+
+		protected virtual bool CheckCertificateRevocation { get { return true; } }
 
 		protected virtual bool Supports (PublicKeyAlgorithm algorithm)
 		{
@@ -103,6 +128,7 @@ namespace UnitTests.Cryptography {
 			var unsupported = new List<SMimeCertificate> ();
 			var supported = new List<SMimeCertificate> ();
 			var all = new List<SMimeCertificate> ();
+			AsymmetricKeyParameter privateKey;
 
 			foreach (var cfg in Directory.GetFiles (dataDir, "*.cfg", SearchOption.AllDirectories)) {
 				var name = Path.GetFileNameWithoutExtension (cfg);
@@ -110,7 +136,7 @@ namespace UnitTests.Cryptography {
 				X509Certificate[] chain;
 
 				if (File.Exists (pfx)) {
-					chain = LoadPkcs12CertificateChain (pfx, "no.secret");
+					chain = LoadPkcs12CertificateChain (pfx, "no.secret", out privateKey);
 					var certificate = chain[0];
 
 					if (certificate.NotAfter > DateTime.Now) {
@@ -127,7 +153,9 @@ namespace UnitTests.Cryptography {
 								break;
 							}
 
-							if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
+							if (smime.EmailAddress.Equals ("revoked@example.com", StringComparison.OrdinalIgnoreCase)) {
+								RevokedCertificate = smime;
+							} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 								if (!string.IsNullOrEmpty (smime.EmailAddress))
 									RsaCertificate = smime;
 								else if (smime.DnsNames.Length > 0)
@@ -135,13 +163,22 @@ namespace UnitTests.Cryptography {
 							}
 
 							all.Add (smime);
+						} else if (name.Equals ("certificate-authority", StringComparison.OrdinalIgnoreCase)) {
+							RootCertificate = chain[0];
+							RootKey = privateKey;
+						} else if (name.Equals ("intermediate1", StringComparison.OrdinalIgnoreCase)) {
+							IntermediateCertificate1 = chain[0];
+							IntermediateKey1 = privateKey;
+						} else if (name.Equals ("intermediate2", StringComparison.OrdinalIgnoreCase)) {
+							IntermediateCertificate2 = chain[0];
+							IntermediateKey2 = privateKey;
 						}
 						continue;
 					}
 				}
 
 				// The pfx file either doesn't exist or it has expired. Time to generate a new one.
-				chain = X509CertificateGenerator.Generate (cfg);
+				chain = X509CertificateGenerator.Generate (cfg, out privateKey);
 
 				if (name.Equals ("smime", StringComparison.OrdinalIgnoreCase)) {
 					var smime = new SMimeCertificate (pfx, chain);
@@ -156,7 +193,9 @@ namespace UnitTests.Cryptography {
 						break;
 					}
 
-					if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
+					if (smime.EmailAddress.Equals ("revoked@example.com", StringComparison.OrdinalIgnoreCase)) {
+						RevokedCertificate = smime;
+					} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 						if (!string.IsNullOrEmpty (smime.EmailAddress))
 							RsaCertificate = smime;
 						else if (smime.DnsNames.Length > 0)
@@ -164,12 +203,73 @@ namespace UnitTests.Cryptography {
 					}
 
 					all.Add (smime);
+				} else if (name.Equals ("certificate-authority", StringComparison.OrdinalIgnoreCase)) {
+					RootCertificate = chain[0];
+					RootKey = privateKey;
+				} else if (name.Equals ("intermediate1", StringComparison.OrdinalIgnoreCase)) {
+					IntermediateCertificate1 = chain[0];
+					IntermediateKey1 = privateKey;
+				} else if (name.Equals ("intermediate2", StringComparison.OrdinalIgnoreCase)) {
+					IntermediateCertificate2 = chain[0];
+					IntermediateKey2 = privateKey;
 				}
 			}
 
 			UnsupportedCertificates = unsupported.ToArray ();
 			SupportedCertificates = supported.ToArray ();
 			SMimeCertificates = all.ToArray ();
+
+			var certificates = SMimeCertificates.Select (cert => cert.Certificate).ToArray ();
+			var yesterday = DateTime.Now.Subtract (TimeSpan.FromDays (1));
+			var threeMonthsAgo = yesterday.Subtract (TimeSpan.FromDays (90));
+			var threeMonthsFromNow = yesterday.Add (TimeSpan.FromDays (90));
+
+			ObsoleteCrls = new X509Crl [] {
+				X509CrlGenerator.Generate (RootCertificate, RootKey, threeMonthsAgo, yesterday),
+				X509CrlGenerator.Generate (IntermediateCertificate1, IntermediateKey1, threeMonthsAgo, yesterday),
+				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, threeMonthsAgo, yesterday)
+			};
+
+			CurrentCrls = new X509Crl [] {
+				X509CrlGenerator.Generate (RootCertificate, RootKey, yesterday, threeMonthsFromNow),
+				X509CrlGenerator.Generate (IntermediateCertificate1, IntermediateKey1, yesterday, threeMonthsFromNow),
+				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedCertificate.Certificate)
+			};
+
+			CrlRequestUris = new Uri [] {
+				new Uri ("https://mimekit.net/crls/certificate-authority.crl"),
+				new Uri ("https://mimekit.net/crls/intermediate1.crl"),
+				new Uri ("https://mimekit.net/crls/intermediate2.crl")
+			};
+
+			var responses = new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (CurrentCrls[0].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (CurrentCrls[1].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (CurrentCrls[2].GetEncoded ())
+				}
+			};
+
+			MockHttpMessageHandler = new Mock<HttpMessageHandler> (MockBehavior.Strict);
+
+			for (int i = 0; i < CrlRequestUris.Length; i++) {
+				var requestUri = CrlRequestUris[i];
+				var response = responses[i];
+
+				MockHttpMessageHandler
+					.Protected ()
+					.Setup<Task<HttpResponseMessage>> (
+						"SendAsync",
+						ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == requestUri),
+						ItExpr.IsAny<CancellationToken> ())
+					.ReturnsAsync (response);
+			}
+
+			MockHttpClient = new HttpClient (MockHttpMessageHandler.Object);
 		}
 
 		protected void ImportTestCertificates (SecureMimeContext ctx)
@@ -237,6 +337,12 @@ namespace UnitTests.Cryptography {
 				// Import a second time to cover the case where the certificate & private key already exist
 				Assert.DoesNotThrow (() => ctx.Import (mimekitCertificate.FileName, "no.secret"));
 			}
+
+			if (windows is null) {
+				// Import the obsolete CRLs (we want the S/MIME context to download the current CRLs)
+				foreach (var crl in ObsoleteCrls)
+					ctx.Import (crl);
+			}
 		}
 
 		protected SecureMimeTestsBase ()
@@ -257,7 +363,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		public static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password)
+		public static X509Certificate[] LoadPkcs12CertificateChain (string fileName, string password, out AsymmetricKeyParameter privateKey)
 		{
 			using (var stream = File.OpenRead (fileName)) {
 				var pkcs12 = new Pkcs12StoreBuilder ().Build ();
@@ -275,9 +381,13 @@ namespace UnitTests.Cryptography {
 						for (int i = 0; i < chain.Length; i++)
 							certificates[i] = chain[i].Certificate;
 
+						privateKey = entry.Key;
+
 						return certificates;
 					}
 				}
+
+				privateKey = null;
 
 				return Array.Empty<X509Certificate> ();
 			}
@@ -2729,12 +2839,207 @@ namespace UnitTests.Cryptography {
 				}
 			}
 		}
+
+		void AssertCrlsRequested ()
+		{
+			for (int i = 0; i < CrlRequestUris.Length; i++) {
+				var requestUri = CrlRequestUris[i];
+
+				MockHttpMessageHandler.Protected ().Verify (
+					"SendAsync",
+					Times.AtLeast (1),
+					ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == requestUri),
+					ItExpr.IsAny<CancellationToken> ());
+			}
+		}
+
+		[Test]
+		public void TestVerifyRevokedCertificate ()
+		{
+			if (!CheckCertificateRevocation)
+				return;
+
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+
+			using (var ctx = CreateContext ()) {
+				if (ctx is not BouncyCastleSecureMimeContext bctx)
+					return;
+
+				var certificate = RevokedCertificate;
+
+				var signer = new CmsSigner (certificate.FileName, "no.secret");
+				var multipart = MultipartSigned.Create (ctx, signer, body);
+
+				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+				Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
+
+				try {
+					bctx.CheckCertificateRevocation = true;
+
+					var signatures = multipart.Verify (ctx);
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+
+					AssertCrlsRequested ();
+
+					var signature = signatures[0];
+
+					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
+
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
+
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.False, "Expected failed validation.");
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.That (ex.Message, Is.EqualTo ("Failed to verify digital signature chain: Certification path could not be validated."), "ex.Message");
+
+						Exception innerException = ex.InnerException;
+						while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
+							innerException = innerException.InnerException;
+
+						Assert.That (innerException, Is.Not.Null);
+						Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
+						Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
+					}
+				} finally {
+					bctx.CheckCertificateRevocation = false;
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestVerifyRevokedCertificateAsync ()
+		{
+			if (!CheckCertificateRevocation)
+				return;
+
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+
+			using (var ctx = CreateContext ()) {
+				if (ctx is not BouncyCastleSecureMimeContext bctx)
+					return;
+
+				var certificate = RevokedCertificate;
+
+				var signer = new CmsSigner (certificate.FileName, "no.secret");
+				var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
+
+				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+
+				var protocol = multipart.ContentType.Parameters["protocol"];
+				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+				Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
+
+				try {
+					bctx.CheckCertificateRevocation = true;
+
+					var signatures = await multipart.VerifyAsync (ctx);
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+
+					AssertCrlsRequested ();
+
+					var signature = signatures[0];
+
+					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
+
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
+
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+
+					try {
+						bool valid = signature.Verify ();
+
+						Assert.That (valid, Is.False, "Expected failed validation.");
+					} catch (DigitalSignatureVerifyException ex) {
+						Assert.That (ex.Message, Is.EqualTo ("Failed to verify digital signature chain: Certification path could not be validated."), "ex.Message");
+
+						Exception innerException = ex.InnerException;
+						while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
+							innerException = innerException.InnerException;
+
+						Assert.That (innerException, Is.Not.Null);
+						Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
+						Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
+					}
+				} finally {
+					bctx.CheckCertificateRevocation = false;
+				}
+			}
+		}
 	}
 
 	[TestFixture]
 	public class SecureMimeTests : SecureMimeTestsBase
 	{
-		readonly TemporarySecureMimeContext ctx = new TemporarySecureMimeContext (new SecureRandom (new CryptoApiRandomGenerator ())) { CheckCertificateRevocation = false };
+		class MyTemporarySecureMimeContext : TemporarySecureMimeContext
+		{
+			public MyTemporarySecureMimeContext () : base (new SecureRandom (new CryptoApiRandomGenerator ()))
+			{
+				CheckCertificateRevocation = false;
+			}
+
+			protected override HttpClient HttpClient {
+				get {  return MockHttpClient; }
+			}
+		}
+
+		readonly TemporarySecureMimeContext ctx = new MyTemporarySecureMimeContext ();
 
 		protected override SecureMimeContext CreateContext ()
 		{
@@ -2750,6 +3055,10 @@ namespace UnitTests.Cryptography {
 			public MySecureMimeContext () : base ("smime.db", "no.secret")
 			{
 				CheckCertificateRevocation = false;
+			}
+
+			protected override HttpClient HttpClient {
+				get { return MockHttpClient; }
 			}
 		}
 
@@ -2792,6 +3101,10 @@ namespace UnitTests.Cryptography {
 			get {
 				return Environment.OSVersion.Platform == PlatformID.Win32NT;
 			}
+		}
+
+		protected override bool CheckCertificateRevocation {
+			get { return false; }
 		}
 
 		protected override bool Supports (PublicKeyAlgorithm algorithm)

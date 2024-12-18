@@ -67,8 +67,7 @@ namespace MimeKit.Cryptography {
 	public abstract class BouncyCastleSecureMimeContext : SecureMimeContext
 	{
 		static readonly string RsassaPssOid = PkcsObjectIdentifiers.IdRsassaPss.Id;
-
-		HttpClient client;
+		static readonly HttpClient SharedHttpClient = new HttpClient ();
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="SecureMimeContext"/> class.
@@ -96,7 +95,6 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (random));
 
 			RandomNumberGenerator = random;
-			client = new HttpClient ();
 		}
 
 		/// <summary>
@@ -127,6 +125,17 @@ namespace MimeKit.Cryptography {
 		/// <value><c>true</c> if CRLs should be downloaded automatically; otherwise, <c>false</c>.</value>
 		public bool CheckCertificateRevocation {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get the HTTP client to use for downloading CRLs.
+		/// </summary>
+		/// <remarks>
+		/// Gets the HTTP client to use for downloading CRLs.
+		/// </remarks>
+		/// <value>The HTTP client used for downloading CRLs.</value>
+		protected virtual HttpClient HttpClient {
+			get { return SharedHttpClient; }
 		}
 
 		/// <summary>
@@ -694,12 +703,11 @@ namespace MimeKit.Cryptography {
 
 			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = CheckCertificateRevocation,
+				IsRevocationEnabled = false,
 				Date = DateTime.UtcNow
 			};
 			parameters.AddStoreCert (intermediates);
 			parameters.AddStoreCert (GetIntermediateCertificates ());
-			parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -879,7 +887,7 @@ namespace MimeKit.Cryptography {
 		{
 			try {
 				if (doAsync) {
-					using (var response = await client.GetAsync (location, cancellationToken).ConfigureAwait (false)) {
+					using (var response = await HttpClient.GetAsync (location, cancellationToken).ConfigureAwait (false)) {
 #if NET6_0_OR_GREATER
 						await response.Content.CopyToAsync (stream, cancellationToken).ConfigureAwait (false);
 #else
@@ -888,7 +896,7 @@ namespace MimeKit.Cryptography {
 					}
 				} else {
 #if NET6_0_OR_GREATER
-					using (var response = client.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
+					using (var response = HttpClient.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
 						response.Content.CopyToAsync (stream, cancellationToken).GetAwaiter ().GetResult ();
 #else
 					cancellationToken.ThrowIfCancellationRequested ();
@@ -1047,8 +1055,10 @@ namespace MimeKit.Cryptography {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo, certificate);
 
-				if (CheckCertificateRevocation && certificate != null)
-					await DownloadCrlsAsync (certificate, doAsync, cancellationToken).ConfigureAwait (false);
+				if (CheckCertificateRevocation) {
+					foreach (var cert in certificates.EnumerateMatches (null))
+						await DownloadCrlsAsync (cert, doAsync, cancellationToken).ConfigureAwait (false);
+				}
 
 				if (certificate != null) {
 					Import (certificate, cancellationToken);
@@ -1058,6 +1068,11 @@ namespace MimeKit.Cryptography {
 				}
 
 				var anchors = GetTrustedAnchors ();
+
+				if (CheckCertificateRevocation) {
+					foreach (var anchor in anchors)
+						await DownloadCrlsAsync (anchor.TrustedCert, doAsync, cancellationToken).ConfigureAwait (false);
+				}
 
 				try {
 					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signature.CreationDate);
@@ -1831,23 +1846,6 @@ namespace MimeKit.Cryptography {
 		public override Task<MimePart> ExportAsync (IEnumerable<MailboxAddress> mailboxes, CancellationToken cancellationToken = default)
 		{
 			return Task.FromResult (Export (mailboxes, cancellationToken));
-		}
-
-		/// <summary>
-		/// Releases all resources used by the <see cref="BouncyCastleSecureMimeContext"/> object.
-		/// </summary>
-		/// <remarks>Call <see cref="CryptographyContext.Dispose()"/> when you are finished using the <see cref="BouncyCastleSecureMimeContext"/>. The
-		/// <see cref="CryptographyContext.Dispose()"/> method leaves the <see cref="BouncyCastleSecureMimeContext"/> in an unusable state. After
-		/// calling <see cref="CryptographyContext.Dispose()"/>, you must release all references to the <see cref="BouncyCastleSecureMimeContext"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="BouncyCastleSecureMimeContext"/> was occupying.</remarks>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && client != null) {
-				client.Dispose ();
-				client = null;
-			}
-
-			base.Dispose (disposing);
 		}
 	}
 }
