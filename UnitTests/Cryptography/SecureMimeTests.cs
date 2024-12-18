@@ -78,6 +78,10 @@ namespace UnitTests.Cryptography {
 		public const string MimeKitFingerprint = "ba4403cd3d876ae8cd261575820330086cc3cbc8";
 		public const string ThunderbirdName = "fejj@gnome.org";
 
+		public static readonly string[] RelativeConfigFilePaths = {
+			"certificate-authority.cfg", "intermediate1.cfg", "intermediate2.cfg", "dnsnames/smime.cfg", "dsa/smime.cfg", "ec/smime.cfg", "revoked/smime.cfg", "rsa/smime.cfg"
+		};
+
 		public static readonly string[] StartComCertificates = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
@@ -102,9 +106,6 @@ namespace UnitTests.Cryptography {
 		public static readonly X509Crl[] CurrentCrls;
 		public static readonly Uri[] CrlRequestUris;
 
-		public static readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
-		public static readonly HttpClient MockHttpClient;
-
 		protected virtual bool IsEnabled { get { return true; } }
 
 		protected virtual bool CheckCertificateRevocation { get { return true; } }
@@ -122,6 +123,8 @@ namespace UnitTests.Cryptography {
 
 		protected abstract SecureMimeContext CreateContext ();
 
+		protected abstract Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx);
+
 		static SecureMimeTestsBase ()
 		{
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
@@ -130,7 +133,8 @@ namespace UnitTests.Cryptography {
 			var all = new List<SMimeCertificate> ();
 			AsymmetricKeyParameter privateKey;
 
-			foreach (var cfg in Directory.GetFiles (dataDir, "*.cfg", SearchOption.AllDirectories)) {
+			foreach (var relativePath in RelativeConfigFilePaths) {
+				var cfg = Path.Combine (dataDir, relativePath.Replace ('/', Path.DirectorySeparatorChar));
 				var name = Path.GetFileNameWithoutExtension (cfg);
 				var pfx = Path.ChangeExtension (cfg, ".pfx");
 				X509Certificate[] chain;
@@ -153,7 +157,7 @@ namespace UnitTests.Cryptography {
 								break;
 							}
 
-							if (smime.EmailAddress.Equals ("revoked@example.com", StringComparison.OrdinalIgnoreCase)) {
+							if (smime.EmailAddress.Equals ("revoked@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 								RevokedCertificate = smime;
 							} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 								if (!string.IsNullOrEmpty (smime.EmailAddress))
@@ -193,7 +197,7 @@ namespace UnitTests.Cryptography {
 						break;
 					}
 
-					if (smime.EmailAddress.Equals ("revoked@example.com", StringComparison.OrdinalIgnoreCase)) {
+					if (smime.EmailAddress.Equals ("revoked@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 						RevokedCertificate = smime;
 					} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 						if (!string.IsNullOrEmpty (smime.EmailAddress))
@@ -220,7 +224,7 @@ namespace UnitTests.Cryptography {
 			SMimeCertificates = all.ToArray ();
 
 			var certificates = SMimeCertificates.Select (cert => cert.Certificate).ToArray ();
-			var yesterday = DateTime.Now.Subtract (TimeSpan.FromDays (1));
+			var yesterday = DateTime.UtcNow.Subtract (TimeSpan.FromDays (1));
 			var threeMonthsAgo = yesterday.Subtract (TimeSpan.FromDays (90));
 			var threeMonthsFromNow = yesterday.Add (TimeSpan.FromDays (90));
 
@@ -241,7 +245,10 @@ namespace UnitTests.Cryptography {
 				new Uri ("https://mimekit.net/crls/intermediate1.crl"),
 				new Uri ("https://mimekit.net/crls/intermediate2.crl")
 			};
+		}
 
+		protected static Mock<HttpMessageHandler> CreateMockHttpMessageHandler ()
+		{
 			var responses = new HttpResponseMessage[] {
 				new HttpResponseMessage (HttpStatusCode.OK) {
 					Content = new ByteArrayContent (CurrentCrls[0].GetEncoded ())
@@ -254,13 +261,13 @@ namespace UnitTests.Cryptography {
 				}
 			};
 
-			MockHttpMessageHandler = new Mock<HttpMessageHandler> (MockBehavior.Strict);
+			var mockHttpMessageHandler = new Mock<HttpMessageHandler> (MockBehavior.Strict);
 
 			for (int i = 0; i < CrlRequestUris.Length; i++) {
 				var requestUri = CrlRequestUris[i];
 				var response = responses[i];
 
-				MockHttpMessageHandler
+				mockHttpMessageHandler
 					.Protected ()
 					.Setup<Task<HttpResponseMessage>> (
 						"SendAsync",
@@ -269,7 +276,7 @@ namespace UnitTests.Cryptography {
 					.ReturnsAsync (response);
 			}
 
-			MockHttpClient = new HttpClient (MockHttpMessageHandler.Object);
+			return mockHttpMessageHandler;
 		}
 
 		protected void ImportTestCertificates (SecureMimeContext ctx)
@@ -350,8 +357,12 @@ namespace UnitTests.Cryptography {
 			if (!IsEnabled)
 				return;
 
-			using (var ctx = CreateContext ())
+			using (var ctx = CreateContext ()) {
 				ImportTestCertificates (ctx);
+
+				foreach (var crl in ObsoleteCrls)
+					ctx.Import (crl);
+			}
 		}
 
 		public static X509Certificate LoadCertificate (string path)
@@ -2841,16 +2852,31 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void AssertCrlsRequested ()
+		void AssertCrlsRequested (SecureMimeContext ctx)
 		{
-			for (int i = 0; i < CrlRequestUris.Length; i++) {
-				var requestUri = CrlRequestUris[i];
+			var mockHttpMessageHandler = GetMockHttpMessageHandler (ctx);
+			Times times;
 
-				MockHttpMessageHandler.Protected ().Verify (
-					"SendAsync",
-					Times.AtLeast (1),
-					ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == requestUri),
-					ItExpr.IsAny<CancellationToken> ());
+			// Note: For TemporarySecureMimeContext tests, the ctx gets globally shared so the Mock<HttpMessageHandler> will will get reused as well
+			// ... but for other SecureMimeContext implementations, the ctx is not globally shared, so the Mock<HttpMessageHandler> will not get reused
+			// which means that if the storage backing already has the latest CRLs, then they won't get re-downloaded.
+			if (ctx is TemporarySecureMimeContext)
+				times = Times.Exactly (1);
+			else
+				times = Times.AtMostOnce ();
+
+			try {
+				for (int i = 0; i < CrlRequestUris.Length; i++) {
+					var requestUri = CrlRequestUris[i];
+
+					mockHttpMessageHandler.Protected ().Verify (
+						"SendAsync",
+						times,
+						ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == requestUri),
+						ItExpr.IsAny<CancellationToken> ());
+				}
+			} catch (Exception ex) {
+				Assert.Fail (ex.Message);
 			}
 		}
 
@@ -2885,7 +2911,7 @@ namespace UnitTests.Cryptography {
 					var signatures = multipart.Verify (ctx);
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-					AssertCrlsRequested ();
+					AssertCrlsRequested (ctx);
 
 					var signature = signatures[0];
 
@@ -2970,7 +2996,7 @@ namespace UnitTests.Cryptography {
 					var signatures = await multipart.VerifyAsync (ctx);
 					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-					AssertCrlsRequested ();
+					AssertCrlsRequested (ctx);
 
 					var signature = signatures[0];
 
@@ -3030,13 +3056,19 @@ namespace UnitTests.Cryptography {
 	{
 		class MyTemporarySecureMimeContext : TemporarySecureMimeContext
 		{
+			public readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
+			readonly HttpClient client;
+
 			public MyTemporarySecureMimeContext () : base (new SecureRandom (new CryptoApiRandomGenerator ()))
 			{
 				CheckCertificateRevocation = false;
+
+				MockHttpMessageHandler = CreateMockHttpMessageHandler ();
+				client = new HttpClient (MockHttpMessageHandler.Object);
 			}
 
 			protected override HttpClient HttpClient {
-				get {  return MockHttpClient; }
+				get { return client; }
 			}
 		}
 
@@ -3046,6 +3078,11 @@ namespace UnitTests.Cryptography {
 		{
 			return ctx;
 		}
+
+		protected override Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx)
+		{
+			return ((MyTemporarySecureMimeContext) ctx).MockHttpMessageHandler;
+		}
 	}
 
 	[TestFixture]
@@ -3053,19 +3090,30 @@ namespace UnitTests.Cryptography {
 	{
 		class MySecureMimeContext : DefaultSecureMimeContext
 		{
+			public readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
+			readonly HttpClient client;
+
 			public MySecureMimeContext () : base ("smime.db", "no.secret")
 			{
 				CheckCertificateRevocation = false;
+
+				MockHttpMessageHandler = CreateMockHttpMessageHandler ();
+				client = new HttpClient (MockHttpMessageHandler.Object);
 			}
 
 			protected override HttpClient HttpClient {
-				get { return MockHttpClient; }
+				get { return client; }
 			}
 		}
 
 		protected override SecureMimeContext CreateContext ()
 		{
 			return new MySecureMimeContext ();
+		}
+
+		protected override Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx)
+		{
+			return ((MySecureMimeContext) ctx).MockHttpMessageHandler;
 		}
 
 		static SecureMimeSqliteTests ()
@@ -3121,6 +3169,11 @@ namespace UnitTests.Cryptography {
 		protected override SecureMimeContext CreateContext ()
 		{
 			return new WindowsSecureMimeContext ();
+		}
+
+		protected override Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx)
+		{
+			return null;
 		}
 
 		protected override EncryptionAlgorithm[] GetEncryptionAlgorithms (IDigitalSignature signature)
