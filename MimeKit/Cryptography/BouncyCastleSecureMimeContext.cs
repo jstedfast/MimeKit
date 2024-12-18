@@ -740,7 +740,9 @@ namespace MimeKit.Cryptography {
 			parameters.AddStoreCrl (crls);
 
 			parameters.AddStoreCert (GetIntermediateCertificates ());
-			parameters.AddStoreCrl (GetCertificateRevocationLists ());
+
+			if (CheckCertificateRevocation)
+				parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			if (signingTime != default (DateTime))
 				parameters.Date = signingTime;
