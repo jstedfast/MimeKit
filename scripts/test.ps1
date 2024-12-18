@@ -21,7 +21,7 @@ $UnitTestsAssembly = Join-Path $OutputDir "UnitTests.dll"
 if ($GenerateCodeCoverage -eq 'true') {
     Write-Output "Instrumenting code..."
 
-    & dotnet AltCover -i="$OutputDir" --inplace -s="System.*" -s="Microsoft.*" -s="BouncyCastle.*" -s="NUnit*" -s="AltCover.*" -s="testhost" -s="UnitTests"
+    & dotnet AltCover -i="$OutputDir" --inplace -s="System.*" -s="Microsoft.*" -s="BouncyCastle.*" -s="NUnit*" -s="Moq*" -s="AltCover.*" -s="testhost" -s="UnitTests"
     # & dotnet AltCover Runner --recorderDirectory=$OutputDir --executable=$NUnitConsoleRunner --summary=O -- --domain:single $UnitTestsAssembly
 }
 
