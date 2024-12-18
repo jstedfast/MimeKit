@@ -578,6 +578,29 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
+			var obsolete = new List<int> ();
+			var delta = crl.IsDelta ();
+
+			// scan over our list of CRLs by the same issuer to check if this CRL obsoletes any
+			// older CRLs or if there are any newer CRLs that obsolete this one.
+			for (int i = 0; i < crls.Count; i++) {
+				if (!crls[i].IssuerDN.Equals (crl.IssuerDN))
+					continue;
+
+				if (!crls[i].IsDelta () && crls[i].ThisUpdate >= crl.ThisUpdate) {
+					// we have a complete CRL that obsoletes this CRL
+					return;
+				}
+
+				if (!delta)
+					obsolete.Add (i);
+			}
+
+			// remove any obsoleted CRLs
+			for (int i = obsolete.Count - 1; i>= 0; i--)
+				crls.RemoveAt (obsolete[i]);
+
+			// add the new CRL
 			crls.Add (crl);
 		}
 
