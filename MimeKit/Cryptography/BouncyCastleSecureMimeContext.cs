@@ -883,29 +883,36 @@ namespace MimeKit.Cryptography {
 			return false;
 		}
 
-		async Task<bool> DownloadCrlsOverHttpAsync (string location, Stream stream, bool doAsync, CancellationToken cancellationToken)
+		bool DownloadCrlOverHttp (string location, Stream stream, CancellationToken cancellationToken)
 		{
 			try {
-				if (doAsync) {
-					using (var response = await HttpClient.GetAsync (location, cancellationToken).ConfigureAwait (false)) {
 #if NET6_0_OR_GREATER
-						await response.Content.CopyToAsync (stream, cancellationToken).ConfigureAwait (false);
+				using (var response = HttpClient.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
+					response.Content.CopyToAsync (stream, cancellationToken).GetAwaiter ().GetResult ();
 #else
-						await response.Content.CopyToAsync (stream).ConfigureAwait (false);
-#endif
-					}
-				} else {
-#if NET6_0_OR_GREATER
-					using (var response = HttpClient.GetAsync (location, cancellationToken).GetAwaiter ().GetResult ())
-						response.Content.CopyToAsync (stream, cancellationToken).GetAwaiter ().GetResult ();
-#else
-					cancellationToken.ThrowIfCancellationRequested ();
+				cancellationToken.ThrowIfCancellationRequested ();
 
-					var request = (HttpWebRequest) WebRequest.Create (location);
-					using (var response = request.GetResponse ()) {
-						var content = response.GetResponseStream ();
-						content.CopyTo (stream, 4096);
-					}
+				var request = (HttpWebRequest) WebRequest.Create (location);
+				using (var response = request.GetResponse ()) {
+					var content = response.GetResponseStream ();
+					content.CopyTo (stream, 4096);
+				}
+#endif
+
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		async Task<bool> DownloadCrlOverHttpAsync (string location, Stream stream, CancellationToken cancellationToken)
+		{
+			try {
+				using (var response = await HttpClient.GetAsync (location, cancellationToken).ConfigureAwait (false)) {
+#if NET6_0_OR_GREATER
+					await response.Content.CopyToAsync (stream, cancellationToken).ConfigureAwait (false);
+#else
+					await response.Content.CopyToAsync (stream).ConfigureAwait (false);
 #endif
 				}
 
@@ -917,7 +924,7 @@ namespace MimeKit.Cryptography {
 
 #if ENABLE_LDAP
 		// https://msdn.microsoft.com/en-us/library/bb332056.aspx#sdspintro_topic3_lpadconn
-		bool DownloadCrlsOverLdap (string location, Stream stream, CancellationToken cancellationToken)
+		bool DownloadCrlOverLdap (string location, Stream stream, CancellationToken cancellationToken)
 		{
 			LdapUri uri;
 
@@ -964,21 +971,35 @@ namespace MimeKit.Cryptography {
 		}
 #endif
 
-		async Task DownloadCrlsAsync (X509Certificate certificate, bool doAsync, CancellationToken cancellationToken)
+		static IEnumerable<string> EnumerateCrlDistributionPointUrls (X509Certificate certificate)
 		{
-			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
-			var now = DateTime.UtcNow;
 			Asn1OctetString cdp;
 
-			if (nextUpdate > now)
-				return;
-
 			if ((cdp = certificate.GetExtensionValue (X509Extensions.CrlDistributionPoints)) == null)
-				return;
+				yield break;
 
 			var asn1 = Asn1Object.FromByteArray (cdp.GetOctets ());
 			var crlDistributionPoint = CrlDistPoint.GetInstance (asn1);
 			var points = crlDistributionPoint.GetDistributionPoints ();
+
+			for (int i = 0; i < points.Length; i++) {
+				var generalNames = GeneralNames.GetInstance (points[i].DistributionPointName.Name).GetNames ();
+				for (int j = 0; j < generalNames.Length; j++) {
+					if (generalNames[j].TagNo != GeneralName.UniformResourceIdentifier)
+						continue;
+
+					yield return DerIA5String.GetInstance (generalNames[j].Name).GetString ();
+				}
+			}
+		}
+
+		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken)
+		{
+			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
+			var now = DateTime.UtcNow;
+
+			if (nextUpdate > now)
+				return;
 
 			using (var stream = new MemoryBlockStream ()) {
 #if ENABLE_LDAP
@@ -986,38 +1007,26 @@ namespace MimeKit.Cryptography {
 #endif
 				bool downloaded = false;
 
-				for (int i = 0; i < points.Length; i++) {
-					var generalNames = GeneralNames.GetInstance (points[i].DistributionPointName.Name).GetNames ();
-					for (int j = 0; j < generalNames.Length && !downloaded; j++) {
-						if (generalNames[j].TagNo != GeneralName.UniformResourceIdentifier)
-							continue;
-
-						var location = DerIA5String.GetInstance (generalNames[j].Name).GetString ();
-						var colon = location.IndexOf (':');
-
-						if (colon == -1)
-							continue;
-
-						var protocol = location.Substring (0, colon).ToLowerInvariant ();
-
-						switch (protocol) {
-						case "https": case "http":
-							downloaded = await DownloadCrlsOverHttpAsync (location, stream, doAsync, cancellationToken).ConfigureAwait (false);
+				foreach (var location in EnumerateCrlDistributionPointUrls (certificate)) {
+					if (location.StartsWith ("https://", StringComparison.OrdinalIgnoreCase) ||
+						location.StartsWith ("http://", StringComparison.OrdinalIgnoreCase)) {
+						if (DownloadCrlOverHttp (location, stream, cancellationToken)) {
+							downloaded = true;
 							break;
-#if ENABLE_LDAP
-						case "ldaps": case "ldap":
-							// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
-							// won't be as reliable on Mono systems which do not implement the LDAP functionality.
-							ldapLocations.Add (location);
-							break;
-#endif
 						}
+					} else if (location.StartsWith ("ldaps://", StringComparison.OrdinalIgnoreCase) ||
+						location.StartsWith ("ldap://", StringComparison.OrdinalIgnoreCase)) {
+#if ENABLE_LDAP
+						// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
+						// won't be as reliable on Mono systems which do not implement the LDAP functionality.
+						ldapLocations.Add (location);
+#endif
 					}
 				}
 
 #if ENABLE_LDAP
 				for (int i = 0; i < ldapLocations.Count && !downloaded; i++)
-					downloaded = DownloadCrlsOverLdap (ldapLocations[i], stream, cancellationToken);
+					downloaded = DownloadCrlOverLdap (ldapLocations[i], stream, cancellationToken);
 #endif
 
 				if (!downloaded)
@@ -1028,6 +1037,53 @@ namespace MimeKit.Cryptography {
 				var parser = new X509CrlParser ();
 				foreach (X509Crl crl in parser.ReadCrls (stream))
 					Import (crl, cancellationToken);
+			}
+		}
+
+		async Task DownloadCrlsAsync (X509Certificate certificate, CancellationToken cancellationToken)
+		{
+			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
+			var now = DateTime.UtcNow;
+
+			if (nextUpdate > now)
+				return;
+
+			using (var stream = new MemoryBlockStream ()) {
+#if ENABLE_LDAP
+				var ldapLocations = new List<string> ();
+#endif
+				bool downloaded = false;
+
+				foreach (var location in EnumerateCrlDistributionPointUrls (certificate)) {
+					if (location.StartsWith ("https://", StringComparison.OrdinalIgnoreCase) ||
+						location.StartsWith ("http://", StringComparison.OrdinalIgnoreCase)) {
+						if (await DownloadCrlOverHttpAsync (location, stream, cancellationToken).ConfigureAwait (false)) {
+							downloaded = true;
+							break;
+						}
+					} else if (location.StartsWith ("ldaps://", StringComparison.OrdinalIgnoreCase) ||
+						location.StartsWith ("ldap://", StringComparison.OrdinalIgnoreCase)) {
+#if ENABLE_LDAP
+						// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
+						// won't be as reliable on Mono systems which do not implement the LDAP functionality.
+						ldapLocations.Add (location);
+#endif
+					}
+				}
+
+#if ENABLE_LDAP
+				for (int i = 0; i < ldapLocations.Count && !downloaded; i++)
+					downloaded = DownloadCrlOverLdap (ldapLocations[i], stream, cancellationToken);
+#endif
+
+				if (!downloaded)
+					return;
+
+				stream.Position = 0;
+
+				var parser = new X509CrlParser ();
+				foreach (X509Crl crl in parser.ReadCrls (stream))
+					await ImportAsync (crl, cancellationToken).ConfigureAwait (false);
 			}
 		}
 
@@ -1042,9 +1098,8 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The digital signatures.</returns>
 		/// <param name="parser">The CMS signed data parser.</param>
-		/// <param name="doAsync">Whether the operation should be done asynchronously.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, bool doAsync, CancellationToken cancellationToken)
+		DigitalSignatureCollection GetDigitalSignatures (CmsSignedDataParser parser, CancellationToken cancellationToken)
 		{
 			var certificates = parser.GetCertificates ();
 			var signatures = new List<IDigitalSignature> ();
@@ -1057,7 +1112,7 @@ namespace MimeKit.Cryptography {
 
 				if (CheckCertificateRevocation) {
 					foreach (var cert in certificates.EnumerateMatches (null))
-						await DownloadCrlsAsync (cert, doAsync, cancellationToken).ConfigureAwait (false);
+						DownloadCrls (cert, cancellationToken);
 				}
 
 				if (certificate != null) {
@@ -1071,7 +1126,61 @@ namespace MimeKit.Cryptography {
 
 				if (CheckCertificateRevocation) {
 					foreach (var anchor in anchors)
-						await DownloadCrlsAsync (anchor.TrustedCert, doAsync, cancellationToken).ConfigureAwait (false);
+						DownloadCrls (anchor.TrustedCert, cancellationToken);
+				}
+
+				try {
+					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signature.CreationDate);
+				} catch (Exception ex) {
+					signature.ChainException = ex;
+				}
+
+				signatures.Add (signature);
+			}
+
+			return new DigitalSignatureCollection (signatures);
+		}
+
+		/// <summary>
+		/// Asynchronously get the list of digital signatures.
+		/// </summary>
+		/// <remarks>
+		/// <para>Asynchronously gets the list of digital signatures.</para>
+		/// <para>This method is useful to call from within any custom
+		/// <a href="Overload_MimeKit_Cryptography_SecureMimeContext_VerifyAsync.htm">VerifyAsync</a>
+		/// method that you may implement in your own class.</para>
+		/// </remarks>
+		/// <returns>The digital signatures.</returns>
+		/// <param name="parser">The CMS signed data parser.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		async Task<DigitalSignatureCollection> GetDigitalSignaturesAsync (CmsSignedDataParser parser, CancellationToken cancellationToken)
+		{
+			var certificates = parser.GetCertificates ();
+			var signatures = new List<IDigitalSignature> ();
+			var crls = parser.GetCrls ();
+			var store = parser.GetSignerInfos ();
+
+			foreach (var signerInfo in store.GetSigners ()) {
+				var certificate = GetCertificate (certificates, signerInfo.SignerID);
+				var signature = new SecureMimeDigitalSignature (signerInfo, certificate);
+
+				if (CheckCertificateRevocation) {
+					foreach (var cert in certificates.EnumerateMatches (null))
+						await DownloadCrlsAsync (cert, cancellationToken).ConfigureAwait (false);
+				}
+
+				if (certificate != null) {
+					await ImportAsync (certificate, cancellationToken).ConfigureAwait (false);
+
+					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate != default (DateTime))
+						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
+				}
+
+				var anchors = GetTrustedAnchors ();
+
+				if (CheckCertificateRevocation) {
+					foreach (var anchor in anchors)
+						await DownloadCrlsAsync (anchor.TrustedCert, cancellationToken).ConfigureAwait (false);
 				}
 
 				try {
@@ -1124,7 +1233,7 @@ namespace MimeKit.Cryptography {
 					signed.ContentStream.Dispose ();
 				}
 
-				return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+				return GetDigitalSignatures (parser, cancellationToken);
 			}
 		}
 
@@ -1170,7 +1279,7 @@ namespace MimeKit.Cryptography {
 					signed.ContentStream.Dispose ();
 				}
 
-				return await GetDigitalSignaturesAsync (parser, true, cancellationToken).ConfigureAwait (false);
+				return await GetDigitalSignaturesAsync (parser, cancellationToken).ConfigureAwait (false);
 			}
 		}
 
@@ -1211,7 +1320,7 @@ namespace MimeKit.Cryptography {
 					signed.ContentStream.Dispose ();
 				}
 
-				return GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+				return GetDigitalSignatures (parser, cancellationToken);
 			}
 		}
 
@@ -1252,7 +1361,7 @@ namespace MimeKit.Cryptography {
 					signed.ContentStream.Dispose ();
 				}
 
-				signatures = GetDigitalSignaturesAsync (parser, false, cancellationToken).GetAwaiter ().GetResult ();
+				signatures = GetDigitalSignatures (parser, cancellationToken);
 
 				return content;
 			}

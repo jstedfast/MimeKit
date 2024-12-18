@@ -474,6 +474,7 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ("fileName", null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Crl) null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Certificate) null));
+				Assert.Throws<ArgumentNullException> (() => ctx.Import ((X509Certificate2) null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.ImportAsync ((Stream) null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.ImportAsync ((Stream) null, "password"));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.ImportAsync (stream, null));
