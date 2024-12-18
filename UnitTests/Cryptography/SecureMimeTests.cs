@@ -2734,7 +2734,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeImportExport ()
 		{
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var self = new MailboxAddress ("MimeKit UnitTests", RsaCertificate.EmailAddress);
 			var mailboxes = new List<MailboxAddress> {
 				// we're going to export our public certificate so that we can email it to someone
 				// so that they can then encrypt their emails to us.
@@ -2762,7 +2762,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeImportExportAsync ()
 		{
-			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+			var self = new MailboxAddress ("MimeKit UnitTests", RsaCertificate.EmailAddress);
 			var mailboxes = new List<MailboxAddress> {
 				// we're going to export our public certificate so that we can email it to someone
 				// so that they can then encrypt their emails to us.
