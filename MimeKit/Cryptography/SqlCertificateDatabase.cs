@@ -876,6 +876,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The CRL record.</param>
+		[Obsolete ("This method is not used and will be removed in a future release.")]
 		protected override DbCommand GetUpdateCommand (DbConnection connection, X509CrlRecord record)
 		{
 			var statement = new StringBuilder ("UPDATE ").Append (CrlsTableName).Append (" SET ");

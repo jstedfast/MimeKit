@@ -887,6 +887,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The CRL record.</param>
+		[Obsolete ("This method is not used and will be removed in a future release.")]
 		protected abstract DbCommand GetUpdateCommand (DbConnection connection, X509CrlRecord record);
 
 		/// <summary>
@@ -1211,6 +1212,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		[Obsolete ("This method is not used and will be removed in a future release.")]
 		public void Update (X509CrlRecord record)
 		{
 			if (record == null)

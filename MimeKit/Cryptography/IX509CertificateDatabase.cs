@@ -183,6 +183,7 @@ namespace MimeKit.Cryptography {
 		/// Updates the specified fields of the record in the database.
 		/// </remarks>
 		/// <param name="record">The CRL record.</param>
+		[Obsolete ("This method is not used and will be removed in a future release.")]
 		void Update (X509CrlRecord record);
 
 		/// <summary>
