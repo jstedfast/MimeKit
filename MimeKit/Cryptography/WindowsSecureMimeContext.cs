@@ -517,15 +517,26 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static async Task<Stream> SignAsync (RealCmsSigner signer, Stream content, bool detach, bool doAsync, CancellationToken cancellationToken = default)
+		static Stream Sign (RealCmsSigner signer, Stream content, bool detach, CancellationToken cancellationToken = default)
 		{
-			ContentInfo contentInfo;
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
+			var signed = new SignedCms (contentInfo, detach);
 
-			if (doAsync)
-				contentInfo = new ContentInfo (await ReadAllBytesAsync (content, cancellationToken).ConfigureAwait (false));
-			else
-				contentInfo = new ContentInfo (ReadAllBytes (content));
+			try {
+				signed.ComputeSignature (signer, false);
+			} catch (CryptographicException) {
+				signer.IncludeOption = X509IncludeOption.EndCertOnly;
+				signed.ComputeSignature (signer, false);
+			}
 
+			var signedData = signed.Encode ();
+
+			return new MemoryStream (signedData, false);
+		}
+
+		static async Task<Stream> SignAsync (RealCmsSigner signer, Stream content, bool detach, CancellationToken cancellationToken = default)
+		{
+			var contentInfo = new ContentInfo (await ReadAllBytesAsync (content, cancellationToken).ConfigureAwait (false));
 			var signed = new SignedCms (contentInfo, detach);
 
 			try {
@@ -571,7 +582,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetRealCmsSigner (signer);
-			var signedData = SignAsync (real, content, false, false, cancellationToken).GetAwaiter ().GetResult ();
+			var signedData = Sign (real, content, false, cancellationToken);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signedData);
 		}
@@ -607,7 +618,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetRealCmsSigner (signer);
-			var signedData = await SignAsync (real, content, false, true, cancellationToken).ConfigureAwait (false);
+			var signedData = await SignAsync (real, content, false, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signedData);
 		}
@@ -653,7 +664,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetCmsSigner (signer, digestAlgo);
-			var signedData = SignAsync (real, content, false, false, cancellationToken).GetAwaiter ().GetResult ();
+			var signedData = Sign (real, content, false, cancellationToken);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signedData);
 		}
@@ -699,7 +710,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetCmsSigner (signer, digestAlgo);
-			var signedData = await SignAsync (real, content, false, true, cancellationToken).ConfigureAwait (false);
+			var signedData = await SignAsync (real, content, false, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.SignedData, signedData);
 		}
@@ -735,7 +746,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetRealCmsSigner (signer);
-			var signature = SignAsync (real, content, true, false, cancellationToken).GetAwaiter ().GetResult ();
+			var signature = Sign (real, content, true, cancellationToken);
 
 			return new ApplicationPkcs7Signature (signature);
 		}
@@ -771,7 +782,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetRealCmsSigner (signer);
-			var signature = await SignAsync (real, content, true, true, cancellationToken).ConfigureAwait (false);
+			var signature = await SignAsync (real, content, true, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Signature (signature);
 		}
@@ -817,7 +828,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
-			var signature = SignAsync (cmsSigner, content, true, false, cancellationToken).GetAwaiter ().GetResult ();
+			var signature = Sign (cmsSigner, content, true, cancellationToken);
 
 			return new ApplicationPkcs7Signature (signature);
 		}
@@ -863,7 +874,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var cmsSigner = GetCmsSigner (signer, digestAlgo);
-			var signature = await SignAsync (cmsSigner, content, true, true, cancellationToken).ConfigureAwait (false);
+			var signature = await SignAsync (cmsSigner, content, true, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Signature (signature);
 		}
@@ -1145,15 +1156,9 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		async Task<Stream> EnvelopeAsync (RealCmsRecipientCollection recipients, Stream content, EncryptionAlgorithm encryptionAlgorithm, bool doAsync, CancellationToken cancellationToken)
+		Stream Envelope (RealCmsRecipientCollection recipients, Stream content, EncryptionAlgorithm encryptionAlgorithm, CancellationToken cancellationToken)
 		{
-			ContentInfo contentInfo;
-
-			if (doAsync)
-				contentInfo = new ContentInfo (await ReadAllBytesAsync (content, cancellationToken).ConfigureAwait (false));
-			else
-				contentInfo = new ContentInfo (ReadAllBytes (content));
-
+			var contentInfo = new ContentInfo (ReadAllBytes (content));
 			var algorithm = GetAlgorithmIdentifier (encryptionAlgorithm);
 			var envelopedData = new EnvelopedCms (contentInfo, algorithm);
 
@@ -1162,18 +1167,43 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.Encode (), false);
 		}
 
-		Task<Stream> EnvelopeAsync (RealCmsRecipientCollection recipients, Stream content, bool doAsync, CancellationToken cancellationToken)
+		async Task<Stream> EnvelopeAsync (RealCmsRecipientCollection recipients, Stream content, EncryptionAlgorithm encryptionAlgorithm, CancellationToken cancellationToken)
 		{
-			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+			var contentInfo = new ContentInfo (await ReadAllBytesAsync (content, cancellationToken).ConfigureAwait (false));
+			var algorithm = GetAlgorithmIdentifier (encryptionAlgorithm);
+			var envelopedData = new EnvelopedCms (contentInfo, algorithm);
 
-			return EnvelopeAsync (recipients, content, algorithm, doAsync, cancellationToken);
+			envelopedData.Encrypt (recipients);
+
+			return new MemoryStream (envelopedData.Encode (), false);
 		}
 
-		Task<Stream> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, bool doAsync, CancellationToken cancellationToken)
+		Stream Envelope (RealCmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
 
-			return EnvelopeAsync (GetCmsRecipients (recipients), content, algorithm, doAsync, cancellationToken);
+			return Envelope (recipients, content, algorithm, cancellationToken);
+		}
+
+		Task<Stream> EnvelopeAsync (RealCmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return EnvelopeAsync (recipients, content, algorithm, cancellationToken);
+		}
+
+		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return Envelope (GetCmsRecipients (recipients), content, algorithm, cancellationToken);
+		}
+
+		Task<Stream> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return EnvelopeAsync (GetCmsRecipients (recipients), content, algorithm, cancellationToken);
 		}
 
 		/// <summary>
@@ -1206,7 +1236,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var envelopedData = EnvelopeAsync (recipients, content, false, cancellationToken).GetAwaiter ().GetResult ();
+			var envelopedData = Envelope (recipients, content, cancellationToken);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}
@@ -1241,7 +1271,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var envelopedData = await EnvelopeAsync (recipients, content, true, cancellationToken).ConfigureAwait (false);
+			var envelopedData = await EnvelopeAsync (recipients, content, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}
@@ -1283,7 +1313,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetCmsRecipients (recipients);
-			var envelopedData = EnvelopeAsync (real, content, false, cancellationToken).GetAwaiter ().GetResult ();
+			var envelopedData = Envelope (real, content, cancellationToken);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}
@@ -1325,45 +1355,18 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (content));
 
 			var real = GetCmsRecipients (recipients);
-			var envelopedData = await EnvelopeAsync (real, content, true, cancellationToken);
+			var envelopedData = await EnvelopeAsync (real, content, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}
 
-		static async Task<MimeEntity> DecryptAsync (Stream encryptedData, bool doAsync, CancellationToken cancellationToken)
+		static byte[] Decrypt (byte[] content)
 		{
-			if (encryptedData == null)
-				throw new ArgumentNullException (nameof (encryptedData));
-
 			var enveloped = new EnvelopedCms ();
-			CryptographicException ce = null;
-			byte[] content;
-
-			if (doAsync)
-				content = await ReadAllBytesAsync (encryptedData, cancellationToken).ConfigureAwait (false);
-			else
-				content = ReadAllBytes (encryptedData);
-
 			enveloped.Decode (content);
+			enveloped.Decrypt ();
 
-			foreach (var recipient in enveloped.RecipientInfos) {
-				try {
-					enveloped.Decrypt (recipient);
-					ce = null;
-					break;
-				} catch (CryptographicException ex) {
-					ce = ex;
-				}
-			}
-
-			if (ce != null)
-				throw ce;
-
-			var decryptedData = enveloped.Encode ();
-
-			var memory = new MemoryStream (decryptedData, false);
-
-			return MimeEntity.Load (memory, true, cancellationToken);
+			return enveloped.Encode ();
 		}
 
 		/// <summary>
@@ -1386,7 +1389,15 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override MimeEntity Decrypt (Stream encryptedData, CancellationToken cancellationToken = default)
 		{
-			return DecryptAsync (encryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			var content = ReadAllBytes (encryptedData);
+			var decrypted = Decrypt (content);
+
+			var memory = new MemoryStream (decrypted, false);
+
+			return MimeEntity.Load (memory, true, cancellationToken);
 		}
 
 		/// <summary>
@@ -1407,36 +1418,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default)
-		{
-			return DecryptAsync (encryptedData, true, cancellationToken);
-		}
-
-		static async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
+		public override async Task<MimeEntity> DecryptAsync (Stream encryptedData, CancellationToken cancellationToken = default)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
 
-			if (decryptedData == null)
-				throw new ArgumentNullException (nameof (decryptedData));
+			var content = await ReadAllBytesAsync (encryptedData, cancellationToken).ConfigureAwait (false);
+			var decrypted = Decrypt (content);
 
-			var enveloped = new EnvelopedCms ();
-			byte[] content;
+			var memory = new MemoryStream (decrypted, false);
 
-			if (doAsync)
-				content = await ReadAllBytesAsync (encryptedData, cancellationToken).ConfigureAwait (false);
-			else
-				content = ReadAllBytes (encryptedData);
-
-			enveloped.Decode (content);
-			enveloped.Decrypt ();
-
-			var encoded = enveloped.Encode ();
-
-			if (doAsync)
-				await decryptedData.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
-			else
-				decryptedData.Write (encoded, 0, encoded.Length);
+			return await MimeEntity.LoadAsync (memory, true, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>
@@ -1461,7 +1453,16 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public override void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
-			DecryptToAsync (encryptedData, decryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (decryptedData == null)
+				throw new ArgumentNullException (nameof (decryptedData));
+
+			var content = ReadAllBytes (encryptedData);
+			var decrypted = Decrypt (content);
+
+			decryptedData.Write (decrypted, 0, decrypted.Length);
 		}
 
 		/// <summary>
@@ -1485,9 +1486,18 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.Security.Cryptography.CryptographicException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
+		public override async Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
-			return DecryptToAsync (encryptedData, decryptedData, false, cancellationToken);
+			if (encryptedData == null)
+				throw new ArgumentNullException (nameof (encryptedData));
+
+			if (decryptedData == null)
+				throw new ArgumentNullException (nameof (decryptedData));
+
+			var content = await ReadAllBytesAsync (encryptedData, cancellationToken).ConfigureAwait (false);
+			var decrypted = Decrypt (content);
+
+			await decryptedData.WriteAsync (decrypted, 0, decrypted.Length, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>
