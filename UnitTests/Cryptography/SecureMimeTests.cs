@@ -123,8 +123,6 @@ namespace UnitTests.Cryptography {
 
 		protected abstract SecureMimeContext CreateContext ();
 
-		protected abstract Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx);
-
 		static SecureMimeTestsBase ()
 		{
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
@@ -357,12 +355,8 @@ namespace UnitTests.Cryptography {
 			if (!IsEnabled)
 				return;
 
-			using (var ctx = CreateContext ()) {
+			using (var ctx = CreateContext ())
 				ImportTestCertificates (ctx);
-
-				foreach (var crl in ObsoleteCrls)
-					ctx.Import (crl);
-			}
 		}
 
 		public static X509Certificate LoadCertificate (string path)
@@ -2852,26 +2846,15 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void AssertCrlsRequested (SecureMimeContext ctx)
+		void AssertCrlsRequested (Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
-			var mockHttpMessageHandler = GetMockHttpMessageHandler (ctx);
-			Times times;
-
-			// Note: For TemporarySecureMimeContext tests, the ctx gets globally shared so the Mock<HttpMessageHandler> will will get reused as well
-			// ... but for other SecureMimeContext implementations, the ctx is not globally shared, so the Mock<HttpMessageHandler> will not get reused
-			// which means that if the storage backing already has the latest CRLs, then they won't get re-downloaded.
-			if (ctx is TemporarySecureMimeContext)
-				times = Times.Exactly (1);
-			else
-				times = Times.AtMostOnce ();
-
 			try {
 				for (int i = 0; i < CrlRequestUris.Length; i++) {
 					var requestUri = CrlRequestUris[i];
 
 					mockHttpMessageHandler.Protected ().Verify (
 						"SendAsync",
-						times,
+						Times.Exactly (1),
 						ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == requestUri),
 						ItExpr.IsAny<CancellationToken> ());
 				}
@@ -2880,179 +2863,147 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		[Test]
-		public void TestVerifyRevokedCertificate ()
+		protected void VerifyRevokedCertificate (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
-			if (!CheckCertificateRevocation)
-				return;
-
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			var certificate = RevokedCertificate;
 
-			using (var ctx = CreateContext ()) {
-				if (ctx is not BouncyCastleSecureMimeContext bctx)
-					return;
+			var signer = new CmsSigner (certificate.FileName, "no.secret");
+			var multipart = MultipartSigned.Create (ctx, signer, body);
 
-				var certificate = RevokedCertificate;
+			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				var signer = new CmsSigner (certificate.FileName, "no.secret");
-				var multipart = MultipartSigned.Create (ctx, signer, body);
+			var protocol = multipart.ContentType.Parameters["protocol"];
+			Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+			Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+			Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+			var signatures = multipart.Verify (ctx);
+			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
-				Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
+			AssertCrlsRequested (mockHttpMessageHandler);
 
-				try {
-					bctx.CheckCertificateRevocation = true;
+			var signature = signatures[0];
 
-					var signatures = multipart.Verify (ctx);
-					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+			Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+			Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
+			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-					AssertCrlsRequested (ctx);
+			var algorithms = GetEncryptionAlgorithms (signature);
+			int i = 0;
 
-					var signature = signatures[0];
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
-					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
-					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
+			try {
+				bool valid = signature.Verify ();
 
-					var algorithms = GetEncryptionAlgorithms (signature);
-					int i = 0;
+				Assert.That (valid, Is.False, "Expected failed validation.");
+			} catch (DigitalSignatureVerifyException ex) {
+				Assert.That (ex.Message, Is.EqualTo ("Failed to verify digital signature chain: Certification path could not be validated."), "ex.Message");
 
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+				Exception innerException = ex.InnerException;
+				while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
+					innerException = innerException.InnerException;
 
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.That (valid, Is.False, "Expected failed validation.");
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.That (ex.Message, Is.EqualTo ("Failed to verify digital signature chain: Certification path could not be validated."), "ex.Message");
-
-						Exception innerException = ex.InnerException;
-						while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
-							innerException = innerException.InnerException;
-
-						Assert.That (innerException, Is.Not.Null);
-						Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
-						Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
-					}
-				} finally {
-					bctx.CheckCertificateRevocation = false;
-				}
+				Assert.That (innerException, Is.Not.Null);
+				Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
+				Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
 			}
 		}
 
-		[Test]
-		public async Task TestVerifyRevokedCertificateAsync ()
+		protected async Task VerifyRevokedCertificateAsync (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
-			if (!CheckCertificateRevocation)
-				return;
-
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			var certificate = RevokedCertificate;
 
-			using (var ctx = CreateContext ()) {
-				if (ctx is not BouncyCastleSecureMimeContext bctx)
-					return;
+			var signer = new CmsSigner (certificate.FileName, "no.secret");
+			var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
 
-				var certificate = RevokedCertificate;
+			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				var signer = new CmsSigner (certificate.FileName, "no.secret");
-				var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
+			var protocol = multipart.ContentType.Parameters["protocol"];
+			Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+			Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+			Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
+			var signatures = await multipart.VerifyAsync (ctx);
+			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
-				Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
+			AssertCrlsRequested (mockHttpMessageHandler);
 
-				try {
-					bctx.CheckCertificateRevocation = true;
+			var signature = signatures[0];
 
-					var signatures = await multipart.VerifyAsync (ctx);
-					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+			Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+			Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
+			Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
+			Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
 
-					AssertCrlsRequested (ctx);
+			var algorithms = GetEncryptionAlgorithms (signature);
+			int i = 0;
 
-					var signature = signatures[0];
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
+			Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
+			if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
+				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
+			//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
 
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (certificate.EmailAddress));
-					Assert.That (GetDnsNames (signature.SignerCertificate), Is.EqualTo (EncodeDnsNames (certificate.DnsNames)));
-					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (certificate.Fingerprint));
+			try {
+				bool valid = signature.Verify ();
 
-					var algorithms = GetEncryptionAlgorithms (signature);
-					int i = 0;
+				Assert.That (valid, Is.False, "Expected failed validation.");
+			} catch (DigitalSignatureVerifyException ex) {
+				Assert.That (ex.Message, Is.EqualTo ("Failed to verify digital signature chain: Certification path could not be validated."), "ex.Message");
 
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Seed))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Seed), "Expected SEED capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia256))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia256), "Expected Camellia-256 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia192))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia192), "Expected Camellia-192 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Camellia128))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Camellia128), "Expected Camellia-128 capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Cast5))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Cast5), "Expected Cast5 capability");
-					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.TripleDes), "Expected Triple-DES capability");
-					if (ctx.IsEnabled (EncryptionAlgorithm.Idea))
-						Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Idea), "Expected IDEA capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC2128), "Expected RC2-128 capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC264), "Expected RC2-64 capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Des), "Expected DES capability");
-					//Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.RC240), "Expected RC2-40 capability");
+				Exception innerException = ex.InnerException;
+				while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
+					innerException = innerException.InnerException;
 
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.That (valid, Is.False, "Expected failed validation.");
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.That (ex.Message, Is.EqualTo ("Failed to verify digital signature chain: Certification path could not be validated."), "ex.Message");
-
-						Exception innerException = ex.InnerException;
-						while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
-							innerException = innerException.InnerException;
-
-						Assert.That (innerException, Is.Not.Null);
-						Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
-						Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
-					}
-				} finally {
-					bctx.CheckCertificateRevocation = false;
-				}
+				Assert.That (innerException, Is.Not.Null);
+				Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
+				Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
 			}
 		}
 	}
 
 	[TestFixture]
-	public class SecureMimeTests : SecureMimeTestsBase
+	public class TemporarySecureMimeTests : SecureMimeTestsBase
 	{
 		class MyTemporarySecureMimeContext : TemporarySecureMimeContext
 		{
@@ -3074,26 +3025,51 @@ namespace UnitTests.Cryptography {
 
 		readonly TemporarySecureMimeContext ctx = new MyTemporarySecureMimeContext ();
 
+		[OneTimeTearDown]
+		public void Cleanup ()
+		{
+			ctx.Dispose ();
+		}
+
 		protected override SecureMimeContext CreateContext ()
 		{
 			return ctx;
 		}
 
-		protected override Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx)
+		[Test]
+		public void TestVerifyRevokedCertificate ()
 		{
-			return ((MyTemporarySecureMimeContext) ctx).MockHttpMessageHandler;
+			using (var ctx = new MyTemporarySecureMimeContext () { CheckCertificateRevocation = true }) {
+				ImportTestCertificates (ctx);
+
+				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler);
+			}
+		}
+
+		[Test]
+		public async Task TestVerifyRevokedCertificateAsync ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext () { CheckCertificateRevocation = true }) {
+				ImportTestCertificates (ctx);
+
+				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler);
+			}
 		}
 	}
 
 	[TestFixture]
-	public class SecureMimeSqliteTests : SecureMimeTestsBase
+	public class DefaultSecureMimeTests : SecureMimeTestsBase
 	{
 		class MySecureMimeContext : DefaultSecureMimeContext
 		{
 			public readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
 			readonly HttpClient client;
 
-			public MySecureMimeContext () : base ("smime.db", "no.secret")
+			public MySecureMimeContext () : this ("smime.db", "no.secret")
+			{
+			}
+
+			public MySecureMimeContext (string database, string password) : base (database, password)
 			{
 				CheckCertificateRevocation = false;
 
@@ -3111,15 +3087,40 @@ namespace UnitTests.Cryptography {
 			return new MySecureMimeContext ();
 		}
 
-		protected override Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx)
-		{
-			return ((MySecureMimeContext) ctx).MockHttpMessageHandler;
-		}
-
-		static SecureMimeSqliteTests ()
+		static DefaultSecureMimeTests ()
 		{
 			if (File.Exists ("smime.db"))
 				File.Delete ("smime.db");
+
+			if (File.Exists ("revoked.db"))
+				File.Delete ("revoked.db");
+
+			if (File.Exists ("revoked-async.db"))
+				File.Delete ("revoked-async.db");
+		}
+
+		[Test]
+		public void TestVerifyRevokedCertificate ()
+		{
+			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret") { CheckCertificateRevocation = true }) {
+				ImportTestCertificates (ctx);
+
+				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler);
+			}
+
+			File.Delete ("revoked.db");
+		}
+
+		[Test]
+		public async Task TestVerifyRevokedCertificateAsync ()
+		{
+			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret") { CheckCertificateRevocation = true }) {
+				ImportTestCertificates (ctx);
+
+				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler);
+			}
+
+			File.Delete ("revoked-async.db");
 		}
 	}
 
@@ -3169,11 +3170,6 @@ namespace UnitTests.Cryptography {
 		protected override SecureMimeContext CreateContext ()
 		{
 			return new WindowsSecureMimeContext ();
-		}
-
-		protected override Mock<HttpMessageHandler> GetMockHttpMessageHandler (SecureMimeContext ctx)
-		{
-			return null;
 		}
 
 		protected override EncryptionAlgorithm[] GetEncryptionAlgorithms (IDigitalSignature signature)

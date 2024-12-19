@@ -1016,9 +1016,9 @@ namespace MimeKit.Cryptography {
 							downloaded = true;
 							break;
 						}
+#if ENABLE_LDAP
 					} else if (location.StartsWith ("ldaps://", StringComparison.OrdinalIgnoreCase) ||
 						location.StartsWith ("ldap://", StringComparison.OrdinalIgnoreCase)) {
-#if ENABLE_LDAP
 						// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
 						// won't be as reliable on Mono systems which do not implement the LDAP functionality.
 						ldapLocations.Add (location);
@@ -1063,9 +1063,9 @@ namespace MimeKit.Cryptography {
 							downloaded = true;
 							break;
 						}
+#if ENABLE_LDAP
 					} else if (location.StartsWith ("ldaps://", StringComparison.OrdinalIgnoreCase) ||
 						location.StartsWith ("ldap://", StringComparison.OrdinalIgnoreCase)) {
-#if ENABLE_LDAP
 						// Note: delay downloading from LDAP urls in case we find an HTTP url instead since LDAP
 						// won't be as reliable on Mono systems which do not implement the LDAP functionality.
 						ldapLocations.Add (location);
