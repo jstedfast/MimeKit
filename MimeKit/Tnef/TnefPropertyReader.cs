@@ -401,7 +401,7 @@ namespace MimeKit.Tnef {
 				// remaining bytes are padding
 				int padding = 4 - (length % 4);
 
-				reader.Seek (reader.StreamOffset + padding);
+				reader.Skip (padding);
 			}
 
 			return bytes;
@@ -610,7 +610,7 @@ namespace MimeKit.Tnef {
 
 			int offset = RawValueStreamOffset + RawValueLength;
 
-			if (reader.StreamOffset < offset && !reader.Seek (offset))
+			if (reader.StreamOffset < offset && !reader.Skip (offset - reader.StreamOffset))
 				return false;
 
 			try {

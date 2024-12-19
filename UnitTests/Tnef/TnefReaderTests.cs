@@ -465,7 +465,7 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		public void TestSeekTruncatedLoose ()
+		public void TestSkipTruncatedLoose ()
 		{
 			using (var stream = new MemoryStream ()) {
 				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
@@ -482,14 +482,14 @@ namespace UnitTests.Tnef {
 				stream.Position = 0;
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.That (reader.Seek (64), Is.False, "Seek");
+					Assert.That (reader.Skip (64), Is.False, "Skip");
 					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.StreamTruncated));
 				}
 			}
 		}
 
 		[Test]
-		public void TestSeekTruncatedStrict ()
+		public void TestSkipTruncatedStrict ()
 		{
 			using (var stream = new MemoryStream ()) {
 				stream.Write (BitConverter.GetBytes (0x223e9f78), 0, 4);
@@ -507,7 +507,7 @@ namespace UnitTests.Tnef {
 
 				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
 					try {
-						reader.Seek (64);
+						reader.Skip (64);
 						Assert.Fail ("Seek should have thrown TnefException");
 					} catch (TnefException ex) {
 						Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.StreamTruncated), "Error");

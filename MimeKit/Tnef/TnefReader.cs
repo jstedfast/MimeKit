@@ -480,7 +480,7 @@ namespace MimeKit.Tnef {
 
 			UpdateChecksum (input, inputIndex, 4);
 
-			var result = BinaryPrimitives.ReadInt32LittleEndian (input.AsSpan(inputIndex));
+			var result = BinaryPrimitives.ReadInt32LittleEndian (input.AsSpan (inputIndex));
 
 			inputIndex += 4;
 
@@ -537,14 +537,14 @@ namespace MimeKit.Tnef {
 			return result;
 		}
 
-		internal bool Seek (int offset)
+		internal bool Skip (int count)
 		{
 			CheckDisposed ();
 
-			int left = offset - StreamOffset;
-
-			if (left <= 0)
+			if (count <= 0)
 				return true;
+
+			int left = count;
 
 			do {
 				int n = Math.Min (inputEnd - inputIndex, left);
@@ -570,7 +570,7 @@ namespace MimeKit.Tnef {
 			int offset = AttributeRawValueStreamOffset + AttributeRawValueLength;
 			int expected, actual;
 
-			if (!Seek (offset))
+			if (!Skip (offset - StreamOffset))
 				return false;
 
 			// Note: ReadInt16() will update the checksum, so we need to capture it here
