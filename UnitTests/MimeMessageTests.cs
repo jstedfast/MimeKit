@@ -41,6 +41,14 @@ namespace UnitTests {
 		{
 			var unknown = new Cryptography.UnknownCryptographyContext ();
 			var message = new MimeMessage ();
+			var body = new TextPart ("plain") {
+				Text = "This is the message body."
+			};
+
+			Assert.Throws<ArgumentNullException> (() => new MimeMessage ((IEnumerable<Header>) null));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessage (null, Array.Empty<InternetAddress> (), string.Empty, body));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessage (Array.Empty<InternetAddress> (), null, string.Empty, body));
+			Assert.Throws<ArgumentNullException> (() => new MimeMessage (Array.Empty<InternetAddress> (), Array.Empty<InternetAddress> (), null, body));
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.Importance = (MessageImportance) 500);
 			Assert.Throws<ArgumentOutOfRangeException> (() => message.Priority = (MessagePriority) 500);
@@ -95,9 +103,6 @@ namespace UnitTests {
 			var sender = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			message.From.Add (sender);
 			message.To.Add (new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com"));
-			var body = new TextPart ("plain") {
-				Text = "This is the message body."
-			};
 
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null));
 			Assert.Throws<ArgumentNullException> (() => message.Sign (null, DigestAlgorithm.Sha1));
@@ -831,6 +836,126 @@ unsubscribe
 					var result = Encoding.UTF8.GetString (serialized.ToArray ());
 
 					Assert.That (result, Is.EqualTo (rawMessageText), "Reserialized (async) message is not identical to the original.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReserializationNewFromHeaderList ()
+		{
+			string rawRfc822Headers = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
+Received: from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
+          via MS.5.6.greenbush.galaxy.sun4_41;
+          Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
+Message-ID : <UeCBvVq0M2Yt4oUA83@thumper.bellcore.com>
+Date: Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
+From: Nathaniel Borenstein <nsb>
+X-Andrew-Message-Size: 152+1
+MIME-Version: 1.0
+To: Ned Freed <ned@innosoft.com>,
+    ysato@etl.go.jp (Yutaka Sato =?ISO-2022-JP?B?GyRAOjRGI0stGyhK?= )
+Subject: MIME & int'l mail
+
+".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawRfc822Headers))) {
+				var headers = HeaderList.Load (source);
+				var message = new MimeMessage (headers);
+
+				Assert.That (message.Date, Is.EqualTo (new DateTimeOffset (1992, 6, 12, 13, 29, 05, TimeSpan.FromHours (-4))), "Date");
+				Assert.That (message.From.Count, Is.EqualTo (1), "From.Count");
+				var from = message.From.Mailboxes.First ();
+				Assert.That (from.Name, Is.EqualTo ("Nathaniel Borenstein"), "From.Name");
+				Assert.That (from.Address, Is.EqualTo ("nsb"), "From.Address");
+				Assert.That (message.To.Count, Is.EqualTo (2), "To.Count");
+				var to = message.To.Mailboxes.ToList ();
+				Assert.That (to[0].Name, Is.EqualTo ("Ned Freed"), "To[0].Name");
+				Assert.That (to[0].Address, Is.EqualTo ("ned@innosoft.com"), "To[0].Address");
+				Assert.That (to[1].Name, Is.EqualTo ("Yutaka Sato 佐藤豊"), "To[1].Name");
+				Assert.That (to[1].Address, Is.EqualTo ("ysato@etl.go.jp"), "To[1].Address");
+				Assert.That (message.Subject, Is.EqualTo ("MIME & int'l mail"), "Subject");
+
+				// Test reserialization of the rfc822 headers
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.That (result, Is.EqualTo (rawRfc822Headers), "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.That (result, Is.EqualTo (rawRfc822Headers), "Reserialized message is not identical to the original.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReserializationNewFromIEnumerableHeader ()
+		{
+			string rawRfc822Headers = @"X-Andrew-Authenticated-As: 4099;greenbush.galaxy;Nathaniel Borenstein
+Received: from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
+          via MS.5.6.greenbush.galaxy.sun4_41;
+          Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
+Message-ID : <UeCBvVq0M2Yt4oUA83@thumper.bellcore.com>
+Date: Fri, 12 Jun 1992 13:29:05 -0400 (EDT)
+From: Nathaniel Borenstein <nsb>
+X-Andrew-Message-Size: 152+1
+MIME-Version: 1.0
+To: Ned Freed <ned@innosoft.com>,
+    ysato@etl.go.jp (Yutaka Sato =?ISO-2022-JP?B?GyRAOjRGI0stGyhK?= )
+Subject: MIME & int'l mail
+
+".Replace ("\r\n", "\n");
+
+			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawRfc822Headers))) {
+				var headers = HeaderList.Load (source).ToList ();
+				var message = new MimeMessage (headers);
+
+				Assert.That (message.Date, Is.EqualTo (new DateTimeOffset (1992, 6, 12, 13, 29, 05, TimeSpan.FromHours (-4))), "Date");
+				Assert.That (message.From.Count, Is.EqualTo (1), "From.Count");
+				var from = message.From.Mailboxes.First ();
+				Assert.That (from.Name, Is.EqualTo ("Nathaniel Borenstein"), "From.Name");
+				Assert.That (from.Address, Is.EqualTo ("nsb"), "From.Address");
+				Assert.That (message.To.Count, Is.EqualTo (2), "To.Count");
+				var to = message.To.Mailboxes.ToList ();
+				Assert.That (to[0].Name, Is.EqualTo ("Ned Freed"), "To[0].Name");
+				Assert.That (to[0].Address, Is.EqualTo ("ned@innosoft.com"), "To[0].Address");
+				Assert.That (to[1].Name, Is.EqualTo ("Yutaka Sato 佐藤豊"), "To[1].Name");
+				Assert.That (to[1].Address, Is.EqualTo ("ysato@etl.go.jp"), "To[1].Address");
+				Assert.That (message.Subject, Is.EqualTo ("MIME & int'l mail"), "Subject");
+
+				// Test reserialization of the rfc822 headers
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.That (result, Is.EqualTo (rawRfc822Headers), "Reserialized message is not identical to the original.");
+				}
+
+				using (var serialized = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, serialized);
+
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+
+					Assert.That (result, Is.EqualTo (rawRfc822Headers), "Reserialized message is not identical to the original.");
 				}
 			}
 		}

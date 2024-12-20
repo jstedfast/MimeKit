@@ -225,12 +225,59 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
 		/// </summary>
 		/// <remarks>
+		/// Creates a new <see cref="MimeMessage"/>.
+		/// </remarks>
+		/// <param name="headers">A list of initial message headers.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="headers"/> is <see langword="null"/>.
+		/// </exception>
+		public MimeMessage (IEnumerable<Header> headers)
+		{
+			if (headers is null)
+				throw new ArgumentNullException (nameof (headers));
+
+			addresses = new Dictionary<HeaderId, InternetAddressList> ();
+			compliance = RfcComplianceMode.Strict;
+
+			// initialize our address lists
+			foreach (var id in StandardAddressHeaders) {
+				var list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
+				addresses.Add (id, list);
+			}
+
+			references = new MessageIdList ();
+			references.Changed += ReferencesChanged;
+
+			if (headers is HeaderList headerList) {
+				Headers = headerList;
+			} else {
+				Headers = new HeaderList (ParserOptions.Default);
+
+				foreach (var header in headers)
+					Headers.Add (header);
+			}
+
+			Headers.Changed += HeadersChanged;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new MIME message, specifying details at creation time.
 		/// </remarks>
 		/// <param name="from">The list of addresses in the From header.</param>
 		/// <param name="to">The list of addresses in the To header.</param>
 		/// <param name="subject">The subject of the message.</param>
 		/// <param name="body">The body of the message.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="from"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="to"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="subject"/> is <see langword="null"/>.</para>
+		/// </exception>
 		public MimeMessage (IEnumerable<InternetAddress> from, IEnumerable<InternetAddress> to, string subject, MimeEntity body) : this ()
 		{
 			From.AddRange (from);
