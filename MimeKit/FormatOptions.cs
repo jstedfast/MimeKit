@@ -31,34 +31,6 @@ using MimeKit.IO.Filters;
 
 namespace MimeKit {
 	/// <summary>
-	/// A New-Line format.
-	/// </summary>
-	/// <remarks>
-	/// There are two commonly used line-endings used by modern Operating Systems.
-	/// Unix-based systems such as Linux and macOS use a single character (<c>'\n'</c> aka LF)
-	/// to represent the end of line where-as Windows (or DOS) uses a sequence of two
-	/// characters (<c>"\r\n"</c> aka CRLF). Most text-based network protocols such as SMTP,
-	/// POP3, and IMAP use the CRLF sequence as well.
-	/// </remarks>
-	public enum NewLineFormat : byte {
-		/// <summary>
-		/// The Unix New-Line format (<c>"\n"</c>).
-		/// </summary>
-		Unix,
-
-		/// <summary>
-		/// The DOS New-Line format (<c>"\r\n"</c>).
-		/// </summary>
-		Dos,
-
-		/// <summary>
-		/// A mixed New-Line format where some lines use Unix-based line endings and
-		/// other lines use DOS-based line endings.
-		/// </summary>
-		Mixed,
-	}
-
-	/// <summary>
 	/// Format options for serializing various MimeKit objects.
 	/// </summary>
 	/// <remarks>

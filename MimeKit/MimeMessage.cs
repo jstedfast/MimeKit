@@ -252,7 +252,7 @@ namespace MimeKit {
 			if (headers is HeaderList headerList) {
 				Headers = headerList;
 			} else {
-				Headers = new HeaderList (ParserOptions.Default);
+				Headers = new HeaderList (ParserOptions.Default.Clone ());
 
 				foreach (var header in headers)
 					Headers.Add (header);
