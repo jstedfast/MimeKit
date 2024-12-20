@@ -273,6 +273,22 @@ namespace MimeKit {
 		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
 		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
 		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnMboxMarkerBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			mboxMarkerOffset = beginOffset;
+			mboxMarkerLength = 0;
+		}
+
+		/// <summary>
+		/// Called when an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
 		/// <param name="buffer">The buffer containing the mbox marker.</param>
 		/// <param name="startIndex">The index denoting the starting position of the mbox marker within the buffer.</param>
 		/// <param name="count">The length of the mbox marker within the buffer, in bytes.</param>
@@ -281,12 +297,13 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
-			if (mboxMarkerBuffer.Length < count)
-				Array.Resize (ref mboxMarkerBuffer, count);
+			int needed = mboxMarkerLength + count;
 
-			Buffer.BlockCopy (buffer, startIndex, mboxMarkerBuffer, 0, count);
-			mboxMarkerOffset = beginOffset;
-			mboxMarkerLength = count;
+			if (mboxMarkerBuffer.Length < needed)
+				Array.Resize (ref mboxMarkerBuffer, needed);
+
+			Buffer.BlockCopy (buffer, startIndex, mboxMarkerBuffer, mboxMarkerLength, count);
+			mboxMarkerLength += count;
 		}
 
 		#endregion Mbox Events

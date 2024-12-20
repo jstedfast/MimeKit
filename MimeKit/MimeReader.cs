@@ -227,6 +227,20 @@ namespace MimeKit {
 		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
 		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
 		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnMboxMarkerBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+		}
+
+		/// <summary>
+		/// Called when an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
 		/// <param name="buffer">The buffer containing the mbox marker.</param>
 		/// <param name="startIndex">The index denoting the starting position of the mbox marker within the buffer.</param>
 		/// <param name="count">The length of the mbox marker within the buffer, in bytes.</param>
@@ -255,6 +269,21 @@ namespace MimeKit {
 		{
 			OnMboxMarkerRead (buffer, startIndex, count, beginOffset, lineNumber, cancellationToken);
 			return Task.CompletedTask;
+		}
+
+		/// <summary>
+		/// Called when the end of an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters the end of an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="endOffset">The offset into the stream where the mbox marker ends.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnMboxMarkerEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+		{
 		}
 
 		#endregion Mbox Events
@@ -1255,11 +1284,10 @@ namespace MimeKit {
 			return false;
 		}
 
-		unsafe bool StepMboxMarker (byte* inbuf, ref int left, out int mboxMarkerIndex, out int mboxMarkerLength)
+		unsafe bool StepMboxMarker (byte* inbuf, out int count)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
-			int startIndex = inputIndex;
 			byte* start = inptr;
 
 			*inend = (byte) '\n';
@@ -1268,18 +1296,17 @@ namespace MimeKit {
 			while (*inptr != (byte) '\n')
 				inptr++;
 
+			count = (int) (inptr - start);
+
+			// make sure not to consume the '\r' if it exists
+			if (inptr > start && *(inptr - 1) == (byte) '\r')
+				count--;
+
 			if (inptr == inend) {
-				// we don't have enough input data
-				left = (int) (inptr - start);
-				mboxMarkerLength = 0;
-				mboxMarkerIndex = 0;
+				// we've only consumed a partial mbox marker
+				inputIndex += count;
 				return false;
 			}
-
-			var markerLength = (int) (inptr - start);
-
-			if (inptr > start && *(inptr - 1) == (byte) '\r')
-				markerLength--;
 
 			// consume the '\n'
 			inptr++;
@@ -1289,18 +1316,13 @@ namespace MimeKit {
 			inputIndex += lineLength;
 			IncrementLineNumber (inputIndex);
 
-			mboxMarkerLength = markerLength;
-			mboxMarkerIndex = startIndex;
-
 			return true;
 		}
 
 		unsafe void StepMboxMarker (byte* inbuf, CancellationToken cancellationToken)
 		{
-			int mboxMarkerIndex, mboxMarkerLength;
 			bool midline = false;
 			bool complete;
-			int left = 0;
 
 			// consume data until we find a line that begins with "From "
 			do {
@@ -1317,22 +1339,27 @@ namespace MimeKit {
 			} while (!complete);
 
 			var mboxMarkerOffset = GetOffset (inputIndex);
+			var mboxMarkerLineNumber = lineNumber;
 
-			// FIXME: if the mbox marker is > the size of the input buffer, parsing will fail
+			OnMboxMarkerBegin (mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken);
+
 			do {
-				var available = ReadAhead (Math.Max (ReadAheadSize, left + 1), 0, cancellationToken);
-
-				if (available <= left) {
+				if (ReadAhead (ReadAheadSize, 0, cancellationToken) < 1) {
 					// failed to find the end of the mbox marker; EOF reached
 					state = MimeParserState.Error;
-					inputIndex = inputEnd;
 					return;
 				}
 
-				complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength);
+				int startIndex = inputIndex;
+				int count;
+
+				complete = StepMboxMarker (inbuf, out count);
+
+				// TODO: Remove beginOffset and lineNumber arguments from OnMboxMarkerRead() in v5.0
+				OnMboxMarkerRead (input, startIndex, count, mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken);
 			} while (!complete);
 
-			OnMboxMarkerRead (input, mboxMarkerIndex, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken);
+			OnMboxMarkerEnd (mboxMarkerOffset, mboxMarkerLineNumber, GetOffset (inputIndex), cancellationToken);
 
 			state = MimeParserState.MessageHeaders;
 		}

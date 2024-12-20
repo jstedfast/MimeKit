@@ -406,6 +406,46 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestReallyLongMboxMarker ()
+		{
+			var content = Encoding.ASCII.GetBytes ("\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
+			var marker = "From " + new string ('X', 4092);
+
+			using (var stream = new MemoryStream ()) {
+				var bytes = Encoding.ASCII.GetBytes (marker);
+				stream.Write (bytes, 0, bytes.Length);
+				stream.Write (content, 0, content.Length);
+				stream.Position = 0;
+
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Headers.Count, Is.EqualTo (3));
+				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+			}
+		}
+
+		[Test]
+		public async Task TestReallyLongMboxMarkerAsync ()
+		{
+			var content = Encoding.ASCII.GetBytes ("\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
+			var marker = "From " + new string ('X', 4092);
+
+			using (var stream = new MemoryStream ()) {
+				var bytes = Encoding.ASCII.GetBytes (marker);
+				stream.Write (bytes, 0, bytes.Length);
+				stream.Write (content, 0, content.Length);
+				stream.Position = 0;
+
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Headers.Count, Is.EqualTo (3));
+				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+			}
+		}
+
+		[Test]
 		public void TestEmptyMessage ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");

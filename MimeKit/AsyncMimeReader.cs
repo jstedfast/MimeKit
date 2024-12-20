@@ -74,10 +74,8 @@ namespace MimeKit {
 
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)
 		{
-			int mboxMarkerIndex, mboxMarkerLength;
 			bool midline = false;
 			bool complete;
-			int left = 0;
 
 			// consume data until we find a line that begins with "From "
 			do {
@@ -98,26 +96,31 @@ namespace MimeKit {
 			} while (!complete);
 
 			var mboxMarkerOffset = GetOffset (inputIndex);
+			var mboxMarkerLineNumber = lineNumber;
 
-			// FIXME: if the mbox marker is > the size of the input buffer, parsing will fail
+			OnMboxMarkerBegin (mboxMarkerOffset, lineNumber, cancellationToken);
+
 			do {
-				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left + 1), 0, cancellationToken).ConfigureAwait (false);
-
-				if (available <= left) {
+				if (await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false) < 1) {
 					// failed to find the end of the mbox marker; EOF reached
 					state = MimeParserState.Error;
-					inputIndex = inputEnd;
 					return;
 				}
 
+				int startIndex = inputIndex;
+				int count;
+
 				unsafe {
 					fixed (byte* inbuf = input) {
-						complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength);
+						complete = StepMboxMarker (inbuf, out count);
 					}
 				}
+
+				// TODO: Remove beginOffset and lineNumber arguments from OnMboxMarkerReadAsync() in v5.0
+				await OnMboxMarkerReadAsync (input, startIndex, count, mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken).ConfigureAwait (false);
 			} while (!complete);
 
-			await OnMboxMarkerReadAsync (input, mboxMarkerIndex, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken).ConfigureAwait (false);
+			OnMboxMarkerEnd (mboxMarkerOffset, mboxMarkerLineNumber, GetOffset (inputIndex), cancellationToken);
 
 			state = MimeParserState.MessageHeaders;
 		}
