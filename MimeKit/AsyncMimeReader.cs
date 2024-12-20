@@ -82,7 +82,7 @@ namespace MimeKit {
 				var available = await ReadAheadAsync (5, 0, cancellationToken).ConfigureAwait (false);
 
 				if (available < 5) {
-					// failed to find a From line; EOF reached
+					// failed to find the beginning of the mbox marker; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
 					return;

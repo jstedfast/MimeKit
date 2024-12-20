@@ -1257,7 +1257,7 @@ namespace MimeKit {
 				midline = false;
 			}
 
-			while (inptr + 5 < inend) {
+			while (inptr + 5 <= inend) {
 				if (IsMboxMarker (inptr)) {
 					// we have found the start of the mbox marker
 					return true;
@@ -1329,7 +1329,7 @@ namespace MimeKit {
 				var available = ReadAhead (5, 0, cancellationToken);
 
 				if (available < 5) {
-					// failed to find a From line; EOF reached
+					// failed to find the beginning of the mbox marker; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
 					return;
