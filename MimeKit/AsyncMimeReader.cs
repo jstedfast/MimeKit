@@ -75,14 +75,15 @@ namespace MimeKit {
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)
 		{
 			int mboxMarkerIndex, mboxMarkerLength;
-			long mboxMarkerOffset;
+			bool midline = false;
 			bool complete;
 			int left = 0;
 
+			// consume data until we find a line that begins with "From "
 			do {
-				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
+				var available = await ReadAheadAsync (5, 0, cancellationToken).ConfigureAwait (false);
 
-				if (available <= left) {
+				if (available < 5) {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
@@ -91,7 +92,27 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength, out mboxMarkerOffset);
+						complete = StepMboxMarkerStart (inbuf, ref midline);
+					}
+				}
+			} while (!complete);
+
+			var mboxMarkerOffset = GetOffset (inputIndex);
+
+			// FIXME: if the mbox marker is > the size of the input buffer, parsing will fail
+			do {
+				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left + 1), 0, cancellationToken).ConfigureAwait (false);
+
+				if (available <= left) {
+					// failed to find the end of the mbox marker; EOF reached
+					state = MimeParserState.Error;
+					inputIndex = inputEnd;
+					return;
+				}
+
+				unsafe {
+					fixed (byte* inbuf = input) {
+						complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength);
 					}
 				}
 			} while (!complete);

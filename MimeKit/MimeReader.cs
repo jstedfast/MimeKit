@@ -1203,77 +1203,133 @@ namespace MimeKit {
 			}
 		}
 
-		unsafe bool StepMboxMarker (byte* inbuf, ref int left, out int mboxMarkerIndex, out int mboxMarkerLength, out long mboxMarkerOffset)
+		unsafe bool StepMboxMarkerStart (byte* inbuf, ref bool midline)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 
 			*inend = (byte) '\n';
 
-			while (inptr < inend) {
-				int startIndex = inputIndex;
-				byte* start = inptr;
+			if (midline) {
+				// we're in the middle of a line, so we need to scan for the end of the line
+				while (*inptr != (byte) '\n')
+					inptr++;
+
+				if (inptr == inend) {
+					// we don't have enough input data
+					inputIndex = inputEnd;
+					return false;
+				}
+
+				// consume the '\n'
+				inptr++;
+				inputIndex = (int) (inptr - inbuf);
+				IncrementLineNumber (inputIndex);
+				midline = false;
+			}
+
+			while (inptr + 5 < inend) {
+				if (IsMboxMarker (inptr)) {
+					// we have found the start of the mbox marker
+					return true;
+				}
 
 				// scan for the end of the line
 				while (*inptr != (byte) '\n')
 					inptr++;
 
 				if (inptr == inend) {
-					// we don't have enough input data
-					left = (int) (inptr - start);
-					mboxMarkerOffset = 0;
-					mboxMarkerLength = 0;
-					mboxMarkerIndex = 0;
-					return false;
+					// we don't have enough data to check for a From line
+					midline = true;
+					break;
 				}
-
-				var markerLength = (int) (inptr - start);
-
-				if (inptr > start && *(inptr - 1) == (byte) '\r')
-					markerLength--;
 
 				// consume the '\n'
 				inptr++;
-
-				var lineLength = (int) (inptr - start);
-
-				inputIndex += lineLength;
+				inputIndex = (int) (inptr - inbuf);
 				IncrementLineNumber (inputIndex);
-
-				if (markerLength >= 5 && IsMboxMarker (start)) {
-					mboxMarkerOffset = GetOffset (startIndex);
-					mboxMarkerLength = markerLength;
-					mboxMarkerIndex = startIndex;
-					return true;
-				}
 			}
 
-			mboxMarkerOffset = 0;
-			mboxMarkerLength = 0;
-			mboxMarkerIndex = 0;
-			left = 0;
+			inputIndex = (int) (inptr - inbuf);
 
 			return false;
+		}
+
+		unsafe bool StepMboxMarker (byte* inbuf, ref int left, out int mboxMarkerIndex, out int mboxMarkerLength)
+		{
+			byte* inptr = inbuf + inputIndex;
+			byte* inend = inbuf + inputEnd;
+			int startIndex = inputIndex;
+			byte* start = inptr;
+
+			*inend = (byte) '\n';
+
+			// scan for the end of the line
+			while (*inptr != (byte) '\n')
+				inptr++;
+
+			if (inptr == inend) {
+				// we don't have enough input data
+				left = (int) (inptr - start);
+				mboxMarkerLength = 0;
+				mboxMarkerIndex = 0;
+				return false;
+			}
+
+			var markerLength = (int) (inptr - start);
+
+			if (inptr > start && *(inptr - 1) == (byte) '\r')
+				markerLength--;
+
+			// consume the '\n'
+			inptr++;
+
+			var lineLength = (int) (inptr - start);
+
+			inputIndex += lineLength;
+			IncrementLineNumber (inputIndex);
+
+			mboxMarkerLength = markerLength;
+			mboxMarkerIndex = startIndex;
+
+			return true;
 		}
 
 		unsafe void StepMboxMarker (byte* inbuf, CancellationToken cancellationToken)
 		{
 			int mboxMarkerIndex, mboxMarkerLength;
-			long mboxMarkerOffset;
+			bool midline = false;
 			bool complete;
 			int left = 0;
 
+			// consume data until we find a line that begins with "From "
 			do {
-				var available = ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
+				var available = ReadAhead (5, 0, cancellationToken);
 
-				if (available <= left) {
+				if (available < 5) {
 					// failed to find a From line; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
 					return;
 				}
 
-				complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength, out mboxMarkerOffset);
+				complete = StepMboxMarkerStart (inbuf, ref midline);
+			} while (!complete);
+
+			var mboxMarkerOffset = GetOffset (inputIndex);
+
+			// FIXME: if the mbox marker is > the size of the input buffer, parsing will fail
+			do {
+				var available = ReadAhead (Math.Max (ReadAheadSize, left + 1), 0, cancellationToken);
+
+				if (available <= left) {
+					// failed to find the end of the mbox marker; EOF reached
+					state = MimeParserState.Error;
+					inputIndex = inputEnd;
+					return;
+				}
+
+				complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength);
 			} while (!complete);
 
 			OnMboxMarkerRead (input, mboxMarkerIndex, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken);

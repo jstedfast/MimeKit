@@ -2763,6 +2763,58 @@ This is the message body.
 			}
 		}
 
+		[TestCase (80)]
+		[TestCase (4094)] // tests the not-enough-data code-path in MimeReader.StepMboxMarker()
+		[TestCase (4096)]
+		[TestCase (4097)] // tests midline code-paths in MimeReader.StepMboxMarkerStart()
+		[TestCase (8193)] // tests the not-enough-data midline code-path in MimeReader.StepMboxMarkerStart()
+		public void TestSimpleMboxWithGarbageBeforeMboxMarker (int garbageLength)
+		{
+			var garbage = new byte[garbageLength];
+
+			for (int i = 0; i < garbageLength - 2; i++)
+				garbage[i] = (byte) 'X';
+			garbage[garbage.Length - 2] = (byte) '\r';
+			garbage[garbage.Length - 1] = (byte) '\n';
+
+			using (var stream = new MemoryStream ()) {
+				stream.Write (garbage, 0, garbage.Length);
+
+				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+					file.CopyTo (stream, 4096);
+
+				stream.Position = 0;
+
+				AssertSimpleMbox (stream);
+			}
+		}
+
+		[TestCase (80)]
+		[TestCase (4094)] // tests the not-enough-data code-path in MimeReader.StepMboxMarker()
+		[TestCase (4096)]
+		[TestCase (4097)] // tests midline code-paths in MimeReader.StepMboxMarkerStart()
+		[TestCase (8193)] // tests the not-enough-data midline code-path in MimeReader.StepMboxMarkerStart()
+		public async Task TestSimpleMboxWithGarbageBeforeMboxMarkerAsync (int garbageLength)
+		{
+			var garbage = new byte[1024];
+
+			for (int i = 0; i < garbage.Length - 2; i++)
+				garbage[i] = (byte) 'X';
+			garbage[garbage.Length - 2] = (byte) '\r';
+			garbage[garbage.Length - 1] = (byte) '\n';
+
+			using (var stream = new MemoryStream ()) {
+				stream.Write (garbage, 0, garbage.Length);
+
+				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+					file.CopyTo (stream, 4096);
+
+				stream.Position = 0;
+
+				await AssertSimpleMboxAsync (stream);
+			}
+		}
+
 		static void DumpMimeTree (StringBuilder builder, MimeEntity entity, int depth)
 		{
 			if (depth > 0)
