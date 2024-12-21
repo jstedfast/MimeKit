@@ -466,7 +466,8 @@ namespace UnitTests {
 
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
-					var message = MimeMessage.Load (memory);
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					var message = parser.ParseMessage ();
 
 					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
@@ -482,7 +483,8 @@ namespace UnitTests {
 
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
-					var message = await MimeMessage.LoadAsync (memory);
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					var message = await parser.ParseMessageAsync ();
 
 					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
@@ -3352,7 +3354,8 @@ This is the message body.
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
-				var message = MimeMessage.Load (stream);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
 
 				Assert.That (message.Subject, Is.EqualTo (subject), "Subject values do not match");
 				Assert.That (message.TextBody.Replace ("\r\n", "\n"), Is.EqualTo (body), "Message text does not match.");
@@ -3366,7 +3369,8 @@ This is the message body.
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
-				var message = await MimeMessage.LoadAsync (stream);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Subject, Is.EqualTo (subject), "Subject values do not match");
 				Assert.That (message.TextBody.Replace ("\r\n", "\n"), Is.EqualTo (body), "Message text does not match.");
@@ -3431,7 +3435,8 @@ This is the message body.
 			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
-				var message = MimeMessage.Load (stream);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
 				var multipart = message.Body as Multipart;
 
 				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
@@ -3447,7 +3452,8 @@ This is the message body.
 			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
-				var message = await MimeMessage.LoadAsync (stream);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 				var multipart = message.Body as Multipart;
 
 				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
@@ -3461,7 +3467,22 @@ This is the message body.
 		public void TestMissingSubtype ()
 		{
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
-				var message = MimeMessage.Load (stream);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+				var type = message.Body.ContentType;
+
+				Assert.That (type.MediaType, Is.EqualTo ("application"), "The media type is not the default.");
+				Assert.That (type.MediaSubtype, Is.EqualTo ("octet-stream"), "The media subtype is not the default.");
+				Assert.That (type.Name, Is.EqualTo ("document.xml.gz"), "The parameters do not seem to have been parsed.");
+			}
+		}
+
+		[Test]
+		public async Task TestMissingSubtypeAsync ()
+		{
+			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
 				var type = message.Body.ContentType;
 
 				Assert.That (type.MediaType, Is.EqualTo ("application"), "The media type is not the default.");
@@ -3479,7 +3500,8 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				try {
-					MimeMessage.Load (stream);
+					var parser = new MimeParser (stream, MimeFormat.Entity);
+					var message = parser.ParseMessage ();
 				} catch {
 					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
 				}
@@ -3495,7 +3517,8 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				try {
-					await MimeMessage.LoadAsync (stream);
+					var parser = new MimeParser (stream, MimeFormat.Entity);
+					var message = await parser.ParseMessageAsync ();
 				} catch {
 					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
 				}
@@ -3512,7 +3535,8 @@ This is the message body.
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					var message = MimeMessage.Load (filtered);
+					var parser = new MimeParser (filtered, MimeFormat.Entity);
+					var message = parser.ParseMessage ();
 
 					// make sure that the top-level MIME part is a multipart/alternative
 					Assert.That (message.Body, Is.InstanceOf<MultipartAlternative> ());
@@ -3530,7 +3554,8 @@ This is the message body.
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					var message = await MimeMessage.LoadAsync (filtered);
+					var parser = new MimeParser (filtered, MimeFormat.Entity);
+					var message = await parser.ParseMessageAsync ();
 
 					// make sure that the top-level MIME part is a multipart/alternative
 					Assert.That (message.Body, Is.InstanceOf<MultipartAlternative> ());
