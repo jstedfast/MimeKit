@@ -52,6 +52,7 @@ namespace MimeKit {
 		async Task<bool> StepByteOrderMarkAsync (CancellationToken cancellationToken)
 		{
 			int bomIndex = 0;
+			bool complete;
 
 			do {
 				var available = await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
@@ -64,12 +65,12 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						StepByteOrderMark (inbuf, ref bomIndex);
+						complete = StepByteOrderMark (inbuf, ref bomIndex);
 					}
 				}
-			} while (inputIndex == inputEnd);
+			} while (!complete && inputIndex == inputEnd);
 
-			return bomIndex == 0 || bomIndex == UTF8ByteOrderMark.Length;
+			return complete;
 		}
 
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)
@@ -157,14 +158,21 @@ namespace MimeKit {
 					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
 				if (left == 0) {
+					if (toplevel && headerCount == 0 && headerBlockBegin == GetOffset (inputIndex)) {
+						state = MimeParserState.Eos;
+						return;
+					}
+
+					// FIXME: Should this be Content or Error?
 					state = MimeParserState.Content;
-					eof = true;
 					break;
 				}
 
 				// Check for an empty line denoting the end of the header block.
-				if (IsEndOfHeaderBlock (left))
+				if (IsEndOfHeaderBlock (left)) {
+					state = MimeParserState.Content;
 					break;
+				}
 
 				// Scan ahead a bit to see if this looks like an invalid header.
 				do {
@@ -245,6 +253,7 @@ namespace MimeKit {
 					}
 
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
+						state = MimeParserState.Content;
 						eof = true;
 						break;
 					}
@@ -259,6 +268,11 @@ namespace MimeKit {
 
 				await OnHeaderReadAsync (header, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			} while (!eof);
+
+			if (state == MimeParserState.MessageHeaders || state == MimeParserState.Headers) {
+				// Ideally, we never get here. If we do, there's an exit in the loop above that should be fixed.
+				state = MimeParserState.Content;
+			}
 
 			headerBlockEnd = GetOffset (inputIndex);
 
@@ -673,8 +687,13 @@ namespace MimeKit {
 			state = MimeParserState.Headers;
 			toplevel = true;
 
-			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+			// parse the headers
+			switch (await StepAsync (cancellationToken).ConfigureAwait (false)) {
+			case MimeParserState.Error:
 				throw new FormatException ("Failed to parse entity headers.");
+			case MimeParserState.Eos:
+				throw new FormatException ("End of stream.");
+			}
 
 			var type = GetContentType (null);
 			var currentHeadersEndOffset = headerBlockEnd;
@@ -743,12 +762,16 @@ namespace MimeKit {
 				}
 			}
 
+			var beginLineNumber = lineNumber;
 			toplevel = true;
 
 			// parse the headers
-			var beginLineNumber = lineNumber;
-			if (state < MimeParserState.Content && await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+			switch (await StepAsync (cancellationToken).ConfigureAwait (false)) {
+			case MimeParserState.Error:
 				throw new FormatException ("Failed to parse message headers.");
+			case MimeParserState.Eos:
+				throw new FormatException ("End of stream.");
+			}
 
 			var currentHeadersEndOffset = headerBlockEnd;
 			var currentBeginOffset = headerBlockBegin;
