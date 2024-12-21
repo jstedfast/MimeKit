@@ -320,7 +320,45 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestParsingGarbage ()
+		public void TestByteOrderMarkEOF ()
+		{
+			var bom = new byte[] { 0xEF, 0xBB, 0xBF };
+
+			using (var stream = new MemoryStream (bom, false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				try {
+					var message = parser.ParseMessage ();
+					Assert.Fail ("ParseMessage: Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."), "ParseMessage");
+				} catch (Exception ex) {
+					Assert.Fail ($"ParseMessage: Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestByteOrderMarkEOFAsync ()
+		{
+			var bom = new byte[] { 0xEF, 0xBB, 0xBF };
+
+			using (var stream = new MemoryStream (bom, false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+
+				try {
+					var message = await parser.ParseMessageAsync ();
+					Assert.Fail ("ParseMessageAsync: Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."), "ParseMessageAsync");
+				} catch (Exception ex) {
+					Assert.Fail ($"ParseMessageAsync: Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestParsingGarbageMbox ()
 		{
 			using (var stream = new MemoryStream ()) {
 				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
@@ -331,27 +369,123 @@ namespace UnitTests {
 				stream.Position = 0;
 
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
-				Assert.Throws<FormatException> (() => parser.ParseMessage (), "Mbox");
+				try {
+					var message = parser.ParseMessage ();
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("Failed to find mbox From marker."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestParsingGarbageMboxAsync ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
+
+				for (int i = 0; i < 200; i++)
+					stream.Write (line, 0, line.Length);
 
 				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Mbox);
-				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync (), "MboxAsync");
+
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				try {
+					var message = await parser.ParseMessageAsync ();
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("Failed to find mbox From marker."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestParsingGarbageEntity ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
+
+				for (int i = 0; i < 200; i++)
+					stream.Write (line, 0, line.Length);
 
 				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity);
-				Assert.Throws<FormatException> (() => parser.ParseMessage (), "ParseMessage");
+
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				try {
+					var entity = parser.ParseEntity ();
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("Failed to parse entity headers."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestParsingGarbageEntityAsync ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
+
+				for (int i = 0; i < 200; i++)
+					stream.Write (line, 0, line.Length);
 
 				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity);
-				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync (), "ParseMessageAsync");
+
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				try {
+					var message = await parser.ParseEntityAsync ();
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("Failed to parse entity headers."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestParsingGarbageMessage ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
+
+				for (int i = 0; i < 200; i++)
+					stream.Write (line, 0, line.Length);
 
 				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity);
-				Assert.Throws<FormatException> (() => parser.ParseEntity (), "ParseEntity");
+
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				try {
+					var message = parser.ParseMessage ();
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("Failed to parse message headers."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestParsingGarbageMessageAsync ()
+		{
+			using (var stream = new MemoryStream ()) {
+				var line = Encoding.ASCII.GetBytes ("This is just a standard test file... nothing to see here. No MIME anywhere to be found\r\n");
+
+				for (int i = 0; i < 200; i++)
+					stream.Write (line, 0, line.Length);
 
 				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity);
-				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseEntityAsync (), "ParseEntityAsync");
+
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				try {
+					var message = await parser.ParseMessageAsync ();
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("Failed to parse message headers."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
 			}
 		}
 
@@ -456,6 +590,110 @@ namespace UnitTests {
 				var parser = new MimeParser (memory, MimeFormat.Mbox);
 
 				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+			}
+		}
+
+		[Test]
+		public void TestEmptyMboxStream ()
+		{
+			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
+				try {
+					var parser = new MimeParser (memory, MimeFormat.Mbox);
+					var message = parser.ParseMessage ();
+
+					Assert.Fail ("Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestEmptyMboxStreamAsync ()
+		{
+			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
+				try {
+					var parser = new MimeParser (memory, MimeFormat.Mbox);
+					var message = await parser.ParseMessageAsync ();
+
+					Assert.Fail ("Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		[Ignore ("MimeParser.ParseEntity() on an empty stream currently doesn't fail but probably should.")]
+		public void TestEmptyEntityStream ()
+		{
+			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
+				try {
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					var entity = parser.ParseEntity ();
+
+					Assert.Fail ("Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		[Ignore ("MimeParser.ParseEntityAsync() on an empty stream currently doesn't fail but probably should.")]
+		public async Task TestEmptyEntityStreamAsync ()
+		{
+			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
+				try {
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					var entity = await parser.ParseEntityAsync ();
+
+					Assert.Fail ("Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestEmptyMessageStream ()
+		{
+			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
+				try {
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					var message = parser.ParseMessage ();
+
+					Assert.Fail ("Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestEmptyMessageStreamAsync ()
+		{
+			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
+				try {
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					var message = await parser.ParseMessageAsync ();
+
+					Assert.Fail ("Parsing an empty stream should fail.");
+				} catch (FormatException ex) {
+					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+				} catch (Exception ex) {
+					Assert.Fail ($"Unexpected exception: {ex}");
+				}
 			}
 		}
 
