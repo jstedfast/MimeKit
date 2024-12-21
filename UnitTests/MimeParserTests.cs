@@ -2598,6 +2598,318 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 		}
 
 		[Test]
+		public void TestMessageRfc822WithMungedFromMarkerEOF ()
+		{
+			string text = @"From - Fri Mar  7 02:51:22 1997
+Return-Path: <jwz@netscape.com>
+Received: from gruntle ([205.217.227.10]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA4040
+          for <jwz@netscape.com>; Fri, 7 Mar 1997 02:50:37 -0800
+Sender: jwz@netscape.com (Jamie Zawinski)
+Message-ID: <331FF2FF.FF6@netscape.com>
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.01 (X11; U; IRIX 6.2 IP22)
+MIME-Version: 1.0
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Content-Type: message/rfc822; name=""smime18-encrypted.msg""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=""smime18-encrypted.msg""
+X-Mozilla-Status: 0001
+Content-Length: 2812
+
+>From - Fri Dec 13 15:01:21 1996".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822WithMungedFromMarkerEOFAsync ()
+		{
+			string text = @"From - Fri Mar  7 02:51:22 1997
+Return-Path: <jwz@netscape.com>
+Received: from gruntle ([205.217.227.10]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA4040
+          for <jwz@netscape.com>; Fri, 7 Mar 1997 02:50:37 -0800
+Sender: jwz@netscape.com (Jamie Zawinski)
+Message-ID: <331FF2FF.FF6@netscape.com>
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.01 (X11; U; IRIX 6.2 IP22)
+MIME-Version: 1.0
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Content-Type: message/rfc822; name=""smime18-encrypted.msg""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=""smime18-encrypted.msg""
+X-Mozilla-Status: 0001
+Content-Length: 2812
+
+>From - Fri Dec 13 15:01:21 1996".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+		}
+
+		[Test]
+		public void TestMessageRfc822WithTruncatedMungedFromMarker ()
+		{
+			string text = @"From - Fri Mar  7 02:51:22 1997
+Return-Path: <jwz@netscape.com>
+Received: from gruntle ([205.217.227.10]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA4040
+          for <jwz@netscape.com>; Fri, 7 Mar 1997 02:50:37 -0800
+Sender: jwz@netscape.com (Jamie Zawinski)
+Message-ID: <331FF2FF.FF6@netscape.com>
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.01 (X11; U; IRIX 6.2 IP22)
+MIME-Version: 1.0
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Content-Type: message/rfc822; name=""smime18-encrypted.msg""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=""smime18-encrypted.msg""
+X-Mozilla-Status: 0001
+Content-Length: 2812
+
+>From".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+		}
+
+		[Test]
+		public async Task TestMessageRfc822WithTruncatedMungedFromMarkerAsync ()
+		{
+			string text = @"From - Fri Mar  7 02:51:22 1997
+Return-Path: <jwz@netscape.com>
+Received: from gruntle ([205.217.227.10]) by dredd.mcom.com
+          (Netscape Mail Server v2.02) with SMTP id AAA4040
+          for <jwz@netscape.com>; Fri, 7 Mar 1997 02:50:37 -0800
+Sender: jwz@netscape.com (Jamie Zawinski)
+Message-ID: <331FF2FF.FF6@netscape.com>
+Date: Fri, 07 Mar 1997 02:50:39 -0800
+From: Jamie Zawinski <jwz@netscape.com>
+Organization: Netscape Communications Corporation, Mozilla Division
+X-Mailer: Mozilla 3.01 (X11; U; IRIX 6.2 IP22)
+MIME-Version: 1.0
+To: Jamie Zawinski <jwz@netscape.com>
+Subject: forwarded encrypted message
+Content-Type: message/rfc822; name=""smime18-encrypted.msg""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename=""smime18-encrypted.msg""
+X-Mozilla-Status: 0001
+Content-Length: 2812
+
+>From".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
+				var rfc822 = (MessagePart) message.Body;
+
+				Assert.That (rfc822.ContentType.Name, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentType.Name");
+				Assert.That (rfc822.ContentDisposition.Disposition, Is.EqualTo ("inline"), "MessagePart.ContentDisposition.DIsposition");
+				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
+				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
+
+				// IMHO, the ExperimentalMimeParser handles this case better...
+				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
+				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
+				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
+				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+			}
+		}
+
+		[Test]
 		public void TestMessageRfc822 ()
 		{
 			string text = @"Content-Type: message/rfc822
