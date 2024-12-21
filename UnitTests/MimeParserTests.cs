@@ -1398,7 +1398,7 @@ This is the message body.
 		}
 
 		[Test]
-		public async Task TestMultipartSubpartHeadersLineStartsWithDashDashyAsync ()
+		public async Task TestMultipartSubpartHeadersLineStartsWithDashDashAsync ()
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
@@ -1456,6 +1456,120 @@ This is the message body.
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha\r\n"));
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+			}
+		}
+
+		[Test]
+		public void TestMultipartSubpartHeadersLineStartsWithDashDashEOF ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of multipart subpart headers ending with a boundary
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+--not-the-boundary-muhahaha".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha"));
+
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha"));
+
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+			}
+		}
+
+		[Test]
+		public async Task TestMultipartSubpartHeadersLineStartsWithDashDashEOFAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of multipart subpart headers ending with a boundary
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90
+Content-Type: text/plain; charset=utf-8
+--not-the-boundary-muhahaha".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha"));
+
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+			}
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (1), "Expected 1 child");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Headers.Count, Is.EqualTo (2));
+				Assert.That (body.Headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (body.Headers[1].Field, Is.EqualTo ("--not-the-boundary-muhahaha"));
+
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 			}
 		}
 

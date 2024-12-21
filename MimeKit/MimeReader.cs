@@ -1674,7 +1674,6 @@ namespace MimeKit {
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
-			//preHeaderLength = 0;
 			headerCount = 0;
 
 			currentContentLength = null;
@@ -1700,6 +1699,7 @@ namespace MimeKit {
 
 				if (left == 0) {
 					if (toplevel && headerCount == 0 && headerBlockBegin == GetOffset (inputIndex)) {
+						// EOF has been reached before any headers have been parsed for Parse[Headers,Entity,Message].
 						state = MimeParserState.Eos;
 						return;
 					}
@@ -1737,6 +1737,12 @@ namespace MimeKit {
 							if (ReadAhead (atleast, 0, cancellationToken) < atleast)
 								break;
 						}
+
+						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
+						if (state == MimeParserState.Boundary)
+							break;
+
+						// Fall through and act as if we're consuming a header.
 					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
 						while (!TryCheckMboxMarkerWithinHeaderBlock (inbuf)) {
@@ -1745,10 +1751,18 @@ namespace MimeKit {
 							if (ReadAhead (atleast, 0, cancellationToken) < atleast)
 								break;
 						}
-					}
 
-					if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
-						break;
+						// state will be one of the following values:
+						// 1. Complete: This means that we've found an actual mbox marker
+						// 2. Error: Invalid *first* header and it was not a valid mbox marker
+						// 3. MessageHeaders or Headers: let it fall through and treat it as an invalid headers
+						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+							break;
+
+						// Fall through and act as if we're consuming a header.
+					} else {
+						// Fall through and act as if we're consuming a header.
+					}
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
@@ -2192,12 +2206,6 @@ namespace MimeKit {
 			var currentBeginOffset = headerBlockBegin;
 
 			OnMimeMessageBegin (currentBeginOffset, beginLineNumber, cancellationToken);
-
-			//if (preHeaderLength > 0) {
-				// FIXME: how to solve this?
-				//message.MboxMarker = new byte[preHeaderLength];
-				//Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
-			//}
 
 			var type = GetContentType (null);
 			MimeEntityType entityType;
