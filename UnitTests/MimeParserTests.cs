@@ -436,6 +436,30 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestTruncatedMboxMarker ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From <incomplete mbox marker>");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Mbox);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+			}
+		}
+
+		[Test]
+		public void TestTruncatedMboxMarkerAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From <incomplete mbox marker>");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Mbox);
+
+				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+			}
+		}
+
+		[Test]
 		public void TestEmptyMessage ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
