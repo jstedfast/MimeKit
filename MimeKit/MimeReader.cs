@@ -52,6 +52,7 @@ namespace MimeKit {
 		}
 
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
+		static readonly Version MimeVersion = new Version (1, 0);
 
 		const int HeaderBufferGrowSize = 64;
 		const int ReadAheadSize = 128;
@@ -71,9 +72,12 @@ namespace MimeKit {
 
 		readonly List<Boundary> bounds = new List<Boundary> ();
 
+		int currentContentEncodingLineNumber;
+		long currentContentEncodingOffset;
 		ContentEncoding? currentEncoding;
 		ContentType currentContentType;
 		long? currentContentLength;
+		bool hasMimeVersion;
 
 		MimeParserState state;
 		BoundaryType boundary;
@@ -178,6 +182,18 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get the current compliance status of the MIME stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the current compliance status of the MIME stream.</para>
+		/// <para>As the reader progresses, this value may change if compliance issues are encountered.</para>
+		/// </remarks>
+		/// <value>The compliance status.</value>
+		public MimeComplianceStatus ComplianceStatus {
+			get; protected set;
+		}
+
+		/// <summary>
 		/// Set the stream to parse.
 		/// </summary>
 		/// <remarks>
@@ -192,6 +208,8 @@ namespace MimeKit {
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
+
+			ComplianceStatus = MimeComplianceStatus.Compliant;
 
 			this.format = format;
 			this.stream = stream;
@@ -217,6 +235,24 @@ namespace MimeKit {
 			state = MimeParserState.Initialized;
 			boundary = BoundaryType.None;
 		}
+
+		#region ComplianceStatus Events
+
+		/// <summary>
+		/// Called when a MIME compliance issue is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When a MIME compliance issue is encountered while reading, this method will be called with information about the issue discovered.</para>
+		/// </remarks>
+		/// <param name="issue">The MIME compliance issue that was encountered.</param>
+		/// <param name="offset">The offset into the stream where the MIME compliance issue was encountered.</param>
+		/// <param name="lineNumber">The line number where the MIME compliance issue was encountered.</param>
+		protected virtual void OnComplianceIssueEncountered (MimeComplianceStatus issue, long offset, int lineNumber)
+		{
+			ComplianceStatus |= issue;
+		}
+
+		#endregion ComplianceStatus Events
 
 		#region Mbox Events
 
@@ -1159,6 +1195,9 @@ namespace MimeKit {
 			prevLineBeginOffset = lineBeginOffset;
 			lineBeginOffset = GetOffset (index);
 			lineNumber++;
+
+			if ((lineBeginOffset - prevLineBeginOffset) >= 1000)
+				OnComplianceIssueEncountered (MimeComplianceStatus.InvalidWrapping, prevLineBeginOffset, lineNumber - 1);
 		}
 
 		static unsafe bool CStringsEqual (byte* str1, byte* str2, int length)
@@ -1362,7 +1401,7 @@ namespace MimeKit {
 			state = MimeParserState.MessageHeaders;
 		}
 
-		void UpdateHeaderState (Header header)
+		void UpdateHeaderState (Header header, int beginLineNumber)
 		{
 			var rawValue = header.RawValue;
 			int index = 0;
@@ -1370,8 +1409,14 @@ namespace MimeKit {
 			switch (header.Id) {
 			case HeaderId.ContentTransferEncoding:
 				if (!currentEncoding.HasValue) {
-					MimeUtils.TryParse (header.Value, out ContentEncoding encoding);
+					if (!MimeUtils.TryParse (header.Value, out ContentEncoding encoding))
+						OnComplianceIssueEncountered (MimeComplianceStatus.InvalidContentTransferEncoding, header.Offset.Value, beginLineNumber);
+
+					currentContentEncodingLineNumber = beginLineNumber;
+					currentContentEncodingOffset = header.Offset.Value;
 					currentEncoding = encoding;
+				} else {
+					OnComplianceIssueEncountered (MimeComplianceStatus.DuplicateContentTransferEncoding, header.Offset.Value, beginLineNumber);
 				}
 				break;
 			case HeaderId.ContentLength:
@@ -1382,8 +1427,9 @@ namespace MimeKit {
 				break;
 			case HeaderId.ContentType:
 				if (currentContentType is null) {
-					// FIXME: do we really need all this fallback stuff for parameters? I doubt it.
 					if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type is null) {
+						OnComplianceIssueEncountered (MimeComplianceStatus.InvalidContentType, header.Offset.Value, beginLineNumber);
+
 						// if 'type' is null, then it means that even the mime-type was unintelligible
 						type = new ContentType ("application", "octet-stream");
 
@@ -1397,8 +1443,18 @@ namespace MimeKit {
 						}
 					}
 
+					if (IsMultipart (type) && string.IsNullOrEmpty (type.Boundary))
+						OnComplianceIssueEncountered (MimeComplianceStatus.MissingMultipartBoundaryParameter, header.Offset.Value, beginLineNumber);
+
 					currentContentType = type;
+				} else {
+					OnComplianceIssueEncountered (MimeComplianceStatus.DuplicateContentType, header.Offset.Value, beginLineNumber);
 				}
+				break;
+			case HeaderId.MimeVersion:
+				if (!MimeUtils.TryParse (header.Value, out Version version) || !version.Equals (MimeVersion))
+					OnComplianceIssueEncountered (MimeComplianceStatus.InvalidMimeVersion, header.Offset.Value, beginLineNumber);
+				hasMimeVersion = true;
 				break;
 			}
 		}
@@ -1590,7 +1646,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		Header CreateHeader (long beginOffset, int fieldNameLength, int headerFieldLength, bool invalid)
+		Header CreateHeader (long beginOffset, int beginLineNumber, int fieldNameLength, int headerFieldLength, bool invalid)
 		{
 			byte[] field, value;
 
@@ -1610,7 +1666,7 @@ namespace MimeKit {
 				Offset = beginOffset
 			};
 
-			UpdateHeaderState (header);
+			UpdateHeaderState (header, beginLineNumber);
 			headerCount++;
 
 			return header;
@@ -1625,9 +1681,12 @@ namespace MimeKit {
 			boundary = BoundaryType.None;
 			headerCount = 0;
 
+			currentContentEncodingLineNumber = -1;
+			currentContentEncodingOffset = -1;
 			currentContentLength = null;
 			currentContentType = null;
 			currentEncoding = null;
+			hasMimeVersion = false;
 
 			OnHeadersBegin (headerBlockBegin, headersBeginLineNumber, cancellationToken);
 
@@ -1656,6 +1715,7 @@ namespace MimeKit {
 					}
 
 					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
+					OnComplianceIssueEncountered (MimeComplianceStatus.MissingBodySeparator, beginOffset, beginLineNumber);
 					state = MimeParserState.Content;
 					break;
 				}
@@ -1679,6 +1739,7 @@ namespace MimeKit {
 
 				if (invalid) {
 					// Figure out why this is an invalid header.
+					OnComplianceIssueEncountered (MimeComplianceStatus.InvalidHeader, beginOffset, lineNumber);
 
 					if (input[inputIndex] == (byte) '-') {
 						// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
@@ -1690,8 +1751,10 @@ namespace MimeKit {
 						}
 
 						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
-						if (state == MimeParserState.Boundary)
+						if (state == MimeParserState.Boundary) {
+							OnComplianceIssueEncountered (MimeComplianceStatus.MissingBodySeparator, beginOffset, beginLineNumber);
 							break;
+						}
 
 						// Fall through and act as if we're consuming a header.
 					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
@@ -1707,8 +1770,10 @@ namespace MimeKit {
 						// 1. Complete: This means that we've found an actual mbox marker
 						// 2. Error: Invalid *first* header and it was not a valid mbox marker
 						// 3. MessageHeaders or Headers: let it fall through and treat it as an invalid headers
-						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers) {
+							OnComplianceIssueEncountered (MimeComplianceStatus.MissingBodySeparator, beginOffset, beginLineNumber);
 							break;
+						}
 
 						// Fall through and act as if we're consuming a header.
 					} else {
@@ -1731,6 +1796,10 @@ namespace MimeKit {
 				// Consume the header value.
 				while (!StepHeaderValue (inbuf, ref midline)) {
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
+						if (midline)
+							OnComplianceIssueEncountered (MimeComplianceStatus.IncompleteHeader, beginOffset, beginLineNumber);
+						else
+							OnComplianceIssueEncountered (MimeComplianceStatus.MissingBodySeparator, beginOffset, beginLineNumber);
 						state = MimeParserState.Content;
 						eof = true;
 						break;
@@ -1742,10 +1811,16 @@ namespace MimeKit {
 					return;
 				}
 
-				var header = CreateHeader (beginOffset, fieldNameLength, headerFieldLength, invalid);
+				var header = CreateHeader (beginOffset, beginLineNumber, fieldNameLength, headerFieldLength, invalid);
 
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
 			} while (!eof);
+
+#if DEBUG_ME_HARDER
+			// If the state hasn't been updated at this point, that means there's a bug somewhere in the above loop.
+			if (state == MimeParserState.MessageHeaders || state == MimeParserState.Headers)
+				Debugger.Break ();
+#endif
 
 			headerBlockEnd = GetOffset (inputIndex);
 
@@ -2156,6 +2231,9 @@ namespace MimeKit {
 
 			OnMimeMessageBegin (currentBeginOffset, beginLineNumber, cancellationToken);
 
+			if (currentContentType != null && !hasMimeVersion)
+				OnComplianceIssueEncountered (MimeComplianceStatus.MissingMimeVersion, currentBeginOffset, beginLineNumber);
+
 			var type = GetContentType (null);
 			MimeEntityType entityType;
 			int lines;
@@ -2309,11 +2387,10 @@ namespace MimeKit {
 			var beginLineNumber = lineNumber;
 			long endOffset;
 
-			if (marker is null) {
-#if DEBUG
-				Debug.WriteLine ("Multipart without a boundary encountered!");
-#endif
+			if (currentEncoding.HasValue && currentEncoding != ContentEncoding.SevenBit && currentEncoding != ContentEncoding.EightBit)
+				OnComplianceIssueEncountered (MimeComplianceStatus.InvalidContentTransferEncoding, currentContentEncodingOffset, currentContentEncodingLineNumber);
 
+			if (marker is null) {
 				// Note: this will scan all content into the preamble...
 				MultipartScanPreamble (inbuf, cancellationToken);
 
@@ -2356,11 +2433,14 @@ namespace MimeKit {
 
 			endOffset = GetEndOffset (inputIndex);
 
+			OnComplianceIssueEncountered (MimeComplianceStatus.MissingMultipartBoundary, endOffset, lineNumber);
+
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
 		unsafe void ReadHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
+			ComplianceStatus = MimeComplianceStatus.Compliant;
 			state = MimeParserState.Headers;
 			toplevel = true;
 
@@ -2399,6 +2479,7 @@ namespace MimeKit {
 		{
 			var beginLineNumber = lineNumber;
 
+			ComplianceStatus = MimeComplianceStatus.Compliant;
 			state = MimeParserState.Headers;
 			toplevel = true;
 
@@ -2475,6 +2556,8 @@ namespace MimeKit {
 
 		unsafe void ReadMessage (byte* inbuf, CancellationToken cancellationToken)
 		{
+			ComplianceStatus = MimeComplianceStatus.Compliant;
+
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
 				switch (Step (inbuf, cancellationToken)) {
@@ -2505,6 +2588,9 @@ namespace MimeKit {
 				contentEnd = GetOffset (inputIndex) + currentContentLength.Value;
 			else
 				contentEnd = 0;
+
+			if (currentContentType != null && !hasMimeVersion)
+				OnComplianceIssueEncountered (MimeComplianceStatus.MissingMimeVersion, currentBeginOffset, beginLineNumber);
 
 			var type = GetContentType (null);
 			MimeEntityType entityType;
