@@ -1798,11 +1798,6 @@ namespace MimeKit {
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
 			} while (!eof);
 
-			if (state == MimeParserState.MessageHeaders || state == MimeParserState.Headers) {
-				// Ideally, we never get here. If we do, there's an exit in the loop above that should be fixed.
-				state = MimeParserState.Content;
-			}
-
 			headerBlockEnd = GetOffset (inputIndex);
 
 			OnHeadersEnd (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken);
