@@ -49,7 +49,7 @@ namespace UnitTests
 		}
 
 		[Test]
-		public void TestConvertFromValid ()
+		public void TestConvertValid ()
 		{
 			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
 			var result = converter.ConvertFrom ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>");
@@ -60,6 +60,18 @@ namespace UnitTests
 			Assert.That (list[0].Name, Is.EqualTo ("Skye"));
 			Assert.That (list[1].Name, Is.EqualTo ("Leo Fitz"));
 			Assert.That (list[2].Name, Is.EqualTo ("Melinda May"));
+
+			var text = converter.ConvertTo (list, typeof (string));
+			Assert.That (text, Is.EqualTo ("\"Skye\" <skye@shield.gov>, \"Leo Fitz\" <fitz@shield.gov>, \"Melinda May\" <may@shield.gov>"));
+		}
+
+		[Test]
+		public void TestConvertNotValid ()
+		{
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.Throws<ParseException> (() => converter.ConvertFrom (""));
+			Assert.Throws<NotSupportedException> (() => converter.ConvertFrom (5));
+			Assert.Throws<NotSupportedException> (() => converter.ConvertTo (new InternetAddressList (), typeof (int)));
 		}
 
 		[Test]
@@ -67,13 +79,6 @@ namespace UnitTests
 		{
 			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
 			Assert.That (converter.IsValid (""), Is.False);
-		}
-
-		[Test]
-		public void TestConvertFromNotValid ()
-		{
-			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
-			Assert.Throws<ParseException> (() => converter.ConvertFrom (""));
 		}
 	}
 }
