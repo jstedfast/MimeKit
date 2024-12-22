@@ -80,8 +80,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = parser.ParseHeaders ();
 					string value;
 
 					Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
@@ -109,8 +111,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = await HeaderList.LoadAsync (memory);
+					var headers = await parser.ParseHeadersAsync ();
 					string value;
 
 					Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
@@ -138,8 +142,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = parser.ParseHeaders ();
 					Assert.Fail ("Parsing headers should fail.");
 				} catch (FormatException) {
 				} catch (Exception ex) {
@@ -154,8 +160,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = await HeaderList.LoadAsync (memory);
+					var headers = await parser.ParseHeadersAsync ();
 					Assert.Fail ("Parsing headers should fail.");
 				} catch (FormatException) {
 				} catch (Exception ex) {
@@ -170,8 +178,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = parser.ParseHeaders ();
 
 					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
@@ -190,8 +200,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = await HeaderList.LoadAsync (memory);
+					var headers = await parser.ParseHeadersAsync ();
 
 					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
@@ -210,8 +222,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = parser.ParseHeaders ();
 
 					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
@@ -230,8 +244,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = await HeaderList.LoadAsync (memory);
+					var headers = await parser.ParseHeadersAsync ();
 
 					Assert.That (headers.Count, Is.EqualTo (1), "Unexpected header count.");
 
@@ -250,8 +266,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = HeaderList.Load (memory);
+					var headers = parser.ParseHeaders ();
 
 					Assert.That (headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
@@ -266,13 +284,97 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
 				try {
-					var headers = await HeaderList.LoadAsync (memory);
+					var headers = await parser.ParseHeadersAsync ();
 
 					Assert.That (headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
+			}
+		}
+
+		[Test]
+		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
+		public void TestHeadersEndWithBareCarriageReturn ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var headers = parser.ParseHeaders ();
+
+				Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+			}
+		}
+
+		[Test]
+		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
+		public async Task TestHeadersEndWithBareCarriageReturnAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var headers = await parser.ParseHeadersAsync ();
+
+				Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+			}
+		}
+
+		[Test]
+		public void TestHeadersWithBareCarriageReturn ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\rYou might expect this to be a body, but it's really an invalid header.\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var headers = parser.ParseHeaders ();
+
+				Assert.That (headers.Count, Is.EqualTo (4), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+				Assert.That (headers[3].IsInvalid, Is.True);
+				Assert.That (headers[3].Field, Is.EqualTo ("\rYou might expect this to be a body, but it's really an invalid header.\r\n"));
+			}
+		}
+
+		[Test]
+		public async Task TestHeadersWithBareCarriageReturnAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\rYou might expect this to be a body, but it's really an invalid header.\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var headers = await parser.ParseHeadersAsync ();
+
+				Assert.That (headers.Count, Is.EqualTo (4), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+				Assert.That (headers[3].IsInvalid, Is.True);
+				Assert.That (headers[3].Field, Is.EqualTo ("\rYou might expect this to be a body, but it's really an invalid header.\r\n"));
 			}
 		}
 

@@ -293,6 +293,86 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestHeadersEndWithBareCarriageReturn ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
+				var headers = parser.ParseHeaders ();
+
+				Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+			}
+		}
+
+		[Test]
+		public async Task TestHeadersEndWithBareCarriageReturnAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
+				var headers = await parser.ParseHeadersAsync ();
+
+				Assert.That (headers.Count, Is.EqualTo (3), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+			}
+		}
+
+		[Test]
+		public void TestHeadersWithBareCarriageReturn ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\rYou might expect this to be a body, but it's really an invalid header.\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
+				var headers = parser.ParseHeaders ();
+
+				Assert.That (headers.Count, Is.EqualTo (4), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+				Assert.That (headers[3].IsInvalid, Is.True);
+				Assert.That (headers[3].Field, Is.EqualTo ("\rYou might expect this to be a body, but it's really an invalid header.\r\n"));
+			}
+		}
+
+		[Test]
+		public async Task TestHeadersWithBareCarriageReturnAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\rYou might expect this to be a body, but it's really an invalid header.\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
+				var headers = await parser.ParseHeadersAsync ();
+
+				Assert.That (headers.Count, Is.EqualTo (4), "Unexpected header count.");
+				Assert.That (headers[0].Id, Is.EqualTo (HeaderId.From));
+				Assert.That (headers[0].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[1].Id, Is.EqualTo (HeaderId.To));
+				Assert.That (headers[1].Value, Is.EqualTo ("<mimekit@example.com>"));
+				Assert.That (headers[2].Id, Is.EqualTo (HeaderId.Subject));
+				Assert.That (headers[2].Value, Is.EqualTo ("Test of headers ending with bare carriage-return"));
+				Assert.That (headers[3].IsInvalid, Is.True);
+				Assert.That (headers[3].Field, Is.EqualTo ("\rYou might expect this to be a body, but it's really an invalid header.\r\n"));
+			}
+		}
+
+		[Test]
 		public void TestPartialByteOrderMarkEOF ()
 		{
 			var bom = new byte[] { 0xEF, 0xBB/*, 0xBF */ };
