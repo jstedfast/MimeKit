@@ -76,6 +76,7 @@ namespace UnitTests {
 		{
 			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
 			Assert.That (converter.IsValid (""), Is.False);
+			Assert.That (converter.IsValid (5), Is.False);
 		}
 	}
 }

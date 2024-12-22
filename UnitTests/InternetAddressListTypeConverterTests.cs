@@ -79,6 +79,7 @@ namespace UnitTests
 		{
 			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
 			Assert.That (converter.IsValid (""), Is.False);
+			Assert.That (converter.IsValid (5), Is.False);
 		}
 	}
 }
