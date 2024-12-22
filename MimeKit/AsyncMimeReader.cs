@@ -157,13 +157,15 @@ namespace MimeKit {
 					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
 				if (left == 0) {
-					if (toplevel && headerCount == 0 && headerBlockBegin == GetOffset (inputIndex)) {
+					// Note: The only way to get here is if this is the first-pass throgh this loop and we're at EOF, so headerCount should ALWAYS be 0.
+
+					if (toplevel && headerCount == 0) {
 						// EOF has been reached before any headers have been parsed for Parse[Headers,Entity,Message]Async.
 						state = MimeParserState.Eos;
 						return;
 					}
 
-					// FIXME: Should this be Content or Error?
+					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
 					state = MimeParserState.Content;
 					break;
 				}
