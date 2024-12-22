@@ -819,8 +819,9 @@ namespace UnitTests {
 			}
 		}
 
-		[Test]
-		public void TestInvalidContentType ()
+		[TestCase ("garbage")]
+		[TestCase ("!%^#&^!\\t  ")]
+		public void TestInvalidContentType (string mimeType)
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
@@ -829,10 +830,10 @@ Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
 X-Mailer: Microsoft Office Outlook 12.0
-Content-Type: garbage; charset=utf-8
+Content-Type: ${mimeType}; charset=utf-8
 
 This is the message body.
-".Replace ("\r\n", "\n");
+".Replace ("${mimeType}", mimeType).Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
@@ -867,8 +868,9 @@ This is the message body.
 			}
 		}
 
-		[Test]
-		public async Task TestInvalidContentTypeAsync ()
+		[TestCase ("garbage")]
+		[TestCase ("!%^#&^!\\t  ")]
+		public async Task TestInvalidContentTypeAsync (string mimeType)
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
@@ -877,10 +879,10 @@ Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
 X-Mailer: Microsoft Office Outlook 12.0
-Content-Type: garbage; charset=utf-8
+Content-Type: ${mimeType}; charset=utf-8
 
 This is the message body.
-".Replace ("\r\n", "\n");
+".Replace ("${mimeType}", mimeType).Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
