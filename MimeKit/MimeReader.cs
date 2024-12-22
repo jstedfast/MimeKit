@@ -1383,8 +1383,6 @@ namespace MimeKit {
 				if (!currentContentLength.HasValue) {
 					if (ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length) && ParseUtils.TryParseInt32 (rawValue, ref index, rawValue.Length, out int length))
 						currentContentLength = length;
-					else
-						currentContentLength = -1;
 				}
 				break;
 			case HeaderId.ContentType:
@@ -2549,7 +2547,7 @@ namespace MimeKit {
 
 			OnMimeMessageBegin (currentBeginOffset, beginLineNumber, cancellationToken);
 
-			if (format == MimeFormat.Mbox && options.RespectContentLength && currentContentLength.HasValue && currentContentLength.Value != -1)
+			if (format == MimeFormat.Mbox && options.RespectContentLength && currentContentLength.HasValue)
 				contentEnd = GetOffset (inputIndex) + currentContentLength.Value;
 			else
 				contentEnd = 0;

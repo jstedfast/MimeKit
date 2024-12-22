@@ -783,7 +783,7 @@ namespace MimeKit {
 
 			await OnMimeMessageBeginAsync (currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			if (format == MimeFormat.Mbox && options.RespectContentLength && currentContentLength.HasValue && currentContentLength.Value != -1)
+			if (format == MimeFormat.Mbox && options.RespectContentLength && currentContentLength.HasValue)
 				contentEnd = GetOffset (inputIndex) + currentContentLength.Value;
 			else
 				contentEnd = 0;
