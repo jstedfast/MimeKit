@@ -1,5 +1,5 @@
-﻿//
-// InternetAddressTypeConverterTests.cs
+//
+// InternetAddressListConverterTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -28,55 +28,65 @@ using System.ComponentModel;
 
 using MimeKit;
 
-namespace UnitTests {
+namespace UnitTests
+{
 	[TestFixture]
-	public class InternetAddressTypeConverterTests
+	public class InternetAddressListConverterTests
 	{
 		[Test]
 		public void TestCanConvert ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
-			Assert.That (converter.CanConvertFrom(typeof (string)), Is.True);
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.That (converter.CanConvertFrom (typeof (string)), Is.True);
 			Assert.That (converter.CanConvertTo (typeof (string)), Is.True);
 		}
 
 		[Test]
 		public void TestIsValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
-			Assert.That (converter.IsValid ("Unit Tests <tests@mimekit.net>"), Is.True);
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			Assert.That (converter.IsValid ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>"), Is.True);
 		}
 
 		[Test]
 		public void TestConvertValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
-			var result = converter.ConvertFrom ("Unit Tests <tests@mimekit.net>");
-			Assert.That (result, Is.InstanceOf (typeof (MailboxAddress)));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
+			var result = converter.ConvertFrom ("Skye <skye@shield.gov>, Leo Fitz <fitz@shield.gov>, Melinda May <may@shield.gov>");
+			Assert.That (result, Is.InstanceOf (typeof (InternetAddressList)));
 
-			var mailbox = (MailboxAddress) result;
-			Assert.That (mailbox.Name, Is.EqualTo ("Unit Tests"));
-			Assert.That (mailbox.Address, Is.EqualTo ("tests@mimekit.net"));
+			var list = (InternetAddressList) result;
+			Assert.That (list.Count, Is.EqualTo (3));
+			Assert.That (list[0].Name, Is.EqualTo ("Skye"));
+			Assert.That (list[1].Name, Is.EqualTo ("Leo Fitz"));
+			Assert.That (list[2].Name, Is.EqualTo ("Melinda May"));
 
-			var text = converter.ConvertTo (mailbox, typeof (string));
-			Assert.That (text, Is.EqualTo ("\"Unit Tests\" <tests@mimekit.net>"));
+			var text = converter.ConvertTo (list, typeof (string));
+			Assert.That (text, Is.EqualTo ("\"Skye\" <skye@shield.gov>, \"Leo Fitz\" <fitz@shield.gov>, \"Melinda May\" <may@shield.gov>"));
 		}
 
 		[Test]
 		public void TestConvertNotValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
 			Assert.Throws<ParseException> (() => converter.ConvertFrom (""));
 			Assert.Throws<NotSupportedException> (() => converter.ConvertFrom (5));
-			Assert.Throws<NotSupportedException> (() => converter.ConvertTo (new MailboxAddress ("Unit Tests", "tests@mimekit.net"), typeof (int)));
+			Assert.Throws<NotSupportedException> (() => converter.ConvertTo (new InternetAddressList (), typeof (int)));
 		}
 
 		[Test]
 		public void TestIsNotValid ()
 		{
-			var converter = TypeDescriptor.GetConverter (typeof (InternetAddress));
+			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
 			Assert.That (converter.IsValid (""), Is.False);
 			Assert.That (converter.IsValid (5), Is.False);
+		}
+
+		[Test]
+		public void TestRegisterTwiceThrows ()
+		{
+			InternetAddressListConverter.Register (ParserOptions.Default);
+			Assert.Throws<InvalidOperationException> (() => InternetAddressListConverter.Register (ParserOptions.Default));
 		}
 	}
 }
