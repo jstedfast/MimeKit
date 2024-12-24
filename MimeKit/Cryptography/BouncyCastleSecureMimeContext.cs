@@ -694,20 +694,41 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate chain, including the specified certificate.</returns>
 		protected IList<X509Certificate> BuildCertificateChain (X509Certificate certificate)
 		{
-			var selector = new X509CertStoreSelector {
-				Certificate = certificate
-			};
+			var selector = new X509CertStoreSelector ();
 
-			var intermediates = new X509CertificateStore ();
-			intermediates.Add (certificate);
+			var userCertificateStore = new X509CertificateStore ();
+			userCertificateStore.Add (certificate);
 
-			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector) {
+			var issurerStore = GetTrustedAnchors ();
+			var anchorStore = new X509CertificateStore ();
+			
+			foreach (var anchor in issurerStore) {
+				anchorStore.Add (anchor.TrustedCert);
+			}
+
+			var parameters = new PkixBuilderParameters (issurerStore, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = false,
+				IsRevocationEnabled = CheckCertificateRevocation,
 				Date = DateTime.UtcNow
 			};
-			parameters.AddStoreCert (intermediates);
-			parameters.AddStoreCert (GetIntermediateCertificates ());
+			parameters.AddStoreCert (userCertificateStore);
+
+			if (CheckCertificateRevocation) {
+				DownloadCrls (certificate);
+			}
+			
+			var intermediateStore = GetIntermediateCertificates ();
+
+			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ())) {
+				anchorStore.Add (intermediate);
+				if (CheckCertificateRevocation)
+					DownloadCrls (intermediate);
+			}
+
+			parameters.AddStoreCert (anchorStore);
+
+			if (CheckCertificateRevocation)
+				parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -995,7 +1016,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken)
+		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken = default)
 		{
 			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
 			var now = DateTime.UtcNow;
@@ -1125,10 +1146,15 @@ namespace MimeKit.Cryptography {
 				}
 
 				var anchors = GetTrustedAnchors ();
+				var intermediates = GetIntermediateCertificates ();
 
 				if (CheckCertificateRevocation) {
 					foreach (var anchor in anchors)
 						DownloadCrls (anchor.TrustedCert, cancellationToken);
+
+					foreach (X509Certificate intermediate in intermediates.EnumerateMatches(new X509CertStoreSelector())) {
+						DownloadCrls (intermediate, cancellationToken);
+					}
 				}
 
 				try {
