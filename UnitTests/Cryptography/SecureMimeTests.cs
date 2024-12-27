@@ -159,8 +159,7 @@ namespace UnitTests.Cryptography {
 
 							if (smime.EmailAddress.Equals ("revoked@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 								RevokedCertificate = smime;
-							}
-							else if (smime.EmailAddress.Equals ("revokednochain@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
+							} else if (smime.EmailAddress.Equals ("revokednochain@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 								RevokedNoChainCertificate = smime;
 							} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 								if (!string.IsNullOrEmpty (smime.EmailAddress))
@@ -202,6 +201,8 @@ namespace UnitTests.Cryptography {
 
 					if (smime.EmailAddress.Equals ("revoked@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 						RevokedCertificate = smime;
+					} else if (smime.EmailAddress.Equals ("revokednochain@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
+						RevokedNoChainCertificate = smime;
 					} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 						if (!string.IsNullOrEmpty (smime.EmailAddress))
 							RsaCertificate = smime;
@@ -240,7 +241,8 @@ namespace UnitTests.Cryptography {
 			CurrentCrls = new X509Crl [] {
 				X509CrlGenerator.Generate (RootCertificate, RootKey, yesterday, threeMonthsFromNow),
 				X509CrlGenerator.Generate (IntermediateCertificate1, IntermediateKey1, yesterday, threeMonthsFromNow),
-				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedCertificate.Certificate)
+				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedCertificate.Certificate),
+				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedNoChainCertificate.Certificate)
 			};
 
 			CrlRequestUris = new Uri [] {
@@ -250,9 +252,9 @@ namespace UnitTests.Cryptography {
 			};
 		}
 
-		protected static Mock<HttpMessageHandler> CreateMockHttpMessageHandler ()
+		protected static HttpResponseMessage[] RevokedCertificateResponses ()
 		{
-			var responses = new HttpResponseMessage[] {
+			return new HttpResponseMessage[] {
 				new HttpResponseMessage (HttpStatusCode.OK) {
 					Content = new ByteArrayContent (CurrentCrls[0].GetEncoded ())
 				},
@@ -263,7 +265,25 @@ namespace UnitTests.Cryptography {
 					Content = new ByteArrayContent (CurrentCrls[2].GetEncoded ())
 				}
 			};
+		}
 
+		protected static HttpResponseMessage[] RevokedNoChainCertificateResponses ()
+		{
+			return new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (CurrentCrls[0].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (CurrentCrls[1].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (CurrentCrls[3].GetEncoded ())
+				}
+			};
+		}
+
+		protected static Mock<HttpMessageHandler> CreateMockHttpMessageHandler (HttpResponseMessage[] responses)
+		{
 			var mockHttpMessageHandler = new Mock<HttpMessageHandler> (MockBehavior.Strict);
 			
 			for (int i = 0; i < CrlRequestUris.Length; i++) {
@@ -3164,7 +3184,7 @@ namespace UnitTests.Cryptography {
 			{
 				CheckCertificateRevocation = false;
 
-				MockHttpMessageHandler = mockHttpMessageHandler ?? CreateMockHttpMessageHandler ();
+				MockHttpMessageHandler = mockHttpMessageHandler ?? CreateMockHttpMessageHandler (RevokedCertificateResponses ());
 				client = new HttpClient (MockHttpMessageHandler.Object);
 			}
 
@@ -3201,13 +3221,13 @@ namespace UnitTests.Cryptography {
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, true);
 			}
 			
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
+			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 			
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
+			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
@@ -3229,13 +3249,13 @@ namespace UnitTests.Cryptography {
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, true);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
+			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
-
+			
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
+			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 			
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
@@ -3341,11 +3361,11 @@ namespace UnitTests.Cryptography {
 			{
 			}
 
-			public MySecureMimeContext (string database, string password) : base (database, password)
+			public MySecureMimeContext (string database, string password, Mock<HttpMessageHandler>? mockHttpMessageHandler = null) : base (database, password)
 			{
 				CheckCertificateRevocation = false;
 
-				MockHttpMessageHandler = CreateMockHttpMessageHandler ();
+				MockHttpMessageHandler = mockHttpMessageHandler??  CreateMockHttpMessageHandler (RevokedCertificateResponses ());
 				client = new HttpClient (MockHttpMessageHandler.Object);
 			}
 
@@ -3390,7 +3410,7 @@ namespace UnitTests.Cryptography {
 
 			File.Delete ("revoked.db");
 
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret")) {
+			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
@@ -3398,7 +3418,7 @@ namespace UnitTests.Cryptography {
 			
 			File.Delete ("revoked.db");
 
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret")) {
+			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
@@ -3426,7 +3446,7 @@ namespace UnitTests.Cryptography {
 
 			File.Delete ("revoked-async.db");
 
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret")) {
+			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
@@ -3434,7 +3454,7 @@ namespace UnitTests.Cryptography {
 
 			File.Delete ("revoked-async.db");
 
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret")) {
+			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
 				ImportTestCertificates (ctx);
 
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);

@@ -723,23 +723,13 @@ namespace MimeKit.Cryptography {
 				Date = DateTime.UtcNow
 			};
 			parameters.AddStoreCert (userCertificateStore);
-
-			// if (CheckCertificateRevocation) {
-			// 	DownloadCrls (certificate);
-			// }
 			
 			var intermediateStore = GetIntermediateCertificates ();
 
-			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ())) {
+			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ()))
 				anchorStore.Add (intermediate);
-				// if (CheckCertificateRevocation)
-				// 	DownloadCrls (intermediate);
-			}
 
 			parameters.AddStoreCert (anchorStore);
-
-			// if (CheckCertificateRevocation)
-			// 	parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
