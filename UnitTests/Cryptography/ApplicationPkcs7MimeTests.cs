@@ -35,6 +35,19 @@ using MimeKit;
 using MimeKit.Cryptography;
 
 using BCX509Certificate = Org.BouncyCastle.X509.X509Certificate;
+using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Crypto.Encodings;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace UnitTests.Cryptography {
 	[TestFixture]
