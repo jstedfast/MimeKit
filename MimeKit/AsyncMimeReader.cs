@@ -129,6 +129,7 @@ namespace MimeKit {
 		async Task StepHeadersAsync (CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
+			bool detectedBareLinefeed = false;
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
@@ -175,7 +176,7 @@ namespace MimeKit {
 				}
 
 				// Check for an empty line denoting the end of the header block.
-				if (IsEndOfHeaderBlock (left)) {
+				if (IsEndOfHeaderBlock (left, ref detectedBareLinefeed)) {
 					state = MimeParserState.Content;
 					break;
 				}
@@ -272,12 +273,12 @@ namespace MimeKit {
 				do {
 					unsafe {
 						fixed (byte* inbuf = input) {
-							if (StepHeaderValue (inbuf, ref midline))
+							if (StepHeaderValue (inbuf, ref midline, ref detectedBareLinefeed))
 								break;
 						}
 					}
 
-					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
+					if (await ReadAheadAsync (1, 1, cancellationToken).ConfigureAwait (false) == 0) {
 						if (midline)
 							OnComplianceIssueEncountered (MimeComplianceStatus.IncompleteHeader, beginOffset, beginLineNumber);
 						else
@@ -303,6 +304,9 @@ namespace MimeKit {
 			if (state == MimeParserState.MessageHeaders || state == MimeParserState.Headers)
 				Debugger.Break ();
 #endif
+
+			if (detectedBareLinefeed)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInHeader, headerBlockBegin, headersBeginLineNumber);
 
 			headerBlockEnd = GetOffset (inputIndex);
 
@@ -416,6 +420,9 @@ namespace MimeKit {
 			var result = await ScanContentAsync (ScanContentType.MimeContent, beginOffset, beginLineNumber, true, cancellationToken).ConfigureAwait (false);
 			await OnMimePartContentEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, result.Format, cancellationToken).ConfigureAwait (false);
 
+			if (result.Format != NewLineFormat.Dos)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, beginOffset, beginLineNumber);
+
 			return result.Lines;
 		}
 
@@ -510,6 +517,9 @@ namespace MimeKit {
 			await OnMultipartPreambleBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			var result = await ScanContentAsync (ScanContentType.MultipartPreamble, beginOffset, beginLineNumber, false, cancellationToken).ConfigureAwait (false);
 			await OnMultipartPreambleEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
+
+			if (result.Format != NewLineFormat.Dos)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, beginOffset, beginLineNumber);
 		}
 
 		async Task MultipartScanEpilogueAsync (CancellationToken cancellationToken)
@@ -520,6 +530,9 @@ namespace MimeKit {
 			await OnMultipartEpilogueBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			var result = await ScanContentAsync (ScanContentType.MultipartEpilogue, beginOffset, beginLineNumber, true, cancellationToken).ConfigureAwait (false);
 			await OnMultipartEpilogueEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
+
+			if (result.Format != NewLineFormat.Dos)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, beginOffset, beginLineNumber);
 		}
 
 		async Task MultipartScanSubpartsAsync (ContentType multipartContentType, int depth, CancellationToken cancellationToken)

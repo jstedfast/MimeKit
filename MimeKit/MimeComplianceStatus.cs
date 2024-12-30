@@ -42,80 +42,80 @@ namespace MimeKit
 		Compliant                           = 0,
 
 		/// <summary>
+		/// A line was found in a header that was linefeed terminated instead of carriage return &amp; linefeed terminated.
+		/// </summary>
+		BareLinefeedInHeader                = 1 << 0,
+
+		/// <summary>
+		/// A line was found in a MIME part body content that was linefeed terminated instead of carriage return &amp; linefeed terminated.
+		/// </summary>
+		BareLinefeedInBody                  = 1 << 1,
+
+		/// <summary>
 		/// The header was not of the correct form.
 		/// </summary>
-		InvalidHeader                       = 1 << 0,
+		InvalidHeader                       = 1 << 2,
 
 		/// <summary>
 		/// The header ended prematurely at the end of the stream.
 		/// </summary>
-		IncompleteHeader                    = 1 << 1,
+		IncompleteHeader                    = 1 << 3,
 
 		/// <summary>
 		/// The Content-Transfer-Encoding header value was not valid.
 		/// </summary>
-		InvalidContentTransferEncoding      = 1 << 2,
+		InvalidContentTransferEncoding      = 1 << 4,
 
 		/// <summary>
 		/// The Content-Type header value was not valid.
 		/// </summary>
-		InvalidContentType                  = 1 << 3,
+		InvalidContentType                  = 1 << 5,
 
 		/// <summary>
 		/// The MIME-Version header value was not valid.
 		/// </summary>
-		InvalidMimeVersion                  = 1 << 4,
+		InvalidMimeVersion                  = 1 << 6,
 
 		/// <summary>
 		/// A line was found that was longer than the SMTP limit of 1000 characters.
 		/// </summary>
-		InvalidWrapping                     = 1 << 5,
+		InvalidWrapping                     = 1 << 7,
 
 		/// <summary>
 		/// An empty line separating the headers from the body was missing.
 		/// </summary>
-		MissingBodySeparator                = 1 << 6,
+		MissingBodySeparator                = 1 << 8,
 
 		/// <summary>
 		/// The MIME-Version header is missing.
 		/// </summary>
-		MissingMimeVersion                  = 1 << 7,
+		MissingMimeVersion                  = 1 << 9,
 
 		/// <summary>
 		/// The boundary parameter is missing from a multipart Content-Type header.
 		/// </summary>
-		MissingMultipartBoundaryParameter   = 1 << 8,
+		MissingMultipartBoundaryParameter   = 1 << 10,
 
 		/// <summary>
 		/// A multipart boundary was missing.
 		/// </summary>
-		MissingMultipartBoundary            = 1 << 9,
+		MissingMultipartBoundary            = 1 << 11,
 
 		/// <summary>
 		/// A MIME part contained multiple Content-Transfer-Encoding headers.
 		/// </summary>
-		DuplicateContentTransferEncoding    = 1 << 10,
+		DuplicateContentTransferEncoding    = 1 << 12,
 
 		/// <summary>
 		/// A MIME part contained multiple Content-Type headers.
 		/// </summary>
-		DuplicateContentType                = 1 << 11,
+		DuplicateContentType                = 1 << 13,
 
 #if false
-		/// <summary>
-		/// A line was found in a MIME part body content that was linefeed terminated instead of carriage return &amp; linefeed terminated.
-		/// </summary>
-		BareLinefeedInBody,
-
 		/// <summary>
 		/// An external body was specified with invalid syntax.
 		/// </summary>
 		InvalidExternalBody,
-
-		/// <summary>
-		/// A line was found in a MIME part header that was linefeed terminated instead of carriage return &amp; linefeed terminated.
-		/// </summary>
-		BareLinefeedInHeader,
 
 		/// <summary>
 		/// Unexpected binary content was found in MIME part body content.

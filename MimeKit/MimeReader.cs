@@ -1525,7 +1525,7 @@ namespace MimeKit {
 			inputIndex += headerIndex;
 		}
 
-		unsafe bool StepHeaderValue (byte* inbuf, ref bool midline)
+		unsafe bool StepHeaderValue (byte* inbuf, ref bool midline, ref bool detectedBareLinefeed)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1544,6 +1544,9 @@ namespace MimeKit {
 					midline = true;
 					break;
 				}
+
+				if (index > 0 && *(inptr - 1) != (byte) '\r')
+					detectedBareLinefeed = true;
 
 				// Consume the newline and update our line number state.
 				inptr++;
@@ -1569,12 +1572,13 @@ namespace MimeKit {
 			return inptr < inend;
 		}
 
-		bool IsEndOfHeaderBlock (int left)
+		bool IsEndOfHeaderBlock (int left, ref bool detectedBareLinefeed)
 		{
 			if (input[inputIndex] == (byte) '\n') {
 				state = MimeParserState.Content;
 				inputIndex++;
 				IncrementLineNumber (inputIndex);
+				detectedBareLinefeed = true;
 				return true;
 			}
 
@@ -1675,6 +1679,7 @@ namespace MimeKit {
 		unsafe void StepHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
+			bool detectedBareLinefeed = false;
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
@@ -1721,7 +1726,7 @@ namespace MimeKit {
 				}
 
 				// Check for an empty line denoting the end of the header block.
-				if (IsEndOfHeaderBlock (left)) {
+				if (IsEndOfHeaderBlock (left, ref detectedBareLinefeed)) {
 					state = MimeParserState.Content;
 					break;
 				}
@@ -1794,8 +1799,8 @@ namespace MimeKit {
 				bool midline = true;
 
 				// Consume the header value.
-				while (!StepHeaderValue (inbuf, ref midline)) {
-					if (ReadAhead (1, 0, cancellationToken) == 0) {
+				while (!StepHeaderValue (inbuf, ref midline, ref detectedBareLinefeed)) {
+					if (ReadAhead (1, 1, cancellationToken) == 0) {
 						if (midline)
 							OnComplianceIssueEncountered (MimeComplianceStatus.IncompleteHeader, beginOffset, beginLineNumber);
 						else
@@ -1822,6 +1827,9 @@ namespace MimeKit {
 				Debugger.Break ();
 #endif
 
+			if (detectedBareLinefeed)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInHeader, headerBlockBegin, headersBeginLineNumber);
+
 			headerBlockEnd = GetOffset (inputIndex);
 
 			OnHeadersEnd (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken);
@@ -1840,6 +1848,9 @@ namespace MimeKit {
 
 			if (inptr < inend) {
 				inputIndex = (int) (inptr - inbuf);
+
+				if (input[inputIndex - 1] != (byte) '\r')
+					OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, GetOffset (inputIndex), lineNumber);
 
 				if (consumeNewLine) {
 					inputIndex++;
@@ -2189,6 +2200,9 @@ namespace MimeKit {
 			var result = ScanContent (ScanContentType.MimeContent, inbuf, beginOffset, beginLineNumber, true, cancellationToken);
 			OnMimePartContentEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, result.Format, cancellationToken);
 
+			if (result.Format != NewLineFormat.Dos)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, beginOffset, beginLineNumber);
+
 			return result.Lines;
 		}
 
@@ -2280,6 +2294,9 @@ namespace MimeKit {
 			OnMultipartPreambleBegin (beginOffset, beginLineNumber, cancellationToken);
 			var result = ScanContent (ScanContentType.MultipartPreamble, inbuf, beginOffset, beginLineNumber, false, cancellationToken);
 			OnMultipartPreambleEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken);
+
+			if (result.Format != NewLineFormat.Dos)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, beginOffset, beginLineNumber);
 		}
 
 		unsafe void MultipartScanEpilogue (byte* inbuf, CancellationToken cancellationToken)
@@ -2290,6 +2307,9 @@ namespace MimeKit {
 			OnMultipartEpilogueBegin (beginOffset, beginLineNumber, cancellationToken);
 			var result = ScanContent (ScanContentType.MultipartEpilogue, inbuf, beginOffset, beginLineNumber, true, cancellationToken);
 			OnMultipartEpilogueEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken);
+
+			if (result.Format != NewLineFormat.Dos)
+				OnComplianceIssueEncountered (MimeComplianceStatus.BareLinefeedInBody, beginOffset, beginLineNumber);
 		}
 
 		unsafe void MultipartScanSubparts (ContentType multipartContentType, byte* inbuf, int depth, CancellationToken cancellationToken)
