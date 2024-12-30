@@ -1244,6 +1244,7 @@ namespace MimeKit {
 
 			if (midline) {
 				// we're in the middle of a line, so we need to scan for the end of the line
+				// TODO: unroll this loop?
 				while (*inptr != (byte) '\n')
 					inptr++;
 
@@ -1267,6 +1268,7 @@ namespace MimeKit {
 				}
 
 				// scan for the end of the line
+				// TODO: unroll this loop?
 				while (*inptr != (byte) '\n')
 					inptr++;
 
@@ -1296,6 +1298,7 @@ namespace MimeKit {
 			*inend = (byte) '\n';
 
 			// scan for the end of the line
+			// TODO: unroll this loop?
 			while (*inptr != (byte) '\n')
 				inptr++;
 
@@ -1503,6 +1506,7 @@ namespace MimeKit {
 #endif
 
 			while (inptr < inend && (midline || IsBlank (*inptr))) {
+				// TODO: unroll this loop?
 #if FUNROLL_LOOPS
 				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
 				int alignment = (index + 3) & ~3;
@@ -1593,6 +1597,7 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
+			// TODO: unroll this loop?
 			while (*inptr != (byte) '\n')
 				inptr++;
 
@@ -1808,6 +1813,7 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
+			// TODO: unroll this loop?
 			while (*inptr != (byte) '\n')
 				inptr++;
 
@@ -1961,6 +1967,7 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
+			// TODO: unroll this loop?
 			while (*inptr != (byte) '\n')
 				inptr++;
 
@@ -2183,6 +2190,7 @@ namespace MimeKit {
 
 				*inend = (byte) '\n';
 
+				// TODO: unroll this loop?
 				while (*inptr != (byte) '\n')
 					inptr++;
 
