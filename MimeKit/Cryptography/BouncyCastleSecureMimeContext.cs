@@ -56,6 +56,8 @@ using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
 using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
 
 using MimeKit.IO;
+using System.Linq;
+using Org.BouncyCastle.Tls;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -169,6 +171,9 @@ namespace MimeKit.Cryptography {
 		/// generally issued by a certificate authority (CA).</para>
 		/// <para>This method is used to build a certificate chain while verifying
 		/// signed content.</para>
+		/// <para>It is critical to always load the designated trust anchors
+		/// and not the anchor in the end certificate when building a certificate chain
+		/// to validated trust.</para>
 		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
 		protected abstract ISet<TrustAnchor> GetTrustedAnchors ();
@@ -325,6 +330,9 @@ namespace MimeKit.Cryptography {
 
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
 		{
+			if (CheckCertificateRevocation)
+				ValidateCertificateChain (signer.CertificateChain, DateTime.UtcNow, cancellationToken);
+
 			var signedData = CreateSignedDataGenerator (signer);
 			var memory = new MemoryBlockStream ();
 
@@ -339,6 +347,9 @@ namespace MimeKit.Cryptography {
 
 		async Task<Stream> SignAsync (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
 		{
+			if (CheckCertificateRevocation)
+				await ValidateCertificateChainAsync (signer.CertificateChain, DateTime.UtcNow, cancellationToken);
+
 			var signedData = CreateSignedDataGenerator (signer);
 			var memory = new MemoryBlockStream ();
 
@@ -694,20 +705,31 @@ namespace MimeKit.Cryptography {
 		/// <returns>The certificate chain, including the specified certificate.</returns>
 		protected IList<X509Certificate> BuildCertificateChain (X509Certificate certificate)
 		{
-			var selector = new X509CertStoreSelector {
-				Certificate = certificate
-			};
+			var selector = new X509CertStoreSelector ();
 
-			var intermediates = new X509CertificateStore ();
-			intermediates.Add (certificate);
+			var userCertificateStore = new X509CertificateStore ();
+			userCertificateStore.Add (certificate);
 
-			var parameters = new PkixBuilderParameters (GetTrustedAnchors (), selector) {
+			var issuerStore = GetTrustedAnchors ();
+			var anchorStore = new X509CertificateStore ();
+			
+			foreach (var anchor in issuerStore) {
+				anchorStore.Add (anchor.TrustedCert);
+			}
+
+			var parameters = new PkixBuilderParameters (issuerStore, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
 				IsRevocationEnabled = false,
 				Date = DateTime.UtcNow
 			};
-			parameters.AddStoreCert (intermediates);
-			parameters.AddStoreCert (GetIntermediateCertificates ());
+			parameters.AddStoreCert (userCertificateStore);
+			
+			var intermediateStore = GetIntermediateCertificates ();
+
+			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ()))
+				anchorStore.Add (intermediate);
+
+			parameters.AddStoreCert (anchorStore);
 
 			var builder = new PkixCertPathBuilder ();
 			var result = builder.Build (parameters);
@@ -718,6 +740,158 @@ namespace MimeKit.Cryptography {
 				chain[i] = result.CertPath.Certificates[i];
 
 			return chain;
+		}
+
+		/// <summary>
+		/// Validate an S/MIME certificate chain.
+		/// </summary>
+		/// <remarks>
+		/// <para>Validates an S/MIME certificate chain.</para>
+		/// <para>Downloads the CRLs for each certificate in the chain and then validates that the chain
+		/// is both valid and that none of the certificates in the chain have been revoked or compromised
+		/// in any way.</para>
+		/// </remarks>
+		/// <returns><c>true</c> if the certificate chain is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="chain">The S/MIME certificate chain.</param>
+		/// <param name="dateTime">The date and time to use for validation.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="chain"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="ArgumentException">
+		/// <paramref name="chain"/> is empty or contains a <see langword="null"/> certificate.
+		/// </exception>
+		public bool ValidateCertificateChain (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
+		{
+			if (chain == null)
+				throw new ArgumentNullException (nameof (chain));
+
+			if (chain.Count == 0)
+				throw new ArgumentException ("The certificate chain must contain at least one certificate.", nameof (chain));
+
+			if (chain.Any (certificate => certificate == null))
+				throw new ArgumentException ("The certificate chain contains at least one null certificate.", nameof (chain));
+
+			var selector = new X509CertStoreSelector ();
+
+			var userCertificateStore = new X509CertificateStore ();
+			userCertificateStore.AddRange (chain);
+
+			var issuerStore = GetTrustedAnchors ();
+			var anchorStore = new X509CertificateStore ();
+
+			foreach (var anchor in issuerStore) {
+				anchorStore.Add (anchor.TrustedCert);
+			}
+
+			var parameters = new PkixBuilderParameters (issuerStore, selector) {
+				ValidityModel = PkixParameters.PkixValidityModel,
+				IsRevocationEnabled = false,
+				Date = DateTime.UtcNow
+			};
+			parameters.AddStoreCert (userCertificateStore);
+
+			if (CheckCertificateRevocation) {
+				foreach (var certificate in chain)
+					DownloadCrls (certificate, cancellationToken);
+			}
+
+			var intermediateStore = GetIntermediateCertificates ();
+
+			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ())) {
+				anchorStore.Add (intermediate);
+				if (CheckCertificateRevocation)
+					DownloadCrls (intermediate, cancellationToken);
+			}
+
+			parameters.AddStoreCert (anchorStore);
+
+			if (CheckCertificateRevocation)
+				parameters.AddStoreCrl (GetCertificateRevocationLists ());
+
+			try {
+				var builder = new PkixCertPathBuilder ();
+				builder.Build (parameters);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Validate an S/MIME certificate chain.
+		/// </summary>
+		/// <remarks>
+		/// <para>Asynchronously validates an S/MIME certificate chain.</para>
+		/// <para>Downloads the CRLs for each certificate in the chain and then validates that the chain
+		/// is both valid and that none of the certificates in the chain have been revoked or compromised
+		/// in any way.</para>
+		/// </remarks>
+		/// <returns><c>true</c> if the certificate chain is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="chain">The S/MIME certificate chain.</param>
+		/// <param name="dateTime">The date and time to use for validation.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="chain"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="ArgumentException">
+		/// <paramref name="chain"/> is empty or contains a <see langword="null"/> certificate.
+		/// </exception>
+		public async Task<bool> ValidateCertificateChainAsync (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
+		{
+			if (chain == null)
+				throw new ArgumentNullException (nameof (chain));
+
+			if (chain.Count == 0)
+				throw new ArgumentException ("The certificate chain must contain at least one certificate.", nameof (chain));
+
+			if (chain.Any (certificate => certificate == null))
+				throw new ArgumentException ("The certificate chain contains at least one null certificate.", nameof (chain));
+
+			var selector = new X509CertStoreSelector ();
+
+			var userCertificateStore = new X509CertificateStore ();
+			userCertificateStore.AddRange (chain);
+
+			var issuerStore = GetTrustedAnchors ();
+			var anchorStore = new X509CertificateStore ();
+
+			foreach (var anchor in issuerStore) {
+				anchorStore.Add (anchor.TrustedCert);
+			}
+
+			var parameters = new PkixBuilderParameters (issuerStore, selector) {
+				ValidityModel = PkixParameters.PkixValidityModel,
+				IsRevocationEnabled = false,
+				Date = DateTime.UtcNow
+			};
+			parameters.AddStoreCert (userCertificateStore);
+
+			if (CheckCertificateRevocation) {
+				foreach (var certificate in chain)
+					await DownloadCrlsAsync (certificate, cancellationToken).ConfigureAwait (false);
+			}
+
+			var intermediateStore = GetIntermediateCertificates ();
+
+			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ())) {
+				anchorStore.Add (intermediate);
+				if (CheckCertificateRevocation)
+					await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
+			}
+
+			parameters.AddStoreCert (anchorStore);
+
+			if (CheckCertificateRevocation)
+				parameters.AddStoreCrl (GetCertificateRevocationLists ());
+
+			try {
+				var builder = new PkixCertPathBuilder ();
+				builder.Build (parameters);
+				return true;
+			} catch {
+				return false;
+			}
 		}
 
 		PkixCertPath BuildCertPath (ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
@@ -995,7 +1169,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken)
+		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken = default)
 		{
 			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
 			var now = DateTime.UtcNow;
@@ -1125,10 +1299,15 @@ namespace MimeKit.Cryptography {
 				}
 
 				var anchors = GetTrustedAnchors ();
+				var intermediates = GetIntermediateCertificates ();
 
 				if (CheckCertificateRevocation) {
 					foreach (var anchor in anchors)
 						DownloadCrls (anchor.TrustedCert, cancellationToken);
+
+					foreach (X509Certificate intermediate in intermediates.EnumerateMatches(new X509CertStoreSelector())) {
+						DownloadCrls (intermediate, cancellationToken);
+					}
 				}
 
 				try {
@@ -1179,10 +1358,15 @@ namespace MimeKit.Cryptography {
 				}
 
 				var anchors = GetTrustedAnchors ();
+				var intermediates = GetIntermediateCertificates ();
 
 				if (CheckCertificateRevocation) {
 					foreach (var anchor in anchors)
 						await DownloadCrlsAsync (anchor.TrustedCert, cancellationToken).ConfigureAwait (false);
+
+					foreach (X509Certificate intermediate in intermediates.EnumerateMatches (new X509CertStoreSelector ())) {
+						await DownloadCrlsAsync (intermediate, cancellationToken);
+					}
 				}
 
 				try {

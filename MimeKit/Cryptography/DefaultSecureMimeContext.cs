@@ -432,20 +432,19 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IStore<X509Certificate> GetIntermediateCertificates ()
 		{
-			//var intermediates = new X509CertificateStore ();
-			//var selector = new X509CertStoreSelector ();
-			//var keyUsage = new bool[9];
+			var intermediates = new X509CertificateStore ();
+			var selector = new X509CertStoreSelector ();
+			var keyUsage = new bool[9];
 
-			//keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
-			//selector.KeyUsage = keyUsage;
+			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
+			selector.KeyUsage = keyUsage;
 
-			//foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
-			//	if (!record.Certificate.IsSelfSigned ())
-			//		intermediates.Add (record.Certificate);
-			//}
+			foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
+				if (!record.Certificate.IsSelfSigned ())
+					intermediates.Add (record.Certificate);
+			}
 
-			//return intermediates;
-			return dbase;
+			return intermediates;
 		}
 
 		/// <summary>
