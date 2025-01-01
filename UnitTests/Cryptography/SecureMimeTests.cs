@@ -80,7 +80,8 @@ namespace UnitTests.Cryptography {
 		public const string ThunderbirdName = "fejj@gnome.org";
 
 		public static readonly string[] RelativeConfigFilePaths = {
-			"certificate-authority.cfg", "intermediate1.cfg", "intermediate2.cfg", "dnsnames/smime.cfg", "dsa/smime.cfg", "ec/smime.cfg", "nochain/smime.cfg", "revoked/smime.cfg", "revokednochain/smime.cfg", "rsa/smime.cfg"
+			"certificate-authority.cfg", "intermediate1.cfg", "intermediate2.cfg", "dnsnames/smime.cfg", "dsa/smime.cfg",
+			"ec/smime.cfg", "nochain/smime.cfg", "revoked/smime.cfg", "revokednochain/smime.cfg", "rsa/smime.cfg"
 		};
 
 		public static readonly string[] StartComCertificates = {
@@ -2993,7 +2994,6 @@ namespace UnitTests.Cryptography {
 				AssertCrlsRequested (mockHttpMessageHandler);
 			else 
 				AssertCrlsNotRequested (mockHttpMessageHandler);
-			
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -3056,11 +3056,10 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		protected void VerifyCrlsResolvedWithBuildCertificateChain (BouncyCastleSecureMimeContext ctx,
-			Mock<HttpMessageHandler> mockHttpMessageHandler)
+		protected void VerifyCrlsResolvedWithBuildCertificateChain (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			var certificate = SupportedCertificates.Single(c => c.EmailAddress == "nochain@mimekit.net");
+			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
 
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
 			var multipart = MultipartSigned.Create (ctx, signer, body);
@@ -3081,8 +3080,7 @@ namespace UnitTests.Cryptography {
 			AssertValidSignatures (ctx, signatures);
 		}
 
-		protected void VerifyCrlsResolved (BouncyCastleSecureMimeContext ctx,
-			Mock<HttpMessageHandler> mockHttpMessageHandler)
+		protected void VerifyCrlsResolved (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
@@ -3136,8 +3134,6 @@ namespace UnitTests.Cryptography {
 			Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
 			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-
-
 			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
 
 			var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
@@ -3275,10 +3271,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMissingRootCrl ()
 		{
-			var responses = new HttpResponseMessage[]
-			{
-			new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(CurrentCrls[1].GetEncoded()) },
-			new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(CurrentCrls[2].GetEncoded()) }
+			var responses = new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) { Content = new ByteArrayContent (CurrentCrls[1].GetEncoded ()) },
+				new HttpResponseMessage (HttpStatusCode.OK) { Content = new ByteArrayContent (CurrentCrls[2].GetEncoded ()) }
 			};
 			var crlUrlIndexes = new[] { 1, 2 };
 			var errorContent = RootCertificate.SubjectDN.ToString ();
@@ -3289,10 +3284,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMissingPrimaryIntermediateCrl ()
 		{
-			var responses = new HttpResponseMessage[]
-			{
-			new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(CurrentCrls[0].GetEncoded()) },
-			new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(CurrentCrls[2].GetEncoded()) }
+			var responses = new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) { Content = new ByteArrayContent (CurrentCrls[0].GetEncoded ()) },
+				new HttpResponseMessage (HttpStatusCode.OK) { Content = new ByteArrayContent (CurrentCrls[2].GetEncoded ()) }
 			};
 			var crlUrlIndexes = new[] { 0, 2 };
 			var errorContent = IntermediateCertificate1.SubjectDN.ToString ();
@@ -3303,10 +3297,9 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMissingSecondaryIntermediateCrl ()
 		{
-			var responses = new HttpResponseMessage[]
-			{
-			new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(CurrentCrls[0].GetEncoded()) },
-			new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(CurrentCrls[1].GetEncoded()) }
+			var responses = new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) { Content = new ByteArrayContent (CurrentCrls[0].GetEncoded ()) },
+				new HttpResponseMessage (HttpStatusCode.OK) { Content = new ByteArrayContent (CurrentCrls[1].GetEncoded ()) }
 			};
 			var crlUrlIndexes = new[] { 0, 1 };
 			var errorContent = IntermediateCertificate2.SubjectDN.ToString ();
@@ -3365,7 +3358,7 @@ namespace UnitTests.Cryptography {
 			{
 				CheckCertificateRevocation = false;
 
-				MockHttpMessageHandler = mockHttpMessageHandler??  CreateMockHttpMessageHandler (RevokedCertificateResponses ());
+				MockHttpMessageHandler = mockHttpMessageHandler ?? CreateMockHttpMessageHandler (RevokedCertificateResponses ());
 				client = new HttpClient (MockHttpMessageHandler.Object);
 			}
 

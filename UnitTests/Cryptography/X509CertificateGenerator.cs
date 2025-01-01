@@ -309,6 +309,7 @@ namespace UnitTests.Cryptography {
 			{
 				IssuerPassword = string.Empty;
 				Password = string.Empty;
+				IncludeChain = true;
 			}
 
 			public string BasicConstraints { get; set; }
@@ -327,7 +328,7 @@ namespace UnitTests.Cryptography {
 
 			public string SignatureAlgorithm { get; set; }
 
-			public bool IncludeChain { get; set; } = true;
+			public bool IncludeChain { get; set; }
 		}
 
 		public static X509Certificate[] Generate (GeneratorOptions options, PrivateKeyOptions privateKeyOptions, CertificateOptions certificateOptions, out AsymmetricKeyParameter privateKey)
@@ -529,7 +530,7 @@ namespace UnitTests.Cryptography {
 
 			
 			for (int i = 0; i < chain.Length; i++) {
-				if(options.IncludeChain)
+				if (options.IncludeChain)
 					chainEntries[i + 1] = new X509CertificateEntry (chain[i]);
 				certificates[i + 1] = chain[i];
 			}
@@ -675,7 +676,6 @@ namespace UnitTests.Cryptography {
 						case "includechain":
 							options.IncludeChain = bool.Parse (value);
 							break;
-
 						default:
 							throw new FormatException ($"Unknown [Generator] property: {property}");
 						}

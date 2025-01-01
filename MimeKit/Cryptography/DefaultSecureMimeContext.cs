@@ -409,11 +409,13 @@ namespace MimeKit.Cryptography {
 		protected override ISet<TrustAnchor> GetTrustedAnchors ()
 		{
 			var anchors = new HashSet<TrustAnchor> ();
-			var selector = new X509CertStoreSelector ();
 			var keyUsage = new bool[9];
 
 			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
-			selector.KeyUsage = keyUsage;
+
+			var selector = new X509CertStoreSelector {
+				KeyUsage = keyUsage
+			};
 
 			foreach (var record in dbase.Find (selector, true, X509CertificateRecordFields.Certificate))
 				anchors.Add (new TrustAnchor (record.Certificate, null));
@@ -433,11 +435,13 @@ namespace MimeKit.Cryptography {
 		protected override IStore<X509Certificate> GetIntermediateCertificates ()
 		{
 			var intermediates = new X509CertificateStore ();
-			var selector = new X509CertStoreSelector ();
 			var keyUsage = new bool[9];
 
 			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
-			selector.KeyUsage = keyUsage;
+
+			var selector = new X509CertStoreSelector {
+				KeyUsage = keyUsage
+			};
 
 			foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
 				if (!record.Certificate.IsSelfSigned ())

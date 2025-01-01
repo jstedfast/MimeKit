@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,8 +57,6 @@ using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
 using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
 
 using MimeKit.IO;
-using System.Linq;
-using Org.BouncyCastle.Tls;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -68,6 +67,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public abstract class BouncyCastleSecureMimeContext : SecureMimeContext
 	{
+		static readonly X509CertStoreSelector MatchAllCertificates = new X509CertStoreSelector ();
 		static readonly string RsassaPssOid = PkcsObjectIdentifiers.IdRsassaPss.Id;
 		static readonly HttpClient SharedHttpClient = new HttpClient ();
 
@@ -171,9 +171,9 @@ namespace MimeKit.Cryptography {
 		/// generally issued by a certificate authority (CA).</para>
 		/// <para>This method is used to build a certificate chain while verifying
 		/// signed content.</para>
-		/// <para>It is critical to always load the designated trust anchors
-		/// and not the anchor in the end certificate when building a certificate chain
-		/// to validated trust.</para>
+		/// <para>It is critical to always load the designated trust anchors,
+		/// and not the anchor in the end certificate, when building a certificate chain
+		/// when validating trust.</para>
 		/// </remarks>
 		/// <returns>The trusted anchors.</returns>
 		protected abstract ISet<TrustAnchor> GetTrustedAnchors ();
@@ -348,7 +348,7 @@ namespace MimeKit.Cryptography {
 		async Task<Stream> SignAsync (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
 		{
 			if (CheckCertificateRevocation)
-				await ValidateCertificateChainAsync (signer.CertificateChain, DateTime.UtcNow, cancellationToken);
+				await ValidateCertificateChainAsync (signer.CertificateChain, DateTime.UtcNow, cancellationToken).ConfigureAwait (false);
 
 			var signedData = CreateSignedDataGenerator (signer);
 			var memory = new MemoryBlockStream ();
@@ -713,9 +713,8 @@ namespace MimeKit.Cryptography {
 			var issuerStore = GetTrustedAnchors ();
 			var anchorStore = new X509CertificateStore ();
 			
-			foreach (var anchor in issuerStore) {
+			foreach (var anchor in issuerStore)
 				anchorStore.Add (anchor.TrustedCert);
-			}
 
 			var parameters = new PkixBuilderParameters (issuerStore, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
@@ -726,7 +725,7 @@ namespace MimeKit.Cryptography {
 			
 			var intermediateStore = GetIntermediateCertificates ();
 
-			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ()))
+			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates))
 				anchorStore.Add (intermediate);
 
 			parameters.AddStoreCert (anchorStore);
@@ -761,7 +760,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="ArgumentException">
 		/// <paramref name="chain"/> is empty or contains a <see langword="null"/> certificate.
 		/// </exception>
-		public bool ValidateCertificateChain (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
+		bool ValidateCertificateChain (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
 		{
 			if (chain == null)
 				throw new ArgumentNullException (nameof (chain));
@@ -780,9 +779,8 @@ namespace MimeKit.Cryptography {
 			var issuerStore = GetTrustedAnchors ();
 			var anchorStore = new X509CertificateStore ();
 
-			foreach (var anchor in issuerStore) {
+			foreach (var anchor in issuerStore)
 				anchorStore.Add (anchor.TrustedCert);
-			}
 
 			var parameters = new PkixBuilderParameters (issuerStore, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
@@ -798,7 +796,7 @@ namespace MimeKit.Cryptography {
 
 			var intermediateStore = GetIntermediateCertificates ();
 
-			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ())) {
+			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates)) {
 				anchorStore.Add (intermediate);
 				if (CheckCertificateRevocation)
 					DownloadCrls (intermediate, cancellationToken);
@@ -837,7 +835,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="ArgumentException">
 		/// <paramref name="chain"/> is empty or contains a <see langword="null"/> certificate.
 		/// </exception>
-		public async Task<bool> ValidateCertificateChainAsync (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
+		async Task<bool> ValidateCertificateChainAsync (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
 		{
 			if (chain == null)
 				throw new ArgumentNullException (nameof (chain));
@@ -856,9 +854,8 @@ namespace MimeKit.Cryptography {
 			var issuerStore = GetTrustedAnchors ();
 			var anchorStore = new X509CertificateStore ();
 
-			foreach (var anchor in issuerStore) {
+			foreach (var anchor in issuerStore)
 				anchorStore.Add (anchor.TrustedCert);
-			}
 
 			var parameters = new PkixBuilderParameters (issuerStore, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
@@ -874,7 +871,7 @@ namespace MimeKit.Cryptography {
 
 			var intermediateStore = GetIntermediateCertificates ();
 
-			foreach (var intermediate in intermediateStore.EnumerateMatches (new X509CertStoreSelector ())) {
+			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates)) {
 				anchorStore.Add (intermediate);
 				if (CheckCertificateRevocation)
 					await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
@@ -1169,7 +1166,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken = default)
+		void DownloadCrls (X509Certificate certificate, CancellationToken cancellationToken)
 		{
 			var nextUpdate = GetNextCertificateRevocationListUpdate (certificate.IssuerDN);
 			var now = DateTime.UtcNow;
@@ -1305,9 +1302,8 @@ namespace MimeKit.Cryptography {
 					foreach (var anchor in anchors)
 						DownloadCrls (anchor.TrustedCert, cancellationToken);
 
-					foreach (X509Certificate intermediate in intermediates.EnumerateMatches(new X509CertStoreSelector())) {
+					foreach (var intermediate in intermediates.EnumerateMatches (MatchAllCertificates))
 						DownloadCrls (intermediate, cancellationToken);
-					}
 				}
 
 				try {
@@ -1364,9 +1360,8 @@ namespace MimeKit.Cryptography {
 					foreach (var anchor in anchors)
 						await DownloadCrlsAsync (anchor.TrustedCert, cancellationToken).ConfigureAwait (false);
 
-					foreach (X509Certificate intermediate in intermediates.EnumerateMatches (new X509CertStoreSelector ())) {
-						await DownloadCrlsAsync (intermediate, cancellationToken);
-					}
+					foreach (var intermediate in intermediates.EnumerateMatches (MatchAllCertificates))
+						await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
 				}
 
 				try {
