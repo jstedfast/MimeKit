@@ -1212,20 +1212,12 @@ namespace MimeKit {
 
 		static unsafe bool IsMboxMarker (byte* text, bool allowMunged = false)
 		{
-#if COMPARE_QWORD
-			const ulong FromMask = 0x000000FFFFFFFFFF;
-			const ulong From     = 0x000000206D6F7246;
-			ulong* qword = (ulong*) text;
-
-			return (*qword & FromMask) == From;
-#else
 			byte* inptr = text;
 
 			if (allowMunged && *inptr == (byte) '>')
 				inptr++;
 
 			return *inptr++ == (byte) 'F' && *inptr++ == (byte) 'r' && *inptr++ == (byte) 'o' && *inptr++ == (byte) 'm' && *inptr == (byte) ' ';
-#endif
 		}
 
 		static unsafe bool IsMboxMarker (byte[] text, bool allowMunged = false)
@@ -1486,56 +1478,10 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
-#if false
-			if (midline) {
-				while (*inptr != (byte) '\n')
-					inptr++;
-
-				if (inptr < inend) {
-					// Consume the newline and update our parse state.
-					inptr++;
-
-					index = (int) (inptr - inbuf);
-					IncrementLineNumber (index);
-
-					midline = false;
-				} else {
-					// We've reached the end of the input buffer.
-				}
-			}
-#endif
-
 			while (inptr < inend && (midline || IsBlank (*inptr))) {
 				// TODO: unroll this loop?
-#if FUNROLL_LOOPS
-				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-				int alignment = (index + 3) & ~3;
-				byte* aligned = inbuf + alignment;
-				byte c = *aligned;
-
-				*aligned = (byte) '\n';
 				while (*inptr != (byte) '\n')
 					inptr++;
-				*aligned = c;
-
-				if (inptr == aligned && c != (byte) '\n') {
-					// -funroll-loops, yippee ki-yay.
-					uint* dword = (uint*) inptr;
-					uint mask;
-
-					do {
-						mask = *dword++ ^ 0x0A0A0A0A;
-						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-					} while (mask == 0);
-
-					inptr = (byte*) (dword - 1);
-					while (*inptr != (byte) '\n')
-						inptr++;
-				}
-#else
-				while (*inptr != (byte) '\n')
-					inptr++;
-#endif
 
 				if (inptr == inend) {
 					// We've reached the end of the input buffer, and we are currently in the middle of a line.
