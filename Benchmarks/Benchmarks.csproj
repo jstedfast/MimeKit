@@ -5,6 +5,7 @@
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>12</LangVersion>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
