@@ -330,15 +330,11 @@ namespace MimeKit.Cryptography {
 
 		Stream Sign (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
 		{
-			if (CheckCertificateRevocation)
-				ValidateCertificateChain (signer.CertificateChain, DateTime.UtcNow, cancellationToken);
-
 			var signedData = CreateSignedDataGenerator (signer);
 			var memory = new MemoryBlockStream ();
 
-			using (var stream = signedData.Open (memory, encapsulate)) {
+			using (var stream = signedData.Open (memory, encapsulate))
 				content.CopyTo (stream, 4096);
-			}
 
 			memory.Position = 0;
 
@@ -347,15 +343,11 @@ namespace MimeKit.Cryptography {
 
 		async Task<Stream> SignAsync (CmsSigner signer, Stream content, bool encapsulate, CancellationToken cancellationToken)
 		{
-			if (CheckCertificateRevocation)
-				await ValidateCertificateChainAsync (signer.CertificateChain, DateTime.UtcNow, cancellationToken).ConfigureAwait (false);
-
 			var signedData = CreateSignedDataGenerator (signer);
 			var memory = new MemoryBlockStream ();
 
-			using (var stream = signedData.Open (memory, encapsulate)) {
+			using (var stream = signedData.Open (memory, encapsulate))
 				await content.CopyToAsync (stream, 4096, cancellationToken).ConfigureAwait (false);
-			}
 
 			memory.Position = 0;
 
@@ -739,156 +731,6 @@ namespace MimeKit.Cryptography {
 				chain[i] = result.CertPath.Certificates[i];
 
 			return chain;
-		}
-
-		/// <summary>
-		/// Validate an S/MIME certificate chain.
-		/// </summary>
-		/// <remarks>
-		/// <para>Validates an S/MIME certificate chain.</para>
-		/// <para>Downloads the CRLs for each certificate in the chain and then validates that the chain
-		/// is both valid and that none of the certificates in the chain have been revoked or compromised
-		/// in any way.</para>
-		/// </remarks>
-		/// <returns><c>true</c> if the certificate chain is valid; otherwise, <c>false</c>.</returns>
-		/// <param name="chain">The S/MIME certificate chain.</param>
-		/// <param name="dateTime">The date and time to use for validation.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="ArgumentNullException">
-		/// <paramref name="chain"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="ArgumentException">
-		/// <paramref name="chain"/> is empty or contains a <see langword="null"/> certificate.
-		/// </exception>
-		bool ValidateCertificateChain (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
-		{
-			if (chain == null)
-				throw new ArgumentNullException (nameof (chain));
-
-			if (chain.Count == 0)
-				throw new ArgumentException ("The certificate chain must contain at least one certificate.", nameof (chain));
-
-			if (chain.Any (certificate => certificate == null))
-				throw new ArgumentException ("The certificate chain contains at least one null certificate.", nameof (chain));
-
-			var selector = new X509CertStoreSelector ();
-
-			var userCertificateStore = new X509CertificateStore ();
-			userCertificateStore.AddRange (chain);
-
-			var issuerStore = GetTrustedAnchors ();
-			var anchorStore = new X509CertificateStore ();
-
-			foreach (var anchor in issuerStore)
-				anchorStore.Add (anchor.TrustedCert);
-
-			var parameters = new PkixBuilderParameters (issuerStore, selector) {
-				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = false,
-				Date = DateTime.UtcNow
-			};
-			parameters.AddStoreCert (userCertificateStore);
-
-			if (CheckCertificateRevocation) {
-				foreach (var certificate in chain)
-					DownloadCrls (certificate, cancellationToken);
-			}
-
-			var intermediateStore = GetIntermediateCertificates ();
-
-			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates)) {
-				anchorStore.Add (intermediate);
-				if (CheckCertificateRevocation)
-					DownloadCrls (intermediate, cancellationToken);
-			}
-
-			parameters.AddStoreCert (anchorStore);
-
-			if (CheckCertificateRevocation)
-				parameters.AddStoreCrl (GetCertificateRevocationLists ());
-
-			try {
-				var builder = new PkixCertPathBuilder ();
-				builder.Build (parameters);
-				return true;
-			} catch {
-				return false;
-			}
-		}
-
-		/// <summary>
-		/// Validate an S/MIME certificate chain.
-		/// </summary>
-		/// <remarks>
-		/// <para>Asynchronously validates an S/MIME certificate chain.</para>
-		/// <para>Downloads the CRLs for each certificate in the chain and then validates that the chain
-		/// is both valid and that none of the certificates in the chain have been revoked or compromised
-		/// in any way.</para>
-		/// </remarks>
-		/// <returns><c>true</c> if the certificate chain is valid; otherwise, <c>false</c>.</returns>
-		/// <param name="chain">The S/MIME certificate chain.</param>
-		/// <param name="dateTime">The date and time to use for validation.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="ArgumentNullException">
-		/// <paramref name="chain"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="ArgumentException">
-		/// <paramref name="chain"/> is empty or contains a <see langword="null"/> certificate.
-		/// </exception>
-		async Task<bool> ValidateCertificateChainAsync (X509CertificateChain chain, DateTime dateTime, CancellationToken cancellationToken = default)
-		{
-			if (chain == null)
-				throw new ArgumentNullException (nameof (chain));
-
-			if (chain.Count == 0)
-				throw new ArgumentException ("The certificate chain must contain at least one certificate.", nameof (chain));
-
-			if (chain.Any (certificate => certificate == null))
-				throw new ArgumentException ("The certificate chain contains at least one null certificate.", nameof (chain));
-
-			var selector = new X509CertStoreSelector ();
-
-			var userCertificateStore = new X509CertificateStore ();
-			userCertificateStore.AddRange (chain);
-
-			var issuerStore = GetTrustedAnchors ();
-			var anchorStore = new X509CertificateStore ();
-
-			foreach (var anchor in issuerStore)
-				anchorStore.Add (anchor.TrustedCert);
-
-			var parameters = new PkixBuilderParameters (issuerStore, selector) {
-				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = false,
-				Date = DateTime.UtcNow
-			};
-			parameters.AddStoreCert (userCertificateStore);
-
-			if (CheckCertificateRevocation) {
-				foreach (var certificate in chain)
-					await DownloadCrlsAsync (certificate, cancellationToken).ConfigureAwait (false);
-			}
-
-			var intermediateStore = GetIntermediateCertificates ();
-
-			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates)) {
-				anchorStore.Add (intermediate);
-				if (CheckCertificateRevocation)
-					await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
-			}
-
-			parameters.AddStoreCert (anchorStore);
-
-			if (CheckCertificateRevocation)
-				parameters.AddStoreCrl (GetCertificateRevocationLists ());
-
-			try {
-				var builder = new PkixCertPathBuilder ();
-				builder.Build (parameters);
-				return true;
-			} catch {
-				return false;
-			}
 		}
 
 		PkixCertPath BuildCertPath (ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
@@ -1646,39 +1488,108 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		void AddRecipient (CmsEnvelopedDataGenerator cms, CmsRecipient recipient)
 		{
-			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
-			var unique = new HashSet<X509Certificate> ();
-			int count = 0;
+			var certificate = recipient.Certificate;
+			var pub = certificate.GetPublicKey ();
 
-			foreach (var recipient in recipients) {
-				if (unique.Add (recipient.Certificate)) {
-					var certificate = recipient.Certificate;
-					var pub = certificate.GetPublicKey ();
+			if (pub is RsaKeyParameters) {
+				// Bouncy Castle dispatches OAEP based on the certificate type. However, MimeKit users
+				// expect to be able to specify the use of OAEP in S/MIME with certificates that have
+				// PKCS#1v1.5 OIDs as these tend to be more broadly compatible across the ecosystem.
+				// Thus, build our own RecipientInfoGenerator and register that for this key.
+				cms.AddRecipientInfoGenerator (new RsaOaepAwareRecipientInfoGenerator (recipient));
+			} else if (pub is ECKeyParameters ellipticCurve) {
+				CmsEnvelopeAddEllipticCurve (cms, recipient, certificate, ellipticCurve);
+			} else {
+				var oid = certificate.SubjectPublicKeyInfo.Algorithm.Algorithm.ToString ();
 
-					if (pub is RsaKeyParameters) {
-						// Bouncy Castle dispatches OAEP based on the certificate type. However, MimeKit users
-						// expect to be able to specify the use of OAEP in S/MIME with certificates that have
-						// PKCS#1v1.5 OIDs as these tend to be more broadly compatible across the ecosystem.
-						// Thus, build our own RecipientInfoGenerator and register that for this key.
-						cms.AddRecipientInfoGenerator (new RsaOaepAwareRecipientInfoGenerator (recipient));
-					} else if (pub is ECKeyParameters ellipticCurve) {
-						CmsEnvelopeAddEllipticCurve (cms, recipient, certificate, ellipticCurve);
-					} else {
-						var oid = certificate.SubjectPublicKeyInfo.Algorithm.Algorithm.ToString ();
+				throw new NotSupportedException ($"Unsupported type of recipient certificate: {pub.GetType ().Name} (SubjectPublicKeyInfo OID = {oid})");
+			}
+		}
 
-						throw new NotSupportedException ($"Unsupported type of recipient certificate: {pub.GetType ().Name} (SubjectPublicKeyInfo OID = {oid})");
-					}
+		void ValidateRecipientCertificate (X509Certificate certificate, CancellationToken cancellationToken = default)
+		{
+			DownloadCrls (certificate, cancellationToken);
 
-					count++;
-				}
+			var selector = new X509CertStoreSelector () {
+				Certificate = certificate
+			};
+
+			var userCertificateStore = new X509CertificateStore ();
+			userCertificateStore.Add (certificate);
+
+			var trustedAnchors = GetTrustedAnchors ();
+			var anchorStore = new X509CertificateStore ();
+
+			foreach (var anchor in trustedAnchors) {
+				DownloadCrls (anchor.TrustedCert, cancellationToken);
+				anchorStore.Add (anchor.TrustedCert);
 			}
 
-			if (count == 0)
-				throw new ArgumentException ("No recipients specified.", nameof (recipients));
+			var intermediateStore = GetIntermediateCertificates ();
 
-			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates))
+				DownloadCrls (intermediate, cancellationToken);
+
+			var parameters = new PkixBuilderParameters (trustedAnchors, selector) {
+				ValidityModel = PkixParameters.PkixValidityModel,
+				IsRevocationEnabled = true,
+				Date = DateTime.UtcNow
+			};
+
+			parameters.AddStoreCert (userCertificateStore);
+			parameters.AddStoreCert (intermediateStore);
+			parameters.AddStoreCert (anchorStore);
+
+			parameters.AddStoreCrl (GetCertificateRevocationLists ());
+
+			var builder = new PkixCertPathBuilder ();
+			builder.Build (parameters);
+		}
+
+		async Task ValidateRecipientCertificateAsync (X509Certificate certificate, CancellationToken cancellationToken = default)
+		{
+			await DownloadCrlsAsync (certificate, cancellationToken).ConfigureAwait (false);
+
+			var selector = new X509CertStoreSelector () {
+				Certificate = certificate
+			};
+
+			var userCertificateStore = new X509CertificateStore ();
+			userCertificateStore.Add (certificate);
+
+			var trustedAnchors = GetTrustedAnchors ();
+			var anchorStore = new X509CertificateStore ();
+
+			foreach (var anchor in trustedAnchors) {
+				await DownloadCrlsAsync (anchor.TrustedCert, cancellationToken).ConfigureAwait (false);
+				anchorStore.Add (anchor.TrustedCert);
+			}
+
+			var intermediateStore = GetIntermediateCertificates ();
+
+			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates))
+				await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
+
+			var parameters = new PkixBuilderParameters (trustedAnchors, selector) {
+				ValidityModel = PkixParameters.PkixValidityModel,
+				IsRevocationEnabled = true,
+				Date = DateTime.UtcNow
+			};
+
+			parameters.AddStoreCert (userCertificateStore);
+			parameters.AddStoreCert (intermediateStore);
+			parameters.AddStoreCert (anchorStore);
+
+			parameters.AddStoreCrl (GetCertificateRevocationLists ());
+
+			var builder = new PkixCertPathBuilder ();
+			builder.Build (parameters);
+		}
+
+		Stream Envelope (CmsEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
+		{
 			var input = new CmsProcessableInputStream (content);
 			CmsEnvelopedData envelopedData;
 
@@ -1738,6 +1649,57 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.GetEncoded (), false);
 		}
 
+		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
+			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+			var unique = new HashSet<X509Certificate> ();
+
+			foreach (var recipient in recipients) {
+				if (unique.Add (recipient.Certificate)) {
+					if (CheckCertificateRevocation)
+						ValidateRecipientCertificate (recipient.Certificate, cancellationToken);
+
+					AddRecipient (cms, recipient);
+				}
+			}
+
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			return Envelope (cms, algorithm, content, cancellationToken);
+		}
+
+		async Task<Stream> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
+			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+			var unique = new HashSet<X509Certificate> ();
+
+			foreach (var recipient in recipients) {
+				if (unique.Add (recipient.Certificate)) {
+					if (CheckCertificateRevocation)
+						await ValidateRecipientCertificateAsync (recipient.Certificate, cancellationToken).ConfigureAwait (false);
+
+					AddRecipient (cms, recipient);
+				}
+			}
+
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+
+			// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
+			//
+			// If the content isn't already a memory stream of some sort, we clone it into a memory stream
+			// in order to provide asynchronous reading from the source content stream.
+			if (content is MemoryBlockStream or MemoryStream)
+				return Envelope (cms, algorithm, content, cancellationToken);
+
+			using (var memory = new MemoryBlockStream ()) {
+				await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
+
+				memory.Position = 0;
+
+				return Envelope (cms, algorithm, memory, cancellationToken);
+			}
+		}
+
 		/// <summary>
 		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
@@ -1754,6 +1716,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="recipients"/> is empty.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1764,6 +1729,9 @@ namespace MimeKit.Cryptography {
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
+
+			if (recipients.Count == 0)
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1789,6 +1757,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="recipients"/> is empty.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1800,18 +1771,13 @@ namespace MimeKit.Cryptography {
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
 
+			if (recipients.Count == 0)
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
+
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			Stream envelopedData;
-
-			using (var memory = new MemoryBlockStream ()) {
-				await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
-
-				memory.Position = 0;
-
-				envelopedData = Envelope (recipients, memory, cancellationToken);
-			}
+			var envelopedData = await EnvelopeAsync (recipients, content, cancellationToken).ConfigureAwait (false);
 
 			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
 		}

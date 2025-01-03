@@ -25,7 +25,6 @@
 //
 
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
 
@@ -369,11 +368,11 @@ namespace UnitTests.Cryptography {
 				Assert.DoesNotThrow (() => ctx.Import (mimekitCertificate.FileName, "no.secret"));
 			}
 
-			// if (windows is null) {
-			// 	// Import the obsolete CRLs (we want the S/MIME context to download the current CRLs)
-			// 	foreach (var crl in ObsoleteCrls)
-			// 		ctx.Import (crl);
-			// }
+			if (windows is null) {
+				// Import the obsolete CRLs (we want the S/MIME context to download the current CRLs)
+				foreach (var crl in ObsoleteCrls)
+					ctx.Import (crl);
+			}
 		}
 
 		protected SecureMimeTestsBase ()
@@ -447,9 +446,12 @@ namespace UnitTests.Cryptography {
 			using (var ctx = CreateContext ()) {
 				var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret");
 				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
+				var emptyRecipients = new CmsRecipientCollection ();
 				var recipients = new CmsRecipientCollection ();
 				DigitalSignatureCollection signatures;
 				MimeEntity entity;
+
+				recipients.Add (new CmsRecipient (RsaCertificate.Certificate));
 
 				Assert.That (ctx.Supports ("text/plain"), Is.False, "Should not support text/plain");
 				Assert.That (ctx.Supports ("application/octet-stream"), Is.False, "Should not support application/octet-stream");
@@ -487,11 +489,13 @@ namespace UnitTests.Cryptography {
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncapsulatedSignAsync (mailbox, DigestAlgorithm.Sha256, null));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((CmsRecipientCollection) null, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (recipients, null));
+				Assert.Throws<ArgumentException> (() => ctx.Encrypt (emptyRecipients, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt ((IEnumerable<MailboxAddress>) null, stream));
 				Assert.Throws<ArgumentNullException> (() => ctx.Encrypt (Array.Empty<MailboxAddress> (), null));
 				Assert.Throws<ArgumentException> (() => ctx.Encrypt (Array.Empty<MailboxAddress> (), stream));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync ((CmsRecipientCollection) null, stream));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync (recipients, null));
+				Assert.ThrowsAsync<ArgumentException> (() => ctx.EncryptAsync (emptyRecipients, stream));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync ((IEnumerable<MailboxAddress>) null, stream));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.EncryptAsync (Array.Empty<MailboxAddress> (), null));
 				Assert.ThrowsAsync<ArgumentException> (() => ctx.EncryptAsync (Array.Empty<MailboxAddress> (), stream));
@@ -2872,7 +2876,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void AssertCrlsRequested (Mock<HttpMessageHandler> mockHttpMessageHandler)
+		public static void AssertCrlsRequested (Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
 			try {
 				for (int i = 0; i < CrlRequestUris.Length; i++) {
@@ -2889,7 +2893,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		void AssertCrlsNotRequested (Mock<HttpMessageHandler> mockHttpMessageHandler)
+		public static void AssertCrlsNotRequested (Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
 			try {
 				for (int i = 0; i < CrlRequestUris.Length; i++) {
@@ -2906,19 +2910,11 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		protected void VerifyRevokedCertificate (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate certificate, bool validateCreate)
+		protected void VerifyRevokedCertificate (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate certificate)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			ctx.CheckCertificateRevocation = validateCreate;
 			var multipart = MultipartSigned.Create (ctx, signer, body);
-			ctx.CheckCertificateRevocation = true;
-
-			if (validateCreate)
-				AssertCrlsRequested (mockHttpMessageHandler);
-			else
-				AssertCrlsNotRequested (mockHttpMessageHandler);
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -2981,19 +2977,11 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		protected async Task VerifyRevokedCertificateAsync (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate certificate, bool validateCreate)
+		protected async Task VerifyRevokedCertificateAsync (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate certificate)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			ctx.CheckCertificateRevocation = validateCreate;
 			var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
-			ctx.CheckCertificateRevocation = true;
-
-			if (validateCreate)
-				AssertCrlsRequested (mockHttpMessageHandler);
-			else 
-				AssertCrlsNotRequested (mockHttpMessageHandler);
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -3056,30 +3044,6 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		protected void VerifyCrlsResolvedWithBuildCertificateChain (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler)
-		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
-
-			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			var multipart = MultipartSigned.Create (ctx, signer, body);
-
-			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
-
-			var protocol = multipart.ContentType.Parameters["protocol"];
-			Assert.That (protocol, Is.EqualTo (ctx.SignatureProtocol), "The multipart/signed protocol does not match.");
-
-			Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
-			Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
-
-			var signatures = multipart.Verify (ctx);
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-
-			AssertCrlsRequested (mockHttpMessageHandler);
-
-			AssertValidSignatures (ctx, signatures);
-		}
-
 		protected void VerifyCrlsResolved (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -3104,14 +3068,14 @@ namespace UnitTests.Cryptography {
 			AssertValidSignatures (ctx, signatures);
 		}
 
-		protected void VerifyCrlMissing (BouncyCastleSecureMimeContext ctx, string errorContent)
+		protected static void VerifyCrlMissing (BouncyCastleSecureMimeContext ctx, string errorContent)
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
-			
+
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
 			using var multipart = MultipartSigned.Create (ctx, signer, body);
-			
+
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
 			var protocol = multipart.ContentType.Parameters["protocol"];
@@ -3122,49 +3086,11 @@ namespace UnitTests.Cryptography {
 
 			var signatures = multipart.Verify (ctx);
 			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-			
+
 			var ex = Assert.Throws<DigitalSignatureVerifyException> (() => signatures.Single ().Verify ());
 			Assert.That (ex.Message, Does.StartWith ("Failed to verify digital signature chain: Certification path could not be validated."));
 			Assert.That (ex.InnerException?.Message, Does.StartWith ("Certification path could not be validated."));
 			Assert.That(ex.InnerException?.InnerException?.Message, Is.EquivalentTo ($"No CRLs found for issuer \"{errorContent}\""));
-		}
-
-
-		protected void VerifyMimeEncapsulatedSigningWithContext (BouncyCastleSecureMimeContext ctx,
-			Mock<HttpMessageHandler> mockHttpMessageHandler)
-		{
-			var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
-
-			var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
-			var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
-			
-			AssertCrlsRequested (mockHttpMessageHandler);
-			
-			MimeEntity extracted;
-
-			Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
-
-			var signatures = signed.Verify (ctx, out extracted);
-
-			Assert.That (extracted, Is.InstanceOf<TextPart> (), "Extracted part is not the expected type.");
-			Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
-
-			Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-			AssertValidSignatures (ctx, signatures);
-
-			using (var signedData = signed.Content.Open ()) {
-				using (var stream = ctx.Verify (signedData, out signatures))
-					extracted = MimeEntity.Load (stream);
-
-				Assert.That (extracted, Is.InstanceOf<TextPart> (), "Extracted part is not the expected type.");
-				Assert.That (((TextPart) extracted).Text, Is.EqualTo (cleartext.Text), "Extracted content is not the same as the original.");
-
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				AssertValidSignatures (ctx, signatures);
-			}
-
-			AssertCrlsRequested (mockHttpMessageHandler);
 		}
 	}
 
@@ -3205,56 +3131,40 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestVerifyRevokedCertificate ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportTestCertificates (ctx);
-			
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, false);
-			}
-			
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportTestCertificates (ctx);
-			
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, true);
-			}
-			
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportTestCertificates (ctx);
-			
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
-			}
-
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+			using (var ctx = new MyTemporarySecureMimeContext () { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
+				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate);
 			}
 		}
 
 		[Test]
 		public async Task TestVerifyRevokedCertificateAsync ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
+			using (var ctx = new MyTemporarySecureMimeContext () { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
-			
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, false);
-			}
-			
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportTestCertificates (ctx);
-			
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, true);
-			}
 
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportTestCertificates (ctx);
-			
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
+				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate);
 			}
+		}
 
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+		[Test]
+		public void TestVerifyRevokedNoChainCertificate ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
-			
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
+
+				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate);
+			}
+		}
+
+		[Test]
+		public async Task TestVerifyRevokedNoChainCertificateAsync ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
+				ImportTestCertificates (ctx);
+
+				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate);
 			}
 		}
 
@@ -3278,7 +3188,7 @@ namespace UnitTests.Cryptography {
 			var crlUrlIndexes = new[] { 1, 2 };
 			var errorContent = RootCertificate.SubjectDN.ToString ();
 
-			VerifyCrlMissingTest (responses, crlUrlIndexes, errorContent);
+			TestVerifyCrlMissing (responses, crlUrlIndexes, errorContent);
 		}
 
 		[Test]
@@ -3291,7 +3201,7 @@ namespace UnitTests.Cryptography {
 			var crlUrlIndexes = new[] { 0, 2 };
 			var errorContent = IntermediateCertificate1.SubjectDN.ToString ();
 
-			VerifyCrlMissingTest (responses, crlUrlIndexes, errorContent);
+			TestVerifyCrlMissing (responses, crlUrlIndexes, errorContent);
 		}
 
 		[Test]
@@ -3304,10 +3214,10 @@ namespace UnitTests.Cryptography {
 			var crlUrlIndexes = new[] { 0, 1 };
 			var errorContent = IntermediateCertificate2.SubjectDN.ToString ();
 
-			VerifyCrlMissingTest (responses, crlUrlIndexes, errorContent);
+			TestVerifyCrlMissing (responses, crlUrlIndexes, errorContent);
 		}
 
-		private void VerifyCrlMissingTest (HttpResponseMessage[] responses, int[] crlUrlIndexes, string errorContent)
+		private void TestVerifyCrlMissing (HttpResponseMessage[] responses, int[] crlUrlIndexes, string errorContent)
 		{
 			var mockHttpMessageHandler = new Mock<HttpMessageHandler> (MockBehavior.Strict);
 
@@ -3328,16 +3238,6 @@ namespace UnitTests.Cryptography {
 				ImportTestCertificates (ctx);
 
 				VerifyCrlMissing (ctx, errorContent);
-			}
-		}
-
-		[Test]
-		public virtual void TestVerifyCrlsResolvedWithSecureMimeEncapsulatedSigningWithContext ()
-		{
-			using (var ctx = new MyTemporarySecureMimeContext () { CheckCertificateRevocation = true }) {
-				ImportTestCertificates (ctx);
-
-				VerifyMimeEncapsulatedSigningWithContext (ctx, ctx.MockHttpMessageHandler);
 			}
 		}
 	}
@@ -3387,70 +3287,46 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestVerifyRevokedCertificate ()
 		{
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret")) {
+			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret") { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, false);
+				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate);
 			}
 
-			File.Delete ("revoked.db");
-
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret")) {
-				ImportTestCertificates (ctx);
-
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, true);
-			}
-
-			File.Delete ("revoked.db");
-
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportTestCertificates (ctx);
-
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
-			}
-			
-			File.Delete ("revoked.db");
-
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportTestCertificates (ctx);
-
-				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
-			}
-			
 			File.Delete ("revoked.db");
 		}
 
 		[Test]
 		public async Task TestVerifyRevokedCertificateAsync ()
 		{
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret")) {
+			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret") { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, false);
+				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate);
 			}
 
 			File.Delete ("revoked-async.db");
+		}
 
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret")) {
+		[Test]
+		public void TestVerifyRevokedNoChainCertificate ()
+		{
+			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate, true);
+				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate);
 			}
 
-			File.Delete ("revoked-async.db");
+			File.Delete ("revoked.db");
+		}
 
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+		[Test]
+		public async Task TestVerifyRevokedNoChainCertificateAsync ()
+		{
+			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, false);
-			}
-
-			File.Delete ("revoked-async.db");
-
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportTestCertificates (ctx);
-
-				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate, true);
+				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate);
 			}
 
 			File.Delete ("revoked-async.db");

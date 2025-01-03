@@ -265,6 +265,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailboxes"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mailboxes"/> is empty.
+		/// </exception>
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate for one or more of the specified <paramref name="mailboxes"/> could not be found.
 		/// </exception>
@@ -1222,6 +1225,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="recipients"/> is empty.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1232,6 +1238,9 @@ namespace MimeKit.Cryptography {
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
+
+			if (recipients.Count == 0)
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1257,6 +1266,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="recipients"/> is empty.
+		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
@@ -1267,6 +1279,9 @@ namespace MimeKit.Cryptography {
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
+
+			if (recipients.Count == 0)
+				throw new ArgumentException ("No recipients specified.", nameof (recipients));
 
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
@@ -1293,7 +1308,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
+		/// <para>A certificate for one or more of the <paramref name="recipients"/> could not be found.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
@@ -1335,7 +1352,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="content"/> is <see langword="null"/>.</para>
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
-		/// A certificate for one or more of the <paramref name="recipients"/> could not be found.
+		/// <para>A certificate for one or more of the <paramref name="recipients"/> could not be found.</para>
+		/// <para>-or-</para>
+		/// <para>No recipients were specified.</para>
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
