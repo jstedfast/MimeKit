@@ -27,6 +27,7 @@
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Utilities.Collections;
 
 using MimeKit.Cryptography;
 
@@ -59,6 +60,9 @@ namespace UnitTests.Cryptography {
 				}
 
 				ctx.Import (rsa.FileName, "no.secret");
+
+				foreach (var crl in SecureMimeTestsBase.ObsoleteCrls)
+					ctx.Import (crl);
 			}
 		}
 
@@ -124,7 +128,17 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static void AssertFindBy (Org.BouncyCastle.Utilities.Collections.ISelector<X509Certificate> selector, X509Certificate expected)
+		[Test]
+		public void TestEnumerateMatches ()
+		{
+			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+				var certificates = ((IStore<X509Certificate>) dbase).EnumerateMatches (null).ToList ();
+
+				Assert.That (certificates, Has.Count.EqualTo (6), "Did not find the expected # of certificate");
+			}
+		}
+
+		static void AssertFindBy (ISelector<X509Certificate> selector, X509Certificate expected)
 		{
 			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
 				// Verify that we can select the Root Certificate
@@ -185,6 +199,32 @@ namespace UnitTests.Cryptography {
 			};
 
 			AssertFindBy (selector, chain[0]);
+		}
+
+		[Test]
+		public void TestFindPrivateKeys ()
+		{
+			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+				var privateKeys = dbase.FindPrivateKeys (null).ToList ();
+
+				Assert.That (privateKeys, Has.Count.EqualTo (1), "Did not find the expected # of private keys");
+			}
+		}
+
+		[Test]
+		public void TestFindCrl ()
+		{
+			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+				foreach (var crl in SecureMimeTestsBase.ObsoleteCrls) {
+					var record = dbase.Find (crl, X509CrlRecordFields.Id | X509CrlRecordFields.IsDelta | X509CrlRecordFields.IssuerName | X509CrlRecordFields.ThisUpdate | X509CrlRecordFields.NextUpdate | X509CrlRecordFields.Crl);
+
+					Assert.That (record, Is.Not.Null, $"Did not find the expected CRL for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.IsDelta, Is.EqualTo (crl.IsDelta ()), $"IsDelta for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.IssuerName, Is.EqualTo (crl.IssuerDN.ToString ()), $"IssuerName for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.ThisUpdate, Is.EqualTo (crl.ThisUpdate), $"ThisUpdate for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.NextUpdate, Is.EqualTo (crl.NextUpdate), $"NextUpdate for {crl.IssuerDN.ToString ()}");
+				}
+			}
 		}
 	}
 }

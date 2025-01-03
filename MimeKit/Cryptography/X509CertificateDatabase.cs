@@ -618,6 +618,9 @@ namespace MimeKit.Cryptography {
 				case CrlColumnNames.NextUpdate:
 					record.NextUpdate = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
+				case CrlColumnNames.IssuerName:
+					record.IssuerName = reader.GetString (i);
+					break;
 				case CrlColumnNames.Delta:
 					record.IsDelta = reader.GetBoolean (i);
 					break;
