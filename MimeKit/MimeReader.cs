@@ -30,6 +30,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
@@ -1162,6 +1163,25 @@ namespace MimeKit {
 			lineNumber++;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static int FastIndexOf (ReadOnlySpan<byte> span, byte value)
+		{
+#if NET8_0_OR_GREATER
+			return span.IndexOf (value);
+#else
+			unsafe {
+				fixed (byte* start = &MemoryMarshal.GetReference (span)) {
+					byte* inptr = start;
+
+					while (*inptr != (byte) '\n')
+						inptr++;
+
+					return (int) (inptr - start);
+				}
+			}
+#endif
+		}
+
 		bool StepByteOrderMark (ref int bomIndex)
 		{
 			while (inputIndex < inputEnd && bomIndex < UTF8ByteOrderMark.Length && input[inputIndex] == UTF8ByteOrderMark[bomIndex]) {
@@ -1218,7 +1238,7 @@ namespace MimeKit {
 
 			if (midline) {
 				// we're in the middle of a line, so we need to scan for the end of the line
-				index = span.Slice (index).IndexOf ((byte) '\n') + index;
+				index = FastIndexOf (span.Slice (index), (byte) '\n') + index;
 
 				if (index == inputEnd) {
 					// we don't have enough input data
@@ -1240,7 +1260,7 @@ namespace MimeKit {
 				}
 
 				// scan for the end of the line
-				index = span.Slice (index).IndexOf ((byte) '\n') + index;
+				index = FastIndexOf (span.Slice (index), (byte) '\n') + index;
 
 				if (index == inputEnd) {
 					// we don't have enough data to check for a From line
@@ -1263,7 +1283,7 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			// scan for the end of the line
-			count = input.AsSpan (inputIndex).IndexOf ((byte) '\n');
+			count = FastIndexOf (input.AsSpan (inputIndex), (byte) '\n');
 
 			int index = inputIndex + count;
 
@@ -1443,7 +1463,7 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			while (index < inputEnd && (midline || IsBlank (input[index]))) {
-				int count = input.AsSpan (index).IndexOf ((byte) '\n');
+				int count = FastIndexOf (input.AsSpan (index), (byte) '\n');
 
 				index += count;
 
@@ -1502,7 +1522,7 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			var span = input.AsSpan (inputIndex);
-			int length = span.IndexOf ((byte) '\n');
+			int length = FastIndexOf (span, (byte) '\n');
 
 			if (inputIndex + length == inputEnd)
 				return false;
@@ -1712,7 +1732,7 @@ namespace MimeKit {
 		{
 			input[inputEnd] = (byte) '\n';
 
-			int index = input.AsSpan (inputIndex).IndexOf ((byte) '\n') + inputIndex;
+			int index = FastIndexOf (input.AsSpan (inputIndex), (byte) '\n') + inputIndex;
 
 			if (index < inputEnd) {
 				inputIndex = index;
@@ -1861,7 +1881,7 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			var span = input.AsSpan (inputIndex);
-			int length = span.IndexOf ((byte) '\n');
+			int length = FastIndexOf (span, (byte) '\n');
 			var line = span.Slice (0, length);
 
 			return CheckBoundary (inputIndex, line);
@@ -1874,7 +1894,7 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			var span = input.AsSpan (inputIndex);
-			int length = span.IndexOf ((byte) '\n');
+			int length = FastIndexOf (span, (byte) '\n');
 			var line = span.Slice (0, length);
 
 			return IsBoundary (line, bounds[0].Marker, boundaryLength);
@@ -1907,6 +1927,7 @@ namespace MimeKit {
 			return contentType.IsMimeType ("text", "rfc822-headers");
 		}
 
+#if NET8_0_OR_GREATER
 		void ScanContent (ref int nleft, ref bool midline, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
@@ -1959,6 +1980,87 @@ namespace MimeKit {
 
 			inputIndex = startIndex;
 		}
+#else
+		unsafe void ScanContent (ref int nleft, ref bool midline, ref bool[] formats)
+		{
+			fixed (byte* inbuf = input) {
+				int length = inputEnd - inputIndex;
+				byte* inptr = inbuf + inputIndex;
+				byte* inend = inbuf + inputEnd;
+				int startIndex = inputIndex;
+
+				if (midline && length == nleft)
+					boundary = BoundaryType.Eos;
+
+				*inend = (byte) '\n';
+
+				while (inptr < inend) {
+					// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
+					int alignment = (startIndex + 3) & ~3;
+					byte* aligned = inbuf + alignment;
+					byte* start = inptr;
+					byte c = *aligned;
+
+					*aligned = (byte) '\n';
+					while (*inptr != (byte) '\n')
+						inptr++;
+					*aligned = c;
+
+					if (inptr == aligned && c != (byte) '\n') {
+						// -funroll-loops, yippee ki-yay.
+						uint* dword = (uint*) inptr;
+						uint mask;
+
+						do {
+							mask = *dword++ ^ 0x0A0A0A0A;
+							mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+						} while (mask == 0);
+
+						inptr = (byte*) (dword - 1);
+						while (*inptr != (byte) '\n')
+							inptr++;
+					}
+
+					length = (int) (inptr - start);
+
+					if (inptr < inend) {
+						var line = new Span<byte> (start, length);
+
+						if ((boundary = CheckBoundary (startIndex, line)) != BoundaryType.None)
+							break;
+
+						if (length > 0 && *(inptr - 1) == (byte) '\r')
+							formats[(int) NewLineFormat.Dos] = true;
+						else
+							formats[(int) NewLineFormat.Unix] = true;
+
+						// consume the '\n'
+						length++;
+						inptr++;
+
+						IncrementLineNumber ((int) (inptr - inbuf));
+					} else {
+						// didn't find the end of the line...
+						midline = true;
+
+						if (boundary == BoundaryType.None) {
+							// not enough to tell if we found a boundary
+							break;
+						}
+
+						var line = new Span<byte> (start, length);
+
+						if ((boundary = CheckBoundary (startIndex, line)) != BoundaryType.None)
+							break;
+					}
+
+					startIndex += length;
+				}
+
+				inputIndex = startIndex;
+			}
+		}
+#endif
 
 		class ScanContentResult
 		{
