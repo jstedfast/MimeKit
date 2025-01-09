@@ -1,0 +1,16 @@
+From: MimeKit UnitTests <unit-tests@mimekit.net>
+To: MimeKit UnitTests <unit-tests@mimekit.net>
+Subject: Test of text body with format=flowed; delsp=yes
+Date: Thu, 09 Jan 2025 10:26:14 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; format=flowed; delsp=yes; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+We should have access, and apparently did a few months ago, but now there i=
+s=20
+a "You do not currently have access to this content." at the bottom of the=
+=20
+record
+
+The URL in question URL:
+https://example.com/=20

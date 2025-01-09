@@ -29,6 +29,7 @@ using System.Net.Mail;
 using System.Reflection;
 
 using MimeKit;
+using MimeKit.Text;
 using MimeKit.Utils;
 using MimeKit.Cryptography;
 
@@ -1560,6 +1561,19 @@ Subject: MIME & int'l mail
 			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"));
 			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.9.txt.");
 			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.9.txt.");
+		}
+
+		[Test]
+		public void TestFlowedTextBodyIssue1130 ()
+		{
+			const string TextBody = "We should have access, and apparently did a few months ago, but now there isa \"You do not currently have access to this content.\" at the bottom of therecord\n\nThe URL in question URL:\nhttps://example.com/";
+			MimeMessage message;
+
+			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "issue1130.txt"));
+
+			var body = message.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n");
+
+			Assert.That (body, Is.EqualTo (TextBody), "The text bodies do not match for issue1130.txt.");
 		}
 
 		[Test]

@@ -171,6 +171,13 @@ namespace MimeKit.Text {
 				}
 			}
 
+			// Flush any remaining paragraph text.
+			if (para.Length > 0) {
+				if (paraQuoteDepth > 0)
+					writer.Write (new string ('>', paraQuoteDepth) + " ");
+				writer.Write (para);
+			}
+
 			if (!string.IsNullOrEmpty (Footer))
 				writer.Write (Footer);
 		}
