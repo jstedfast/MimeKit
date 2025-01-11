@@ -391,6 +391,10 @@ namespace MimeKit.Text {
 					}
 				}
 
+				// Flush any remaining paragraph text.
+				if (para.Length > 0)
+					WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
+
 				for (int i = stack.Count; i > 0; i--) {
 					var ctx = stack[i - 1];
 

@@ -228,5 +228,25 @@ namespace UnitTests.Text {
 
 			Assert.That (result, Is.EqualTo (expected));
 		}
+
+		// Tests fix for issue #1130
+		[Test]
+		public void TestFlowedTextEndingWithSpace ()
+		{
+			string expected = "<p>We should have access, and apparently did a few months ago, but now there isa &quot;You do not currently have access to this content.&quot; at the bottom of therecord</p>" + Environment.NewLine +
+				"<br/>" + Environment.NewLine +
+				"<p>The URL in question URL:</p>" + Environment.NewLine +
+				"<p><a href=\"https://example.com/\">https://example.com/</a></p>" + Environment.NewLine;
+			string text = "We should have access, and apparently did a few months ago, but now there is " + Environment.NewLine +
+				"a \"You do not currently have access to this content.\" at the bottom of the " + Environment.NewLine +
+				"record" + Environment.NewLine +
+				Environment.NewLine +
+				"The URL in question URL:" + Environment.NewLine +
+				"https://example.com/ ";
+			var converter = new FlowedToHtml { DeleteSpace = true, OutputHtmlFragment = true };
+			var result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
 	}
 }
