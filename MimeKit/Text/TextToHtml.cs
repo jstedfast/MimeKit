@@ -120,7 +120,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the converter should only output an entire
 		/// HTML document or just a fragment of the HTML body content.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
 			get; set;
 		}

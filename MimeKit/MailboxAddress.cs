@@ -285,7 +285,7 @@ namespace MimeKit {
 		/// <para>For more information, see section 3.2 of
 		/// <a href="https://tools.ietf.org/html/rfc6532#section-3.2">rfc6532</a>.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the address is an international address; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the address is an international address; otherwise, <see langword="false" />.</value>
 		public bool IsInternational {
 			get {
 				if (string.IsNullOrEmpty (address))
@@ -381,9 +381,9 @@ namespace MimeKit {
 		/// Get the mailbox address, optionally encoded according to IDN encoding rules.
 		/// </summary>
 		/// <remarks>
-		/// If <paramref name="idnEncode"/> is <c>true</c>, then the returned mailbox address will be encoded according to the IDN encoding rules.
+		/// If <paramref name="idnEncode"/> is <see langword="true" />, then the returned mailbox address will be encoded according to the IDN encoding rules.
 		/// </remarks>
-		/// <param name="idnEncode"><c>true</c> if the address should be encoded according to IDN encoding rules; otherwise, <c>false</c>.</param>
+		/// <param name="idnEncode"><see langword="true" /> if the address should be encoded according to IDN encoding rules; otherwise, <see langword="false" />.</param>
 		/// <returns>The mailbox address.</returns>
 		public string GetAddress (bool idnEncode)
 		{
@@ -480,13 +480,13 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Returns a string containing the formatted mailbox address. If the <paramref name="encode"/>
-		/// parameter is <c>true</c>, then the mailbox name will be encoded according to the rules defined
+		/// parameter is <see langword="true" />, then the mailbox name will be encoded according to the rules defined
 		/// in rfc2047, otherwise the name will not be encoded at all and will therefor only be suitable
 		/// for display purposes.
 		/// </remarks>
 		/// <returns>A string representing the <see cref="MailboxAddress"/>.</returns>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="MailboxAddress"/> will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the <see cref="MailboxAddress"/> will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="options"/> is <see langword="null"/>.
 		/// </exception>
@@ -526,8 +526,8 @@ namespace MimeKit {
 		/// Compares two mailbox addresses to determine if they are identical or not.
 		/// </remarks>
 		/// <param name="other">The <see cref="MailboxAddress"/> to compare with the current <see cref="MailboxAddress"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="MailboxAddress"/> is equal to the current
-		/// <see cref="MailboxAddress"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="MailboxAddress"/> is equal to the current
+		/// <see cref="MailboxAddress"/>; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (InternetAddress other)
 		{
 			return other is MailboxAddress mailbox
@@ -566,7 +566,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -606,7 +606,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -630,7 +630,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -668,7 +668,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
@@ -690,7 +690,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
@@ -724,7 +724,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -742,7 +742,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
@@ -779,7 +779,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
 		/// <exception cref="System.ArgumentNullException">

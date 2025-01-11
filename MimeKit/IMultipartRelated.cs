@@ -71,7 +71,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the multipart/related entity contains a part matching the specified URI.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified part exists; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified part exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="uri">The URI of the MIME part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <see langword="null"/>.

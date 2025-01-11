@@ -184,7 +184,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="format">The preferred text format.</param>
 		/// <param name="body">The MIME part containing the message body in the preferred text format.</param>
-		/// <returns><c>true</c> if the body part is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the body part is found; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>

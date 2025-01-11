@@ -88,7 +88,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the DKIM signature.
 		/// </remarks>
-		/// <returns><c>true</c> if signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="signature">The base64 encoded DKIM signature from the <c>b=</c> parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signature"/> is <see langword="null"/>.
@@ -115,7 +115,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="DkimSignatureStream"/> is not readable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</value>
 		public override bool CanRead {
 			get { return false; }
 		}
@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="DkimSignatureStream"/> is always writable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</value>
 		public override bool CanWrite {
 			get { return true; }
 		}
@@ -137,7 +137,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="DkimSignatureStream"/> is not seekable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</value>
 		public override bool CanSeek {
 			get { return false; }
 		}
@@ -148,7 +148,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Writing to a <see cref="DkimSignatureStream"/> cannot time out.
 		/// </remarks>
-		/// <value><c>true</c> if reading and writing to the stream can time out; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if reading and writing to the stream can time out; otherwise, <see langword="false" />.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}
@@ -340,8 +340,8 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="DkimSignatureStream"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !disposed) {

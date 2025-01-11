@@ -158,7 +158,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -171,7 +171,7 @@ namespace MimeKit {
 		/// </example>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -184,7 +184,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -193,7 +193,7 @@ namespace MimeKit {
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -206,7 +206,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -216,7 +216,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -231,7 +231,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -242,7 +242,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -289,8 +289,8 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
-		/// <value><c>true</c> if this parser has reached the end of the input stream;
-		/// otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this parser has reached the end of the input stream;
+		/// otherwise, <see langword="false" />.</value>
 		public bool IsEndOfStream {
 			get { return state == MimeParserState.Eos; }
 		}
@@ -339,7 +339,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -350,7 +350,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -372,7 +372,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -382,7 +382,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -399,7 +399,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -409,7 +409,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -474,7 +474,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -483,7 +483,7 @@ namespace MimeKit {
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>

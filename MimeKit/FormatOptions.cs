@@ -133,10 +133,10 @@ namespace MimeKit {
 		/// maintain byte-for-byte compatibility with the original stream that the message was parsed from.
 		/// This means that if the ogirinal message stream did not end with a new-line sequence, then the
 		/// output of writing the message back to a stream will also not end with a new-line sequence.</para>
-		/// <para>To override this behavior, you can set this property to <c>true</c> in order to ensure
+		/// <para>To override this behavior, you can set this property to <see langword="true" /> in order to ensure
 		/// that writing the message back to a stream will always end with a new-line sequence.</para>
 		/// </remarks>
-		/// <value><c>true</c> in order to ensure that the message will end with a new-line sequence; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> in order to ensure that the message will end with a new-line sequence; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.InvalidOperationException">
 		/// <see cref="Default"/> cannot be changed.
 		/// </exception>
@@ -200,7 +200,7 @@ namespace MimeKit {
 		/// or when appending messages to an IMAP folder via UTF8 APPEND
 		/// (<a href="https://tools.ietf.org/html/rfc6855">rfc6855</a>).</para>
 		/// </remarks>
-		/// <value><c>true</c> if the new internationalized formatting should be used; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the new internationalized formatting should be used; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.InvalidOperationException">
 		/// <see cref="Default"/> cannot be changed.
 		/// </exception>
@@ -229,7 +229,7 @@ namespace MimeKit {
 		/// <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=317263">
 		/// https://bugzilla.mozilla.org/show_bug.cgi?id=317263</a>.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the formatter should be allowed to use us-ascii and/or iso-8859-1 when encoding headers; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the formatter should be allowed to use us-ascii and/or iso-8859-1 when encoding headers; otherwise, <see langword="false" />.</value>
 		public bool AllowMixedHeaderCharsets {
 			get { return allowMixedHeaderCharsets; }
 			set {
@@ -284,7 +284,7 @@ namespace MimeKit {
 		/// adhere to the MIME specifications, this property can be used to force MimeKit to quote parameter values that would normally
 		/// not require quoting.</para>
 		/// </remarks>
-		/// <value><c>true</c> if Content-Type and Content-Disposition parameters should always be quoted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if Content-Type and Content-Disposition parameters should always be quoted; otherwise, <see langword="false" />.</value>
 		public bool AlwaysQuoteParameterValues {
 			get { return alwaysQuoteParameterValues; }
 			set {

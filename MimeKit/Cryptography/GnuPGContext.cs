@@ -559,7 +559,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
-		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the mailbox address can be used for signing; otherwise, <see langword="false" />.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -593,7 +593,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
-		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1231,7 +1231,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>
@@ -1276,7 +1276,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>

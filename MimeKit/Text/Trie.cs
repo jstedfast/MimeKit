@@ -71,7 +71,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.
 		/// </remarks>
-		/// <param name="ignoreCase"><c>true</c> if searching should ignore case; otherwise, <c>false</c>.</param>
+		/// <param name="ignoreCase"><see langword="true" /> if searching should ignore case; otherwise, <see langword="false" />.</param>
 		public Trie (bool ignoreCase)
 		{
 			failStates = new List<TrieState> ();

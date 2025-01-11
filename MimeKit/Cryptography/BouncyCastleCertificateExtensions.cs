@@ -74,7 +74,7 @@ namespace MimeKit.Cryptography {
 		/// A certificate is considered self-signed if the subject and issuer names are the same.
 		/// </remarks>
 		/// <param name="certificate">The certificate to check.</param>
-		/// <returns><c>true</c> if the certificate is self-signed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the certificate is self-signed; otherwise, <see langword="false" />.</returns>
 		public static bool IsSelfSigned (this X509Certificate certificate)
 		{
 			return certificate.SubjectDN.Equivalent (certificate.IssuerDN);
@@ -196,7 +196,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The subject email address.</returns>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="idnEncode">If set to <c>true</c>, international edomain names will be IDN encoded.</param>
+		/// <param name="idnEncode">If set to <see langword="true" />, international edomain names will be IDN encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
@@ -230,7 +230,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The subject DNS names.</returns>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="idnEncode">If set to <c>true</c>, international domain names will be IDN encoded.</param>
+		/// <param name="idnEncode">If set to <see langword="true" />, international domain names will be IDN encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
@@ -442,7 +442,7 @@ namespace MimeKit.Cryptography {
 		/// <note>The X.509 delta CRL indicator extension must be marked critical to be found.</note>
 		/// </remarks>
 		/// <param name="crl">The X.509 CRL to check.</param>
-		/// <returns><c>true</c> if the specified CRL is a delta CRL; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified CRL is a delta CRL; otherwise, <see langword="false" />.</returns>
 		public static bool IsDelta (this X509Crl crl)
 		{
 			var critical = crl.GetCriticalExtensionOids ();

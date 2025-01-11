@@ -88,13 +88,13 @@ namespace MimeKit.Text {
 		/// <para>Gets or sets whether the trailing space on a wrapped line should be deleted.</para>
 		/// <para>The flowed text format defines a Content-Type parameter called "delsp" which can
 		/// have a value of "yes" or "no". If the parameter exists and the value is "yes", then
-		/// <see cref="DeleteSpace"/> should be set to <c>true</c>, otherwise <see cref="DeleteSpace"/>
-		/// should be set to <c>false</c>.</para>
+		/// <see cref="DeleteSpace"/> should be set to <see langword="true" />, otherwise <see cref="DeleteSpace"/>
+		/// should be set to <see langword="false" />.</para>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the trailing space on a wrapped line should be deleted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the trailing space on a wrapped line should be deleted; otherwise, <see langword="false" />.</value>
 		public bool DeleteSpace {
 			get; set;
 		}
@@ -141,7 +141,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the converter should only output an entire
 		/// HTML document or just a fragment of the HTML body content.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
 			get; set;
 		}

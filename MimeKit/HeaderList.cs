@@ -160,8 +160,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the header list contains the specified header.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested header exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the requested header exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -180,8 +180,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the header list contains the specified header.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested header exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the requested header exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="field"/> is <see langword="null"/>.
@@ -396,8 +396,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
-		/// <returns><value>true</value> if the first occurrence of the specified
-		/// header was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the first occurrence of the specified
+		/// header was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is is not a valid <see cref="HeaderId"/>.
@@ -419,8 +419,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
-		/// <returns><value>true</value> if the first occurrence of the specified
-		/// header was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the first occurrence of the specified
+		/// header was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="field"/> is <see langword="null"/>.
@@ -825,7 +825,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="HeaderList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -877,8 +877,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the header list contains the specified header.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified header is contained;
-		/// otherwise, <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified header is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <see langword="null"/>.
@@ -917,8 +917,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified header from the list if it exists.
 		/// </remarks>
-		/// <returns><c>true</c> if the specified header was removed;
-		/// otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified header was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <see langword="null"/>.

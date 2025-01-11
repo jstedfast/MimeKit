@@ -91,7 +91,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the converter should remove HTML comments from the output.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should remove comments; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should remove comments; otherwise, <see langword="false" />.</value>
 		public bool FilterComments {
 			get; set;
 		}
@@ -102,7 +102,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether executable scripts should be stripped from the output.
 		/// </remarks>
-		/// <value><c>true</c> if executable scripts should be filtered; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if executable scripts should be filtered; otherwise, <see langword="false" />.</value>
 		public bool FilterHtml {
 			get; set;
 		}
@@ -154,7 +154,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the converter should collapse white space,
 		/// balance tags, and fix other problems in the source HTML.
 		/// </remarks>
-		/// <value><c>true</c> if the output html should be normalized; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the output html should be normalized; otherwise, <see langword="false" />.</value>
 		public bool NormalizeHtml {
 			get; set;
 		}
@@ -167,7 +167,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the converter should only output an HTML fragment.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
 			get; set;
 		}

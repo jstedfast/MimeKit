@@ -138,8 +138,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the parameter list contains a parameter with the specified name.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested parameter exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the requested parameter exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
@@ -210,8 +210,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the parameter with the specified name from the list, if it exists.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified parameter was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified parameter was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
@@ -277,7 +277,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\ParameterExamples.cs" region="OverrideFileNameParameterEncoding"/>
 		/// </example>
-		/// <returns><c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the parameter exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -297,7 +297,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the value of the parameter with the specified name.
 		/// </remarks>
-		/// <returns><c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the parameter exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -337,7 +337,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="ParameterList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -394,8 +394,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the parameter list contains the specified parameter.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified parameter is contained;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified parameter is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="param"/> is <see langword="null"/>.
@@ -428,8 +428,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified parameter from the list.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified parameter was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified parameter was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="param"/> is <see langword="null"/>.

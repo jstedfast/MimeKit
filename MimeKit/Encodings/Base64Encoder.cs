@@ -52,7 +52,7 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new base64 encoder.
 		/// </remarks>
-		/// <param name="rfc2047"><c>true</c> if this encoder will be used to encode rfc2047 encoded-word payloads; <c>false</c> otherwise.</param>
+		/// <param name="rfc2047"><see langword="true" /> if this encoder will be used to encode rfc2047 encoded-word payloads; otherwise, <see langword="false" />.</param>
 		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).

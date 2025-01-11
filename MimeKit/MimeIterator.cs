@@ -284,7 +284,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeIterator.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the iterator was successfully advanced to the next entity; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the iterator was successfully advanced to the next entity; otherwise, <see langword="false" />.</returns>
 		public bool MoveNext ()
 		{
 			if (moveFirst) {
@@ -361,7 +361,7 @@ namespace MimeKit {
 		/// <para>If the iterator has already advanced beyond the entity at the specified
 		/// path, the iterator will <see cref="Reset()"/> and advance as normal.</para>
 		/// </remarks>
-		/// <returns><c>true</c> if advancing to the specified entity was successful; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if advancing to the specified entity was successful; otherwise, <see langword="false" />.</returns>
 		/// <param name="pathSpecifier">The path specifier.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="pathSpecifier"/> is <see langword="null"/>.
@@ -435,8 +435,8 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="MimeIterator"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 		}

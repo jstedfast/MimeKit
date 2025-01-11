@@ -160,7 +160,7 @@ namespace MimeKit.Cryptography {
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
 		/// or multipart/encrypted part is supported by the supplied cryptography context.
 		/// </remarks>
-		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
+		/// <returns><see langword="true" /> if the protocol is supported; otherwise, <see langword="false" /></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="protocol"/> is <see langword="null"/>.

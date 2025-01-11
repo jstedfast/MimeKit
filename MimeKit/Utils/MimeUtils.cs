@@ -276,7 +276,7 @@ namespace MimeKit.Utils {
 		/// Parses a MIME version string from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the version was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The raw byte buffer to parse.</param>
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
@@ -333,7 +333,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses a MIME version string from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the version was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -360,7 +360,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses a Content-Transfer-Encoding header value.
 		/// </remarks>
-		/// <returns><c>true</c>, if the encoding was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the encoding was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="encoding">The parsed encoding.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -525,7 +525,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <returns>The unquoted text.</returns>
 		/// <param name="text">The text to unquote.</param>
-		/// <param name="convertTabsToSpaces"><c>true</c> if tab characters should be converted to a space; otherwise, <c>false</c>.</param>
+		/// <param name="convertTabsToSpaces"><see langword="true" /> if tab characters should be converted to a space; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>

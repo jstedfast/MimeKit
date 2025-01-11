@@ -116,7 +116,7 @@ namespace MimeKit.Text {
 		/// <para>Pushes the specified character into the HTML entity decoder.</para>
 		/// <para>The first character pushed MUST be the '&amp;' character.</para>
 		/// </remarks>
-		/// <returns><c>true</c> if the character was accepted; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the character was accepted; otherwise, <see langword="false" />.</returns>
 		/// <param name="c">The character.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="c"/> is the first character being pushed and was not the '&amp;' character.

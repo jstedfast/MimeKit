@@ -217,7 +217,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -265,7 +265,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -307,8 +307,8 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="MessagePart"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && Message != null)

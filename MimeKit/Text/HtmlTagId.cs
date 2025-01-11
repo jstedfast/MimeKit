@@ -925,7 +925,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Determines whether the HTML tag is an empty element.
 		/// </remarks>
-		/// <returns><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the tag is an empty element; otherwise, <see langword="false" />.</returns>
 		/// <param name="id">Identifier.</param>
 		public static bool IsEmptyElement (this HtmlTagId id)
 		{
@@ -958,7 +958,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Determines whether the HTML tag is a formatting element.
 		/// </remarks>
-		/// <returns><c>true</c> if the HTML tag is a formatting element; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the HTML tag is a formatting element; otherwise, <see langword="false" />.</returns>
 		/// <param name="id">The HTML tag identifier.</param>
 		public static bool IsFormattingElement (this HtmlTagId id)
 		{

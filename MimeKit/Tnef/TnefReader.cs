@@ -595,7 +595,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Advances to the next attribute in the TNEF stream.
 		/// </remarks>
-		/// <returns><c>true</c> if there is another attribute available to be read; otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if there is another attribute available to be read; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="TnefException">
 		/// The TNEF stream is corrupted or invalid.
 		/// </exception>
@@ -744,8 +744,8 @@ namespace MimeKit.Tnef {
 		/// Releases the unmanaged resources used by the <see cref="TnefReader"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 			if (disposing && !closed)

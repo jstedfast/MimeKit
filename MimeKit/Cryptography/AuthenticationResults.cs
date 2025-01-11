@@ -816,7 +816,7 @@ namespace MimeKit.Cryptography {
 		/// Parses an Authentication-Results header value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c> if the authentication results were successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the authentication results were successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -843,7 +843,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Parses an Authentication-Results header value from the supplied buffer.
 		/// </remarks>
-		/// <returns><c>true</c> if the authentication results were successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the authentication results were successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="authres">The parsed authentication results.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1228,7 +1228,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="ptype">The property type.</param>
 		/// <param name="property">The name of the property.</param>
 		/// <param name="value">The value of the property.</param>
-		/// <param name="quoted"><c>true</c> if the property value was originally quoted; otherwise, <c>false</c>.</param>
+		/// <param name="quoted"><see langword="true" /> if the property value was originally quoted; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="ptype"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>

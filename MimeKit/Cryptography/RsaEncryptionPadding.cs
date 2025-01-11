@@ -119,8 +119,8 @@ namespace MimeKit.Cryptography {
 		/// Compares two RSA encryption paddings to determine if they are identical or not.
 		/// </remarks>
 		/// <param name="other">The <see cref="RsaEncryptionPadding"/> to compare with the current <see cref="RsaEncryptionPadding"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="RsaEncryptionPadding"/> is equal to the current
-		/// <see cref="RsaEncryptionPadding"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="RsaEncryptionPadding"/> is equal to the current
+		/// <see cref="RsaEncryptionPadding"/>; otherwise, <see langword="false" />.</returns>
 		public bool Equals (RsaEncryptionPadding other)
 		{
 			if (other is null)
@@ -137,7 +137,7 @@ namespace MimeKit.Cryptography {
 		/// the current instance is a reference type or a value type.
 		/// </remarks>
 		/// <param name="obj">The object to compare with the current object.</param>
-		/// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (object obj)
 		{
 			return Equals (obj as RsaEncryptionPadding);
@@ -179,7 +179,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="left">The first object to compare.</param>
 		/// <param name="right">The second object to compare.</param>
-		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <see langword="false" />.</returns>
 		public static bool operator == (RsaEncryptionPadding left, RsaEncryptionPadding right)
 		{
 			if (left is null)
@@ -196,7 +196,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="left">The first object to compare.</param>
 		/// <param name="right">The second object to compare.</param>
-		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <see langword="false" />.</returns>
 		public static bool operator != (RsaEncryptionPadding left, RsaEncryptionPadding right)
 		{
 			return !(left == right);

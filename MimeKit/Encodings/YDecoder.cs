@@ -78,7 +78,7 @@ namespace MimeKit.Encodings {
 		/// Creates a new yEnc decoder.
 		/// </remarks>
 		/// <param name="payloadOnly">
-		/// If <c>true</c>, decoding begins immediately rather than after finding an =ybegin line.
+		/// If <see langword="true" />, decoding begins immediately rather than after finding an =ybegin line.
 		/// </param>
 		public YDecoder (bool payloadOnly)
 		{

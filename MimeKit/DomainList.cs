@@ -210,8 +210,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the domain list contains the specified domain.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified domain is contained;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified domain is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <see langword="null"/>.
@@ -250,7 +250,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first instance of the specified domain from the list if it exists.
 		/// </remarks>
-		/// <returns><value>true</value> if the domain was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the domain was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <see langword="null"/>.
@@ -285,7 +285,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="DomainList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -391,8 +391,8 @@ namespace MimeKit {
 		/// specified index. The index will only be updated if a <see cref="DomainList"/> was
 		/// successfully parsed.
 		/// </remarks>
-		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
-		/// <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if a <see cref="DomainList"/> was successfully parsed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The buffer to parse.</param>
 		/// <param name="index">The index to start parsing.</param>
 		/// <param name="endIndex">An index of the end of the input.</param>
@@ -449,8 +449,8 @@ namespace MimeKit {
 		/// Attempts to parse a <see cref="DomainList"/> from the supplied text. The index
 		/// will only be updated if a <see cref="DomainList"/> was successfully parsed.
 		/// </remarks>
-		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
-		/// <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if a <see cref="DomainList"/> was successfully parsed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="route">The parsed DomainList.</param>
 		/// <exception cref="System.ArgumentNullException">

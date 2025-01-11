@@ -309,7 +309,7 @@ namespace MimeKit {
 		/// <param name="field">The raw header field.</param>
 		/// <param name="fieldNameLength">The length of the field name (not including trailing whitespace).</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
+		/// <param name="invalid"><see langword="true" /> if the header field is invalid; otherwise, <see langword="false" />.</param>
 #if NET5_0_OR_GREATER
 		[System.Runtime.CompilerServices.SkipLocalsInit]
 #endif
@@ -342,7 +342,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options used.</param>
 		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
+		/// <param name="invalid"><see langword="true" /> if the header field is invalid; otherwise, <see langword="false" />.</param>
 #if NET5_0_OR_GREATER
 		[System.Runtime.CompilerServices.SkipLocalsInit]
 #endif
@@ -1307,7 +1307,7 @@ namespace MimeKit {
 		/// <para>This method is called by the <a href="Overload_MimeKit_Header_SetValue.htm">SetValue</a>
 		/// methods.</para>
 		/// <para>This method should encode unicode characters according to the rules of rfc2047 (when
-		/// <see cref="FormatOptions.International"/> is <c>false</c>) as well as properly folding the
+		/// <see cref="FormatOptions.International"/> is <see langword="false" />) as well as properly folding the
 		/// value to conform with rfc5322.</para>
 		/// </remarks>
 		/// <param name="format">The formatting options.</param>
@@ -1734,7 +1734,7 @@ namespace MimeKit {
 		/// Parses a header from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -1767,7 +1767,7 @@ namespace MimeKit {
 		/// Parses a header from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -1790,7 +1790,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -1822,7 +1822,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
@@ -1843,7 +1843,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
@@ -1863,7 +1863,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1880,7 +1880,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
@@ -1908,7 +1908,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
 		/// <exception cref="System.ArgumentNullException">

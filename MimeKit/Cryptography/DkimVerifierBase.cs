@@ -143,7 +143,7 @@ namespace MimeKit.Cryptography {
 		/// part of DKIM since it was originally standardized in 2007), it is recommended
 		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be enabled.</note>
 		/// </remarks>
-		/// <returns><c>true</c> if the specified DKIM signature algorithm is enabled; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified DKIM signature algorithm is enabled; otherwise, <see langword="false" />.</returns>
 		/// <param name="algorithm">The DKIM signature algorithm.</param>
 		public bool IsEnabled (DkimSignatureAlgorithm algorithm)
 		{
@@ -506,7 +506,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="canonicalizationAlgorithm">The algorithm used to canonicalize the message body.</param>
 		/// <param name="maxLength">The max length of the message body to hash or <c>-1</c> to hash the entire message body.</param>
 		/// <param name="bodyHash">The expected message body hash encoded in base64.</param>
-		/// <returns><c>true</c> if the calculated body hash matches <paramref name="bodyHash"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the calculated body hash matches <paramref name="bodyHash"/>; otherwise, <see langword="false" />.</returns>
 		protected static bool VerifyBodyHash (FormatOptions options, MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, int maxLength, string bodyHash)
 		{
 			var hash = Convert.ToBase64String (message.HashBody (options, signatureAlgorithm, canonicalizationAlgorithm, maxLength));
@@ -528,7 +528,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="headers">The list of headers that were signed.</param>
 		/// <param name="canonicalizationAlgorithm">The algorithm used to canonicalize the headers.</param>
 		/// <param name="signature">The expected signature of the headers encoded in base64.</param>
-		/// <returns><c>true</c> if the calculated signature matches <paramref name="signature"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the calculated signature matches <paramref name="signature"/>; otherwise, <see langword="false" />.</returns>
 		protected bool VerifySignature (FormatOptions options, MimeMessage message, Header dkimSignature, DkimSignatureAlgorithm signatureAlgorithm, AsymmetricKeyParameter key, string[] headers, DkimCanonicalizationAlgorithm canonicalizationAlgorithm, string signature)
 		{
 			using (var stream = new DkimSignatureStream (CreateVerifyContext (signatureAlgorithm, key))) {

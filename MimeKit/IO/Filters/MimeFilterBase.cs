@@ -74,7 +74,7 @@ namespace MimeKit.IO.Filters {
 		/// <param name="length">The length of the input buffer, starting at <paramref name="startIndex"/>.</param>
 		/// <param name="outputIndex">The output index.</param>
 		/// <param name="outputLength">The output length.</param>
-		/// <param name="flush">If set to <c>true</c>, all internally buffered data should be flushed to the output buffer.</param>
+		/// <param name="flush">If set to <see langword="true" />, all internally buffered data should be flushed to the output buffer.</param>
 		protected abstract byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush);
 
 		static int GetIdealBufferSize (int need)
@@ -218,7 +218,7 @@ namespace MimeKit.IO.Filters {
 		/// Ensures that the output buffer is greater than or equal to the specified size.
 		/// </remarks>
 		/// <param name="size">The minimum size needed.</param>
-		/// <param name="keep">If set to <c>true</c>, the current output should be preserved.</param>
+		/// <param name="keep">If set to <see langword="true" />, the current output should be preserved.</param>
 		protected void EnsureOutputSize (int size, bool keep)
 		{
 			int outputSize = output != null ? output.Length : -1;

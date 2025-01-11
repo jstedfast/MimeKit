@@ -77,7 +77,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the digital signature.
 		/// </remarks>
-		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>
@@ -89,8 +89,8 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the digital signature.
 		/// </remarks>
-		/// <param name="verifySignatureOnly"><c>true</c> if only the signature itself should be verified; otherwise, both the signature and the certificate chain are validated.</param>
-		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <param name="verifySignatureOnly"><see langword="true" /> if only the signature itself should be verified; otherwise, both the signature and the certificate chain are validated.</param>
+		/// <returns><see langword="true" /> if the signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>

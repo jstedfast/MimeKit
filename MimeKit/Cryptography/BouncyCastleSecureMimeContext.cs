@@ -124,7 +124,7 @@ namespace MimeKit.Cryptography {
 		/// attacker-controlled server, thereby getting a notification when the user decrypts the message or verifies
 		/// its digital signature.</note>
 		/// </remarks>
-		/// <value><c>true</c> if CRLs should be downloaded automatically; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if CRLs should be downloaded automatically; otherwise, <see langword="false" />.</value>
 		public bool CheckCertificateRevocation {
 			get; set;
 		}
@@ -774,7 +774,7 @@ namespace MimeKit.Cryptography {
 		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
 		/// to a <see cref="DigestAlgorithm"/>.
 		/// </remarks>
-		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the algorithm identifier was successfully mapped; otherwise, <see langword="false" />.</returns>
 		/// <param name="identifier">The algorithm identifier.</param>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -796,7 +796,7 @@ namespace MimeKit.Cryptography {
 		/// Attempts to map a <see cref="Org.BouncyCastle.Asn1.X509.AlgorithmIdentifier"/>
 		/// to a <see cref="EncryptionAlgorithm"/>.
 		/// </remarks>
-		/// <returns><c>true</c> if the algorithm identifier was successfully mapped; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the algorithm identifier was successfully mapped; otherwise, <see langword="false" />.</returns>
 		/// <param name="identifier">The algorithm identifier.</param>
 		/// <param name="algorithm">The encryption algorithm.</param>
 		/// <exception cref="System.ArgumentNullException">

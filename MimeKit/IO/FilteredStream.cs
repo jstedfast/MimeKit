@@ -115,8 +115,8 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Determines whether the filtered stream contains the specified filter.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified filter exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified filter exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="filter">The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <see langword="null"/>.
@@ -135,7 +135,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Removes the specified filter from the list if it exists.
 		/// </remarks>
-		/// <returns><value>true</value> if the filter was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the filter was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="filter">The filter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="filter"/> is <see langword="null"/>.
@@ -175,7 +175,7 @@ namespace MimeKit.IO {
 		/// The <see cref="FilteredStream"/> will only support reading if the
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</value>
 		public override bool CanRead {
 			get { return Source.CanRead; }
 		}
@@ -187,7 +187,7 @@ namespace MimeKit.IO {
 		/// The <see cref="FilteredStream"/> will only support writing if the
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</value>
 		public override bool CanWrite {
 			get { return Source.CanWrite; }
 		}
@@ -198,7 +198,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// Seeking is not supported by the <see cref="FilteredStream"/>.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</value>
 		public override bool CanSeek {
 			get { return false; }
 		}
@@ -210,7 +210,7 @@ namespace MimeKit.IO {
 		/// The <see cref="FilteredStream"/> will only support timing out if the
 		/// <see cref="Source"/> supports it.
 		/// </remarks>
-		/// <value><c>true</c> if I/O operations can time out; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if I/O operations can time out; otherwise, <see langword="false" />.</value>
 		public override bool CanTimeout {
 			get { return Source.CanTimeout; }
 		}
@@ -786,8 +786,8 @@ namespace MimeKit.IO {
 		/// Releases the unmanaged resources used by the <see cref="FilteredStream"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing) {

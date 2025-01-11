@@ -174,7 +174,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="X509CertificateChain"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -233,8 +233,8 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Determines whether the certificate chain contains the specified certificate.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified certificate exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified certificate exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -273,7 +273,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Removes the specified certificate from the chain.
 		/// </remarks>
-		/// <returns><value>true</value> if the certificate was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the certificate was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.

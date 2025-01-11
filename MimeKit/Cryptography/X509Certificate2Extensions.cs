@@ -147,7 +147,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The subject DNS names.</returns>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="idnEncode">If set to <c>true</c>, international domain names will be IDN encoded.</param>
+		/// <param name="idnEncode">If set to <see langword="true" />, international domain names will be IDN encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>

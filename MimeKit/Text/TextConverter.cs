@@ -87,7 +87,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the encoding of the input is detected from the byte order mark or
 		/// determined by the <see cref="InputEncoding"/> property.
 		/// </remarks>
-		/// <value><c>true</c> if detect encoding from byte order mark; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if detect encoding from byte order mark; otherwise, <see langword="false" />.</value>
 		public bool DetectEncodingFromByteOrderMark {
 			get; set;
 		}

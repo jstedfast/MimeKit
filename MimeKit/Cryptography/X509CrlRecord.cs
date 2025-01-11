@@ -95,7 +95,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Indicates whether this certificate revocation list is a delta.
 		/// </remarks>
-		/// <value><c>true</c> if th crl is delta; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if th crl is delta; otherwise, <see langword="false" />.</value>
 		public bool IsDelta { get; internal set; }
 
 		/// <summary>

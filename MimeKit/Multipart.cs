@@ -311,7 +311,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets whether the end boundary should be written.
 		/// </remarks>
-		/// <value><c>true</c> if the end boundary should be written; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the end boundary should be written; otherwise, <see langword="false" />.</value>
 		internal bool WriteEndBoundary {
 			get; set;
 		}
@@ -352,7 +352,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="format">The preferred text format.</param>
 		/// <param name="body">The MIME part containing the message body in the preferred text format.</param>
-		/// <returns><c>true</c> if the body part is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the body part is found; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
@@ -511,7 +511,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -617,7 +617,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -697,7 +697,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="Multipart"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -758,7 +758,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all the entities within the multipart, optionally disposing them in the process.
 		/// </remarks>
-		/// <param name="dispose"><c>true</c> if all the child entities of the multipart should be disposed; otherwise, <c>false</c>.</param>
+		/// <param name="dispose"><see langword="true" /> if all the child entities of the multipart should be disposed; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
@@ -781,8 +781,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the multipart contains the specified entity.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified entity exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified entity exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="entity">The entity to check for.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <see langword="null"/>.
@@ -830,7 +830,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified entity if it exists within the multipart.
 		/// </remarks>
-		/// <returns><value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the part was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="entity">The MIME entity to remove.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <see langword="null"/>.
@@ -1018,8 +1018,8 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing) {

@@ -152,7 +152,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the DKIM-Signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to verify.</param>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
@@ -187,7 +187,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the DKIM-Signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to verify.</param>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
@@ -222,7 +222,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the DKIM-Signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="message">The message to verify.</param>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -254,7 +254,7 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <returns><c>true</c> if the DKIM-Signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the DKIM-Signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="message">The message to verify.</param>
 		/// <param name="dkimSignature">The DKIM-Signature header.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

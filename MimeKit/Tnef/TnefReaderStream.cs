@@ -68,7 +68,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The <see cref="TnefReaderStream"/> is always readable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</value>
 		public override bool CanRead {
 			get { return true; }
 		}
@@ -79,7 +79,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Writing to a <see cref="TnefReaderStream"/> is not supported.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</value>
 		public override bool CanWrite {
 			get { return false; }
 		}
@@ -90,7 +90,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Seeking within a <see cref="TnefReaderStream"/> is not supported.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</value>
 		public override bool CanSeek {
 			get { return false; }
 		}
@@ -259,8 +259,8 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The underlying <see cref="TnefReader"/> is not disposed.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			base.Dispose (disposing);

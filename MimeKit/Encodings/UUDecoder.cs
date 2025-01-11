@@ -83,7 +83,7 @@ namespace MimeKit.Encodings {
 		/// Creates a new Unix-to-Unix decoder.
 		/// </remarks>
 		/// <param name="payloadOnly">
-		/// If <c>true</c>, decoding begins immediately rather than after finding a begin-line.
+		/// If <see langword="true" />, decoding begins immediately rather than after finding a begin-line.
 		/// </param>
 		public UUDecoder (bool payloadOnly)
 		{

@@ -111,7 +111,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Indicates whether the certificate is trusted.
 		/// </remarks>
-		/// <value><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the certificate is trusted; otherwise, <see langword="false" />.</value>
 		public bool IsTrusted { get; set; }
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets whether the certificate is an anchor.
 		/// </remarks>
-		/// <value><c>true</c> if the certificate is an anchor; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the certificate is an anchor; otherwise, <see langword="false" />.</value>
 		public bool IsAnchor { get { return Certificate.IsSelfSigned (); } }
 
 		/// <summary>

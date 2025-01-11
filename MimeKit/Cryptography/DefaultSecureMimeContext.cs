@@ -316,7 +316,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
-		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the mailbox address can be used for signing; otherwise, <see langword="false" />.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -346,7 +346,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
-		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -836,12 +836,12 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Imports the certificate.</para>
-		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <c>true</c>,
+		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <see langword="true" />,
 		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
 		/// specified trust.</para>
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificate is trusted; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -876,13 +876,13 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously imports the certificate.</para>
-		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <c>true</c>,
+		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <see langword="true" />,
 		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
 		/// specified trust.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificate is trusted; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -904,7 +904,7 @@ namespace MimeKit.Cryptography {
 		/// Imports the certificate(s).
 		/// </remarks>
 		/// <param name="stream">The raw certificate(s).</param>
-		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificates are trusted; othewrwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -933,7 +933,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="stream">The raw certificate(s).</param>
-		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificates are trusted; othewrwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -956,8 +956,8 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="DefaultSecureMimeContext"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			dbase.Dispose ();

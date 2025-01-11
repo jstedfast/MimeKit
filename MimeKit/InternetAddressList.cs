@@ -248,7 +248,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="InternetAddressList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -324,8 +324,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the address list contains the specified address.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified address exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified address exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="address"/> is <see langword="null"/>.
@@ -364,7 +364,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified address.
 		/// </remarks>
-		/// <returns><value>true</value> if the address was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the address was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="address">The address.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="address"/> is <see langword="null"/>.
@@ -426,8 +426,8 @@ namespace MimeKit {
 		/// Determines whether the specified <see cref="InternetAddressList"/> is equal to the current <see cref="InternetAddressList"/>.
 		/// </remarks>
 		/// <param name="other">The <see cref="InternetAddressList"/> to compare with the current <see cref="InternetAddressList"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="InternetAddressList"/> is equal to the current
-		/// <see cref="InternetAddressList"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="InternetAddressList"/> is equal to the current
+		/// <see cref="InternetAddressList"/>; otherwise, <see langword="false" />.</returns>
 		public bool Equals (InternetAddressList other)
 		{
 			if (other is null)
@@ -484,7 +484,7 @@ namespace MimeKit {
 		/// the current instance is a reference type or a value type.
 		/// </remarks>
 		/// <param name="obj">The object to compare with the current object.</param>
-		/// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (object obj)
 		{
 			return Equals (obj as InternetAddressList);
@@ -518,13 +518,13 @@ namespace MimeKit {
 		/// Serialize an <see cref="InternetAddressList"/> to a string, optionally encoding the list of addresses for transport.
 		/// </summary>
 		/// <remarks>
-		/// <para>If <paramref name="encode"/> is <c>true</c>, each address in the list will be encoded
+		/// <para>If <paramref name="encode"/> is <see langword="true" />, each address in the list will be encoded
 		/// according to the rules defined in rfc2047.</para>
 		/// <para>If there are multiple addresses in the list, they will be separated by a comma.</para>
 		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddressList"/>.</returns>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="encode">If set to <c>true</c>, each <see cref="InternetAddress"/> in the list will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, each <see cref="InternetAddress"/> in the list will be encoded.</param>
 		public string ToString (FormatOptions options, bool encode)
 		{
 			var builder = new StringBuilder ();
@@ -551,12 +551,12 @@ namespace MimeKit {
 		/// Serialize an <see cref="InternetAddressList"/> to a string, optionally encoding the list of addresses for transport.
 		/// </summary>
 		/// <remarks>
-		/// <para>If <paramref name="encode"/> is <c>true</c>, each address in the list will be encoded
+		/// <para>If <paramref name="encode"/> is <see langword="true" />, each address in the list will be encoded
 		/// according to the rules defined in rfc2047.</para>
 		/// <para>If there are multiple addresses in the list, they will be separated by a comma.</para>
 		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddressList"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, each <see cref="InternetAddress"/> in the list will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, each <see cref="InternetAddress"/> in the list will be encoded.</param>
 		public string ToString (bool encode)
 		{
 			return ToString (FormatOptions.Default, encode);
@@ -644,7 +644,7 @@ namespace MimeKit {
 		/// Parses a list of addresses from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -682,7 +682,7 @@ namespace MimeKit {
 		/// Parses a list of addresses from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -705,7 +705,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -740,7 +740,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
@@ -761,7 +761,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
@@ -792,7 +792,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -809,7 +809,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="addresses">The parsed addresses.</param>
@@ -841,7 +841,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address list was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="addresses">The parsed addresses.</param>
 		/// <exception cref="System.ArgumentNullException">

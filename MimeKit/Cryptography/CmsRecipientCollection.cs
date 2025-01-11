@@ -72,7 +72,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="CmsRecipientCollection"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -112,8 +112,8 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Determines whether the collection contains the specified recipient.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified recipient exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified recipient exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="recipient"/> is <see langword="null"/>.
@@ -158,7 +158,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Removes the specified recipient.
 		/// </remarks>
-		/// <returns><value>true</value> if the recipient was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the recipient was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="recipient">The recipient.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="recipient"/> is <see langword="null"/>.

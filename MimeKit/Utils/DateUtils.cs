@@ -520,7 +520,7 @@ namespace MimeKit.Utils {
 		/// Parses an rfc822 date and time from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -562,7 +562,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="date">The parsed date.</param>
@@ -589,7 +589,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses an rfc822 date and time from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -609,7 +609,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses an rfc822 date and time from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">

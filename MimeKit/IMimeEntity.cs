@@ -150,10 +150,10 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
-		/// then this property returns <c>true</c>. Otherwise, it is assumed that the
+		/// then this property returns <see langword="true" />. Otherwise, it is assumed that the
 		/// entity is not meant to be treated as an attachment.
 		/// </remarks>
-		/// <value><c>true</c> if this entity is an attachment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this entity is an attachment; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimeEntity"/> has been disposed.
 		/// </exception>
@@ -203,7 +203,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -231,7 +231,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -309,7 +309,7 @@ namespace MimeKit {
 		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -333,7 +333,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -402,7 +402,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -442,7 +442,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -557,7 +557,7 @@ namespace MimeKit {
 		/// Writes the entity to the specified file using the default formatting options.
 		/// </remarks>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <see langword="null"/>.
@@ -594,7 +594,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <see langword="null"/>.

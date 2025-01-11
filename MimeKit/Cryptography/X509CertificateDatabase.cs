@@ -683,7 +683,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="connection">The database connection.</param>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
+		/// <param name="requirePrivateKey"><see langword="true" /> if the certificate must have a private key; otherwise, <see langword="false" />.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected abstract DbCommand GetSelectCommand (DbConnection connection, MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -696,8 +696,8 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="connection">The database connection.</param>
 		/// <param name="selector">The certificate selector.</param>
-		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
+		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be matched; otherwise, <see langword="false" />.</param>
+		/// <param name="requirePrivateKey"><see langword="true" /> if the certificate must have a private key; otherwise, <see langword="false" />.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected abstract DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -991,7 +991,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
+		/// <param name="requirePrivateKey"><see langword="true" /> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <see langword="null"/>.
@@ -1024,7 +1024,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
-		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
+		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
 		public IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
@@ -1278,8 +1278,8 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="X509CertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 			if (!disposing)

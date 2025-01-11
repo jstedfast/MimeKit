@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
+		/// <param name="requirePrivateKey"><see langword="true" /> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
 		IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
-		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
+		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
 		IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields);
 

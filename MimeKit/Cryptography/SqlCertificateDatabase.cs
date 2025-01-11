@@ -516,8 +516,8 @@ namespace MimeKit.Cryptography {
 		/// <returns>The database command.</returns>
 		/// <param name="connection">The database connection.</param>
 		/// <param name="selector">The certificate selector.</param>
-		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be matched; otherwise, <c>false</c>.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if the certificate must have a private key; otherwise, <c>false</c>.</param>
+		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be matched; otherwise, <see langword="false" />.</param>
+		/// <param name="requirePrivateKey"><see langword="true" /> if the certificate must have a private key; otherwise, <see langword="false" />.</param>
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
@@ -914,8 +914,8 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="SqlCertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !disposed) {

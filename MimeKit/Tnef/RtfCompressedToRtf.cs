@@ -98,9 +98,9 @@ namespace MimeKit.Tnef {
 		/// Get a value indicating whether the crc32 is valid.
 		/// </summary>
 		/// <remarks>
-		/// Until all data has been processed, this property will always return <c>false</c>.
+		/// Until all data has been processed, this property will always return <see langword="false" />.
 		/// </remarks>
-		/// <value><c>true</c> if the crc32 is valid; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the crc32 is valid; otherwise, <see langword="false" />.</value>
 		public bool IsValidCrc32 {
 			get { return crc32.Checksum == checksum; }
 		}
@@ -170,7 +170,7 @@ namespace MimeKit.Tnef {
 		/// <param name="length">Length.</param>
 		/// <param name="outputIndex">Output index.</param>
 		/// <param name="outputLength">Output length.</param>
-		/// <param name="flush">If set to <c>true</c> flush.</param>
+		/// <param name="flush">If set to <see langword="true" /> flush.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			int endIndex = startIndex + length;

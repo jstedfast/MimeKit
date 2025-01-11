@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
-		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the mailbox address can be used for signing; otherwise, <see langword="false" />.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -112,7 +112,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
-		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">

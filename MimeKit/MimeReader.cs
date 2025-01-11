@@ -160,8 +160,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets a value indicating whether the parser has reached the end of the input stream.
 		/// </remarks>
-		/// <value><c>true</c> if this parser has reached the end of the input stream;
-		/// otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this parser has reached the end of the input stream;
+		/// otherwise, <see langword="false" />.</value>
 		public bool IsEndOfStream {
 			get { return state == MimeParserState.Eos; }
 		}

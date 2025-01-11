@@ -90,7 +90,7 @@ namespace MimeKit.Text {
 		/// Checks if an attribute exists.
 		/// </remarks>
 		/// <param name="id">The attribute.</param>
-		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the attribute exists within the collection; otherwise, <see langword="false" />.</returns>
 		public bool Contains (HtmlAttributeId id)
 		{
 			return IndexOf (id) != -1;
@@ -103,7 +103,7 @@ namespace MimeKit.Text {
 		/// Checks if an attribute exists.
 		/// </remarks>
 		/// <param name="name">The name of the attribute.</param>
-		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the attribute exists within the collection; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
@@ -119,7 +119,7 @@ namespace MimeKit.Text {
 		/// Gets the index of a desired attribute.
 		/// </remarks>
 		/// <param name="id">The attribute.</param>
-		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the attribute exists within the collection; otherwise, <see langword="false" />.</returns>
 		public int IndexOf (HtmlAttributeId id)
 		{
 			for (int i = 0; i < attributes.Count; i++) {
@@ -137,7 +137,7 @@ namespace MimeKit.Text {
 		/// Gets the index of a desired attribute.
 		/// </remarks>
 		/// <param name="name">The name of the attribute.</param>
-		/// <returns><c>true</c> if the attribute exists within the collection; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the attribute exists within the collection; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
@@ -177,7 +177,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="id">The id of the attribute.</param>
 		/// <param name="attribute">The attribute if found; otherwise, <see langword="null"/>.</param>
-		/// <returns><c>true</c> if the desired attribute is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the desired attribute is found; otherwise, <see langword="false" />.</returns>
 		public bool TryGetValue (HtmlAttributeId id, out HtmlAttribute attribute)
 		{
 			int index;
@@ -200,7 +200,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="name">The name of the attribute.</param>
 		/// <param name="attribute">The attribute if found; otherwise, <see langword="null"/>.</param>
-		/// <returns><c>true</c> if the desired attribute is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the desired attribute is found; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
