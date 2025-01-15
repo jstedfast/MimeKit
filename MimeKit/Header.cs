@@ -1333,6 +1333,7 @@ namespace MimeKit {
 				return EncodeAddressHeader (Options, format, encoding, Field, value);
 			case HeaderId.Received:
 				return EncodeReceivedHeader (Options, format, encoding, Field, value);
+			case HeaderId.OriginalMessageId:
 			case HeaderId.ResentMessageId:
 			case HeaderId.InReplyTo:
 			case HeaderId.MessageId:
@@ -1386,6 +1387,7 @@ namespace MimeKit {
 				case HeaderId.Received:
 					// Note: Received headers should never be reformatted.
 					return rawValue;
+				case HeaderId.OriginalMessageId:
 				case HeaderId.ResentMessageId:
 				case HeaderId.InReplyTo:
 				case HeaderId.MessageId:
