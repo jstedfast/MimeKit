@@ -1,5 +1,25 @@
 # Release Notes
 
+## MimeKit 4.10.0 (2025-01-26)
+
+* Fixed logic for converting BouncyCastle DSA keys to System.Security equivalents.
+* Fixed BouncyCastleSecureMimeContext to respect the CheckCertificateRevocation property when
+  encrypting to recipeints and when verifying signatures.
+* Marked IX509CertificateDatabase.Update(X509CrlRecord) as obsolete.
+* Fixed TemporarySecureMimeContext.Import(X509Crl) to not import duplicates.
+* Added new MimeMessage .ctor that takes IEnumerable&lt;Header&gt;.
+* Fixed MimeReader to better handle garbage at the start of an mbox.
+* Fixed MimeReader/ExperimentalMimeParser to handle really long mbox markers by introducing
+  2 new methods: OnMboxMarkerBegin() and OnMboxMarkerEnd().
+* Improved MimeReader header parsing (mostly just state tracking improvements) which
+  allows it to throw the appropriate exception if EOS is reached before parsing any
+  headers.
+* Make sure to flush any remaining text in the FlowedToText and FlowedToHtml converters
+  (issue [#1130](https://github.com/jstedfast/MimeKit/issues/1130))
+* Fixed Header folding/encoding logic for Original-Message-ID by making it follow the same
+  rules as Message-ID/Content-ID/etc.
+  (issue [#1133](https://github.com/jstedfast/MimeKit/issues/1133))
+
 ## MimeKit 4.9.0 (2024-12-09)
 
 * Started adding some DynamicallyAccessedMembers attributes for AOT compatibility.

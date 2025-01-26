@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.9.0</version>
+    <version>4.10.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,18 +26,16 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Refactored some code for AOT Compatibility (MimeKitLite is now 100% AOT Compatible but MimeKit still has issues related to SQLite database loading for the S/MIME certificate database). (MailKit issue #10844)
-* Fixed TextPreviewer to use an encoding with an empty string fallback to prevent '?' characters from being appended to the generated preview string if the byte sequence was truncated.
-* Improved performance of InternetAddressList.Parse()/TryParse().
-* Improved InternetAddressList parser performance for malformed addresses that only contain display-name strings separated by commas. (issue #1106)
-* Dropped support for net6.0 in the nuget packages (Microsoft support ended Nov 12, 2024).
-* Removed explicit dependency on System.Runtime.CompilerServices.Unsafe.
-* Bumped System.Buffers dependency to v4.6.0.
-* Bumped System.Memory dependency to v4.6.0.
+* Added new MimeMessage .ctor that takes IEnumerable&lt;Header&gt;.
+* Fixed MimeReader to better handle garbage at the start of an mbox.
+* Fixed MimeReader/ExperimentalMimeParser to handle really long mbox markers by introducing 2 new methods: OnMboxMarkerBegin() and OnMboxMarkerEnd().
+* Improved MimeReader header parsing (mostly just state tracking improvements) which allows it to throw the appropriate exception if EOS is reached before parsing any headers.
+* Make sure to flush any remaining text in the FlowedToText and FlowedToHtml converters (issue #1130)
+* Fixed Header folding/encoding logic for Original-Message-ID by making it follow the same rules as Message-ID/Content-ID/etc. (issue #1133)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime mbox mail email parser tnef net462 net47 net48 net8.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <tags>mime mbox mail email parser tnef</tags>
     <readme>docs\README.md</readme>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
