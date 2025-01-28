@@ -90,7 +90,7 @@ How does your MIME parser compare?
 ```
 MIT License
 
-Copyright (C) 2012-2024 .NET Foundation and Contributors
+Copyright (C) 2012-2025 .NET Foundation and Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
