@@ -82,7 +82,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// The column names for the certificates table.
 		/// </remarks>
-		protected class CertificateColumnNames
+		protected static class CertificateColumnNames
 		{
 			/// <summary>
 			/// The auto-increment primary key identifier.
@@ -252,7 +252,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// The column names for the CRLs table.
 		/// </remarks>
-		protected class CrlColumnNames
+		protected static class CrlColumnNames
 		{
 			/// <summary>
 			/// The auto-increment primary key identifier.
