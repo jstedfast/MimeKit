@@ -33,8 +33,8 @@ using BenchmarkDotNet.Attributes;
 using MimeKit;
 
 namespace Benchmarks {
-    public class MimeParserBenchmarks
-    {
+	public class MimeParserBenchmarks
+	{
 		static readonly string MessagesDataDir = Path.Combine (BenchmarkHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "mbox");
 		const string MessageHeaderStressTest = @"Return-Path: <info@someserver>
