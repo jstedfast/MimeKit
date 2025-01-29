@@ -37,8 +37,7 @@ namespace Benchmarks {
     {
 		static readonly string MessagesDataDir = Path.Combine (BenchmarkHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "mbox");
-		const string MessageHeaderStressTest = @"From - 
-Return-Path: <info@someserver>
+		const string MessageHeaderStressTest = @"Return-Path: <info@someserver>
 Received: from maleman.mcom.com (maleman.mcom.com [198.93.92.3]) by urchin.netscape.com (8.6.12/8.6.9) with ESMTP id EAA18301; Thu, 25 Apr 1996 04:30:51 -0700
 Received: from ns.netscape.com (ns.netscape.com.mcom.com [198.95.251.10]) by maleman.mcom.com (8.6.9/8.6.9) with ESMTP id EAA01168; Thu, 25 Apr 1996 04:29:58 -0700
 Received: from RSA.COM (RSA.COM [192.80.211.33]) by ns.netscape.com (8.7.3/8.7.3) with SMTP id EAA17575; Thu, 25 Apr 1996 04:29:05 -0700 (PDT)
@@ -118,13 +117,7 @@ header parser.
 			var path = Path.Combine (MessagesDataDir, fileName);
 			using var stream = File.OpenRead (path);
 			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
-
-			for (int i = 0; i < 1000; i++) {
-				parser.ParseMessage ();
-
-				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity, persistent);
-			}
+			var message = parser.ParseMessage ();
 		}
 
 		[Benchmark]
@@ -144,8 +137,7 @@ header parser.
 			var path = Path.Combine (MboxDataDir, fileName);
 
 			using var stream = File.OpenRead (path);
-			using var looped = new LoopedInputStream (stream, 10);
-			var parser = new MimeParser (looped, MimeFormat.Mbox, persistent);
+			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
 				parser.ParseMessage ();
@@ -180,12 +172,9 @@ header parser.
 		public void MimeParser_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			using var looped = new LoopedInputStream (stream, 1000);
-			var parser = new MimeParser (looped, MimeFormat.Mbox, true);
+			var parser = new MimeParser (stream, MimeFormat.Entity, true);
 
-			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
-			}
+			parser.ParseMessage ();
 		}
 
 		#endregion MimeParser
@@ -197,13 +186,7 @@ header parser.
 			var path = Path.Combine (MessagesDataDir, fileName);
 			using var stream = File.OpenRead (path);
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
-
-			for (int i = 0; i < 1000; i++) {
-				parser.ParseMessage ();
-
-				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity, persistent);
-			}
+			var message = parser.ParseMessage ();
 		}
 
 		[Benchmark]
@@ -222,8 +205,7 @@ header parser.
 		{
 			var path = Path.Combine (MboxDataDir, fileName);
 			using var stream = File.OpenRead (path);
-			using var looped = new LoopedInputStream (stream, 10);
-			var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, persistent);
+			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
 				parser.ParseMessage ();
@@ -258,12 +240,9 @@ header parser.
 		public void ExperimentalMimeParser_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			using var looped = new LoopedInputStream (stream, 1000);
-			var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, true);
+			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, true);
 
-			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
-			}
+			parser.ParseMessage ();
 		}
 
 		#endregion ExperimentalMimeParser
@@ -275,13 +254,7 @@ header parser.
 			var path = Path.Combine (MessagesDataDir, fileName);
 			using var stream = File.OpenRead (path);
 			var reader = new MimeReader (stream, MimeFormat.Entity);
-
-			for (int i = 0; i < 1000; i++) {
-				reader.ReadMessage ();
-
-				stream.Position = 0;
-				reader.SetStream (stream, MimeFormat.Entity);
-			}
+			reader.ReadMessage ();
 		}
 
 		[Benchmark]
@@ -294,8 +267,7 @@ header parser.
 		{
 			var path = Path.Combine (MboxDataDir, fileName);
 			using var stream = File.OpenRead (path);
-			using var looped = new LoopedInputStream (stream, 10);
-			var reader = new MimeReader (looped, MimeFormat.Mbox);
+			var reader = new MimeReader (stream, MimeFormat.Mbox);
 
 			while (!reader.IsEndOfStream) {
 				reader.ReadMessage ();
@@ -318,12 +290,9 @@ header parser.
 		public void MimeReader_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			using var looped = new LoopedInputStream (stream, 1000);
-			var reader = new MimeReader (looped, MimeFormat.Mbox);
+			var reader = new MimeReader (stream, MimeFormat.Entity);
 
-			while (!reader.IsEndOfStream) {
-				reader.ReadMessage ();
-			}
+			reader.ReadMessage ();
 		}
 
 		#endregion
