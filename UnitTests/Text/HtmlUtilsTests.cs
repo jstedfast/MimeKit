@@ -267,9 +267,15 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
-		public void TestIsValidTokenName ()
+		public void TestIsValidAttributeName ()
 		{
-			Assert.That (HtmlUtils.IsValidTokenName (string.Empty), Is.False, "string.Empty");
+			Assert.That (HtmlUtils.IsValidAttributeName (string.Empty), Is.False, "string.Empty");
+		}
+
+		[Test]
+		public void TestIsValidTagName ()
+		{
+			Assert.That (HtmlUtils.IsValidTagName (string.Empty), Is.False, "string.Empty");
 		}
 	}
 }

@@ -37,6 +37,12 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public static class HtmlUtils
 	{
+		// https://dev.w3.org/html5/spec-LC/tokenization.html#attribute-name-state
+		static readonly string InvalidAttributeNameCharacters = "\0\t\r\n\f /=>\"\'<";
+
+		// https://dev.w3.org/html5/spec-LC/tokenization.html#tag-name-state
+		static readonly string InvalidTagNameCharacters = "\0\t\r\n\f />";
+
 #if NETSTANDARD2_0 || NETFRAMEWORK
 		static void Write (this TextWriter writer, ReadOnlySpan<char> value)
 		{
@@ -51,18 +57,27 @@ namespace MimeKit.Text {
 		}
 #endif
 
-		internal static bool IsValidTokenName (string name)
+		internal static bool IsValidAttributeName (string name)
 		{
 			if (string.IsNullOrEmpty (name))
 				return false;
 
 			for (int i = 0; i < name.Length; i++) {
-				switch (name[i]) {
-				case '\t': case '\r': case '\n': case '\f': case ' ':
-				case '<': case '>': case '\'': case '"':
-				case '/': case '=':
+				if (InvalidAttributeNameCharacters.IndexOf (name[i]) != -1)
 					return false;
-				}
+			}
+
+			return true;
+		}
+
+		internal static bool IsValidTagName (string name)
+		{
+			if (string.IsNullOrEmpty (name))
+				return false;
+
+			for (int i = 0; i < name.Length; i++) {
+				if (InvalidTagNameCharacters.IndexOf (name[i]) != -1)
+					return false;
 			}
 
 			return true;

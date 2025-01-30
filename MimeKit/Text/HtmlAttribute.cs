@@ -80,7 +80,7 @@ namespace MimeKit.Text {
 			if (name.Length == 0)
 				throw new ArgumentException ("The attribute name cannot be empty.", nameof (name));
 
-			if (!HtmlUtils.IsValidTokenName (name))
+			if (!HtmlUtils.IsValidAttributeName (name))
 				throw new ArgumentException ("Invalid attribute name.", nameof (name));
 
 			Value = value;
