@@ -1209,14 +1209,14 @@ namespace MimeKit {
 
 		bool StepMboxMarkerStart (ref bool midline)
 		{
-			var span = input.AsSpan ();
+			var span = input.AsSpan (0, inputEnd + 1);
 			int index = inputIndex;
 
 			input[inputEnd] = (byte) '\n';
 
 			if (midline) {
 				// we're in the middle of a line, so we need to scan for the end of the line
-				index = span.Slice (index).IndexOf ((byte) '\n') + index;
+				index = span.Slice (index).EndOfLine () + index;
 
 				if (index == inputEnd) {
 					// we don't have enough input data
@@ -1238,7 +1238,7 @@ namespace MimeKit {
 				}
 
 				// scan for the end of the line
-				index = span.Slice (index).IndexOf ((byte) '\n') + index;
+				index = span.Slice (index).EndOfLine () + index;
 
 				if (index == inputEnd) {
 					// we don't have enough data to check for a From line
@@ -1261,7 +1261,7 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			// scan for the end of the line
-			count = input.AsSpan (inputIndex).IndexOf ((byte) '\n');
+			count = input.AsSpan (inputIndex, (inputEnd + 1) - inputIndex).EndOfLine ();
 
 			int index = inputIndex + count;
 
@@ -1435,13 +1435,14 @@ namespace MimeKit {
 
 		bool StepHeaderValue (ref bool midline)
 		{
+			var span = input.AsSpan (0, inputEnd + 1);
 			int index = inputIndex;
 			int nread;
 
 			input[inputEnd] = (byte) '\n';
 
 			while (index < inputEnd && (midline || IsBlank (input[index]))) {
-				int count = input.AsSpan (index).IndexOf ((byte) '\n');
+				int count = span.Slice (index).EndOfLine ();
 
 				index += count;
 
@@ -1499,8 +1500,8 @@ namespace MimeKit {
 		{
 			input[inputEnd] = (byte) '\n';
 
-			var span = input.AsSpan (inputIndex);
-			int length = span.IndexOf ((byte) '\n');
+			var span = input.AsSpan (inputIndex, (inputEnd + 1) - inputIndex);
+			int length = span.EndOfLine ();
 
 			if (inputIndex + length == inputEnd)
 				return false;
@@ -1710,7 +1711,7 @@ namespace MimeKit {
 		{
 			input[inputEnd] = (byte) '\n';
 
-			int index = input.AsSpan (inputIndex).IndexOf ((byte) '\n') + inputIndex;
+			int index = input.AsSpan (inputIndex, (inputEnd + 1) - inputIndex).EndOfLine () + inputIndex;
 
 			if (index < inputEnd) {
 				inputIndex = index;
@@ -1858,8 +1859,8 @@ namespace MimeKit {
 		{
 			input[inputEnd] = (byte) '\n';
 
-			var span = input.AsSpan (inputIndex);
-			int length = span.IndexOf ((byte) '\n');
+			var span = input.AsSpan (inputIndex, (inputEnd + 1) - inputIndex);
+			int length = span.EndOfLine ();
 			var line = span.Slice (0, length);
 
 			return CheckBoundary (inputIndex, line);
@@ -1871,8 +1872,8 @@ namespace MimeKit {
 
 			input[inputEnd] = (byte) '\n';
 
-			var span = input.AsSpan (inputIndex);
-			int length = span.IndexOf ((byte) '\n');
+			var span = input.AsSpan (inputIndex, (inputEnd + 1) - inputIndex);
+			int length = span.EndOfLine ();
 			var line = span.Slice (0, length);
 
 			return IsBoundary (line, bounds[0].Marker, boundaryLength);
@@ -1907,6 +1908,7 @@ namespace MimeKit {
 
 		void ScanContent (ref int nleft, ref bool midline, ref bool[] formats)
 		{
+			var span = input.AsSpan (0, inputEnd + 1);
 			int length = inputEnd - inputIndex;
 			int startIndex = inputIndex;
 			int index = inputIndex;
@@ -1917,13 +1919,13 @@ namespace MimeKit {
 			input[inputEnd] = (byte) '\n';
 
 			while (index < inputEnd) {
-				var span = input.AsSpan (index);
+				var slice = span.Slice (index);
 
-				length = span.IndexOf ((byte) '\n');
+				length = slice.EndOfLine ();
 				index += length;
 
 				if (index < inputEnd) {
-					var line = span.Slice (0, length);
+					var line = slice.Slice (0, length);
 
 					if ((boundary = CheckBoundary (startIndex, line)) != BoundaryType.None)
 						break;
@@ -1946,7 +1948,7 @@ namespace MimeKit {
 						break;
 					}
 
-					var line = span.Slice (0, length);
+					var line = slice.Slice (0, length);
 
 					if ((boundary = CheckBoundary (startIndex, line)) != BoundaryType.None)
 						break;
