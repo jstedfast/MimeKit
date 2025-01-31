@@ -1120,11 +1120,9 @@ namespace MimeKit {
 			return inputEnd - inputIndex;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		long GetOffset (int index)
 		{
-			if (position == -1)
-				return -1;
-
 			return position - (inputEnd - index);
 		}
 

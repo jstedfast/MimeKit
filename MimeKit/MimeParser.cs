@@ -31,6 +31,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -665,11 +666,9 @@ namespace MimeKit {
 			return inputEnd - inputIndex;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		long GetOffset (int index)
 		{
-			if (position == -1)
-				return -1;
-
 			return position - (inputEnd - index);
 		}
 
