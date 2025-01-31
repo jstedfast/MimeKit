@@ -186,6 +186,31 @@ namespace MimeKit.IO {
 			throw new NotSupportedException ("The stream does not support reading");
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Read a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reading from a <see cref="MeasuringStream"/> is not supported.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
+		public override int Read (Span<byte> buffer)
+		{
+			CheckDisposed ();
+
+			throw new NotSupportedException ("The stream does not support reading");
+		}
+#endif
+
 		/// <summary>
 		/// Asynchronously read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
@@ -211,6 +236,32 @@ namespace MimeKit.IO {
 
 			throw new NotSupportedException ("The stream does not support reading");
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Asynchronously read a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reading from a <see cref="MeasuringStream"/> is not supported.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override ValueTask<int> ReadAsync (Memory<byte> buffer, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			CheckDisposed ();
+
+			throw new NotSupportedException ("The stream does not support reading");
+		}
+#endif
 
 		/// <summary>
 		/// Write a sequence of bytes to the stream and advances the current
@@ -254,6 +305,43 @@ namespace MimeKit.IO {
 			length = Math.Max (length, position);
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Write a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Increments the <see cref="Position"/> property by the number of bytes written.
+		/// If the updated position is greater than the current length of the stream, then
+		/// the <see cref="Length"/> property will be updated to be identical to the
+		/// position.
+		/// </remarks>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void Write (ReadOnlySpan<byte> buffer)
+		{
+			CheckDisposed ();
+
+			if (buffer == null)
+				throw new ArgumentNullException (nameof (buffer));
+
+			position += buffer.Length;
+
+			length = Math.Max (length, position);
+		}
+#endif
+
 		/// <summary>
 		/// Asynchronously write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -293,6 +381,37 @@ namespace MimeKit.IO {
 
 			return Task.CompletedTask;
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Asynchronously write a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Increments the <see cref="Position"/> property by the number of bytes written.
+		/// If the updated position is greater than the current length of the stream, then
+		/// the <see cref="Length"/> property will be updated to be identical to the
+		/// position.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override ValueTask WriteAsync (ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Write (buffer.Span);
+
+			return ValueTask.CompletedTask;
+		}
+#endif
 
 		/// <summary>
 		/// Set the position within the current stream.

@@ -356,6 +356,60 @@ namespace MimeKit.IO {
 			return nread;
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Read a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads data from the <see cref="BaseStream"/>, not allowing it to
+		/// read beyond the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override int Read (Span<byte> buffer)
+		{
+			CheckDisposed ();
+			CheckCanRead ();
+
+			if (buffer == null)
+				throw new ArgumentNullException (nameof (buffer));
+
+			// if we are at the end of the stream, we cannot read anymore data
+			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary) {
+				eos = true;
+				return 0;
+			}
+
+			// make sure that the source stream is in the expected position
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
+				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
+
+			int n = EndBoundary != -1 ? (int) Math.Min (EndBoundary - (StartBoundary + position), buffer.Length) : buffer.Length;
+			int nread = BaseStream.Read (buffer.Slice (0, n));
+
+			if (nread > 0)
+				position += nread;
+			else if (nread == 0)
+				eos = true;
+
+			return nread;
+		}
+#endif
+
 		/// <summary>
 		/// Asynchronously read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
@@ -419,6 +473,58 @@ namespace MimeKit.IO {
 			return nread;
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Asynchronously read a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads data from the <see cref="BaseStream"/>, not allowing it to
+		/// read beyond the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support reading.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async ValueTask<int> ReadAsync (Memory<byte> buffer, CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+			CheckCanRead ();
+
+			// if we are at the end of the stream, we cannot read anymore data
+			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary) {
+				eos = true;
+				return 0;
+			}
+
+			// make sure that the source stream is in the expected position
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
+				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
+
+			int n = EndBoundary != -1 ? (int) Math.Min (EndBoundary - (StartBoundary + position), buffer.Length) : buffer.Length;
+			int nread = await BaseStream.ReadAsync (buffer.Slice (0, n), cancellationToken).ConfigureAwait (false);
+
+			if (nread > 0)
+				position += nread;
+			else if (nread == 0)
+				eos = true;
+
+			return nread;
+		}
+#endif
+
 		/// <summary>
 		/// Write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -471,6 +577,54 @@ namespace MimeKit.IO {
 			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary)
 				eos = true;
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Write a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Writes data to the <see cref="BaseStream"/>, not allowing it to
+		/// write beyond the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void Write (ReadOnlySpan<byte> buffer)
+		{
+			CheckDisposed ();
+			CheckCanWrite ();
+
+			if (buffer == null)
+				throw new ArgumentNullException (nameof (buffer));
+
+			// if we are at the end of the stream, we cannot write anymore data
+			if (EndBoundary != -1 && StartBoundary + position + buffer.Length > EndBoundary) {
+				eos = StartBoundary + position >= EndBoundary;
+				throw new IOException ();
+			}
+
+			// make sure that the source stream is in the expected position
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
+				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
+
+			BaseStream.Write (buffer);
+			position += buffer.Length;
+
+			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary)
+				eos = true;
+		}
+#endif
 
 		/// <summary>
 		/// Asynchronously write a sequence of bytes to the stream and advances the current
@@ -529,6 +683,53 @@ namespace MimeKit.IO {
 			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary)
 				eos = true;
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Asynchronously write a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Writes data to the <see cref="BaseStream"/>, not allowing it to
+		/// write beyond the <see cref="EndBoundary"/>.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override async ValueTask WriteAsync (ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+		{
+			CheckDisposed ();
+			CheckCanWrite ();
+
+			// if we are at the end of the stream, we cannot write anymore data
+			if (EndBoundary != -1 && StartBoundary + position + buffer.Length > EndBoundary) {
+				eos = StartBoundary + position >= EndBoundary;
+				throw new IOException ();
+			}
+
+			// make sure that the source stream is in the expected position
+			if (BaseStream.CanSeek && BaseStream.Position != StartBoundary + position)
+				BaseStream.Seek (StartBoundary + position, SeekOrigin.Begin);
+
+			await BaseStream.WriteAsync (buffer, cancellationToken).ConfigureAwait (false);
+			position += buffer.Length;
+
+			if (EndBoundary != -1 && StartBoundary + position >= EndBoundary)
+				eos = true;
+		}
+#endif
 
 		/// <summary>
 		/// Set the position within the current stream.

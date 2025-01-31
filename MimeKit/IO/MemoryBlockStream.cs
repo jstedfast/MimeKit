@@ -262,6 +262,58 @@ namespace MimeKit.IO {
 			return nread;
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Read a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override int Read (Span<byte> buffer)
+		{
+			CheckDisposed ();
+
+			if (buffer == null)
+				throw new ArgumentNullException (nameof (buffer));
+
+			if (position == MaxCapacity)
+				return 0;
+
+			int max = (int) Math.Min (length - position, buffer.Length);
+			int startIndex = (int) (position % BlockSize);
+			int block = (int) (position / BlockSize);
+			int nread = 0;
+
+			while (nread < max && block < blocks.Count) {
+				int n = Math.Min ((int) BlockSize - startIndex, max - nread);
+				var span = blocks[block].AsSpan (startIndex, n);
+
+				span.CopyTo (buffer.Slice (nread));
+				startIndex = 0;
+				nread += n;
+				block++;
+			}
+
+			position += nread;
+
+			return nread;
+		}
+#endif
+
 		/// <summary>
 		/// Asynchronously read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
@@ -304,6 +356,31 @@ namespace MimeKit.IO {
 				return Task.FromException<int> (ex);
 			}
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Asynchronously read a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </summary>
+		/// <remarks>
+		/// Reads a sequence of bytes from the stream and advances the position
+		/// within the stream by the number of bytes read.
+		/// </remarks>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if
+		/// that many bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
+		/// <param name="buffer">The buffer to read data into.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override ValueTask<int> ReadAsync (Memory<byte> buffer, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			return new ValueTask<int> (Read (buffer.Span));
+		}
+#endif
 
 		/// <summary>
 		/// Write a sequence of bytes to the stream and advances the current
@@ -367,6 +444,65 @@ namespace MimeKit.IO {
 			length = Math.Max (length, position);
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Write a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Writes the entire buffer to the stream and advances the current position
+		/// within the stream by the number of bytes written, adding memory blocks as
+		/// needed in order to contain the newly written bytes.
+		/// </remarks>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override void Write (ReadOnlySpan<byte> buffer)
+		{
+			CheckDisposed ();
+
+			if (buffer == null)
+				throw new ArgumentNullException (nameof (buffer));
+
+			if (position + buffer.Length >= MaxCapacity)
+				throw new IOException (string.Format (CultureInfo.InvariantCulture, "Cannot exceed {0} bytes", MaxCapacity));
+
+			int startIndex = (int) (position % BlockSize);
+			long capacity = blocks.Count * BlockSize;
+			int block = (int) (position / BlockSize);
+			int nwritten = 0;
+
+			while (capacity < position + buffer.Length) {
+				blocks.Add (pool.Rent (Debugger.IsAttached));
+				capacity += BlockSize;
+			}
+
+			while (nwritten < buffer.Length) {
+				int n = Math.Min ((int) BlockSize - startIndex, buffer.Length - nwritten);
+				var span = blocks[block].AsSpan (startIndex, n);
+
+				buffer.Slice (nwritten, n).CopyTo (span);
+				startIndex = 0;
+				nwritten += n;
+				block++;
+			}
+
+			position += nwritten;
+
+			length = Math.Max (length, position);
+		}
+#endif
+
 		/// <summary>
 		/// Asynchronously write a sequence of bytes to the stream and advances the current
 		/// position within this stream by the number of bytes written.
@@ -405,6 +541,36 @@ namespace MimeKit.IO {
 
 			return Task.CompletedTask;
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Asynchronously write a sequence of bytes to the stream and advances the current
+		/// position within this stream by the number of bytes written.
+		/// </summary>
+		/// <remarks>
+		/// Writes the entire buffer to the stream and advances the current position
+		/// within the stream by the number of bytes written, adding memory blocks as
+		/// needed in order to contain the newly written bytes.
+		/// </remarks>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		/// <param name="buffer">The buffer to write.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
+		/// <exception cref="System.NotSupportedException">
+		/// The stream does not support writing.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public override ValueTask WriteAsync (ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default (CancellationToken))
+		{
+			Write (buffer.Span);
+
+			return ValueTask.CompletedTask;
+		}
+#endif
 
 		/// <summary>
 		/// Set the position within the current stream.
