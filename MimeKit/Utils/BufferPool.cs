@@ -111,7 +111,7 @@ namespace MimeKit.Utils
 		/// in subsequent uses of <see cref="Rent(bool)"/>.
 		/// </remarks>
 		/// <returns>The rented buffer.</returns>
-		/// <param name="clear"><c>true if the buffer should be cleared; otherwise, <see langword="false" /></c>.</param>
+		/// <param name="clear"><see langword="true"/> if the buffer should be cleared; otherwise, <see langword="false"/>.</param>
 		public byte[] Rent (bool clear = false)
 		{
 			byte[] buffer = null;
