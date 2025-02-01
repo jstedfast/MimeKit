@@ -1958,28 +1958,39 @@ namespace MimeKit {
 			*inend = (byte) '\n';
 
 			while (inptr < inend) {
-				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-				int alignment = (startIndex + 3) & ~3;
-				byte* aligned = inbuf + alignment;
 				byte* start = inptr;
-				byte c = *aligned;
-				uint mask;
 
-				*aligned = (byte) '\n';
-				while (*inptr != (byte) '\n')
+				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
+				// so we can safely use the startIndex instead of `((long) inptr) & 3` to determine the alignment.
+				switch (startIndex & 3) {
+				case 1:
+					if (*inptr == (byte) '\n')
+						break;
 					inptr++;
-				*aligned = c;
+					goto case 2;
+				case 2:
+					if (*inptr == (byte) '\n')
+						break;
+					inptr++;
+					goto case 3;
+				case 3:
+					if (*inptr != (byte) '\n')
+						inptr++;
+					break;
+				}
 
-				if (inptr == aligned && c != (byte) '\n') {
+				if (*inptr != (byte) '\n') {
 					// -funroll-loops, yippee ki-yay.
-					uint* dword = (uint*) inptr;
-
 					do {
-						mask = *dword++ ^ 0x0A0A0A0A;
+						uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
 						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-					} while (mask == 0);
 
-					inptr = (byte*) (dword - 1);
+						if (mask != 0)
+							break;
+
+						inptr += 4;
+					} while (true);
+
 					while (*inptr != (byte) '\n')
 						inptr++;
 				}
