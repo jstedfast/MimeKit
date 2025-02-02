@@ -118,6 +118,7 @@ header parser.
 			using var stream = File.OpenRead (path);
 			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
 			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		[Benchmark]
@@ -140,7 +141,8 @@ header parser.
 			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
+				var message = parser.ParseMessage ();
+				message.Dispose ();
 			}
 		}
 
@@ -173,8 +175,8 @@ header parser.
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
 			var parser = new MimeParser (stream, MimeFormat.Entity, true);
-
-			parser.ParseMessage ();
+			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		#endregion MimeParser
@@ -187,6 +189,7 @@ header parser.
 			using var stream = File.OpenRead (path);
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
 			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		[Benchmark]
@@ -208,7 +211,8 @@ header parser.
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
+				var message = parser.ParseMessage ();
+				message.Dispose ();
 			}
 		}
 
@@ -241,8 +245,8 @@ header parser.
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, true);
-
-			parser.ParseMessage ();
+			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		#endregion ExperimentalMimeParser
