@@ -502,12 +502,14 @@ namespace MimeKit {
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
 
-			unsafe {
-				fixed (byte* inbuf = input) {
-					if (boundary == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
-						boundary = BoundaryType.ImmediateEndBoundary;
-					else if (boundary == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
-						boundary = BoundaryType.ImmediateBoundary;
+			// If the last boundary we found (before popping one off the stack) was a parent's boundary, we need to check
+			// to see if that boundary is now an immediate boundary and update our state.
+			if (boundary == BoundaryType.ParentEndBoundary || boundary == BoundaryType.ParentBoundary) {
+				unsafe {
+					fixed (byte* inbuf = input) {
+						if (FoundImmediateBoundary (inbuf, out var final))
+							boundary = final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
+					}
 				}
 			}
 		}

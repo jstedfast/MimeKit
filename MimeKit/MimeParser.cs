@@ -55,6 +55,7 @@ namespace MimeKit {
 		public int FinalLength { get { return Marker.Length; } }
 		public int Length { get; private set; }
 		public int MaxLength { get; private set; }
+		public bool IsMboxMarker { get { return Marker == MboxFrom; } }
 
 		public Boundary (string boundary, int currentMaxLength)
 		{
@@ -1222,24 +1223,33 @@ namespace MimeKit {
 			return false;
 		}
 
-		static unsafe bool IsBoundary (byte* text, int length, byte[] boundary, int boundaryLength)
+		static unsafe bool IsBoundary (byte* text, int length, Boundary boundary, out bool final)
 		{
-			if (boundaryLength > length)
+			final = false;
+
+			if (boundary.Length > length)
 				return false;
 
-			fixed (byte* boundaryptr = boundary) {
+			fixed (byte* boundaryptr = boundary.Marker) {
 				// make sure that the text matches the boundary
-				if (!CStringsEqual (text, boundaryptr, boundaryLength))
+				if (!CStringsEqual (text, boundaryptr, boundary.Length))
 					return false;
 
 				// if this is an mbox marker, we're done
-				if (IsMboxMarker (text))
+				if (boundary.IsMboxMarker) {
+					final = true;
 					return true;
+				}
 
-				// the boundary may optionally be followed by lwsp
-				byte* inptr = text + boundaryLength;
+				byte* inptr = text + boundary.Length;
 				byte* inend = text + length;
 
+				if (length >= boundary.FinalLength && inptr[0] == (byte) '-' && inptr[1] == (byte) '-') {
+					final = true;
+					inptr += 2;
+				}
+
+				// the boundary may optionally be followed by lwsp
 				while (inptr < inend) {
 					if (!(*inptr).IsWhitespace ())
 						return false;
@@ -1266,11 +1276,12 @@ namespace MimeKit {
 			for (int i = 0; i < count; i++) {
 				var boundary = bounds[i];
 
-				if (IsBoundary (start, length, boundary.Marker, boundary.FinalLength))
-					return i == 0 ? BoundaryType.ImmediateEndBoundary : BoundaryType.ParentEndBoundary;
+				if (IsBoundary (start, length, boundary, out var final)) {
+					if (final)
+						return i == 0 ? BoundaryType.ImmediateEndBoundary : BoundaryType.ParentEndBoundary;
 
-				if (IsBoundary (start, length, boundary.Marker, boundary.Length))
 					return i == 0 ? BoundaryType.ImmediateBoundary : BoundaryType.ParentBoundary;
+				}
 			}
 
 			if (contentEnd > 0) {
@@ -1278,16 +1289,17 @@ namespace MimeKit {
 				long curOffset = GetOffset (startIndex);
 				var boundary = bounds[count];
 
-				if (curOffset >= contentEnd && IsBoundary (start, length, boundary.Marker, boundary.Length))
+				if (curOffset >= contentEnd && IsBoundary (start, length, boundary, out _))
 					return BoundaryType.ImmediateEndBoundary;
 			}
 
 			return BoundaryType.None;
 		}
 
-		unsafe bool FoundImmediateBoundary (byte* inbuf, bool final)
+		unsafe bool FoundImmediateBoundary (byte* inbuf, out bool final)
 		{
-			int boundaryLength = final ? bounds[0].FinalLength : bounds[0].Length;
+			// TODO: If the MimeReader recorded which boundary marker it found, we wouldn't need to re-scan the input buffer for eoln,
+			// we could just check if boundary[0] == MimeReader.lastFoundBoundary (or whatever we call it).
 			byte* start = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			byte* inptr = start;
@@ -1297,9 +1309,10 @@ namespace MimeKit {
 			while (*inptr != (byte) '\n')
 				inptr++;
 
-			return IsBoundary (start, (int) (inptr - start), bounds[0].Marker, boundaryLength);
+			return IsBoundary (start, (int) (inptr - start), bounds[0], out final);
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		int GetMaxBoundaryLength ()
 		{
 			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
@@ -1716,10 +1729,12 @@ namespace MimeKit {
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
 
-			if (boundary == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
-				boundary = BoundaryType.ImmediateEndBoundary;
-			else if (boundary == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
-				boundary = BoundaryType.ImmediateBoundary;
+			// If the last boundary we found (before popping one off the stack) was a parent's boundary, we need to check
+			// to see if that boundary is now an immediate boundary and update our state.
+			if (boundary == BoundaryType.ParentEndBoundary || boundary == BoundaryType.ParentBoundary) {
+				if (FoundImmediateBoundary (inbuf, out var final))
+					boundary = final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
+			}
 		}
 
 		/// <summary>
