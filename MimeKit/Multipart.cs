@@ -32,6 +32,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -150,7 +151,7 @@ namespace MimeKit {
 		}
 
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		static string GenerateBoundary ()
 		{

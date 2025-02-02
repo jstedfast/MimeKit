@@ -311,7 +311,7 @@ namespace MimeKit {
 		/// <param name="value">The raw value of the header.</param>
 		/// <param name="invalid"><see langword="true" /> if the header field is invalid; otherwise, <see langword="false" />.</param>
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		internal protected Header (ParserOptions options, byte[] field, int fieldNameLength, byte[] value, bool invalid)
 		{
@@ -344,7 +344,7 @@ namespace MimeKit {
 		/// <param name="value">The raw value of the header.</param>
 		/// <param name="invalid"><see langword="true" /> if the header field is invalid; otherwise, <see langword="false" />.</param>
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		internal protected Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
 		{
@@ -1607,7 +1607,7 @@ namespace MimeKit {
 		/// <returns>The unfolded header value.</returns>
 		/// <param name="text">The header text.</param>
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		public static string Unfold (string text)
 		{
