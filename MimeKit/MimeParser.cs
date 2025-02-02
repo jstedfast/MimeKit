@@ -47,9 +47,12 @@ namespace MimeKit {
 		ParentEndBoundary,
 	}
 
+	[DebuggerDisplay ("{System.Text.Encoding.ASCII.GetString (Marker)}")]
 	class Boundary
 	{
 		public static readonly byte[] MboxFrom = "From "u8.ToArray();
+
+		public Boundary Next { get; set; }
 
 		public byte[] Marker { get; private set; }
 		public int FinalLength { get { return Marker.Length; } }
@@ -57,12 +60,17 @@ namespace MimeKit {
 		public int MaxLength { get; private set; }
 		public bool IsMboxMarker { get { return Marker == MboxFrom; } }
 
-		public Boundary (string boundary, int currentMaxLength)
+		public Boundary (string boundary, Boundary parent)
 		{
 			Marker = Encoding.UTF8.GetBytes ("--" + boundary + "--");
 			Length = Marker.Length - 2;
+			Next = parent;
 
-			MaxLength = Math.Max (currentMaxLength, Marker.Length);
+			if (parent != null) {
+				MaxLength = Math.Max (parent.MaxLength, Marker.Length);
+			} else {
+				MaxLength = Marker.Length;
+			}
 		}
 
 		Boundary ()
@@ -133,11 +141,13 @@ namespace MimeKit {
 		long headerOffset;
 		int headerIndex;
 
-		readonly List<Boundary> bounds = new List<Boundary> ();
-		readonly List<Header> headers = new List<Header> ();
-
-		MimeParserState state;
+		// boundary state
+		Boundary boundaries;
+		Boundary currentBoundary;
 		BoundaryType boundary;
+
+		readonly List<Header> headers = new List<Header> ();
+		MimeParserState state;
 		MimeFormat format;
 		bool persistent;
 		bool toplevel;
@@ -444,15 +454,16 @@ namespace MimeKit {
 			toplevel = false;
 			eos = false;
 
-			bounds.Clear ();
 			if (format == MimeFormat.Mbox) {
-				bounds.Add (Boundary.CreateMboxBoundary ());
-
 				mboxMarkerBuffer ??= new byte[ReadAheadSize];
+				boundaries = Boundary.CreateMboxBoundary ();
+			} else {
+				boundaries = null;
 			}
 
 			state = MimeParserState.Initialized;
 			boundary = BoundaryType.None;
+			currentBoundary = null;
 		}
 
 		/// <summary>
@@ -1068,6 +1079,7 @@ namespace MimeKit {
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
+			currentBoundary = null;
 			ResetRawHeaderData ();
 			headers.Clear ();
 
@@ -1263,59 +1275,46 @@ namespace MimeKit {
 
 		unsafe BoundaryType CheckBoundary (int startIndex, byte* start, int length)
 		{
-			int count = bounds.Count;
-
 			if (!IsPossibleBoundary (start, length))
 				return BoundaryType.None;
 
-			if (contentEnd > 0) {
-				// We'll need to special-case checking for the mbox From-marker when respecting Content-Length
-				count--;
-			}
+			if (boundaries != null) {
+				bool final;
 
-			for (int i = 0; i < count; i++) {
-				var boundary = bounds[i];
+				currentBoundary = boundaries;
 
-				if (IsBoundary (start, length, boundary, out var final)) {
-					if (final)
-						return i == 0 ? BoundaryType.ImmediateEndBoundary : BoundaryType.ParentEndBoundary;
+				if (!currentBoundary.IsMboxMarker) {
+					// check immediate boundary
+					if (IsBoundary (start, length, currentBoundary, out final))
+						return final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
 
-					return i == 0 ? BoundaryType.ImmediateBoundary : BoundaryType.ParentBoundary;
+					currentBoundary = currentBoundary.Next;
+
+					// check parent boundaries
+					while (currentBoundary != null && !currentBoundary.IsMboxMarker) {
+						if (IsBoundary (start, length, currentBoundary, out final))
+							return final ? BoundaryType.ParentEndBoundary : BoundaryType.ParentBoundary;
+
+						currentBoundary = currentBoundary.Next;
+					}
 				}
-			}
 
-			if (contentEnd > 0) {
-				// now it is time to check the mbox From-marker for the Content-Length case
-				long curOffset = GetOffset (startIndex);
-				var boundary = bounds[count];
+				if (currentBoundary != null) {
+					// now it is time to check the mbox From-marker
+					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
 
-				if (curOffset >= contentEnd && IsBoundary (start, length, boundary, out _))
-					return BoundaryType.ImmediateEndBoundary;
+					if (curOffset >= contentEnd && IsBoundary (start, length, currentBoundary, out final))
+						return BoundaryType.ParentEndBoundary;
+				}
 			}
 
 			return BoundaryType.None;
 		}
 
-		unsafe bool FoundImmediateBoundary (byte* inbuf, out bool final)
-		{
-			// TODO: If the MimeReader recorded which boundary marker it found, we wouldn't need to re-scan the input buffer for eoln,
-			// we could just check if boundary[0] == MimeReader.lastFoundBoundary (or whatever we call it).
-			byte* start = inbuf + inputIndex;
-			byte* inend = inbuf + inputEnd;
-			byte* inptr = start;
-
-			*inend = (byte) '\n';
-
-			while (*inptr != (byte) '\n')
-				inptr++;
-
-			return IsBoundary (start, (int) (inptr - start), bounds[0], out final);
-		}
-
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		int GetMaxBoundaryLength ()
 		{
-			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
+			return boundaries != null ? boundaries.MaxLength + 2 : 0;
 		}
 
 		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
@@ -1501,7 +1500,7 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			if (bounds.Count > 0) {
+			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
@@ -1667,15 +1666,28 @@ namespace MimeKit {
 
 		void PushBoundary (string boundary)
 		{
-			if (bounds.Count > 0)
-				bounds.Insert (0, new Boundary (boundary, bounds[0].MaxLength));
-			else
-				bounds.Add (new Boundary (boundary, 0));
+			boundaries = new Boundary (boundary, boundaries);
 		}
 
 		void PopBoundary ()
 		{
-			bounds.RemoveAt (0);
+			boundaries = boundaries.Next;
+
+			switch (boundary) {
+			case BoundaryType.ParentEndBoundary:
+				if (currentBoundary == boundaries)
+					boundary = BoundaryType.ImmediateEndBoundary;
+				break;
+			case BoundaryType.ParentBoundary:
+				if (currentBoundary == boundaries)
+					boundary = BoundaryType.ImmediateBoundary;
+				break;
+			case BoundaryType.ImmediateEndBoundary:
+			case BoundaryType.ImmediateBoundary:
+				boundary = BoundaryType.None;
+				currentBoundary = null;
+				break;
+			}
 		}
 
 		unsafe void ConstructMultipart (Multipart multipart, MimeEntityEndEventArgs args, byte* inbuf, int depth, CancellationToken cancellationToken)
@@ -1728,13 +1740,6 @@ namespace MimeKit {
 
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
-
-			// If the last boundary we found (before popping one off the stack) was a parent's boundary, we need to check
-			// to see if that boundary is now an immediate boundary and update our state.
-			if (boundary == BoundaryType.ParentEndBoundary || boundary == BoundaryType.ParentBoundary) {
-				if (FoundImmediateBoundary (inbuf, out var final))
-					boundary = final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
-			}
 		}
 
 		/// <summary>

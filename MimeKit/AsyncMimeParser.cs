@@ -114,6 +114,7 @@ namespace MimeKit {
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
+			currentBoundary = null;
 			ResetRawHeaderData ();
 			headers.Clear ();
 
@@ -283,7 +284,7 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			if (bounds.Count > 0) {
+			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
@@ -501,17 +502,6 @@ namespace MimeKit {
 
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
-
-			// If the last boundary we found (before popping one off the stack) was a parent's boundary, we need to check
-			// to see if that boundary is now an immediate boundary and update our state.
-			if (boundary == BoundaryType.ParentEndBoundary || boundary == BoundaryType.ParentBoundary) {
-				unsafe {
-					fixed (byte* inbuf = input) {
-						if (FoundImmediateBoundary (inbuf, out var final))
-							boundary = final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
-					}
-				}
-			}
 		}
 
 		/// <summary>
