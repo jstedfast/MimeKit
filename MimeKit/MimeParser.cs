@@ -1239,35 +1239,25 @@ namespace MimeKit {
 		{
 			final = false;
 
-			if (boundary.Length > length)
-				return false;
+			if (boundary.IsMboxMarker) {
+				// for mbox markers, we only care about the first 5 characters
+				if (length < boundary.Length)
+					return false;
+
+				length = boundary.Length;
+			} else {
+				// if the length isn't exactly equal to either the normal or final boundary lengths,
+				// then this clearly isn't a match
+				if (boundary.Length != length && boundary.FinalLength != length)
+					return false;
+			}
 
 			fixed (byte* boundaryptr = boundary.Marker) {
 				// make sure that the text matches the boundary
-				if (!CStringsEqual (text, boundaryptr, boundary.Length))
+				if (!CStringsEqual (text, boundaryptr, length))
 					return false;
 
-				// if this is an mbox marker, we're done
-				if (boundary.IsMboxMarker) {
-					final = true;
-					return true;
-				}
-
-				byte* inptr = text + boundary.Length;
-				byte* inend = text + length;
-
-				if (length >= boundary.FinalLength && inptr[0] == (byte) '-' && inptr[1] == (byte) '-') {
-					final = true;
-					inptr += 2;
-				}
-
-				// the boundary may optionally be followed by lwsp
-				while (inptr < inend) {
-					if (!(*inptr).IsWhitespace ())
-						return false;
-
-					inptr++;
-				}
+				final = length == boundary.FinalLength;
 			}
 
 			return true;
@@ -1279,20 +1269,30 @@ namespace MimeKit {
 				return BoundaryType.None;
 
 			if (boundaries != null) {
+				byte* end = start + length;
 				bool final;
+
+				// ignore trailing whitespace characters
+				if (end[-1] == (byte) '\r')
+					end--;
+
+				while (end > start && end[-1].IsWhitespace ())
+					end--;
+
+				int matchLength = (int) (end - start);
 
 				currentBoundary = boundaries;
 
 				if (!currentBoundary.IsMboxMarker) {
 					// check immediate boundary
-					if (IsBoundary (start, length, currentBoundary, out final))
+					if (IsBoundary (start, matchLength, currentBoundary, out final))
 						return final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
 
 					currentBoundary = currentBoundary.Next;
 
 					// check parent boundaries
 					while (currentBoundary != null && !currentBoundary.IsMboxMarker) {
-						if (IsBoundary (start, length, currentBoundary, out final))
+						if (IsBoundary (start, matchLength, currentBoundary, out final))
 							return final ? BoundaryType.ParentEndBoundary : BoundaryType.ParentBoundary;
 
 						currentBoundary = currentBoundary.Next;
@@ -1303,7 +1303,7 @@ namespace MimeKit {
 					// now it is time to check the mbox From-marker
 					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
 
-					if (curOffset >= contentEnd && IsBoundary (start, length, currentBoundary, out final))
+					if (curOffset >= contentEnd && IsBoundary (start, matchLength, currentBoundary, out final))
 						return BoundaryType.ParentEndBoundary;
 				}
 			}
