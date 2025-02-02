@@ -17,26 +17,26 @@ Intel Core i7-9700 CPU 3.00GHz, 1 CPU, 8 logical and 8 physical cores
 
 ### MimeParser
 
-| Method                                             | Mean         | Error      | StdDev       | Median       |
-|--------------------------------------------------- |-------------:|-----------:|-------------:|-------------:|
-| MimeParser_StarTrekMessage                         |    434.95 us |   5.977 us |     4.991 us |    435.15 us |
-| MimeParser_StarTrekMessagePersistent               |    331.47 us |   3.476 us |     3.251 us |    332.54 us |
-| MimeParser_ContentLengthMbox                       |  3,084.92 us |  33.199 us |    29.430 us |  3,089.20 us |
-| MimeParser_ContentLengthMboxPersistent             |  2,576.39 us |  17.208 us |    16.096 us |  2,577.29 us |
-| MimeParser_JwzMbox                                 | 25,505.79 us | 206.305 us |   192.977 us | 25,490.72 us |
-| MimeParser_JwzMboxPersistent                       | 20,065.87 us | 160.457 us |   133.989 us | 20,073.63 us |
-| MimeParser_HeaderStressTest                        |     66.71 us |   1.302 us |     1.154 us |     66.40 us |
-| ExperimentalMimeParser_StarTrekMessage             |    445.25 us |   7.075 us |     6.618 us |    446.03 us |
-| ExperimentalMimeParser_StarTrekMessagePersistent   |    336.57 us |   3.028 us |     2.833 us |    335.68 us |
-| ExperimentalMimeParser_ContentLengthMbox           |  3,119.02 us |  60.423 us |    56.519 us |  3,098.73 us |
-| ExperimentalMimeParser_ContentLengthMboxPersistent |  2,669.13 us |  52.815 us |    92.502 us |  2,628.85 us |
-| ExperimentalMimeParser_JwzMbox                     | 28,497.84 us | 635.932 us | 1,875.061 us | 28,324.19 us |
-| ExperimentalMimeParser_JwzMboxPersistent           | 20,953.24 us | 414.900 us | 1,025.531 us | 20,628.97 us |
-| ExperimentalMimeParser_HeaderStressTest            |     57.82 us |   0.444 us |     0.371 us |     57.82 us |
-| MimeReader_StarTrekMessage                         |    271.03 us |   3.367 us |     2.629 us |    271.94 us |
-| MimeReader_ContentLengthMbox                       |  1,332.58 us |  15.837 us |    14.814 us |  1,330.20 us |
-| MimeReader_JwzMbox                                 | 13,394.55 us | 243.807 us |   250.372 us | 13,310.63 us |
-| MimeReader_HeaderStressTest                        |     18.18 us |   0.198 us |     0.176 us |     18.17 us |
+| Method                                             | Mean         | Error      | StdDev     |
+|--------------------------------------------------- |-------------:|-----------:|-----------:|
+| MimeParser_StarTrekMessage                         |    306.83 us |   5.859 us |   7.619 us |
+| MimeParser_StarTrekMessagePersistent               |    279.50 us |   5.496 us |   5.398 us |
+| MimeParser_ContentLengthMbox                       |  1,755.66 us |  25.352 us |  22.474 us |
+| MimeParser_ContentLengthMboxPersistent             |  1,628.28 us |  25.294 us |  23.660 us |
+| MimeParser_JwzMbox                                 | 16,033.51 us | 192.247 us | 170.422 us |
+| MimeParser_JwzMboxPersistent                       | 14,620.00 us |  96.591 us |  80.658 us |
+| MimeParser_HeaderStressTest                        |     33.54 us |   0.206 us |   0.183 us |
+| ExperimentalMimeParser_StarTrekMessage             |    300.01 us |   2.480 us |   2.071 us |
+| ExperimentalMimeParser_StarTrekMessagePersistent   |    282.55 us |   3.707 us |   3.467 us |
+| ExperimentalMimeParser_ContentLengthMbox           |  1,718.18 us |  14.708 us |  13.039 us |
+| ExperimentalMimeParser_ContentLengthMboxPersistent |  1,671.59 us |   9.777 us |   7.633 us |
+| ExperimentalMimeParser_JwzMbox                     | 17,313.93 us | 329.345 us | 291.956 us |
+| ExperimentalMimeParser_JwzMboxPersistent           | 14,529.20 us | 289.674 us | 241.891 us |
+| ExperimentalMimeParser_HeaderStressTest            |     26.20 us |   0.195 us |   0.173 us |
+| MimeReader_StarTrekMessage                         |    265.49 us |   4.321 us |   3.831 us |
+| MimeReader_ContentLengthMbox                       |  1,271.45 us |  16.934 us |  15.011 us |
+| MimeReader_JwzMbox                                 | 13,495.88 us | 252.937 us | 211.214 us |
+| MimeReader_HeaderStressTest                        |     16.50 us |   0.144 us |   0.112 us |
 
 ### BestEncodingFilter
 
