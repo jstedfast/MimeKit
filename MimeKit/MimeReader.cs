@@ -1756,14 +1756,22 @@ namespace MimeKit {
 			OnHeadersEnd (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken);
 		}
 
-		unsafe bool InnerSkipLine (byte* inbuf, bool consumeNewLine)
+		unsafe bool SkipBoundaryMarker (byte* inbuf, bool endBoundary)
 		{
+			// Don't consume the newline sequence for end boundaries (those are part of the epilogue).
+			bool consumeNewLine = !endBoundary;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 
 			*inend = (byte) '\n';
 
-			// TODO: unroll this loop?
+			// skip over the boundary marker
+			if (endBoundary)
+				inptr += currentBoundary.FinalLength;
+			else
+				inptr += currentBoundary.Length;
+
+			// skip over any trailing whitespace
 			while (*inptr != (byte) '\n')
 				inptr++;
 
@@ -1783,17 +1791,6 @@ namespace MimeKit {
 			inputIndex = inputEnd;
 
 			return false;
-		}
-
-		unsafe bool SkipLine (byte* inbuf, bool consumeNewLine, CancellationToken cancellationToken)
-		{
-			do {
-				if (InnerSkipLine (inbuf, consumeNewLine))
-					return true;
-
-				if (ReadAhead (ReadAheadSize, 1, cancellationToken) <= 0)
-					return false;
-			} while (true);
 		}
 
 		unsafe MimeParserState Step (byte* inbuf, CancellationToken cancellationToken)
@@ -2233,7 +2230,7 @@ namespace MimeKit {
 
 			do {
 				// skip over the boundary marker
-				if (!SkipLine (inbuf, true, cancellationToken)) {
+				if (!SkipBoundaryMarker (inbuf, endBoundary: false)) {
 					OnMultipartBoundary (multipartContentType.Boundary, boundaryOffset, GetOffset (inputIndex), lineNumber, cancellationToken);
 					boundary = BoundaryType.Eos;
 					return;
@@ -2359,7 +2356,7 @@ namespace MimeKit {
 				var boundaryOffset = GetOffset (inputIndex);
 				var boundaryLineNumber = lineNumber;
 
-				SkipLine (inbuf, false, cancellationToken);
+				SkipBoundaryMarker (inbuf, endBoundary: true);
 
 				OnMultipartEndBoundary (marker, boundaryOffset, GetOffset (inputIndex), boundaryLineNumber, cancellationToken);
 

@@ -291,19 +291,13 @@ namespace MimeKit {
 			await OnHeadersEndAsync (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task<bool> SkipLineAsync (bool consumeNewLine, CancellationToken cancellationToken)
+		bool SkipBoundaryMarker (bool endBoundary)
 		{
-			do {
-				unsafe {
-					fixed (byte* inbuf = input) {
-						if (InnerSkipLine (inbuf, consumeNewLine))
-							return true;
-					}
+			unsafe {
+				fixed (byte* inbuf = input) {
+					return SkipBoundaryMarker (inbuf, endBoundary);
 				}
-
-				if (await ReadAheadAsync (ReadAheadSize, 1, cancellationToken).ConfigureAwait (false) <= 0)
-					return false;
-			} while (true);
+			}
 		}
 
 		async Task<MimeParserState> StepAsync (CancellationToken cancellationToken)
@@ -507,7 +501,7 @@ namespace MimeKit {
 
 			do {
 				// skip over the boundary marker
-				if (!await SkipLineAsync (true, cancellationToken).ConfigureAwait (false)) {
+				if (!SkipBoundaryMarker (endBoundary: false)) {
 					await OnMultipartBoundaryAsync (multipartContentType.Boundary, boundaryOffset, GetOffset (inputIndex), lineNumber, cancellationToken).ConfigureAwait (false);
 					boundary = BoundaryType.Eos;
 					return;
@@ -609,7 +603,7 @@ namespace MimeKit {
 				var boundaryOffset = GetOffset (inputIndex);
 				var boundaryLineNumber = lineNumber;
 
-				await SkipLineAsync (false, cancellationToken).ConfigureAwait (false);
+				SkipBoundaryMarker (endBoundary: true);
 
 				await OnMultipartEndBoundaryAsync (marker, boundaryOffset, GetOffset (inputIndex), boundaryLineNumber, cancellationToken).ConfigureAwait (false);
 
