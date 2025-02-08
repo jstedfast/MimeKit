@@ -1288,8 +1288,10 @@ namespace MimeKit {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			ContentType.Changed -= ContentTypeChanged;
-			Headers.Changed -= HeadersChanged;
+			if (disposing) {
+				ContentType.Changed -= ContentTypeChanged;
+				Headers.Changed -= HeadersChanged;
+			}
 		}
 
 		/// <summary>
