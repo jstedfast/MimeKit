@@ -594,32 +594,16 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMultipartBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-		}
-
-		/// <summary>
 		/// Called when a multipart end boundary is encountered in the stream.
 		/// </summary>
 		/// <remarks>
 		/// Called when a multipart end boundary is encountered in the stream.
 		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
 		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
+		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMultipartEndBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected override void OnMultipartEndBoundaryEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
 		{
 			var multipart = (Multipart) stack.Peek ();
 

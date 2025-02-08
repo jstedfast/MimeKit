@@ -291,13 +291,50 @@ namespace MimeKit {
 			await OnHeadersEndAsync (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
-		bool SkipBoundaryMarker (bool endBoundary)
+		async Task<bool> SkipBoundaryMarkerAsync (string boundary, bool endBoundary, CancellationToken cancellationToken)
 		{
+			long beginOffset = GetOffset (inputIndex);
+			int beginLineNumber = lineNumber;
+			int startIndex = inputIndex;
+			bool result;
+
+			if (endBoundary)
+				await OnMultipartEndBoundaryBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+			else
+				await OnMultipartBoundaryBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+
 			unsafe {
 				fixed (byte* inbuf = input) {
-					return SkipBoundaryMarker (inbuf, endBoundary);
+					result = SkipBoundaryMarkerInternal (inbuf, endBoundary);
 				}
 			}
+
+			int count = inputIndex - startIndex;
+
+			if (endBoundary)
+				await OnMultipartEndBoundaryReadAsync (input, startIndex, count, beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+			else
+				await OnMultipartBoundaryReadAsync (input, startIndex, count, beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+
+			long endOffset = GetOffset (inputIndex);
+
+			if (endBoundary) {
+				await OnMultipartEndBoundaryEndAsync (beginOffset, beginLineNumber, endOffset, cancellationToken).ConfigureAwait (false);
+
+#pragma warning disable 618
+				// Obsolete
+				await OnMultipartEndBoundaryAsync (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+#pragma warning restore 618
+			} else {
+				await OnMultipartBoundaryEndAsync (beginOffset, beginLineNumber, endOffset, cancellationToken).ConfigureAwait (false);
+
+#pragma warning disable 618
+				// Obsolete
+				await OnMultipartBoundaryAsync (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+#pragma warning restore 618
+			}
+
+			return result;
 		}
 
 		async Task<MimeParserState> StepAsync (CancellationToken cancellationToken)
@@ -497,17 +534,12 @@ namespace MimeKit {
 
 		async Task MultipartScanSubpartsAsync (ContentType multipartContentType, int depth, CancellationToken cancellationToken)
 		{
-			var boundaryOffset = GetOffset (inputIndex);
-
 			do {
 				// skip over the boundary marker
-				if (!SkipBoundaryMarker (endBoundary: false)) {
-					await OnMultipartBoundaryAsync (multipartContentType.Boundary, boundaryOffset, GetOffset (inputIndex), lineNumber, cancellationToken).ConfigureAwait (false);
+				if (!await SkipBoundaryMarkerAsync (multipartContentType.Boundary, endBoundary: false, cancellationToken).ConfigureAwait (false)) {
 					boundary = BoundaryType.Eos;
 					return;
 				}
-
-				await OnMultipartBoundaryAsync (multipartContentType.Boundary, boundaryOffset, GetOffset (inputIndex), lineNumber - 1, cancellationToken).ConfigureAwait (false);
 
 				var beginLineNumber = lineNumber;
 
@@ -517,10 +549,9 @@ namespace MimeKit {
 
 				if (state == MimeParserState.Boundary) {
 					if (headerCount == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary) {
-							//beginOffset = GetOffset (inputIndex);
+						if (boundary == BoundaryType.ImmediateBoundary)
 							continue;
-						}
+
 						return;
 					}
 
@@ -565,8 +596,6 @@ namespace MimeKit {
 					await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 					break;
 				}
-
-				boundaryOffset = endOffset;
 			} while (boundary == BoundaryType.ImmediateBoundary);
 		}
 
@@ -598,14 +627,7 @@ namespace MimeKit {
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
-				// FIXME: multipart.WriteEndBoundary = true;
-
-				var boundaryOffset = GetOffset (inputIndex);
-				var boundaryLineNumber = lineNumber;
-
-				SkipBoundaryMarker (endBoundary: true);
-
-				await OnMultipartEndBoundaryAsync (marker, boundaryOffset, GetOffset (inputIndex), boundaryLineNumber, cancellationToken).ConfigureAwait (false);
+				await SkipBoundaryMarkerAsync (marker, endBoundary: true, cancellationToken).ConfigureAwait (false);
 
 				PopBoundary ();
 
@@ -615,8 +637,6 @@ namespace MimeKit {
 
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
-
-			// FIXME: multipart.WriteEndBoundary = false;
 
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
