@@ -1288,6 +1288,8 @@ namespace MimeKit {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
+			ContentType.Changed -= ContentTypeChanged;
+			Headers.Changed -= HeadersChanged;
 		}
 
 		/// <summary>
@@ -1299,8 +1301,11 @@ namespace MimeKit {
 		/// the garbage collector can reclaim the memory that the <see cref="MimeEntity"/> was occupying.</remarks>
 		public void Dispose ()
 		{
-			Dispose (true);
-			IsDisposed = true;
+			if (!IsDisposed) {
+				Dispose (true);
+				IsDisposed = true;
+			}
+
 			GC.SuppressFinalize (this);
 		}
 
