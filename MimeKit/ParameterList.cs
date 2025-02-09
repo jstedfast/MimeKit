@@ -368,6 +368,9 @@ namespace MimeKit {
 			table.Add (param.Name, param);
 			parameters.Add (param);
 
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
+
 			OnChanged ();
 		}
 
@@ -379,11 +382,20 @@ namespace MimeKit {
 		/// </remarks>
 		public void Clear ()
 		{
-			foreach (var param in parameters)
+			bool hadBoundary = false;
+
+			foreach (var param in parameters) {
+				if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+					hadBoundary = true;
+
 				param.Changed -= OnParamChanged;
+			}
 
 			parameters.Clear ();
 			table.Clear ();
+
+			if (hadBoundary)
+				OnBoundaryChanged ();
 
 			OnChanged ();
 		}
@@ -444,6 +456,9 @@ namespace MimeKit {
 
 			param.Changed -= OnParamChanged;
 			table.Remove (param.Name);
+
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
 
 			OnChanged ();
 
@@ -506,6 +521,9 @@ namespace MimeKit {
 			table.Add (param.Name, param);
 			param.Changed += OnParamChanged;
 
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
+
 			OnChanged ();
 		}
 
@@ -529,6 +547,9 @@ namespace MimeKit {
 			param.Changed -= OnParamChanged;
 			parameters.RemoveAt (index);
 			table.Remove (param.Name);
+
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
 
 			OnChanged ();
 		}
@@ -581,6 +602,10 @@ namespace MimeKit {
 				param.Changed -= OnParamChanged;
 				value.Changed += OnParamChanged;
 				parameters[index] = value;
+
+				if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase) ||
+					value.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+					OnBoundaryChanged ();
 
 				OnChanged ();
 			}
@@ -650,10 +675,22 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
+		internal event EventHandler BoundaryChanged;
+
+		void OnBoundaryChanged ()
+		{
+			BoundaryChanged?.Invoke (this, EventArgs.Empty);
+		}
+
 		internal event EventHandler Changed;
 
 		void OnParamChanged (object sender, EventArgs args)
 		{
+			var param = (Parameter) sender;
+
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
+
 			OnChanged ();
 		}
 

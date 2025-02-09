@@ -1766,6 +1766,194 @@ Content-Type: text/plain; charset=utf-8
 		}
 
 		[Test]
+		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
+		public void TestMultipartBoundaryLineWithTrailingSpaces ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a multipart boundary followed by trailing whitespace and then more characters
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90   
+Content-Type: text/plain; charset=utf-8
+
+This is the first part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90       
+Content-Type: text/plain; charset=utf-8
+
+This is the second part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--  
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
+
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
+			}
+
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
+
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
+
+					message.WriteTo (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
+			}
+		}
+
+		[Test]
+		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
+		public async Task TestMultipartBoundaryLineWithTrailingSpacesAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a multipart boundary followed by trailing whitespace and then more characters
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: multipart/mixed;
+	boundary=""----=_NextPart_000_003F_01CE98CE.6E826F90""
+
+
+------=_NextPart_000_003F_01CE98CE.6E826F90   
+Content-Type: text/plain; charset=utf-8
+
+This is the first part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90       
+Content-Type: text/plain; charset=utf-8
+
+This is the second part.
+
+------=_NextPart_000_003F_01CE98CE.6E826F90--  
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
+
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
+			}
+
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				var body = (TextPart) multipart[0];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
+
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
+
+					await message.WriteToAsync (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
+			}
+		}
+
+		[Test]
 		public void TestMultipartBoundaryLineWithTrailingSpacesAndThenMoreCharacters ()
 		{
 			string text = @"From: mimekit@example.com

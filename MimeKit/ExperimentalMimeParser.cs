@@ -57,6 +57,8 @@ namespace MimeKit {
 		byte[] preHeaderBuffer;
 		int preHeaderLength;
 
+		byte[] rawBoundary;
+
 		// MimePart content and Multipart preamble/epilogue state
 		Stream content;
 
@@ -251,17 +253,26 @@ namespace MimeKit {
 			SetStream (stream, MimeFormat.Default, persistent);
 		}
 
-		void PopEntity ()
+		void PushEntity (MimeEntity entity)
 		{
-			if (stack.Count > 1) {
-				var entity = (MimeEntity) stack.Pop ();
+			if (stack.Count > 0) {
 				var parent = stack.Peek ();
 
-				if (parent is MimeMessage message)
+				if (parent is Multipart multipart) {
+					multipart.AddInternal (entity, rawBoundary);
+					rawBoundary = null;
+				} else if (parent is MimeMessage message) {
 					message.Body = entity;
-				else
-					((Multipart) parent).InternalAdd (entity);
+				}
 			}
+
+			stack.Push (entity);
+		}
+
+		void PopEntity ()
+		{
+			if (stack.Count > 1)
+				stack.Pop ();
 		}
 
 		#region Mbox Events
@@ -390,6 +401,12 @@ namespace MimeKit {
 				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
 			}
 
+			if (stack.Count > 0) {
+				var rfc822 = (MessagePart) stack.Peek ();
+
+				rfc822.Message = message;
+			}
+
 			stack.Push (message);
 		}
 
@@ -408,12 +425,8 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
-			if (stack.Count > 1) {
-				var message = (MimeMessage) stack.Pop ();
-				var rfc822 = (MessagePart) stack.Peek ();
-
-				rfc822.Message = message;
-			}
+			if (stack.Count > 1)
+				stack.Pop ();
 		}
 
 		#endregion MimeMessage Events
@@ -436,7 +449,7 @@ namespace MimeKit {
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
 			var part = Options.CreateEntity (contentType, headers, toplevel, depth);
 
-			stack.Push (part);
+			PushEntity (part);
 		}
 
 		/// <summary>
@@ -545,7 +558,7 @@ namespace MimeKit {
 			var rfc822 = Options.CreateEntity (contentType, headers, toplevel, depth);
 
 			parsingMessageHeaders = true;
-			stack.Push (rfc822);
+			PushEntity (rfc822);
 			depth++;
 		}
 
@@ -589,25 +602,8 @@ namespace MimeKit {
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
 			var multipart = Options.CreateEntity (contentType, headers, toplevel, depth);
 
-			stack.Push (multipart);
+			PushEntity (multipart);
 			depth++;
-		}
-
-		/// <summary>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </remarks>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMultipartEndBoundaryEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
-		{
-			var multipart = (Multipart) stack.Peek ();
-
-			multipart.WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -661,6 +657,47 @@ namespace MimeKit {
 			multipart.RawPreamble = ((MemoryStream) content).ToArray ();
 			content.Dispose ();
 			content = null;
+		}
+
+		/// <summary>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </remarks>
+		/// <param name="buffer">The buffer containing the boundary marker.</param>
+		/// <param name="startIndex">The index denoting the starting position of the boundary marker within the buffer.</param>
+		/// <param name="count">The length of the boundary marker within the buffer, in bytes.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="lineNumber">The line number where the boundary marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnMultipartBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			rawBoundary = new byte[count];
+
+			Buffer.BlockCopy (buffer, startIndex, rawBoundary, 0, count);
+		}
+
+		/// <summary>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </remarks>
+		/// <param name="buffer">The buffer containing the boundary marker.</param>
+		/// <param name="startIndex">The index denoting the starting position of the boundary marker within the buffer.</param>
+		/// <param name="count">The length of the boundary marker within the buffer, in bytes.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="lineNumber">The line number where the boundary marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnMultipartEndBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			var multipart = (Multipart) stack.Peek ();
+			var rawEndBoundary = new byte[count];
+
+			Buffer.BlockCopy (buffer, startIndex, rawEndBoundary, 0, count);
+
+			multipart.RawEndBoundary = rawEndBoundary;
 		}
 
 		/// <summary>

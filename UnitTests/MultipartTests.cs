@@ -311,20 +311,11 @@ namespace UnitTests {
 			Assert.That (multipart.Preamble, Is.Null, "Preamble should be null by default");
 			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should be true by default");
 
-			multipart.WriteEndBoundary = false;
-			multipart.Preamble = null;
-
-			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should still be false after setting Preamble to null");
-
 			multipart.Preamble = preamble;
 			Assert.That (multipart.Preamble, Is.EqualTo (expected), $"Preamble should now be set to '{preamble}' + newline");
-			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should now be true after setting the Preamble");
 
-			multipart.WriteEndBoundary = false;
 			multipart.Preamble = expected;
-
 			Assert.That (multipart.Preamble, Is.EqualTo (expected), $"Preamble should not have changed");
-			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should not have changed");
 		}
 
 		[Test]
@@ -337,20 +328,29 @@ namespace UnitTests {
 			Assert.That (multipart.Epilogue, Is.Null, "Epilogue should be null by default");
 			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should be true by default");
 
-			multipart.WriteEndBoundary = false;
-			multipart.Epilogue = null;
+			multipart.Epilogue = epilogue;
+			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should now be set to '{epilogue}' + newline");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should now be true after setting the Epilogue");
 
-			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should still be false after setting Epilogue to null");
+			multipart.Epilogue = expected;
+			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should not have changed");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should not have changed");
+
+			// Now test to see what we'd get if the Multipart was parsed by the parser and did not include an end boundary
+			multipart = new Multipart ("mixed") {
+				RawEndBoundary = Array.Empty<byte> ()
+			};
+
+			Assert.That (multipart.Epilogue, Is.Null, "Epilogue should be null by default");
+			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should be false when RawEndBoundary is empty");
 
 			multipart.Epilogue = epilogue;
 			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should now be set to '{epilogue}' + newline");
 			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should now be true after setting the Epilogue");
 
-			multipart.WriteEndBoundary = false;
 			multipart.Epilogue = expected;
-
 			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should not have changed");
-			Assert.That (multipart.WriteEndBoundary, Is.False, "WriteEndBoundary should not have changed");
+			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should not have changed");
 		}
 	}
 }

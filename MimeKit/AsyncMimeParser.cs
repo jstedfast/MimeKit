@@ -482,8 +482,11 @@ namespace MimeKit {
 				//OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
-				multipart.WriteEndBoundary = true;
 				await SkipLineAsync (false, cancellationToken).ConfigureAwait (false);
+
+				// FIXME: we should save the raw end boundary marker in case it contains trailing whitespace
+				multipart.RawEndBoundary = null;
+
 				PopBoundary ();
 
 				//OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
@@ -497,8 +500,6 @@ namespace MimeKit {
 
 			endOffset = GetEndOffset (inputIndex);
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
-
-			multipart.WriteEndBoundary = false;
 
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
