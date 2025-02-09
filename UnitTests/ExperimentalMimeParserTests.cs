@@ -2131,9 +2131,20 @@ This is technically the third part.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					message.WriteTo (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
@@ -2153,6 +2164,16 @@ This is technically the third part.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
+
+					message.WriteTo (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
 			}
 		}
 
@@ -2204,9 +2225,20 @@ This is technically the third part.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Unix;
+
+					await message.WriteToAsync (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				var message = await parser.ParseMessageAsync ();
 
@@ -2226,6 +2258,16 @@ This is technically the third part.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
+
+				using (var memory = new MemoryStream ()) {
+					var options = FormatOptions.Default.Clone ();
+					options.NewLineFormat = NewLineFormat.Dos;
+
+					await message.WriteToAsync (options, memory);
+
+					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+					Assert.That (output, Is.EqualTo (text));
+				}
 			}
 		}
 

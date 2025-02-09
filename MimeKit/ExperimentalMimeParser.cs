@@ -673,9 +673,20 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMultipartBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
-			rawBoundary = new byte[count];
+			// Note: Each call to OnMultipartBoundaryRead will contain a full boundary marker. If rawBoundary is *not* null,
+			// then it means that we've encountered a "double boundary". In order to support this scenario, we append the
+			// second (or third, etc) boundary to the existing rawBoundary buffer.
+			int rawIndex;
 
-			Buffer.BlockCopy (buffer, startIndex, rawBoundary, 0, count);
+			if (rawBoundary != null) {
+				rawIndex = rawBoundary.Length;
+				Array.Resize (ref rawBoundary, rawIndex + count);
+			} else {
+				rawBoundary = new byte[count];
+				rawIndex = 0;
+			}
+
+			Buffer.BlockCopy (buffer, startIndex, rawBoundary, rawIndex, count);
 		}
 
 		/// <summary>
