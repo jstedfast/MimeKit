@@ -99,10 +99,10 @@ namespace MimeKit.Cryptography {
 			int primaryKeys = table.PrimaryKey?.Length ?? 0;
 
 			statement.Append (table.TableName);
-			statement.Append (" ADD COLUMN ");
+			statement.Append (" ADD ");
 			Build (statement, table, column, ref primaryKeys);
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateDbCommand (connection)) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
 				command.ExecuteNonQuery ();
@@ -134,7 +134,7 @@ namespace MimeKit.Cryptography {
 
 			statement.Append (')');
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateDbCommand (connection)) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
 				command.ExecuteNonQuery ();
@@ -188,7 +188,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The list of columns.</returns>
 		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
 		{
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateDbCommand (connection)) {
 				command.CommandText = $"select top 1 * from {tableName}";
 				using (var reader = command.ExecuteReader ()) {
 					var columns = new List<DataColumn> ();
@@ -216,7 +216,7 @@ namespace MimeKit.Cryptography {
 			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("IF NOT EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) CREATE INDEX {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateDbCommand (connection)) {
 				command.CommandText = query;
 				command.ExecuteNonQuery ();
 			}
@@ -236,7 +236,7 @@ namespace MimeKit.Cryptography {
 			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("IF EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) DROP INDEX {0} ON {1}", indexName, tableName);
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateDbCommand (connection)) {
 				command.CommandText = query;
 				command.ExecuteNonQuery ();
 			}
@@ -257,7 +257,7 @@ namespace MimeKit.Cryptography {
 			var fingerprint = certificate.GetFingerprint ().ToLowerInvariant ();
 			var serialNumber = certificate.SerialNumber.ToString ();
 			var issuerName = certificate.IssuerDN.ToString ();
-			var command = connection.CreateCommand ();
+			var command = CreateDbCommand (connection);
 			var query = CreateSelectQuery (fields).Replace ("SELECT", "SELECT top 1");
 
 			// FIXME: Is this really the best way to query for an exact match of a certificate?
@@ -285,7 +285,7 @@ namespace MimeKit.Cryptography {
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
 			var variables = new StringBuilder ("VALUES(");
-			var command = connection.CreateCommand ();
+			var command = CreateDbCommand(connection);
 			var columns = CertificatesTable.Columns;
 
 			for (int i = 1; i < columns.Count; i++) {
