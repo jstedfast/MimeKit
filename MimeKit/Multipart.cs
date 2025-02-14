@@ -567,6 +567,7 @@ namespace MimeKit {
 					}
 
 					if ((part != null && part.Content is null) ||
+						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -602,6 +603,7 @@ namespace MimeKit {
 					}
 
 					if ((part != null && part.Content is null) ||
+						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -680,7 +682,8 @@ namespace MimeKit {
 				}
 
 				if ((part != null && part.Content is null) ||
-				    (multi != null && !multi.WriteEndBoundary))
+					(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
+					(multi != null && !multi.WriteEndBoundary))
 					continue;
 
 				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);

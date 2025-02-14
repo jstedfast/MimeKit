@@ -47,6 +47,68 @@ namespace UnitTests {
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
 		}
 
+		static void AssertSerialization (MimeMessage message, NewLineFormat format, string expected)
+		{
+			if (expected.StartsWith ("From -", StringComparison.Ordinal)) {
+				int eoln = expected.IndexOf ('\n');
+				expected = expected.Substring (eoln + 1);
+			}
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = format;
+
+				message.WriteTo (options, memory);
+
+				var actual = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+				Assert.That (actual, Is.EqualTo (expected));
+			}
+		}
+
+		static async Task AssertSerializationAsync (MimeMessage message, NewLineFormat format, string expected)
+		{
+			if (expected.StartsWith ("From -", StringComparison.Ordinal)) {
+				int eoln = expected.IndexOf ('\n');
+				expected = expected.Substring (eoln + 1);
+			}
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = format;
+
+				await message.WriteToAsync (options, memory);
+
+				var actual = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+				Assert.That (actual, Is.EqualTo (expected));
+			}
+		}
+
+		static void AssertSerialization (MimeEntity entity, NewLineFormat format, string expected)
+		{
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = format;
+
+				entity.WriteTo (options, memory);
+
+				var actual = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+				Assert.That (actual, Is.EqualTo (expected));
+			}
+		}
+
+		static async Task AssertSerializationAsync (MimeEntity entity, NewLineFormat format, string expected)
+		{
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = format;
+
+				await entity.WriteToAsync (options, memory);
+
+				var actual = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+				Assert.That (actual, Is.EqualTo (expected));
+			}
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -1797,15 +1859,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Unix;
-
-					message.WriteTo (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1830,15 +1884,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					message.WriteTo (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1890,15 +1936,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Unix;
-
-					await message.WriteToAsync (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1923,15 +1961,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					await message.WriteToAsync (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2130,15 +2160,7 @@ This is technically the third part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Unix;
-
-					message.WriteTo (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2163,15 +2185,7 @@ This is technically the third part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					message.WriteTo (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2224,15 +2238,7 @@ This is technically the third part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Unix;
-
-					await message.WriteToAsync (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2257,15 +2263,7 @@ This is technically the third part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				using (var memory = new MemoryStream ()) {
-					var options = FormatOptions.Default.Clone ();
-					options.NewLineFormat = NewLineFormat.Dos;
-
-					await message.WriteToAsync (options, memory);
-
-					var output = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
-					Assert.That (output, Is.EqualTo (text));
-				}
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2296,15 +2294,20 @@ This is the second part.
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
 				Assert.That (multipart.Preamble, Is.EqualTo (preamble), "Preamble");
+
+				AssertSerialization (multipart, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var multipart = (Multipart) parser.ParseEntity ();
 
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
 				Assert.That (multipart.Preamble, Is.EqualTo (preamble.Replace ("\n", "\r\n")), "Preamble");
+
+				AssertSerialization (multipart, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2335,15 +2338,20 @@ This is the second part.
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
 				Assert.That (multipart.Preamble, Is.EqualTo (preamble), "Preamble");
+
+				await AssertSerializationAsync (multipart, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var multipart = (Multipart) await parser.ParseEntityAsync ();
 
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
 				Assert.That (multipart.Preamble, Is.EqualTo (preamble.Replace ("\n", "\r\n")), "Preamble");
+
+				await AssertSerializationAsync (multipart, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2388,9 +2396,12 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 
@@ -2407,6 +2418,8 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2451,9 +2464,12 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -2470,6 +2486,8 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2516,9 +2534,12 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 
@@ -2535,11 +2556,13 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
 		[Test]
-		public async Task TestMessageRfc822WithBoundaryBeforeMessageAsync ()
+		public async Task TestMessageRfc822WithoutMessageAsync ()
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
@@ -2581,9 +2604,12 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -2600,6 +2626,8 @@ Content-Type: message/rfc822
 				Assert.That (multipart[1], Is.InstanceOf<MessagePart> (), "Expected second child of the multipart to be message/rfc822");
 				var rfc822 = (MessagePart) multipart[1];
 				Assert.That (rfc822.Message, Is.Null, "Message");
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2664,9 +2692,13 @@ This is the embedded message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
+
+				// FIXME: This is adding an extra newline to the end of the message
+				//AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var options = ParserOptions.Default.Clone ();
 				options.RespectContentLength = true;
 
@@ -2692,6 +2724,9 @@ This is the embedded message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
+
+				// FIXME: This is adding an extra newline to the end of the message
+				//AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2756,9 +2791,13 @@ This is the embedded message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
+
+				// FIXME: This is adding an extra newline to the end of the message
+				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var options = ParserOptions.Default.Clone ();
 				options.RespectContentLength = true;
 
@@ -2784,6 +2823,9 @@ This is the embedded message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
+
+				// FIXME: This is adding an extra newline to the end of the message
+				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2872,9 +2914,12 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\n"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
 				using var message = parser.ParseMessage ();
 
@@ -2891,6 +2936,8 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\r\n"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2979,9 +3026,12 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\n"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -2998,6 +3048,8 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996\r\n"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (14), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (3), "MessagePart.Message.Body.Headers.Count");
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3043,9 +3095,12 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
 				using var message = parser.ParseMessage ();
 
@@ -3062,6 +3117,8 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
 
@@ -3107,9 +3164,12 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -3126,6 +3186,8 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
 
@@ -3171,9 +3233,12 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
 				using var message = parser.ParseMessage ();
 
@@ -3190,6 +3255,8 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
 
@@ -3235,9 +3302,12 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -3254,6 +3324,8 @@ Content-Length: 2812
 				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
 
@@ -3285,9 +3357,12 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				AssertSerialization (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = parser.ParseEntity ();
 
@@ -3300,6 +3375,8 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				AssertSerialization (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3331,9 +3408,12 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = await parser.ParseEntityAsync ();
 
@@ -3346,6 +3426,8 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3378,9 +3460,12 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				AssertSerialization (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = parser.ParseEntity ();
 
@@ -3393,6 +3478,8 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				AssertSerialization (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3425,9 +3512,12 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = await parser.ParseEntityAsync ();
 
@@ -3440,6 +3530,8 @@ This is the rfc822 message body.
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3473,9 +3565,12 @@ CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
 					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
+
+				AssertSerialization (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = parser.ParseEntity ();
 
@@ -3493,6 +3588,8 @@ CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
 					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
+
+				AssertSerialization (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3526,9 +3623,12 @@ CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
 					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
+
+				await AssertSerializationAsync (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = await parser.ParseEntityAsync ();
 
@@ -3546,6 +3646,8 @@ CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
 					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
+
+				await AssertSerializationAsync (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3573,9 +3675,12 @@ This is some raw data.
 				};
 
 				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
+
+				AssertSerialization (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = parser.ParseEntity ();
 
@@ -3589,6 +3694,8 @@ This is some raw data.
 				};
 
 				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
+
+				AssertSerialization (entity, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3616,9 +3723,12 @@ This is some raw data.
 				};
 
 				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
+
+				await AssertSerializationAsync (entity, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var entity = await parser.ParseEntityAsync ();
 
@@ -3632,6 +3742,8 @@ This is some raw data.
 				};
 
 				Assert.That (plain.Text, Is.EqualTo ("This is some raw data." + Environment.NewLine));
+
+				await AssertSerializationAsync (entity, NewLineFormat.Dos, text);
 			}
 		}
 
