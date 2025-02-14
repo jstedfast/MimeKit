@@ -935,14 +935,13 @@ namespace UnitTests.Tnef {
 		public void TestExtractedCharset ()
 		{
 			const string expected = "<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=koi8-r\">\r\n<style type=\"text/css\" style=\"display:none;\"><!-- P {margin-top:0;margin-bottom:0;} --></style>\r\n</head>\r\n<body dir=\"ltr\">\r\n<div id=\"divtagdefaultwrapper\" style=\"font-size:12pt;color:#000000;font-family:Calibri,Helvetica,sans-serif;\" dir=\"ltr\">\r\n<p>шостий</p>\r\n<p><br>\r\n</p>\r\n<p>{EMAILSIGNATURE}</p>\r\n<p><br>\r\n</p>\r\n<div id=\"Signature\"><br>\r\n<font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 10pt;\"><br>\r\n<font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 12pt;\"><b>RR Test 1</b></font>\r\n</font>\r\n<p><font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 10pt;\">&nbsp;</font></p>\r\n</div>\r\n</div>\r\n</body>\r\n</html>\r\n";
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "ukr.eml"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "ukr.eml"));
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
+			using var extracted = tnef.ConvertToMessage ();
 
-			message = tnef.ConvertToMessage ();
+			Assert.That (extracted.Body, Is.InstanceOf<TextPart> ());
 
-			Assert.That (message.Body, Is.InstanceOf<TextPart> ());
-
-			var text = (TextPart) message.Body;
+			var text = (TextPart) extracted.Body;
 
 			Assert.That (text.IsHtml, Is.True);
 
@@ -955,18 +954,17 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestRichTextEml ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "rich-text.eml"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "rich-text.eml"));
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
 			var mtime = new DateTimeOffset (new DateTime (2018, 12, 15, 10, 17, 38));
+			using var extracted = tnef.ConvertToMessage ();
 
-			message = tnef.ConvertToMessage ();
+			Assert.That (extracted.Subject, Is.Empty, "Subject");
+			Assert.That (extracted.Date, Is.EqualTo (DateTimeOffset.MinValue), "Date");
+			Assert.That (extracted.MessageId, Is.EqualTo ("DM5PR21MB0828DA2B8C88048BC03EFFA6CFA20@DM5PR21MB0828.namprd21.prod.outlook.com"), "Message-Id");
 
-			Assert.That (message.Subject, Is.Empty, "Subject");
-			Assert.That (message.Date, Is.EqualTo (DateTimeOffset.MinValue), "Date");
-			Assert.That (message.MessageId, Is.EqualTo ("DM5PR21MB0828DA2B8C88048BC03EFFA6CFA20@DM5PR21MB0828.namprd21.prod.outlook.com"), "Message-Id");
-
-			Assert.That (message.Body, Is.InstanceOf<Multipart> ());
-			var multipart = (Multipart) message.Body;
+			Assert.That (extracted.Body, Is.InstanceOf<Multipart> ());
+			var multipart = (Multipart) extracted.Body;
 
 			Assert.That (multipart.Count, Is.EqualTo (6));
 

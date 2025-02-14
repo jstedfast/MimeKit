@@ -48,7 +48,7 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var filename = string.Format (CultureInfo.InvariantCulture, "jwz.body.{0}.html", index);
 					var path = Path.Combine (dataDir, filename);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 					string expected, actual;
 
 					visitor.Visit (message);

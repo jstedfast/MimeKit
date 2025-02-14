@@ -41,7 +41,7 @@ namespace UnitTests {
 		public void TestArgumentExceptions ()
 		{
 			var unknown = new Cryptography.UnknownCryptographyContext ();
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 			var body = new TextPart ("plain") {
 				Text = "This is the message body."
 			};
@@ -143,7 +143,7 @@ namespace UnitTests {
 		[Test]
 		public void TestGetRecipients ()
 		{
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 			message.Sender = new MailboxAddress ("Example Sender", "sender@example.com");
 			message.From.Add (new MailboxAddress ("Example From", "from@example.com"));
 			message.ReplyTo.Add (new MailboxAddress ("Example Reply-To", "reply-to@example.com"));
@@ -200,7 +200,7 @@ namespace UnitTests {
 		public void TestSettingCommonInvalidMessageIds ()
 		{
 			const string msgid = "[d7e8bc604f797c18ba8120250cbd8c04-JFBVALKQOJXWILKCJQZFA7CDNRQXE2LUPF6EIYLUMFGG643TPRCXQ32TNV2HA===@microsoft.com]";
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 
 			try {
 				message.MessageId = msgid;
@@ -244,7 +244,7 @@ This is the message body.
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				message.Headers.Insert (0, new Header ("X-Prepended", "This is the prepended header"));
 
@@ -340,7 +340,7 @@ Just for fun....  -- Nathaniel<nl>
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -424,7 +424,7 @@ Content-Description: this part contains a single blank line
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -529,7 +529,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -584,7 +584,7 @@ This is the epilogue.".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -645,7 +645,7 @@ This is the preamble.
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -738,7 +738,7 @@ This is the epilogue.
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -813,7 +813,7 @@ unsubscribe
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
 					var options = FormatOptions.Default.Clone ();
@@ -861,7 +861,7 @@ Subject: MIME & int'l mail
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawRfc822Headers))) {
 				var headers = HeaderList.Load (source);
-				var message = new MimeMessage (headers);
+				using var message = new MimeMessage (headers);
 
 				Assert.That (message.Date, Is.EqualTo (new DateTimeOffset (1992, 6, 12, 13, 29, 05, TimeSpan.FromHours (-4))), "Date");
 				Assert.That (message.From.Count, Is.EqualTo (1), "From.Count");
@@ -921,7 +921,7 @@ Subject: MIME & int'l mail
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawRfc822Headers))) {
 				var headers = HeaderList.Load (source).ToList ();
-				var message = new MimeMessage (headers);
+				using var message = new MimeMessage (headers);
 
 				Assert.That (message.Date, Is.EqualTo (new DateTimeOffset (1992, 6, 12, 13, 29, 05, TimeSpan.FromHours (-4))), "Date");
 				Assert.That (message.From.Count, Is.EqualTo (1), "From.Count");
@@ -964,7 +964,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestMailMessageToMimeMessage ()
 		{
-			var mail = new MailMessage ();
+			using var mail = new MailMessage ();
 			mail.Sender = new MailAddress ("sender@sender.com", "The Real Sender");
 			mail.From = new MailAddress ("from@from.com", "From Whence it Came");
 			mail.ReplyToList.Add (new MailAddress ("reply-to@reply-to.com"));
@@ -991,69 +991,67 @@ Subject: MIME & int'l mail
 
 			mail.Attachments.Add (new Attachment (new MemoryStream (imageData, false), "empty.jpeg", "image/jpeg"));
 
-			var message = (MimeMessage) mail;
+			using (var message = (MimeMessage) mail) {
+				Assert.That (message.Sender.Name, Is.EqualTo (mail.Sender.DisplayName), "The sender names do not match.");
+				Assert.That (message.Sender.Address, Is.EqualTo (mail.Sender.Address), "The sender addresses do not match.");
+				Assert.That (message.From[0].Name, Is.EqualTo (mail.From.DisplayName), "The from names do not match.");
+				Assert.That (((MailboxAddress) message.From[0]).Address, Is.EqualTo (mail.From.Address), "The from addresses do not match.");
+				Assert.That (message.ReplyTo[0].Name, Is.EqualTo (mail.ReplyToList[0].DisplayName), "The reply-to names do not match.");
+				Assert.That (((MailboxAddress) message.ReplyTo[0]).Address, Is.EqualTo (mail.ReplyToList[0].Address), "The reply-to addresses do not match.");
+				Assert.That (message.To[0].Name, Is.EqualTo (mail.To[0].DisplayName), "The to names do not match.");
+				Assert.That (((MailboxAddress) message.To[0]).Address, Is.EqualTo (mail.To[0].Address), "The to addresses do not match.");
+				Assert.That (message.Cc[0].Name, Is.EqualTo (mail.CC[0].DisplayName), "The cc names do not match.");
+				Assert.That (((MailboxAddress) message.Cc[0]).Address, Is.EqualTo (mail.CC[0].Address), "The cc addresses do not match.");
+				Assert.That (message.Bcc[0].Name, Is.EqualTo (mail.Bcc[0].DisplayName), "The bcc names do not match.");
+				Assert.That (((MailboxAddress) message.Bcc[0]).Address, Is.EqualTo (mail.Bcc[0].Address), "The bcc addresses do not match.");
+				Assert.That (message.Subject, Is.EqualTo (mail.Subject), "The message subjects do not match.");
+				Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent), "The message priority does not match.");
+				Assert.That (message.Headers["X-MimeKit-Test"], Is.EqualTo (mail.Headers["X-MimeKit-Test"]), "The X-MimeKit-Test headers do not match");
+				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "The top-level MIME part should be a multipart/mixed.");
 
-			Assert.That (message.Sender.Name, Is.EqualTo (mail.Sender.DisplayName), "The sender names do not match.");
-			Assert.That (message.Sender.Address, Is.EqualTo (mail.Sender.Address), "The sender addresses do not match.");
-			Assert.That (message.From[0].Name, Is.EqualTo (mail.From.DisplayName), "The from names do not match.");
-			Assert.That (((MailboxAddress) message.From[0]).Address, Is.EqualTo (mail.From.Address), "The from addresses do not match.");
-			Assert.That (message.ReplyTo[0].Name, Is.EqualTo (mail.ReplyToList[0].DisplayName), "The reply-to names do not match.");
-			Assert.That (((MailboxAddress) message.ReplyTo[0]).Address, Is.EqualTo (mail.ReplyToList[0].Address), "The reply-to addresses do not match.");
-			Assert.That (message.To[0].Name, Is.EqualTo (mail.To[0].DisplayName), "The to names do not match.");
-			Assert.That (((MailboxAddress) message.To[0]).Address, Is.EqualTo (mail.To[0].Address), "The to addresses do not match.");
-			Assert.That (message.Cc[0].Name, Is.EqualTo (mail.CC[0].DisplayName), "The cc names do not match.");
-			Assert.That (((MailboxAddress) message.Cc[0]).Address, Is.EqualTo (mail.CC[0].Address), "The cc addresses do not match.");
-			Assert.That (message.Bcc[0].Name, Is.EqualTo (mail.Bcc[0].DisplayName), "The bcc names do not match.");
-			Assert.That (((MailboxAddress) message.Bcc[0]).Address, Is.EqualTo (mail.Bcc[0].Address), "The bcc addresses do not match.");
-			Assert.That (message.Subject, Is.EqualTo (mail.Subject), "The message subjects do not match.");
-			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent), "The message priority does not match.");
-			Assert.That (message.Headers["X-MimeKit-Test"], Is.EqualTo (mail.Headers["X-MimeKit-Test"]), "The X-MimeKit-Test headers do not match");
-			Assert.That (message.Body, Is.InstanceOf<Multipart> (), "The top-level MIME part should be a multipart/mixed.");
+				var mixed = (Multipart) message.Body;
 
-			var mixed = (Multipart) message.Body;
+				Assert.That (mixed.ContentType.MimeType, Is.EqualTo ("multipart/mixed"), "The top-level MIME part should be a multipart/mixed.");
+				Assert.That (mixed.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/mixed");
+				Assert.That (mixed[0], Is.InstanceOf<MultipartAlternative> (), "Expected the first part the multipart/mixed to be a multipart/alternative");
+				Assert.That (mixed[1], Is.InstanceOf<MimePart> (), "Expected the first part the multipart/mixed to be a MimePart");
 
-			Assert.That (mixed.ContentType.MimeType, Is.EqualTo ("multipart/mixed"), "The top-level MIME part should be a multipart/mixed.");
-			Assert.That (mixed.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/mixed");
-			Assert.That (mixed[0], Is.InstanceOf<MultipartAlternative> (), "Expected the first part the multipart/mixed to be a multipart/alternative");
-			Assert.That (mixed[1], Is.InstanceOf<MimePart> (), "Expected the first part the multipart/mixed to be a MimePart");
+				var attachment = (MimePart) mixed[1];
+				Assert.That (attachment.FileName, Is.EqualTo ("empty.jpeg"), "Expected the attachment to have a filename");
 
-			var attachment = (MimePart) mixed[1];
-			Assert.That (attachment.FileName, Is.EqualTo ("empty.jpeg"), "Expected the attachment to have a filename");
+				var alternative = (MultipartAlternative) mixed[0];
 
-			var alternative = (MultipartAlternative) mixed[0];
+				Assert.That (alternative.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/alternative.");
+				Assert.That (alternative[1] is MultipartRelated, Is.True, "The second MIME part should be a multipart/related.");
 
-			Assert.That (alternative.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/alternative.");
-			Assert.That (alternative[1] is MultipartRelated, Is.True, "The second MIME part should be a multipart/related.");
+				var related = (MultipartRelated) alternative[1];
 
-			var related = (MultipartRelated) alternative[1];
+				Assert.That (related.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/related.");
+				Assert.That (related.ContentBase.ToString (), Is.EqualTo ("http://example.com/"));
+				Assert.That (related[0] is TextPart, Is.True, "The first part of the multipart/related should be the html part");
+				Assert.That (((TextPart) related[0]).ContentLocation, Is.Null);
+				Assert.That (((TextPart) related[0]).ContentBase, Is.Null);
 
-			Assert.That (related.Count, Is.EqualTo (2), "Expected 2 MIME parts within the multipart/related.");
-			Assert.That (related.ContentBase.ToString (), Is.EqualTo ("http://example.com/"));
-			Assert.That (related[0] is TextPart, Is.True, "The first part of the multipart/related should be the html part");
-			Assert.That (((TextPart) related[0]).ContentLocation, Is.Null);
-			Assert.That (((TextPart) related[0]).ContentBase, Is.Null);
-
-			var jpeg = (MimePart) related[1];
-			Assert.That (jpeg.ContentId, Is.EqualTo ("id@jpeg"));
-			Assert.That (jpeg.ContentType.MimeType, Is.EqualTo ("image/jpeg"));
-			Assert.That (jpeg.ContentLocation.OriginalString, Is.EqualTo ("link"));
+				var jpeg = (MimePart) related[1];
+				Assert.That (jpeg.ContentId, Is.EqualTo ("id@jpeg"));
+				Assert.That (jpeg.ContentType.MimeType, Is.EqualTo ("image/jpeg"));
+				Assert.That (jpeg.ContentLocation.OriginalString, Is.EqualTo ("link"));
+			}
 
 			// Test other priorities
 			mail.Priority = MailPriority.Low;
-			message = (MimeMessage) mail;
-
-			Assert.That (message.Priority, Is.EqualTo (MessagePriority.NonUrgent), "The message priority does not match.");
+			using (var message = (MimeMessage) mail)
+				Assert.That (message.Priority, Is.EqualTo (MessagePriority.NonUrgent), "The message priority does not match.");
 
 			mail.Priority = MailPriority.Normal;
-			message = (MimeMessage) mail;
-
-			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal), "The message priority does not match.");
+			using (var message = (MimeMessage) mail)
+				Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal), "The message priority does not match.");
 		}
 
 		[Test]
 		public void TestIssue135 ()
 		{
-			var message = new MimeMessage {
+			using var message = new MimeMessage {
 				Body = new TextPart ("plain") {
 					ContentTransferEncoding = ContentEncoding.Base64,
 					Content = new MimeContent (new MemoryStream (new byte[1], false))
@@ -1070,7 +1068,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestImportance ()
 		{
-			var message = new MimeMessage (new [] { new MailboxAddress ("Example Sender", "sender@example.com") },
+			using var message = new MimeMessage (new [] { new MailboxAddress ("Example Sender", "sender@example.com") },
 				new [] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
 				"Yo dawg, what up?",
 				new TextPart { Text = "Hey! What's happenin'?" });
@@ -1110,7 +1108,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestPriority ()
 		{
-			var message = new MimeMessage (new [] { new MailboxAddress ("Example Sender", "sender@example.com") },
+			using var message = new MimeMessage (new [] { new MailboxAddress ("Example Sender", "sender@example.com") },
 				new [] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
 				"Yo dawg, what up?",
 				new TextPart { Text = "Hey! What's happenin'?" });
@@ -1150,7 +1148,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestXPriority ()
 		{
-			var message = new MimeMessage (new[] { new MailboxAddress ("Example Sender", "sender@example.com") },
+			using var message = new MimeMessage (new[] { new MailboxAddress ("Example Sender", "sender@example.com") },
 				new[] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
 				"Yo dawg, what up?",
 				new TextPart { Text = "Hey! What's happenin'?" });
@@ -1212,7 +1210,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestResend ()
 		{
-			var message = new MimeMessage (new [] { new MailboxAddress ("Example From", "from@example.com") },
+			using var message = new MimeMessage (new [] { new MailboxAddress ("Example From", "from@example.com") },
 				new [] { new MailboxAddress ("Example Recipient", "recipient@example.com") },
 				"Yo dawg, what up?",
 				new TextPart { Text = "Hey! What's happenin'?" });
@@ -1257,7 +1255,7 @@ Subject: MIME & int'l mail
 			const string msgid2 = "message-id2@example.com";
 			const string version1 = "1.0";
 			const string version2 = "2.0";
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 
 			foreach (var property in message.GetType ().GetProperties (BindingFlags.Instance | BindingFlags.Public)) {
 				var getter = property.GetGetMethod ();
@@ -1383,7 +1381,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestImportanceChanged ()
 		{
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 
 			message.Headers.Add (HeaderId.Importance, "high");
 			Assert.That (message.Importance, Is.EqualTo (MessageImportance.High));
@@ -1410,7 +1408,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestPriorityChanged ()
 		{
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 
 			message.Headers.Add (HeaderId.Priority, "urgent");
 			Assert.That (message.Priority, Is.EqualTo (MessagePriority.Urgent));
@@ -1437,7 +1435,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestReferencesChanged ()
 		{
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 			Header references;
 
 			message.Headers.Add (HeaderId.References, "<id1@localhost> <id2@localhost>");
@@ -1458,7 +1456,7 @@ Subject: MIME & int'l mail
 		[Test]
 		public void TestClearHeaders ()
 		{
-			var message = new MimeMessage ();
+			using var message = new MimeMessage ();
 
 			message.Subject = "Clear the headers!";
 
@@ -1524,52 +1522,58 @@ Subject: MIME & int'l mail
 		{
 			const string HtmlBody = "<html>This is an <b>html</b> body.</html>";
 			const string TextBody = "This is the text body.";
-			MimeMessage message;
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.1.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.1.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.1.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.1.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.2.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.2.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.2.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.2.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.2.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.2.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.3.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.3.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.3.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.3.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.3.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.3.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.4.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.4.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.4.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.4.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.4.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.4.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.5.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.5.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.5.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.5.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.5.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.5.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.6.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.6.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.6.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.6.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.6.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.6.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.7.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.7.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.7.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.7.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.7.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.7.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.8.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.8.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.8.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.8.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.8.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.8.txt.");
+			}
 
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"));
-			Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.9.txt.");
-			Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.9.txt.");
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"))) {
+				Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.9.txt.");
+				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.9.txt.");
+			}
 		}
 
 		[Test]
 		public void TestFlowedTextBodyIssue1130 ()
 		{
 			const string TextBody = "We should have access, and apparently did a few months ago, but now there isa \"You do not currently have access to this content.\" at the bottom of therecord\n\nThe URL in question URL:\nhttps://example.com/";
-			MimeMessage message;
-
-			message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "issue1130.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "issue1130.txt"));
 
 			var body = message.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n");
 
@@ -1592,7 +1596,7 @@ This is the text attachment";
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
 				var parser = new MimeParser (source, MimeFormat.Default);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.TextBody, Is.Null, "Message text should be blank, as no body defined");
 				Assert.That (message.Attachments.OfType<TextPart> ().Count (), Is.EqualTo (1), "Message should contain one text attachment");

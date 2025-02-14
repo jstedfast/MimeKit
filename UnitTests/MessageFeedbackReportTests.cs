@@ -35,7 +35,7 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var mfr = new MessageFeedbackReport ();
+			using var mfr = new MessageFeedbackReport ();
 
 			Assert.Throws<ArgumentNullException> (() => mfr.Accept (null));
 		}
@@ -43,7 +43,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeParser ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "feedback-report.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "feedback-report.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -76,7 +76,7 @@ namespace UnitTests {
 		public void TestSerializedContent ()
 		{
 			const string expected = "Feedback-Type: abuse\nUser-Agent: SomeGenerator/1.0\nVersion: 1\n\n";
-			var mfr = new MessageFeedbackReport ();
+			using var mfr = new MessageFeedbackReport ();
 
 			mfr.Fields.Add ("Feedback-Type", "abuse");
 			mfr.Fields.Add ("User-Agent", "SomeGenerator/1.0");

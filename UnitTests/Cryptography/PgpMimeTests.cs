@@ -1275,7 +1275,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestAutoKeyRetrieve ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
 			var multipart = (MultipartSigned) ((Multipart) message.Body)[0];
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
@@ -1323,7 +1323,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestAutoKeyRetrieveAsync ()
 		{
-			var message = await MimeMessage.LoadAsync (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
+			using var message = await MimeMessage.LoadAsync (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
 			var multipart = (MultipartSigned) ((Multipart) message.Body)[0];
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
@@ -1534,15 +1534,15 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Func<SecureMimeContext>) null));
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				var clientEastwood = new MailboxAddress ("Man with No Name", "client.eastwood@fistfullofdollars.com");
+				var clintEastwood = new MailboxAddress ("Man with No Name", "clint.eastwood@fistfullofdollars.com");
 				var mailboxes = new [] { new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com") };
 				var emptyMailboxes = Array.Empty<MailboxAddress> ();
 				var pubkeys = ctx.GetPublicKeys (mailboxes);
 				var key = ctx.GetSigningKey (mailboxes[0]);
 				var emptyPubkeys = Array.Empty<PgpPublicKey> ();
 				DigitalSignatureCollection signatures;
-				var stream = new MemoryStream ();
-				var entity = new MimePart ();
+				using var stream = new MemoryStream ();
+				using var entity = new MimePart ();
 
 				Assert.Throws<ArgumentException> (() => ctx.KeyServer = new Uri ("relative/uri", UriKind.Relative));
 
@@ -1649,14 +1649,14 @@ namespace UnitTests.Cryptography {
 				// GetPublicKeys
 				Assert.Throws<ArgumentNullException> (() => ctx.GetPublicKeys (null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.GetPublicKeysAsync (null));
-				Assert.Throws<PublicKeyNotFoundException> (() => ctx.GetPublicKeys (new MailboxAddress[] { clientEastwood }));
-				Assert.ThrowsAsync<PublicKeyNotFoundException> (() => ctx.GetPublicKeysAsync (new MailboxAddress[] { clientEastwood }));
+				Assert.Throws<PublicKeyNotFoundException> (() => ctx.GetPublicKeys (new MailboxAddress[] { clintEastwood }));
+				Assert.ThrowsAsync<PublicKeyNotFoundException> (() => ctx.GetPublicKeysAsync (new MailboxAddress[] { clintEastwood }));
 
 				// GetSigningKey
 				Assert.Throws<ArgumentNullException> (() => ctx.GetSigningKey (null));
 				Assert.ThrowsAsync<ArgumentNullException> (() => ctx.GetSigningKeyAsync (null));
-				Assert.Throws<PrivateKeyNotFoundException> (() => ctx.GetSigningKey (clientEastwood));
-				Assert.ThrowsAsync<PrivateKeyNotFoundException> (() => ctx.GetSigningKeyAsync (clientEastwood));
+				Assert.Throws<PrivateKeyNotFoundException> (() => ctx.GetSigningKey (clintEastwood));
+				Assert.ThrowsAsync<PrivateKeyNotFoundException> (() => ctx.GetSigningKeyAsync (clintEastwood));
 
 				// Import
 				Assert.Throws<ArgumentNullException> (() => ctx.Import ((Stream) null), "Import");
@@ -1903,7 +1903,7 @@ namespace UnitTests.Cryptography {
 				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
 				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
 
-				var encrypted = new MultipartEncrypted ();
+				using var encrypted = new MultipartEncrypted ();
 
 				Assert.Throws<ArgumentNullException> (() => encrypted.Accept (null));
 
@@ -1934,7 +1934,7 @@ namespace UnitTests.Cryptography {
 				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
 				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (key, DigestAlgorithm.Sha1, null));
 
-				var signed = MultipartSigned.Create (key, DigestAlgorithm.Sha1, entity);
+				using var signed = MultipartSigned.Create (key, DigestAlgorithm.Sha1, entity);
 
 				Assert.Throws<ArgumentNullException> (() => signed.Accept (null));
 				Assert.Throws<ArgumentOutOfRangeException> (() => signed.Prepare (EncodingConstraint.SevenBit, 0));

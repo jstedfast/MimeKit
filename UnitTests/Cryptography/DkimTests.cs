@@ -380,7 +380,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestFormatExceptions ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
 			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
 			var index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var dkim = message.Headers[index];
@@ -522,7 +522,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestVerifyGoogleMailDkimSignature ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
@@ -533,7 +533,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestVerifyGoogleMailDkimSignatureAsync ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
@@ -544,7 +544,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestVerifyGoogleMultipartRelatedDkimSignature ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "related.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
@@ -555,7 +555,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestVerifyGoogleMultipartRelatedDkimSignatureAsync ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "related.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
@@ -566,7 +566,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestVerifyGoogleMultipartWithoutEndBoundaryDkimSignature ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "multipart-no-end-boundary.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
@@ -577,7 +577,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestVerifyGoogleMultipartWithoutEndBoundaryDkimSignatureAsync ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "multipart-no-end-boundary.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
 			var verifier = new DkimVerifier (locator);
@@ -588,7 +588,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSignRfc8463Example ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
 			var signer = new DkimSigner (Ed25519PrivateKey, "football.example.com", "brisbane", DkimSignatureAlgorithm.Ed25519Sha256) {
 				HeaderCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
 				BodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
@@ -612,7 +612,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestVerifyRfc8463Example ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
 			var locator = new DkimPublicKeyLocator ();
 			var verifier = new DkimVerifier (locator);
 			int index;
@@ -632,7 +632,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestVerifyRfc8463ExampleAsync ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
 			var locator = new DkimPublicKeyLocator ();
 			var verifier = new DkimVerifier (locator);
 			int index;
@@ -680,23 +680,23 @@ namespace UnitTests.Cryptography {
 				int i = 0;
 
 				while (!parser.IsEndOfStream && i < 10) {
-					var message = parser.ParseMessage ();
+					using (var message = parser.ParseMessage ()) {
+						TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha1,
+							DkimCanonicalizationAlgorithm.Relaxed,
+							DkimCanonicalizationAlgorithm.Relaxed);
 
-					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha1,
-						DkimCanonicalizationAlgorithm.Relaxed,
-						DkimCanonicalizationAlgorithm.Relaxed);
+						TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha256,
+							DkimCanonicalizationAlgorithm.Relaxed,
+							DkimCanonicalizationAlgorithm.Simple);
 
-					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha256,
-						DkimCanonicalizationAlgorithm.Relaxed,
-						DkimCanonicalizationAlgorithm.Simple);
+						TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha1,
+							DkimCanonicalizationAlgorithm.Simple,
+							DkimCanonicalizationAlgorithm.Relaxed);
 
-					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha1,
-						DkimCanonicalizationAlgorithm.Simple,
-						DkimCanonicalizationAlgorithm.Relaxed);
-
-					TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha256,
-						DkimCanonicalizationAlgorithm.Simple,
-						DkimCanonicalizationAlgorithm.Simple);
+						TestDkimSignVerify (message, DkimSignatureAlgorithm.RsaSha256,
+							DkimCanonicalizationAlgorithm.Simple,
+							DkimCanonicalizationAlgorithm.Simple);
+					}
 
 					i++;
 				}
