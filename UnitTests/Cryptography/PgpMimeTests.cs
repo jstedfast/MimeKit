@@ -212,7 +212,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+			using var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				// throws because no Body is set
@@ -267,7 +267,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+			using var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				// throws because no Body is set
@@ -320,11 +320,11 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartSignedVerifyExceptions ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				var signed = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha256, body);
+				using var signed = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha256, body);
 
 				var protocol = signed.ContentType.Parameters["protocol"];
 				signed.ContentType.Parameters.Remove ("protocol");
@@ -369,7 +369,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartSignedSignUsingKeys ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
 			PgpSecretKey signer;
 
@@ -384,7 +384,7 @@ namespace UnitTests.Cryptography {
 						digest == DigestAlgorithm.MD4)
 						continue;
 
-					var multipart = MultipartSigned.Create (signer, digest, body);
+					using var multipart = MultipartSigned.Create (signer, digest, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -417,7 +417,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartSignedSignUsingKeysAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
 			PgpSecretKey signer;
 
@@ -432,7 +432,7 @@ namespace UnitTests.Cryptography {
 					    digest == DigestAlgorithm.MD4)
 						continue;
 
-					var multipart = await MultipartSigned.CreateAsync (signer, digest, body);
+					using var multipart = await MultipartSigned.CreateAsync (signer, digest, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -467,7 +467,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
-			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+			using var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				// throws because no Body has been set
@@ -490,10 +490,10 @@ namespace UnitTests.Cryptography {
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				var decrypted = encrypted.Decrypt (ctx);
-
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				using (var decrypted = encrypted.Decrypt (ctx)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
 
 				// now do the same thing, but encrypt to the Resent-To headers
 				message.From.Clear ();
@@ -515,10 +515,10 @@ namespace UnitTests.Cryptography {
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				decrypted = encrypted.Decrypt (ctx);
-
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				using (var decrypted = encrypted.Decrypt (ctx)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
 			}
 		}
 
@@ -527,7 +527,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "44CD48EEC90D8849961F36BA50DCD107AB0821A2");
-			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+			using var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				// throws because no Body has been set
@@ -551,10 +551,10 @@ namespace UnitTests.Cryptography {
 				//	encrypted.WriteTo (file);
 
 				// TODO: implement DecryptAsync
-				var decrypted = encrypted.Decrypt (ctx);
-
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				using (var decrypted = encrypted.Decrypt (ctx)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
 
 				// now do the same thing, but encrypt to the Resent-To headers
 				message.From.Clear ();
@@ -577,10 +577,10 @@ namespace UnitTests.Cryptography {
 				//	encrypted.WriteTo (file);
 
 				// TODO: implement DecryptAsync
-				decrypted = encrypted.Decrypt (ctx);
-
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				using (var decrypted = encrypted.Decrypt (ctx)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
 			}
 		}
 
@@ -589,8 +589,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-
-			var encrypted = MultipartEncrypted.Encrypt (new[] { self }, body);
+			using var encrypted = MultipartEncrypted.Encrypt (new[] { self }, body);
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var protocol = encrypted.ContentType.Parameters["protocol"];
@@ -635,66 +634,66 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedEncrypt ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
-			var encrypted = MultipartEncrypted.Encrypt (new [] { self }, body);
-
 			using (var stream = new MemoryStream ()) {
-				encrypted.WriteTo (stream);
+				using (var encrypted = MultipartEncrypted.Encrypt (new[] { self }, body))
+					encrypted.WriteTo (stream);
+
 				stream.Position = 0;
 
-				var entity = MimeEntity.Load (stream);
+				using (var entity = MimeEntity.Load (stream)) {
+					Assert.That (entity, Is.InstanceOf<MultipartEncrypted> (), "Encrypted part is not the expected type");
 
-				Assert.That (entity, Is.InstanceOf<MultipartEncrypted> (), "Encrypted part is not the expected type");
+					var encrypted = (MultipartEncrypted) entity;
 
-				encrypted = (MultipartEncrypted) entity;
+					Assert.That (encrypted[0], Is.InstanceOf<ApplicationPgpEncrypted> (), "First child of multipart/encrypted is not the expected type");
+					Assert.That (encrypted[1], Is.InstanceOf<MimePart> (), "Second child of multipart/encrypted is not the expected type");
+					Assert.That (encrypted[1].ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Second child of multipart/encrypted is not the expected mime-type");
 
-				Assert.That (encrypted[0], Is.InstanceOf<ApplicationPgpEncrypted> (), "First child of multipart/encrypted is not the expected type");
-				Assert.That (encrypted[1], Is.InstanceOf<MimePart> (), "Second child of multipart/encrypted is not the expected type");
-				Assert.That (encrypted[1].ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Second child of multipart/encrypted is not the expected mime-type");
+					using (var decrypted = encrypted.Decrypt ()) {
+						Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+						Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					}
+				}
 			}
-
-			var decrypted = encrypted.Decrypt ();
-
-			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 		}
 
 		[Test]
 		public async Task TestMultipartEncryptedEncryptAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
-			var encrypted = await MultipartEncrypted.EncryptAsync (new[] { self }, body);
-
 			using (var stream = new MemoryStream ()) {
-				await encrypted.WriteToAsync (stream);
+				using (var encrypted = await MultipartEncrypted.EncryptAsync (new[] { self }, body))
+					await encrypted.WriteToAsync (stream);
+
 				stream.Position = 0;
 
-				var entity = await MimeEntity.LoadAsync (stream);
+				using (var entity = await MimeEntity.LoadAsync (stream)) {
+					Assert.That (entity, Is.InstanceOf<MultipartEncrypted> (), "Encrypted part is not the expected type");
 
-				Assert.That (entity, Is.InstanceOf<MultipartEncrypted> (), "Encrypted part is not the expected type");
+					var encrypted = (MultipartEncrypted) entity;
 
-				encrypted = (MultipartEncrypted) entity;
+					Assert.That (encrypted[0], Is.InstanceOf<ApplicationPgpEncrypted> (), "First child of multipart/encrypted is not the expected type");
+					Assert.That (encrypted[1], Is.InstanceOf<MimePart> (), "Second child of multipart/encrypted is not the expected type");
+					Assert.That (encrypted[1].ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Second child of multipart/encrypted is not the expected mime-type");
 
-				Assert.That (encrypted[0], Is.InstanceOf<ApplicationPgpEncrypted> (), "First child of multipart/encrypted is not the expected type");
-				Assert.That (encrypted[1], Is.InstanceOf<MimePart> (), "Second child of multipart/encrypted is not the expected type");
-				Assert.That (encrypted[1].ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "Second child of multipart/encrypted is not the expected mime-type");
+					// TODO: implement DecryptAsync
+					using (var decrypted = encrypted.Decrypt ()) {
+						Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+						Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					}
+				}
 			}
-
-			// TODO: implement DecryptAsync
-			var decrypted = encrypted.Decrypt ();
-
-			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 		}
 
 		[Test]
 		public void TestMultipartEncryptedEncryptUsingKeys ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			IList<PgpPublicKey> recipients;
 
@@ -702,12 +701,12 @@ namespace UnitTests.Cryptography {
 				recipients = ctx.GetPublicKeys (new [] { self });
 			}
 
-			var encrypted = MultipartEncrypted.Encrypt (recipients, body);
+			using var encrypted = MultipartEncrypted.Encrypt (recipients, body);
 
 			//using (var file = File.Create ("pgp-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
-			var decrypted = encrypted.Decrypt ();
+			using var decrypted = encrypted.Decrypt ();
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -716,7 +715,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedEncryptUsingKeysAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			IList<PgpPublicKey> recipients;
 
@@ -724,13 +723,13 @@ namespace UnitTests.Cryptography {
 				recipients = await ctx.GetPublicKeysAsync (new[] { self });
 			}
 
-			var encrypted = await MultipartEncrypted.EncryptAsync (recipients, body);
+			using var encrypted = await MultipartEncrypted.EncryptAsync (recipients, body);
 
 			//using (var file = File.Create ("pgp-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
 			// TODO: implement DecryptAsync
-			var decrypted = encrypted.Decrypt ();
+			using var decrypted = encrypted.Decrypt ();
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -739,7 +738,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedEncryptAlgorithm ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var ctx = new DummyOpenPgpContext ()) {
@@ -747,12 +746,12 @@ namespace UnitTests.Cryptography {
 					if (!IsSupported (algorithm))
 						continue;
 
-					var encrypted = MultipartEncrypted.Encrypt (algorithm, new [] { self }, body);
+					using var encrypted = MultipartEncrypted.Encrypt (algorithm, new [] { self }, body);
 
 					//using (var file = File.Create ("pgp-encrypted.asc"))
 					//	encrypted.WriteTo (file);
 
-					var decrypted = encrypted.Decrypt (ctx);
+					using var decrypted = encrypted.Decrypt (ctx);
 
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -763,7 +762,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedEncryptAlgorithmAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var ctx = new DummyOpenPgpContext ()) {
@@ -771,13 +770,13 @@ namespace UnitTests.Cryptography {
 					if (!IsSupported (algorithm))
 						continue;
 
-					var encrypted = await MultipartEncrypted.EncryptAsync (algorithm, new[] { self }, body);
+					using var encrypted = await MultipartEncrypted.EncryptAsync (algorithm, new[] { self }, body);
 
 					//using (var file = File.Create ("pgp-encrypted.asc"))
 					//	encrypted.WriteTo (file);
 
 					// TODO: implement DecryptAsync
-					var decrypted = encrypted.Decrypt (ctx);
+					using var decrypted = encrypted.Decrypt (ctx);
 
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -788,7 +787,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedEncryptAlgorithmUsingKeys ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			IList<PgpPublicKey> recipients;
 
@@ -800,12 +799,12 @@ namespace UnitTests.Cryptography {
 				if (!IsSupported (algorithm))
 					continue;
 
-				var encrypted = MultipartEncrypted.Encrypt (algorithm, recipients, body);
+				using var encrypted = MultipartEncrypted.Encrypt (algorithm, recipients, body);
 
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				var decrypted = encrypted.Decrypt ();
+				using var decrypted = encrypted.Decrypt ();
 
 				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -815,7 +814,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedEncryptAlgorithmUsingKeysAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 			IList<PgpPublicKey> recipients;
 
@@ -827,13 +826,13 @@ namespace UnitTests.Cryptography {
 				if (!IsSupported (algorithm))
 					continue;
 
-				var encrypted = await MultipartEncrypted.EncryptAsync (algorithm, recipients, body);
+				using var encrypted = await MultipartEncrypted.EncryptAsync (algorithm, recipients, body);
 
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
 				// TODO: implement DecryptAsync
-				var decrypted = encrypted.Decrypt ();
+				using var decrypted = encrypted.Decrypt ();
 
 				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -845,7 +844,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
-			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+			using var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 			DigitalSignatureCollection signatures;
 
 			using (var ctx = new DummyOpenPgpContext ()) {
@@ -869,19 +868,19 @@ namespace UnitTests.Cryptography {
 				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				var decrypted = encrypted.Decrypt (ctx, out signatures);
+				using (var decrypted = encrypted.Decrypt (ctx, out signatures)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					foreach (var signature in signatures) {
+						try {
+							bool valid = signature.Verify ();
 
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+							Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+						} catch (DigitalSignatureVerifyException ex) {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 
@@ -905,19 +904,19 @@ namespace UnitTests.Cryptography {
 				//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 				//	encrypted.WriteTo (file);
 
-				decrypted = encrypted.Decrypt (ctx, out signatures);
+				using (var decrypted = encrypted.Decrypt (ctx, out signatures)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					foreach (var signature in signatures) {
+						try {
+							bool valid = signature.Verify ();
 
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+							Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+						} catch (DigitalSignatureVerifyException ex) {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -928,7 +927,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
-			var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
+			using var message = new MimeMessage { Subject = "Test of signing with OpenPGP" };
 			DigitalSignatureCollection signatures;
 
 			using (var ctx = new DummyOpenPgpContext ()) {
@@ -953,19 +952,19 @@ namespace UnitTests.Cryptography {
 				//	encrypted.WriteTo (file);
 
 				// TODO: implement DecryptAsync
-				var decrypted = encrypted.Decrypt (ctx, out signatures);
+				using (var decrypted = encrypted.Decrypt (ctx, out signatures)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					foreach (var signature in signatures) {
+						try {
+							bool valid = signature.Verify ();
 
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+							Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+						} catch (DigitalSignatureVerifyException ex) {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 
@@ -990,19 +989,19 @@ namespace UnitTests.Cryptography {
 				//	encrypted.WriteTo (file);
 
 				// TODO: implement DecryptAsync
-				decrypted = encrypted.Decrypt (ctx, out signatures);
+				using (var decrypted = encrypted.Decrypt (ctx, out signatures)) {
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 
-				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
-				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					foreach (var signature in signatures) {
+						try {
+							bool valid = signature.Verify ();
 
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
-				foreach (var signature in signatures) {
-					try {
-						bool valid = signature.Verify ();
-
-						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-					} catch (DigitalSignatureVerifyException ex) {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+							Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+						} catch (DigitalSignatureVerifyException ex) {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
 				}
 			}
@@ -1011,16 +1010,16 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedSignAndEncrypt ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, new [] { self }, body);
+			using var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, new [] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1040,17 +1039,17 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedSignAndEncryptAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			var encrypted = await MultipartEncrypted.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, new[] { self }, body);
+			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, new[] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
 			// TODO: implement DecryptAsync
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1070,7 +1069,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedSignAndEncryptUsingKeys ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 			IList<PgpPublicKey> recipients;
@@ -1081,12 +1080,12 @@ namespace UnitTests.Cryptography {
 				signer = ctx.GetSigningKey (self);
 			}
 
-			var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, recipients, body);
+			using var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1106,7 +1105,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedSignAndEncryptUsingKeysAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 			IList<PgpPublicKey> recipients;
@@ -1117,13 +1116,13 @@ namespace UnitTests.Cryptography {
 				signer = await ctx.GetSigningKeyAsync (self);
 			}
 
-			var encrypted = await MultipartEncrypted.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, recipients, body);
+			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
 			// TODO: implement DecryptAsync
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1143,16 +1142,16 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedSignAndEncryptAlgorithm ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new [] { self }, body);
+			using var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new [] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1172,17 +1171,17 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedSignAndEncryptAlgorithmAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			var encrypted = await MultipartEncrypted.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new[] { self }, body);
+			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new[] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
 			// TODO: implement DecryptAsync
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1202,7 +1201,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestMultipartEncryptedSignAndEncryptAlgorithmUsingKeys ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 			IList<PgpPublicKey> recipients;
@@ -1213,12 +1212,12 @@ namespace UnitTests.Cryptography {
 				signer = ctx.GetSigningKey (self);
 			}
 
-			var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
+			using var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1238,7 +1237,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestMultipartEncryptedSignAndEncryptAlgorithmUsingKeysAsync ()
 		{
-			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing and encrypting..." };
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 			IList<PgpPublicKey> recipients;
@@ -1249,13 +1248,13 @@ namespace UnitTests.Cryptography {
 				signer = await ctx.GetSigningKeyAsync (self);
 			}
 
-			var encrypted = await MultipartEncrypted.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
+			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
 
 			// TODO: implement DecryptAsync
-			var decrypted = encrypted.Decrypt (out signatures);
+			using var decrypted = encrypted.Decrypt (out signatures);
 
 			Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 			Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
@@ -1376,37 +1375,37 @@ namespace UnitTests.Cryptography {
 			using (var ctx = new DummyOpenPgpContext ()) {
 				Assert.That (ctx.KeyExchangeProtocol, Is.EqualTo ("application/pgp-keys"), "The key-exchange protocol does not match.");
 
-				var keys = ctx.EnumeratePublicKeys (self).ToList ();
-				var exported = ctx.Export (new [] { self });
-
-				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
-				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
-
-				exported = ctx.Export (keys);
-
-				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
-				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
-
-				using (var stream = new MemoryStream ()) {
-					ctx.Export (new[] { self }, stream, true);
-
-					Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+				using (var exported = ctx.Export (new[] { self })) {
+					Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
+					Assert.That (exported, Is.InstanceOf<MimePart> (), "The exported MIME part should be a MimePart.");
+					Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
 				}
 
-				foreach (var keyring in ctx.EnumeratePublicKeyRings (self)) {
+				var keys = ctx.EnumeratePublicKeys (self).ToList ();
+				using (var exported = ctx.Export (keys)) {
+					Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
+					Assert.That (exported, Is.InstanceOf<MimePart> (), "The exported MIME part should be a MimePart.");
+					Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
+
 					using (var stream = new MemoryStream ()) {
 						ctx.Export (new[] { self }, stream, true);
 
 						Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
 					}
-				}
 
-				using (var stream = new MemoryStream ()) {
-					ctx.Export (keys, stream, true);
+					foreach (var keyring in ctx.EnumeratePublicKeyRings (self)) {
+						using (var stream = new MemoryStream ()) {
+							ctx.Export (new[] { self }, stream, true);
 
-					Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+							Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+						}
+					}
+
+					using (var stream = new MemoryStream ()) {
+						ctx.Export (keys, stream, true);
+
+						Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+					}
 				}
 			}
 		}
@@ -1419,37 +1418,37 @@ namespace UnitTests.Cryptography {
 			using (var ctx = new DummyOpenPgpContext ()) {
 				Assert.That (ctx.KeyExchangeProtocol, Is.EqualTo ("application/pgp-keys"), "The key-exchange protocol does not match.");
 
-				var keys = ctx.EnumeratePublicKeys (self).ToList ();
-				var exported = await ctx.ExportAsync (new[] { self });
-
-				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
-				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
-
-				exported = await ctx.ExportAsync (keys);
-
-				Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
-				Assert.That(exported, Is.InstanceOf<MimePart>(), "The exported MIME part should be a MimePart.");
-				Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
-
-				using (var stream = new MemoryStream ()) {
-					await ctx.ExportAsync (new[] { self }, stream, true);
-
-					Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+				using (var exported = await ctx.ExportAsync (new[] { self })) {
+					Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
+					Assert.That (exported, Is.InstanceOf<MimePart> (), "The exported MIME part should be a MimePart.");
+					Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
 				}
 
-				foreach (var keyring in ctx.EnumeratePublicKeyRings (self)) {
+				var keys = ctx.EnumeratePublicKeys (self).ToList ();
+				using (var exported = await ctx.ExportAsync (keys)) {
+					Assert.That (exported, Is.Not.Null, "The exported MIME part should not be null.");
+					Assert.That (exported, Is.InstanceOf<MimePart> (), "The exported MIME part should be a MimePart.");
+					Assert.That (exported.ContentType.MimeType, Is.EqualTo ("application/pgp-keys"));
+
 					using (var stream = new MemoryStream ()) {
 						await ctx.ExportAsync (new[] { self }, stream, true);
 
 						Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
 					}
-				}
 
-				using (var stream = new MemoryStream ()) {
-					await ctx.ExportAsync (keys, stream, true);
+					foreach (var keyring in ctx.EnumeratePublicKeyRings (self)) {
+						using (var stream = new MemoryStream ()) {
+							await ctx.ExportAsync (new[] { self }, stream, true);
 
-					Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+							Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+						}
+					}
+
+					using (var stream = new MemoryStream ()) {
+						await ctx.ExportAsync (keys, stream, true);
+
+						Assert.That (stream.Length, Is.EqualTo (exported.Content.Stream.Length));
+					}
 				}
 			}
 		}
