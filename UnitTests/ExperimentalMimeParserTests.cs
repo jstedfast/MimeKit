@@ -424,7 +424,7 @@ namespace UnitTests {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 
 				try {
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 					Assert.Fail ("ParseMessage: Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("End of stream."), "ParseMessage");
@@ -443,7 +443,7 @@ namespace UnitTests {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 
 				try {
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 					Assert.Fail ("ParseMessageAsync: Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("End of stream."), "ParseMessageAsync");
@@ -466,7 +466,7 @@ namespace UnitTests {
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 				try {
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("Failed to find mbox From marker."));
 				} catch (Exception ex) {
@@ -488,7 +488,7 @@ namespace UnitTests {
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 				try {
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("Failed to find mbox From marker."));
 				} catch (Exception ex) {
@@ -510,7 +510,7 @@ namespace UnitTests {
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				try {
-					var entity = parser.ParseEntity ();
+					using var entity = parser.ParseEntity ();
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("Failed to parse entity headers."));
 				} catch (Exception ex) {
@@ -532,7 +532,7 @@ namespace UnitTests {
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				try {
-					var message = await parser.ParseEntityAsync ();
+					using var message = await parser.ParseEntityAsync ();
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("Failed to parse entity headers."));
 				} catch (Exception ex) {
@@ -554,7 +554,7 @@ namespace UnitTests {
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				try {
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("Failed to parse message headers."));
 				} catch (Exception ex) {
@@ -576,7 +576,7 @@ namespace UnitTests {
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				try {
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 				} catch (FormatException ex) {
 					Assert.That (ex.Message, Is.EqualTo ("Failed to parse message headers."));
 				} catch (Exception ex) {
@@ -592,13 +592,12 @@ namespace UnitTests {
 
 			using (var stream = new MemoryStream (content, false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
-				MimeMessage message;
 
-				message = parser.ParseMessage ();
-				Assert.That (message.Headers.Count, Is.EqualTo (0));
+				using (var message = parser.ParseMessage ())
+					Assert.That (message.Headers.Count, Is.EqualTo (0));
 
-				message = parser.ParseMessage ();
-				Assert.That (message.Headers.Count, Is.EqualTo (3));
+				using (var message = parser.ParseMessage ())
+					Assert.That (message.Headers.Count, Is.EqualTo (3));
 			}
 		}
 
@@ -609,13 +608,12 @@ namespace UnitTests {
 
 			using (var stream = new MemoryStream (content, false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
-				MimeMessage message;
 
-				message = await parser.ParseMessageAsync ();
-				Assert.That (message.Headers.Count, Is.EqualTo (0));
+				using (var message = await parser.ParseMessageAsync ())
+					Assert.That (message.Headers.Count, Is.EqualTo (0));
 
-				message = await parser.ParseMessageAsync ();
-				Assert.That (message.Headers.Count, Is.EqualTo (3));
+				using (var message = await parser.ParseMessageAsync ())
+					Assert.That (message.Headers.Count, Is.EqualTo (3));
 			}
 		}
 
@@ -632,10 +630,10 @@ namespace UnitTests {
 				stream.Position = 0;
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
-
-				Assert.That (message.Headers.Count, Is.EqualTo (3));
-				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				using (var message = parser.ParseMessage ()) {
+					Assert.That (message.Headers.Count, Is.EqualTo (3));
+					Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				}
 			}
 		}
 
@@ -652,10 +650,10 @@ namespace UnitTests {
 				stream.Position = 0;
 
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
-
-				Assert.That (message.Headers.Count, Is.EqualTo (3));
-				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				using (var message = await parser.ParseMessageAsync ()) {
+					Assert.That (message.Headers.Count, Is.EqualTo (3));
+					Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				}
 			}
 		}
 
@@ -689,7 +687,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Mbox);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 
 					Assert.Fail ("Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
@@ -706,7 +704,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Mbox);
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 
 					Assert.Fail ("Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
@@ -723,7 +721,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
-					var entity = parser.ParseEntity ();
+					using var entity = parser.ParseEntity ();
 
 					Assert.Fail ("Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
@@ -740,7 +738,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
-					var entity = await parser.ParseEntityAsync ();
+					using var entity = await parser.ParseEntityAsync ();
 
 					Assert.Fail ("Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
@@ -757,7 +755,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 
 					Assert.Fail ("Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
@@ -774,7 +772,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 
 					Assert.Fail ("Parsing an empty stream should fail.");
 				} catch (FormatException ex) {
@@ -793,7 +791,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 
 					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
@@ -810,7 +808,7 @@ namespace UnitTests {
 			using (var memory = new MemoryStream (bytes, false)) {
 				try {
 					var parser = new ExperimentalMimeParser (memory, MimeFormat.Entity);
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 
 					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 				} catch (Exception ex) {
@@ -837,7 +835,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MimePart> (), "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
@@ -853,7 +851,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MimePart> (), "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
@@ -886,7 +884,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MimePart> (), "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
@@ -902,7 +900,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MimePart> (), "Expected top-level to be a MimePart");
 				var part = (MimePart) message.Body;
@@ -935,7 +933,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
 				var header = message.Headers[message.Headers.Count - 1];
@@ -953,7 +951,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
 				var header = message.Headers[message.Headers.Count - 1];
@@ -988,7 +986,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
 				var header = message.Headers[message.Headers.Count - 1];
@@ -1006,7 +1004,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
 				var header = message.Headers[message.Headers.Count - 1];
@@ -1028,7 +1026,7 @@ This is the message body.
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of multipart boundary w/o trailing newline
+Subject: test of multipart truncated immedately after first boundary
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1042,7 +1040,7 @@ Content-Type: multipart/mixed;
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1055,7 +1053,7 @@ Content-Type: multipart/mixed;
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1072,7 +1070,7 @@ Content-Type: multipart/mixed;
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of multipart boundary w/o trailing newline
+Subject: test of multipart truncated immedately after first boundary
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1086,7 +1084,7 @@ Content-Type: multipart/mixed;
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1099,7 +1097,7 @@ Content-Type: multipart/mixed;
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1134,7 +1132,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1147,7 +1145,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1182,7 +1180,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1195,7 +1193,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1226,7 +1224,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1241,7 +1239,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1274,7 +1272,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1289,7 +1287,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1323,7 +1321,7 @@ Content-Dis".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1341,7 +1339,7 @@ Content-Dis".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1378,7 +1376,7 @@ Content-Dis".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1396,7 +1394,7 @@ Content-Dis".Replace ("\r\n", "\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1434,7 +1432,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1449,7 +1447,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1484,7 +1482,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1499,7 +1497,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1518,7 +1516,7 @@ Content-Type: text/plain; charset=utf-8
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of multipart subpart headers ending with a boundary
+Subject: test of multipart subpart headers line starting with --
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1538,7 +1536,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1557,7 +1555,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1580,7 +1578,7 @@ This is the message body.
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of multipart subpart headers ending with a boundary
+Subject: test of multipart subpart headers line starting with --
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1600,7 +1598,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1619,7 +1617,7 @@ This is the message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1642,7 +1640,7 @@ This is the message body.
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of multipart subpart headers ending with a boundary
+Subject: test of multipart subpart headers line starting with -- <EOF>
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1657,7 +1655,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1676,7 +1674,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1699,7 +1697,7 @@ Content-Type: text/plain; charset=utf-8
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of multipart subpart headers ending with a boundary
+Subject: test of multipart subpart headers line starting with -- <EOF>
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1714,7 +1712,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1733,7 +1731,7 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1756,7 +1754,7 @@ Content-Type: text/plain; charset=utf-8
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of a multipart boundary followed by trailing whitespace and then more characters
+Subject: test of a multipart boundary followed by trailing whitespace
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1780,7 +1778,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1813,7 +1811,7 @@ This is the second part.
 			text = text.Replace ("\n", "\r\n");
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1849,7 +1847,7 @@ This is the second part.
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of a multipart boundary followed by trailing whitespace and then more characters
+Subject: test of a multipart boundary followed by trailing whitespace
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -1873,7 +1871,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1906,7 +1904,7 @@ This is the second part.
 			text = text.Replace ("\n", "\r\n");
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1967,7 +1965,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -1989,7 +1987,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2040,7 +2038,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2062,7 +2060,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2113,7 +2111,7 @@ This is technically the third part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2146,7 +2144,7 @@ This is technically the third part.
 			text = text.Replace ("\n", "\r\n");
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2207,7 +2205,7 @@ This is technically the third part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2240,7 +2238,7 @@ This is technically the third part.
 			text = text.Replace ("\n", "\r\n");
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2293,7 +2291,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var multipart = (Multipart) parser.ParseEntity ();
+				using var multipart = (Multipart) parser.ParseEntity ();
 
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
@@ -2302,7 +2300,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var multipart = (Multipart) parser.ParseEntity ();
+				using var multipart = (Multipart) parser.ParseEntity ();
 
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
@@ -2332,7 +2330,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var multipart = (Multipart) await parser.ParseEntityAsync ();
+				using var multipart = (Multipart) await parser.ParseEntityAsync ();
 
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
@@ -2341,7 +2339,7 @@ This is the second part.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var multipart = (Multipart) await parser.ParseEntityAsync ();
+				using var multipart = (Multipart) await parser.ParseEntityAsync ();
 
 				Assert.That (multipart.Boundary, Is.Null, "Boundary");
 				Assert.That (multipart.Count, Is.EqualTo (0), "Expected 0 children");
@@ -2375,7 +2373,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2394,7 +2392,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2438,7 +2436,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2457,7 +2455,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2476,11 +2474,11 @@ Content-Type: message/rfc822
 		}
 
 		[Test]
-		public void TestMessageRfc822WithBoundaryBeforeMessage ()
+		public void TestMessageRfc822WithoutMessage ()
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of message/rfc822 part with a From-marker before the message
+Subject: test of message/rfc822 part without a message
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -2503,7 +2501,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2522,7 +2520,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2545,7 +2543,7 @@ Content-Type: message/rfc822
 		{
 			string text = @"From: mimekit@example.com
 To: mimekit@example.com
-Subject: test of message/rfc822 part with a From-marker before the message
+Subject: test of message/rfc822 part without a message
 Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
@@ -2568,7 +2566,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2587,7 +2585,7 @@ Content-Type: message/rfc822
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2645,7 +2643,7 @@ This is the embedded message body.
 				options.RespectContentLength = true;
 
 				var parser = new ExperimentalMimeParser (options, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2673,7 +2671,7 @@ This is the embedded message body.
 				options.RespectContentLength = true;
 
 				var parser = new ExperimentalMimeParser (options, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2737,7 +2735,7 @@ This is the embedded message body.
 				options.RespectContentLength = true;
 
 				var parser = new ExperimentalMimeParser (options, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2765,7 +2763,7 @@ This is the embedded message body.
 				options.RespectContentLength = true;
 
 				var parser = new ExperimentalMimeParser (options, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
@@ -2859,7 +2857,7 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -2878,7 +2876,7 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -2966,7 +2964,7 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -2985,7 +2983,7 @@ UgrMwopFnzRdSHvT1acSqVfMYWm5nXImvtCuFAavkjDutE9+Y/LLFLBUpAVeu3rwW3wV0Tcv
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3030,7 +3028,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3049,7 +3047,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3094,7 +3092,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3113,7 +3111,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3158,7 +3156,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3177,7 +3175,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3222,7 +3220,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3241,7 +3239,7 @@ Content-Length: 2812
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (ParserOptions.Default, stream, MimeFormat.Mbox);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<MessagePart> (), "Expected top-level to be a MessagePart");
 				var rfc822 = (MessagePart) message.Body;
@@ -3276,7 +3274,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3291,7 +3289,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3322,7 +3320,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3337,7 +3335,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3369,7 +3367,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3384,7 +3382,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3416,7 +3414,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3431,7 +3429,7 @@ This is the rfc822 message body.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MessagePart> (), "Expected message/rfc822");
 				var rfc822 = (MessagePart) entity;
@@ -3459,44 +3457,42 @@ CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
 				var part = (MimePart) entity;
-				MimeMessage message;
 
 				using (var content = part.Content.Open ()) {
 					parser = new ExperimentalMimeParser (content, MimeFormat.Entity);
-					message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
+
+					Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+					var body = (TextPart) message.Body;
+
+					Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
-
-				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
-				var body = (TextPart) message.Body;
-
-				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
-				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
-				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
 				var part = (MimePart) entity;
-				MimeMessage message;
 
 				using (var content = part.Content.Open ()) {
 					parser = new ExperimentalMimeParser (content, MimeFormat.Entity);
-					message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
+
+					Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+					var body = (TextPart) message.Body;
+
+					Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
-
-				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
-				var body = (TextPart) message.Body;
-
-				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
-				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
-				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 		}
 
@@ -3514,44 +3510,42 @@ CgpUaGlzIGlzIHRoZSByZmM4MjIgbWVzc2FnZSBib2R5Lgo=
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
 				var part = (MimePart) entity;
-				MimeMessage message;
 
 				using (var content = part.Content.Open ()) {
 					parser = new ExperimentalMimeParser (content, MimeFormat.Entity);
-					message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
+
+					Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+					var body = (TextPart) message.Body;
+
+					Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
-
-				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
-				var body = (TextPart) message.Body;
-
-				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
-				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
-				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected message/rfc822 as a MimePart");
 				var part = (MimePart) entity;
-				MimeMessage message;
 
 				using (var content = part.Content.Open ()) {
 					parser = new ExperimentalMimeParser (content, MimeFormat.Entity);
-					message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
+
+					Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
+					var body = (TextPart) message.Body;
+
+					Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
+					Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
+					Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 				}
-
-				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected child of the message/rfc822 to be text/plain");
-				var body = (TextPart) message.Body;
-
-				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
-				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
-				Assert.That (body.Text, Is.EqualTo ("This is the rfc822 message body." + Environment.NewLine));
 			}
 		}
 
@@ -3567,7 +3561,7 @@ This is some raw data.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected MimePart");
 				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
@@ -3583,7 +3577,7 @@ This is some raw data.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = parser.ParseEntity ();
+				using var entity = parser.ParseEntity ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected MimePart");
 				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
@@ -3610,7 +3604,7 @@ This is some raw data.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected MimePart");
 				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
@@ -3626,7 +3620,7 @@ This is some raw data.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var entity = await parser.ParseEntityAsync ();
+				using var entity = await parser.ParseEntityAsync ();
 
 				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected MimePart");
 				Assert.That (entity.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
@@ -3648,7 +3642,7 @@ This is some raw data.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected body of the message to be text/plain");
 				var body = (TextPart) message.Body;
@@ -3667,7 +3661,7 @@ This is some raw data.
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected body of the message to be text/plain");
 				var body = (TextPart) message.Body;
@@ -3758,7 +3752,7 @@ This is the message body.
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 
 			while (!parser.IsEndOfStream) {
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 				Multipart multipart;
 				MimeEntity entity;
 
@@ -3800,7 +3794,7 @@ This is the message body.
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 
 			while (!parser.IsEndOfStream) {
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 				Multipart multipart;
 				MimeEntity entity;
 
@@ -3962,7 +3956,7 @@ This is the message body.
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "empty-multipart.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 				var builder = new StringBuilder ();
 
 				DumpMimeTree (builder, message);
@@ -4236,7 +4230,7 @@ This is the message body.
 		static void TestMbox (ParserOptions options, string baseName)
 		{
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
-			var output = new MemoryBlockStream ();
+			using var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 			NewLineFormat newLineFormat;
 			List<MimeOffsets> offsets;
@@ -4249,7 +4243,7 @@ This is the message body.
 				format.NewLineFormat = newLineFormat = DetectNewLineFormat (mbox);
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
@@ -4276,7 +4270,7 @@ This is the message body.
 		static async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
 			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
-			var output = new MemoryBlockStream ();
+			using var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 			NewLineFormat newLineFormat;
 			List<MimeOffsets> offsets;
@@ -4289,7 +4283,7 @@ This is the message body.
 				format.NewLineFormat = newLineFormat = DetectNewLineFormat (mbox);
 
 				while (!parser.IsEndOfStream) {
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
@@ -4353,7 +4347,7 @@ This is the message body.
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, true);
 
 				while (!parser.IsEndOfStream) {
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
@@ -4392,7 +4386,7 @@ This is the message body.
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, true);
 
 				while (!parser.IsEndOfStream) {
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 
 					builder.AppendFormat ("{0}", parser.MboxMarker).Append ('\n');
 					if (message.From.Count > 0)
@@ -4429,7 +4423,7 @@ This is the message body.
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				Assert.That (message.Subject, Is.EqualTo (subject), "Subject values do not match");
 				Assert.That (message.TextBody.Replace ("\r\n", "\n"), Is.EqualTo (body), "Message text does not match.");
@@ -4444,7 +4438,7 @@ This is the message body.
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Subject, Is.EqualTo (subject), "Subject values do not match");
 				Assert.That (message.TextBody.Replace ("\r\n", "\n"), Is.EqualTo (body), "Message text does not match.");
@@ -4460,8 +4454,7 @@ This is the message body.
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					parser.ParseMessage ();
-
+					using var message = parser.ParseMessage ();
 					var marker = parser.MboxMarker;
 
 					if ((count % 2) == 0) {
@@ -4486,8 +4479,7 @@ This is the message body.
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
-					await parser.ParseMessageAsync ();
-
+					using var message = await parser.ParseMessageAsync ();
 					var marker = parser.MboxMarker;
 
 					if ((count % 2) == 0) {
@@ -4510,7 +4502,7 @@ This is the message body.
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 				var multipart = message.Body as Multipart;
 
 				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
@@ -4527,7 +4519,7 @@ This is the message body.
 
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 				var multipart = message.Body as Multipart;
 
 				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
@@ -4542,7 +4534,7 @@ This is the message body.
 		{
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 				var type = message.Body.ContentType;
 
 				Assert.That (type.MediaType, Is.EqualTo ("application"), "The media type is not the default.");
@@ -4556,7 +4548,7 @@ This is the message body.
 		{
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 				var type = message.Body.ContentType;
 
 				Assert.That (type.MediaType, Is.EqualTo ("application"), "The media type is not the default.");
@@ -4575,7 +4567,7 @@ This is the message body.
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 				} catch {
 					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
 				}
@@ -4592,7 +4584,7 @@ This is the message body.
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				try {
 					var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 				} catch {
 					Assert.Fail ("A message with 0 bytes of content should not fail to parse.");
 				}
@@ -4610,7 +4602,7 @@ This is the message body.
 					filtered.Add (new Unix2DosFilter ());
 
 					var parser = new ExperimentalMimeParser (filtered, MimeFormat.Entity);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 
 					// make sure that the top-level MIME part is a multipart/alternative
 					Assert.That (message.Body, Is.InstanceOf<MultipartAlternative> ());
@@ -4629,7 +4621,7 @@ This is the message body.
 					filtered.Add (new Unix2DosFilter ());
 
 					var parser = new ExperimentalMimeParser (filtered, MimeFormat.Entity);
-					var message = await parser.ParseMessageAsync ();
+					using var message = await parser.ParseMessageAsync ();
 
 					// make sure that the top-level MIME part is a multipart/alternative
 					Assert.That (message.Body, Is.InstanceOf<MultipartAlternative> ());
@@ -4651,7 +4643,7 @@ This is a single line of text";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4673,7 +4665,7 @@ This is a single line of text";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4696,7 +4688,7 @@ This is a single line of text
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4719,7 +4711,7 @@ This is a single line of text
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4751,7 +4743,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
@@ -4783,7 +4775,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
@@ -4816,7 +4808,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
@@ -4849,7 +4841,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Children[0].Lines;
 
@@ -4864,7 +4856,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4879,7 +4871,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4894,7 +4886,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = parser.ParseMessage ();
+				using var message = parser.ParseMessage ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
@@ -4909,7 +4901,7 @@ ABC
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new CustomMimeParser (stream, MimeFormat.Entity);
-				var message = await parser.ParseMessageAsync ();
+				using var message = await parser.ParseMessageAsync ();
 
 				var lines = parser.Offsets[0].Body.Lines;
 
