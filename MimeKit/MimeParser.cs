@@ -1543,7 +1543,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true, depth);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, depth);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -1637,7 +1637,7 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = options.CreateEntity (type, headers, false, depth);
+				var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, depth);
 				var entityArgs = new MimeEntityEndEventArgs (entity, multipart) {
 					HeadersEndOffset = headerBlockEnd,
 					BeginOffset = headerBlockBegin,
@@ -1779,7 +1779,7 @@ namespace MimeKit {
 
 			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
 
-			var parsed = new HeaderList (options);
+			var parsed = new HeaderList (options, true);
 			foreach (var header in headers)
 				parsed.Add (header);
 
@@ -1878,7 +1878,7 @@ namespace MimeKit {
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all the headers.
-			var entity = options.CreateEntity (type, headers, false, 0);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -1986,7 +1986,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true, 0);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,

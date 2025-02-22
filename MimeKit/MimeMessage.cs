@@ -107,7 +107,7 @@ namespace MimeKit {
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
 		{
 			addresses = new Dictionary<HeaderId, InternetAddressList> ();
-			Headers = new HeaderList (options);
+			Headers = new HeaderList (options, true);
 
 			compliance = mode;
 
@@ -135,7 +135,7 @@ namespace MimeKit {
 		internal MimeMessage (ParserOptions options)
 		{
 			addresses = new Dictionary<HeaderId, InternetAddressList> ();
-			Headers = new HeaderList (options);
+			Headers = new HeaderList (options, true);
 
 			compliance = RfcComplianceMode.Strict;
 
@@ -252,7 +252,7 @@ namespace MimeKit {
 			if (headers is HeaderList headerList) {
 				Headers = headerList;
 			} else {
-				Headers = new HeaderList (ParserOptions.Default.Clone ());
+				Headers = new HeaderList (ParserOptions.Default.Clone (), true);
 
 				foreach (var header in headers)
 					Headers.Add (header);

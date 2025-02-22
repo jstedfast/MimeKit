@@ -50,10 +50,12 @@ namespace MimeKit {
 		// this table references the first header of each field
 		readonly Dictionary<string, Header> table;
 		readonly List<Header> headers;
+		bool hasBodySeparator;
 
-		internal HeaderList (ParserOptions options)
+		internal HeaderList (ParserOptions options, bool hasBodySeparator)
 		{
 			table = new Dictionary<string, Header> (MimeUtils.OrdinalIgnoreCase);
+			this.hasBodySeparator = hasBodySeparator;
 			headers = new List<Header> ();
 			Options = options;
 		}
@@ -64,7 +66,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new empty header list.
 		/// </remarks>
-		public HeaderList () : this (ParserOptions.Default.Clone ())
+		public HeaderList () : this (ParserOptions.Default.Clone (), true)
 		{
 		}
 
@@ -704,6 +706,9 @@ namespace MimeKit {
 				filtered.Flush (cancellationToken);
 			}
 
+			if (!hasBodySeparator)
+				return;
+
 			if (stream is ICancellableStream cancellable) {
 				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
@@ -757,6 +762,9 @@ namespace MimeKit {
 
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 			}
+
+			if (!hasBodySeparator)
+				return;
 
 			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 		}

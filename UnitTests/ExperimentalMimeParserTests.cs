@@ -1334,8 +1334,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1351,8 +1350,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1385,8 +1383,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1402,8 +1399,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1448,8 +1444,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1472,8 +1467,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1518,8 +1512,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1542,8 +1535,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1688,8 +1680,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1707,8 +1698,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1743,8 +1733,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1762,8 +1751,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1802,8 +1790,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1824,8 +1811,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1864,8 +1850,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1886,8 +1871,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1924,8 +1908,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				AssertSerialization (message, NewLineFormat.Unix, text.Replace ("utf-8\n", "utf-8\n\n"));
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1943,8 +1926,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				AssertSerialization (message, NewLineFormat.Dos, text.Replace ("utf-8\r\n", "utf-8\r\n\r\n"));
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1981,8 +1963,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Replace ("utf-8\n", "utf-8\n\n"));
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2000,8 +1981,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Replace ("utf-8\r\n", "utf-8\r\n\r\n"));
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2175,8 +2155,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2198,8 +2177,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2239,8 +2217,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2262,8 +2239,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2765,7 +2741,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2775,6 +2751,13 @@ This is technically the third part.
 
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
@@ -2790,7 +2773,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2800,6 +2783,13 @@ This is technically the third part.
 
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
@@ -2843,7 +2833,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2853,6 +2843,13 @@ This is technically the third part.
 
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
@@ -2868,7 +2865,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2878,6 +2875,13 @@ This is technically the third part.
 
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
@@ -2922,7 +2926,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2937,8 +2941,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2948,7 +2965,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2963,8 +2980,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3003,7 +3033,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3018,8 +3048,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3029,7 +3072,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3044,8 +3087,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3083,7 +3139,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3098,14 +3154,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3115,7 +3178,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3130,14 +3193,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3175,7 +3245,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3190,14 +3260,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3207,7 +3284,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3222,14 +3299,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3274,24 +3358,39 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
 				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
@@ -3303,25 +3402,39 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
 				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
@@ -3368,25 +3481,39 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
 				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
@@ -3398,25 +3525,39 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
 				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
@@ -3849,7 +3990,7 @@ This is the embedded message body.
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
 				// FIXME: This is adding an extra newline to the end of the message
-				//AssertSerialization (message, NewLineFormat.Unix, text);
+				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3881,7 +4022,7 @@ This is the embedded message body.
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
 				// FIXME: This is adding an extra newline to the end of the message
-				//AssertSerialization (message, NewLineFormat.Dos, text);
+				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
 
@@ -3948,7 +4089,7 @@ This is the embedded message body.
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
 				// FIXME: This is adding an extra newline to the end of the message
-				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3980,7 +4121,7 @@ This is the embedded message body.
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
 				// FIXME: This is adding an extra newline to the end of the message
-				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
 

@@ -173,6 +173,7 @@ namespace MimeKit {
 
 				// Check for an empty line denoting the end of the header block.
 				if (IsEndOfHeaderBlock (left)) {
+					await OnBodySeparatorAsync (beginOffset, beginLineNumber, GetOffset (inputIndex), CancellationToken.None).ConfigureAwait (false);
 					state = MimeParserState.Content;
 					break;
 				}
@@ -546,21 +547,6 @@ namespace MimeKit {
 				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 				state = MimeParserState.Headers;
 				await StepAsync (cancellationToken).ConfigureAwait (false);
-
-				if (state == MimeParserState.Boundary) {
-					if (headerCount == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary)
-							continue;
-
-						return;
-					}
-
-					// This part has no content, but that will be handled in ConstructMultipartAsync()
-					// or ConstructMimePartAsync().
-				}
-
-				//if (state == ParserState.Complete && headers.Count == 0)
-				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipartContentType);
 				var currentHeadersEndOffset = headerBlockEnd;

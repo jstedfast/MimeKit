@@ -63,6 +63,7 @@ namespace MimeKit {
 		Stream content;
 
 		bool parsingMessageHeaders;
+		bool hasBodySeparator;
 		int depth;
 
 		bool persistent;
@@ -335,6 +336,7 @@ namespace MimeKit {
 		{
 			headers.Clear ();
 			preHeaderLength = 0;
+			hasBodySeparator = false;
 		}
 
 		/// <summary>
@@ -376,6 +378,22 @@ namespace MimeKit {
 		protected override void OnHeadersEnd (long beginOffset, int beginLineNumber, long endOffset, int endLineNumber, CancellationToken cancellationToken)
 		{
 			parsingMessageHeaders = false;
+		}
+
+		/// <summary>
+		/// Called when the body separator is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the body separator is encountered in the stream.</para>
+		/// <para>This method is always called before <see cref="OnHeadersEnd"/> if a body separator is found.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the body separator began.</param>
+		/// <param name="lineNumber">The line number where the body separator was found.</param>
+		/// <param name="endOffset">The offset into the stream where the body separator ended.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnBodySeparator (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+		{
+			hasBodySeparator = true;
 		}
 
 		#endregion Header Events
@@ -447,7 +465,7 @@ namespace MimeKit {
 		protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
-			var part = Options.CreateEntity (contentType, headers, toplevel, depth);
+			var part = Options.CreateEntity (contentType, headers, hasBodySeparator, toplevel, depth);
 
 			PushEntity (part);
 		}
@@ -555,7 +573,7 @@ namespace MimeKit {
 		protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
-			var rfc822 = Options.CreateEntity (contentType, headers, toplevel, depth);
+			var rfc822 = Options.CreateEntity (contentType, headers, hasBodySeparator, toplevel, depth);
 
 			parsingMessageHeaders = true;
 			PushEntity (rfc822);
@@ -600,7 +618,7 @@ namespace MimeKit {
 		protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
-			var multipart = Options.CreateEntity (contentType, headers, toplevel, depth);
+			var multipart = Options.CreateEntity (contentType, headers, hasBodySeparator, toplevel, depth);
 
 			PushEntity (multipart);
 			depth++;
@@ -838,7 +856,7 @@ namespace MimeKit {
 				throw;
 			}
 
-			var parsed = new HeaderList (Options);
+			var parsed = new HeaderList (Options, hasBodySeparator);
 			foreach (var header in headers)
 				parsed.Add (header);
 
@@ -873,7 +891,7 @@ namespace MimeKit {
 				throw;
 			}
 
-			var parsed = new HeaderList (Options);
+			var parsed = new HeaderList (Options, hasBodySeparator);
 			foreach (var header in headers)
 				parsed.Add (header);
 

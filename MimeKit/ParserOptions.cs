@@ -310,9 +310,9 @@ namespace MimeKit {
 			return false;
 		}
 
-		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel, int depth)
+		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
 		{
-			var args = new MimeEntityConstructorArgs (this, contentType, headers, toplevel);
+			var args = new MimeEntityConstructorArgs (this, contentType, headers, hasBodySeparator, toplevel);
 			var subtype = contentType.MediaSubtype;
 			var type = contentType.MediaType;
 

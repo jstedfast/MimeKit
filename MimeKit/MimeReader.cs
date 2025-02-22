@@ -390,6 +390,39 @@ namespace MimeKit {
 			return Task.CompletedTask;
 		}
 
+		/// <summary>
+		/// Called when the body separator is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the body separator is encountered in the stream.</para>
+		/// <para>This method is always called before <see cref="OnHeadersEnd"/> if a body separator is found.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the body separator began.</param>
+		/// <param name="lineNumber">The line number where the body separator was found.</param>
+		/// <param name="endOffset">The offset into the stream where the body separator ended.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual void OnBodySeparator (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+		{
+		}
+
+		/// <summary>
+		/// Called when the body separator is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the body separator is encountered in the stream.</para>
+		/// <para>This method is always called before <see cref="OnHeadersEndAsync"/> if a body separator is found.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the body separator began.</param>
+		/// <param name="lineNumber">The line number where the body separator was found.</param>
+		/// <param name="endOffset">The offset into the stream where the body separator ended.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnBodySeparatorAsync (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+		{
+			OnBodySeparator (beginOffset, lineNumber, endOffset, cancellationToken);
+			return Task.CompletedTask;
+		}
+
 		#endregion Header Events
 
 		#region MimeMessage Events
@@ -1860,6 +1893,7 @@ namespace MimeKit {
 
 				// Check for an empty line denoting the end of the header block.
 				if (IsEndOfHeaderBlock (left)) {
+					OnBodySeparator (beginOffset, beginLineNumber, GetOffset (inputIndex), CancellationToken.None);
 					state = MimeParserState.Content;
 					break;
 				}
@@ -2473,21 +2507,6 @@ namespace MimeKit {
 				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 				state = MimeParserState.Headers;
 				Step (inbuf, cancellationToken);
-
-				if (state == MimeParserState.Boundary) {
-					if (headerCount == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary)
-							continue;
-
-						return;
-					}
-
-					// This part has no content, but that will be handled in ConstructMultipart()
-					// or ConstructMimePart().
-				}
-
-				//if (state == ParserState.Complete && headers.Count == 0)
-				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipartContentType);
 				var currentHeadersEndOffset = headerBlockEnd;
