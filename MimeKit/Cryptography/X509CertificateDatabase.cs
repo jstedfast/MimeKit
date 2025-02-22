@@ -41,6 +41,9 @@ using Org.BouncyCastle.X509;
 
 using MimeKit.Utils;
 
+// TODO: For MimeKit v5.0, remove all references to DbConnection from public/protected APIs (other than the .ctors, obviously) to force
+// all implementations to use X509CertificateDatabase.CreateCommand() instead of being able to use connection.CreateCommand() themselves.
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database.
@@ -57,6 +60,7 @@ namespace MimeKit.Cryptography {
 		const int DefaultMinIterations = 1024;
 		const int DefaultSaltSize = 20;
 
+		DbTransaction activeTransaction;
 		DbConnection connection;
 		char[] password;
 
@@ -659,6 +663,43 @@ namespace MimeKit.Cryptography {
 				columns.Add (CertificateColumnNames.PrivateKey);
 
 			return columns.ToArray ();
+		}
+
+		/// <summary>
+		/// Create a new database command.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new database command.
+		/// </remarks>
+		/// <returns>A new database command.</returns>
+		protected DbCommand CreateCommand ()
+		{
+			var command = connection.CreateCommand ();
+			command.Transaction = activeTransaction;
+			return command;
+		}
+
+		/// <summary>
+		/// Execute an action within a database transaction.
+		/// </summary>
+		/// <remarks>
+		/// All database commands used within the <paramref name="action"/> must be created using <see cref="CreateCommand"/>.
+		/// </remarks>
+		protected void ExecuteWithinTransaction (Action action)
+		{
+			using (var transaction = connection.BeginTransaction ()) {
+				activeTransaction = transaction;
+
+				try {
+					action ();
+					transaction.Commit ();
+				} catch {
+					transaction.Rollback ();
+					throw;
+				} finally {
+					activeTransaction = null;
+				}
+			}
 		}
 
 		/// <summary>

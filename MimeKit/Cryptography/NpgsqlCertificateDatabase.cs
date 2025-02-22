@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The list of columns.</returns>
 		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
 		{
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateCommand ()) {
 				command.CommandText = $"PRAGMA table_info({tableName})";
 				using (var reader = command.ExecuteReader ()) {
 					var columns = new List<DataColumn> ();
@@ -229,7 +229,7 @@ namespace MimeKit.Cryptography {
 
 			statement.Append (')');
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
 				command.ExecuteNonQuery ();
@@ -254,7 +254,7 @@ namespace MimeKit.Cryptography {
 			statement.Append (" ADD COLUMN ");
 			Build (statement, table, column, ref primaryKeys);
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
 				command.ExecuteNonQuery ();
