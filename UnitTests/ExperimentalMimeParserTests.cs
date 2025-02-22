@@ -4392,7 +4392,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4414,7 +4414,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4461,7 +4461,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4483,7 +4483,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4530,7 +4530,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4552,7 +4552,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4599,7 +4599,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4621,7 +4621,7 @@ Content-Length: 2812
 				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 

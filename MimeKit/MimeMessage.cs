@@ -107,7 +107,7 @@ namespace MimeKit {
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
 		{
 			addresses = new Dictionary<HeaderId, InternetAddressList> ();
-			Headers = new HeaderList (options, true);
+			Headers = new HeaderList (options);
 
 			compliance = mode;
 
@@ -135,7 +135,7 @@ namespace MimeKit {
 		internal MimeMessage (ParserOptions options)
 		{
 			addresses = new Dictionary<HeaderId, InternetAddressList> ();
-			Headers = new HeaderList (options, true);
+			Headers = new HeaderList (options);
 
 			compliance = RfcComplianceMode.Strict;
 
@@ -252,7 +252,7 @@ namespace MimeKit {
 			if (headers is HeaderList headerList) {
 				Headers = headerList;
 			} else {
-				Headers = new HeaderList (ParserOptions.Default.Clone (), true);
+				Headers = new HeaderList (ParserOptions.Default.Clone ());
 
 				foreach (var header in headers)
 					Headers.Add (header);
@@ -1351,11 +1351,13 @@ namespace MimeKit {
 					filtered.Flush (cancellationToken);
 				}
 
-				if (stream is ICancellableStream cancellable) {
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator) {
+					if (stream is ICancellableStream cancellable) {
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 
 				if (!headersOnly) {
@@ -1425,7 +1427,8 @@ namespace MimeKit {
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator)
+					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 
 				if (!headersOnly) {
 					try {

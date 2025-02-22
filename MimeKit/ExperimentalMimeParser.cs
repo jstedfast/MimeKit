@@ -856,9 +856,11 @@ namespace MimeKit {
 				throw;
 			}
 
-			var parsed = new HeaderList (Options, hasBodySeparator);
+			var parsed = new HeaderList (Options);
 			foreach (var header in headers)
 				parsed.Add (header);
+
+			parsed.HasBodySeparator = hasBodySeparator;
 
 			return parsed;
 		}
@@ -891,9 +893,11 @@ namespace MimeKit {
 				throw;
 			}
 
-			var parsed = new HeaderList (Options, hasBodySeparator);
+			var parsed = new HeaderList (Options);
 			foreach (var header in headers)
 				parsed.Add (header);
+
+			parsed.HasBodySeparator = hasBodySeparator;
 
 			return parsed;
 		}

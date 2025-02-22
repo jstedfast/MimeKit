@@ -50,13 +50,12 @@ namespace MimeKit {
 		// this table references the first header of each field
 		readonly Dictionary<string, Header> table;
 		readonly List<Header> headers;
-		bool hasBodySeparator;
 
-		internal HeaderList (ParserOptions options, bool hasBodySeparator)
+		internal HeaderList (ParserOptions options)
 		{
 			table = new Dictionary<string, Header> (MimeUtils.OrdinalIgnoreCase);
-			this.hasBodySeparator = hasBodySeparator;
 			headers = new List<Header> ();
+			HasBodySeparator = true;
 			Options = options;
 		}
 
@@ -66,8 +65,19 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new empty header list.
 		/// </remarks>
-		public HeaderList () : this (ParserOptions.Default.Clone (), true)
+		public HeaderList () : this (ParserOptions.Default.Clone ())
 		{
+		}
+
+		/// <summary>
+		/// Get or set whether or not the header list has a body separator.
+		/// </summary>
+		/// <remarks>
+		/// Get or set whether or not the header list has a body separator.
+		/// </remarks>
+		/// <value><see langword="true"/> if the header list has a body separator; otherwise, <see langword="false"/>.</value>
+		internal bool HasBodySeparator {
+			get; set;
 		}
 
 		/// <summary>
@@ -456,6 +466,8 @@ namespace MimeKit {
 			if (!table.Remove (id.ToHeaderName ()))
 				return;
 
+			HasBodySeparator = true;
+
 			for (int i = headers.Count - 1; i >= 0; i--) {
 				if (headers[i].Id != id)
 					continue;
@@ -484,6 +496,8 @@ namespace MimeKit {
 
 			if (!table.Remove (field))
 				return;
+
+			HasBodySeparator = true;
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
 				if (!headers[i].Field.Equals (field, StringComparison.OrdinalIgnoreCase))
@@ -706,7 +720,7 @@ namespace MimeKit {
 				filtered.Flush (cancellationToken);
 			}
 
-			if (!hasBodySeparator)
+			if (!HasBodySeparator)
 				return;
 
 			if (stream is ICancellableStream cancellable) {
@@ -763,7 +777,7 @@ namespace MimeKit {
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 			}
 
-			if (!hasBodySeparator)
+			if (!HasBodySeparator)
 				return;
 
 			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
@@ -858,6 +872,7 @@ namespace MimeKit {
 
 			header.Changed += HeaderChanged;
 			headers.Add (header);
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
@@ -873,6 +888,7 @@ namespace MimeKit {
 			foreach (var header in headers)
 				header.Changed -= HeaderChanged;
 
+			HasBodySeparator = true;
 			headers.Clear ();
 			table.Clear ();
 
@@ -956,6 +972,7 @@ namespace MimeKit {
 			}
 
 			headers.RemoveAt (index);
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Removed);
 
@@ -1001,6 +1018,8 @@ namespace MimeKit {
 
 			table[header.Field] = header;
 			headers[i] = header;
+
+			HasBodySeparator = true;
 
 			OnChanged (first, HeaderListChangedAction.Removed);
 			OnChanged (header, HeaderListChangedAction.Added);
@@ -1063,6 +1082,7 @@ namespace MimeKit {
 
 			headers.Insert (index, header);
 			header.Changed += HeaderChanged;
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
@@ -1099,6 +1119,7 @@ namespace MimeKit {
 			}
 
 			headers.RemoveAt (index);
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Removed);
 		}
@@ -1169,6 +1190,7 @@ namespace MimeKit {
 				}
 
 				headers[index] = value;
+				HasBodySeparator = true;
 
 				if (header.Field.Equals (value.Field, StringComparison.OrdinalIgnoreCase)) {
 					OnChanged (value, HeaderListChangedAction.Changed);

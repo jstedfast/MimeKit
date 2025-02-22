@@ -92,7 +92,7 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			Headers = new HeaderList (args.ParserOptions, args.HasBodySeparator);
+			Headers = new HeaderList (args.ParserOptions);
 			ContentType = args.ContentType;
 
 			foreach (var header in args.Headers) {
@@ -102,6 +102,7 @@ namespace MimeKit {
 				Headers.Add (header);
 			}
 
+			Headers.HasBodySeparator = args.HasBodySeparator;
 			ContentType.Changed += ContentTypeChanged;
 			Headers.Changed += HeadersChanged;
 		}
