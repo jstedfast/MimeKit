@@ -121,7 +121,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDSACryptoServiceProvider ()
 		{
-			using (var dsa = new DSACryptoServiceProvider (1024))
+			using (var dsa = new DSACryptoServiceProvider (2048))
 				AssertDSA (dsa);
 		}
 
@@ -129,7 +129,7 @@ namespace UnitTests.Cryptography {
 		public void TestDSACng ()
 		{
 #if !MONO && ENABLE_DSA_CNG
-			using (var dsa = new DSACng (1024))
+			using (var dsa = new DSACng (2048))
 				AssertDSA (dsa);
 #else
 			Assert.Ignore ("Mono does not implement DSACng");
@@ -189,7 +189,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestRSACryptoServiceProvider ()
 		{
-			using (var rsa = new RSACryptoServiceProvider (1024))
+			using (var rsa = new RSACryptoServiceProvider (2048))
 				AssertRSA (rsa);
 		}
 
@@ -197,7 +197,7 @@ namespace UnitTests.Cryptography {
 		public void TestRSACng ()
 		{
 #if !MONO && ENABLE_RSA_CNG
-			using (var rsa = new RSACng (1024))
+			using (var rsa = new RSACng (2048))
 				AssertRSA (rsa);
 #else
 			Assert.Ignore ("Mono does not implement RSACng");
