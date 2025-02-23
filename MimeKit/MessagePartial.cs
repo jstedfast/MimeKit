@@ -432,7 +432,7 @@ namespace MimeKit {
 			if (partials is null)
 				throw new ArgumentNullException (nameof (partials));
 
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.
+			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			var parts = partials.ToList ();
 
 			if (parts.Count == 0)
@@ -500,7 +500,7 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeMessage Join (MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.
+			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			return Join (ParserOptions.Default, message, partials);
 		}
 	}
