@@ -42,6 +42,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.Collections;
+using System.Linq;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -288,7 +289,7 @@ namespace MimeKit.Cryptography {
 					column = table.Columns[table.Columns.IndexOf (CertificateColumnNames.SubjectDnsNames)];
 					AddTableColumn (connection, table, column);
 
-					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
+					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate).ToArray()) {
 						var statement = $"UPDATE {CertificatesTableName} SET {CertificateColumnNames.Anchor} = @ANCHOR, {CertificateColumnNames.SubjectName} = @SUBJECTNAME, {CertificateColumnNames.SubjectKeyIdentifier} = @SUBJECTKEYIDENTIFIER, {CertificateColumnNames.SubjectEmail} = @SUBJECTEMAIL, {CertificateColumnNames.SubjectDnsNames} = @SUBJECTDNSNAMES WHERE {CertificateColumnNames.Id} = @ID";
 
 						using (var command = CreateCommand ()) {
@@ -318,7 +319,7 @@ namespace MimeKit.Cryptography {
 					var column = table.Columns[table.Columns.IndexOf (CertificateColumnNames.SubjectDnsNames)];
 					AddTableColumn (connection, table, column);
 
-					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate)) {
+					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate).ToArray()) {
 						var statement = $"UPDATE {CertificatesTableName} SET {CertificateColumnNames.SubjectEmail} = @SUBJECTEMAIL, {CertificateColumnNames.SubjectDnsNames} = @SUBJECTDNSNAMES WHERE {CertificateColumnNames.Id} = @ID";
 
 						using (var command = CreateCommand ()) {

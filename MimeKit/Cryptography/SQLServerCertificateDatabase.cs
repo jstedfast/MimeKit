@@ -99,7 +99,7 @@ namespace MimeKit.Cryptography {
 			int primaryKeys = table.PrimaryKey?.Length ?? 0;
 
 			statement.Append (table.TableName);
-			statement.Append (" ADD COLUMN ");
+			statement.Append (" ADD ");
 			Build (statement, table, column, ref primaryKeys);
 
 			using (var command = CreateCommand ()) {
