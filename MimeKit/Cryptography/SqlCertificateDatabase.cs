@@ -27,6 +27,7 @@
 using System;
 using System.Data;
 using System.Text;
+using System.Linq;
 using System.Data.Common;
 using System.Collections.Generic;
 
@@ -42,7 +43,6 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.Collections;
-using System.Linq;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -289,7 +289,8 @@ namespace MimeKit.Cryptography {
 					column = table.Columns[table.Columns.IndexOf (CertificateColumnNames.SubjectDnsNames)];
 					AddTableColumn (connection, table, column);
 
-					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate).ToArray()) {
+					// Note: We need to call ToArray() or ToList() here because the Find() method will still have a DataReader open which will block calling new DbCommands until the SELECT command completes.
+					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate).ToArray ()) {
 						var statement = $"UPDATE {CertificatesTableName} SET {CertificateColumnNames.Anchor} = @ANCHOR, {CertificateColumnNames.SubjectName} = @SUBJECTNAME, {CertificateColumnNames.SubjectKeyIdentifier} = @SUBJECTKEYIDENTIFIER, {CertificateColumnNames.SubjectEmail} = @SUBJECTEMAIL, {CertificateColumnNames.SubjectDnsNames} = @SUBJECTDNSNAMES WHERE {CertificateColumnNames.Id} = @ID";
 
 						using (var command = CreateCommand ()) {
@@ -319,7 +320,8 @@ namespace MimeKit.Cryptography {
 					var column = table.Columns[table.Columns.IndexOf (CertificateColumnNames.SubjectDnsNames)];
 					AddTableColumn (connection, table, column);
 
-					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate).ToArray()) {
+					// Note: We need to call ToArray() or ToList() here because the Find() method will still have a DataReader open which will block calling new DbCommands until the SELECT command completes.
+					foreach (var record in Find (null, false, X509CertificateRecordFields.Id | X509CertificateRecordFields.Certificate).ToArray ()) {
 						var statement = $"UPDATE {CertificatesTableName} SET {CertificateColumnNames.SubjectEmail} = @SUBJECTEMAIL, {CertificateColumnNames.SubjectDnsNames} = @SUBJECTDNSNAMES WHERE {CertificateColumnNames.Id} = @ID";
 
 						using (var command = CreateCommand ()) {
