@@ -75,6 +75,9 @@ namespace UnitTests.Utils {
 			"Feb 28 2025 12:15:00 AM -0500", // 12:15 AM with non-standard format
 			"Feb 28 2025 11:30:00 PM -0500", // 11:30 PM with non-standard format
 			"Fri, 28 Feb 2025 23:59:60 -0500", // leap second
+			"Fri, 28 Feb 2025 23:59:61 -0500", // too many seconds
+			"Fri, 28 Feb 2025 22:59:60 -0500", // leap second only valid if time is 23:59:60
+			"Fri, 28 Feb 2025 23:60:59 -0500", // too many minutes
 		};
 
 		static readonly string[] expected = {
@@ -120,6 +123,9 @@ namespace UnitTests.Utils {
 			"Fri, 28 Feb 2025 00:15:00 -0500",
 			"Fri, 28 Feb 2025 23:30:00 -0500",
 			"Fri, 28 Feb 2025 23:59:59 -0500",
+			"Fri, 28 Feb 2025 00:00:00 -0500",
+			"Fri, 28 Feb 2025 00:00:00 -0500",
+			"Fri, 28 Feb 2025 00:00:00 -0500",
 		};
 
 		[Test]
