@@ -136,6 +136,8 @@ namespace MimeKit.Utils {
 				{ "T",     -700 }, { "U",     -800 }, { "V",     -900 },
 				{ "W",    -1000 }, { "X",    -1100 }, { "Y",    -1200 },
 				{ "Z",        0 },
+				// Additional timezone mappings
+				{ "JST",    900 }, { "KST",    900 },
 			};
 
 			datetok = new DateTokenFlags[256];

@@ -74,7 +74,7 @@ namespace UnitTests.Utils {
 			"Sun, 08 Dec 1991 09:11:00 +0000",
 			"Sun, 08 Dec 1991 09:11:00 +0000",
 			"Thu, 26 Dec 1991 20:45:00 +0000",
-			"Tue, 09 Jun 1992 03:45:24 +0000",
+			"Tue, 09 Jun 1992 03:45:24 +0900",
 			"Mon, 17 Jan 1994 11:14:55 -0500",
 			"Wed, 17 Jan 2001 11:14:55 -0500",
 			"Tue, 30 Mar 2004 13:01:38 +0000",
@@ -153,6 +153,70 @@ namespace UnitTests.Utils {
 				Assert.That (DateUtils.TryParse (text, out _), Is.False, $"Should not have parsed '{invalidDates[i]}'");
 				Assert.That (DateUtils.TryParse (invalidDates[i], out _), Is.False, $"Should not have parsed '{invalidDates[i]}'");
 			}
+		}
+
+		[TestCase ("Wed, 1 Jan 2025 09:00:00 -0500", 1)]
+		[TestCase ("Sat, 1 Feb 2025 09:00:00 -0500", 2)]
+		[TestCase ("Sat, 1 Mar 2025 09:00:00 -0500", 3)]
+		[TestCase ("Tue, 1 Apr 2025 09:00:00 -0500", 4)]
+		[TestCase ("Thu, 1 May 2025 09:00:00 -0500", 5)]
+		[TestCase ("Sun, 1 Jun 2025 09:00:00 -0500", 6)]
+		[TestCase ("Tue, 1 Jul 2025 09:00:00 -0500", 7)]
+		[TestCase ("Fri, 1 Aug 2025 09:00:00 -0500", 8)]
+		[TestCase ("Mon, 1 Sep 2025 09:00:00 -0500", 9)]
+		[TestCase ("Wed, 1 Oct 2025 09:00:00 -0500", 10)]
+		[TestCase ("Sat, 1 Nov 2025 09:00:00 -0500", 11)]
+		[TestCase ("Mon, 1 Dec 2025 09:00:00 -0500", 12)]
+		public void TestMonths (string value, int month)
+		{
+			Assert.That (DateUtils.TryParse (value, out var date), Is.True, $"Failed to parse date: {value}");
+			Assert.That (date.Month, Is.EqualTo (month));
+		}
+
+		[TestCase ("GMT", 0)]
+		[TestCase ("UTC", 0)]
+		[TestCase ("EDT", -400)]
+		[TestCase ("EST", -500)]
+		[TestCase ("CDT", -500)]
+		[TestCase ("CST", -600)]
+		[TestCase ("MDT", -600)]
+		[TestCase ("MST", -700)]
+		[TestCase ("PDT", -700)]
+		[TestCase ("PST", -800)]
+		[TestCase ("A", 100)]
+		[TestCase ("B", 200)]
+		[TestCase ("C", 300)]
+		[TestCase ("D", 400)]
+		[TestCase ("E", 500)]
+		[TestCase ("F", 600)]
+		[TestCase ("G", 700)]
+		[TestCase ("H", 800)]
+		[TestCase ("I", 900)]
+		[TestCase ("K", 1000)]
+		[TestCase ("L", 1100)]
+		[TestCase ("M", 1200)]
+		[TestCase ("N", -100)]
+		[TestCase ("O", -200)]
+		[TestCase ("P", -300)]
+		[TestCase ("Q", -400)]
+		[TestCase ("R", -500)]
+		[TestCase ("S", -600)]
+		[TestCase ("T", -700)]
+		[TestCase ("U", -800)]
+		[TestCase ("V", -900)]
+		[TestCase ("W", -1000)]
+		[TestCase ("X", -1100)]
+		[TestCase ("Y", -1200)]
+		[TestCase ("Z", 0)]
+		[TestCase ("JST", 900)]
+		[TestCase ("KST", 900)]
+		public void TestTimezones (string zone, int expectedOffset)
+		{
+			TimeSpan tzone = new TimeSpan (expectedOffset / 100, Math.Abs (expectedOffset % 100), 0);
+			var value = string.Format ("Fri, 28 Feb 2025 09:00:00 {0}", zone);
+
+			Assert.That (DateUtils.TryParse (value, out var date), Is.True, $"Failed to parse date: {value}");
+			Assert.That (date.Offset, Is.EqualTo (tzone), $"Parsed date offset does not match: '{date.Offset}' vs '{expectedOffset}'");
 		}
 	}
 }
