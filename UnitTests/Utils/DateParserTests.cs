@@ -33,41 +33,48 @@ namespace UnitTests.Utils {
 	public class DateParserTests
 	{
 		static readonly string[] dates = {
-			"Sun, 08 Dec 91 09:11:00 +0000",
-			"8 Dec 1991 09:11 (Sunday)",
-			"26 Dec 1991 20:45 (Thursday)",
-			"Tue, 9 Jun 92 03:45:24 JST",
-			"Mon, 17 Jan 1994 11:14:55 -0500",
-			"Mon, 17 Jan 01 11:14:55 -0500",
+			"Sun, 08 Dec 91 09:11:00 +0000", // 2-digit year
+			"8 Dec 1991 09:11 (Sunday)", // missing seconds and timezone
+			"26 Dec 1991 20:45 (Thursday)", // missing seconds and timezone
+			"Tue, 9 Jun 92 03:45:24 JST", // 2-digit year & JST is a non-standard timezone name
+			"Mon, 17 Jan 1994 11:14:55 -0500", // valid date format
+			"Mon, 17 Jan 01 11:14:55 -0500", // 2-digit year (01)
 			"Tue, 30 Mar 2004 13:01:38 +0000",
-			"Sat Mar 24 21:23:03 EDT 2007",
-			"Sat, 24 Mar 2007 21:23:03 EDT",
-			"Sat, 24 Mar 2007 21:23:03 GMT",
-			"17-6-2008 17:10:08",
-			"FRI, 30 NOV 2012 02:09:10 +0100",
+			"Sat Mar 24 21:23:03 EDT 2007", // missing comma and year is in wrong place
+			"Sat, 24 Mar 2007 21:23:03 EDT", // valid date format w/ named EDT timezone
+			"Sat, 24 Mar 2007 21:23:03 GMT", // valid date format w/ named GMT timezone
+			"17-6-2008 17:10:08", // completely wrong date format
+			"FRI, 30 NOV 2012 02:09:10 +0100", // capitalized weekday/month
 			"Tue, 11 Feb 2014 22:27:10 +0100 (CET)",
-			"Wed, 6 Aug 2014 01:53:48 -2200",
+			"Wed, 6 Aug 2014 01:53:48 -2200", // large timezone offset
 			"Tue, 21 Apr 15 14:44:51 GMT",
-			"Tue, 21 April 15 14:44:51 GMT",
-			"Thu, 1 Oct 2015 14:40:57 +0200 (Mitteleuropäische Sommerzeit)",
-			"Tue, 12 Jun 2012 19:22:28 0200",
-			"Fri, 8 May 2015",
-			"Fri, 8 May 2015 12",
-			"Fri, 8 May 2015 12:05",
-			"Fri, 8 May 2015 12:05:01",
-			"Fri, 8 May 2015 12:05:01 400",
-			"Sat, 9 May 2015 24:00:00 -0400",
-			"Sat, 9 May 2015 25:00:00 -0400",
-			"May 9 2015 25:00:00 -0400",
-			"2015 May 9 25:00:00 -0400",
-			"2015 May 9 25:99:78 -0400",
-			"25 Sep 81 06:03:27 -0400",
-			"Sat, 10 Sep 2022 12:59:19 -1234567890123456789",
-			"Sat, 10 Sep 2022 12:59:19 1234567890123456789",
-			"Sat, 10 Sep 2022 12:59:19 04+00",
-			"Sat, 10 Sep 2022 12:59:19 ECST",
-			"Sat, Sep 10 2022 12:59:19 0400",
-			"Sat, Sep 10 77 12:59:19 0400"
+			"Tue, 21 April 15 14:44:51 GMT", // full month name and 2-digit year
+			"Thu, 1 Oct 2015 14:40:57 +0200 (Mitteleuropäische Sommerzeit)", // nonsensical comment
+			"Tue, 12 Jun 2012 19:22:28 0200", // missing '+' before timezone
+			"Fri, 8 May 2015", // missing time & timezone info
+			"Fri, 8 May 2015 12", // missing minutes, seconds, timezone
+			"Fri, 8 May 2015 12:05", // missing seconds & timezone
+			"Fri, 8 May 2015 12:05:01", // missing timezone
+			"Fri, 8 May 2015 12:05:01 400", // timezone in incorrect format
+			"Sat, 9 May 2015 24:00:00 -0400", // 24:00 is not a valid time
+			"Sat, 9 May 2015 25:00:00 -0400", // 25:00 is not a valid time
+			"May 9 2015 25:00:00 -0400", // token order & 25:00 is not a valid time
+			"2015 May 9 25:00:00 -0400", // token order & 25:00 is not a valid time
+			"2015 May 9 25:99:78 -0400", // token order & 25:99:78 is not a valid time
+			"25 Sep 81 06:03:27 -0400", // 2-digit year (and missing optional weekday)
+			"Sat, 10 Sep 2022 12:59:19 -1234567890123456789", // crazy timezone offset
+			"Sat, 10 Sep 2022 12:59:19 1234567890123456789", // crazy timezone offset
+			"Sat, 10 Sep 2022 12:59:19 04+00", // invalid timezone offset format
+			"Sat, 10 Sep 2022 12:59:19 ECST", // unknown timezone name
+			"Sat, Sep 10 2022 12:59:19 0400", // missing + or - for timezone offset
+			"Sat, Sep 10 77 12:59:19 0400", // 2-digit year and missing + or - for timezone offset
+			"Sat, 01 Mar 2025 09:00:00 XYZ", // invalid timezone name
+			"Mon, 28 Feb 2025 09:00:00 -0500", // wrong weekday
+			"Fri, 28 Feb 2025 12:15:00 AM -0500", // 12:15 AM but otherwise standard format
+			"Fri, 28 Feb 2025 11:30:00 PM -0500", // 11:30 PM but otherwise standard format
+			"Feb 28 2025 12:15:00 AM -0500", // 12:15 AM with non-standard format
+			"Feb 28 2025 11:30:00 PM -0500", // 11:30 PM with non-standard format
+			"Fri, 28 Feb 2025 23:59:60 -0500", // leap second
 		};
 
 		static readonly string[] expected = {
@@ -106,6 +113,13 @@ namespace UnitTests.Utils {
 			"Sat, 10 Sep 2022 12:59:19 +0000",
 			"Sat, 10 Sep 2022 12:59:19 +0400",
 			"Sat, 10 Sep 1977 12:59:19 +0400",
+			"Sat, 01 Mar 2025 09:00:00 +0000",
+			"Fri, 28 Feb 2025 09:00:00 -0500",
+			"Fri, 28 Feb 2025 00:15:00 -0500",
+			"Fri, 28 Feb 2025 23:30:00 -0500",
+			"Fri, 28 Feb 2025 00:15:00 -0500",
+			"Fri, 28 Feb 2025 23:30:00 -0500",
+			"Fri, 28 Feb 2025 23:59:59 -0500",
 		};
 
 		[Test]
