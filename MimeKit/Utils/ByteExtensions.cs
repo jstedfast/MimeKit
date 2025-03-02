@@ -145,6 +145,9 @@ namespace MimeKit.Utils {
 			// Note: Allow '[' and ']' in the display-name of a mailbox address
 			table['['] |= CharType.IsPhraseAtom;
 			table[']'] |= CharType.IsPhraseAtom;
+
+			// Note: Allow ')' in the display-name of a mailbox address for rfc7103 unbalanced parens
+			table[')'] |= CharType.IsPhraseAtom;
 		}
 
 		//public static bool IsAscii (this byte c)

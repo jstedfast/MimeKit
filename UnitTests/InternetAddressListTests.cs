@@ -901,6 +901,31 @@ namespace UnitTests {
 		}
 
 		[Test]
+		[Ignore ("Address parser consumes the entire string as an unterminated comment")]
+		public void TestParseMailboxWithUnbalancedOpenParenthesis ()
+		{
+			const string text = "(Testing <fran@example.com>";
+			const string encoded = "Testing <fran@example.com>";
+			var expected = new InternetAddressList {
+				new MailboxAddress ("Testing", "fran@example.com")
+			};
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithUnbalancedClosedParenthesis ()
+		{
+			const string text = "Testing) <sam@example.com>";
+			const string encoded = "\"Testing)\" <sam@example.com>";
+			var expected = new InternetAddressList {
+				new MailboxAddress ("Testing)", "sam@example.com")
+			};
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
 		public void TestParseMailboxWithUnbalancedQuotes ()
 		{
 			const string text = "\"Joe <joe@example.com>";
