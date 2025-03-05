@@ -559,6 +559,7 @@ namespace MimeKit.Cryptography {
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
 			X509CertificateRecord domain = null;
+			X509CertificateRecord signer = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & DigitalSignatureKeyUsageFlags) == 0)
@@ -573,11 +574,15 @@ namespace MimeKit.Cryptography {
 					continue;
 				}
 
-				return CreateCmsSigner (record, digestAlgo);
+				signer = record;
+				break;
 			}
 
-			if (domain != null)
-				return CreateCmsSigner (domain, digestAlgo);
+			// fall back to a domain-wide signing certificate if an explicit signer was not found
+			signer ??= domain;
+
+			if (signer != null)
+				return CreateCmsSigner (signer, digestAlgo);
 
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
