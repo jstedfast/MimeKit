@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.10.0</version>
+    <version>4.11.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,16 +26,15 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed logic for converting BouncyCastle DSA keys to System.Security equivalents.
-* Fixed BouncyCastleSecureMimeContext to respect the CheckCertificateRevocation property when encrypting to recipeints and when verifying signatures.
-* Marked IX509CertificateDatabase.Update(X509CrlRecord) as obsolete.
-* Fixed TemporarySecureMimeContext.Import(X509Crl) to not import duplicates.
-* Added new MimeMessage .ctor that takes IEnumerable&lt;Header&gt;.
-* Fixed MimeReader to better handle garbage at the start of an mbox.
-* Fixed MimeReader/ExperimentalMimeParser to handle really long mbox markers by introducing 2 new methods: OnMboxMarkerBegin() and OnMboxMarkerEnd().
-* Improved MimeReader header parsing (mostly just state tracking improvements) which allows it to throw the appropriate exception if EOS is reached before parsing any headers.
-* Make sure to flush any remaining text in the FlowedToText and FlowedToHtml converters (issue #1130)
-* Fixed Header folding/encoding logic for Original-Message-ID by making it follow the same rules as Message-ID/Content-ID/etc. (issue #1133)
+* Fixed logic for validating HTML Tag and Attribute names. (issue #1136)
+* Minor performance improvements to MimeParser, ExperimentalMimeParser, and MimeReader.
+* Obsoleted MimeReader.OnMultipartBoundary() and OnMultipartEndBoundary(), replacing them with OnMultipartBoundaryBegin/Read/End() and OnMultipartEndBoundaryBegin/Read/End(). This now allows ExperimentalMimeParser to track trailing whitespace on boundary lines, resulting in improved re-serialization of parsed messages.
+* Fixed serialization of message/rfc822 parts without a message.
+* Fixed serialization of messages that did not have a blank line between the headers and body (only when parsed using the ExperimentalMimeParser).
+* When using DbTransactions, set the transaction on the DbCommands. (issue #1142)
+* Improved Date header parser for JST and KST timezones.
+* Improved Date header parser to handle AM/PM and leap seconds.
+* Improved address parser to handle unbalanced ')' (rfc7103)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
@@ -79,12 +78,10 @@
       </group>
       <group targetFramework="net8.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
-        <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="BouncyCastle.Cryptography" version="2.5.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
-        <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
         <dependency id="System.Buffers" version="4.6.0" />
@@ -93,7 +90,6 @@
       </group>
       <group targetFramework="netstandard2.1">
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
-        <dependency id="System.Formats.Asn1" version="8.0.1" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="BouncyCastle.Cryptography" version="2.5.1" />
       </group>

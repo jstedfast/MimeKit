@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
     <AssemblyTitle>MimeKit</AssemblyTitle>
-    <VersionPrefix>4.10.0</VersionPrefix>
+    <VersionPrefix>4.11.0</VersionPrefix>
     <LangVersion>12</LangVersion>
     <Authors>Jeffrey Stedfast</Authors>
     <_LegacyFrameworks>net462;net47</_LegacyFrameworks>
@@ -69,7 +69,6 @@
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('net6')) Or $(TargetFramework.StartsWith('net8')) ">
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
-    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">

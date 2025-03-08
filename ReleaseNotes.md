@@ -1,5 +1,23 @@
 # Release Notes
 
+## MimeKit 4.11.0 (2025-03-08)
+
+* Fixed logic for validating HTML Tag and Attribute names.
+  (issue [#1136](https://github.com/jstedfast/MimeKit/discussions/1136))
+* Minor performance improvements to MimeParser, ExperimentalMimeParser, and MimeReader.
+* Obsoleted MimeReader.OnMultipartBoundary() and OnMultipartEndBoundary(), replacing them
+  with OnMultipartBoundaryBegin/Read/End() and OnMultipartEndBoundaryBegin/Read/End().
+  This now allows ExperimentalMimeParser to track trailing whitespace on boundary lines,
+  resulting in improved re-serialization of parsed messages.
+* Fixed serialization of message/rfc822 parts without a message.
+* Fixed serialization of messages that did not have a blank line between the headers and body
+  (only when parsed using the ExperimentalMimeParser).
+* When using DbTransactions, set the transaction on the DbCommands.
+  (issue [#1142](https://github.com/jstedfast/MimeKit/issues/1142))
+* Improved Date header parser for JST and KST timezones.
+* Improved Date header parser to handle AM/PM and leap seconds.
+* Improved address parser to handle unbalanced ')' (rfc7103)
+
 ## MimeKit 4.10.0 (2025-01-26)
 
 * Fixed logic for converting BouncyCastle DSA keys to System.Security equivalents.
