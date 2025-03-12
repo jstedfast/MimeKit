@@ -55,7 +55,6 @@ namespace MimeKit.Utils {
 		const string AtomSafeCharacters = "!#$%&'*+-/=?^_`{|}~";
 		const string AttributeSpecials = "*'%";    // attribute specials from rfc2184/rfc2231
 		const string CommentSpecials = "()\\\r";   // not allowed in comments
-		const string DomainSpecials = "[]\\\r \t"; // not allowed in domains
 		const string EncodedWordSpecials = "()<>@,;:\"/[]?.=_";  // rfc2047 5.1
 		const string EncodedPhraseSpecials = "!*+-/=_";          // rfc2047 5.3
 		const string Specials = "()<>[]:;@\\,.\"";               // rfc5322 3.2.3
@@ -70,33 +69,15 @@ namespace MimeKit.Utils {
 				table[(byte) values[i]] &= ~bit;
 		}
 
-		static void SetFlags (string values, CharType bit, CharType bitcopy, bool remove)
+		static void SetFlags (string values, CharType bit, CharType bitcopy)
 		{
-			int i;
+			for (int i = 0; i < values.Length; i++)
+				table[values[i]] |= bit;
 
-			if (remove) {
-				for (i = 0; i < 128; i++)
-					table[i] |= bit;
-
-				for (i = 0; i < values.Length; i++)
-					table[values[i]] &= ~bit;
-
-				// Note: not actually used...
-				//if (bitcopy != CharType.None) {
-				//	for (i = 0; i < 256; i++) {
-				//		if ((table[i] & bitcopy) != 0)
-				//			table[i] &= ~bit;
-				//	}
-				//}
-			} else {
-				for (i = 0; i < values.Length; i++)
-					table[values[i]] |= bit;
-
-				if (bitcopy != CharType.None) {
-					for (i = 0; i < 256; i++) {
-						if ((table[i] & bitcopy) != 0)
-							table[i] |= bit;
-					}
+			if (bitcopy != CharType.None) {
+				for (int i = 0; i < 256; i++) {
+					if ((table[i] & bitcopy) != 0)
+						table[i] |= bit;
 				}
 			}
 		}
@@ -109,14 +90,16 @@ namespace MimeKit.Utils {
 						table[i] |= CharType.IsControl;
 					if (i > 32)
 						table[i] |= CharType.IsAttrChar;
-					if ((i >= 33 && i <= 60) || (i >= 62 && i <= 126) || i == 32)
+					if ((i >= 32 && i <= 60) || i >= 62) // space + all printable characters *except* '='
 						table[i] |= (CharType.IsQuotedPrintableSafe | CharType.IsEncodedWordSafe);
 					if ((i >= '0' && i <= '9') || (i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z'))
 						table[i] |= CharType.IsEncodedPhraseSafe | CharType.IsAtom | CharType.IsPhraseAtom;
 					if ((i >= '0' && i <= '9') || (i >= 'a' && i <= 'f') || (i >= 'A' && i <= 'F'))
 						table[i] |= CharType.IsXDigit;
-					if ((i >= 33 && i <= 57) || i >= 59)
+					if ((i >= 33 && i <= 57) || i >= 59) // all printable characters *except* ':'
 						table[i] |= CharType.IsFieldText;
+					if ((i >= 33 && i <= 90) || i >= 94) // all printable characters *except* '[', '\\', and ']'
+						table[i] |= CharType.IsDomainSafe;
 
 					table[i] |= CharType.IsAscii;
 				} else {
@@ -132,15 +115,14 @@ namespace MimeKit.Utils {
 			table['\t'] |= CharType.IsQuotedPrintableSafe | CharType.IsBlank;
 			table[' '] |= CharType.IsSpace | CharType.IsBlank;
 
-			SetFlags (Whitespace, CharType.IsWhitespace, CharType.None, false);
-			SetFlags (AtomSafeCharacters, CharType.IsAtom | CharType.IsPhraseAtom, CharType.None, false);
-			SetFlags (TokenSpecials, CharType.IsTokenSpecial, CharType.IsControl, false);
-			SetFlags (Specials, CharType.IsSpecial, CharType.None, false);
-			SetFlags (DomainSpecials, CharType.IsDomainSafe, CharType.None, true);
+			SetFlags (Whitespace, CharType.IsWhitespace, CharType.None);
+			SetFlags (AtomSafeCharacters, CharType.IsAtom | CharType.IsPhraseAtom, CharType.None);
+			SetFlags (TokenSpecials, CharType.IsTokenSpecial, CharType.IsControl);
+			SetFlags (Specials, CharType.IsSpecial, CharType.None);
 			RemoveFlags (Specials, CharType.IsAtom | CharType.IsPhraseAtom);
 			RemoveFlags (EncodedWordSpecials, CharType.IsEncodedWordSafe);
 			RemoveFlags (AttributeSpecials + TokenSpecials, CharType.IsAttrChar);
-			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None, false);
+			SetFlags (EncodedPhraseSpecials, CharType.IsEncodedPhraseSafe, CharType.None);
 
 			// Note: Allow '[' and ']' in the display-name of a mailbox address
 			table['['] |= CharType.IsPhraseAtom;
