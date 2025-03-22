@@ -24,7 +24,7 @@
 // THE SOFTWARE.
 //
 
-#if NET6_0
+#if NETFRAMEWORK || NET6_0
 
 #pragma warning disable SYSLIB0011
 
@@ -185,4 +185,4 @@ namespace UnitTests {
 
 #pragma warning restore SYSLIB0011
 
-#endif // NET6_0
+#endif // NETFRAMEWORK || NET6_0
