@@ -620,14 +620,39 @@ namespace MimeKit {
 					list.Add (address);
 				}
 
-				// Note: we loop here in case there are any null addresses between commas
+				// Note: we loop here in case there are any extraneous commas
+				bool skippedComma = false;
+
 				do {
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
 
-					if (index >= endIndex || text[index] != (byte) ',')
+					if (index >= endIndex)
 						break;
 
+					if (isGroup && text[index] == (byte) ';')
+						break;
+
+					if (text[index] != (byte) ',') {
+						if (skippedComma)
+							break;
+
+						if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+							if (throwOnError) {
+								if (isGroup)
+									throw new ParseException ("Expected ',' between addresses or ';' to denote the end of a group of addresses.", index, index);
+								else
+									throw new ParseException ("Expected ',' between addresses.", index, index);
+							}
+
+							return false;
+						} else {
+							// start of a new address?
+							break;
+						}
+					}
+
+					skippedComma = true;
 					index++;
 				} while (true);
 			}

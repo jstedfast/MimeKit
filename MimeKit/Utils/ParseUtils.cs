@@ -339,10 +339,11 @@ namespace MimeKit.Utils {
 		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, out string domain)
 		{
 			using var token = new ValueStringBuilder (128);
-			token.Append('[');
 			int startIndex = index++;
 
 			domain = null;
+
+			token.Append ('[');
 
 			SkipWhiteSpace (text, ref index, endIndex);
 
