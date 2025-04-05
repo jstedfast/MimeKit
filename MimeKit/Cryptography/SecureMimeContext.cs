@@ -36,6 +36,7 @@ using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.Ntt;
+using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Asn1.Kisa;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.Smime;
@@ -82,8 +83,11 @@ namespace MimeKit.Cryptography {
 		protected SecureMimeContext ()
 		{
 			EncryptionAlgorithmRank = new[] {
+				EncryptionAlgorithm.Aes256Gcm,
 				EncryptionAlgorithm.Aes256,
+				EncryptionAlgorithm.Aes192Gcm,
 				EncryptionAlgorithm.Aes192,
+				EncryptionAlgorithm.Aes128Gcm,
 				EncryptionAlgorithm.Aes128,
 				//EncryptionAlgorithm.Twofish,
 				EncryptionAlgorithm.Seed,
@@ -675,6 +679,15 @@ namespace MimeKit.Cryptography {
 					break;
 				case EncryptionAlgorithm.Aes256:
 					capabilities.AddCapability (SmimeCapabilities.Aes256Cbc);
+					break;
+				case EncryptionAlgorithm.Aes128Gcm:
+					capabilities.AddCapability (NistObjectIdentifiers.IdAes128Gcm);
+					break;
+				case EncryptionAlgorithm.Aes192Gcm:
+					capabilities.AddCapability (NistObjectIdentifiers.IdAes192Gcm);
+					break;
+				case EncryptionAlgorithm.Aes256Gcm:
+					capabilities.AddCapability (NistObjectIdentifiers.IdAes256Gcm);
 					break;
 				case EncryptionAlgorithm.Blowfish:
 					capabilities.AddCapability (Blowfish);

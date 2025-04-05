@@ -357,7 +357,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			if (SecureMimeType != SecureMimeType.EnvelopedData && SecureMimeType != SecureMimeType.Unknown)
+			if (SecureMimeType != SecureMimeType.EnvelopedData && SecureMimeType != SecureMimeType.AuthEnvelopedData && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
@@ -399,7 +399,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			if (SecureMimeType != SecureMimeType.EnvelopedData && SecureMimeType != SecureMimeType.Unknown)
+			if (SecureMimeType != SecureMimeType.EnvelopedData && SecureMimeType != SecureMimeType.AuthEnvelopedData && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
