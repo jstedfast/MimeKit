@@ -1655,6 +1655,40 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.GetEncoded (), false);
 		}
 
+		Stream AuthEnvelope (CmsAuthEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
+		{
+			var input = new CmsProcessableInputStream (content);
+			CmsAuthenticatedData envelopedData;
+
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes128Gcm:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Gcm);
+				break;
+			case EncryptionAlgorithm.Aes192Gcm:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes192Gcm);
+				break;
+			case EncryptionAlgorithm.Aes256Gcm:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Gcm);
+				break;
+			default:
+				throw new NotSupportedException (string.Format ("The {0} encryption algorithm is not supported by the {1}.", algorithm, GetType ().Name));
+			}
+
+			return new MemoryStream (envelopedData.GetEncoded (), false);
+		}
+
+		static SecureMimeType GetSecureMimeType (EncryptionAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes256Gcm:
+			case EncryptionAlgorithm.Aes192Gcm:
+			case EncryptionAlgorithm.Aes128Gcm:
+				return SecureMimeType.AuthEnvelopedData;
+			default:
+				return SecureMimeType.EnvelopedData;
+			}
+		}
+
 		void AddCmsRecipients (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
 			var unique = new HashSet<X509Certificate> ();
@@ -1686,18 +1720,28 @@ namespace MimeKit.Cryptography {
 		ApplicationPkcs7Mime Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
-			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+			var smimeType = GetSecureMimeType (algorithm);
+			Stream envelopedData;
 
-			AddCmsRecipients (cms, recipients, cancellationToken);
+			if (smimeType == SecureMimeType.AuthEnvelopedData) {
+				var cms = new CmsAuthEnvelopedDataGenerator (RandomNumberGenerator);
+				AddCmsRecipients (cms, recipients, cancellationToken);
 
-			var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+				envelopedData = AuthEnvelope (cms, algorithm, content, cancellationToken);
+			} else {
+				var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+				AddCmsRecipients (cms, recipients, cancellationToken);
 
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+				envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+			}
+
+			return new ApplicationPkcs7Mime (smimeType, envelopedData);
 		}
 
 		async Task<ApplicationPkcs7Mime> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+			var smimeType = GetSecureMimeType (algorithm);
 
 			// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
 			//
@@ -1720,13 +1764,21 @@ namespace MimeKit.Cryptography {
 			}
 
 			try {
-				var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+				Stream envelopedData;
 
-				await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
+				if (smimeType == SecureMimeType.AuthEnvelopedData) {
+					var cms = new CmsAuthEnvelopedDataGenerator (RandomNumberGenerator);
+					await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
 
-				var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+					envelopedData = AuthEnvelope (cms, algorithm, content, cancellationToken);
+				} else {
+					var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+					await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
 
-				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+					envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+				}
+
+				return new ApplicationPkcs7Mime (smimeType, envelopedData);
 			} finally {
 				memory?.Dispose ();
 			}
