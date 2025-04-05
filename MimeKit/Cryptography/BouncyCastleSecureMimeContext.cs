@@ -1676,6 +1676,40 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.GetEncoded (), false);
 		}
 
+		Stream AuthEnvelope (CmsAuthEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
+		{
+			var input = new CmsProcessableInputStream (content);
+			CmsAuthenticatedData envelopedData;
+
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes128Gcm:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Gcm);
+				break;
+			case EncryptionAlgorithm.Aes192Gcm:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes192Gcm);
+				break;
+			case EncryptionAlgorithm.Aes256Gcm:
+				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Gcm);
+				break;
+			default:
+				throw new NotSupportedException (string.Format ("The {0} encryption algorithm is not supported by the {1}.", algorithm, GetType ().Name));
+			}
+
+			return new MemoryStream (envelopedData.GetEncoded (), false);
+		}
+
+		static SecureMimeType GetSecureMimeType (EncryptionAlgorithm algorithm)
+		{
+			switch (algorithm) {
+			case EncryptionAlgorithm.Aes256Gcm:
+			case EncryptionAlgorithm.Aes192Gcm:
+			case EncryptionAlgorithm.Aes128Gcm:
+				return SecureMimeType.AuthEnvelopedData;
+			default:
+				return SecureMimeType.EnvelopedData;
+			}
+		}
+
 		void AddCmsRecipients (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
 			List<CmsRecipientException>? recipientExceptions = null;
@@ -1729,21 +1763,40 @@ namespace MimeKit.Cryptography {
 		ApplicationPkcs7Mime Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
-			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+			var smimeType = GetSecureMimeType (algorithm);
+			Stream envelopedData;
 
-			try {
-				AddCmsRecipients (cms, recipients, cancellationToken);
-			} catch (AggregateException ex) {
-				throw new CmsEnvelopeException (ex.Message, ex);
+			if (smimeType == SecureMimeType.AuthEnvelopedData) {
+				var cms = new CmsAuthEnvelopedDataGenerator (RandomNumberGenerator);
+
+				try {
+					AddCmsRecipients (cms, recipients, cancellationToken);
+				} catch (AggregateException ex) {
+					throw new CmsEnvelopeException (ex.Message, ex);
+				}
+
+				try {
+					envelopedData = AuthEnvelope (cms, algorithm, content, cancellationToken);
+				} catch (CmsException ex) {
+					throw new CmsEnvelopeException (ex.Message, ex);
+				}
+			} else {
+				var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+
+				try {
+					AddCmsRecipients (cms, recipients, cancellationToken);
+				} catch (AggregateException ex) {
+					throw new CmsEnvelopeException (ex.Message, ex);
+				}
+
+				try {
+					envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+				} catch (CmsException ex) {
+					throw new CmsEnvelopeException (ex.Message, ex);
+				}
 			}
 
-			try {
-				var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
-
-				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
-			} catch (CmsException ex) {
-				throw new CmsEnvelopeException (ex.Message, ex);
-			}
+			return new ApplicationPkcs7Mime (smimeType, envelopedData);
 		}
 
 		static async Task<MemoryBlockStream> GetStreamAsMemoryAsync (Stream content, CancellationToken cancellationToken)
@@ -1764,30 +1817,60 @@ namespace MimeKit.Cryptography {
 		async Task<ApplicationPkcs7Mime> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
-			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+			var smimeType = GetSecureMimeType (algorithm);
 			MemoryBlockStream? memory = null;
+			Stream envelopedData;
 
 			try {
-				await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
-			} catch (AggregateException ex) {
-				throw new CmsEnvelopeException (ex.Message, ex);
-			}
+				if (smimeType == SecureMimeType.AuthEnvelopedData) {
+					var cms = new CmsAuthEnvelopedDataGenerator (RandomNumberGenerator);
 
-			// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
-			//
-			// If the content isn't already a memory stream of some sort, we clone it into a memory stream
-			// in order to provide asynchronous reading from the source content stream.
-			if (!(content is MemoryBlockStream or MemoryStream)) {
-				memory = await GetStreamAsMemoryAsync (content, cancellationToken).ConfigureAwait (false);
-				content = memory;
-			}
+					try {
+						await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
+					} catch (AggregateException ex) {
+						throw new CmsEnvelopeException (ex.Message, ex);
+					}
 
-			try {
-				var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+					// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
+					//
+					// If the content isn't already a memory stream of some sort, we clone it into a memory stream
+					// in order to provide asynchronous reading from the source content stream.
+					if (!(content is MemoryBlockStream or MemoryStream)) {
+						memory = await GetStreamAsMemoryAsync (content, cancellationToken).ConfigureAwait (false);
+						content = memory;
+					}
 
-				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
-			} catch (CmsException ex) {
-				throw new CmsEnvelopeException (ex.Message, ex);
+					try {
+						envelopedData = AuthEnvelope (cms, algorithm, content, cancellationToken);
+					} catch (CmsException ex) {
+						throw new CmsEnvelopeException (ex.Message, ex);
+					}
+				} else {
+					var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+
+					try {
+						await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
+					} catch (AggregateException ex) {
+						throw new CmsEnvelopeException (ex.Message, ex);
+					}
+
+					// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
+					//
+					// If the content isn't already a memory stream of some sort, we clone it into a memory stream
+					// in order to provide asynchronous reading from the source content stream.
+					if (!(content is MemoryBlockStream or MemoryStream)) {
+						memory = await GetStreamAsMemoryAsync (content, cancellationToken).ConfigureAwait (false);
+						content = memory;
+					}
+
+					try {
+						envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+					} catch (CmsException ex) {
+						throw new CmsEnvelopeException (ex.Message, ex);
+					}
+				}
+
+				return new ApplicationPkcs7Mime (smimeType, envelopedData);
 			} finally {
 				memory?.Dispose ();
 			}
