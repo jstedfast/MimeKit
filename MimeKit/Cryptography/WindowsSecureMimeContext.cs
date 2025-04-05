@@ -73,6 +73,11 @@ namespace MimeKit.Cryptography {
 		{
 			StoreLocation = location;
 
+			// System.Security (probably) doesn't support AES-128/192/256 GCM variants...
+			Disable (EncryptionAlgorithm.Aes256Gcm);
+			Disable (EncryptionAlgorithm.Aes192Gcm);
+			Disable (EncryptionAlgorithm.Aes128Gcm);
+
 			// System.Security does not support Camellia...
 			Disable (EncryptionAlgorithm.Camellia256);
 			Disable (EncryptionAlgorithm.Camellia192);
@@ -1135,6 +1140,12 @@ namespace MimeKit.Cryptography {
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Cbc));
 			case EncryptionAlgorithm.Aes128:
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Cbc));
+			case EncryptionAlgorithm.Aes256Gcm:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes256Gcm));
+			case EncryptionAlgorithm.Aes192Gcm:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes192Gcm));
+			case EncryptionAlgorithm.Aes128Gcm:
+				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.Aes128Gcm));
 			case EncryptionAlgorithm.TripleDes:
 				return new RealAlgorithmIdentifier (new Oid (CmsEnvelopedGenerator.DesEde3Cbc));
 			case EncryptionAlgorithm.Des:
