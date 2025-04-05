@@ -84,6 +84,9 @@ namespace UnitTests.Cryptography {
 			case EncryptionAlgorithm.RC264:
 			case EncryptionAlgorithm.RC240:
 			case EncryptionAlgorithm.Seed:
+			case EncryptionAlgorithm.Aes128Gcm:
+			case EncryptionAlgorithm.Aes192Gcm:
+			case EncryptionAlgorithm.Aes256Gcm:
 				return false;
 			default:
 				return true;

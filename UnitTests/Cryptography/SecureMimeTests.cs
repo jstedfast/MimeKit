@@ -2357,6 +2357,92 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestSecureMimeEncryptionWithAes128Gcm ()
+		{
+			var rsa = RsaCertificate;
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+
+			using (var ctx = CreateContext ()) {
+				var recipients = new CmsRecipientCollection ();
+
+				var recipient = new CmsRecipient (rsa.Certificate, SubjectIdentifierType.IssuerAndSerialNumber) {
+					EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128Gcm }
+				};
+				recipients.Add (recipient);
+
+				ApplicationPkcs7Mime encrypted;
+
+				// Enable AES GCM algorithms if they are not already enabled
+				ctx.Enable (EncryptionAlgorithm.Aes256Gcm);
+				ctx.Enable (EncryptionAlgorithm.Aes192Gcm);
+				ctx.Enable (EncryptionAlgorithm.Aes128Gcm);
+
+				try {
+					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				} catch (NotSupportedException) {
+					if (ctx is not WindowsSecureMimeContext)
+						Assert.Fail ("AES-128-GCM should be supported.");
+					return;
+				}
+
+				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.AuthEnvelopedData), "S/MIME type did not match.");
+
+				using (var stream = new MemoryStream ()) {
+					ctx.DecryptTo (encrypted.Content.Open (), stream);
+					stream.Position = 0;
+
+					var decrypted = MimeEntity.Load (stream);
+
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestSecureMimeEncryptionWithAes128GcmAsync ()
+		{
+			var rsa = RsaCertificate;
+			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+
+			using (var ctx = CreateContext ()) {
+				var recipients = new CmsRecipientCollection ();
+
+				var recipient = new CmsRecipient (rsa.Certificate, SubjectIdentifierType.IssuerAndSerialNumber) {
+					EncryptionAlgorithms = new EncryptionAlgorithm[] { EncryptionAlgorithm.Aes128Gcm }
+				};
+				recipients.Add (recipient);
+
+				ApplicationPkcs7Mime encrypted;
+
+				// Enable AES GCM algorithms if they are not already enabled
+				ctx.Enable (EncryptionAlgorithm.Aes256Gcm);
+				ctx.Enable (EncryptionAlgorithm.Aes192Gcm);
+				ctx.Enable (EncryptionAlgorithm.Aes128Gcm);
+
+				try {
+					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+				} catch (NotSupportedException) {
+					if (ctx is not WindowsSecureMimeContext)
+						Assert.Fail ("AES-128-GCM should be supported.");
+					return;
+				}
+
+				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.AuthEnvelopedData), "S/MIME type did not match.");
+
+				using (var stream = new MemoryStream ()) {
+					await ctx.DecryptToAsync (encrypted.Content.Open (), stream);
+					stream.Position = 0;
+
+					var decrypted = await MimeEntity.LoadAsync (stream);
+
+					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+					Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+				}
+			}
+		}
+
+		[Test]
 		public void TestSecureMimeDecryptThunderbird ()
 		{
 			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");

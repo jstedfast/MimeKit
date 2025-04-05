@@ -42,17 +42,17 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public enum EncryptionAlgorithm {
 		/// <summary>
-		/// The AES 128-bit encryption algorithm.
+		/// The AES 128-bit CBC encryption algorithm.
 		/// </summary>
 		Aes128,
 
 		/// <summary>
-		/// The AES 192-bit encryption algorithm.
+		/// The AES 192-bit CBC encryption algorithm.
 		/// </summary>
 		Aes192,
 
 		/// <summary>
-		/// The AES 256-bit encryption algorithm.
+		/// The AES 256-bit CBC encryption algorithm.
 		/// </summary>
 		Aes256,
 
@@ -137,6 +137,21 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// The SEED 128-bit encryption algorithm (S/MIME only).
 		/// </summary>
-		Seed
+		Seed,
+
+		/// <summary>
+		/// The AES 128-bit GCM encryption algorithm.
+		/// </summary>
+		Aes128Gcm,
+
+		/// <summary>
+		/// The AES 192-bit GCM encryption algorithm.
+		/// </summary>
+		Aes192Gcm,
+
+		/// <summary>
+		/// The AES 256-bit GCM encryption algorithm.
+		/// </summary>
+		Aes256Gcm,
 	}
 }
