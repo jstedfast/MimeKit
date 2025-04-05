@@ -1458,7 +1458,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void CmsEnvelopeAddEllipticCurve (CmsEnvelopedDataGenerator cms, CmsRecipient recipient, X509Certificate certificate, ECKeyParameters publicKey)
+		void CmsEnvelopeAddEllipticCurve (CmsEnvelopedGenerator cms, CmsRecipient recipient, X509Certificate certificate, ECKeyParameters publicKey)
 		{
 			var keyGenerator = new ECKeyPairGenerator ();
 
@@ -1488,7 +1488,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void AddRecipient (CmsEnvelopedDataGenerator cms, CmsRecipient recipient)
+		void AddRecipient (CmsEnvelopedGenerator cms, CmsRecipient recipient)
 		{
 			var certificate = recipient.Certificate;
 			var pub = certificate.GetPublicKey ();
@@ -1649,9 +1649,8 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.GetEncoded (), false);
 		}
 
-		Stream Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		void AddCmsRecipients (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
-			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
 			var unique = new HashSet<X509Certificate> ();
 
 			foreach (var recipient in recipients) {
@@ -1662,15 +1661,10 @@ namespace MimeKit.Cryptography {
 					AddRecipient (cms, recipient);
 				}
 			}
-
-			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
-
-			return Envelope (cms, algorithm, content, cancellationToken);
 		}
 
-		async Task<Stream> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		async Task AddCmsRecipientsAsync (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
-			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
 			var unique = new HashSet<X509Certificate> ();
 
 			foreach (var recipient in recipients) {
@@ -1681,22 +1675,54 @@ namespace MimeKit.Cryptography {
 					AddRecipient (cms, recipient);
 				}
 			}
+		}
 
+		ApplicationPkcs7Mime Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
+			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+
+			AddCmsRecipients (cms, recipients, cancellationToken);
+
+			var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+
+			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+		}
+
+		async Task<ApplicationPkcs7Mime> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
+		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
 
 			// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
 			//
 			// If the content isn't already a memory stream of some sort, we clone it into a memory stream
 			// in order to provide asynchronous reading from the source content stream.
-			if (content is MemoryBlockStream or MemoryStream)
-				return Envelope (cms, algorithm, content, cancellationToken);
+			MemoryBlockStream memory = null;
 
-			using (var memory = new MemoryBlockStream ()) {
-				await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
+			if (!(content is MemoryBlockStream or MemoryStream)) {
+				memory = new MemoryBlockStream ();
 
-				memory.Position = 0;
+				try {
+					await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
+					memory.Position = 0;
+				} catch {
+					memory.Dispose ();
+					throw;
+				}
 
-				return Envelope (cms, algorithm, memory, cancellationToken);
+				content = memory;
+			}
+
+			try {
+				var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+
+				await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
+
+				var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+
+				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+			} finally {
+				memory?.Dispose ();
 			}
 		}
 
@@ -1736,9 +1762,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var envelopedData = Envelope (recipients, content, cancellationToken);
-
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+			return Envelope (recipients, content, cancellationToken);
 		}
 
 		/// <summary>
@@ -1766,7 +1790,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
-		public override async Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default)
+		public override Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
 				throw new ArgumentNullException (nameof (recipients));
@@ -1777,9 +1801,7 @@ namespace MimeKit.Cryptography {
 			if (content == null)
 				throw new ArgumentNullException (nameof (content));
 
-			var envelopedData = await EnvelopeAsync (recipients, content, cancellationToken).ConfigureAwait (false);
-
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+			return EnvelopeAsync (recipients, content, cancellationToken);
 		}
 
 		/// <summary>
