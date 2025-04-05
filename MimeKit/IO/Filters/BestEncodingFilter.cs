@@ -145,7 +145,7 @@ namespace MimeKit.IO.Filters {
 				while (inptr < inend && (c = *inptr++) != (byte) '\n') {
 					if (c == 0)
 						count0++;
-					else if ((c & 0x80) != 0)
+					else if (c > 127)
 						count8++;
 
 					if (!hasMarker && markerLength < 5)
