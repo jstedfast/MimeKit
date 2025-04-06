@@ -91,7 +91,7 @@ namespace MimeKit {
 		MessageImportance importance = MessageImportance.Normal;
 		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
-		readonly RfcComplianceMode compliance;
+		internal readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		LazyLoadedFields lazyLoaded;
 		MailboxAddress resentSender;
@@ -2311,7 +2311,7 @@ namespace MimeKit {
 		}
 #endif // ENABLE_CRYPTO
 
-		IEnumerable<Header> MergeHeaders ()
+		internal IEnumerable<Header> MergeHeaders ()
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 

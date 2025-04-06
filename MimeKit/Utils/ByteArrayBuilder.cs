@@ -49,6 +49,15 @@ namespace MimeKit.Utils {
 			}
 		}
 
+		public int Length {
+			get { return length; }
+		}
+
+		public void Clear ()
+		{
+			length = 0;
+		}
+
 		public void Append (byte c)
 		{
 			EnsureCapacity (length + 1);
@@ -71,6 +80,29 @@ namespace MimeKit.Utils {
 			Buffer.BlockCopy (buffer, 0, array, 0, length);
 
 			return array;
+		}
+
+		public bool Equals (ReadOnlySpan<byte> other, StringComparison comparer)
+		{
+			if (length != other.Length)
+				return false;
+
+			for (int i = 0; i < length; i++) {
+				if (comparer == StringComparison.OrdinalIgnoreCase) {
+					if (buffer[i] == other[i])
+						continue;
+
+					byte b = buffer[i] >= 'a' && buffer[i] <= 'z' ? (byte) (buffer[i] - 0x20) : buffer[i];
+					byte o = other[i] >= 'a' && other[i] <= 'z' ? (byte) (other[i] - 0x20) : other[i];
+
+					if (b != o)
+						return false;
+				} else if (buffer[i] != other[i]) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public void Dispose ()

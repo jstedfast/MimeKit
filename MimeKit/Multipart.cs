@@ -68,7 +68,7 @@ namespace MimeKit {
 	public class Multipart : MimeEntity, IMultipart
 	{
 		readonly List<MimeEntity> children;
-		List<byte[]> rawBoundaries;
+		internal List<byte[]> rawBoundaries;
 		string preamble, epilogue;
 
 		/// <summary>
