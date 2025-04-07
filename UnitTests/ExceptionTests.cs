@@ -24,7 +24,7 @@
 // THE SOFTWARE.
 //
 
-#if NETFRAMEWORK || NET6_0
+#if NETFRAMEWORK
 
 #pragma warning disable SYSLIB0011
 
