@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 
 namespace MimeKit {
@@ -57,7 +59,7 @@ namespace MimeKit {
 
 	class HeaderListChangedEventArgs : EventArgs
 	{
-		internal HeaderListChangedEventArgs (Header header, HeaderListChangedAction action)
+		internal HeaderListChangedEventArgs (Header? header, HeaderListChangedAction action)
 		{
 			Header = header;
 			Action = action;
@@ -67,7 +69,7 @@ namespace MimeKit {
 			get; private set;
 		}
 
-		public Header Header {
+		public Header? Header {
 			get; private set;
 		}
 	}
